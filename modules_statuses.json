@@ -1,0 +1,6 @@
+{
+    "UserManagement": true,
+    "Inventory": true,
+    "Acquisition": true,
+    "Suppliers": true
+}

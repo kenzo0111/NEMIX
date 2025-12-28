@@ -1,0 +1,11 @@
+{
+    "name": "Acquisition",
+    "alias": "acquisition",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Acquisition\\Providers\\AcquisitionServiceProvider"
+    ],
+    "files": []
+}

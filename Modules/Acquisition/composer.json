@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/acquisition",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Acquisition\\": "app/",
+            "Modules\\Acquisition\\Database\\Factories\\": "database/factories/",
+            "Modules\\Acquisition\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Acquisition\\Tests\\": "tests/"
+        }
+    }
+}

@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.login-bg {
+    background-image: url(/images/cnsc-campus-bg.jpg);
+    background-size: cover;
+    background-position: center;
+}
