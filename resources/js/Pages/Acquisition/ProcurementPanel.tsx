@@ -267,7 +267,7 @@ const customSelectStyles = {
     }),
 };
 
-export default function ProcurementPanel({ auth, purchaseOrder }: { auth: any, purchaseOrder?: any }) {
+export default function ProcurementPanel({ auth, purchaseOrder, suppliers, nextPoNumber }: { auth: any, purchaseOrder?: any, suppliers: any[], nextPoNumber?: string }) {
     const user = auth.user;
     const [collapsed, setCollapsed] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
@@ -354,14 +354,10 @@ export default function ProcurementPanel({ auth, purchaseOrder }: { auth: any, p
                     iar: { inspection_officer: '', date_inspected: '', no: '' }
                 },
             });
-        } else if (!isEdit) {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const prefix = `${year}-${month}-`;
-            form.setData('po_number', `${prefix}0001`);
+        } else if (!isEdit && nextPoNumber) {
+            form.setData('po_number', nextPoNumber);
         }
-    }, [isEdit, purchaseOrder]);
+    }, [isEdit, purchaseOrder, nextPoNumber]);
 
     const procurementModeOptions = [
         { value: 'Public Bidding', label: 'Public Bidding' },
@@ -376,6 +372,11 @@ export default function ProcurementPanel({ auth, purchaseOrder }: { auth: any, p
         { value: '06', label: '06 - Business Related Funds' },
         { value: '07', label: '07 - Trust Receipts' }
     ];
+
+    const supplierOptions = suppliers.map((supplier: any) => ({
+        value: supplier.name,
+        label: supplier.name,
+    }));
 
     const deliveryStatusOptions = [
         { value: 'Pending', label: 'Pending' },
@@ -546,13 +547,13 @@ export default function ProcurementPanel({ auth, purchaseOrder }: { auth: any, p
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                     <FormInput 
-                                        label="PO Number"
+                                        label="PO Number *"
                                         value={form.data.po_number}
                                         onChange={(e: any) => form.setData('po_number', e.target.value)}
                                         placeholder="e.g., 2023-10-0001"
                                         required
                                         icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>}
-                                        readOnly={!isEdit}
+                                        readOnly
                                     />
                                     
                                     <div className="group w-full">
@@ -611,13 +612,16 @@ export default function ProcurementPanel({ auth, purchaseOrder }: { auth: any, p
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                    <FormInput 
-                                        label="Supplier Name"
-                                        value={form.data.supplier}
-                                        onChange={(e: any) => form.setData('supplier', e.target.value)}
-                                        placeholder="Registered Business Name"
-                                        required
-                                    />
+                                    <div className="group w-full">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Supplier Name *</label>
+                                        <Select
+                                            options={supplierOptions}
+                                            value={supplierOptions.find(option => option.value === form.data.supplier)}
+                                            onChange={(selectedOption: any) => form.setData('supplier', selectedOption?.value || '')}
+                                            placeholder="Select Supplier"
+                                            styles={customSelectStyles}
+                                        />
+                                    </div>
                                     
                                     <div className="group w-full">
                                         <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Fund Cluster</label>
@@ -669,9 +673,9 @@ export default function ProcurementPanel({ auth, purchaseOrder }: { auth: any, p
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    <FormInput label="End User / Requestor" value={form.data.end_user} onChange={(e: any) => form.setData('end_user', e.target.value)} required />
-                                    <FormInput label="Department / Office" value={form.data.department} onChange={(e: any) => form.setData('department', e.target.value)} required />
-                                    <FormInput label="Designation" value={form.data.designation} onChange={(e: any) => form.setData('designation', e.target.value)} required />
+                                    <FormInput label="End User / Requestor *" value={form.data.end_user} onChange={(e: any) => form.setData('end_user', e.target.value)} required />
+                                    <FormInput label="Department / Office *" value={form.data.department} onChange={(e: any) => form.setData('department', e.target.value)} required />
+                                    <FormInput label="Designation *" value={form.data.designation} onChange={(e: any) => form.setData('designation', e.target.value)} required />
                                 </div>
                             </div>
 
@@ -741,76 +745,74 @@ export default function ProcurementPanel({ auth, purchaseOrder }: { auth: any, p
                             </div>
 
                             {/* --- DYNAMIC FORM CONFIGURATION SECTION --- */}
-                            {totalActiveForms > 0 && (
-                                <div className="animate-slideUp">
-                                    {/* Header Panel */}
-                                    <div className="bg-red-50 border border-red-100 rounded-xl p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                                <h3 className="text-lg font-bold text-red-900">Form Configuration</h3>
-                                            </div>
-                                            <p className="text-sm text-red-700">Fill in the details for each selected form below. These will be automatically generated.</p>
+                            <div className="animate-slideUp">
+                                {/* Header Panel */}
+                                <div className="bg-red-50 border border-red-100 rounded-xl p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                            <h3 className="text-lg font-bold text-red-900">Form Configuration</h3>
                                         </div>
-                                        <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-red-100 text-sm font-bold text-red-800">
-                                            {totalActiveForms} of 4 Forms Selected
-                                        </div>
+                                        <p className="text-sm text-red-700">Fill in the details for each selected form below. These will be automatically generated.</p>
                                     </div>
-
-                                    {/* Badge Selector (Visual Only or Navigation) */}
-                                    <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-                                        {activeForms.ics && <button type="button" className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold shadow-sm shadow-red-200 flex items-center gap-2"><span className="bg-white/20 p-0.5 rounded">✓</span> ICS</button>}
-                                        {activeForms.ris && <button type="button" className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold shadow-sm shadow-red-200 flex items-center gap-2"><span className="bg-white/20 p-0.5 rounded">✓</span> RIS</button>}
-                                        {activeForms.par && <button type="button" className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold shadow-sm shadow-red-200 flex items-center gap-2"><span className="bg-white/20 p-0.5 rounded">✓</span> PAR</button>}
-                                        {activeForms.iar && <button type="button" className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold shadow-sm shadow-red-200 flex items-center gap-2"><span className="bg-white/20 p-0.5 rounded">✓</span> IAR</button>}
+                                    <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-red-100 text-sm font-bold text-red-800">
+                                        {totalActiveForms} of 4 Forms Selected
                                     </div>
-
-                                    {/* DYNAMIC CARDS */}
-                                    <FormConfigCard 
-                                        title="Inventory Custodian Slip (ICS)" 
-                                        type="ics" 
-                                        color="red"
-                                        description="Semi-expendable property items"
-                                        items={form.data.items} 
-                                        formState={form.data}
-                                        onHeaderChange={handleHeaderChange}
-                                        onItemDetailChange={handleDetailChange}
-                                    />
-
-                                    <FormConfigCard 
-                                        title="Property Acknowledgment Receipt (PAR)" 
-                                        type="par" 
-                                        color="red"
-                                        description="High-value Property, Plant and Equipment (PPE)"
-                                        items={form.data.items} 
-                                        formState={form.data}
-                                        onHeaderChange={handleHeaderChange}
-                                        onItemDetailChange={handleDetailChange}
-                                    />
-
-                                    <FormConfigCard 
-                                        title="Requisition and Issue Slip (RIS)" 
-                                        type="ris" 
-                                        color="red"
-                                        description="Request for supplies and materials"
-                                        items={form.data.items} 
-                                        formState={form.data}
-                                        onHeaderChange={handleHeaderChange}
-                                        onItemDetailChange={handleDetailChange}
-                                    />
-
-                                    <FormConfigCard 
-                                        title="Inspection and Acceptance Report (IAR)" 
-                                        type="iar" 
-                                        color="red"
-                                        description="Quality inspection and acceptance"
-                                        items={form.data.items} 
-                                        formState={form.data}
-                                        onHeaderChange={handleHeaderChange}
-                                        onItemDetailChange={handleDetailChange}
-                                    />
                                 </div>
-                            )}
+
+                                {/* Badge Selector (Visual Only or Navigation) */}
+                                <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+                                    {activeForms.ics && <button type="button" className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold shadow-sm shadow-red-200 flex items-center gap-2"><span className="bg-white/20 p-0.5 rounded">✓</span> ICS</button>}
+                                    {activeForms.ris && <button type="button" className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold shadow-sm shadow-red-200 flex items-center gap-2"><span className="bg-white/20 p-0.5 rounded">✓</span> RIS</button>}
+                                    {activeForms.par && <button type="button" className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold shadow-sm shadow-red-200 flex items-center gap-2"><span className="bg-white/20 p-0.5 rounded">✓</span> PAR</button>}
+                                    {activeForms.iar && <button type="button" className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold shadow-sm shadow-red-200 flex items-center gap-2"><span className="bg-white/20 p-0.5 rounded">✓</span> IAR</button>}
+                                </div>
+
+                                {/* DYNAMIC CARDS */}
+                                <FormConfigCard 
+                                    title="Inventory Custodian Slip (ICS)" 
+                                    type="ics" 
+                                    color="red"
+                                    description="Semi-expendable property items"
+                                    items={form.data.items} 
+                                    formState={form.data}
+                                    onHeaderChange={handleHeaderChange}
+                                    onItemDetailChange={handleDetailChange}
+                                />
+
+                                <FormConfigCard 
+                                    title="Property Acknowledgment Receipt (PAR)" 
+                                    type="par" 
+                                    color="red"
+                                    description="High-value Property, Plant and Equipment (PPE)"
+                                    items={form.data.items} 
+                                    formState={form.data}
+                                    onHeaderChange={handleHeaderChange}
+                                    onItemDetailChange={handleDetailChange}
+                                />
+
+                                <FormConfigCard 
+                                    title="Requisition and Issue Slip (RIS)" 
+                                    type="ris" 
+                                    color="red"
+                                    description="Request for supplies and materials"
+                                    items={form.data.items} 
+                                    formState={form.data}
+                                    onHeaderChange={handleHeaderChange}
+                                    onItemDetailChange={handleDetailChange}
+                                />
+
+                                <FormConfigCard 
+                                    title="Inspection and Acceptance Report (IAR)" 
+                                    type="iar" 
+                                    color="red"
+                                    description="Quality inspection and acceptance"
+                                    items={form.data.items} 
+                                    formState={form.data}
+                                    onHeaderChange={handleHeaderChange}
+                                    onItemDetailChange={handleDetailChange}
+                                />
+                            </div>
 
                             {/* ACTION BUTTONS */}
                             <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-100">

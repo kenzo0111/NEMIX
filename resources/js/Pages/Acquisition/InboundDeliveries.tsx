@@ -337,7 +337,7 @@ export default function InboundDeliveries({ auth, purchaseOrders }: { auth: any,
                                             <tr key={index} className="hover:bg-red-50/30 transition-colors group">
                                                 <td className="px-8 py-5 whitespace-nowrap text-sm font-bold text-red-900 cursor-pointer hover:underline">{po.po_number}</td>
                                                 <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-900 font-medium">{po.supplier}</td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-500">{po.date}</td>
+                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-500">{new Date(po.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</td>
                                                 <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600 italic">{po.mode}</td>
                                                 <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-500">
                                                     <span className="bg-gray-100 text-gray-700 text-xs font-bold px-2.5 py-1 rounded border border-gray-200">
@@ -376,7 +376,7 @@ export default function InboundDeliveries({ auth, purchaseOrders }: { auth: any,
             <InventoryModal 
                 show={isViewModalOpen} 
                 onClose={() => { setIsViewModalOpen(false); setSelectedPO(null); }}
-                title="View Purchase Order"
+                title="View Procurement Details"
                 isSubmitting={false}
                 footer={
                     <button

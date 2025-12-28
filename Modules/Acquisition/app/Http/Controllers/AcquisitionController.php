@@ -31,7 +31,6 @@ class AcquisitionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'po_number' => 'required|unique:purchase_orders',
             'supplier' => 'required',
             'date' => 'required|date',
             'mode' => 'required',
@@ -42,7 +41,10 @@ class AcquisitionController extends Controller
             'total' => 'required|numeric',
         ]);
 
-        PurchaseOrder::create($request->all());
+        $data = $request->except('po_number');
+        $data['po_number'] = $this->generateNextPoNumber();
+
+        PurchaseOrder::create($data);
 
         return redirect()->back()->with('success', 'Purchase Order created successfully.');
     }
@@ -96,6 +98,13 @@ class AcquisitionController extends Controller
      */
     public function getNextPoNumber()
     {
+        $nextPoNumber = $this->generateNextPoNumber();
+
+        return response()->json(['nextPoNumber' => $nextPoNumber]);
+    }
+
+    private function generateNextPoNumber()
+    {
         $now = now();
         $year = $now->year;
         $month = str_pad($now->month, 2, '0', STR_PAD_LEFT);
@@ -114,8 +123,6 @@ class AcquisitionController extends Controller
             $nextNumber = 1;
         }
 
-        $nextPoNumber = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
-
-        return response()->json(['nextPoNumber' => $nextPoNumber]);
+        return $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
 }

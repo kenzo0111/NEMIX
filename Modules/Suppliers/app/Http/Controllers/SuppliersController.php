@@ -28,6 +28,7 @@ class SuppliersController extends \App\Http\Controllers\Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'tin' => 'required|string|unique:suppliers,tin',
+            'address' => 'required|string|max:255',
             'reg_number' => 'required|string|unique:suppliers,reg_number',
             'category' => 'required|string',
             'status' => 'required|in:active,pending,blacklisted',
@@ -69,6 +70,7 @@ class SuppliersController extends \App\Http\Controllers\Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'tin' => 'required|string|unique:suppliers,tin,' . $supplier->id,
+            'address' => 'required|string|max:255',
             'reg_number' => 'required|string|unique:suppliers,reg_number,' . $supplier->id,
             'category' => 'required|string',
             'status' => 'required|in:active,pending,blacklisted',

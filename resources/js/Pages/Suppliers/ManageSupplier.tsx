@@ -106,6 +106,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
     const { data, setData, post, put, processing, errors, reset } = useForm({
         name: '',
         tin: '',
+        address: '',
         reg_number: '',
         category: '',
         status: 'active',
@@ -174,6 +175,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
         setData({
             name: supplier.name,
             tin: supplier.tin,
+            address: supplier.address,
             reg_number: supplier.reg_number,
             category: supplier.category.toLowerCase().includes('goods') ? 'goods' : supplier.category.toLowerCase().includes('infra') ? 'infra' : 'consulting',
             status: supplier.status.toLowerCase(),
@@ -186,6 +188,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
         setData({
             name: supplier.name,
             tin: supplier.tin,
+            address: supplier.address,
             reg_number: supplier.reg_number,
             category: supplier.category.toLowerCase().includes('goods') ? 'goods' : supplier.category.toLowerCase().includes('infra') ? 'infra' : 'consulting',
             status: supplier.status.toLowerCase(),
@@ -204,6 +207,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
             id: 1,
             name: 'ABC Office Supplies Trading',
             tin: '000-123-456-000',
+            address: '123 Main St, Manila, Philippines',
             reg_number: '2023-112233 (PhilGEPS)',
             category: 'Goods (Office Supplies)',
             status: 'Active',
@@ -212,6 +216,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
             id: 2,
             name: 'MegaBuild Construction Corp.',
             tin: '000-987-654-001',
+            address: '456 Construction Ave, Cebu, Philippines',
             reg_number: '2022-998877 (PCAB)',
             category: 'Infrastructure',
             status: 'Pending Renewal',
@@ -220,6 +225,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
             id: 3,
             name: 'Tech Solutions Inc.',
             tin: '000-456-789-000',
+            address: '789 Tech Blvd, Davao, Philippines',
             reg_number: '2024-000001 (PhilGEPS)',
             category: 'Consulting Services',
             status: 'Blacklisted',
@@ -379,6 +385,9 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                                 Registration No.
                                             </th>
                                             <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                                Address
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                                                 Classification
                                             </th>
                                             <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
@@ -400,6 +409,9 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {supplier.reg_number}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {supplier.address}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {supplier.category}
@@ -512,6 +524,21 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                 disabled={modalMode === 'view'}
                                 icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>}
+                            />
+                        </div>
+                        <div className="mt-5">
+                            <FormInput
+                                label="Address"
+                                value={data.address}
+                                onChange={(e: any) => setData('address', e.target.value)}
+                                error={errors.address}
+                                placeholder="e.g., 123 Main St, Manila, Philippines"
+                                required
+                                disabled={modalMode === 'view'}
+                                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 </svg>}
                             />
                         </div>
