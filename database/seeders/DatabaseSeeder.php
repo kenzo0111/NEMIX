@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
         // Create sample admin account
         User::factory()->create([
             'name' => 'Admin User',
-            'email' => 'admin@cnsc.edu.ph',
+            'email' => 'doc',
             'password' => bcrypt('admin123'),
         ]);
     }

@@ -65,7 +65,11 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
             href: '#',
             active: activeModule === 'Compliance',
             color: 'text-orange-300',
-            bg: 'bg-orange-900/50'
+            bg: 'bg-orange-900/50',
+            submodules: [
+                { title: 'Manage Reports', href: route('compliance.reports'), active: activeSubmodule === 'Manage Reports' },
+                { title: 'Manage Analytics', href: route('compliance.analytics'), active: activeSubmodule === 'Manage Analytics' },
+            ]
         },
         {
             title: 'Audit Logs',
