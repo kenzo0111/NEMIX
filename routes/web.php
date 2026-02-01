@@ -28,6 +28,14 @@ Route::get('/acquisition/inbound-deliveries', function () {
     ]);
 })->middleware(['auth', 'verified'])->name('acquisition.inbound-deliveries');
 
+Route::get('/audit-logs/login-trails', function () {
+    return Inertia::render('AuditLogs/ManageLoginTrails');
+})->middleware(['auth', 'verified'])->name('audit-logs.login-trails');
+
+Route::get('/audit-logs/transaction-trails', function () {
+    return Inertia::render('AuditLogs/ManageTransaction');
+})->middleware(['auth', 'verified'])->name('audit-logs.transaction-trails');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -78,7 +78,11 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
             href: '#',
             active: activeModule === 'Audit Logs',
             color: 'text-gray-300',
-            bg: 'bg-gray-800/50'
+            bg: 'bg-gray-800/50',
+            submodules: [
+                { title: 'Manage Login Trails', href: route('audit-logs.login-trails'), active: activeSubmodule === 'Manage Login Trails' },
+                { title: 'Manage Transaction', href: route('audit-logs.transaction-trails'), active: activeSubmodule === 'Manage Transaction' },
+            ]
         },
         {
             title: 'Access',
