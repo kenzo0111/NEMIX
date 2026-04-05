@@ -4,6 +4,7 @@ import { Head, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import RSMIFormPaper from '../../../Official Forms/RSMI Report';
 
 // --- REUSABLE UI COMPONENTS ---
 const ReportModal = ({ show, onClose, title, children, footer, isSubmitting }: any) => {
@@ -23,7 +24,7 @@ const ReportModal = ({ show, onClose, title, children, footer, isSubmitting }: a
                 className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
                 onClick={!isSubmitting ? onClose : undefined}
             ></div>
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-all scale-100 flex flex-col max-h-[90vh]">
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl lg:max-w-5xl transform transition-all scale-100 flex flex-col max-h-[90vh]">
                 <div className="h-2 w-full flex-shrink-0 bg-gradient-to-r from-red-900 via-red-800 to-red-950 rounded-t-2xl"></div>
                 <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
                     <div className="flex items-center gap-3">
@@ -286,6 +287,21 @@ export default function ManageReports({ auth }: { auth: any }) {
                 }
             >
                 <div className="flex flex-col gap-6">
+                    {modalMode === 'view' && formData.type === 'RSMI' && (
+                        <div className="bg-gray-100 p-6 rounded-xl border border-gray-200">
+                            <RSMIFormPaper data={{
+                                entityName: 'National Entity for Management and Information X',
+                                serialNo: formData.reference,
+                                fundCluster: 'General Fund',
+                                date: generateDisplayDate(formData),
+                                issuedItems: [],
+                                recapitulationItems: [],
+                                supplyCustodianName: 'Jane Doe',
+                                accountingStaffName: 'John Smith',
+                                accountingDate: generateDisplayDate(formData),
+                            }} />
+                        </div>
+                    )}
                     {/* Basic Info Section */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
@@ -446,8 +462,22 @@ export default function ManageReports({ auth }: { auth: any }) {
                                     const fullTypeLabel = typeOptions.find(opt => opt.value === report.type)?.label || report.type;
                                     
                                     return (
-                                        <div key={report.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all group flex flex-col">
-                                            <div className="p-5 flex-1">
+                                        <div key={report.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all group flex flex-col relative h-full">
+                                            
+                                            {report.type === 'RSMI' && (
+                                                <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
+                                                    <RSMIFormPaper data={{
+                                                        entityName: 'COA',
+                                                        serialNo: report.reference,
+                                                        fundCluster: 'GF',
+                                                        date: report.date || '',
+                                                        issuedItems: [], recapitulationItems: [],
+                                                        supplyCustodianName: '', accountingStaffName: '', accountingDate: ''
+                                                    }} />
+                                                </div>
+                                            )}
+
+                                            <div className="p-5 flex-1 relative z-10">
                                                 <div className="flex justify-between items-start mb-4 gap-3">
                                                     <span className={`px-2.5 py-1 rounded text-[10px] font-black bg-red-950 text-white uppercase shadow-sm leading-tight text-left`}>
                                                         {fullTypeLabel}

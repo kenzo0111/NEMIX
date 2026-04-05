@@ -319,41 +319,41 @@ export default function InboundDeliveries({ auth, purchaseOrders }: { auth: any,
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50/50">
                                     <tr>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">PO Number</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">Supplier</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">Date</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">Mode</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">Fund Cluster</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">End User</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">Department</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">Total</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-right text-gray-500 uppercase">Action</th>
+                                        <th className="px-3 py-3 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">PO Number</th>
+                                        <th className="px-3 py-3 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">Supplier</th>
+                                        <th className="px-3 py-3 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">Date</th>
+                                        <th className="px-3 py-3 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">Mode</th>
+                                        <th className="px-3 py-3 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">Fund Cluster</th>
+                                        <th className="px-3 py-3 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">End User</th>
+                                        <th className="px-3 py-3 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">Department</th>
+                                        <th className="px-3 py-3 text-xs font-bold tracking-wider text-left text-gray-500 uppercase">Total</th>
+                                        <th className="px-3 py-3 text-xs font-bold tracking-wider text-right text-gray-500 uppercase">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-100">
                                     {filteredPOs.length === 0 ? (
                                         <tr>
-                                            <td colSpan={9} className="px-8 py-12 text-center text-gray-500">
+                                            <td colSpan={9} className="px-3 py-8 text-center text-gray-500">
                                                 <p>No purchase orders found matching your criteria.</p>
                                             </td>
                                         </tr>
                                     ) : (
                                         filteredPOs.map((po, index) => (
                                             <tr key={index} className="hover:bg-red-50/30 transition-colors group">
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm font-bold text-red-900 cursor-pointer hover:underline">{po.po_number}</td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-900 font-medium">{po.supplier}</td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-500">{new Date(po.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600 italic">{po.mode}</td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-500">
-                                                    <span className="bg-gray-100 text-gray-700 text-xs font-bold px-2.5 py-1 rounded border border-gray-200">
+                                                <td className="px-3 py-3 whitespace-nowrap text-sm font-bold text-red-900 cursor-pointer hover:underline">{po.po_number}</td>
+                                                <td className="px-3 py-3 text-sm text-gray-900 font-medium">{po.supplier}</td>
+                                                <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500">{new Date(po.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                                                <td className="px-3 py-3 text-sm text-gray-600 italic break-words min-w-[80px]">{po.mode}</td>
+                                                <td className="px-3 py-3 text-sm text-gray-500">
+                                                    <span className="bg-gray-100 text-gray-700 text-xs font-bold px-2 py-1 rounded border border-gray-200 inline-block text-center truncate max-w-[120px]" title={fundClusterOptions.find(option => option.value === po.fund_cluster)?.label || po.fund_cluster}>
                                                         {fundClusterOptions.find(option => option.value === po.fund_cluster)?.label || po.fund_cluster}
                                                     </span>
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-700">{po.end_user}</td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-700">{po.department}</td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-900 font-bold">₱{parseFloat(po.total).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-right text-sm font-medium">
-                                                    <button onClick={() => handleView(po)} className="text-red-600 hover:text-red-900 mr-4 font-bold">View</button>
+                                                <td className="px-3 py-3 text-sm text-gray-700">{po.end_user}</td>
+                                                <td className="px-3 py-3 text-sm text-gray-700">{po.department}</td>
+                                                <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 font-bold">₱{parseFloat(po.total).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                                <td className="px-3 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                                    <button onClick={() => handleView(po)} className="text-red-600 hover:text-red-900 mr-3 font-bold flex-col sm:flex-row">View</button>
                                                     <button onClick={() => handleEdit(po)} className="text-gray-400 hover:text-gray-600">Edit</button>
                                                 </td>
                                             </tr>
