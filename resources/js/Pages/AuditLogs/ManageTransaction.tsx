@@ -1,4 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
+import Breadcrumbs from '@/Components/Breadcrumbs';
 import { useState, useMemo } from 'react'; // Added useMemo
 import Select from 'react-select';
 import Sidebar from '@/Components/Sidebar';
@@ -88,7 +89,11 @@ export default function ManageTransaction({ auth }: { auth: any }) {
                 <main className={`flex-1 transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-72'}`}>
                     <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100 px-10 py-6 flex items-center justify-between">
                         <div>
-                            <h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Audit Logs</h2>
+                            
+                                <div className="mb-2">
+                                    <Breadcrumbs items={[{name:'Audit Logs'},{name:'Manage Transaction'}]} />
+                                </div>
+<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Audit Logs</h2>
                             <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
                                 <span>Manage Transaction Trails</span>
                                 <span className="h-1 w-1 rounded-full bg-gray-300"></span>

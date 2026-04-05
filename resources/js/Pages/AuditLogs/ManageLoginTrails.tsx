@@ -1,4 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
+import Breadcrumbs from '@/Components/Breadcrumbs';
 import { useState, useMemo } from 'react'; // Added useMemo for performance
 import Select from 'react-select';
 import Sidebar from '@/Components/Sidebar';
@@ -84,7 +85,11 @@ export default function ManageLoginTrails({ auth }: { auth: any }) {
                     <div className="bg-white border-b border-gray-200 px-8 py-6">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
-                                <h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Login Trails</h2>
+                                
+                                <div className="mb-2">
+                                    <Breadcrumbs items={[{name:'Audit Logs'},{name:'Manage Login Trails'}]} />
+                                </div>
+<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Login Trails</h2>
                                 <p className="text-sm text-gray-500">Security auditing and session monitoring</p>
                             </div>
                         </div>

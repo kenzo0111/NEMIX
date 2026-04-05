@@ -1,4 +1,5 @@
 import Sidebar from '@/Components/Sidebar';
+import Breadcrumbs from '@/Components/Breadcrumbs';
 import { Head, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
@@ -386,7 +387,11 @@ export default function ManageReports({ auth }: { auth: any }) {
             <main className={`flex-1 transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-72'}`}>
                 <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm">
                     <div>
-                        <h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Compliance Reports</h2>
+                        
+                                <div className="mb-2">
+                                    <Breadcrumbs items={[{name:'Compliance'},{name:'Manage Reports'}]} />
+                                </div>
+<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Compliance Reports</h2>
                         <p className="text-sm text-gray-500">Official COA Inventory Documentation</p>
                     </div>
                     <div className="text-right hidden sm:block">

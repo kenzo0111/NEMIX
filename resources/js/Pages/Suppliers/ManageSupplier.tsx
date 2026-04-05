@@ -1,4 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
+import Breadcrumbs from '@/Components/Breadcrumbs';
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import Sidebar from '@/Components/Sidebar';
@@ -249,7 +250,11 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                 {/* Fixed Top Header */}
                 <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm">
                     <div>
-                        <h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Suppliers Database</h2>
+                        
+                                <div className="mb-2">
+                                    <Breadcrumbs items={[{name:'Suppliers'},{name:'Manage Supplier'}]} />
+                                </div>
+<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Suppliers Database</h2>
                         <p className="text-sm text-gray-600 mt-1">Manage and monitor supplier registrations</p>
                     </div>
                 </div>

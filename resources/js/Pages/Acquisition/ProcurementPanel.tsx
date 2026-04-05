@@ -1,4 +1,5 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import Breadcrumbs from '@/Components/Breadcrumbs';
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
@@ -499,7 +500,11 @@ export default function ProcurementPanel({ auth, purchaseOrder, suppliers, nextP
                 {/* Fixed Top Header */}
                 <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm">
                     <div>
-                        <h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">
+                        
+                                <div className="mb-2">
+                                    <Breadcrumbs items={[{name:'Acquisition'},{name:'Procurement Panel'}]} />
+                                </div>
+<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">
                             {isEdit ? "Edit Procurement Record" : "Procurement Compliance and Control"}
                         </h2>
                         <div className="flex items-center text-xs text-gray-500 font-medium mt-1 gap-2">

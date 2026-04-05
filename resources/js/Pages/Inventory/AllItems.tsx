@@ -1,4 +1,5 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
+import Breadcrumbs from '@/Components/Breadcrumbs';
 import Sidebar from '@/Components/Sidebar';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { useState, useEffect, useMemo } from 'react';
@@ -188,7 +189,11 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                 {/* Fixed Top Header */}
                 <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm">
                     <div>
-                        <h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Inventory Management</h2>
+                        
+                                <div className="mb-2">
+                                    <Breadcrumbs items={[{name:'Inventory'},{name:'All Items'}]} />
+                                </div>
+<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Inventory Management</h2>
                         <p className="text-sm text-gray-500">Master list of all supplies and equipment.</p>
                     </div>
                     <div className="flex items-center gap-6">

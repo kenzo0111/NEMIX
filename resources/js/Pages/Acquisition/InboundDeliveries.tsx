@@ -1,4 +1,5 @@
 import { Head, Link, usePage, router } from '@inertiajs/react';
+import Breadcrumbs from '@/Components/Breadcrumbs';
 import { useState, useEffect, useMemo } from 'react'; // Added useMemo
 import Select from 'react-select';
 import Sidebar from '@/Components/Sidebar';
@@ -174,7 +175,11 @@ export default function InboundDeliveries({ auth, purchaseOrders }: { auth: any,
                 {/* Fixed Top Header */}
                 <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm">
                     <div>
-                        <h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Inbound Deliveries</h2>
+                        
+                                <div className="mb-2">
+                                    <Breadcrumbs items={[{name:'Acquisition'},{name:'Inbound Deliveries'}]} />
+                                </div>
+<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Inbound Deliveries</h2>
                     </div>
                     <div className="flex items-center gap-6">
                         <div className="text-right hidden sm:block">
