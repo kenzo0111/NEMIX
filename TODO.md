@@ -30,11 +30,11 @@
   - [ ] Implement stock issuance and dispatching workflow.
 
 ## 4. Acquisition / Procurement
-- [ ] **Procurement Panel (`Acquisition/ProcurementPanel.tsx`)**
-  - [ ] Handle purchase requests and procurement bidding/approvals.
-- [ ] **Inbound Deliveries (`Acquisition/InboundDeliveries.tsx`)**
-  - [ ] Set up tracking for supplier shipments in transit.
-  - [ ] Link deliveries to the Inventory Receiving feature.
+- [x] **Procurement Panel (`Acquisition/ProcurementPanel.tsx`)**
+  - [x] Handle purchase requests and procurement bidding/approvals.
+- [x] **Inbound Deliveries (`Acquisition/InboundDeliveries.tsx`)**
+  - [x] Set up tracking for supplier shipments in transit.
+  - [x] Link deliveries to the Inventory Receiving feature.
 
 ## 5. Suppliers Management
 - [x] **Manage Supplier (`Suppliers/ManageSupplier.tsx`)**
