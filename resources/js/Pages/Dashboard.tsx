@@ -156,6 +156,73 @@ export default function Dashboard({ auth }: { auth: any }) {
                         </div>
                     </div>
 
+                    {/* Low Stock & Reorder Alerts - Bento Style */}
+                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="px-8 py-7 border-b border-gray-100 flex items-center justify-between">
+                            <div>
+                                <h3 className="text-xl font-bold text-gray-900 font-serif">Reorder Monitoring</h3>
+                                <p className="text-sm font-medium text-gray-500 mt-1">Items currently below minimum safety stock levels</p>
+                            </div>
+                            <Link 
+                                href={route('inventory.index')} // Or a specific filtered route
+                                className="text-sm font-bold text-red-900 hover:bg-red-50 px-5 py-2.5 rounded-xl transition-colors"
+                            >
+                                View All Alerts
+                            </Link>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+                            {[
+                                { name: 'A4 Copier Paper (80gsm)', sku: 'SUP-PAP-001', current: 12, min: 50, unit: 'Reams', priority: 'Critical' },
+                                { name: 'HP Laser Jet Toner 85A', sku: 'SUP-TON-085', current: 2, min: 10, unit: 'Units', priority: 'Critical' },
+                                { name: 'Ballpoint Pen (Black)', sku: 'SUP-PEN-002', current: 45, min: 100, unit: 'Pieces', priority: 'Warning' },
+                            ].map((item, i) => (
+                                <div key={i} className="p-8 hover:bg-gray-50/50 transition-all group">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className="flex-1">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-3 ${
+                                                item.priority === 'Critical' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'
+                                            }`}>
+                                                {item.priority}
+                                            </span>
+                                            <h4 className="text-lg font-bold text-gray-900 leading-tight mb-1">{item.name}</h4>
+                                            <p className="text-xs font-bold text-gray-400 tracking-widest uppercase">{item.sku}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-end">
+                                            <div>
+                                                <span className="text-3xl font-black text-gray-900">{item.current}</span>
+                                                <span className="text-sm font-bold text-gray-500 ml-1.5">/ {item.min} {item.unit}</span>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="text-xs font-bold text-red-600">-{((item.min - item.current) / item.min * 100).toFixed(0)}% Deficit</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Progress Bar */}
+                                        <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                            <div 
+                                                className={`h-full rounded-full transition-all duration-1000 ${
+                                                    item.priority === 'Critical' ? 'bg-red-600' : 'bg-orange-500'
+                                                }`}
+                                                style={{ width: `${(item.current / item.min) * 100}%` }}
+                                            ></div>
+                                        </div>
+
+                                        <button className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-gray-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-red-900 transition-colors shadow-sm">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                            Generate Purchase Request
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Refined System Audit Trail for Admins, Staff, and Auditors */}
                     <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="px-8 py-7 border-b border-gray-100 flex items-center justify-between">

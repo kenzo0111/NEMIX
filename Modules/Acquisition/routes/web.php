@@ -46,6 +46,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('procurement-panel.edit');
 
+    Route::delete('/procurement-panel/{id}', function ($id) {
+        $purchaseOrder = PurchaseOrder::findOrFail($id);
+        $purchaseOrder->delete();
+        
+        return redirect()->back()->with('success', 'Purchase order deleted successfully.');
+    })->name('procurement-panel.destroy');
+
     // Next PO Number
     Route::get('/next-po-number', [AcquisitionController::class, 'getNextPoNumber']);
 });

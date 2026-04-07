@@ -68,6 +68,9 @@ export default function InboundDeliveries({ auth, purchaseOrders }: { auth: any,
     const [successMessage, setSuccessMessage] = useState('');
     const [selectedPO, setSelectedPO] = useState<any>(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [poToDelete, setPoToDelete] = useState<any>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // --- FILTERS STATE (New) ---
     const [searchTerm, setSearchTerm] = useState('');
@@ -157,6 +160,27 @@ export default function InboundDeliveries({ auth, purchaseOrders }: { auth: any,
         router.visit(`/acquisition/procurement-panel/${po.id}`);
     };
 
+    const handleDelete = (po: any) => {
+        setPoToDelete(po);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (poToDelete) {
+            setIsDeleting(true);
+            router.delete(`/acquisition/procurement-panel/${poToDelete.id}`, {
+                onSuccess: () => {
+                    setIsDeleteModalOpen(false);
+                    setPoToDelete(null);
+                    setIsDeleting(false);
+                },
+                onError: () => {
+                    setIsDeleting(false);
+                }
+            });
+        }
+    };
+
     const modules = getSidebarModules('Acquisition', 'Inbound Deliveries');
 
     return (
@@ -232,12 +256,39 @@ export default function InboundDeliveries({ auth, purchaseOrders }: { auth: any,
                         </div>
                     )}
 
-                    {/* Stats / Summary Cards (Unchanged) */}
+                   {/* Stats / Summary Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                         {[
-                            { label: 'Total Orders', value: '24', sub: 'This Month', trend: '+4', trendUp: true, color: 'text-blue-600', bg: 'bg-blue-50', icon: modules[1].icon },
-                            { label: 'Active Suppliers', value: '12', sub: 'Currently Engaged', trend: 'Stable', trendUp: true, color: 'text-purple-600', bg: 'bg-purple-50', icon: modules[2].icon },
-                            { label: 'Total Spend', value: '₱45,200', sub: 'Year to Date', trend: '+12%', trendUp: false, color: 'text-gray-600', bg: 'bg-gray-50', icon: modules[0].icon },
+                        {[
+                            { 
+                                label: 'Total Purchase Orders', // Updated Label
+                                value: dataSource.length.toString(), // Dynamic count of POs
+                                sub: 'All Records', 
+                                trend: 'Total', 
+                                trendUp: true, 
+                                color: 'text-blue-600', 
+                                bg: 'bg-blue-50', 
+                                icon: modules[1].icon 
+                            },
+                            { 
+                                label: 'Active Suppliers', 
+                                value: uniqueSuppliers.length.toString(), // Dynamic count of unique suppliers
+                                sub: 'Currently Engaged', 
+                                trend: 'Stable', 
+                                trendUp: true, 
+                                color: 'text-purple-600', 
+                                bg: 'bg-purple-50', 
+                                icon: modules[2].icon 
+                            },
+                            { 
+                                label: 'Total Spend', 
+                                value: `₱${dataSource.reduce((acc, po) => acc + parseFloat(po.total || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, 
+                                sub: 'Accumulated Value', 
+                                trend: 'Live', 
+                                trendUp: false, 
+                                color: 'text-gray-600', 
+                                bg: 'bg-gray-50', 
+                                icon: modules[0].icon 
+                            },
                         ].map((stat, i) => (
                             <div key={i} className="group bg-white rounded-2xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 transition-all duration-300">
                                 <div className="flex justify-between items-start mb-4">
@@ -354,7 +405,8 @@ export default function InboundDeliveries({ auth, purchaseOrders }: { auth: any,
                                                 <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 font-bold">₱{parseFloat(po.total).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                                 <td className="px-3 py-3 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => handleView(po)} className="text-red-600 hover:text-red-900 mr-3 font-bold flex-col sm:flex-row">View</button>
-                                                    <button onClick={() => handleEdit(po)} className="text-gray-400 hover:text-gray-600">Edit</button>
+                                                    <button onClick={() => handleEdit(po)} className="text-gray-400 hover:text-gray-600 mr-3">Edit</button>
+                                                    <button onClick={() => handleDelete(po)} className="text-red-400 hover:text-red-600">Delete</button>
                                                 </td>
                                             </tr>
                                         ))
@@ -397,12 +449,74 @@ export default function InboundDeliveries({ auth, purchaseOrders }: { auth: any,
                     <div className="space-y-6">
                         <PurchaseOrder
                             po_number={selectedPO.po_number}
+                            supplier={selectedPO.supplier}
                             date_of_purchase={selectedPO.date}
                             mode_of_procurement={selectedPO.mode}
-                            // Add other props as needed
+                            fund_cluster={selectedPO.fund_cluster}
+                            place_of_delivery={selectedPO.place_of_delivery}
+                            date_of_delivery={selectedPO.date_of_delivery}
+                            delivery_term={selectedPO.delivery_term}
+                            payment_term={selectedPO.payment_term}
+                            grand_total={parseFloat(selectedPO.total)}
+                            items={selectedPO.items?.map((item: any) => ({
+                                stock_number: item.stock_no,
+                                unit: item.unit,
+                                description: item.description,
+                                quantity: item.quantity,
+                                unit_cost: parseFloat(item.unit_cost),
+                                amount: parseFloat(item.amount)
+                            })) || []}
                         />
                     </div>
                 )}
+            </InventoryModal>
+
+            {/* --- DELETE CONFIRMATION MODAL --- */}
+            <InventoryModal
+                show={isDeleteModalOpen}
+                onClose={() => !isDeleting && setIsDeleteModalOpen(false)}
+                title="Confirm Deletion"
+                isSubmitting={isDeleting}
+                footer={
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => setIsDeleteModalOpen(false)}
+                            disabled={isDeleting}
+                            className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-200 transition-all disabled:opacity-50"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            onClick={confirmDelete}
+                            disabled={isDeleting}
+                            className="px-5 py-2.5 rounded-xl text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 transition-all disabled:opacity-50 flex items-center shadow-lg shadow-red-600/20"
+                        >
+                            {isDeleting ? (
+                                <>
+                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Deleting...
+                                </>
+                            ) : (
+                                'Yes, Delete'
+                            )}
+                        </button>
+                    </>
+                }
+            >
+                <div className="text-gray-600 space-y-4">
+                    <p>
+                        Are you sure you want to delete the purchase order{' '}
+                        <span className="font-bold text-gray-900">{poToDelete?.po_number}</span>?
+                    </p>
+                    <p className="text-sm text-red-600 font-medium">
+                        This action cannot be undone and will permanently remove this record from the database.
+                    </p>
+                </div>
             </InventoryModal>
         </div>
     );

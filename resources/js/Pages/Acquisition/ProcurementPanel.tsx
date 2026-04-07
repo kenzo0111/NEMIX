@@ -476,10 +476,19 @@ export default function ProcurementPanel({ auth, purchaseOrder, suppliers, nextP
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
+        
+        const options = {
+            onSuccess: () => {
+                if (!isEdit) {
+                    form.reset();
+                }
+            }
+        };
+
         if (isEdit && purchaseOrder) {
-            form.put(`/acquisition/purchase-orders/${purchaseOrder.id}`);
+            form.put(`/acquisition/purchase-orders/${purchaseOrder.id}`, options);
         } else {
-            form.post('/acquisition/purchase-orders');
+            form.post('/acquisition/purchase-orders', options);
         }
     };
 

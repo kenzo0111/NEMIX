@@ -24,7 +24,7 @@ Route::get('/compliance/analytics', function () {
 Route::get('/acquisition/inbound-deliveries', function () {
     return Inertia::render('Acquisition/InboundDeliveries', [
         'auth' => auth()->user(),
-        'purchaseOrders' => \Modules\Acquisition\Models\PurchaseOrder::all(),
+        'purchaseOrders' => \Modules\Acquisition\Models\PurchaseOrder::with('items')->latest()->get(),
     ]);
 })->middleware(['auth', 'verified'])->name('acquisition.inbound-deliveries');
 

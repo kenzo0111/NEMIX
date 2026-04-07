@@ -41,10 +41,14 @@ class AcquisitionController extends Controller
             'total' => 'required|numeric',
         ]);
 
-        $data = $request->except('po_number');
+        $data = $request->except('po_number', 'items');
         $data['po_number'] = $this->generateNextPoNumber();
 
-        PurchaseOrder::create($data);
+        $purchaseOrder = PurchaseOrder::create($data);
+
+        if ($request->has('items')) {
+            $purchaseOrder->items()->createMany($request->input('items'));
+        }
 
         return redirect()->back()->with('success', 'Purchase Order created successfully.');
     }
@@ -71,7 +75,7 @@ class AcquisitionController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'po_number' => 'required|unique:purchase_orders,po_number,' . $id,
+            'po_number' => 'required',
             'supplier' => 'required',
             'date' => 'required|date',
             'mode' => 'required',
@@ -83,7 +87,13 @@ class AcquisitionController extends Controller
         ]);
 
         $purchaseOrder = PurchaseOrder::findOrFail($id);
-        $purchaseOrder->update($request->all());
+        $data = $request->except('po_number', 'items');
+        $purchaseOrder->update($data);
+
+        if ($request->has('items')) {
+            $purchaseOrder->items()->delete();
+            $purchaseOrder->items()->createMany($request->input('items'));
+        }
 
         return redirect()->back()->with('success', 'Purchase Order updated successfully.');
     }

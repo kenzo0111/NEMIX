@@ -30,6 +30,7 @@ class PurchaseOrder extends Model
         'end_user',
         'department',
         'designation',
+        'forms_header',
         'total',
     ];
 
@@ -40,6 +41,7 @@ class PurchaseOrder extends Model
         'date' => 'date',
         'date_of_delivery' => 'date',
         'total' => 'decimal:2',
+        'forms_header' => 'array',
     ];
 
     public function items()
