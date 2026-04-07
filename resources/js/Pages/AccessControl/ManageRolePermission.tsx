@@ -36,7 +36,7 @@ export default function ManageRolePermission({ auth }: { auth: any }) {
                         <Breadcrumbs items={[{name:'Access Control'},{name:'Manage Role Permission'}]} />
                     </div>
                     <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-bold text-gray-900 font-serif tracking-tight">Roles & Permissions</h2>
+                        <h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Roles & Permissions</h2>
                         <div className="text-right hidden sm:block">
                             <span className="block text-sm font-bold text-gray-800">
                                 {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -57,7 +57,7 @@ export default function ManageRolePermission({ auth }: { auth: any }) {
                                 Define access levels and security settings for your users.
                             </p>
                         </div>
-                        <button className="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 transition ease-in-out duration-150">
+                        <button className="inline-flex items-center px-4 py-2 bg-red-900 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-800 focus:bg-red-800 active:bg-red-950 transition ease-in-out duration-150">
                             Create New Role
                         </button>
                     </div>
