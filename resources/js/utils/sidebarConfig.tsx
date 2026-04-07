@@ -91,7 +91,10 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
             href: '#',
             active: activeModule === 'Access',
             color: 'text-red-300',
-            bg: 'bg-red-900/50'
+            bg: 'bg-red-900/50',
+            submodules: [
+                { title: 'Manage Role Permission', href: route('access-control.role-permission'), active: activeSubmodule === 'Manage Role Permission' },
+            ]
         },
     ];
 }

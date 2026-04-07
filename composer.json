@@ -12,6 +12,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "nwidart/laravel-modules": "^12.0",
+        "spatie/laravel-permission": "^6.25",
         "tightenco/ziggy": "^2.0"
     },
     "require-dev": {
@@ -94,7 +95,8 @@
             "pestphp/pest-plugin": true,
             "php-http/discovery": true,
             "wikimedia/composer-merge-plugin": true
-        }
+        },
+        "disable-tls": false
     },
     "minimum-stability": "stable",
     "prefer-stable": true

@@ -36,6 +36,10 @@ Route::get('/audit-logs/transaction-trails', function () {
     return Inertia::render('AuditLogs/ManageTransaction');
 })->middleware(['auth', 'verified'])->name('audit-logs.transaction-trails');
 
+Route::get('/access-control/role-permission', function () {
+    return Inertia::render('AccessControl/ManageRolePermission');
+})->middleware(['auth', 'verified'])->name('access-control.role-permission');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
