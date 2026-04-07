@@ -74,7 +74,7 @@ export default function Dashboard({ auth }: { auth: any }) {
                             
                             <div className="flex flex-col sm:flex-row gap-4 shrink-0 w-full lg:w-auto">
                                 <Link 
-                                    href={route('inventory.index')} 
+                                    href={route('compliance.analytics')} 
                                     className="flex items-center justify-center gap-2 px-8 py-4 bg-white text-red-950 rounded-2xl font-bold text-sm uppercase tracking-wider hover:bg-yellow-50 transition-all shadow-md hover:shadow-lg"
                                 >
                                     <span>Inventory Analytics</span>
