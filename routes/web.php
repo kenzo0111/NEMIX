@@ -41,6 +41,10 @@ Route::get('/access-control/manage-staffs', function () {
     return Inertia::render('AccessControl/ManageStaffs');
 })->middleware(['auth', 'verified'])->name('access-control.staffs');
 
+Route::get('/rfid-scanner', function () {
+    return Inertia::render('RFID-Scanner/Index');
+})->middleware(['auth', 'verified'])->name('rfid-scanner.index');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

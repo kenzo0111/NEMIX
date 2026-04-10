@@ -87,45 +87,61 @@ export default function Sidebar({
                     const hasSubmodules = item.submodules && item.submodules.length > 0;
                     const isExpanded = expandedModule === item.title;
 
+                    const ItemContent = (
+                        <div className={`
+                            w-full group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer
+                            ${collapsed ? 'justify-center' : 'justify-between'}
+                            ${item.active || isExpanded
+                                ? 'bg-red-800 text-white shadow-inner ring-1 ring-yellow-500/50'
+                                : 'text-red-100 hover:bg-white/10 hover:text-white'
+                            }
+                        `}>
+                            <div className="flex items-center gap-3">
+                                <span className={`
+                                    ${item.active || isExpanded ? 'text-yellow-400' : 'text-red-300 group-hover:text-white'}
+                                `}>
+                                    {item.icon}
+                                </span>
+
+                                {!collapsed && (
+                                    <span className="truncate text-left">
+                                        {item.title} <span className="opacity-70 font-normal">{item.subtitle}</span>
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Chevron Icon for Submodules */}
+                            {!collapsed && hasSubmodules && (
+                                <svg
+                                    className={`w-4 h-4 text-red-300 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            )}
+                        </div>
+                    );
+
                     return (
                         <div key={index}>
                             {/* Parent Menu Item */}
-                            <button
-                                onClick={() => hasSubmodules ? toggleSubmenu(item.title) : null}
-                                title={collapsed ? `${item.title} ${item.subtitle}` : ''}
-                                className={`
-                                    w-full group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200
-                                    ${collapsed ? 'justify-center' : 'justify-between'}
-                                    ${item.active || isExpanded
-                                        ? 'bg-red-800 text-white shadow-inner ring-1 ring-yellow-500/50'
-                                        : 'text-red-100 hover:bg-white/10 hover:text-white'
-                                    }
-                                `}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <span className={`
-                                        ${item.active || isExpanded ? 'text-yellow-400' : 'text-red-300 group-hover:text-white'}
-                                    `}>
-                                        {item.icon}
-                                    </span>
-
-                                    {!collapsed && (
-                                        <span className="truncate text-left">
-                                            {item.title} <span className="opacity-70 font-normal">{item.subtitle}</span>
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* Chevron Icon for Submodules */}
-                                {!collapsed && hasSubmodules && (
-                                    <svg
-                                        className={`w-4 h-4 text-red-300 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                )}
-                            </button>
+                            {hasSubmodules ? (
+                                <button
+                                    onClick={() => toggleSubmenu(item.title)}
+                                    title={collapsed ? `${item.title} ${item.subtitle}` : ''}
+                                    className="w-full"
+                                >
+                                    {ItemContent}
+                                </button>
+                            ) : (
+                                <Link
+                                    href={item.href || '#'}
+                                    title={collapsed ? `${item.title} ${item.subtitle}` : ''}
+                                    className="w-full block"
+                                >
+                                    {ItemContent}
+                                </Link>
+                            )}
 
                             {/* Submodules Container */}
                             {!collapsed && hasSubmodules && (
