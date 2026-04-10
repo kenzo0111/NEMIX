@@ -5,7 +5,7 @@ import Select from 'react-select';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 
-export default function ManageLoginTrails({ auth }: { auth: any }) {
+export default function ManageLoginTrails({ auth, loginData: serverLoginData = [] }: { auth: any, loginData?: any[] }) {
     const { props } = usePage();
     const user = auth?.user || (props.auth as any)?.user;
     const [collapsed, setCollapsed] = useState(false);
@@ -17,29 +17,28 @@ export default function ManageLoginTrails({ auth }: { auth: any }) {
 
     const modules = getSidebarModules('Audit Logs', 'Manage Login Trails');
 
-    // Sample Data
-    const loginData = [
-        { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', time: '2023-10-27 08:30:12', ip: '192.168.1.1', status: 'Success' },
-        { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User', time: '2023-10-27 09:15:45', ip: '192.168.1.5', status: 'Failed' },
-        { id: 3, name: 'Mike Johnson', email: 'mike@example.com', role: 'Manager', time: '2023-10-27 10:20:01', ip: '192.168.1.10', status: 'Success' },
-        { id: 4, name: 'Sarah Williams', email: 'sarah@example.com', role: 'User', time: '2023-10-26 14:45:23', ip: '192.168.1.8', status: 'Success' },
-        { id: 5, name: 'David Brown', email: 'david@example.com', role: 'Auditor', time: '2023-10-26 16:12:11', ip: '192.168.1.15', status: 'Success' },
-    ];
+    // Use Server Data if available, else fallback to mock
+    const loginData = serverLoginData.length > 0 ? serverLoginData : [];
 
     // --- FILTER LOGIC ---
     const filteredData = useMemo(() => {
         return loginData.filter((log) => {
+            const nameSearch = (log.name || '').toLowerCase();
+            const emailSearch = (log.email || '').toLowerCase();
+            const ipSearch = (log.ip || '').toLowerCase();
+            const query = (searchQuery || '').toLowerCase();
+
             const matchesSearch = 
-                log.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                log.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                log.ip.includes(searchQuery);
+                nameSearch.includes(query) ||
+                emailSearch.includes(query) ||
+                ipSearch.includes(query);
 
             const matchesRole = selectedRole ? log.role === selectedRole.value : true;
             const matchesStatus = selectedStatus ? log.status === selectedStatus.value : true;
 
             return matchesSearch && matchesRole && matchesStatus;
         });
-    }, [searchQuery, selectedRole, selectedStatus]);
+    }, [loginData, searchQuery, selectedRole, selectedStatus]);
 
     const roleOptions = [
         { value: 'Admin', label: 'Admin' },

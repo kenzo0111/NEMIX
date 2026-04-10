@@ -380,25 +380,25 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-100">
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                            <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                                                 Business Name
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                            <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                                                 Tax ID (TIN)
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                            <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                                                 Registration No.
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                            <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                                                 Address
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                            <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                                                 Classification
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                            <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                                                 Status
                                             </th>
-                                            <th className="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                            <th className="px-4 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">
                                                 Actions
                                             </th>
                                         </tr>
@@ -406,22 +406,22 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {suppliersData.map((supplier) => (
                                             <tr key={supplier.id} className="hover:bg-gray-50 transition-colors">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                                <td className="px-4 py-3 text-sm font-semibold text-gray-900">
                                                     {supplier.name}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 font-mono">
                                                     {supplier.tin}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                                     {supplier.reg_number}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <td className="px-4 py-3 text-sm text-gray-500">
                                                     {supplier.address}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <td className="px-4 py-3 text-sm text-gray-500">
                                                     {supplier.category}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                <td className="px-4 py-3 whitespace-nowrap">
                                                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
                                                         ${supplier.status === 'Active' ? 'bg-green-100 text-green-800' : 
                                                           supplier.status === 'Blacklisted' ? 'bg-red-100 text-red-800' : 
@@ -429,8 +429,8 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                                         {supplier.status}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <button onClick={() => openViewModal(supplier)} className="text-red-600 hover:text-red-900 mr-4 font-semibold">View</button>
+                                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                                    <button onClick={() => openViewModal(supplier)} className="text-red-600 hover:text-red-900 mr-3 font-semibold">View</button>
                                                     <button onClick={() => openEditModal(supplier)} className="text-gray-500 hover:text-gray-700">Update</button>
                                                 </td>
                                             </tr>

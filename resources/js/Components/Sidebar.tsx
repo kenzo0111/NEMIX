@@ -185,7 +185,11 @@ export default function Sidebar({
 
                 {!collapsed && (
                     <div className="mt-2 text-center">
-                         <Link href={route('login')} className="text-[10px] uppercase tracking-widest text-red-400 hover:text-white transition-colors">Login</Link>
+                        {user ? (
+                             <Link href={route('logout')} method="post" as="button" className="text-[10px] uppercase tracking-widest text-red-400 hover:text-white transition-colors">Logout</Link>
+                        ) : (
+                             <Link href={route('login')} className="text-[10px] uppercase tracking-widest text-red-400 hover:text-white transition-colors">Login</Link>
+                        )}
                     </div>
                 )}
             </div>

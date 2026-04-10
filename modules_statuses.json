@@ -2,5 +2,6 @@
     "UserManagement": true,
     "Inventory": true,
     "Acquisition": true,
-    "Suppliers": true
+    "Suppliers": true,
+    "AuditLogs": true
 }

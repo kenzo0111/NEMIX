@@ -31,7 +31,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $nextPoNumber = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
         return Inertia::render('Acquisition/ProcurementPanel', [
-            'auth' => auth()->user(),
             'suppliers' => \Modules\Suppliers\Models\Supplier::all(),
             'nextPoNumber' => $nextPoNumber,
         ]);
@@ -40,7 +39,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/procurement-panel/{id}', function ($id) {
         $purchaseOrder = PurchaseOrder::findOrFail($id);
         return Inertia::render('Acquisition/ProcurementPanel', [
-            'auth' => auth()->user(),
             'purchaseOrder' => $purchaseOrder,
             'suppliers' => \Modules\Suppliers\Models\Supplier::all(),
         ]);

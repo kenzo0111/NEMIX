@@ -15,18 +15,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            RolesAndPermissionsSeeder::class,
         ]);
 
+        // User::factory(10)->create();
+
+        $testUser = User::factory()->create([
+            'name' => 'Property Staff User',
+            'email' => 'staff@example.com',
+        ]);
+        $testUser->assignRole('Property Staff');
+
         // Create sample admin account
-        User::factory()->create([
+        $adminUser = User::factory()->create([
             'name' => 'Admin User',
             'email' => 'doc',
             'password' => bcrypt('admin123'),
         ]);
+        $adminUser->assignRole('System Admin');
     }
 }

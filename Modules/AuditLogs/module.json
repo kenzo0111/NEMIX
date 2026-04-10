@@ -1,0 +1,11 @@
+{
+    "name": "AuditLogs",
+    "alias": "auditlogs",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\AuditLogs\\Providers\\AuditLogsServiceProvider"
+    ],
+    "files": []
+}

@@ -8,9 +8,9 @@
 > - **April 26 - April 30:** Final testing, bug fixing, and polish.
 
 ## 1. AccessControl
-- [ ] **Role Management**
-  - [ ] Implement Role-Based Access Control (RBAC).
-  - [ ] Map permissions to specific roles.
+- [x] **Role Management**
+  - [x] Implement Role-Based Access Control (RBAC).
+  - [x] Map permissions to specific roles.
 
 ## 2. Acquisition
 - [x] **Procurement Panel (`Acquisition/ProcurementPanel.tsx`)**

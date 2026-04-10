@@ -23,14 +23,11 @@ Route::get('/compliance/analytics', function () {
 
 Route::get('/acquisition/inbound-deliveries', function () {
     return Inertia::render('Acquisition/InboundDeliveries', [
-        'auth' => auth()->user(),
         'purchaseOrders' => \Modules\Acquisition\Models\PurchaseOrder::with('items')->latest()->get(),
     ]);
 })->middleware(['auth', 'verified'])->name('acquisition.inbound-deliveries');
 
-Route::get('/audit-logs/login-trails', function () {
-    return Inertia::render('AuditLogs/ManageLoginTrails');
-})->middleware(['auth', 'verified'])->name('audit-logs.login-trails');
+// Note: /audit-logs/login-trails is now handled by the AuditLogs module routes.
 
 Route::get('/audit-logs/transaction-trails', function () {
     return Inertia::render('AuditLogs/ManageTransaction');
@@ -39,6 +36,10 @@ Route::get('/audit-logs/transaction-trails', function () {
 Route::get('/access-control/role-permission', function () {
     return Inertia::render('AccessControl/ManageRolePermission');
 })->middleware(['auth', 'verified'])->name('access-control.role-permission');
+
+Route::get('/access-control/manage-staffs', function () {
+    return Inertia::render('AccessControl/ManageStaffs');
+})->middleware(['auth', 'verified'])->name('access-control.staffs');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

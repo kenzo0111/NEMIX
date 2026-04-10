@@ -16,7 +16,6 @@ class SuppliersController extends \App\Http\Controllers\Controller
         $suppliers = Supplier::all();
         return Inertia::render('Suppliers/ManageSupplier', [
             'suppliers' => $suppliers,
-            'auth' => auth()->user(),
         ]);
     }
 
