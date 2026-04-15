@@ -5,9 +5,10 @@ import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import RSMIFormPaper from '../../../Official Forms/RSMI Report';
+import RPCIFormPaper from '../../../Official Forms/RPCI Report';
 
 // --- REUSABLE UI COMPONENTS ---
-const ReportModal = ({ show, onClose, title, children, footer, isSubmitting }: any) => {
+const ReportModal = ({ show, onClose, title, children, footer, isSubmitting, isLandscape, collapsed }: any) => {
     if (!show) return null;
 
     useEffect(() => {
@@ -18,15 +19,15 @@ const ReportModal = ({ show, onClose, title, children, footer, isSubmitting }: a
         return () => window.removeEventListener('keydown', handleEsc);
     }, [onClose]);
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
-            <div 
-                className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
-                onClick={!isSubmitting ? onClose : undefined}
-            ></div>
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl lg:max-w-5xl transform transition-all scale-100 flex flex-col max-h-[90vh]">
-                <div className="h-2 w-full flex-shrink-0 bg-gradient-to-r from-red-900 via-red-800 to-red-950 rounded-t-2xl"></div>
-                <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
+        return (
+            <div className={`fixed inset-y-0 right-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all duration-300 ${collapsed ? 'left-20' : 'left-[18rem]'} print:static print:inset-auto print:p-0 print:block print:w-full print:translate-x-0`}>
+                <div 
+                    className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity print:hidden" 
+                    onClick={!isSubmitting ? onClose : undefined}
+                ></div>
+                <div className={`relative bg-white rounded-2xl shadow-2xl w-full ${isLandscape ? 'max-w-7xl lg:max-w-[95vw]' : 'max-w-4xl lg:max-w-5xl'} transform transition-all scale-100 flex flex-col max-h-[90vh] print:shadow-none print:max-w-none print:max-h-none print:block print:m-0 print:p-0`}>
+                    <div className="h-2 w-full flex-shrink-0 bg-gradient-to-r from-red-900 via-red-800 to-red-950 rounded-t-2xl print:hidden"></div>
+                    <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex-shrink-0 print:hidden">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-red-50 rounded-lg text-red-900">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -47,11 +48,11 @@ const ReportModal = ({ show, onClose, title, children, footer, isSubmitting }: a
                     </button>
                 </div>
                 
-                <div className="p-8 overflow-y-auto custom-scrollbar flex-1">
+                <div className="p-8 overflow-y-auto custom-scrollbar flex-1 print:p-0 print:overflow-visible">
                     {children}
                 </div>
                 
-                <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 flex-shrink-0 rounded-b-2xl">
+                <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 flex-shrink-0 rounded-b-2xl print:hidden">
                     {footer}
                 </div>
             </div>
@@ -260,17 +261,59 @@ export default function ManageReports({ auth }: { auth: any }) {
     });
 
     return (
-        <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900">
+        <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900 print:bg-white">
             <Head title="COA Compliance Reports" />
+            <style>{`
+                @media print {
+                    @page { 
+                        size: landscape; 
+                        margin: 5mm; 
+                    }
+                    body { 
+                        -webkit-print-color-adjust: exact !important; 
+                        print-color-adjust: exact !important; 
+                    }
+                    /* Force the container to render as a single un-broken page */
+                    .print-single-page {
+                        page-break-inside: avoid !important;
+                        page-break-after: avoid !important;
+                        page-break-before: avoid !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                    /* Shrink the form dynamically to ensure it fits one page */
+                    .print-zoom-fit {
+                        zoom: 0.75;
+                    }
+                    /* Disable scrollbars when printing */
+                    ::-webkit-scrollbar {
+                        display: none;
+                    }
+                }
+            `}</style>
             
             <ReportModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
                 title={modalMode === 'create' ? "Generate COA Form" : "Review Compliance Document"}
                 isSubmitting={isSubmitting}
+                isLandscape={modalMode === 'view' && formData.type === 'RPCI'}
+                collapsed={collapsed}
                 footer={
                     <>
                         <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">Cancel</button>
+                        
+                        {modalMode === 'view' && formData.type === 'RPCI' && (
+                            <button
+                                onClick={() => window.print()}
+                                type="button"
+                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg border border-transparent transition-colors shadow-sm flex items-center gap-2 print:hidden"
+                            >
+                                <svg className="w-4 h-4 shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                Print Form
+                            </button>
+                        )}
+                        
                         <button
                             onClick={handleCreateReport}
                             disabled={isSubmitting || !formData.title || !formData.type || !formData.reference}
@@ -286,9 +329,9 @@ export default function ManageReports({ auth }: { auth: any }) {
                     </>
                 }
             >
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-6 print:gap-0 print:overflow-hidden print-single-page print-zoom-fit">
                     {modalMode === 'view' && formData.type === 'RSMI' && (
-                        <div className="bg-gray-100 p-6 rounded-xl border border-gray-200">
+                        <div className="bg-gray-100 p-6 rounded-xl border border-gray-200 print:bg-white print:p-0 print:border-none print-single-page">
                             <RSMIFormPaper data={{
                                 entityName: 'National Entity for Management and Information X',
                                 serialNo: formData.reference,
@@ -302,9 +345,25 @@ export default function ManageReports({ auth }: { auth: any }) {
                             }} />
                         </div>
                     )}
-                    {/* Basic Info Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
+                    {modalMode === 'view' && formData.type === 'RPCI' && (
+                        <div className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
+                            <div className="min-w-[1100px] mx-auto print:min-w-[1100px]">
+                                <RPCIFormPaper hideButtons data={{
+                                    entityName: 'National Entity for Management and Information X',
+                                    asAtDate: generateDisplayDate(formData),
+                                    fundCluster: 'General Fund',
+                                    inventoryType: formData.title,
+                                    accountableOfficer: 'Jane Doe',
+                                    officialDesignation: 'Supply Officer',
+                                }} />
+                            </div>
+                        </div>
+                    )}
+                    
+                    <div className="print:hidden space-y-6">
+                        {/* Basic Info Section */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
                             <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">COA Report Type</label>
                             <Select
                                 options={typeOptions}
@@ -395,12 +454,15 @@ export default function ManageReports({ auth }: { auth: any }) {
                             )}
                         </div>
                     </div>
+                    </div>
                 </div>
             </ReportModal>
 
-            <Sidebar modules={modules} user={user} collapsed={collapsed} onToggleCollapse={() => setCollapsed(!collapsed)} />
+            <div className="print:hidden">
+                <Sidebar modules={modules} user={user} collapsed={collapsed} onToggleCollapse={() => setCollapsed(!collapsed)} />
+            </div>
 
-            <main className={`flex-1 transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-72'}`}>
+            <main className={`flex-1 transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-72'} print:hidden`}>
                 <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm">
                     <div>
                         
@@ -473,6 +535,17 @@ export default function ManageReports({ auth }: { auth: any }) {
                                                         date: report.date || '',
                                                         issuedItems: [], recapitulationItems: [],
                                                         supplyCustodianName: '', accountingStaffName: '', accountingDate: ''
+                                                    }} />
+                                                </div>
+                                            )}
+                                            
+                                            {report.type === 'RPCI' && (
+                                                <div className="absolute top-0 right-0 w-44 h-32 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
+                                                    <RPCIFormPaper hideButtons data={{
+                                                        entityName: 'COA',
+                                                        asAtDate: report.date || '',
+                                                        fundCluster: 'GF',
+                                                        inventoryType: report.title,
                                                     }} />
                                                 </div>
                                             )}

@@ -148,8 +148,8 @@ export default function RSMIFormPaper({ data }: Props) {
         </table>
 
         {/* Footer / Signatures */}
-        <div className="grid grid-cols-2 border-t-2 border-black text-[12px]">
-          <div className="p-4 border-r-2 border-black flex flex-col pt-6 pb-2">
+        <div className="flex w-full border-t-2 border-black text-[12px]">
+          <div className="flex-[0.8] p-4 border-r-2 border-black flex flex-col pt-6 pb-2">
             <p className="mb-10 ml-4 font-normal">I hereby certify to the correctness of the above information.</p>
             <div className="text-center px-8 mt-auto">
               <div className="border-b border-black font-bold min-h-[1.5rem] uppercase">
@@ -158,7 +158,7 @@ export default function RSMIFormPaper({ data }: Props) {
               <p className="mt-1 font-normal">Signature over Printed Name of Supply and/or<br/>Property Custodian</p>
             </div>
           </div>
-          <div className="flex flex-col">
+          <div className="flex-1 flex flex-col">
             <div className="px-2 pt-2 text-sm">Posted by:</div>
             <div className="flex-1 px-4 pb-2 flex gap-4 mt-12 items-end">
               <div className="flex-1 text-center">
