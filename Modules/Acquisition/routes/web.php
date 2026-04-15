@@ -37,7 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('procurement-panel');
 
     Route::get('/procurement-panel/{id}', function ($id) {
-        $purchaseOrder = PurchaseOrder::findOrFail($id);
+        $purchaseOrder = PurchaseOrder::with('items')->findOrFail($id);
         return Inertia::render('Acquisition/ProcurementPanel', [
             'purchaseOrder' => $purchaseOrder,
             'suppliers' => \Modules\Suppliers\Models\Supplier::all(),
