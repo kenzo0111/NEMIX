@@ -6,7 +6,7 @@ import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { Search, Filter, ArrowRight, Download, Activity, User, Box } from 'lucide-react';
 
-export default function ManageTransaction({ auth }: { auth: any }) {
+export default function ManageTransaction({ auth, logs }: { auth: any, logs?: any[] }) {
     const { props } = usePage();
     const user = auth?.user || (props.auth as any)?.user;
     const [collapsed, setCollapsed] = useState(false);
@@ -19,7 +19,7 @@ export default function ManageTransaction({ auth }: { auth: any }) {
     const modules = getSidebarModules('Audit Logs', 'Manage Transaction');
 
     // Raw Data (Usually this comes from props.logs)
-    const rawLogs = [
+    const rawLogs = logs || [
         { id: 'TRX-1001', user: 'John Doe', role: 'Property Staff', module: 'Inventory', action: 'Create', details: 'Added new item: Laptop', status: 'Verified', badge: 'bg-green-50 text-green-700 ring-1 ring-green-600/20', time: 'Oct 27, 2023 • 10:30 AM' },
         { id: 'TRX-1002', user: 'Mike Johnson', role: 'Property Staff', module: 'Acquisition', action: 'Update', details: 'Updated PO #12345 status', status: 'Logged', badge: 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20', time: 'Oct 27, 2023 • 11:15 AM' },
         { id: 'TRX-1003', user: 'Sarah Williams', role: 'System Admin', module: 'Suppliers', action: 'Delete', details: 'Removed supplier: XYZ Corp', status: 'Flagged', badge: 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20', time: 'Oct 26, 2023 • 09:45 AM' },

@@ -29,9 +29,10 @@ Route::get('/acquisition/inbound-deliveries', function () {
 
 // Note: /audit-logs/login-trails is now handled by the AuditLogs module routes.
 
-Route::get('/audit-logs/transaction-trails', function () {
-    return Inertia::render('AuditLogs/ManageTransaction');
-})->middleware(['auth', 'verified'])->name('audit-logs.transaction-trails');
+Route::get('/audit-logs/transaction-trails', [\Modules\AuditLogs\Http\Controllers\TransactionTrailController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('audit-logs.transaction-trails');
+
 
 Route::get('/access-control/role-permission', function () {
     return Inertia::render('AccessControl/ManageRolePermission');
