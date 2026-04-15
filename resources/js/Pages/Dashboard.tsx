@@ -2,8 +2,9 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import Sidebar from '@/Components/Sidebar';
 import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import Select from 'react-select';
 
 export default function Dashboard({ auth }: { auth: any }) {
     const user = auth.user;
@@ -13,6 +14,55 @@ export default function Dashboard({ auth }: { auth: any }) {
     const [chartFilter, setChartFilter] = useState('monthly');
     const [customStartDate, setCustomStartDate] = useState('');
     const [customEndDate, setCustomEndDate] = useState('');
+
+    // State for Audit Trail Role Filter
+    const [selectedRoleFilter, setSelectedRoleFilter] = useState<{ value: string; label: string } | null>(null);
+
+    const roleOptions = [
+        { value: '', label: 'All Roles' },
+        { value: 'System Admin', label: 'System Admin' },
+        { value: 'Internal Auditor', label: 'Internal Auditor' },
+        { value: 'External Auditor', label: 'External Auditor' },
+        { value: 'Property Staff', label: 'Property Staff' },
+    ];
+
+    const selectStyles = {
+        control: (provided: any, state: any) => ({
+            ...provided,
+            borderRadius: '0.75rem',
+            border: '1px solid #e5e7eb',
+            padding: '2px 8px',
+            minWidth: '200px',
+            boxShadow: state.isFocused ? '0 0 0 1px #fee2e2' : 'none',
+            '&:hover': { borderColor: '#dc2626' },
+            fontSize: '0.875rem',
+            fontWeight: '600',
+            color: '#4b5563',
+        }),
+        option: (provided: any, state: any) => ({
+            ...provided,
+            backgroundColor: state.isSelected ? '#dc2626' : state.isFocused ? '#fff1f1' : 'white',
+            color: state.isSelected ? 'white' : '#374151',
+            padding: '10px 12px',
+            fontSize: '0.875rem',
+            fontWeight: '600',
+        }),
+    };
+
+    const auditTrailLogs = [
+        { user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', ref: 'TRX-1006', status: 'Verified', time: '15 mins ago', badge: 'bg-green-50 text-green-700 ring-1 ring-green-600/20' },
+        { user: 'Maria Santos', role: 'Internal Auditor', action: 'Exported Annual Supply Report', ref: 'TRX-1007', status: 'Logged', time: '1 hour ago', badge: 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20' },
+        { user: 'Staff Member', role: 'Property Staff', action: 'Overrode Stock Level Warning', ref: 'TRX-1008', status: 'Flagged', time: '3 hours ago', badge: 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20' },
+        { user: 'System Auditor', role: 'External Auditor', action: 'Initiated Inventory Reconciliation', ref: 'TRX-1009', status: 'In Progress', time: '5 hours ago', badge: 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20' },
+        { user: 'Admin User', role: 'System Admin', action: 'Updated Asset Category Schema', ref: 'TRX-1010', status: 'Verified', time: '1 day ago', badge: 'bg-green-50 text-green-700 ring-1 ring-green-600/20' },
+    ];
+
+    const filteredAuditLogs = useMemo(() => {
+        return auditTrailLogs.filter(log => {
+            if (!selectedRoleFilter?.value) return true;
+            return log.role === selectedRoleFilter.value;
+        });
+    }, [selectedRoleFilter]);
 
     const modules = getSidebarModules();
 
@@ -210,13 +260,6 @@ export default function Dashboard({ auth }: { auth: any }) {
                                                 style={{ width: `${(item.current / item.min) * 100}%` }}
                                             ></div>
                                         </div>
-
-                                        <button className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-gray-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-red-900 transition-colors shadow-sm">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path>
-                                            </svg>
-                                            Generate Purchase Request
-                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -231,12 +274,14 @@ export default function Dashboard({ auth }: { auth: any }) {
                                 <p className="text-sm font-medium text-gray-500 mt-1">Verified activity log for administrative and oversight review</p>
                             </div>
                             <div className="flex gap-3">
-                                <button className="text-sm font-bold text-gray-600 hover:bg-gray-100 px-5 py-2.5 rounded-xl transition-colors border border-gray-200 shadow-sm">
-                                    Filter by Role
-                                </button>
-                                <button className="text-sm font-bold text-red-900 hover:text-white hover:bg-red-900 px-5 py-2.5 rounded-xl transition-colors border border-red-200 shadow-sm">
-                                    Export Audit Log
-                                </button>
+                                <Select 
+                                    options={roleOptions}
+                                    value={selectedRoleFilter}
+                                    onChange={setSelectedRoleFilter}
+                                    styles={selectStyles}
+                                    placeholder="Filter by Role"
+                                    isClearable
+                                />
                             </div>
                         </div>
                         <div className="overflow-x-auto">
@@ -251,13 +296,8 @@ export default function Dashboard({ auth }: { auth: any }) {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
-                                    {[
-                                        { user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', ref: 'CERT-2026-004', status: 'Verified', time: '15 mins ago', badge: 'bg-green-50 text-green-700 ring-1 ring-green-600/20' },
-                                        { user: 'Maria Santos', role: 'Internal Auditor', action: 'Exported Annual Supply Report', ref: 'RPT-ANN-2026', status: 'Logged', time: '1 hour ago', badge: 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20' },
-                                        { user: 'Staff Member', role: 'Property Staff', action: 'Overrode Stock Level Warning', ref: 'INV-OVR-882', status: 'Flagged', time: '3 hours ago', badge: 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20' },
-                                        { user: 'System Auditor', role: 'External Auditor', action: 'Initiated Inventory Reconciliation', ref: 'AUD-REC-01', status: 'In Progress', time: '5 hours ago', badge: 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20' },
-                                        { user: 'Admin User', role: 'System Admin', action: 'Updated Asset Category Schema', ref: 'SYS-CONF-DEPT', status: 'Verified', time: '1 day ago', badge: 'bg-green-50 text-green-700 ring-1 ring-green-600/20' },
-                                    ].map((row, i) => (
+                                    {filteredAuditLogs.length > 0 ? (
+                                        filteredAuditLogs.map((row, i) => (
                                         <tr key={i} className="hover:bg-gray-50/50 transition-colors group">
                                             <td className="px-8 py-5 whitespace-nowrap">
                                                 <div className="flex items-center gap-4">
@@ -283,7 +323,14 @@ export default function Dashboard({ auth }: { auth: any }) {
                                             </td>
                                             <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-400 font-semibold">{row.time}</td>
                                         </tr>
-                                    ))}
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={5} className="px-8 py-20 text-center">
+                                                <p className="text-gray-500 font-medium">No activity logs match your filter.</p>
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>

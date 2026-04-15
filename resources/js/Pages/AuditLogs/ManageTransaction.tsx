@@ -20,11 +20,11 @@ export default function ManageTransaction({ auth }: { auth: any }) {
 
     // Raw Data (Usually this comes from props.logs)
     const rawLogs = [
-        { id: 'TRX-1001', user: 'John Doe', module: 'Inventory', action: 'Create', details: 'Added new item: Laptop', time: 'Oct 27, 2023 • 10:30 AM' },
-        { id: 'TRX-1002', user: 'Mike Johnson', module: 'Acquisition', action: 'Update', details: 'Updated PO #12345 status', time: 'Oct 27, 2023 • 11:15 AM' },
-        { id: 'TRX-1003', user: 'Sarah Williams', module: 'Suppliers', action: 'Delete', details: 'Removed supplier: XYZ Corp', time: 'Oct 26, 2023 • 09:45 AM' },
-        { id: 'TRX-1004', user: 'Admin User', module: 'User Role', action: 'Update', details: 'Changed role for user ID 5', time: 'Oct 26, 2023 • 01:22 PM' },
-        { id: 'TRX-1005', user: 'John Doe', module: 'Inventory', action: 'Stock In', details: 'Received 50 units of Mouse', time: 'Oct 25, 2023 • 03:10 PM' },
+        { id: 'TRX-1001', user: 'John Doe', role: 'Property Staff', module: 'Inventory', action: 'Create', details: 'Added new item: Laptop', status: 'Verified', badge: 'bg-green-50 text-green-700 ring-1 ring-green-600/20', time: 'Oct 27, 2023 • 10:30 AM' },
+        { id: 'TRX-1002', user: 'Mike Johnson', role: 'Property Staff', module: 'Acquisition', action: 'Update', details: 'Updated PO #12345 status', status: 'Logged', badge: 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20', time: 'Oct 27, 2023 • 11:15 AM' },
+        { id: 'TRX-1003', user: 'Sarah Williams', role: 'System Admin', module: 'Suppliers', action: 'Delete', details: 'Removed supplier: XYZ Corp', status: 'Flagged', badge: 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20', time: 'Oct 26, 2023 • 09:45 AM' },
+        { id: 'TRX-1004', user: 'Admin User', role: 'System Admin', module: 'User Role', action: 'Update', details: 'Changed role for user ID 5', status: 'Verified', badge: 'bg-green-50 text-green-700 ring-1 ring-green-600/20', time: 'Oct 26, 2023 • 01:22 PM' },
+        { id: 'TRX-1005', user: 'John Doe', role: 'Property Staff', module: 'Inventory', action: 'Stock In', details: 'Received 50 units of Mouse', status: 'In Progress', badge: 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20', time: 'Oct 25, 2023 • 03:10 PM' },
     ];
 
     // --- 2. Filtering Logic ---
@@ -106,7 +106,14 @@ export default function ManageTransaction({ auth }: { auth: any }) {
                     </div>
 
                     <div className="p-10 space-y-8">
-                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                            {/* Header similar to Dashboard */}
+                            <div className="px-8 py-7 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900 font-serif">Manage Transaction</h3>
+                                    <p className="text-sm font-medium text-gray-500 mt-1">Verified activity log for administrative and oversight review</p>
+                                </div>
+                            </div>
                             {/* Filter Bar */}
                             <div className="p-6 border-b border-gray-50 bg-gray-50/30 flex flex-wrap items-end gap-4">
                                 <div className="flex-1 min-w-[300px]">
@@ -148,49 +155,46 @@ export default function ManageTransaction({ auth }: { auth: any }) {
 
                             {/* Table */}
                             <div className="overflow-x-auto">
-                                <table className="w-full text-left">
+                                <table className="min-w-full">
                                     <thead>
-                                        <tr className="bg-white border-b border-gray-100">
-                                            <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Transaction ID</th>
-                                            <th className="px-6 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">User</th>
-                                            <th className="px-6 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Module & Action</th>
-                                            <th className="px-6 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Description</th>
-                                            <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Timestamp</th>
+                                        <tr className="border-b border-gray-100 bg-gray-50/50">
+                                            <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Authorized User</th>
+                                            <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Action Performed</th>
+                                            <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Resource Ref</th>
+                                            <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Audit Status</th>
+                                            <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Timestamp</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
                                         {filteredLogs.length > 0 ? (
                                             filteredLogs.map((trx, index) => (
-                                                <tr key={index} className="hover:bg-red-50/30 transition-colors group">
-                                                    <td className="px-8 py-5 whitespace-nowrap text-sm font-bold text-gray-700 font-mono group-hover:text-red-700 transition-colors">
-                                                        {trx.id}
-                                                    </td>
-                                                    <td className="px-6 py-5 whitespace-nowrap">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600 border border-gray-200">
+                                                <tr key={index} className="hover:bg-gray-50/50 transition-colors group">
+                                                    <td className="px-8 py-5 whitespace-nowrap">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="flex-shrink-0 h-10 w-10 rounded-xl bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-600 group-hover:bg-red-50 group-hover:text-red-900 transition-colors">
                                                                 {trx.user.charAt(0)}
                                                             </div>
-                                                            <span className="text-sm font-medium text-gray-700">{trx.user}</span>
+                                                            <div>
+                                                                <div className="text-sm font-bold text-gray-900">{trx.user}</div>
+                                                                <div className="text-xs font-medium text-gray-500 uppercase tracking-tighter">{trx.role}</div>
+                                                            </div>
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-5 whitespace-nowrap">
-                                                        <div className="flex flex-col gap-1">
-                                                            <span className="text-[10px] uppercase font-bold text-gray-400 tracking-tighter">{trx.module}</span>
-                                                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-md w-fit ${
-                                                                trx.action === 'Delete' ? 'bg-red-100 text-red-700' : 
-                                                                trx.action === 'Create' ? 'bg-green-100 text-green-700' : 
-                                                                'bg-blue-100 text-blue-700'
-                                                            }`}>
-                                                                {trx.action}
-                                                            </span>
-                                                        </div>
+                                                    <td className="px-8 py-5 whitespace-nowrap">
+                                                        <div className="text-sm font-bold text-gray-700">{trx.action}</div>
+                                                        <div className="text-xs text-gray-500">{trx.details}</div>
                                                     </td>
-                                                    <td className="px-6 py-5">
-                                                        <p className="text-sm text-gray-600 leading-relaxed max-w-xs">{trx.details}</p>
+                                                    <td className="px-8 py-5 whitespace-nowrap">
+                                                        <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700">
+                                                            {trx.id}
+                                                        </span>
                                                     </td>
-                                                    <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-400 font-medium">
-                                                        {trx.time}
+                                                    <td className="px-8 py-5 whitespace-nowrap">
+                                                        <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold ${trx.badge}`}>
+                                                            {trx.status}
+                                                        </span>
                                                     </td>
+                                                    <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-400 font-semibold">{trx.time}</td>
                                                 </tr>
                                             ))
                                         ) : (

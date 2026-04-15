@@ -5,6 +5,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useState, useMemo } from 'react'; // Added useMemo
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
+import RequisitionIssueSlip from '../../../Official Forms/RequisitionIssueSlip';
 
 type IssuanceItem = {
     item_id: string;
@@ -18,6 +19,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
     // --- MODAL STATE ---
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [isViewFormModalOpen, setIsViewFormModalOpen] = useState(false);
     const [selectedIssuance, setSelectedIssuance] = useState<any>(null);
 
     // --- FORM STATE ---
@@ -39,6 +41,34 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
     const [filterStatus, setFilterStatus] = useState<any>(null);
 
     // --- DERIVED DATA (DROPDOWN OPTIONS) ---
+    const groupedIssuances = useMemo(() => {
+        const groups: Record<string, any> = {};
+        issuances.forEach(issuance => {
+            const key = issuance.created_at || `${issuance.recipient}_${issuance.date}_${issuance.status}_${issuance.issued_by}`;
+            if (!groups[key]) {
+                groups[key] = {
+                    ...issuance,
+                    original_id: issuance.id,
+                    item_names: [issuance.item],
+                    total_quantity: Number(issuance.quantity),
+                    all_ids: [issuance.id],
+                    items_list: [{ item: issuance.item, quantity: issuance.quantity, id: issuance.id }]
+                };
+            } else {
+                groups[key].item_names.push(issuance.item);
+                groups[key].total_quantity += Number(issuance.quantity);
+                groups[key].all_ids.push(issuance.id);
+                groups[key].items_list.push({ item: issuance.item, quantity: issuance.quantity, id: issuance.id });
+            }
+        });
+
+        return Object.values(groups).map((g: any) => ({
+            ...g,
+            item: g.item_names.length > 1 ? `${g.item_names.length} items (${g.item_names.slice(0, 2).join(', ')}${g.item_names.length > 2 ? '...' : ''})` : g.item_names[0],
+            quantity: g.total_quantity
+        }));
+    }, [issuances]);
+
     const itemOptions = items.map(item => ({ value: item.id, label: `${item.name} (${item.sku})` }));
 
     const fundClusterOptions = [
@@ -49,17 +79,17 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
     ];
 
     const recipientOptions = useMemo(() => {
-        const uniqueRecipients = Array.from(new Set(issuances.map(i => i.recipient)));
+        const uniqueRecipients = Array.from(new Set(groupedIssuances.map((i: any) => i.recipient)));
         return uniqueRecipients.map(r => ({ value: r, label: r }));
-    }, [issuances]);
+    }, [groupedIssuances]);
 
     // --- FILTERING LOGIC ---
     const filteredIssuances = useMemo(() => {
-        return issuances.filter(issuance => {
+        return groupedIssuances.filter((issuance: any) => {
             // 1. Search Filter (Item Name OR Recipient)
             const lowerTerm = searchTerm.toLowerCase();
             const matchesSearch = 
-                issuance.item.toLowerCase().includes(lowerTerm) || 
+                issuance.item_names.some((name: string) => name.toLowerCase().includes(lowerTerm)) || 
                 issuance.recipient.toLowerCase().includes(lowerTerm);
             
             // 2. Recipient Filter
@@ -70,7 +100,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
 
             return matchesSearch && matchesRecipient && matchesStatus;
         });
-    }, [issuances, searchTerm, filterRecipient, filterStatus]);
+    }, [groupedIssuances, searchTerm, filterRecipient, filterStatus]);
 
     // --- CUSTOM STYLES FOR REACT SELECT (ORANGE THEME) ---
     const customSelectStyles = {
@@ -156,12 +186,12 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
         });
     };
 
-    const handleVoid = (issuanceId: number) => {
-        if (confirm('Are you sure you want to archive this issuance record?')) {
-            router.put(route('inventory.issuance.update', issuanceId), { status: 'Cancelled' }, {
-                onSuccess: () => {
-                    // Optionally refresh the page or update state
-                },
+    const handleVoid = (issuance: any) => {
+        if (confirm('Are you sure you want to archive this issuance transaction?')) {
+            issuance.all_ids.forEach((id: number) => {
+                router.put(route('inventory.issuance.update', id), { status: 'Cancelled' }, {
+                    preserveScroll: true,
+                });
             });
         }
     };
@@ -173,6 +203,16 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
 
     const closeDetailsModal = () => {
         setIsDetailsModalOpen(false);
+        setSelectedIssuance(null);
+    };
+
+    const handleViewForm = (issuance: any) => {
+        setSelectedIssuance(issuance);
+        setIsViewFormModalOpen(true);
+    };
+
+    const closeViewFormModal = () => {
+        setIsViewFormModalOpen(false);
         setSelectedIssuance(null);
     };
 
@@ -347,13 +387,19 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                                 </td>
                                                 <td className="px-8 py-5 whitespace-nowrap text-right text-sm font-medium">
                                                     <button 
+                                                        onClick={() => handleViewForm(issuance)}
+                                                        className="text-green-600 hover:text-green-900 mr-4 transition-colors"
+                                                    >
+                                                        View Form
+                                                    </button>
+                                                    <button 
                                                         onClick={() => handleDetails(issuance)}
                                                         className="text-blue-600 hover:text-blue-900 mr-4 transition-colors"
                                                     >
-                                                        Details
+                                                        Quick Details
                                                     </button>
                                                     <button 
-                                                        onClick={() => handleVoid(issuance.id)}
+                                                        onClick={() => handleVoid(issuance)}
                                                         className="text-red-600 hover:text-red-900 transition-colors"
                                                     >
                                                         Archive
@@ -369,7 +415,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                         {/* Pagination (Placeholder) */}
                         <div className="px-8 py-4 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
                             <span className="text-xs text-gray-500">
-                                Showing {filteredIssuances.length} of {issuances.length} records
+                                Showing {filteredIssuances.length} of {groupedIssuances.length} records
                             </span>
                             <div className="flex gap-2">
                                 <button className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50" disabled>Previous</button>
@@ -691,11 +737,17 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                         <div className="p-8 space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Item Issued</label>
-                                    <p className="text-sm text-gray-900 font-medium">{selectedIssuance.item}</p>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Items Issued</label>
+                                    <div className="space-y-1">
+                                        {selectedIssuance.items_list?.map((it: any, idx: number) => (
+                                            <p key={idx} className="text-sm text-gray-900 font-medium">
+                                                {it.quantity}x {it.item}
+                                            </p>
+                                        ))}
+                                    </div>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Quantity</label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Total Quantity</label>
                                     <p className="text-sm text-gray-900 font-medium">{selectedIssuance.quantity} pcs</p>
                                 </div>
                                 <div>
@@ -725,6 +777,85 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                             <button
                                 onClick={closeDetailsModal}
                                 className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {isViewFormModalOpen && selectedIssuance && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+                    <div 
+                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+                        onClick={closeViewFormModal}
+                    ></div>
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl transform transition-all scale-100 overflow-hidden border border-green-100 flex flex-col max-h-[90vh]">
+                        <div className="h-2 w-full bg-gradient-to-r from-green-900 via-green-800 to-green-950 flex-shrink-0"></div>
+                        <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-green-50 rounded-lg text-green-900">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900 tracking-tight">Issuance Form</h3>
+                                    <p className="text-xs text-gray-500 font-medium">Record ID: #{String(selectedIssuance.id).padStart(4, '0')}</p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={closeViewFormModal}
+                                className="text-gray-400 hover:text-green-600 hover:bg-green-50 p-2 rounded-full transition-colors"
+                                aria-label="Close"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                        <div className="p-8 overflow-y-auto w-full bg-gray-100 flex justify-center">
+                            <div className="border border-gray-300 rounded shadow-sm bg-white overflow-x-auto w-full max-w-[210mm] p-4">
+                                <RequisitionIssueSlip data={{
+                                    entity_name: "Camarines Norte State College",
+                                    fund_cluster: selectedIssuance.fund_cluster || "",
+                                    division: selectedIssuance.department || "",
+                                    responsibility_center_code: "",
+                                    office: selectedIssuance.department || "",
+                                    ris_no: String(selectedIssuance.id).padStart(4, '0'),
+                                    purpose: selectedIssuance.purpose || "",
+                                    items: selectedIssuance.items_list?.map((it: any) => ({
+                                        stock_no: "",
+                                        unit: "pcs",
+                                        description: it.item,
+                                        quantity: it.quantity,
+                                        stock_available: true,
+                                        issue_quantity: it.quantity,
+                                        remarks: ""
+                                    })) || [],
+                                    requested_by_name: selectedIssuance.recipient,
+                                    requested_by_designation: selectedIssuance.recipient_designation,
+                                    requested_by_date: selectedIssuance.date,
+                                    approved_by_name: selectedIssuance.approved_by,
+                                    approved_by_designation: selectedIssuance.approved_by_designation,
+                                    approved_by_date: selectedIssuance.date,
+                                    issued_by_name: selectedIssuance.issued_by,
+                                    issued_by_designation: "Supply Officer",
+                                    issued_by_date: selectedIssuance.date,
+                                    received_by_name: selectedIssuance.recipient,
+                                    received_by_designation: selectedIssuance.recipient_designation,
+                                    received_by_date: selectedIssuance.date
+                                }} />
+                            </div>
+                        </div>
+                        <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 flex-shrink-0">
+                            <button
+                                onClick={() => window.print()}
+                                className="px-6 py-2 text-green-700 bg-green-50 hover:bg-green-100 font-bold rounded-lg transition-colors flex items-center gap-2 border border-green-200"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                Print Form
+                            </button>
+                            <button
+                                onClick={closeViewFormModal}
+                                className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-bold transition-all duration-200"
                             >
                                 Close
                             </button>

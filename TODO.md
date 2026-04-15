@@ -20,20 +20,20 @@
   - [x] Link deliveries to the Inventory Receiving feature.
 
 ## 3. AuditLogs
-- [ ] **Login Trails (`AuditLogs/ManageLoginTrails.tsx`)**
-  - [ ] Track and display user login/logout history and IP addresses.
-- [ ] **Transaction Logs (`AuditLogs/ManageTransaction.tsx`)**
-  - [ ] Record and display vital system data modifications (who changed what, and when).
+- [x] **Login Trails (`AuditLogs/ManageLoginTrails.tsx`)**
+  - [x] Track and display user login/logout history and IP addresses.
+- [x] **Transaction Logs (`AuditLogs/ManageTransaction.tsx`)**
+  - [x] Record and display vital system data modifications (who changed what, and when).
 
 ## 4. Auth
-- [ ] **Authentication Flow**
-  - [ ] Finalize login, registration, and password reset interfaces.
+- [x] **Authentication Flow**
+  - [x] Finalize login, registration, and password reset interfaces.
 
 ## 5. Compliance
-- [ ] **Analytics (`Compliance/ManageAnalytics.tsx`)**
-  - [ ] Build data visualization charts for inventory movement and expenses.
-- [ ] **Reports (`Compliance/ManageReports.tsx`)**
-  - [ ] Create customizable date-range reporting and export features (CSV/PDF).
+- [x] **Analytics (`Compliance/ManageAnalytics.tsx`)**
+  - [x] Build data visualization charts for inventory movement and expenses.
+- [x] **Reports (`Compliance/ManageReports.tsx`)**
+  - [x] Create customizable date-range reporting and export features (CSV/PDF).
 
 ## 6. Inventory
 - [x] **Categories (`Inventory/Categories.tsx`)**
@@ -41,14 +41,14 @@
 - [x] **All Items (`Inventory/AllItems.tsx`)**
   - [x] Implement complete tracking of inventory items.
   - [x] Set up item variants, SKUs, and stock-level monitoring.
-- [ ] **Receiving (`Inventory/Receiving.tsx`)**
-  - [ ] Build the workflow to acknowledge and record incoming stock.
-- [ ] **Issuance (`Inventory/Issuance.tsx`)**
-  - [ ] Implement stock issuance and dispatching workflow.
+- [x] **Receiving (`Inventory/Receiving.tsx`)**
+  - [x] Build the workflow to acknowledge and record incoming stock.
+- [x] **Issuance (`Inventory/Issuance.tsx`)**
+  - [x] Implement stock issuance and dispatching workflow.
 
 ## 7. Profile
-- [ ] **User Profile (`Profile/`)**
-  - [ ] Implement user profile updates, settings, and security options.
+- [x] **User Profile (`Profile/`)**
+  - [x] Implement user profile updates, settings, and security options.
 
 ## 8. Suppliers
 - [x] **Manage Supplier (`Suppliers/ManageSupplier.tsx`)**

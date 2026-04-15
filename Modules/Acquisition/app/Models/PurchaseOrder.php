@@ -44,6 +44,20 @@ class PurchaseOrder extends Model
         'forms_header' => 'array',
     ];
 
+    protected $appends = ['supplier_address', 'tin_number'];
+
+    public function getSupplierAddressAttribute()
+    {
+        $supplier = \Modules\Suppliers\Models\Supplier::where('name', $this->supplier)->first();
+        return $supplier ? $supplier->address : null;
+    }
+
+    public function getTinNumberAttribute()
+    {
+        $supplier = \Modules\Suppliers\Models\Supplier::where('name', $this->supplier)->first();
+        return $supplier ? $supplier->tin : null;
+    }
+
     public function items()
     {
         return $this->hasMany(PurchaseOrderItem::class);

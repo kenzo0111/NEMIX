@@ -450,6 +450,8 @@ export default function InboundDeliveries({ auth, purchaseOrders }: { auth: any,
                         <PurchaseOrder
                             po_number={selectedPO.po_number}
                             supplier={selectedPO.supplier}
+                            supplier_address={selectedPO.supplier_address}
+                            tin_number={selectedPO.tin_number}
                             date_of_purchase={selectedPO.date}
                             mode_of_procurement={selectedPO.mode}
                             fund_cluster={selectedPO.fund_cluster}
