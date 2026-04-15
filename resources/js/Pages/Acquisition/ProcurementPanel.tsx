@@ -590,6 +590,7 @@ export default function ProcurementPanel({ auth, purchaseOrder, suppliers, nextP
                                             onChange={(selectedOption: any) => form.setData('mode', selectedOption?.value || '')}
                                             placeholder="Select Mode"
                                             styles={customSelectStyles}
+                                            menuPosition="fixed"
                                         />
                                     </div>
 
@@ -634,6 +635,7 @@ export default function ProcurementPanel({ auth, purchaseOrder, suppliers, nextP
                                             onChange={(selectedOption: any) => form.setData('supplier', selectedOption?.value || '')}
                                             placeholder="Select Supplier"
                                             styles={customSelectStyles}
+                                            menuPosition="fixed"
                                         />
                                     </div>
                                     
@@ -645,6 +647,7 @@ export default function ProcurementPanel({ auth, purchaseOrder, suppliers, nextP
                                             onChange={(selectedOption: any) => form.setData('fund_cluster', selectedOption?.value || '')}
                                             placeholder="Select Cluster"
                                             styles={customSelectStyles}
+                                            menuPosition="fixed"
                                         />
                                     </div>
 
@@ -672,6 +675,7 @@ export default function ProcurementPanel({ auth, purchaseOrder, suppliers, nextP
                                             value={deliveryStatusOptions.find(o => o.value === form.data.delivery_status)}
                                             onChange={(opt: any) => form.setData('delivery_status', opt?.value)}
                                             styles={customSelectStyles}
+                                            menuPosition="fixed"
                                         />
                                     </div>
                                 </div>
