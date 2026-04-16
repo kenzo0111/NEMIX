@@ -11,6 +11,8 @@ class Item extends Model
         'name',
         'sku',
         'stock',
+        'unit_cost',
+        'amount',
         'status',
         'description',
         'category_id',
@@ -18,6 +20,8 @@ class Item extends Model
 
     protected $casts = [
         'stock' => 'integer',
+        'unit_cost' => 'decimal:2',
+        'amount' => 'decimal:2',
     ];
 
     public function category(): BelongsTo

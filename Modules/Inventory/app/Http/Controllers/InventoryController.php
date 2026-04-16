@@ -24,6 +24,8 @@ class InventoryController extends Controller
                     'name' => $item->name,
                     'sku' => $item->sku,
                     'stock' => $item->stock,
+                    'unit_cost' => $item->unit_cost,
+                    'amount' => $item->amount,
                     'status' => $item->status,
                     'description' => $item->description,
                     'category' => $item->category?->name,
@@ -40,12 +42,14 @@ class InventoryController extends Controller
             'name' => 'required|string|max:255',
             'sku' => 'nullable|string|max:255|unique:items,sku',
             'stock' => 'required|integer|min:0',
+            'unit_cost' => 'nullable|numeric|min:0',
+            'amount' => 'nullable|numeric|min:0',
             'status' => 'required|in:Available,Low Stock,Out of Stock',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
         ]);
 
-        Item::create($request->only(['name', 'sku', 'stock', 'status', 'description', 'category_id']));
+        Item::create($request->only(['name', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'category_id']));
 
         return redirect()->route('inventory.index')->with('success', 'Item created successfully.');
     }
@@ -56,12 +60,14 @@ class InventoryController extends Controller
             'name' => 'required|string|max:255',
             'sku' => 'nullable|string|max:255|unique:items,sku,' . $inventory->id,
             'stock' => 'required|integer|min:0',
+            'unit_cost' => 'nullable|numeric|min:0',
+            'amount' => 'nullable|numeric|min:0',
             'status' => 'required|in:Available,Low Stock,Out of Stock',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
         ]);
 
-        $inventory->update($request->only(['name', 'sku', 'stock', 'status', 'description', 'category_id']));
+        $inventory->update($request->only(['name', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'category_id']));
 
         return redirect()->route('inventory.index')->with('success', 'Item updated successfully.');
     }

@@ -16,6 +16,16 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
     const [isEditMode, setIsEditMode] = useState(false);
     const [selectedReceiving, setSelectedReceiving] = useState<any>(null);
 
+    // --- DIALOG MODALS STATE ---
+    const [itemToVoid, setItemToVoid] = useState<any>(null);
+    const [showVoidModal, setShowVoidModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [isVoiding, setIsVoiding] = useState(false);
+    
+    const [showFormSuccessModal, setShowFormSuccessModal] = useState(false);
+    const [showFormErrorModal, setShowFormErrorModal] = useState(false);
+    const [formSuccessMessage, setFormSuccessMessage] = useState('');
+
     // --- FORM STATE ---
     const { data, setData, post, processing, errors, reset } = useForm({
         item_id: '',
@@ -76,15 +86,9 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
         resetEdit();
     };
 
-    const handleVoid = (receivingId: number) => {
-        if (confirm('Are you sure you want to void this receiving record? This action cannot be undone.')) {
-            router.delete(route('inventory.receiving.destroy', receivingId), {
-                onSuccess: () => {
-                    // Refresh the page or update state
-                    window.location.reload();
-                },
-            });
-        }
+    const handleVoid = (receiving: any) => {
+        setItemToVoid(receiving);
+        setShowVoidModal(true);
     };
 
     const handleUpdate = (e: React.FormEvent) => {
@@ -92,15 +96,26 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
         put(route('inventory.receiving.update', selectedReceiving.id), {
             onSuccess: () => {
                 closeDetailsModal();
-                window.location.reload();
+                setFormSuccessMessage('The receiving record was successfully updated.');
+                setShowFormSuccessModal(true);
             },
+            onError: () => {
+                setShowFormErrorModal(true);
+            }
         });
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         post(route('inventory.receiving.store'), {
-            onSuccess: () => closeModal(),
+            onSuccess: () => {
+                closeModal();
+                setFormSuccessMessage('The new receiving record was successfully created.');
+                setShowFormSuccessModal(true);
+            },
+            onError: () => {
+                setShowFormErrorModal(true);
+            }
         });
     };
 
@@ -286,7 +301,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                                         Details
                                                     </button>
                                                     <button 
-                                                        onClick={() => handleVoid(receiving.id)}
+                                                        onClick={() => handleVoid(receiving)}
                                                         className="text-red-600 hover:text-red-900 transition-colors"
                                                     >
                                                         Void
@@ -771,6 +786,135 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                     </div>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* VOID CONFIRMATION MODAL */}
+            {showVoidModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+                    <div 
+                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+                        onClick={() => !isVoiding && setShowVoidModal(false)}
+                    ></div>
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-red-100">
+                        <div className="h-2 w-full bg-gradient-to-r from-red-600 to-red-800"></div>
+                        <div className="p-6 text-center">
+                            <svg className="mx-auto mb-4 text-red-500 w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <h3 className="mb-5 text-lg font-bold text-gray-900">Are you sure you want to void <br/><span className="text-red-600 border-b border-red-200">Record #{itemToVoid?.id}</span>?</h3>
+                            <p className="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
+                            <div className="flex justify-center gap-4">
+                                <button
+                                    onClick={() => setShowVoidModal(false)}
+                                    disabled={isVoiding}
+                                    className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none transition-all disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (itemToVoid) {
+                                            setIsVoiding(true);
+                                            router.delete(route('inventory.receiving.destroy', itemToVoid.id), {
+                                                onSuccess: () => {
+                                                    setIsVoiding(false);
+                                                    setShowVoidModal(false);
+                                                    setShowSuccessModal(true);
+                                                    setItemToVoid(null);
+                                                },
+                                                onError: () => {
+                                                    setIsVoiding(false);
+                                                    setShowVoidModal(false);
+                                                    setShowFormErrorModal(true);
+                                                }
+                                            });
+                                        }
+                                    }}
+                                    disabled={isVoiding}
+                                    className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 shadow-md focus:outline-none transition-all disabled:opacity-50"
+                                >
+                                    {isVoiding ? 'Voiding...' : 'Yes, Void'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* VOID SUCCESS MODAL */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+                    <div 
+                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+                        onClick={() => setShowSuccessModal(false)}
+                    ></div>
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-green-100 text-center animate-fade-in-up">
+                        <div className="h-2 w-full bg-gradient-to-r from-green-500 to-green-600"></div>
+                        <div className="p-8">
+                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+                                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Record Voided!</h3>
+                            <p className="text-sm text-gray-500 mb-8">The receiving record has been successfully voided.</p>
+                            <button
+                                onClick={() => setShowSuccessModal(false)}
+                                className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 shadow-md focus:outline-none transition-all"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* FORM SUCCESS MODAL */}
+            {showFormSuccessModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+                    <div 
+                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+                        onClick={() => setShowFormSuccessModal(false)}
+                    ></div>
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-green-100 text-center animate-fade-in-up">
+                        <div className="h-2 w-full bg-gradient-to-r from-green-500 to-green-600"></div>
+                        <div className="p-8">
+                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+                                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
+                            <p className="text-sm text-gray-500 mb-8">{formSuccessMessage}</p>
+                            <button
+                                onClick={() => setShowFormSuccessModal(false)}
+                                className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 shadow-md focus:outline-none transition-all"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* FORM ERROR MODAL */}
+            {showFormErrorModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+                    <div 
+                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+                        onClick={() => setShowFormErrorModal(false)}
+                    ></div>
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-red-100 text-center animate-fade-in-up">
+                        <div className="h-2 w-full bg-gradient-to-r from-red-500 to-red-600"></div>
+                        <div className="p-8">
+                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+                                <svg className="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Operation Failed</h3>
+                            <p className="text-sm text-gray-500 mb-8">Please check the form for completeness or errors and try again.</p>
+                            <button
+                                onClick={() => setShowFormErrorModal(false)}
+                                className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 shadow-md focus:outline-none transition-all"
+                            >
+                                Close
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -109,7 +109,12 @@ export default function Categories({ auth, categories }: { auth: any, categories
     // Modal and Form State
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showFormSuccessModal, setShowFormSuccessModal] = useState(false);
+    const [showFormErrorModal, setShowFormErrorModal] = useState(false);
+    const [formSuccessMessage, setFormSuccessMessage] = useState('');
     const [editingCategory, setEditingCategory] = useState<any>(null);
+    const [deletingCategory, setDeletingCategory] = useState<any>(null);
     const [formData, setFormData] = useState({ name: '', description: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -122,9 +127,12 @@ export default function Categories({ auth, categories }: { auth: any, categories
                 setShowAddModal(false);
                 setFormData({ name: '', description: '' });
                 setIsSubmitting(false);
+                setFormSuccessMessage('Category successfully added.');
+                setShowFormSuccessModal(true);
             },
             onError: () => {
                 setIsSubmitting(false);
+                setShowFormErrorModal(true);
             }
         });
     };
@@ -145,17 +153,37 @@ export default function Categories({ auth, categories }: { auth: any, categories
                 setEditingCategory(null);
                 setFormData({ name: '', description: '' });
                 setIsSubmitting(false);
+                setFormSuccessMessage('Category successfully updated.');
+                setShowFormSuccessModal(true);
             },
             onError: () => {
                 setIsSubmitting(false);
+                setShowFormErrorModal(true);
             }
         });
     };
 
-    const handleDelete = (category: any) => {
-        if (confirm(`Are you sure you want to delete "${category.name}"?`)) {
-            router.delete(route('inventory.categories.delete', category.id));
-        }
+    const handleDeleteClick = (category: any) => {
+        setDeletingCategory(category);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = () => {
+        if (!deletingCategory) return;
+        setIsSubmitting(true);
+        router.delete(route('inventory.categories.delete', deletingCategory.id), {
+            onSuccess: () => {
+                setShowDeleteModal(false);
+                setDeletingCategory(null);
+                setIsSubmitting(false);
+                setFormSuccessMessage('Category successfully deleted.');
+                setShowFormSuccessModal(true);
+            },
+            onError: () => {
+                setIsSubmitting(false);
+                setShowFormErrorModal(true);
+            }
+        });
     }; 
 
     // Sidebar Modules Definition
@@ -257,7 +285,7 @@ export default function Categories({ auth, categories }: { auth: any, categories
                                                         Edit
                                                     </button>
                                                     <button 
-                                                        onClick={() => handleDelete(category)}
+                                                        onClick={() => handleDeleteClick(category)}
                                                         className="flex items-center text-xs font-semibold text-red-500 hover:text-red-700 transition-colors gap-1"
                                                     >
                                                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -397,6 +425,100 @@ export default function Categories({ auth, categories }: { auth: any, categories
                     />
                 </form>
             </InventoryModal>
+
+            {/* Delete Modal */}
+            <InventoryModal 
+                show={showDeleteModal} 
+                onClose={() => {
+                    setShowDeleteModal(false);
+                    setDeletingCategory(null);
+                }} 
+                title="Delete Category"
+                isSubmitting={isSubmitting}
+                footer={
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setShowDeleteModal(false);
+                                setDeletingCategory(null);
+                            }}
+                            className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-200 transition-all"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={confirmDelete}
+                            disabled={isSubmitting}
+                            className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 shadow-lg hover:shadow-red-600/30 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-600 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    Deleting...
+                                </>
+                            ) : 'Delete Category'}
+                        </button>
+                    </>
+                }
+            >
+                <div className="text-gray-600 p-2">
+                    <p className="text-base text-gray-800">Are you sure you want to delete the category <strong>{deletingCategory?.name}</strong>?</p>
+                    <p className="mt-3 text-sm text-gray-500">This action cannot be undone.</p>
+                </div>
+            </InventoryModal>
+
+            {/* FORM SUCCESS MODAL */}
+            {showFormSuccessModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+                    <div 
+                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+                        onClick={() => setShowFormSuccessModal(false)}
+                    ></div>
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-green-100 text-center animate-fade-in-up">
+                        <div className="h-2 w-full bg-gradient-to-r from-green-500 to-green-600"></div>
+                        <div className="p-8">
+                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+                                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
+                            <p className="text-sm text-gray-500 mb-8">{formSuccessMessage}</p>
+                            <button
+                                onClick={() => setShowFormSuccessModal(false)}
+                                className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 shadow-md focus:outline-none transition-all"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* FORM ERROR MODAL */}
+            {showFormErrorModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+                    <div 
+                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+                        onClick={() => setShowFormErrorModal(false)}
+                    ></div>
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-red-100 text-center animate-fade-in-up">
+                        <div className="h-2 w-full bg-gradient-to-r from-red-500 to-red-600"></div>
+                        <div className="p-8">
+                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+                                <svg className="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Operation Failed</h3>
+                            <p className="text-sm text-gray-500 mb-8">Please check the form for completeness or errors and try again.</p>
+                            <button
+                                onClick={() => setShowFormErrorModal(false)}
+                                className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 shadow-md focus:outline-none transition-all"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

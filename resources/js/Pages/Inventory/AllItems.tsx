@@ -101,6 +101,17 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
     const [isEditing, setIsEditing] = useState(false);
     const [selectedItem, setSelectedItem] = useState<any>(null);
 
+    // --- DELETE / SUCCESS MODAL STATE ---
+    const [itemToDelete, setItemToDelete] = useState<any>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // --- SUBMIT / SUCCESS / ERROR MODAL STATE ---
+    const [showFormSuccessModal, setShowFormSuccessModal] = useState(false);
+    const [showFormErrorModal, setShowFormErrorModal] = useState(false);
+    const [formSuccessMessage, setFormSuccessMessage] = useState('');
+
     // --- FILTERS STATE ---
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState<any>(null);
@@ -144,6 +155,8 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
         name: '',
         sku: '',
         stock: 0,
+        unit_cost: '',
+        amount: '',
         status: 'Available',
         description: '',
         category_id: '',
@@ -158,14 +171,24 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                     reset();
                     setIsEditing(false);
                     setSelectedItem(null);
+                    setFormSuccessMessage('The inventory item was successfully updated.');
+                    setShowFormSuccessModal(true);
                 },
+                onError: () => {
+                    setShowFormErrorModal(true);
+                }
             });
         } else {
             post(route('inventory.store'), {
                 onSuccess: () => {
                     setShowModal(false);
                     reset();
+                    setFormSuccessMessage('The new inventory item was successfully created.');
+                    setShowFormSuccessModal(true);
                 },
+                onError: () => {
+                    setShowFormErrorModal(true);
+                }
             });
         }
     };
@@ -285,8 +308,10 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                     <tr>
                                         <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Item Name</th>
                                         <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Category</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Description</th> {/* NEW HEADER */}
+                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Description</th>
                                         <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Stock Level</th>
+                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Unit Cost</th>
+                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Amount</th>
                                         <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Status</th>
                                         <th className="px-8 py-4 text-xs font-bold tracking-wider text-right text-red-900 uppercase">Actions</th>
                                     </tr>
@@ -294,7 +319,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                 <tbody className="bg-white divide-y divide-gray-100">
                                     {filteredItems.length === 0 ? (
                                         <tr>
-                                            <td colSpan={6} className="px-8 py-12 text-center text-gray-500"> {/* Updated colSpan to 6 */}
+                                            <td colSpan={8} className="px-8 py-12 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center">
                                                     <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                                                     <p>No items found.</p>
@@ -326,6 +351,12 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                                 <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
                                                     {item.stock} <span className="text-gray-400 text-xs font-normal">units</span>
                                                 </td>
+                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
+                                                    ₱{Number(item.unit_cost || 0).toLocaleString()}
+                                                </td>
+                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
+                                                    ₱{Number(item.amount || 0).toLocaleString()}
+                                                </td>
                                                 <td className="px-8 py-5 whitespace-nowrap">
                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                                         item.status === 'Available' ? 'bg-green-100 text-green-800' : 
@@ -347,6 +378,8 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                                                 name: item.name,
                                                                 sku: item.sku || '',
                                                                 stock: item.stock,
+                                                                unit_cost: item.unit_cost || '',
+                                                                amount: item.amount || '',
                                                                 status: item.status,
                                                                 description: item.description || '',
                                                                 category_id: item.category_id || '',
@@ -359,9 +392,8 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                                     </button>
                                                     <button 
                                                         onClick={() => {
-                                                            if (confirm('Are you sure you want to delete this item?')) {
-                                                                router.delete(route('inventory.destroy', item.id));
-                                                            }
+                                                            setItemToDelete(item);
+                                                            setShowDeleteModal(true);
                                                         }}
                                                         className="text-red-600 hover:text-red-900 transition-colors font-semibold text-xs uppercase tracking-wide"
                                                     >
@@ -482,10 +514,52 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                             label="Initial Stock"
                             type="number"
                             value={data.stock}
-                            onChange={(e: any) => setData('stock', parseInt(e.target.value) || 0)}
+                            onChange={(e: any) => {
+                                const newStock = parseInt(e.target.value) || 0;
+                                const cost = parseFloat(String(data.unit_cost)) || 0;
+                                setData((prev) => ({
+                                    ...prev,
+                                    stock: newStock,
+                                    amount: (newStock * cost).toFixed(2)
+                                }));
+                            }}
                             error={errors.stock}
                             min="0"
                             icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>}
+                        />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <FormInput 
+                            label="Unit Cost"
+                            type="number"
+                            step="0.01"
+                            value={data.unit_cost}
+                            onChange={(e: any) => {
+                                const newCost = parseFloat(e.target.value) || 0;
+                                const stock = Number(data.stock) || 0;
+                                setData((prev) => ({
+                                    ...prev,
+                                    unit_cost: e.target.value,
+                                    amount: (stock * newCost).toFixed(2)
+                                }));
+                            }}
+                            error={errors.unit_cost}
+                            min="0"
+                            placeholder="0.00"
+                            icon={<span className="text-gray-400 font-medium">₱</span>}
+                        />
+                        <FormInput 
+                            label="Amount"
+                            type="number"
+                            step="0.01"
+                            value={data.amount}
+                            onChange={(e: any) => setData('amount', e.target.value)}
+                            error={errors.amount}
+                            min="0"
+                            placeholder="0.00"
+                            disabled
+                            className="bg-gray-100 w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm shadow-sm focus:outline-none"
+                            icon={<span className="text-gray-400 font-medium">₱</span>}
                         />
                     </div>
                     <FormTextarea 
@@ -499,6 +573,133 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                     />
                 </form>
             </InventoryModal>
+
+            {/* DELETE CONFIRMATION MODAL */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+                    <div 
+                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+                        onClick={() => !isDeleting && setShowDeleteModal(false)}
+                    ></div>
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-red-100">
+                        <div className="h-2 w-full bg-gradient-to-r from-red-600 to-red-800"></div>
+                        <div className="p-6 text-center">
+                            <svg className="mx-auto mb-4 text-red-500 w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <h3 className="mb-5 text-lg font-bold text-gray-900">Are you sure you want to delete <br/><span className="text-red-600">"{itemToDelete?.name}"</span>?</h3>
+                            <p className="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
+                            <div className="flex justify-center gap-4">
+                                <button
+                                    onClick={() => setShowDeleteModal(false)}
+                                    disabled={isDeleting}
+                                    className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none transition-all disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (itemToDelete) {
+                                            setIsDeleting(true);
+                                            router.delete(route('inventory.destroy', itemToDelete.id), {
+                                                onSuccess: () => {
+                                                    setIsDeleting(false);
+                                                    setShowDeleteModal(false);
+                                                    setShowSuccessModal(true);
+                                                    setItemToDelete(null);
+                                                },
+                                                onError: () => {
+                                                    setIsDeleting(false);
+                                                }
+                                            });
+                                        }
+                                    }}
+                                    disabled={isDeleting}
+                                    className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 shadow-md focus:outline-none transition-all disabled:opacity-50"
+                                >
+                                    {isDeleting ? 'Deleting...' : 'Yes, Delete'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* SUCCESS MODAL */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+                    <div 
+                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+                        onClick={() => setShowSuccessModal(false)}
+                    ></div>
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-green-100 text-center animate-fade-in-up">
+                        <div className="h-2 w-full bg-gradient-to-r from-green-500 to-green-600"></div>
+                        <div className="p-8">
+                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+                                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Item Deleted!</h3>
+                            <p className="text-sm text-gray-500 mb-8">The inventory item has been successfully removed from your master list.</p>
+                            <button
+                                onClick={() => setShowSuccessModal(false)}
+                                className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 shadow-md focus:outline-none transition-all"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* FORM SUCCESS MODAL */}
+            {showFormSuccessModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+                    <div 
+                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+                        onClick={() => setShowFormSuccessModal(false)}
+                    ></div>
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-green-100 text-center animate-fade-in-up">
+                        <div className="h-2 w-full bg-gradient-to-r from-green-500 to-green-600"></div>
+                        <div className="p-8">
+                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+                                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
+                            <p className="text-sm text-gray-500 mb-8">{formSuccessMessage}</p>
+                            <button
+                                onClick={() => setShowFormSuccessModal(false)}
+                                className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 shadow-md focus:outline-none transition-all"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* FORM ERROR MODAL */}
+            {showFormErrorModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+                    <div 
+                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+                        onClick={() => setShowFormErrorModal(false)}
+                    ></div>
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-red-100 text-center animate-fade-in-up">
+                        <div className="h-2 w-full bg-gradient-to-r from-red-500 to-red-600"></div>
+                        <div className="p-8">
+                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+                                <svg className="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Operation Failed</h3>
+                            <p className="text-sm text-gray-500 mb-8">Please check the form for completeness or errors and try again.</p>
+                            <button
+                                onClick={() => setShowFormErrorModal(false)}
+                                className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 shadow-md focus:outline-none transition-all"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
