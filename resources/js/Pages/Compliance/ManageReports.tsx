@@ -6,6 +6,7 @@ import Select from 'react-select';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import RSMIFormPaper from '../../../Official Forms/RSMI Report';
 import RPCIFormPaper from '../../../Official Forms/RPCI Report';
+import { StockCard as StockCardFormPaper } from '../../../Official Forms/Stock Card Report';
 
 // --- REUSABLE UI COMPONENTS ---
 const ReportModal = ({ show, onClose, title, children, footer, isSubmitting, isLandscape, collapsed }: any) => {
@@ -81,7 +82,7 @@ const FormInput = ({ label, icon, error, ...props }: any) => (
 );
 
 // --- MAIN COMPONENT ---
-export default function ManageReports({ auth }: { auth: any }) {
+export default function ManageReports({ auth, items = [], reports: serverReports = [], issuances = [] }: { auth: any, items?: any[], reports?: any[], issuances?: any[] }) {
     const { props } = usePage();
     const user = auth?.user || (props.auth as any)?.user;
     const [collapsed, setCollapsed] = useState(false);
@@ -90,11 +91,44 @@ export default function ManageReports({ auth }: { auth: any }) {
     const [modalMode, setModalMode] = useState<'create' | 'view'>('create');
     const [selectedId, setSelectedId] = useState<number | null>(null);
 
+    // Dialog state for user actions
+    const [actionDialog, setActionDialog] = useState<{
+        show: boolean;
+        type: 'success' | 'confirm' | 'error';
+        title: string;
+        message: string;
+        onConfirm?: () => void;
+    }>({ show: false, type: 'success', title: '', message: '' });
+
+    const closeActionDialog = () => setActionDialog(prev => ({ ...prev, show: false }));
+
+    // Filter logic for Issuances Data
+    const getFilteredIssuances = () => {
+        return issuances.filter((issue: any) => {
+            const issueDate = new Date(issue.date_issued || issue.created_at);
+            if (isNaN(issueDate.getTime())) return false; // Handle invalid dates
+
+            if (formData.periodType === 'specific') {
+                return (issueDate.toISOString().split('T')[0] === formData.date); 
+            } else if (formData.periodType === 'range') {
+                const start = new Date(formData.startDate);
+                const end = new Date(formData.endDate);
+                return issueDate >= start && issueDate <= end;
+            } else if (formData.periodType === 'monthly') {
+                return (issueDate.getMonth() + 1) === Number(formData.selectedMonth) && issueDate.getFullYear() === Number(formData.selectedYear);
+            } else if (formData.periodType === 'yearly') {
+                return issueDate.getFullYear() === Number(formData.selectedYear);
+            }
+            return true;
+        });
+    };
+
     // Enhanced Form State for COA Periods (Status removed)
     const [formData, setFormData] = useState({
         title: '',
         type: '',
         reference: '',
+        itemName: '',
         periodType: 'specific',
         date: new Date().toISOString().split('T')[0],
         startDate: '',
@@ -113,7 +147,6 @@ export default function ManageReports({ auth }: { auth: any }) {
     const typeOptions = [
         { value: 'RSMI', label: 'RSMI - Supplies and Materials Issued' },
         { value: 'RPCI', label: 'RPCI - Report on the Physical Count of Inventories' },
-        { value: 'RIS', label: 'RIS - Requisition and Issue Slip' },
         { value: 'STOCK_CARD', label: 'Stock Card' },
     ];
 
@@ -131,14 +164,9 @@ export default function ManageReports({ auth }: { auth: any }) {
         { value: 10, label: 'October' }, { value: 11, label: 'November' }, { value: 12, label: 'December' },
     ];
 
-    // Dummy Data (Status removed)
-    const [reports, setReports] = useState([
-        { id: 1, title: 'March 2026 Office Supplies', type: 'RSMI', reference: 'RSMI-2026-003', date: 'March 2026' },
-        { id: 2, title: 'IT Dept Hardware Request', type: 'RIS', reference: 'RIS-NO-105', date: '2026-03-10' },
-        { id: 3, title: 'Bond Paper A4 Ledger', type: 'STOCK_CARD', reference: 'SC-PAPER-01', date: '2026-03-15' },
-    ]);
-
     // Format display date based on period selection
+    const [reports, setReports] = useState<any[]>(serverReports.length > 0 ? serverReports : []);
+
     const generateDisplayDate = (data: any) => {
         if (data.periodType === 'monthly') {
             const monthName = monthOptions.find(m => m.value === data.selectedMonth)?.label;
@@ -162,6 +190,7 @@ export default function ManageReports({ auth }: { auth: any }) {
                     title: formData.title,
                     type: formData.type || 'General Report',
                     reference: formData.reference,
+                    itemName: formData.itemName,
                     date: displayDate,
                 };
                 setReports([newReport, ...reports]);
@@ -171,6 +200,17 @@ export default function ManageReports({ auth }: { auth: any }) {
             setIsSubmitting(false);
             setShowModal(false);
             resetForm();
+            
+            setTimeout(() => {
+                setActionDialog({
+                    show: true,
+                    type: 'success',
+                    title: modalMode === 'create' ? 'Report Generated' : 'Report Updated',
+                    message: modalMode === 'create' 
+                        ? 'The compliance document has been successfully generated.' 
+                        : 'The compliance document has been successfully updated.'
+                });
+            }, 300);
         }, 800);
     };
 
@@ -182,14 +222,30 @@ export default function ManageReports({ auth }: { auth: any }) {
             title: report.title,
             type: report.type,
             reference: report.reference,
+            itemName: report.itemName || '',
         });
         setShowModal(true);
     };
 
     const handleArchive = (id: number) => {
-        if (confirm('Move this document to the digital archive?')) {
-            setReports(reports.filter(r => r.id !== id));
-        }
+        setActionDialog({
+            show: true,
+            type: 'confirm',
+            title: 'Archive Document',
+            message: 'Are you sure you want to move this document to the digital archive?',
+            onConfirm: () => {
+                setReports(reports.filter(r => r.id !== id));
+                closeActionDialog();
+                setTimeout(() => {
+                    setActionDialog({
+                        show: true,
+                        type: 'success',
+                        title: 'Archived Successfully',
+                        message: 'The document has been moved to the digital archive.'
+                    });
+                }, 300);
+            }
+        });
     };
 
     const openCreateModal = () => {
@@ -203,6 +259,7 @@ export default function ManageReports({ auth }: { auth: any }) {
             title: '',
             type: '',
             reference: '',
+            itemName: '',
             periodType: 'specific',
             date: new Date().toISOString().split('T')[0],
             startDate: '',
@@ -292,6 +349,40 @@ export default function ManageReports({ auth }: { auth: any }) {
                 }
             `}</style>
             
+            {/* Action Dialog Modal */}
+            {actionDialog.show && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={closeActionDialog}></div>
+                    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center transform transition-all scale-100 flex flex-col items-center">
+                        {actionDialog.type === 'success' && (
+                            <div className="mx-auto flex flex-shrink-0 items-center justify-center h-14 w-14 rounded-full bg-green-100 mb-4">
+                                <svg className="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                        )}
+                        {actionDialog.type === 'confirm' && (
+                            <div className="mx-auto flex flex-shrink-0 items-center justify-center h-14 w-14 rounded-full bg-yellow-100 mb-4">
+                                <svg className="h-7 w-7 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                        )}
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">{actionDialog.title}</h3>
+                        <p className="text-sm text-gray-500 mb-6">{actionDialog.message}</p>
+                        <div className="flex gap-3 justify-center w-full">
+                            {actionDialog.type === 'confirm' ? (
+                                <>
+                                    <button onClick={closeActionDialog} className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors">Cancel</button>
+                                    <button onClick={actionDialog.onConfirm} className="flex-1 px-4 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors">Confirm</button>
+                                </>
+                            ) : (
+                                <button onClick={closeActionDialog} className="w-full px-4 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors">Close</button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
             <ReportModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
@@ -303,7 +394,7 @@ export default function ManageReports({ auth }: { auth: any }) {
                     <>
                         <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">Cancel</button>
                         
-                        {modalMode === 'view' && formData.type === 'RPCI' && (
+                        {modalMode === 'view' && (formData.type === 'RPCI' || formData.type === 'STOCK_CARD') && (
                             <button
                                 onClick={() => window.print()}
                                 type="button"
@@ -332,29 +423,90 @@ export default function ManageReports({ auth }: { auth: any }) {
                 <div className="flex flex-col gap-6 print:gap-0 print:overflow-hidden print-single-page print-zoom-fit">
                     {modalMode === 'view' && formData.type === 'RSMI' && (
                         <div className="bg-gray-100 p-6 rounded-xl border border-gray-200 print:bg-white print:p-0 print:border-none print-single-page">
-                            <RSMIFormPaper data={{
-                                entityName: 'National Entity for Management and Information X',
-                                serialNo: formData.reference,
-                                fundCluster: 'General Fund',
-                                date: generateDisplayDate(formData),
-                                issuedItems: [],
-                                recapitulationItems: [],
-                                supplyCustodianName: 'Jane Doe',
-                                accountingStaffName: 'John Smith',
-                                accountingDate: generateDisplayDate(formData),
-                            }} />
+                            {(() => {
+                                const filteredIssuances = getFilteredIssuances();
+                                
+                                const issuedItems = filteredIssuances.map((issue: any) => ({
+                                    risNo: issue.id.toString().padStart(4, '0'),
+                                    responsibilityCenterCode: issue.department || '-',
+                                    stockNo: issue.item?.sku || '-',
+                                    itemDescription: issue.item?.name || '-',
+                                    unit: issue.item?.unit_measure || 'pc',
+                                    quantityIssued: issue.quantity || 0,
+                                    unitCost: '', // To be filled manually by Accounting
+                                    amount: ''    // To be filled manually by Accounting
+                                }));
+
+                                return (
+                                    <RSMIFormPaper data={{
+                                        entityName: 'National Entity for Management and Information X',
+                                        serialNo: formData.reference,
+                                        fundCluster: 'General Fund',
+                                        date: generateDisplayDate(formData),
+                                        issuedItems: issuedItems,
+                                        recapitulationItems: [],
+                                        supplyCustodianName: user?.name || 'Supply Officer',
+                                        accountingStaffName: 'Accounting Staff',
+                                        accountingDate: generateDisplayDate(formData),
+                                    }} />
+                                );
+                            })()}
                         </div>
                     )}
                     {modalMode === 'view' && formData.type === 'RPCI' && (
                         <div className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
                             <div className="min-w-[1100px] mx-auto print:min-w-[1100px]">
-                                <RPCIFormPaper hideButtons data={{
-                                    entityName: 'National Entity for Management and Information X',
-                                    asAtDate: generateDisplayDate(formData),
-                                    fundCluster: 'General Fund',
-                                    inventoryType: formData.title,
-                                    accountableOfficer: 'Jane Doe',
-                                    officialDesignation: 'Supply Officer',
+                                {(() => {
+                                    const rpciItems = items.map((item: any) => ({
+                                        article: item.name || '-',
+                                        description: item.description || item.name || '-',
+                                        stock_no: item.sku || '-',
+                                        unit: item.unit_of_issue || item.unit_measure || 'pc',
+                                        unit_value: item.unit_cost || 0,
+                                        balance_per_card: item.stock || 0,
+                                        on_hand_count: '', // To be filled manually
+                                        shortage_qty: '',  // To be filled manually
+                                        shortage_value: '',// To be filled manually
+                                        remarks: ''        // To be filled manually
+                                    }));
+
+                                    return (
+                                        <RPCIFormPaper data={{
+                                            entity_name: 'National Entity for Management and Information X',
+                                            as_at_date: generateDisplayDate(formData),
+                                            fund_cluster: 'General Fund',
+                                            inventory_type: formData.title,
+                                            accountable_officer: 'Jane Doe',
+                                            designation: 'Supply Officer',
+                                            items: rpciItems,
+                                        }} />
+                                    );
+                                })()}
+                            </div>
+                        </div>
+                    )}
+                    {modalMode === 'view' && formData.type === 'STOCK_CARD' && (
+                        <div className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
+                            <div className="min-w-[800px] mx-auto print:min-w-full">
+                                <StockCardFormPaper data={{
+                                    entity_name: 'National Entity for Management and Information X',
+                                    fund_cluster: 'General Fund',
+                                    item: formData.itemName || formData.title,
+                                    stock_no: formData.reference,
+                                    description: 'Stock Card Item',
+                                    re_order_point: '-',
+                                    unit_of_measurement: 'Pieces',
+                                    entries: [
+                                        {
+                                            date: generateDisplayDate(formData),
+                                            reference: formData.reference,
+                                            receipt_qty: 100,
+                                            issue_qty: 0,
+                                            issue_office: 'Admin',
+                                            balance_qty: 100,
+                                            days_to_consume: 30
+                                        }
+                                    ]
                                 }} />
                             </div>
                         </div>
@@ -391,6 +543,25 @@ export default function ManageReports({ auth }: { auth: any }) {
                         placeholder="e.g. Monthly Supplies Issuance - March"
                         icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>}
                     />
+
+                    {formData.type === 'STOCK_CARD' && (
+                        <div className="group w-full">
+                            <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Target Item</label>
+                            <Select
+                                options={items.map((item: any) => ({
+                                    value: item.name,
+                                    label: `${item.name} ${item.sku ? `(${item.sku})` : ''}`
+                                }))}
+                                value={formData.itemName ? { value: formData.itemName, label: items.find((i: any) => i.name === formData.itemName)?.name ? `${items.find((i: any) => i.name === formData.itemName)?.name} ${items.find((i: any) => i.name === formData.itemName)?.sku ? `(${items.find((i: any) => i.name === formData.itemName)?.sku})` : ''}` : formData.itemName } : null}
+                                onChange={(opt: any) => setFormData({...formData, itemName: opt ? opt.value : ''})}
+                                styles={customSelectStyles}
+                                isClearable
+                                placeholder="Select an item..."
+                                menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                menuPosition="fixed"
+                            />
+                        </div>
+                    )}
 
                     {/* COVERAGE PERIOD SECTION */}
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-5 relative overflow-hidden">
@@ -533,7 +704,10 @@ export default function ManageReports({ auth }: { auth: any }) {
                                                         serialNo: report.reference,
                                                         fundCluster: 'GF',
                                                         date: report.date || '',
-                                                        issuedItems: [], recapitulationItems: [],
+                                                        issuedItems: [
+                                                            { risNo: '1', responsibilityCenterCode: '-', stockNo: '1', itemDescription: 'Sample', unit: 'pc', quantityIssued: 1, unitCost: '', amount: '' }
+                                                        ], 
+                                                        recapitulationItems: [],
                                                         supplyCustodianName: '', accountingStaffName: '', accountingDate: ''
                                                     }} />
                                                 </div>
@@ -541,11 +715,24 @@ export default function ManageReports({ auth }: { auth: any }) {
                                             
                                             {report.type === 'RPCI' && (
                                                 <div className="absolute top-0 right-0 w-44 h-32 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
-                                                    <RPCIFormPaper hideButtons data={{
-                                                        entityName: 'COA',
-                                                        asAtDate: report.date || '',
-                                                        fundCluster: 'GF',
-                                                        inventoryType: report.title,
+                                                    <RPCIFormPaper data={{
+                                                        entity_name: 'COA',
+                                                        as_at_date: report.date || '',
+                                                        fund_cluster: 'GF',
+                                                        inventory_type: report.title,
+                                                        items: [
+                                                            { article: 'Sample', description: '-', stock_no: '1', unit: 'pc', unit_value: 100, balance_per_card: 10, on_hand_count: '', shortage_qty: '', shortage_value: '', remarks: '' }
+                                                        ]
+                                                    }} />
+                                                </div>
+                                            )}
+
+                                            {report.type === 'STOCK_CARD' && (
+                                                <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
+                                                    <StockCardFormPaper data={{
+                                                        item: report.itemName || report.title,
+                                                        stock_no: report.reference,
+                                                        entries: []
                                                     }} />
                                                 </div>
                                             )}

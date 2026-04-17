@@ -114,7 +114,6 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
 
     // --- FILTERS STATE ---
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterCategory, setFilterCategory] = useState<any>(null);
     const [filterStatus, setFilterStatus] = useState<any>(null);
 
     // --- FILTERING LOGIC ---
@@ -123,11 +122,10 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
             const matchesSearch = 
                 item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                 (item.sku && item.sku.toLowerCase().includes(searchTerm.toLowerCase()));
-            const matchesCategory = filterCategory ? item.category_id === filterCategory.value : true;
             const matchesStatus = filterStatus ? item.status === filterStatus.value : true;
-            return matchesSearch && matchesCategory && matchesStatus;
+            return matchesSearch && matchesStatus;
         });
-    }, [items, searchTerm, filterCategory, filterStatus]);
+    }, [items, searchTerm, filterStatus]);
 
     const customSelectStyles = {
         control: (provided: any, state: any) => ({
@@ -159,7 +157,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
         amount: '',
         status: 'Available',
         description: '',
-        category_id: '',
+        unit_of_issue: '',
     });
 
     const submit = (e: any) => {
@@ -258,18 +256,6 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                     />
                                 </div>
 
-                                <div className="w-full sm:w-48">
-                                    <Select
-                                        value={filterCategory}
-                                        onChange={setFilterCategory}
-                                        options={categories.map(c => ({ value: c.id, label: c.name }))}
-                                        placeholder="Category"
-                                        isClearable
-                                        styles={customSelectStyles}
-                                        classNamePrefix="react-select"
-                                    />
-                                </div>
-
                                 <div className="w-full sm:w-40">
                                     <Select
                                         value={filterStatus}
@@ -307,7 +293,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                 <thead className="bg-red-50/50">
                                     <tr>
                                         <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Item Name</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Category</th>
+                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Unit of Issue</th>
                                         <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Description</th>
                                         <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Stock Level</th>
                                         <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Unit Cost</th>
@@ -323,7 +309,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                                 <div className="flex flex-col items-center justify-center">
                                                     <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                                                     <p>No items found.</p>
-                                                    {(searchTerm || filterCategory || filterStatus) && (
+                                                    {(searchTerm || filterStatus) && (
                                                         <p className="text-xs text-gray-400 mt-1">Try adjusting your filters.</p>
                                                     )}
                                                 </div>
@@ -339,7 +325,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                                 </td>
                                                 <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600">
                                                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                                                        {item.category || 'Uncategorized'}
+                                                        {item.unit_of_issue || '-'}
                                                     </span>
                                                 </td>
                                                 {/* NEW DESCRIPTION CELL */}
@@ -382,7 +368,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                                                 amount: item.amount || '',
                                                                 status: item.status,
                                                                 description: item.description || '',
-                                                                category_id: item.category_id || '',
+                                                                unit_of_issue: item.unit_of_issue || '',
                                                             });
                                                             setShowModal(true);
                                                         }}
@@ -487,17 +473,14 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                         <div className="group w-full">
-                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Category</label>
-                            <div className="relative">
-                                <Select
-                                    value={categories.find(cat => cat.id === data.category_id) ? { value: categories.find(cat => cat.id === data.category_id).id, label: categories.find(cat => cat.id === data.category_id).name } : null}
-                                    onChange={(selectedOption) => setData('category_id', selectedOption ? selectedOption.value : '')}
-                                    options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
-                                    placeholder="Select..."
-                                    styles={customSelectStyles}
-                                />
-                            </div>
-                            {errors.category_id && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.category_id}</p>}
+                            <FormInput 
+                                label="Unit of Issue (Measurement)"
+                                value={data.unit_of_issue}
+                                onChange={(e: any) => setData('unit_of_issue', e.target.value)}
+                                error={errors.unit_of_issue}
+                                placeholder="e.g. pad, box, pc"
+                                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>}
+                            />
                         </div>
                         <div className="group w-full">
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Status</label>

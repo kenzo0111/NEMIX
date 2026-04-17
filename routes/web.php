@@ -14,7 +14,19 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/compliance/reports', function () {
-    return Inertia::render('Compliance/ManageReports');
+    $items = class_exists(\Modules\Inventory\Models\Item::class) 
+        ? \Modules\Inventory\Models\Item::all() 
+        : [];
+        
+    $issuances = class_exists(\Modules\Inventory\Models\Issuance::class) 
+        ? \Modules\Inventory\Models\Issuance::with(['item', 'issuer'])->latest()->get() 
+        : [];
+        
+    return Inertia::render('Compliance/ManageReports', [
+        'items' => $items,
+        'reports' => [],
+        'issuances' => $issuances,
+    ]);
 })->middleware(['auth', 'verified'])->name('compliance.reports');
 
 Route::get('/compliance/analytics', function () {

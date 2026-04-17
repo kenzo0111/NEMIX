@@ -15,7 +15,7 @@ class Item extends Model
         'amount',
         'status',
         'description',
-        'category_id',
+        'unit_of_issue',
     ];
 
     protected $casts = [
@@ -23,9 +23,4 @@ class Item extends Model
         'unit_cost' => 'decimal:2',
         'amount' => 'decimal:2',
     ];
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class);
-    }
 }

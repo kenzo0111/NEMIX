@@ -5,4 +5,5 @@ use Modules\AuditLogs\Http\Controllers\AuditLogsController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/audit-logs/login-trails', [AuditLogsController::class, 'loginTrails'])->name('audit-logs.login-trails');
+    Route::get('/audit-logs/transaction-trails', [AuditLogsController::class, 'manageTransactions'])->name('audit-logs.transaction-trails');
 });

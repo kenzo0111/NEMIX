@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('items', function (Blueprint $table) {
-            $table->decimal('unit_cost', 10, 2)->default(0);
-            $table->decimal('total_amount', 12, 2)->default(0);
+            $table->dropForeign(['category_id']);
+            $table->dropColumn('category_id');
+            $table->string('unit_of_issue')->nullable()->after('description');
         });
     }
 
@@ -23,8 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('items', function (Blueprint $table) {
-            $table->dropColumn('unit_cost');
-            $table->dropColumn('total_amount');
+            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
+            $table->dropColumn('unit_of_issue');
         });
     }
 };

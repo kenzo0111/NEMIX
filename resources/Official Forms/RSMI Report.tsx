@@ -1,182 +1,313 @@
 import React from 'react';
 
+// --- Interfaces ---
+
 export interface RSMIItem {
-  id?: string;
   risNo: string;
   responsibilityCenterCode: string;
   stockNo: string;
   itemDescription: string;
   unit: string;
-  quantityIssued: number | null;
-  unitCost: number | null;
-  amount: number | null;
+  quantityIssued: number | string | null;
+  unitCost: number | string | null;
+  amount: number | string | null;
 }
 
 export interface RSMIRecapitulation {
   stockNo: string;
-  quantity: number | null;
-  unitCost: number | null;
-  totalCost: number | null;
+  quantity: number | string | null;
+  unitCost: number | string | null;
+  totalCost: number | string | null;
   uacsObjectCode: string;
 }
 
-export interface RSMIForm {
-  entityName: string;
-  serialNo: string;
-  fundCluster: string;
-  date: string;
-  issuedItems: RSMIItem[];
-  recapitulationItems: RSMIRecapitulation[];
-  supplyCustodianName: string;
-  accountingStaffName: string;
-  accountingDate: string;
+export interface RSMIFormProps {
+  data: {
+    entityName: string;
+    fundCluster: string;
+    serialNo: string;
+    date: string;
+    issuedItems: RSMIItem[];
+    recapitulationItems: RSMIRecapitulation[];
+    supplyCustodianName: string;
+    accountingStaffName: string;
+    accountingDate: string;
+  };
 }
 
-interface Props {
-  data: RSMIForm;
-}
+export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
+  // Pad main table to 20 rows
+  const items = data.issuedItems || [];
+  const targetRowCount = 20;
+  const paddedItems = [...items, ...Array(Math.max(0, targetRowCount - items.length)).fill({})];
 
-export default function RSMIFormPaper({ data }: Props) {
-  // COA forms usually have around 25-30 rows for the main section
-  const totalRows = 25;
-  const items = [...data.issuedItems];
-  const recaps = [...data.recapitulationItems];
+  // Pad recapitulation table to 8 rows
+  const recap = data.recapitulationItems || [];
+  const recapTargetCount = 8;
+  const paddedRecap = [...recap, ...Array(Math.max(0, recapTargetCount - recap.length)).fill({})];
 
   return (
-    <div className="mx-auto p-8 bg-white text-black mb-10 w-full max-w-[8.5in]" style={{ minHeight: '11in', fontFamily: '"Times New Roman", Times, serif' }}>
-      {/* Header */}
-      <div className="text-right italic text-base mb-4">Appendix 64</div>
-      <h1 className="text-center font-bold text-base mb-8 uppercase tracking-wide">Report of Supplies and Materials Issued</h1>
+    <>
+      <style>{`
+        @page {
+            size: A4 portrait;
+            margin: 20px;
+        }
+        .rsmi-container {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 10pt;
+            background: #fff;
+            color: #000;
+            width: 100%;
+            max-width: 210mm;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        .header-appendix {
+            text-align: right;
+            font-style: italic;
+            font-size: 14pt;
+            margin-bottom: 10px;
+        }
+        .main-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 12pt;
+            margin-bottom: 25px;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Top Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            column-gap: 40px;
+            margin-bottom: 5px;
+        }
+        .info-row {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 8px;
+        }
+        .info-label {
+            font-weight: bold;
+            white-space: nowrap;
+            margin-right: 5px;
+        }
+        .info-value {
+            flex-grow: 1;
+            border-bottom: 1px solid #000;
+            min-height: 14pt;
+            padding-left: 5px;
+            font-weight: normal;
+        }
 
-      {/* Metadata Section */}
-      <div className="grid grid-cols-2 gap-8 mb-4 text-sm font-bold">
-        <div className="space-y-4">
-          <div className="flex items-end">
-            <span className="pr-2">Entity Name :</span>
-            <span className="flex-1 border-b border-black pb-0.5 px-2 font-normal leading-none min-h-[1.2rem]">{data.entityName}</span>
-          </div>
-          <div className="flex items-end">
-            <span className="pr-2">Fund Cluster :</span>
-            <span className="flex-1 border-b border-black pb-0.5 px-2 font-normal leading-none min-h-[1.2rem]">{data.fundCluster}</span>
-          </div>
-        </div>
-        <div className="space-y-4">
-          <div className="flex items-end">
-            <span className="pr-2 w-20">Serial No. :</span>
-            <span className="flex-1 border-b border-black pb-0.5 px-2 font-normal leading-none min-h-[1.2rem]">{data.serialNo}</span>
-          </div>
-          <div className="flex items-end">
-            <span className="pr-2 w-20">Date :</span>
-            <span className="flex-1 border-b border-black pb-0.5 px-2 font-normal leading-none min-h-[1.2rem]">{data.date}</span>
-          </div>
-        </div>
-      </div>
+        /* Main Table Grid */
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #000;
+        }
+        .main-table th, .main-table td {
+            border: 1px solid #000;
+            padding: 4px;
+            font-size: 9.5pt;
+        }
+        .main-table th {
+            text-align: center;
+            font-weight: bold;
+        }
+        .main-table td {
+            height: 22px; /* Fixed height for rows */
+        }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        
+        .header-italic {
+            font-style: italic;
+            font-weight: normal !important;
+        }
 
-      {/* Main Table */}
-      <div className="border-2 border-black">
-        <table className="w-full border-collapse text-[11px] table-fixed">
+        /* Footer / Signatures */
+        .footer-cell {
+            vertical-align: top;
+            padding: 10px !important;
+            height: 120px;
+        }
+        .certify-text {
+            margin-bottom: 30px;
+        }
+        .signature-area {
+            text-align: center;
+            width: 85%;
+            margin: 0 auto;
+        }
+        .posted-text {
+            margin-bottom: 20px;
+        }
+        .accounting-sigs {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            text-align: center;
+            padding: 0 10px;
+            margin-top: 15px; /* Pushes the signatures down slightly */
+        }
+        .sig-main {
+            flex-grow: 1;
+            margin-right: 20px; /* Space between name and date */
+        }
+        .sig-date {
+            width: 120px; /* Fixed width for the date line */
+        }
+        .sig-line {
+            border-bottom: 1px solid #000;
+            min-height: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .sig-label {
+            font-size: 8.5pt;
+            margin-top: 3px;
+            line-height: 1.2;
+        }
+
+        /* Ensure borders match precisely */
+        .border-bottom-bold { border-bottom: 2px solid #000 !important; }
+
+        @media print {
+            body { margin: 0; }
+            .rsmi-container { width: 100%; max-width: none; }
+        }
+      `}</style>
+
+      <div className="rsmi-container">
+        <div className="header-appendix">Appendix 64</div>
+        <div className="main-title">REPORT OF SUPPLIES AND MATERIALS ISSUED</div>
+
+        {/* Top Info */}
+        <div className="info-grid">
+            <div>
+                <div className="info-row">
+                    <span className="info-label">Entity Name:</span>
+                    <div className="info-value">{data.entityName}</div>
+                </div>
+                <div className="info-row">
+                    <span className="info-label">Fund Cluster:</span>
+                    <div className="info-value">{data.fundCluster}</div>
+                </div>
+            </div>
+            <div>
+                <div className="info-row">
+                    <span className="info-label">Serial No. :</span>
+                    <div className="info-value">{data.serialNo}</div>
+                </div>
+                <div className="info-row">
+                    <span className="info-label">Date :</span>
+                    <div className="info-value">{data.date}</div>
+                </div>
+            </div>
+        </div>
+
+        {/* Main 9-Column Grid Table */}
+        <table className="main-table">
+          <colgroup>
+             <col style={{width: '7%'}} />  {/* C1: RIS No. */}
+             <col style={{width: '13%'}} /> {/* C2: RCC */}
+             <col style={{width: '10%'}} /> {/* C3: Stock No. */}
+             <col style={{width: '26%'}} /> {/* C4: Item */}
+             <col style={{width: '7%'}} />  {/* C5: Unit */}
+             <col style={{width: '9%'}} />  {/* C6: Qty Issued */}
+             <col style={{width: '10%'}} /> {/* C7: Unit Cost */}
+             <col style={{width: '9%'}} />  {/* C8: Amount / Total Cost */}
+             <col style={{width: '9%'}} />  {/* C9: Amount / UACS */}
+          </colgroup>
           <thead>
-            <tr className="border-b-2 border-black">
-              <th colSpan={6} className="border-r-2 border-black font-normal italic py-1.5">To be filled up by the Supply and/or Property Division/Unit</th>
-              <th colSpan={2} className="font-normal italic py-1.5">To be filled up by the Accounting Division/Unit</th>
+            <tr>
+              <th colSpan={6} className="header-italic">To be filled up by the Supply and/or Property Division/Unit</th>
+              <th colSpan={3} className="header-italic">To be filled up by the Accounting Division/Unit</th>
             </tr>
-            <tr className="border-b-2 border-black text-center align-middle">
-              <th className="border-r border-black w-[9%] py-3 font-bold">RIS No.</th>
-              <th className="border-r border-black w-[13%] leading-tight px-1 font-bold">Responsibility<br/>Center Code</th>
-              <th className="border-r border-black w-[11%] font-bold">Stock No.</th>
-              <th className="border-r border-black w-[20%] font-bold">Item</th>
-              <th className="border-r border-black w-[7%] font-bold">Unit</th>
-              <th className="border-r-2 border-black w-[10%] leading-tight px-1 font-bold">Quantity<br/>Issued</th>
-              <th className="border-r border-black w-[15%] font-bold">Unit Cost</th>
-              <th className="font-bold w-[15%]">Amount</th>
+            <tr>
+              <th>RIS No.</th>
+              <th>Responsibility<br/>Center Code</th>
+              <th>Stock No.</th>
+              <th>Item</th>
+              <th>Unit</th>
+              <th>Quantity<br/>Issued</th>
+              <th>Unit Cost</th>
+              <th colSpan={2}>Amount</th>
             </tr>
           </thead>
           <tbody>
-            {/* Empty Main Rows or Filled Rows */}
-            {[...Array(25)].map((_, i) => {
-              const item = items[i];
-              return (
-                <tr key={i} className="h-6 border-b border-black last:border-b-2">
-                  <td className="border-r border-black px-1 break-words">{item?.risNo || '\u00A0'}</td>
-                  <td className="border-r border-black px-1 text-center break-words">{item?.responsibilityCenterCode || '\u00A0'}</td>
-                  <td className="border-r border-black px-1 break-words">{item?.stockNo || '\u00A0'}</td>
-                  <td className="border-r border-black px-1 break-words">{item?.itemDescription || '\u00A0'}</td>
-                  <td className="border-r border-black px-1 text-center break-words">{item?.unit || '\u00A0'}</td>
-                  <td className="border-r-2 border-black px-1 text-right break-words">{item?.quantityIssued || '\u00A0'}</td>
-                  <td className="border-r border-black px-1 text-right break-words">{item?.unitCost || '\u00A0'}</td>
-                  <td className="px-1 text-right break-words">{item?.amount || '\u00A0'}</td>
-                </tr>
-              );
-            })}
+            {/* Upper Section: Main Items */}
+            {paddedItems.map((item, idx) => (
+              <tr key={`item-${idx}`}>
+                <td className="text-center">{item.risNo}</td>
+                <td className="text-center">{item.responsibilityCenterCode}</td>
+                <td className="text-center">{item.stockNo}</td>
+                <td>{item.itemDescription}</td>
+                <td className="text-center">{item.unit}</td>
+                <td className="text-right">{item.quantityIssued}</td>
+                <td className="text-right">{item.unitCost}</td>
+                <td colSpan={2} className="text-right">{item.amount}</td>
+              </tr>
+            ))}
 
-            {/* Recapitulation Headers */}
-            <tr className="border-b border-black font-bold text-center bg-white h-7">
-              <td colSpan={2} className="border-r-2 border-black border-b-2">Recapitulation:</td>
-              <td className="border-r border-black"></td>
-              <td className="border-r border-black"></td>
-              <td className="border-r border-black"></td>
-              <td colSpan={3} className="border-l-2 border-b-2 border-black">Recapitulation:</td>
+            {/* Lower Section: Recapitulation Headers */}
+            <tr className="border-bottom-bold">
+              <td rowSpan={recapTargetCount + 2}></td> {/* C1 Empty column spanning down */}
+              <td colSpan={2} className="text-center font-bold">Recapitulation:</td> {/* C2 and C3 for left Recapitulation */}
+              <td rowSpan={recapTargetCount + 2}></td> {/* C4 Empty column spanning down */}
+              <td rowSpan={recapTargetCount + 2}></td> {/* C5 Empty column spanning down */}
+              <td colSpan={4} className="text-center font-bold">Recapitulation:</td> {/* C6 to C9 for right Recapitulation */}
             </tr>
-            <tr className="border-b-2 border-black font-bold text-center h-8 bg-white">
-              <td className="border-r border-black">Stock No.</td>
-              <td className="border-r-2 border-black">Quantity</td>
-              <td className="border-r border-black"></td>
-              <td className="border-r border-black"></td>
-              <td className="border-r border-black"></td>
-              <td className="border-r border-l-2 border-black">Unit Cost</td>
-              <td className="border-r border-black leading-tight">Total Cost</td>
-              <td className="leading-tight">UACS Object Code</td>
+            <tr>
+              <td className="text-center font-bold">Stock No.</td>
+              <td className="text-center font-bold">Quantity</td>
+              <td className="text-center font-bold">Unit Cost</td>
+              <td className="text-center font-bold">Total Cost</td>
+              <td colSpan={2} className="text-center font-bold">UACS Object Code</td>
             </tr>
 
-            {/* Recapitulation Content Rows */}
-            {[...Array(6)].map((_, i) => {
-              const recap = recaps[i];
-              return (
-                <tr key={`recap-${i}`} className="h-7 border-b border-black last:border-b-0">
-                  <td className="border-r border-black px-1 break-words">{recap?.stockNo || '\u00A0'}</td>
-                  <td className="border-r-2 border-black px-1 text-center break-words">{recap?.quantity || '\u00A0'}</td>
-                  <td className="border-r border-black"></td>
-                  <td className="border-r border-black"></td>
-                  <td className="border-r border-black"></td>
-                  <td className="border-r border-l-2 border-black px-1 text-right break-words">{recap?.unitCost || '\u00A0'}</td>
-                  <td className="border-r border-black px-1 text-right break-words">{recap?.totalCost || '\u00A0'}</td>
-                  <td className="px-1 text-center break-words">{recap?.uacsObjectCode || '\u00A0'}</td>
-                </tr>
-              );
-            })}
+            {/* Lower Section: Recapitulation Rows */}
+            {paddedRecap.map((r, idx) => (
+              <tr key={`recap-${idx}`}>
+                <td className="text-center">{r.stockNo}</td>
+                <td className="text-center">{r.quantity}</td>
+                <td className="text-right">{r.unitCost}</td>
+                <td className="text-right">{r.totalCost}</td>
+                <td colSpan={2} className="text-center">{r.uacsObjectCode}</td>
+              </tr>
+            ))}
+
+            {/* Footer / Signatures - Integrated as a table row to maintain perfect vertical alignment */}
+            <tr>
+              <td colSpan={5} className="footer-cell">
+                <div className="certify-text">I hereby certify to the correctness of the above information.</div>
+                <div className="signature-area">
+                  <div className="sig-line">{data.supplyCustodianName}</div>
+                  <div className="sig-label">Signature over Printed Name of Supply and/or<br/>Property Custodian</div>
+                </div>
+              </td>
+              <td colSpan={4} className="footer-cell" style={{ borderLeft: '2px solid #000' }}>
+                <div className="posted-text">Posted by:</div>
+                <div className="accounting-sigs">
+                  <div className="sig-main">
+                    <div className="sig-line">{data.accountingStaffName}</div>
+                    <div className="sig-label">Signature over Printed Name of<br/>Designated Accounting Staff</div>
+                  </div>
+                  <div className="sig-date">
+                    <div className="sig-line">{data.accountingDate}</div>
+                    <div className="sig-label">Date</div>
+                  </div>
+                </div>
+              </td>
+            </tr>
           </tbody>
         </table>
-
-        {/* Footer / Signatures */}
-        <div className="flex w-full border-t-2 border-black text-[12px]">
-          <div className="flex-[0.8] p-4 border-r-2 border-black flex flex-col pt-6 pb-2">
-            <p className="mb-10 ml-4 font-normal">I hereby certify to the correctness of the above information.</p>
-            <div className="text-center px-8 mt-auto">
-              <div className="border-b border-black font-bold min-h-[1.5rem] uppercase">
-                {data.supplyCustodianName}
-              </div>
-              <p className="mt-1 font-normal">Signature over Printed Name of Supply and/or<br/>Property Custodian</p>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col">
-            <div className="px-2 pt-2 text-sm">Posted by:</div>
-            <div className="flex-1 px-4 pb-2 flex gap-4 mt-12 items-end">
-              <div className="flex-1 text-center">
-                <div className="border-b border-black font-bold uppercase min-h-[1.5rem]">
-                  {data.accountingStaffName}
-                </div>
-                <p className="mt-1 font-normal">Signature over Printed Name of<br/>Designated Accounting Staff</p>
-              </div>
-              <div className="w-28 text-center pb-[18px]">
-                <div className="border-b border-black font-bold min-h-[1.5rem]">
-                  {data.accountingDate}
-                </div>
-                <p className="mt-1 font-normal">Date</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-    </div>
+    </>
   );
-}
+};
+
+export default RSMIFormPaper;

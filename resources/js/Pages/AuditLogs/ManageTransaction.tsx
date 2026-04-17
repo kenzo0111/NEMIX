@@ -18,16 +18,26 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
 
     const modules = getSidebarModules('Audit Logs', 'Manage Transaction');
 
-    // Raw Data (Usually this comes from props.logs)
-    const rawLogs = logs || [
-        { id: 'TRX-1001', user: 'John Doe', role: 'Property Staff', module: 'Inventory', action: 'Create', details: 'Added new item: Laptop', status: 'Verified', badge: 'bg-green-50 text-green-700 ring-1 ring-green-600/20', time: 'Oct 27, 2023 • 10:30 AM' },
-        { id: 'TRX-1002', user: 'Mike Johnson', role: 'Property Staff', module: 'Acquisition', action: 'Update', details: 'Updated PO #12345 status', status: 'Logged', badge: 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20', time: 'Oct 27, 2023 • 11:15 AM' },
-        { id: 'TRX-1003', user: 'Sarah Williams', role: 'System Admin', module: 'Suppliers', action: 'Delete', details: 'Removed supplier: XYZ Corp', status: 'Flagged', badge: 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20', time: 'Oct 26, 2023 • 09:45 AM' },
-        { id: 'TRX-1004', user: 'Admin User', role: 'System Admin', module: 'User Role', action: 'Update', details: 'Changed role for user ID 5', status: 'Verified', badge: 'bg-green-50 text-green-700 ring-1 ring-green-600/20', time: 'Oct 26, 2023 • 01:22 PM' },
-        { id: 'TRX-1005', user: 'John Doe', role: 'Property Staff', module: 'Inventory', action: 'Stock In', details: 'Received 50 units of Mouse', status: 'In Progress', badge: 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20', time: 'Oct 25, 2023 • 03:10 PM' },
-    ];
+    // Raw Data coming from props
+    const rawLogs = logs || [];
 
     // --- 2. Filtering Logic ---
+    const moduleOptions = useMemo(() => {
+        const uniqueModules = Array.from(new Set(rawLogs.map(log => log.module).filter(Boolean))).sort();
+        return [
+            { value: '', label: 'All Modules' },
+            ...uniqueModules.map(m => ({ value: m, label: m }))
+        ];
+    }, [rawLogs]);
+
+    const actionOptions = useMemo(() => {
+        const uniqueActions = Array.from(new Set(rawLogs.map(log => log.action).filter(Boolean))).sort();
+        return [
+            { value: '', label: 'All Actions' },
+            ...uniqueActions.map(a => ({ value: a, label: a }))
+        ];
+    }, [rawLogs]);
+
     const filteredLogs = useMemo(() => {
         return rawLogs.filter((log) => {
             const matchesSearch = 
@@ -40,23 +50,7 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
 
             return matchesSearch && matchesModule && matchesAction;
         });
-    }, [searchQuery, selectedModule, selectedAction]);
-
-    const moduleOptions = [
-        { value: '', label: 'All Modules' },
-        { value: 'Inventory', label: 'Inventory' },
-        { value: 'Acquisition', label: 'Acquisition' },
-        { value: 'Suppliers', label: 'Suppliers' },
-        { value: 'User Role', label: 'User Role' },
-    ];
-
-    const actionOptions = [
-        { value: '', label: 'All Actions' },
-        { value: 'Create', label: 'Create' },
-        { value: 'Update', label: 'Update' },
-        { value: 'Delete', label: 'Delete' },
-        { value: 'Stock In', label: 'Stock In' },
-    ];
+    }, [searchQuery, selectedModule, selectedAction, rawLogs]);
 
     const selectStyles = {
         control: (provided: any) => ({

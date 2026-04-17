@@ -18,7 +18,7 @@ class InventoryController extends Controller
     public function index()
     {
         return Inertia::render('Inventory/AllItems', [
-            'items' => Item::with('category')->get()->map(function ($item) {
+            'items' => Item::all()->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
@@ -28,8 +28,7 @@ class InventoryController extends Controller
                     'amount' => $item->amount,
                     'status' => $item->status,
                     'description' => $item->description,
-                    'category' => $item->category?->name,
-                    'category_id' => $item->category_id,
+                    'unit_of_issue' => $item->unit_of_issue,
                 ];
             }),
             'categories' => Category::all()
@@ -46,10 +45,10 @@ class InventoryController extends Controller
             'amount' => 'nullable|numeric|min:0',
             'status' => 'required|in:Available,Low Stock,Out of Stock',
             'description' => 'nullable|string',
-            'category_id' => 'nullable|exists:categories,id',
+            'unit_of_issue' => 'nullable|string|max:255',
         ]);
 
-        Item::create($request->only(['name', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'category_id']));
+        Item::create($request->only(['name', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'unit_of_issue']));
 
         return redirect()->route('inventory.index')->with('success', 'Item created successfully.');
     }
@@ -64,10 +63,10 @@ class InventoryController extends Controller
             'amount' => 'nullable|numeric|min:0',
             'status' => 'required|in:Available,Low Stock,Out of Stock',
             'description' => 'nullable|string',
-            'category_id' => 'nullable|exists:categories,id',
+            'unit_of_issue' => 'nullable|string|max:255',
         ]);
 
-        $inventory->update($request->only(['name', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'category_id']));
+        $inventory->update($request->only(['name', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'unit_of_issue']));
 
         return redirect()->route('inventory.index')->with('success', 'Item updated successfully.');
     }
