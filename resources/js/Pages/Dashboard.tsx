@@ -1,12 +1,26 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import Sidebar from '@/Components/Sidebar';
-import { Head, Link } from '@inertiajs/react';
-import { useState, useMemo } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState, useMemo, useEffect } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
 
-export default function Dashboard({ auth }: { auth: any }) {
+export default function Dashboard({ 
+    auth, 
+    stats = { totalInventoryValue: '₱0', totalRisIssued: 0, itemsIssuedMtd: 0, unserviceable: 0, criticalAlerts: 0 },
+    chartData = { monthly: [0, 0, 0, 0, 0, 0, 0, 0], yearly: [0, 0, 0, 0, 0, 0, 0, 0] },
+    lowStockAlerts = [],
+    auditLogs = [],
+    roles = [] 
+}: { 
+    auth: any;
+    stats?: { totalInventoryValue: string; totalRisIssued: number; itemsIssuedMtd: number; unserviceable: number; criticalAlerts: number; };
+    chartData?: { monthly: number[]; yearly: number[]; };
+    lowStockAlerts?: Array<{ name: string; sku: string; current: number; min: number; unit: string; priority: string; }>;
+    auditLogs?: Array<{ user: string; role: string; action: string; details: string; id: string; status: string; time: string; badge: string; }>;
+    roles?: Array<{ value: string; label: string; }>;
+}) {
     const user = auth.user;
     const [collapsed, setCollapsed] = useState(false);
     
@@ -18,7 +32,13 @@ export default function Dashboard({ auth }: { auth: any }) {
     // State for Audit Trail Role Filter
     const [selectedRoleFilter, setSelectedRoleFilter] = useState<{ value: string; label: string } | null>(null);
 
-    const roleOptions = [
+    const chartFilterOptions = [
+        { value: 'monthly', label: 'Monthly View (Last 6 Mos)' },
+        { value: 'yearly', label: 'Yearly View' },
+        { value: 'custom', label: 'Custom Range...' },
+    ];
+
+    const roleFilterOptions = roles && roles.length > 0 ? roles : [
         { value: '', label: 'All Roles' },
         { value: 'System Admin', label: 'System Admin' },
         { value: 'Internal Auditor', label: 'Internal Auditor' },
@@ -49,12 +69,12 @@ export default function Dashboard({ auth }: { auth: any }) {
         }),
     };
 
-    const auditTrailLogs = [
-        { user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', ref: 'TRX-1006', status: 'Verified', time: '15 mins ago', badge: 'bg-green-50 text-green-700 ring-1 ring-green-600/20' },
-        { user: 'Maria Santos', role: 'Internal Auditor', action: 'Exported Annual Supply Report', ref: 'TRX-1007', status: 'Logged', time: '1 hour ago', badge: 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20' },
-        { user: 'Staff Member', role: 'Property Staff', action: 'Overrode Stock Level Warning', ref: 'TRX-1008', status: 'Flagged', time: '3 hours ago', badge: 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20' },
-        { user: 'System Auditor', role: 'External Auditor', action: 'Initiated Inventory Reconciliation', ref: 'TRX-1009', status: 'In Progress', time: '5 hours ago', badge: 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20' },
-        { user: 'Admin User', role: 'System Admin', action: 'Updated Asset Category Schema', ref: 'TRX-1010', status: 'Verified', time: '1 day ago', badge: 'bg-green-50 text-green-700 ring-1 ring-green-600/20' },
+    const auditTrailLogs = auditLogs && auditLogs.length > 0 ? auditLogs : [
+        { user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', details: 'Added 5 items to disposal list', id: 'TRX-1006', status: 'Verified', time: '15 mins ago', badge: 'bg-green-50 text-green-700 ring-1 ring-green-600/20' },
+        { user: 'Maria Santos', role: 'Internal Auditor', action: 'Exported Annual Supply Report', details: 'Generated PDF report for 2025', id: 'TRX-1007', status: 'Logged', time: '1 hour ago', badge: 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20' },
+        { user: 'Staff Member', role: 'Property Staff', action: 'Overrode Stock Level Warning', details: 'Authorized release of low-stock items', id: 'TRX-1008', status: 'Flagged', time: '3 hours ago', badge: 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20' },
+        { user: 'System Auditor', role: 'External Auditor', action: 'Initiated Inventory Reconciliation', details: 'Started monthly cycle count', id: 'TRX-1009', status: 'In Progress', time: '5 hours ago', badge: 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20' },
+        { user: 'Admin User', role: 'System Admin', action: 'Updated Asset Category Schema', details: 'Modified depreciation schedules', id: 'TRX-1010', status: 'Verified', time: '1 day ago', badge: 'bg-green-50 text-green-700 ring-1 ring-green-600/20' },
     ];
 
     const filteredAuditLogs = useMemo(() => {
@@ -137,11 +157,11 @@ export default function Dashboard({ auth }: { auth: any }) {
                     {/* Quick Stats Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-6">
                         {[
-                            { label: 'Total Inventory Value', value: '₱1.24M', sub: 'Across 1,240 Items', trend: '+5.2%', trendUp: true, color: 'text-blue-600', bg: 'bg-blue-50/50', icon: '📦' },
-                            { label: 'Total RIS Issued', value: '1,420', sub: 'Completed Requests', trend: 'Lifetime', trendUp: true, color: 'text-indigo-600', bg: 'bg-indigo-50/50', icon: '📜' },
-                            { label: 'Items Issued (MTD)', value: '840', sub: 'Current Month', trend: '+18%', trendUp: true, color: 'text-green-600', bg: 'bg-green-50/50', icon: '📤' },
-                            { label: 'Unserviceable', value: '24', sub: 'Ready for Disposal', trend: 'High Volume', trendUp: false, color: 'text-orange-600', bg: 'bg-orange-50/50', icon: '♻️' },
-                            { label: 'Critical Stock Alerts', value: '3', sub: 'Requires Reordering', trend: 'Urgent', trendUp: false, color: 'text-red-600', bg: 'bg-red-50/50', icon: '⚠️' },
+                            { label: 'Total Inventory Value', value: stats.totalInventoryValue ?? '₱0', sub: 'Across All Items', trend: '+5.2%', trendUp: true, color: 'text-blue-600', bg: 'bg-blue-50/50', icon: '📦' },
+                            { label: 'Total RIS Issued', value: stats.totalRisIssued ?? 0, sub: 'Completed Requests', trend: 'Lifetime', trendUp: true, color: 'text-indigo-600', bg: 'bg-indigo-50/50', icon: '📜' },
+                            { label: 'Items Issued (MTD)', value: stats.itemsIssuedMtd ?? 0, sub: 'Current Month', trend: '+18%', trendUp: true, color: 'text-green-600', bg: 'bg-green-50/50', icon: '📤' },
+                            { label: 'Unserviceable', value: stats.unserviceable ?? 0, sub: 'Out of Stock Items', trend: 'Needs Check', trendUp: false, color: 'text-orange-600', bg: 'bg-orange-50/50', icon: '♻️' },
+                            { label: 'Critical Stock Alerts', value: stats.criticalAlerts ?? 0, sub: 'Requires Reordering', trend: 'Urgent', trendUp: false, color: 'text-red-600', bg: 'bg-red-50/50', icon: '⚠️' },
                         ].map((stat, i) => (
                             <div key={i} className="group bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
                                 <div className="flex justify-between items-start mb-4">
@@ -169,34 +189,54 @@ export default function Dashboard({ auth }: { auth: any }) {
                                 <p className="text-sm font-medium text-gray-500 mt-1">Stock In vs. RIS Issuances</p>
                             </div>
                             
-                            <div className="flex flex-col sm:flex-row items-center gap-3">
-                                <select 
+                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto z-10">
+                                <Select
                                     aria-label="Movement analytics filter"
-                                    value={chartFilter}
-                                    onChange={(e) => setChartFilter(e.target.value)}
-                                    className="w-full sm:w-auto text-sm border-gray-200 rounded-xl text-gray-700 shadow-sm focus:border-red-900 focus:ring-red-900 font-bold py-2.5 pl-4 pr-10 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
-                                >
-                                    <option value="monthly">Monthly View (Last 6 Mos)</option>
-                                    <option value="yearly">Yearly View</option>
-                                    <option value="custom">Custom Range...</option>
-                                </select>
+                                    options={chartFilterOptions}
+                                    value={chartFilterOptions.find(opt => opt.value === chartFilter)}
+                                    onChange={(selectedOption: any) => setChartFilter(selectedOption?.value || 'monthly')}
+                                    styles={selectStyles}
+                                    isSearchable={false}
+                                />
                             </div>
                         </div>
                         
                         <div className="p-8 flex-1 flex flex-col items-center justify-center min-h-[400px] bg-gray-50/30">
                             <div className="w-full h-full flex items-end justify-between gap-6 px-4 max-w-6xl mx-auto">
-                                {[40, 70, 45, 90, 65, 85, 55, 75].map((height, idx) => (
+                                {(chartFilter === 'monthly' && chartData?.monthly?.length > 0 ? chartData.monthly : 
+                                  chartFilter === 'yearly' && chartData?.yearly?.length > 0 ? chartData.yearly : 
+                                  [
+                                      { label: 'M1', starting: 40, stockIn: 28, risIssued: 16 },
+                                      { label: 'M2', starting: 70, stockIn: 49, risIssued: 28 },
+                                      { label: 'M3', starting: 45, stockIn: 31, risIssued: 18 },
+                                      { label: 'M4', starting: 90, stockIn: 63, risIssued: 36 },
+                                      { label: 'M5', starting: 65, stockIn: 45, risIssued: 26 },
+                                      { label: 'M6', starting: 85, stockIn: 59, risIssued: 34 },
+                                  ]
+                                ).map((dataPoint, idx) => {
+                                    // if it's the old single number format array, convert it to handle the legacy structure
+                                    const starting = typeof dataPoint === 'number' ? dataPoint : dataPoint.starting || 0;
+                                    const stockIn = typeof dataPoint === 'number' ? dataPoint * 0.7 : dataPoint.stockIn || 0;
+                                    const risIssued = typeof dataPoint === 'number' ? dataPoint * 0.4 : dataPoint.risIssued || 0;
+                                    const label = typeof dataPoint === 'number' 
+                                        ? (chartFilter === 'yearly' ? `202${idx}` : `M${idx + 1}`)
+                                        : dataPoint.label;
+                                        
+                                    // Calculate percentage out of the maximum to ensure charting doesn't break UI (max 100%)
+                                    const maxVal = Math.max(100, starting, stockIn, risIssued) * 1.1; // Add 10% padding
+                                    
+                                    return (
                                     <div key={idx} className="w-full flex flex-col justify-end items-center gap-3 group">
                                         <div className="flex w-full justify-center gap-2 h-64 items-end">
-                                            <div className="w-1/4 bg-gray-200 rounded-t-lg group-hover:bg-gray-300 transition-colors" style={{ height: `${height}%` }}></div>
-                                            <div className="w-1/4 bg-red-900/90 rounded-t-lg group-hover:bg-red-900 transition-colors" style={{ height: `${height * 0.7}%` }}></div>
-                                            <div className="w-1/4 bg-yellow-400 rounded-t-lg group-hover:bg-yellow-500 transition-colors" style={{ height: `${height * 0.4}%` }}></div>
+                                            <div className="w-1/4 bg-gray-200 rounded-t-lg group-hover:bg-gray-300 transition-colors" style={{ height: `${(starting / maxVal) * 100}%` }} title={`Starting Stock: ${starting}`}></div>
+                                            <div className="w-1/4 bg-red-900/90 rounded-t-lg group-hover:bg-red-900 transition-colors" style={{ height: `${(stockIn / maxVal) * 100}%` }} title={`Stock In: ${stockIn}`}></div>
+                                            <div className="w-1/4 bg-yellow-400 rounded-t-lg group-hover:bg-yellow-500 transition-colors" style={{ height: `${(risIssued / maxVal) * 100}%` }} title={`RIS Issued: ${risIssued}`}></div>
                                         </div>
                                         <span className="text-sm font-bold text-gray-400">
-                                            {chartFilter === 'yearly' ? `202${idx}` : `M${idx + 1}`}
+                                            {label}
                                         </span>
                                     </div>
-                                ))}
+                                )})}
                             </div>
                             <div className="flex gap-10 mt-10">
                                 <div className="flex items-center gap-2.5"><div className="w-3.5 h-3.5 rounded-full bg-gray-200"></div><span className="text-sm text-gray-600 font-bold">Starting Stock</span></div>
@@ -222,11 +262,11 @@ export default function Dashboard({ auth }: { auth: any }) {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
-                            {[
+                            {(lowStockAlerts && lowStockAlerts.length > 0 ? lowStockAlerts : [
                                 { name: 'A4 Copier Paper (80gsm)', sku: 'SUP-PAP-001', current: 12, min: 50, unit: 'Reams', priority: 'Critical' },
                                 { name: 'HP Laser Jet Toner 85A', sku: 'SUP-TON-085', current: 2, min: 10, unit: 'Units', priority: 'Critical' },
                                 { name: 'Ballpoint Pen (Black)', sku: 'SUP-PEN-002', current: 45, min: 100, unit: 'Pieces', priority: 'Warning' },
-                            ].map((item, i) => (
+                            ]).map((item, i) => (
                                 <div key={i} className="p-8 hover:bg-gray-50/50 transition-all group">
                                     <div className="flex justify-between items-start mb-6">
                                         <div className="flex-1">
@@ -270,12 +310,12 @@ export default function Dashboard({ auth }: { auth: any }) {
                     <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="px-8 py-7 border-b border-gray-100 flex items-center justify-between">
                             <div>
-                                <h3 className="text-xl font-bold text-gray-900 font-serif">Compliance & Audit Trail</h3>
+                                <h3 className="text-xl font-bold text-gray-900 font-serif">Manage Transaction</h3>
                                 <p className="text-sm font-medium text-gray-500 mt-1">Verified activity log for administrative and oversight review</p>
                             </div>
                             <div className="flex gap-3">
                                 <Select 
-                                    options={roleOptions}
+                                    options={roleFilterOptions}
                                     value={selectedRoleFilter}
                                     onChange={setSelectedRoleFilter}
                                     styles={selectStyles}
@@ -310,10 +350,13 @@ export default function Dashboard({ auth }: { auth: any }) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-5 whitespace-nowrap text-sm font-bold text-gray-700">{row.action}</td>
+                                            <td className="px-8 py-5 whitespace-nowrap">
+                                                <div className="text-sm font-bold text-gray-700">{row.action}</div>
+                                                <div className="text-xs text-gray-500">{row.details}</div>
+                                            </td>
                                             <td className="px-8 py-5 whitespace-nowrap">
                                                 <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700">
-                                                    {row.ref}
+                                                    {row.id}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5 whitespace-nowrap">

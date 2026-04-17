@@ -143,7 +143,20 @@ class InventoryController extends Controller
             'date_received' => 'required|date',
         ]);
 
-        Receiving::create($request->only(['item_id', 'supplier_id', 'quantity', 'date_received']));
+        \DB::transaction(function () use ($request) {
+            Receiving::create($request->only(['item_id', 'supplier_id', 'quantity', 'date_received']));
+
+            $item = Item::findOrFail($request->item_id);
+            $item->stock += $request->quantity;
+            
+            if ($item->stock > 0 && $item->stock <= 10) {
+                $item->status = 'Low Stock';
+            } elseif ($item->stock > 10) {
+                $item->status = 'Available';
+            }
+            
+            $item->save();
+        });
 
         return redirect()->route('inventory.receiving')->with('success', 'Receiving record created successfully.');
     }
@@ -157,14 +170,43 @@ class InventoryController extends Controller
             'date_received' => 'required|date',
         ]);
 
-        $receiving->update($request->only(['item_id', 'supplier_id', 'quantity', 'date_received']));
+        \DB::transaction(function () use ($request, $receiving) {
+            $oldItem = Item::findOrFail($receiving->item_id);
+            $oldQuantity = $receiving->quantity;
+
+            $receiving->update($request->only(['item_id', 'supplier_id', 'quantity', 'date_received']));
+            
+            if ($oldItem->id == $request->item_id) {
+                // Revert old quantity, apply new quantity
+                $oldItem->stock = $oldItem->stock - $oldQuantity + $request->quantity;
+                $oldItem->status = $oldItem->stock <= 0 ? 'Out of Stock' : ($oldItem->stock <= 10 ? 'Low Stock' : 'Available');
+                $oldItem->save();
+            } else {
+                // Item changed. Revert old item stock, update new item stock
+                $oldItem->stock -= $oldQuantity;
+                $oldItem->status = $oldItem->stock <= 0 ? 'Out of Stock' : ($oldItem->stock <= 10 ? 'Low Stock' : 'Available');
+                $oldItem->save();
+
+                $newItem = Item::findOrFail($request->item_id);
+                $newItem->stock += $request->quantity;
+                $newItem->status = $newItem->stock <= 0 ? 'Out of Stock' : ($newItem->stock <= 10 ? 'Low Stock' : 'Available');
+                $newItem->save();
+            }
+        });
 
         return redirect()->route('inventory.receiving')->with('success', 'Receiving record updated successfully.');
     }
 
     public function destroyReceiving(Receiving $receiving)
     {
-        $receiving->delete();
+        \DB::transaction(function () use ($receiving) {
+            $item = Item::findOrFail($receiving->item_id);
+            $item->stock -= $receiving->quantity;
+            $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= 10 ? 'Low Stock' : 'Available');
+            $item->save();
+
+            $receiving->delete();
+        });
 
         return redirect()->route('inventory.receiving')->with('success', 'Receiving record voided successfully.');
     }
@@ -214,6 +256,14 @@ class InventoryController extends Controller
         // Use database transaction for bulk insert
         \DB::transaction(function () use ($request) {
             foreach ($request->issuances as $issuanceData) {
+                $item = Item::findOrFail($issuanceData['item_id']);
+                
+                if ($item->stock < $issuanceData['quantity']) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'issuances' => 'Insufficient stock for item: ' . $item->name
+                    ]);
+                }
+
                 Issuance::create([
                     'item_id' => $issuanceData['item_id'],
                     'quantity' => $issuanceData['quantity'],
@@ -228,6 +278,10 @@ class InventoryController extends Controller
                     'status' => 'Issued',
                     'issued_by' => auth()->id(),
                 ]);
+                
+                $item->stock -= $issuanceData['quantity'];
+                $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= 10 ? 'Low Stock' : 'Available');
+                $item->save();
             }
         });
 
@@ -250,18 +304,53 @@ class InventoryController extends Controller
             'status' => 'required|in:Pending,Issued,Cancelled',
         ]);
 
-        $issuance->update($request->only([
-            'item_id', 'quantity', 'recipient', 'department', 'fund_cluster',
-            'recipient_designation', 'purpose', 'approved_by', 'approved_by_designation',
-            'date_issued', 'status'
-        ]));
+        \DB::transaction(function () use ($request, $issuance) {
+            $oldItem = Item::findOrFail($issuance->item_id);
+            $oldQuantity = $issuance->quantity;
+            $oldStatus = $issuance->status;
+            
+            $issuance->update($request->only([
+                'item_id', 'quantity', 'recipient', 'department', 'fund_cluster',
+                'recipient_designation', 'purpose', 'approved_by', 'approved_by_designation',
+                'date_issued', 'status'
+            ]));
+            
+            // Revert previous stock if the issuance was 'Issued'
+            if ($oldStatus === 'Issued') {
+                $oldItem->stock += $oldQuantity;
+            }
+            $oldItem->status = $oldItem->stock <= 0 ? 'Out of Stock' : ($oldItem->stock <= 10 ? 'Low Stock' : 'Available');
+            $oldItem->save();
+
+            // Deduct new stock if new status is 'Issued'
+            if ($request->status === 'Issued') {
+                $newItem = Item::findOrFail($request->item_id);
+                if ($newItem->stock < $request->quantity) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'quantity' => 'Insufficient stock for item: ' . $newItem->name
+                    ]);
+                }
+                $newItem->stock -= $request->quantity;
+                $newItem->status = $newItem->stock <= 0 ? 'Out of Stock' : ($newItem->stock <= 10 ? 'Low Stock' : 'Available');
+                $newItem->save();
+            }
+        });
 
         return redirect()->route('inventory.issuance')->with('success', 'Issuance record updated successfully.');
     }
 
     public function destroyIssuance(Issuance $issuance)
     {
-        $issuance->delete();
+        \DB::transaction(function () use ($issuance) {
+            if ($issuance->status === 'Issued') {
+                $item = Item::findOrFail($issuance->item_id);
+                $item->stock += $issuance->quantity;
+                $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= 10 ? 'Low Stock' : 'Available');
+                $item->save();
+            }
+
+            $issuance->delete();
+        });
 
         return redirect()->route('inventory.issuance')->with('success', 'Issuance record archived successfully.');
     }
