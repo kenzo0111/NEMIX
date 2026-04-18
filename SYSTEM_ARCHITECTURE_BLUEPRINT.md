@@ -7,7 +7,7 @@ This project follows a modular monolith architecture using Laravel + Inertia + R
 - Presentation layer: Web routes + Inertia pages
 - Application layer: Module controllers
 - Domain/data layer: Eloquent models per module
-- Persistence layer: Shared MySQL database with module-owned tables
+- Persistence layer: Shared PostgreSQL database with module-owned tables
 
 Enabled modules:
 
