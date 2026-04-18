@@ -92,6 +92,39 @@ const FormTextarea = ({ label, icon, error, ...props }: any) => (
     </div>
 );
 
+const generateNextSku = (items: any[]) => {
+    const matchingSkus = items
+        .map((item) => String(item.sku || '').trim())
+        .map((sku) => {
+            const match = sku.match(/^(.*?)(\d+)$/);
+
+            if (!match) {
+                return null;
+            }
+
+            return {
+                prefix: match[1],
+                number: Number(match[2]),
+                width: Math.max(match[2].length, 3),
+            };
+        })
+        .filter((sku): sku is { prefix: string; number: number; width: number } => sku !== null);
+
+    if (matchingSkus.length === 0) {
+        return 'SKU-001';
+    }
+
+    const nextSkuSeed = matchingSkus.reduce((best, current) => {
+        if (current.number > best.number) {
+            return current;
+        }
+
+        return best;
+    });
+
+    return `${nextSkuSeed.prefix}${String(nextSkuSeed.number + 1).padStart(nextSkuSeed.width, '0')}`;
+};
+
 // --- MAIN PAGE ---
 
 export default function AllItems({ auth, items, categories }: { auth: any, items: any[], categories: any[] }) {
@@ -126,6 +159,8 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
             return matchesSearch && matchesStatus;
         });
     }, [items, searchTerm, filterStatus]);
+
+    const nextSku = useMemo(() => generateNextSku(items), [items]);
 
     const customSelectStyles = {
         control: (provided: any, state: any) => ({
@@ -277,6 +312,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                         setIsEditing(false);
                                         setSelectedItem(null);
                                         reset();
+                                        setData('sku', nextSku);
                                         setShowModal(true);
                                     }}
                                     className="bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2 whitespace-nowrap"
@@ -466,9 +502,13 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                 value={data.sku}
                                 onChange={(e: any) => setData('sku', e.target.value)}
                                 error={errors.sku}
-                                placeholder="Auto"
+                                placeholder="Auto-generated"
+                                disabled={!isEditing}
                                 icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4h-4v-4H8m13-4V7a1 1 0 00-1-1H4a1 1 0 00-1 1v3M4 7h16"></path></svg>}
                             />
+                            {!isEditing && (
+                                <p className="mt-1 text-xs text-gray-500 ml-1">This SKU is generated automatically from the existing items in the table.</p>
+                            )}
                         </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">

@@ -6,6 +6,23 @@ import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { Search, Filter, ArrowRight, Download, Activity, User, Box } from 'lucide-react';
 
+const toTitleCase = (value?: string | null) => {
+    if (!value) {
+        return '';
+    }
+
+    return value
+        .replace(/[_-]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase()
+        .replace(/\b\w/g, character => character.toUpperCase());
+};
+
+const normalizeActionKey = (value?: string | null) => {
+    return toTitleCase(value).toLowerCase();
+};
+
 export default function ManageTransaction({ auth, logs }: { auth: any, logs?: any[] }) {
     const { props } = usePage();
     const user = auth?.user || (props.auth as any)?.user;
@@ -31,10 +48,21 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
     }, [rawLogs]);
 
     const actionOptions = useMemo(() => {
-        const uniqueActions = Array.from(new Set(rawLogs.map(log => log.action).filter(Boolean))).sort();
+        const uniqueActions: string[] = Array.from(
+            rawLogs.reduce((map: Map<string, string>, log) => {
+                const action = toTitleCase(log.action);
+
+                if (action) {
+                    map.set(normalizeActionKey(log.action), action);
+                }
+
+                return map;
+            }, new Map<string, string>()).values()
+        ).sort();
+
         return [
             { value: '', label: 'All Actions' },
-            ...uniqueActions.map(a => ({ value: a, label: a }))
+            ...uniqueActions.map(action => ({ value: normalizeActionKey(action), label: action }))
         ];
     }, [rawLogs]);
 
@@ -46,7 +74,7 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
                 log.details.toLowerCase().includes(searchQuery.toLowerCase());
             
             const matchesModule = !selectedModule?.value || log.module === selectedModule.value;
-            const matchesAction = !selectedAction?.value || log.action === selectedAction.value;
+            const matchesAction = !selectedAction?.value || normalizeActionKey(log.action) === selectedAction.value;
 
             return matchesSearch && matchesModule && matchesAction;
         });
@@ -175,7 +203,7 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
                                                         </div>
                                                     </td>
                                                     <td className="px-8 py-5 whitespace-nowrap">
-                                                        <div className="text-sm font-bold text-gray-700">{trx.action}</div>
+                                                        <div className="text-sm font-bold text-gray-700">{toTitleCase(trx.action) || 'Unknown Action'}</div>
                                                         <div className="text-xs text-gray-500">{trx.details}</div>
                                                     </td>
                                                     <td className="px-8 py-5 whitespace-nowrap">
