@@ -167,6 +167,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     // Format display date based on period selection
     const [reports, setReports] = useState<any[]>(serverReports.length > 0 ? serverReports : []);
 
+    const selectedStockCardItem = items.find((item: any) => item.name === formData.itemName);
+
     const generateDisplayDate = (data: any) => {
         if (data.periodType === 'monthly') {
             const monthName = monthOptions.find(m => m.value === data.selectedMonth)?.label;
@@ -493,7 +495,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     fund_cluster: 'General Fund',
                                     item: formData.itemName || formData.title,
                                     stock_no: formData.reference,
-                                    description: 'Stock Card Item',
+                                    description: selectedStockCardItem?.description || selectedStockCardItem?.name || formData.itemName || formData.title,
                                     re_order_point: '-',
                                     unit_of_measurement: 'Pieces',
                                     entries: [
