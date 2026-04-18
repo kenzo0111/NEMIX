@@ -507,7 +507,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                 icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4h-4v-4H8m13-4V7a1 1 0 00-1-1H4a1 1 0 00-1 1v3M4 7h16"></path></svg>}
                             />
                             {!isEditing && (
-                                <p className="mt-1 text-xs text-gray-500 ml-1">This SKU is generated automatically from the existing items in the table.</p>
+                                <p className="mt-1 text-xs text-gray-500 ml-1">This SKU is generated automatically.</p>
                             )}
                         </div>
                     </div>
