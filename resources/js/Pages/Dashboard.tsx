@@ -288,7 +288,7 @@ export default function Dashboard({
 
     return (
         <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
-            <Head title="CNSC Supply & Asset Analytics Dashboard" />
+            <Head title="CNSC Supply & Inventory Management Dashboard" />
 
             <Sidebar
                 modules={modules}
@@ -304,7 +304,7 @@ export default function Dashboard({
                         <div className="mb-2">
                             <Breadcrumbs items={[]} />
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 font-serif tracking-tight">Supply & Analytics</h2>
+                        <h2 className="text-2xl font-bold text-gray-900 font-serif tracking-tight">Supply & Inventory Management</h2>
                     </div>
                     <div className="flex items-center gap-6">
                         <div className="text-right hidden sm:block">
