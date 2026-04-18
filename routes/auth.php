@@ -17,6 +17,12 @@ Route::middleware('guest')->group(function () {
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
+    Route::get('register-invitation/{token}', [NewPasswordController::class, 'createFromInvitation'])
+        ->name('register.invitation');
+
+    Route::post('register-invitation', [NewPasswordController::class, 'storeFromInvitation'])
+        ->name('register.invitation.store');
+
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 

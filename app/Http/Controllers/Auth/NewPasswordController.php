@@ -24,6 +24,19 @@ class NewPasswordController extends Controller
         return Inertia::render('Auth/ResetPassword', [
             'email' => $request->email,
             'token' => $request->route('token'),
+            'mode' => 'reset',
+        ]);
+    }
+
+    /**
+     * Display the invitation registration view.
+     */
+    public function createFromInvitation(Request $request): Response
+    {
+        return Inertia::render('Auth/ResetPassword', [
+            'email' => $request->email,
+            'token' => $request->route('token'),
+            'mode' => 'registration',
         ]);
     }
 
@@ -33,6 +46,26 @@ class NewPasswordController extends Controller
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
+    {
+        return $this->handlePasswordSetup($request, false);
+    }
+
+    /**
+     * Handle an invitation-based registration password setup request.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function storeFromInvitation(Request $request): RedirectResponse
+    {
+        return $this->handlePasswordSetup($request, true);
+    }
+
+    /**
+     * Handle password setup for both reset and invitation registration flows.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    private function handlePasswordSetup(Request $request, bool $isInvitationFlow): RedirectResponse
     {
         $request->validate([
             'token' => 'required',
@@ -48,6 +81,7 @@ class NewPasswordController extends Controller
             function ($user) use ($request) {
                 $user->forceFill([
                     'password' => Hash::make($request->password),
+                    'is_active' => true,
                     'remember_token' => Str::random(60),
                 ])->save();
 
@@ -59,7 +93,11 @@ class NewPasswordController extends Controller
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
         if ($status == Password::PASSWORD_RESET) {
-            return redirect()->route('login')->with('status', __($status));
+            $successMessage = $isInvitationFlow
+                ? 'Successfully registered, please proceed to login.'
+                : 'Your password has been reset.';
+
+            return redirect()->route('login')->with('status', $successMessage);
         }
 
         throw ValidationException::withMessages([

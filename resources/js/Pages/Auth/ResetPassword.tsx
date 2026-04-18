@@ -9,10 +9,14 @@ import { FormEventHandler } from 'react';
 export default function ResetPassword({
     token,
     email,
+    mode = 'reset',
 }: {
     token: string;
     email: string;
+    mode?: 'reset' | 'registration';
 }) {
+    const isRegistrationFlow = mode === 'registration';
+
     const { data, setData, post, processing, errors, reset } = useForm({
         token: token,
         email: email,
@@ -23,14 +27,14 @@ export default function ResetPassword({
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        post(route('password.store'), {
+        post(route(isRegistrationFlow ? 'register.invitation.store' : 'password.store'), {
             onFinish: () => reset('password', 'password_confirmation'),
         });
     };
 
     return (
         <>
-            <Head title="Reset Password" />
+            <Head title={isRegistrationFlow ? 'Complete Registration' : 'Reset Password'} />
 
             {/* MAIN CONTAINER: Consistent Academic Background */}
             <div 
@@ -66,8 +70,8 @@ export default function ResetPassword({
                                 <img src="/images/cnscrefine.png" alt="CNSC Logo" className="h-12 w-12 object-contain" />
                             </div>
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 font-serif">Create New Password</h2>
-                        <p className="text-sm text-gray-500 mt-2 font-medium">Secure your account access</p>
+                        <h2 className="text-2xl font-bold text-gray-900 font-serif">{isRegistrationFlow ? 'Complete Registration' : 'Create New Password'}</h2>
+                        <p className="text-sm text-gray-500 mt-2 font-medium">{isRegistrationFlow ? 'Set your password to activate your account' : 'Secure your account access'}</p>
                     </div>
 
                     <form onSubmit={submit} className="space-y-6">
@@ -124,7 +128,7 @@ export default function ResetPassword({
                                 className="w-full justify-center bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white font-bold py-3 rounded shadow-lg shadow-red-900/20 border-b-4 border-red-950 active:border-b-0 active:mt-1 active:shadow-none transition-all text-sm tracking-wide"
                                 disabled={processing}
                             >
-                                {processing ? 'Updating...' : 'Reset Password'}
+                                {processing ? 'Updating...' : isRegistrationFlow ? 'Complete Registration' : 'Reset Password'}
                             </PrimaryButton>
                         </div>
                     </form>

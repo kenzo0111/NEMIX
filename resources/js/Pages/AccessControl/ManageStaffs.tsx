@@ -1,8 +1,9 @@
-import { Head } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Select from 'react-select';
 
 interface Staff {
     id: number;
@@ -12,9 +13,72 @@ interface Staff {
     status: string;
 }
 
-export default function ManageStaffs({ auth }: { auth: any }) {
+const defaultRoleOptions = [
+    { value: 'System Admin', label: 'System Admin' },
+    { value: 'Property Staff', label: 'Property Staff' },
+    { value: 'Internal Auditor', label: 'Internal Auditor' },
+    { value: 'External Auditor', label: 'External Auditor' },
+];
+
+const createRoleSelectStyles = {
+    control: (provided: any, state: any) => ({
+        ...provided,
+        borderRadius: '0.5rem',
+        borderColor: state.isFocused ? '#7f1d1d' : '#d1d5db',
+        boxShadow: state.isFocused ? '0 0 0 2px rgba(127, 29, 29, 0.15)' : 'none',
+        '&:hover': { borderColor: '#7f1d1d' },
+        minHeight: '42px',
+        fontSize: '0.875rem',
+    }),
+    option: (provided: any, state: any) => ({
+        ...provided,
+        backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? '#fef2f2' : 'white',
+        color: state.isSelected ? 'white' : '#1f2937',
+        cursor: 'pointer',
+        fontSize: '0.875rem',
+    }),
+    menu: (provided: any) => ({
+        ...provided,
+        zIndex: 60,
+    }),
+    menuPortal: (provided: any) => ({
+        ...provided,
+        zIndex: 60,
+    }),
+};
+
+const editRoleSelectStyles = {
+    control: (provided: any, state: any) => ({
+        ...provided,
+        borderRadius: '0.5rem',
+        borderColor: state.isFocused ? '#4f46e5' : '#d1d5db',
+        boxShadow: state.isFocused ? '0 0 0 2px rgba(79, 70, 229, 0.15)' : 'none',
+        '&:hover': { borderColor: '#4f46e5' },
+        minHeight: '42px',
+        fontSize: '0.875rem',
+    }),
+    option: (provided: any, state: any) => ({
+        ...provided,
+        backgroundColor: state.isSelected ? '#4f46e5' : state.isFocused ? '#eef2ff' : 'white',
+        color: state.isSelected ? 'white' : '#1f2937',
+        cursor: 'pointer',
+        fontSize: '0.875rem',
+    }),
+    menu: (provided: any) => ({
+        ...provided,
+        zIndex: 60,
+    }),
+    menuPortal: (provided: any) => ({
+        ...provided,
+        zIndex: 60,
+    }),
+};
+
+export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: any; staffs?: Staff[]; roles?: string[] }) {
     const user = auth?.user;
+    const { flash } = usePage().props as any;
     const [collapsed, setCollapsed] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDisableModalOpen, setIsDisableModalOpen] = useState(false);
@@ -28,31 +92,40 @@ export default function ManageStaffs({ auth }: { auth: any }) {
     const [editStaffEmail, setEditStaffEmail] = useState('');
     const [editStaffRole, setEditStaffRole] = useState('');
 
-    const modules = getSidebarModules('Access', 'Manage Staffs');
+    const roleOptions = roles.length
+        ? roles.map((role) => ({ value: role, label: role }))
+        : defaultRoleOptions;
 
-    // Mock data - replace with props from Inertia
-    const [staffs, setStaffs] = useState<Staff[]>([
-        { id: 1, name: 'John Doe', email: 'john.doe@example.com', role: 'System Admin', status: 'Active' },
-        { id: 2, name: 'Jane Smith', email: 'jane.smith@example.com', role: 'Property Staff', status: 'Active' },
-        { id: 3, name: 'Alice Johnson', email: 'alice.j@example.com', role: 'Internal Auditor', status: 'Inactive' },
-    ]);
+    useEffect(() => {
+        if (!flash?.success) {
+            return;
+        }
+
+        setSuccessMessage(flash.success);
+        const timeoutId = window.setTimeout(() => setSuccessMessage(''), 5000);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [flash]);
+
+    const modules = getSidebarModules('Access', 'Manage Staffs');
 
     const handleCreateStaff = (e: React.FormEvent) => {
         e.preventDefault();
         if (!newStaffName.trim() || !newStaffEmail.trim()) return;
 
-        // Add to mock data - replace with actual Inertia post request
-        setStaffs([...staffs, {
-            id: staffs.length + 1,
+        router.post(route('access-control.staffs.store'), {
             name: newStaffName,
             email: newStaffEmail,
             role: newStaffRole,
-            status: 'Active'
-        }]);
-        setNewStaffName('');
-        setNewStaffEmail('');
-        setNewStaffRole('Property Staff');
-        setIsCreateModalOpen(false);
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setNewStaffName('');
+                setNewStaffEmail('');
+                setNewStaffRole('Property Staff');
+                setIsCreateModalOpen(false);
+            },
+        });
     };
 
     const handleEditClick = (staff: Staff) => {
@@ -67,13 +140,17 @@ export default function ManageStaffs({ auth }: { auth: any }) {
         e.preventDefault();
         if (!editStaffName.trim() || !editStaffEmail.trim() || !selectedStaff) return;
 
-        setStaffs(staffs.map(s => 
-            s.id === selectedStaff.id 
-                ? { ...s, name: editStaffName, email: editStaffEmail, role: editStaffRole }
-                : s
-        ));
-        setIsEditModalOpen(false);
-        setSelectedStaff(null);
+        router.put(route('access-control.staffs.update', selectedStaff.id), {
+            name: editStaffName,
+            email: editStaffEmail,
+            role: editStaffRole,
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsEditModalOpen(false);
+                setSelectedStaff(null);
+            },
+        });
     };
 
     const handleDisableClick = (staff: Staff) => {
@@ -83,14 +160,14 @@ export default function ManageStaffs({ auth }: { auth: any }) {
 
     const handleDisableConfirm = () => {
         if (!selectedStaff) return;
-        
-        setStaffs(staffs.map(s => 
-            s.id === selectedStaff.id 
-                ? { ...s, status: s.status === 'Active' ? 'Inactive' : 'Active' }
-                : s
-        ));
-        setIsDisableModalOpen(false);
-        setSelectedStaff(null);
+
+        router.patch(route('access-control.staffs.toggle-status', selectedStaff.id), {}, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsDisableModalOpen(false);
+                setSelectedStaff(null);
+            },
+        });
     };
 
     return (
@@ -124,12 +201,21 @@ export default function ManageStaffs({ auth }: { auth: any }) {
                 </header>
 
                 <div className="p-8 space-y-6 max-w-7xl mx-auto pb-20">
+                    {successMessage && (
+                        <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+                            <div className="flex-shrink-0 text-green-600">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <p className="text-sm font-medium text-green-800 flex-1">{successMessage}</p>
+                            <button type="button" onClick={() => setSuccessMessage('')} className="text-green-600 hover:text-green-800" aria-label="Close message"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                        </div>
+                    )}
                     
                     {/* Header Section */}
                     <div className="flex items-center justify-between mt-4">
                         <div>
                             <p className="text-sm text-gray-600">
-                                Manage user accounts, assign roles, and control system access.
+                                Manage user accounts, assign roles, and send registration email links for access.
                             </p>
                         </div>
                         <button 
@@ -239,20 +325,20 @@ export default function ManageStaffs({ auth }: { auth: any }) {
                                                 placeholder="e.g. jane@example.com" 
                                                 required 
                                             />
+                                            <p className="mt-2 text-xs text-gray-500">A registration link will be sent to this email.</p>
                                         </div>
                                         <div>
                                             <label htmlFor="staffRole" className="block mb-2 text-sm font-medium text-gray-900 font-sans">Assign Role</label>
-                                            <select 
-                                                id="staffRole" 
-                                                value={newStaffRole}
-                                                onChange={(e) => setNewStaffRole(e.target.value)}
-                                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-900 focus:border-red-900 block w-full p-2.5 font-sans" 
-                                            >
-                                                <option value="System Admin">System Admin</option>
-                                                <option value="Property Staff">Property Staff</option>
-                                                <option value="Internal Auditor">Internal Auditor</option>
-                                                <option value="External Auditor">External Auditor</option>
-                                            </select>
+                                            <Select
+                                                inputId="staffRole"
+                                                value={roleOptions.find((option) => option.value === newStaffRole) || null}
+                                                onChange={(selected) => setNewStaffRole(selected?.value || 'Property Staff')}
+                                                options={roleOptions}
+                                                styles={createRoleSelectStyles}
+                                                classNamePrefix="react-select"
+                                                menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                                                menuPosition="fixed"
+                                            />
                                         </div>
                                         <div className="flex items-center justify-end mt-6 space-x-3 pt-4 border-t border-gray-100">
                                             <button 
@@ -318,17 +404,16 @@ export default function ManageStaffs({ auth }: { auth: any }) {
                                         </div>
                                         <div>
                                             <label htmlFor="editStaffRole" className="block mb-2 text-sm font-medium text-gray-900 font-sans">Assign Role</label>
-                                            <select 
-                                                id="editStaffRole" 
-                                                value={editStaffRole}
-                                                onChange={(e) => setEditStaffRole(e.target.value)}
-                                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 font-sans" 
-                                            >
-                                                <option value="System Admin">System Admin</option>
-                                                <option value="Property Staff">Property Staff</option>
-                                                <option value="Internal Auditor">Internal Auditor</option>
-                                                <option value="External Auditor">External Auditor</option>
-                                            </select>
+                                            <Select
+                                                inputId="editStaffRole"
+                                                value={roleOptions.find((option) => option.value === editStaffRole) || null}
+                                                onChange={(selected) => setEditStaffRole(selected?.value || '')}
+                                                options={roleOptions}
+                                                styles={editRoleSelectStyles}
+                                                classNamePrefix="react-select"
+                                                menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                                                menuPosition="fixed"
+                                            />
                                         </div>
                                         <div className="flex items-center justify-end mt-6 space-x-3 pt-4 border-t border-gray-100">
                                             <button 

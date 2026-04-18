@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccessControl\ManageStaffController;
 use App\Http\Controllers\ProfileController;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -346,9 +347,21 @@ Route::get('/access-control/role-permission', function () {
     return Inertia::render('AccessControl/ManageRolePermission');
 })->middleware(['auth', 'verified'])->name('access-control.role-permission');
 
-Route::get('/access-control/manage-staffs', function () {
-    return Inertia::render('AccessControl/ManageStaffs');
-})->middleware(['auth', 'verified'])->name('access-control.staffs');
+Route::get('/access-control/manage-staffs', [ManageStaffController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('access-control.staffs');
+
+Route::post('/access-control/manage-staffs', [ManageStaffController::class, 'store'])
+    ->middleware(['auth', 'verified'])
+    ->name('access-control.staffs.store');
+
+Route::put('/access-control/manage-staffs/{user}', [ManageStaffController::class, 'update'])
+    ->middleware(['auth', 'verified'])
+    ->name('access-control.staffs.update');
+
+Route::patch('/access-control/manage-staffs/{user}/toggle-status', [ManageStaffController::class, 'toggleStatus'])
+    ->middleware(['auth', 'verified'])
+    ->name('access-control.staffs.toggle-status');
 
 Route::get('/rfid-scanner', function () {
     return Inertia::render('RFID-Scanner/Index');
