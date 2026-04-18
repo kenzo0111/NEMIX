@@ -42,7 +42,7 @@ const SupplierModal = ({ show, onClose, title, children, footer, isSubmitting }:
                         </div>
                         <div>
                             <h3 className="text-xl font-bold text-gray-900 tracking-tight">{title}</h3>
-                            <p className="text-xs text-gray-500 font-medium">Register a new supplier in the database</p>
+                            <p className="text-xs text-gray-500 font-medium">Register a supplier for consumable office supplies</p>
                         </div>
                     </div>
                     <button
@@ -99,6 +99,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
     // State for filters
     const [selectedClassification, setSelectedClassification] = useState<{ value: string; label: string } | null>(null);
     const [selectedStatus, setSelectedStatus] = useState<{ value: string; label: string } | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
     const [collapsed, setCollapsed] = useState(false);
     const [modalMode, setModalMode] = useState<'create' | 'view' | 'edit' | null>(null);
     const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
@@ -120,9 +121,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
     // Options for React Select
     const classificationOptions = [
         { value: '', label: 'All Classifications' },
-        { value: 'goods', label: 'Goods & Services' },
-        { value: 'infra', label: 'Infrastructure' },
-        { value: 'consulting', label: 'Consulting Services' },
+        { value: 'goods', label: 'Consumable Office Supplies' },
     ];
 
     const statusOptions = [
@@ -134,9 +133,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
 
     // Form options for modal
     const categoryFormOptions = [
-        { value: 'goods', label: 'Goods & Services' },
-        { value: 'infra', label: 'Infrastructure' },
-        { value: 'consulting', label: 'Consulting Services' },
+        { value: 'goods', label: 'Consumable Office Supplies' },
     ];
 
     const statusFormOptions = [
@@ -178,7 +175,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
             tin: supplier.tin,
             address: supplier.address,
             reg_number: supplier.reg_number,
-            category: supplier.category.toLowerCase().includes('goods') ? 'goods' : supplier.category.toLowerCase().includes('infra') ? 'infra' : 'consulting',
+            category: 'goods',
             status: supplier.status.toLowerCase(),
         });
     };
@@ -191,7 +188,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
             tin: supplier.tin,
             address: supplier.address,
             reg_number: supplier.reg_number,
-            category: supplier.category.toLowerCase().includes('goods') ? 'goods' : supplier.category.toLowerCase().includes('infra') ? 'infra' : 'consulting',
+            category: 'goods',
             status: supplier.status.toLowerCase(),
         });
     };
@@ -202,40 +199,74 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
         reset();
     };
 
-    // Mock data representing a Government Supplier Registry
+    // Mock data for consumable office supplies suppliers
     const suppliersData = suppliers.length > 0 ? suppliers : [
         {
             id: 1,
-            name: 'ABC Office Supplies Trading',
+            name: 'Prime Office Essentials Trading',
             tin: '000-123-456-000',
             address: '123 Main St, Manila, Philippines',
             reg_number: '2023-112233 (PhilGEPS)',
-            category: 'Goods (Office Supplies)',
+            category: 'Consumable Office Supplies',
             status: 'Active',
         },
         {
             id: 2,
-            name: 'MegaBuild Construction Corp.',
+            name: 'DailyStock Consumables Supply Co.',
             tin: '000-987-654-001',
-            address: '456 Construction Ave, Cebu, Philippines',
-            reg_number: '2022-998877 (PCAB)',
-            category: 'Infrastructure',
-            status: 'Pending Renewal',
+            address: '456 Logistics Ave, Cebu, Philippines',
+            reg_number: '2024-998877 (PhilGEPS)',
+            category: 'Consumable Office Supplies',
+            status: 'Active',
         },
         {
             id: 3,
-            name: 'Tech Solutions Inc.',
+            name: 'Reliable Stationery and Paper Inc.',
             tin: '000-456-789-000',
-            address: '789 Tech Blvd, Davao, Philippines',
+            address: '789 Supply Blvd, Davao, Philippines',
             reg_number: '2024-000001 (PhilGEPS)',
-            category: 'Consulting Services',
-            status: 'Blacklisted',
+            category: 'Consumable Office Supplies',
+            status: 'Active',
         },
     ];
 
+    const isConsumableCategory = (category: string) => {
+        const normalizedCategory = (category || '').toLowerCase();
+        return normalizedCategory.includes('consumable')
+            || normalizedCategory.includes('office supplies')
+            || normalizedCategory.includes('stationery')
+            || normalizedCategory.includes('goods');
+    };
+
+    const normalizeStatus = (status: string) => {
+        const normalizedStatus = (status || '').toLowerCase();
+        if (normalizedStatus.includes('active')) return 'active';
+        if (normalizedStatus.includes('pending')) return 'pending';
+        if (normalizedStatus.includes('blacklist')) return 'blacklisted';
+        return normalizedStatus;
+    };
+
+    const consumableSuppliers = suppliersData.filter((supplier) => isConsumableCategory(String(supplier.category || '')));
+
+    const filteredSuppliers = consumableSuppliers.filter((supplier) => {
+        const normalizedCategory = String(supplier.category || '').toLowerCase();
+        const supplierStatus = normalizeStatus(String(supplier.status || ''));
+        const query = searchTerm.trim().toLowerCase();
+        const searchableText = [supplier.name, supplier.tin, supplier.reg_number, supplier.address, supplier.category]
+            .join(' ')
+            .toLowerCase();
+
+        const matchesClassification = !selectedClassification?.value
+            || (selectedClassification.value === 'goods' && isConsumableCategory(normalizedCategory));
+        const matchesStatus = !selectedStatus?.value || supplierStatus === selectedStatus.value;
+        const matchesSearch = !query || searchableText.includes(query);
+
+        return matchesClassification && matchesStatus && matchesSearch;
+    });
+
     return (
         <>
-            <Head title="Suppliers - Manage Supplier" />
+            <Head title="Suppliers - Consumable Office Supplies" />
             <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900">
                 <Sidebar
                     modules={modules}
@@ -254,8 +285,8 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                 <div className="mb-2">
                                     <Breadcrumbs items={[{name:'Suppliers'},{name:'Manage Supplier'}]} />
                                 </div>
-<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Suppliers Database</h2>
-                        <p className="text-sm text-gray-600 mt-1">Manage and monitor supplier registrations</p>
+<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Consumable Office Supplies Suppliers</h2>
+                        <p className="text-sm text-gray-600 mt-1">Manage suppliers who consistently deliver office consumables</p>
                     </div>
                 </div>
 
@@ -268,16 +299,16 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                 {/* Header Section: Title & Add Button */}
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                                     <div>
-                                        <h1 className="text-2xl font-bold text-gray-800">Suppliers Database</h1>
+                                        <h1 className="text-2xl font-bold text-gray-800">Consumable Office Supplies Registry</h1>
                                         <p className="text-sm text-gray-500 mt-1">
-                                            Registry of eligible suppliers for procurement and property management.
+                                            Registry of reliable suppliers for recurring office consumables delivery.
                                         </p>
                                     </div>
                                     <button
                                         onClick={openCreateModal}
                                         className="bg-red-900 hover:bg-red-800 text-white px-4 py-2 rounded-md text-sm font-medium transition shadow-sm"
                                     >
-                                        + Register New Supplier
+                                        + Register Consumables Supplier
                                     </button>
                                 </div>
 
@@ -287,7 +318,9 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                     <label className="block text-xs font-medium text-gray-500 mb-1">Search</label>
                                     <input 
                                         type="text" 
-                                        placeholder="Name, TIN, or PhilGEPS No..." 
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        placeholder="Supplier name, TIN, or PhilGEPS No..." 
                                         className="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
                                     />
                                 </div>
@@ -393,7 +426,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                                 Address
                                             </th>
                                             <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                                                Classification
+                                                Supply Focus
                                             </th>
                                             <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                                                 Status
@@ -404,7 +437,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {suppliersData.map((supplier) => (
+                                        {filteredSuppliers.map((supplier) => (
                                             <tr key={supplier.id} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-4 py-3 text-sm font-semibold text-gray-900">
                                                     {supplier.name}
@@ -422,12 +455,21 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                                     {supplier.category}
                                                 </td>
                                                 <td className="px-4 py-3 whitespace-nowrap">
+                                                    {(() => {
+                                                        const supplierStatus = normalizeStatus(String(supplier.status || ''));
+                                                        const statusClass = supplierStatus === 'active'
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : supplierStatus === 'blacklisted'
+                                                            ? 'bg-red-100 text-red-800'
+                                                            : 'bg-yellow-100 text-yellow-800';
+
+                                                        return (
                                                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                        ${supplier.status === 'Active' ? 'bg-green-100 text-green-800' : 
-                                                          supplier.status === 'Blacklisted' ? 'bg-red-100 text-red-800' : 
-                                                          'bg-yellow-100 text-yellow-800'}`}>
+                                                        ${statusClass}`}>
                                                         {supplier.status}
                                                     </span>
+                                                        );
+                                                    })()}
                                                 </td>
                                                 <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
                                                     <button onClick={() => openViewModal(supplier)} className="text-red-600 hover:text-red-900 mr-3 font-semibold">View</button>
@@ -435,6 +477,13 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                                 </td>
                                             </tr>
                                         ))}
+                                        {filteredSuppliers.length === 0 && (
+                                            <tr>
+                                                <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
+                                                    No consumable office supplies suppliers found for the selected filters.
+                                                </td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -442,7 +491,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                             {/* Pagination */}
                             <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
                                 <div className="text-sm text-gray-500">
-                                    Showing <span className="font-medium">1</span> to <span className="font-medium">3</span> of <span className="font-medium">12</span> results
+                                    Showing <span className="font-medium">{filteredSuppliers.length === 0 ? 0 : 1}</span> to <span className="font-medium">{filteredSuppliers.length}</span> of <span className="font-medium">{filteredSuppliers.length}</span> results
                                 </div>
                                 <div className="flex gap-2">
                                     <button className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50">Previous</button>
