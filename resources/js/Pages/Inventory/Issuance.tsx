@@ -230,7 +230,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
     const modules = getSidebarModules('Inventory', 'Issuance');
     
     return (
-        <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900">
+        <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900 overflow-x-hidden">
             <Head title="Inventory - Issuance" />
 
             <Sidebar
@@ -241,7 +241,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
             />
 
             {/* --- MAIN CONTENT --- */}
-            <main className={`flex-1 transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-72'}`}>
+            <main className={`flex-1 min-w-0 transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-72'}`}>
                 
                 {/* Fixed Top Header */}
                 <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm">
@@ -265,13 +265,13 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                     </div>
                 </div>
 
-                <div className="p-8 max-w-[1600px] mx-auto">
+                <div className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden">
                     
                     {/* Content Card */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                         
                         {/* Card Header & Actions */}
-                        <div className="px-8 py-6 border-b border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-50/30">
+                        <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-50/30">
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900">Inventory Issuance</h3>
                                 <p className="text-xs text-gray-500 mt-1">Track items released to faculty and departments.</p>
@@ -336,23 +336,23 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                         </div>
 
                         {/* Table */}
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
+                        <div className="overflow-x-hidden">
+                            <table className="w-full table-fixed divide-y divide-gray-200">
                                 <thead className="bg-red-50/50">
                                     <tr>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Item ID</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Item Issued</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Quantity</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Recipient / Dept.</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Date Issued</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Status</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-right text-red-900 uppercase">Actions</th>
+                                        <th className="hidden lg:table-cell px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Item ID</th>
+                                        <th className="px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Item Issued</th>
+                                        <th className="px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Quantity</th>
+                                        <th className="px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Recipient / Dept.</th>
+                                        <th className="hidden md:table-cell px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Date Issued</th>
+                                        <th className="hidden sm:table-cell px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Status</th>
+                                        <th className="px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-right text-red-900 uppercase w-[240px]">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-100">
                                     {filteredIssuances.length === 0 ? (
                                         <tr>
-                                            <td colSpan={7} className="px-8 py-12 text-center text-gray-500">
+                                            <td colSpan={7} className="px-4 lg:px-8 py-12 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center">
                                                     <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                                                     <p>No issuance records found.</p>
@@ -365,7 +365,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                     ) : (
                                         filteredIssuances.map((issuance, index) => (
                                             <tr key={index} className="hover:bg-gray-50 transition-colors group">
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm font-bold text-gray-900">
+                                                <td className="hidden lg:table-cell px-4 lg:px-8 py-5 whitespace-nowrap text-sm font-bold text-gray-900">
                                                     {(() => {
                                                         const date = new Date(issuance.date);
                                                         const year = date.getFullYear();
@@ -374,20 +374,20 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                                         return `${year}-${month}-${num}`;
                                                     })()}
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm font-bold text-gray-900">{issuance.item}</td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
+                                                <td className="px-4 lg:px-8 py-5 text-sm font-bold text-gray-900 break-words">{issuance.item}</td>
+                                                <td className="px-4 lg:px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
                                                     {issuance.quantity} <span className="text-gray-400 text-xs font-normal">pcs</span>
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-700">
+                                                <td className="px-4 lg:px-8 py-5 text-sm text-gray-700">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-500 font-bold">
                                                             {issuance.recipient.charAt(0)}
                                                         </div>
-                                                        {issuance.recipient}
+                                                        <span className="break-words">{issuance.recipient}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-500 font-mono">{issuance.date}</td>
-                                                <td className="px-8 py-5 whitespace-nowrap">
+                                                <td className="hidden md:table-cell px-4 lg:px-8 py-5 whitespace-nowrap text-sm text-gray-500 font-mono">{issuance.date}</td>
+                                                <td className="hidden sm:table-cell px-4 lg:px-8 py-5 whitespace-nowrap">
                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                                         issuance.status === 'Issued' ? 'bg-green-100 text-green-800' : 
                                                         issuance.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
@@ -395,25 +395,27 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                                         {issuance.status}
                                                     </span>
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-right text-sm font-medium">
-                                                    <button 
-                                                        onClick={() => handleViewForm(issuance)}
-                                                        className="text-green-600 hover:text-green-900 mr-4 transition-colors"
-                                                    >
-                                                        View Form
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleDetails(issuance)}
-                                                        className="text-blue-600 hover:text-blue-900 mr-4 transition-colors"
-                                                    >
-                                                        Quick Details
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleVoid(issuance)}
-                                                        className="text-red-600 hover:text-red-900 transition-colors"
-                                                    >
-                                                        Archive
-                                                    </button>
+                                                <td className="px-4 lg:px-8 py-5 text-sm font-medium">
+                                                    <div className="flex flex-wrap justify-end items-center gap-x-3 gap-y-1 text-right">
+                                                        <button 
+                                                            onClick={() => handleViewForm(issuance)}
+                                                            className="text-green-600 hover:text-green-900 transition-colors"
+                                                        >
+                                                            View Form
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleDetails(issuance)}
+                                                            className="text-blue-600 hover:text-blue-900 transition-colors"
+                                                        >
+                                                            Quick Details
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleVoid(issuance)}
+                                                            className="text-red-600 hover:text-red-900 transition-colors"
+                                                        >
+                                                            Archive
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))
@@ -423,7 +425,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                         </div>
                         
                         {/* Pagination (Placeholder) */}
-                        <div className="px-8 py-4 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
+                        <div className="px-4 sm:px-6 lg:px-8 py-4 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
                             <span className="text-xs text-gray-500">
                                 Showing {filteredIssuances.length} of {groupedIssuances.length} records
                             </span>
