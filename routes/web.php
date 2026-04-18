@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -10,6 +12,10 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
+    $chartFilter = request('chart_filter', 'monthly');
+    $startDate = request('start_date');
+    $endDate = request('end_date');
+
     $auditLogs = class_exists(\Modules\AuditLogs\Models\TransactionTrail::class)
         ? \Modules\AuditLogs\Models\TransactionTrail::with('user.roles')->latest()->take(10)->get()->map(function ($trail) {
             $badge = match ($trail->status) {
@@ -70,6 +76,7 @@ Route::get('/dashboard', function () {
     $chartData = [
         'monthly' => [],
         'yearly' => [],
+        'custom' => [],
     ];
 
     if (class_exists(\Modules\Inventory\Models\Receiving::class) && class_exists(\Modules\Inventory\Models\Issuance::class)) {
@@ -112,6 +119,44 @@ Route::get('/dashboard', function () {
                 'risIssued' => (int) $risIssued,
             ];
         }
+
+        if ($chartFilter === 'custom' && $startDate && $endDate) {
+            try {
+                $rangeStart = Carbon::parse($startDate)->startOfDay();
+                $rangeEnd = Carbon::parse($endDate)->endOfDay();
+
+                if ($rangeStart->gt($rangeEnd)) {
+                    [$rangeStart, $rangeEnd] = [$rangeEnd->copy()->startOfDay(), $rangeStart->copy()->endOfDay()];
+                }
+
+                $period = CarbonPeriod::create(
+                    $rangeStart->copy()->startOfMonth(),
+                    '1 month',
+                    $rangeEnd->copy()->startOfMonth()
+                );
+
+                foreach ($period as $monthStart) {
+                    $monthEnd = $monthStart->copy()->endOfMonth();
+
+                    $stockIn = \Modules\Inventory\Models\Receiving::whereBetween('date_received', [$monthStart, $monthEnd])
+                        ->sum('quantity');
+
+                    $risIssued = \Modules\Inventory\Models\Issuance::whereBetween('date_issued', [$monthStart, $monthEnd])
+                        ->sum('quantity');
+
+                    $starting = max(0, (\Modules\Inventory\Models\Item::sum('stock') ?? 0) - ($stockIn - $risIssued));
+
+                    $chartData['custom'][] = [
+                        'label' => $monthStart->format('M Y'),
+                        'starting' => $starting,
+                        'stockIn' => (int) $stockIn,
+                        'risIssued' => (int) $risIssued,
+                    ];
+                }
+            } catch (\Throwable $e) {
+                $chartData['custom'] = [];
+            }
+        }
     }
 
     return Inertia::render('Dashboard', [
@@ -119,6 +164,11 @@ Route::get('/dashboard', function () {
         'stats' => $stats,
         'lowStockAlerts' => $lowStockAlerts,
         'chartData' => $chartData,
+        'filters' => [
+            'chartFilter' => $chartFilter,
+            'customStartDate' => $startDate,
+            'customEndDate' => $endDate,
+        ],
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 

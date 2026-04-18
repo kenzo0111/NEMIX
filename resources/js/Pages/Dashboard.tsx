@@ -5,29 +5,61 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useState, useMemo, useEffect } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
+import {
+    BarElement,
+    CategoryScale,
+    Chart as ChartJS,
+    Legend,
+    LinearScale,
+    Tooltip,
+    type ChartData,
+    type ChartOptions,
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+
+type MovementPoint = {
+    label: string;
+    starting: number;
+    stockIn: number;
+    risIssued: number;
+};
+
+type MovementInputPoint =
+    | number
+    | {
+          label?: string;
+          starting?: number;
+          stockIn?: number;
+          risIssued?: number;
+      };
 
 export default function Dashboard({ 
     auth, 
     stats = { totalInventoryValue: '₱0', totalRisIssued: 0, itemsIssuedMtd: 0, unserviceable: 0, criticalAlerts: 0 },
-    chartData = { monthly: [0, 0, 0, 0, 0, 0, 0, 0], yearly: [0, 0, 0, 0, 0, 0, 0, 0] },
+    chartData = { monthly: [0, 0, 0, 0, 0, 0, 0, 0], yearly: [0, 0, 0, 0, 0, 0, 0, 0], custom: [] },
     lowStockAlerts = [],
     auditLogs = [],
-    roles = [] 
+    roles = [],
+    filters = { chartFilter: 'monthly', customStartDate: '', customEndDate: '' },
 }: { 
     auth: any;
     stats?: { totalInventoryValue: string; totalRisIssued: number; itemsIssuedMtd: number; unserviceable: number; criticalAlerts: number; };
-    chartData?: { monthly: number[]; yearly: number[]; };
+    chartData?: { monthly: MovementInputPoint[]; yearly: MovementInputPoint[]; custom?: MovementInputPoint[]; };
     lowStockAlerts?: Array<{ name: string; sku: string; current: number; min: number; unit: string; priority: string; }>;
     auditLogs?: Array<{ user: string; role: string; action: string; details: string; id: string; status: string; time: string; badge: string; }>;
     roles?: Array<{ value: string; label: string; }>;
+    filters?: { chartFilter?: string; customStartDate?: string; customEndDate?: string; };
 }) {
     const user = auth.user;
     const [collapsed, setCollapsed] = useState(false);
     
     // State for the Movement Analytics Filter
-    const [chartFilter, setChartFilter] = useState('monthly');
-    const [customStartDate, setCustomStartDate] = useState('');
-    const [customEndDate, setCustomEndDate] = useState('');
+    const [chartFilter, setChartFilter] = useState(filters?.chartFilter || 'monthly');
+    const [customStartDate, setCustomStartDate] = useState(filters?.customStartDate || '');
+    const [customEndDate, setCustomEndDate] = useState(filters?.customEndDate || '');
+    const [customRangeError, setCustomRangeError] = useState('');
 
     // State for Audit Trail Role Filter
     const [selectedRoleFilter, setSelectedRoleFilter] = useState<{ value: string; label: string } | null>(null);
@@ -83,6 +115,174 @@ export default function Dashboard({
             return log.role === selectedRoleFilter.value;
         });
     }, [selectedRoleFilter]);
+
+    const applyMovementFilter = (filter: string, startDate?: string, endDate?: string) => {
+        router.get(
+            route('dashboard'),
+            {
+                chart_filter: filter,
+                start_date: startDate || undefined,
+                end_date: endDate || undefined,
+            },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                replace: true,
+                only: ['chartData', 'filters'],
+            }
+        );
+    };
+
+    const handleChartFilterChange = (selectedOption: { value: string; label: string } | null) => {
+        const selected = selectedOption?.value || 'monthly';
+        setChartFilter(selected);
+        setCustomRangeError('');
+
+        if (selected === 'monthly' || selected === 'yearly') {
+            applyMovementFilter(selected);
+        }
+    };
+
+    const handleApplyCustomRange = () => {
+        if (!customStartDate || !customEndDate) {
+            setCustomRangeError('Please select both start and end dates.');
+            return;
+        }
+
+        if (new Date(customStartDate) > new Date(customEndDate)) {
+            setCustomRangeError('Start date must be earlier than or equal to end date.');
+            return;
+        }
+
+        setCustomRangeError('');
+        applyMovementFilter('custom', customStartDate, customEndDate);
+    };
+
+    const movementPoints = useMemo<MovementPoint[]>(() => {
+        const fallback: MovementPoint[] = [
+            { label: 'M1', starting: 40, stockIn: 28, risIssued: 16 },
+            { label: 'M2', starting: 70, stockIn: 49, risIssued: 28 },
+            { label: 'M3', starting: 45, stockIn: 31, risIssued: 18 },
+            { label: 'M4', starting: 90, stockIn: 63, risIssued: 36 },
+            { label: 'M5', starting: 65, stockIn: 45, risIssued: 26 },
+            { label: 'M6', starting: 85, stockIn: 59, risIssued: 34 },
+        ];
+
+        const source = chartFilter === 'yearly'
+            ? chartData?.yearly
+            : chartFilter === 'custom'
+                ? chartData?.custom
+                : chartData?.monthly;
+        if (!source || source.length === 0) {
+            return chartFilter === 'custom' ? [] : fallback;
+        }
+
+        return source.map((dataPoint: any, idx: number) => {
+            if (typeof dataPoint === 'number') {
+                return {
+                    label: chartFilter === 'yearly' ? `202${idx}` : `M${idx + 1}`,
+                    starting: dataPoint,
+                    stockIn: Math.round(dataPoint * 0.7),
+                    risIssued: Math.round(dataPoint * 0.4),
+                };
+            }
+
+            return {
+                label: dataPoint.label ?? (chartFilter === 'yearly' ? `202${idx}` : `M${idx + 1}`),
+                starting: Number(dataPoint.starting) || 0,
+                stockIn: Number(dataPoint.stockIn) || 0,
+                risIssued: Number(dataPoint.risIssued) || 0,
+            };
+        });
+    }, [chartData, chartFilter]);
+
+    const movementChartData = useMemo<ChartData<'bar'>>(() => ({
+        labels: movementPoints.map((point) => point.label),
+        datasets: [
+            {
+                label: 'Starting Stock',
+                data: movementPoints.map((point) => point.starting),
+                backgroundColor: '#d1d5db',
+                borderRadius: 10,
+                borderSkipped: false,
+                maxBarThickness: 28,
+            },
+            {
+                label: 'Stock In',
+                data: movementPoints.map((point) => point.stockIn),
+                backgroundColor: '#7f1d1d',
+                borderRadius: 10,
+                borderSkipped: false,
+                maxBarThickness: 28,
+            },
+            {
+                label: 'RIS Issued',
+                data: movementPoints.map((point) => point.risIssued),
+                backgroundColor: '#facc15',
+                borderRadius: 10,
+                borderSkipped: false,
+                maxBarThickness: 28,
+            },
+        ],
+    }), [movementPoints]);
+
+    const movementChartOptions = useMemo<ChartOptions<'bar'>>(() => ({
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+            duration: 650,
+            easing: 'easeOutCubic',
+        },
+        plugins: {
+            legend: {
+                display: false,
+            },
+            tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.94)',
+                cornerRadius: 10,
+                padding: 10,
+                titleFont: { size: 12, weight: 700 },
+                bodyFont: { size: 12, weight: 600 },
+            },
+        },
+        scales: {
+            x: {
+                grid: { display: false },
+                ticks: {
+                    color: '#64748b',
+                    font: { size: 11, weight: 600 },
+                },
+            },
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(148, 163, 184, 0.18)',
+                },
+                ticks: {
+                    color: '#94a3b8',
+                    font: { size: 11, weight: 600 },
+                },
+            },
+        },
+    }), []);
+
+    const getProgressWidthClass = (current: number, min: number) => {
+        if (min <= 0) return 'w-0';
+
+        const pct = Math.max(0, Math.min(100, (current / min) * 100));
+        if (pct >= 95) return 'w-full';
+        if (pct >= 90) return 'w-11/12';
+        if (pct >= 80) return 'w-10/12';
+        if (pct >= 70) return 'w-9/12';
+        if (pct >= 60) return 'w-8/12';
+        if (pct >= 50) return 'w-6/12';
+        if (pct >= 40) return 'w-5/12';
+        if (pct >= 30) return 'w-4/12';
+        if (pct >= 20) return 'w-3/12';
+        if (pct >= 10) return 'w-2/12';
+        if (pct > 0) return 'w-1/12';
+        return 'w-0';
+    };
 
     const modules = getSidebarModules();
 
@@ -194,50 +394,50 @@ export default function Dashboard({
                                     aria-label="Movement analytics filter"
                                     options={chartFilterOptions}
                                     value={chartFilterOptions.find(opt => opt.value === chartFilter)}
-                                    onChange={(selectedOption: any) => setChartFilter(selectedOption?.value || 'monthly')}
+                                    onChange={handleChartFilterChange}
                                     styles={selectStyles}
                                     isSearchable={false}
                                 />
+                                {chartFilter === 'custom' ? (
+                                    <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                                        <input
+                                            type="date"
+                                            value={customStartDate}
+                                            onChange={(e) => setCustomStartDate(e.target.value)}
+                                            className="w-full sm:w-auto rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 focus:border-red-300 focus:outline-none"
+                                            aria-label="Custom range start date"
+                                        />
+                                        <input
+                                            type="date"
+                                            value={customEndDate}
+                                            onChange={(e) => setCustomEndDate(e.target.value)}
+                                            className="w-full sm:w-auto rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 focus:border-red-300 focus:outline-none"
+                                            aria-label="Custom range end date"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={handleApplyCustomRange}
+                                            className="rounded-xl bg-red-900 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-red-800"
+                                        >
+                                            Apply
+                                        </button>
+                                    </div>
+                                ) : null}
                             </div>
                         </div>
                         
                         <div className="p-8 flex-1 flex flex-col items-center justify-center min-h-[400px] bg-gray-50/30">
-                            <div className="w-full h-full flex items-end justify-between gap-6 px-4 max-w-6xl mx-auto">
-                                {(chartFilter === 'monthly' && chartData?.monthly?.length > 0 ? chartData.monthly : 
-                                  chartFilter === 'yearly' && chartData?.yearly?.length > 0 ? chartData.yearly : 
-                                  [
-                                      { label: 'M1', starting: 40, stockIn: 28, risIssued: 16 },
-                                      { label: 'M2', starting: 70, stockIn: 49, risIssued: 28 },
-                                      { label: 'M3', starting: 45, stockIn: 31, risIssued: 18 },
-                                      { label: 'M4', starting: 90, stockIn: 63, risIssued: 36 },
-                                      { label: 'M5', starting: 65, stockIn: 45, risIssued: 26 },
-                                      { label: 'M6', starting: 85, stockIn: 59, risIssued: 34 },
-                                  ]
-                                ).map((dataPoint, idx) => {
-                                    // if it's the old single number format array, convert it to handle the legacy structure
-                                    const starting = typeof dataPoint === 'number' ? dataPoint : dataPoint.starting || 0;
-                                    const stockIn = typeof dataPoint === 'number' ? dataPoint * 0.7 : dataPoint.stockIn || 0;
-                                    const risIssued = typeof dataPoint === 'number' ? dataPoint * 0.4 : dataPoint.risIssued || 0;
-                                    const label = typeof dataPoint === 'number' 
-                                        ? (chartFilter === 'yearly' ? `202${idx}` : `M${idx + 1}`)
-                                        : dataPoint.label;
-                                        
-                                    // Calculate percentage out of the maximum to ensure charting doesn't break UI (max 100%)
-                                    const maxVal = Math.max(100, starting, stockIn, risIssued) * 1.1; // Add 10% padding
-                                    
-                                    return (
-                                    <div key={idx} className="w-full flex flex-col justify-end items-center gap-3 group">
-                                        <div className="flex w-full justify-center gap-2 h-64 items-end">
-                                            <div className="w-1/4 bg-gray-200 rounded-t-lg group-hover:bg-gray-300 transition-colors" style={{ height: `${(starting / maxVal) * 100}%` }} title={`Starting Stock: ${starting}`}></div>
-                                            <div className="w-1/4 bg-red-900/90 rounded-t-lg group-hover:bg-red-900 transition-colors" style={{ height: `${(stockIn / maxVal) * 100}%` }} title={`Stock In: ${stockIn}`}></div>
-                                            <div className="w-1/4 bg-yellow-400 rounded-t-lg group-hover:bg-yellow-500 transition-colors" style={{ height: `${(risIssued / maxVal) * 100}%` }} title={`RIS Issued: ${risIssued}`}></div>
-                                        </div>
-                                        <span className="text-sm font-bold text-gray-400">
-                                            {label}
-                                        </span>
-                                    </div>
-                                )})}
+                            {customRangeError ? (
+                                <div className="mb-4 w-full max-w-6xl rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700">
+                                    {customRangeError}
+                                </div>
+                            ) : null}
+                            <div className="w-full h-[320px] px-2 max-w-6xl mx-auto">
+                                <Bar data={movementChartData} options={movementChartOptions} />
                             </div>
+                            {chartFilter === 'custom' && movementPoints.length === 0 ? (
+                                <p className="mt-4 text-sm font-semibold text-gray-500">No movement data found for the selected custom date range.</p>
+                            ) : null}
                             <div className="flex gap-10 mt-10">
                                 <div className="flex items-center gap-2.5"><div className="w-3.5 h-3.5 rounded-full bg-gray-200"></div><span className="text-sm text-gray-600 font-bold">Starting Stock</span></div>
                                 <div className="flex items-center gap-2.5"><div className="w-3.5 h-3.5 rounded-full bg-red-900/90"></div><span className="text-sm text-gray-600 font-bold">Stock In</span></div>
@@ -296,8 +496,7 @@ export default function Dashboard({
                                             <div 
                                                 className={`h-full rounded-full transition-all duration-1000 ${
                                                     item.priority === 'Critical' ? 'bg-red-600' : 'bg-orange-500'
-                                                }`}
-                                                style={{ width: `${(item.current / item.min) * 100}%` }}
+                                                } ${getProgressWidthClass(item.current, item.min)}`}
                                             ></div>
                                         </div>
                                     </div>

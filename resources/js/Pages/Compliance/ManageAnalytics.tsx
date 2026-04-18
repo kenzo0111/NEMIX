@@ -3,6 +3,20 @@ import Breadcrumbs from '@/Components/Breadcrumbs';
 import { Head, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import {
+    Chart as ChartJS,
+    ArcElement,
+    BarElement,
+    CategoryScale,
+    Legend,
+    LinearScale,
+    Tooltip,
+    type ChartData,
+    type ChartOptions,
+} from 'chart.js';
+import { Bar, Doughnut } from 'react-chartjs-2';
+
+ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 type InventoryAnalyticsItem = {
     id: number;
@@ -89,7 +103,92 @@ function BarChartCard({
     items: Array<{ label: string; value: number; meta: string; color: string }>;
     formatValue: (value: number) => string;
 }) {
-    const maxValue = Math.max(...items.map((item) => item.value), 1);
+    const hasData = items.length > 0;
+    const labels = items.map((item) => item.label);
+    const values = items.map((item) => item.value);
+    const colors = items.map((item) => item.color);
+    const totalValue = values.reduce((sum, value) => sum + value, 0);
+    const compactNumber = new Intl.NumberFormat('en-PH', {
+        notation: 'compact',
+        maximumFractionDigits: 1,
+    });
+
+    const data: ChartData<'bar'> = {
+        labels,
+        datasets: [
+            {
+                data: values,
+                backgroundColor: colors,
+                borderColor: '#ffffff',
+                borderWidth: 1,
+                borderRadius: 10,
+                borderSkipped: false,
+                barPercentage: 0.7,
+                categoryPercentage: 0.7,
+                maxBarThickness: 24,
+            },
+        ],
+    };
+
+    const options: ChartOptions<'bar'> = {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+            duration: 700,
+            easing: 'easeOutCubic',
+        },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                displayColors: false,
+                backgroundColor: 'rgba(15, 23, 42, 0.96)',
+                padding: 12,
+                cornerRadius: 12,
+                titleFont: {
+                    size: 13,
+                    weight: 700,
+                },
+                bodyFont: {
+                    size: 12,
+                    weight: 600,
+                },
+                callbacks: {
+                    title: (tooltipItems) => tooltipItems[0]?.label ?? '',
+                    label: (context) => {
+                        const value = context.parsed.x ?? 0;
+                        return formatValue(value);
+                    },
+                    afterLabel: (context) => {
+                        const idx = context.dataIndex;
+                        return items[idx]?.meta ?? '';
+                    },
+                },
+            },
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(148, 163, 184, 0.18)',
+                },
+                ticks: {
+                    color: '#6b7280',
+                    callback: (value) => compactNumber.format(Number(value)),
+                },
+            },
+            y: {
+                grid: { display: false },
+                ticks: {
+                    color: '#6b7280',
+                    font: {
+                        size: 11,
+                        weight: 600,
+                    },
+                },
+            },
+        },
+    };
 
     return (
         <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
@@ -99,26 +198,32 @@ function BarChartCard({
             </div>
 
             <div className="p-6 space-y-4">
-                {items.length > 0 ? (
-                    items.map((item) => {
-                        const barWidth = Math.max((item.value / maxValue) * 1000, 40);
+                {hasData ? (
+                    <>
+                        <div className="h-80 rounded-3xl border border-gray-100 bg-gradient-to-b from-gray-50 to-white p-4">
+                            <Bar data={data} options={options} />
+                        </div>
 
-                        return (
-                            <div key={`${title}-${item.label}`} className="space-y-2">
-                                <div className="flex items-center justify-between gap-4 text-sm">
-                                    <div className="min-w-0">
-                                        <p className="font-semibold text-gray-900 truncate">{item.label}</p>
-                                        <p className="text-xs text-gray-500 truncate">{item.meta}</p>
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            {items.map((item) => (
+                                <div key={`${title}-${item.label}`} className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <span className="h-2.5 w-2.5 rounded-full bg-slate-400" />
+                                                <p className="text-sm font-semibold text-gray-900 truncate">{item.label}</p>
+                                            </div>
+                                            <p className="text-xs text-gray-500 truncate">{item.meta}</p>
+                                        </div>
+                                        <div className="text-right shrink-0">
+                                            <p className="text-sm font-bold text-gray-900">{formatValue(item.value)}</p>
+                                            <p className="text-xs font-semibold text-gray-400">{totalValue > 0 ? `${((item.value / totalValue) * 100).toFixed(1)}%` : '0.0%'}</p>
+                                        </div>
                                     </div>
-                                    <span className="font-bold text-gray-900 shrink-0">{formatValue(item.value)}</span>
                                 </div>
-                                <svg viewBox="0 0 1000 16" className="h-3 w-full overflow-hidden rounded-full bg-gray-100" role="img" aria-label={`${item.label} chart bar`}>
-                                    <rect x="0" y="0" width="1000" height="16" rx="8" fill="#e5e7eb" />
-                                    <rect x="0" y="0" width={barWidth} height="16" rx="8" fill={item.color} />
-                                </svg>
-                            </div>
-                        );
-                    })
+                            ))}
+                        </div>
+                    </>
                 ) : (
                     <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-sm text-gray-500">
                         No chart data available.
@@ -139,9 +244,49 @@ function StatusDonutChart({
     series: Array<{ label: string; value: number; color: string }>;
 }) {
     const total = series.reduce((sum, item) => sum + item.value, 0);
-    const radius = 62;
-    const circumference = 2 * Math.PI * radius;
-    let offset = 0;
+    const hasData = total > 0;
+
+    const data: ChartData<'doughnut'> = {
+        labels: series.map((item) => item.label),
+        datasets: [
+            {
+                data: series.map((item) => item.value),
+                backgroundColor: series.map((item) => item.color),
+                borderColor: '#ffffff',
+                borderWidth: 4,
+                spacing: 2,
+                hoverOffset: 10,
+            },
+        ],
+    };
+
+    const options: ChartOptions<'doughnut'> = {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '76%',
+        animation: {
+            duration: 850,
+            easing: 'easeOutCubic',
+            animateRotate: true,
+            animateScale: true,
+        },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                displayColors: false,
+                backgroundColor: 'rgba(15, 23, 42, 0.96)',
+                padding: 12,
+                cornerRadius: 12,
+                callbacks: {
+                    label: (context) => {
+                        const value = Number(context.raw ?? 0);
+                        const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                        return `${context.label}: ${value} (${percent}%)`;
+                    },
+                },
+            },
+        },
+    };
 
     return (
         <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
@@ -151,34 +296,13 @@ function StatusDonutChart({
             </div>
 
             <div className="p-6">
-                {total > 0 ? (
+                {hasData ? (
                     <div className="flex flex-col items-center gap-6">
                         <div className="relative h-56 w-56">
-                            <svg viewBox="0 0 180 180" className="h-full w-full -rotate-90">
-                                <circle cx="90" cy="90" r={radius} fill="none" stroke="#e5e7eb" strokeWidth="18" />
-                                {series.map((item) => {
-                                    const segment = (item.value / total) * circumference;
-                                    const circle = (
-                                        <circle
-                                            key={item.label}
-                                            cx="90"
-                                            cy="90"
-                                            r={radius}
-                                            fill="none"
-                                            stroke={item.color}
-                                            strokeWidth="18"
-                                            strokeDasharray={`${segment} ${circumference - segment}`}
-                                            strokeDashoffset={-offset}
-                                            strokeLinecap="round"
-                                        />
-                                    );
-                                    offset += segment;
-                                    return circle;
-                                })}
-                            </svg>
+                            <Doughnut data={data} options={options} />
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                                 <span className="text-3xl font-bold text-gray-900">{total}</span>
-                                <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">Items</span>
+                                <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">Total items</span>
                             </div>
                         </div>
 
@@ -191,7 +315,11 @@ function StatusDonutChart({
                                         </svg>
                                         <p className="text-sm font-semibold text-gray-900">{item.label}</p>
                                     </div>
-                                    <p className="mt-2 text-2xl font-bold text-gray-900">{item.value}</p>
+                                    <div className="mt-2 flex items-end justify-between gap-3">
+                                        <p className="text-2xl font-bold text-gray-900">{item.value}</p>
+                                        <p className="text-xs font-semibold text-gray-400">{total > 0 ? `${((item.value / total) * 100).toFixed(1)}%` : '0.0%'}</p>
+                                    </div>
+                                    <div className="mt-2 h-1.5 rounded-full bg-white" />
                                 </div>
                             ))}
                         </div>
