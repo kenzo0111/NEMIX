@@ -341,7 +341,7 @@ export default function ManageAnalytics({ auth }: { auth: any }) {
     const analytics = props.analytics ?? fallbackAnalytics;
     const chartData = analytics.chartData ?? fallbackAnalytics.chartData;
     
-    const modules = getSidebarModules('Inventory', 'Manage Analytics');
+    const modules = getSidebarModules('Compliance', 'Manage Analytics');
 
     const overviewCards = [
         {
