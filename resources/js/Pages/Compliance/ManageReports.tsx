@@ -1,6 +1,6 @@
 import Sidebar from '@/Components/Sidebar';
 import Breadcrumbs from '@/Components/Breadcrumbs';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -181,39 +181,61 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         return data.date;
     };
 
-    const handleCreateReport = () => {
-        setIsSubmitting(true);
-        setTimeout(() => {
-            const displayDate = generateDisplayDate(formData);
+    useEffect(() => {
+        setReports(serverReports.length > 0 ? serverReports : []);
+    }, [serverReports]);
 
-            if (modalMode === 'create') {
-                const newReport = {
-                    id: reports.length + 1,
-                    title: formData.title,
-                    type: formData.type || 'General Report',
-                    reference: formData.reference,
-                    itemName: formData.itemName,
-                    date: displayDate,
-                };
-                setReports([newReport, ...reports]);
-            } else {
-                setReports(reports.map(r => r.id === selectedId ? { ...r, ...formData, date: displayDate } : r));
-            }
-            setIsSubmitting(false);
-            setShowModal(false);
-            resetForm();
-            
-            setTimeout(() => {
+    const buildReportPayload = () => ({
+        title: formData.title,
+        type: formData.type || 'General Report',
+        reference: formData.reference,
+        itemName: formData.itemName || null,
+        periodType: formData.periodType,
+        date: formData.date || null,
+        startDate: formData.startDate || null,
+        endDate: formData.endDate || null,
+        selectedMonth: formData.periodType === 'monthly' ? Number(formData.selectedMonth) : null,
+        selectedYear: formData.periodType === 'monthly' || formData.periodType === 'yearly' ? Number(formData.selectedYear) : null,
+        coverageLabel: generateDisplayDate(formData),
+        payload: formData,
+    });
+
+    const handleCreateReport = () => {
+        const payload = buildReportPayload();
+        const requestOptions = {
+            preserveScroll: true,
+            onStart: () => setIsSubmitting(true),
+            onFinish: () => setIsSubmitting(false),
+            onSuccess: () => {
+                setShowModal(false);
+                resetForm();
                 setActionDialog({
                     show: true,
                     type: 'success',
                     title: modalMode === 'create' ? 'Report Generated' : 'Report Updated',
-                    message: modalMode === 'create' 
-                        ? 'The compliance document has been successfully generated.' 
-                        : 'The compliance document has been successfully updated.'
+                    message: modalMode === 'create'
+                        ? 'The compliance document has been successfully generated and stored in the database.'
+                        : 'The compliance document has been successfully updated in the database.'
                 });
-            }, 300);
-        }, 800);
+            },
+            onError: () => {
+                setActionDialog({
+                    show: true,
+                    type: 'error',
+                    title: 'Save Failed',
+                    message: 'Unable to save the form right now. Please check required fields and try again.'
+                });
+            },
+        };
+
+        if (modalMode === 'create') {
+            router.post(route('compliance.reports.store'), payload, requestOptions);
+            return;
+        }
+
+        if (selectedId) {
+            router.put(route('compliance.reports.update', selectedId), payload, requestOptions);
+        }
     };
 
     const handleView = (report: any) => {
@@ -225,6 +247,12 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             type: report.type,
             reference: report.reference,
             itemName: report.itemName || '',
+            periodType: report.periodType || 'specific',
+            date: report.dateValue || new Date().toISOString().split('T')[0],
+            startDate: report.startDate || '',
+            endDate: report.endDate || '',
+            selectedMonth: report.selectedMonth || new Date().getMonth() + 1,
+            selectedYear: report.selectedYear || new Date().getFullYear(),
         });
         setShowModal(true);
     };
@@ -236,16 +264,19 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             title: 'Archive Document',
             message: 'Are you sure you want to move this document to the digital archive?',
             onConfirm: () => {
-                setReports(reports.filter(r => r.id !== id));
-                closeActionDialog();
-                setTimeout(() => {
+                router.delete(route('compliance.reports.archive', id), {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        closeActionDialog();
+                        setReports(prev => prev.filter(r => r.id !== id));
                     setActionDialog({
                         show: true,
                         type: 'success',
                         title: 'Archived Successfully',
                         message: 'The document has been moved to the digital archive.'
                     });
-                }, 300);
+                    },
+                });
             }
         });
     };

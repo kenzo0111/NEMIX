@@ -174,20 +174,147 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/compliance/reports', function () {
-    $items = class_exists(\Modules\Inventory\Models\Item::class) 
-        ? \Modules\Inventory\Models\Item::all() 
+    $items = class_exists(\Modules\Inventory\Models\Item::class)
+        ? \Modules\Inventory\Models\Item::all()
         : [];
-        
-    $issuances = class_exists(\Modules\Inventory\Models\Issuance::class) 
-        ? \Modules\Inventory\Models\Issuance::with(['item', 'issuer'])->latest()->get() 
+
+    $issuances = class_exists(\Modules\Inventory\Models\Issuance::class)
+        ? \Modules\Inventory\Models\Issuance::with(['item', 'issuer'])->latest()->get()
         : [];
-        
+
+    $reports = \App\Models\ComplianceReport::query()
+        ->whereNull('archived_at')
+        ->latest()
+        ->get()
+        ->map(function ($report) {
+            return [
+                'id' => $report->id,
+                'title' => $report->title,
+                'type' => $report->type,
+                'reference' => $report->reference,
+                'itemName' => $report->item_name,
+                'date' => $report->coverage_label,
+                'periodType' => $report->period_type,
+                'dateValue' => optional($report->date)->toDateString(),
+                'startDate' => optional($report->start_date)->toDateString(),
+                'endDate' => optional($report->end_date)->toDateString(),
+                'selectedMonth' => $report->selected_month,
+                'selectedYear' => $report->selected_year,
+            ];
+        })
+        ->values();
+
     return Inertia::render('Compliance/ManageReports', [
         'items' => $items,
-        'reports' => [],
+        'reports' => $reports,
         'issuances' => $issuances,
     ]);
 })->middleware(['auth', 'verified'])->name('compliance.reports');
+
+Route::post('/compliance/reports', function (\Illuminate\Http\Request $request) {
+    $validated = $request->validate([
+        'title' => ['required', 'string', 'max:255'],
+        'type' => ['required', 'string', 'max:50'],
+        'reference' => ['required', 'string', 'max:100'],
+        'itemName' => ['nullable', 'string', 'max:255'],
+        'periodType' => ['required', 'in:specific,range,monthly,yearly'],
+        'date' => ['nullable', 'date'],
+        'startDate' => ['nullable', 'date'],
+        'endDate' => ['nullable', 'date'],
+        'selectedMonth' => ['nullable', 'integer', 'between:1,12'],
+        'selectedYear' => ['nullable', 'integer', 'between:2000,2100'],
+        'coverageLabel' => ['nullable', 'string', 'max:255'],
+        'payload' => ['nullable', 'array'],
+    ]);
+
+    $coverageLabel = $validated['coverageLabel'] ?? null;
+
+    if (!$coverageLabel) {
+        if (($validated['periodType'] ?? null) === 'monthly' && !empty($validated['selectedMonth']) && !empty($validated['selectedYear'])) {
+            $coverageLabel = Carbon::createFromDate((int) $validated['selectedYear'], (int) $validated['selectedMonth'], 1)->format('F Y');
+        } elseif (($validated['periodType'] ?? null) === 'yearly' && !empty($validated['selectedYear'])) {
+            $coverageLabel = 'Year ' . $validated['selectedYear'];
+        } elseif (($validated['periodType'] ?? null) === 'range' && !empty($validated['startDate']) && !empty($validated['endDate'])) {
+            $coverageLabel = $validated['startDate'] . ' to ' . $validated['endDate'];
+        } else {
+            $coverageLabel = $validated['date'] ?? null;
+        }
+    }
+
+    \App\Models\ComplianceReport::create([
+        'title' => $validated['title'],
+        'type' => $validated['type'],
+        'reference' => $validated['reference'],
+        'item_name' => $validated['itemName'] ?? null,
+        'period_type' => $validated['periodType'],
+        'date' => $validated['date'] ?? null,
+        'start_date' => $validated['startDate'] ?? null,
+        'end_date' => $validated['endDate'] ?? null,
+        'selected_month' => $validated['selectedMonth'] ?? null,
+        'selected_year' => $validated['selectedYear'] ?? null,
+        'coverage_label' => $coverageLabel,
+        'payload' => $validated['payload'] ?? null,
+        'created_by' => optional($request->user())->id,
+    ]);
+
+    return redirect()->route('compliance.reports');
+})->middleware(['auth', 'verified'])->name('compliance.reports.store');
+
+Route::put('/compliance/reports/{report}', function (\Illuminate\Http\Request $request, \App\Models\ComplianceReport $report) {
+    $validated = $request->validate([
+        'title' => ['required', 'string', 'max:255'],
+        'type' => ['required', 'string', 'max:50'],
+        'reference' => ['required', 'string', 'max:100'],
+        'itemName' => ['nullable', 'string', 'max:255'],
+        'periodType' => ['required', 'in:specific,range,monthly,yearly'],
+        'date' => ['nullable', 'date'],
+        'startDate' => ['nullable', 'date'],
+        'endDate' => ['nullable', 'date'],
+        'selectedMonth' => ['nullable', 'integer', 'between:1,12'],
+        'selectedYear' => ['nullable', 'integer', 'between:2000,2100'],
+        'coverageLabel' => ['nullable', 'string', 'max:255'],
+        'payload' => ['nullable', 'array'],
+    ]);
+
+    $coverageLabel = $validated['coverageLabel'] ?? null;
+
+    if (!$coverageLabel) {
+        if (($validated['periodType'] ?? null) === 'monthly' && !empty($validated['selectedMonth']) && !empty($validated['selectedYear'])) {
+            $coverageLabel = Carbon::createFromDate((int) $validated['selectedYear'], (int) $validated['selectedMonth'], 1)->format('F Y');
+        } elseif (($validated['periodType'] ?? null) === 'yearly' && !empty($validated['selectedYear'])) {
+            $coverageLabel = 'Year ' . $validated['selectedYear'];
+        } elseif (($validated['periodType'] ?? null) === 'range' && !empty($validated['startDate']) && !empty($validated['endDate'])) {
+            $coverageLabel = $validated['startDate'] . ' to ' . $validated['endDate'];
+        } else {
+            $coverageLabel = $validated['date'] ?? null;
+        }
+    }
+
+    $report->update([
+        'title' => $validated['title'],
+        'type' => $validated['type'],
+        'reference' => $validated['reference'],
+        'item_name' => $validated['itemName'] ?? null,
+        'period_type' => $validated['periodType'],
+        'date' => $validated['date'] ?? null,
+        'start_date' => $validated['startDate'] ?? null,
+        'end_date' => $validated['endDate'] ?? null,
+        'selected_month' => $validated['selectedMonth'] ?? null,
+        'selected_year' => $validated['selectedYear'] ?? null,
+        'coverage_label' => $coverageLabel,
+        'payload' => $validated['payload'] ?? null,
+    ]);
+
+    return redirect()->route('compliance.reports');
+})->middleware(['auth', 'verified'])->name('compliance.reports.update');
+
+Route::delete('/compliance/reports/{report}', function (\App\Models\ComplianceReport $report) {
+    $report->update([
+        'archived_at' => now(),
+    ]);
+
+    return redirect()->route('compliance.reports');
+})->middleware(['auth', 'verified'])->name('compliance.reports.archive');
 
 Route::get('/compliance/analytics', function () {
     $items = class_exists(\Modules\Inventory\Models\Item::class)
