@@ -483,15 +483,27 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                             {(() => {
                                 const filteredIssuances = getFilteredIssuances();
                                 
-                                const issuedItems = filteredIssuances.map((issue: any) => ({
-                                    risNo: issue.id.toString().padStart(4, '0'),
-                                    responsibilityCenterCode: issue.department || '-',
-                                    stockNo: issue.item?.sku || '-',
-                                    itemDescription: issue.item?.name || '-',
-                                    unit: issue.item?.unit_measure || 'pc',
-                                    quantityIssued: issue.quantity || 0,
-                                    unitCost: '', // To be filled manually by Accounting
-                                    amount: ''    // To be filled manually by Accounting
+                                const issuedItems = filteredIssuances.map((issue: any) => {
+                                    const qty = issue.quantity || 0;
+                                    const cost = issue.item?.unit_cost || 0;
+                                    return {
+                                        risNo: issue.id.toString().padStart(4, '0'),
+                                        responsibilityCenterCode: issue.department || '-',
+                                        stockNo: issue.item?.sku || '-',
+                                        itemDescription: issue.item?.name || '-',
+                                        unit: issue.item?.unit_measure || 'pc',
+                                        quantityIssued: qty,
+                                        unitCost: cost,
+                                        amount: qty * cost
+                                    };
+                                });
+
+                                const recaps = issuedItems.map(item => ({
+                                    stockNo: item.stockNo,
+                                    quantity: item.quantityIssued,
+                                    unitCost: '',
+                                    totalCost: '',
+                                    uacsObjectCode: ''
                                 }));
 
                                 return (
@@ -501,7 +513,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         fundCluster: 'General Fund',
                                         date: generateDisplayDate(formData),
                                         issuedItems: issuedItems,
-                                        recapitulationItems: [],
+                                        recapitulationItems: recaps,
                                         supplyCustodianName: user?.name || 'Supply Officer',
                                         accountingStaffName: 'Accounting Staff',
                                         accountingDate: generateDisplayDate(formData),
@@ -521,7 +533,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         unit: item.unit_of_issue || item.unit_measure || 'pc',
                                         unit_value: item.unit_cost || 0,
                                         balance_per_card: item.stock || 0,
-                                        on_hand_count: '', // To be filled manually
+                                        on_hand_count: item.stock || 0,
                                         shortage_qty: '',  // To be filled manually
                                         shortage_value: '',// To be filled manually
                                         remarks: ''        // To be filled manually
@@ -557,11 +569,11 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         {
                                             date: generateDisplayDate(formData),
                                             reference: formData.reference,
-                                            receipt_qty: 100,
-                                            issue_qty: 0,
+                                            receipt_qty: 0,
+                                            issue_qty: 100,
                                             issue_office: 'Admin',
                                             balance_qty: 100,
-                                            days_to_consume: 30
+                                            days_to_consume: ''
                                         }
                                     ]
                                 }} />
@@ -762,9 +774,11 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                         fundCluster: 'GF',
                                                         date: report.date || '',
                                                         issuedItems: [
-                                                            { risNo: '1', responsibilityCenterCode: '-', stockNo: '1', itemDescription: 'Sample', unit: 'pc', quantityIssued: 1, unitCost: '', amount: '' }
+                                                            { risNo: '1', responsibilityCenterCode: '-', stockNo: '1', itemDescription: 'Sample', unit: 'pc', quantityIssued: 1, unitCost: 100, amount: 100 }
                                                         ], 
-                                                        recapitulationItems: [],
+                                                        recapitulationItems: [
+                                                            { stockNo: '1', quantity: 1, unitCost: '', totalCost: '', uacsObjectCode: '' }
+                                                        ],
                                                         supplyCustodianName: '', accountingStaffName: '', accountingDate: ''
                                                     }} />
                                                 </div>
@@ -778,7 +792,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                         fund_cluster: 'GF',
                                                         inventory_type: report.title,
                                                         items: [
-                                                            { article: 'Sample', description: '-', stock_no: '1', unit: 'pc', unit_value: 100, balance_per_card: 10, on_hand_count: '', shortage_qty: '', shortage_value: '', remarks: '' }
+                                                            { article: 'Sample', description: '-', stock_no: '1', unit: 'pc', unit_value: 100, balance_per_card: 10, on_hand_count: 10, shortage_qty: '', shortage_value: '', remarks: '' }
                                                         ]
                                                     }} />
                                                 </div>

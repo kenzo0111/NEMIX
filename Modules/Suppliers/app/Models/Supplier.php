@@ -13,5 +13,6 @@ class Supplier extends Model
         'reg_number',
         'category',
         'status',
+        'amount',
     ];
 }

@@ -9,6 +9,7 @@ class Item extends Model
 {
     protected $fillable = [
         'name',
+        'supplier_id',
         'sku',
         'stock',
         'unit_cost',
@@ -23,4 +24,9 @@ class Item extends Model
         'unit_cost' => 'decimal:2',
         'amount' => 'decimal:2',
     ];
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Suppliers\Models\Supplier::class, 'supplier_id');
+    }
 }

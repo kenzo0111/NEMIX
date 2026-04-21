@@ -31,6 +31,7 @@ class SuppliersController extends \App\Http\Controllers\Controller
             'reg_number' => 'required|string|unique:suppliers,reg_number',
             'category' => 'required|string',
             'status' => 'required|in:active,pending,blacklisted',
+            'amount' => 'nullable|numeric',
         ]);
 
         Supplier::create($request->all());
@@ -73,6 +74,7 @@ class SuppliersController extends \App\Http\Controllers\Controller
             'reg_number' => 'required|string|unique:suppliers,reg_number,' . $supplier->id,
             'category' => 'required|string',
             'status' => 'required|in:active,pending,blacklisted',
+            'amount' => 'nullable|numeric',
         ]);
 
         $supplier->update($request->all());

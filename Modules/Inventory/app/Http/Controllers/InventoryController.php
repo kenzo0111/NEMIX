@@ -18,7 +18,7 @@ class InventoryController extends Controller
     public function index()
     {
         return Inertia::render('Inventory/AllItems', [
-            'items' => Item::all()->map(function ($item) {
+            'items' => Item::with('supplier')->get()->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
@@ -29,9 +29,12 @@ class InventoryController extends Controller
                     'status' => $item->status,
                     'description' => $item->description,
                     'unit_of_issue' => $item->unit_of_issue,
+                    'supplier_id' => $item->supplier_id,
+                    'supplier' => $item->supplier,
                 ];
             }),
-            'categories' => Category::all()
+            'categories' => Category::all(),
+            'suppliers' => Supplier::all()
         ]);
     }
 
@@ -39,6 +42,7 @@ class InventoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'supplier_id' => 'required|exists:suppliers,id',
             'sku' => 'nullable|string|max:255|unique:items,sku',
             'stock' => 'required|integer|min:0',
             'unit_cost' => 'nullable|numeric|min:0',
@@ -48,7 +52,7 @@ class InventoryController extends Controller
             'unit_of_issue' => 'nullable|string|max:255',
         ]);
 
-        Item::create($request->only(['name', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'unit_of_issue']));
+        Item::create($request->only(['name', 'supplier_id', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'unit_of_issue']));
 
         return redirect()->route('inventory.index')->with('success', 'Item created successfully.');
     }
@@ -57,6 +61,7 @@ class InventoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'supplier_id' => 'required|exists:suppliers,id',
             'sku' => 'nullable|string|max:255|unique:items,sku,' . $inventory->id,
             'stock' => 'required|integer|min:0',
             'unit_cost' => 'nullable|numeric|min:0',
@@ -66,7 +71,7 @@ class InventoryController extends Controller
             'unit_of_issue' => 'nullable|string|max:255',
         ]);
 
-        $inventory->update($request->only(['name', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'unit_of_issue']));
+        $inventory->update($request->only(['name', 'supplier_id', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'unit_of_issue']));
 
         return redirect()->route('inventory.index')->with('success', 'Item updated successfully.');
     }

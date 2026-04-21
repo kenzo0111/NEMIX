@@ -41,7 +41,7 @@ const InventoryModal = ({ show, onClose, title, children, footer, isSubmitting }
                         </div>
                         <div>
                             <h3 className="text-lg font-bold text-gray-900 tracking-tight">{title}</h3>
-                            <p className="text-xs text-gray-500 font-medium">Inventory Management</p>
+                            <p className="text-xs text-gray-500 font-medium">Contract Supplier Management</p>
                         </div>
                     </div>
                     <button
@@ -187,11 +187,11 @@ export default function Categories({ auth, categories }: { auth: any, categories
     }; 
 
     // Sidebar Modules Definition
-    const modules = getSidebarModules('Inventory', 'Categories');
+    const modules = getSidebarModules('Contract Suppliers', 'Categories');
 
     return (
         <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900">
-            <Head title="Inventory - Categories" />
+            <Head title="Contract Suppliers - Categories" />
 
             <Sidebar
                 modules={modules}
@@ -208,10 +208,10 @@ export default function Categories({ auth, categories }: { auth: any, categories
                     <div>
                         
                                 <div className="mb-2">
-                                    <Breadcrumbs items={[{name:'Inventory'},{name:'Categories'}]} />
+                                    <Breadcrumbs items={[{name:'Contract Suppliers'},{name:'Categories'}]} />
                                 </div>
-<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Inventory Management</h2>
-                        <p className="text-sm text-gray-500">Master list of item classifications.</p>
+<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Contract Supplier Management</h2>
+                        <p className="text-sm text-gray-500">Master list of supplier classifications.</p>
                     </div>
                     <div className="flex items-center gap-6">
                         <div className="text-right hidden sm:block">
@@ -234,7 +234,7 @@ export default function Categories({ auth, categories }: { auth: any, categories
                         <div className="px-8 py-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50/30">
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900">Categories</h3>
-                                <p className="text-xs text-gray-500 mt-1">Organize and manage your inventory classifications.</p>
+                                <p className="text-xs text-gray-500 mt-1">Organize and manage your contract supplier classifications.</p>
                             </div>
                             <div className="flex gap-3">
                                 <input 
@@ -350,7 +350,7 @@ export default function Categories({ auth, categories }: { auth: any, categories
                         id="name"
                         value={formData.name}
                         onChange={(e: any) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="e.g. Office Supplies"
+                        placeholder="e.g. Service Providers"
                         required
                         icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>}
                     />
@@ -359,7 +359,7 @@ export default function Categories({ auth, categories }: { auth: any, categories
                         id="description"
                         value={formData.description}
                         onChange={(e: any) => setFormData({ ...formData, description: e.target.value })}
-                        placeholder="Briefly describe what items belong in this category..."
+                        placeholder="Briefly describe what suppliers belong in this category..."
                         rows={3}
                         icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>}
                     />
@@ -410,7 +410,7 @@ export default function Categories({ auth, categories }: { auth: any, categories
                         id="edit-name"
                         value={formData.name}
                         onChange={(e: any) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="e.g. Office Supplies"
+                        placeholder="e.g. Service Providers"
                         required
                         icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>}
                     />
@@ -419,7 +419,7 @@ export default function Categories({ auth, categories }: { auth: any, categories
                         id="edit-description"
                         value={formData.description}
                         onChange={(e: any) => setFormData({ ...formData, description: e.target.value })}
-                        placeholder="Briefly describe what items belong in this category..."
+                        placeholder="Briefly describe what suppliers belong in this category..."
                         rows={3}
                         icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>}
                     />

@@ -112,6 +112,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
         reg_number: '',
         category: '',
         status: 'active',
+        amount: '',
     });
 
     // Sidebar Modules
@@ -177,6 +178,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
             reg_number: supplier.reg_number,
             category: 'goods',
             status: supplier.status.toLowerCase(),
+            amount: supplier.amount || '',
         });
     };
 
@@ -190,6 +192,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
             reg_number: supplier.reg_number,
             category: 'goods',
             status: supplier.status.toLowerCase(),
+            amount: supplier.amount || '',
         });
     };
 
@@ -209,6 +212,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
             reg_number: '2023-112233 (PhilGEPS)',
             category: 'Consumable Office Supplies',
             status: 'Active',
+            amount: '15000.00',
         },
         {
             id: 2,
@@ -218,6 +222,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
             reg_number: '2024-998877 (PhilGEPS)',
             category: 'Consumable Office Supplies',
             status: 'Active',
+            amount: '22500.50',
         },
         {
             id: 3,
@@ -227,6 +232,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
             reg_number: '2024-000001 (PhilGEPS)',
             category: 'Consumable Office Supplies',
             status: 'Active',
+            amount: '8000.00',
         },
     ];
 
@@ -429,6 +435,9 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                                 Supply Focus
                                             </th>
                                             <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                                Amount
+                                            </th>
+                                            <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                                                 Status
                                             </th>
                                             <th className="px-4 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">
@@ -453,6 +462,9 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                                 </td>
                                                 <td className="px-4 py-3 text-sm text-gray-500">
                                                     {supplier.category}
+                                                </td>
+                                                <td className="px-4 py-3 text-sm text-gray-900 font-semibold">
+                                                    ₱{Number(supplier.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </td>
                                                 <td className="px-4 py-3 whitespace-nowrap">
                                                     {(() => {
@@ -665,6 +677,21 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                 </div>
                                 {errors.category && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.category}</p>}
                             </div>
+                        </div>
+                        <div className="mt-5">
+                            <FormInput
+                                label="Amount (₱)"
+                                type="number"
+                                step="0.01"
+                                value={data.amount}
+                                onChange={(e: any) => setData('amount', e.target.value)}
+                                error={errors.amount}
+                                placeholder="0.00"
+                                disabled={modalMode === 'view'}
+                                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>}
+                            />
                         </div>
                     </div>
 

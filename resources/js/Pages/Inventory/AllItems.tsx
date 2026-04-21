@@ -92,42 +92,29 @@ const FormTextarea = ({ label, icon, error, ...props }: any) => (
     </div>
 );
 
-const generateNextSku = (items: any[]) => {
+const generateNextSku = (items: any[], supplierPrefix: string) => {
+    if (!supplierPrefix) return '';
     const matchingSkus = items
         .map((item) => String(item.sku || '').trim())
+        .filter(sku => sku.startsWith(supplierPrefix))
         .map((sku) => {
-            const match = sku.match(/^(.*?)(\d+)$/);
-
-            if (!match) {
-                return null;
-            }
-
-            return {
-                prefix: match[1],
-                number: Number(match[2]),
-                width: Math.max(match[2].length, 3),
-            };
+            const numberPart = sku.substring(supplierPrefix.length);
+            const number = parseInt(numberPart, 10);
+            return isNaN(number) ? null : { number, width: Math.max(numberPart.length, 3) };
         })
-        .filter((sku): sku is { prefix: string; number: number; width: number } => sku !== null);
+        .filter((v): v is { number: number, width: number } => v !== null);
 
     if (matchingSkus.length === 0) {
-        return 'SKU-001';
+        return `${supplierPrefix}001`;
     }
 
-    const nextSkuSeed = matchingSkus.reduce((best, current) => {
-        if (current.number > best.number) {
-            return current;
-        }
-
-        return best;
-    });
-
-    return `${nextSkuSeed.prefix}${String(nextSkuSeed.number + 1).padStart(nextSkuSeed.width, '0')}`;
+    const maxNumber = Math.max(...matchingSkus.map(s => s.number));
+    return `${supplierPrefix}${String(maxNumber + 1).padStart(3, '0')}`;
 };
 
 // --- MAIN PAGE ---
 
-export default function AllItems({ auth, items, categories }: { auth: any, items: any[], categories: any[] }) {
+export default function AllItems({ auth, items, categories, suppliers = [] }: { auth: any, items: any[], categories: any[], suppliers?: any[] }) {
     const user = auth.user;
     const [collapsed, setCollapsed] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -148,6 +135,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
     // --- FILTERS STATE ---
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<any>(null);
+    const [filterSupplier, setFilterSupplier] = useState<any>(null);
 
     // --- FILTERING LOGIC ---
     const filteredItems = useMemo(() => {
@@ -156,11 +144,10 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                 item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                 (item.sku && item.sku.toLowerCase().includes(searchTerm.toLowerCase()));
             const matchesStatus = filterStatus ? item.status === filterStatus.value : true;
-            return matchesSearch && matchesStatus;
+            const matchesSupplier = filterSupplier ? String(item.supplier_id) === String(filterSupplier.value) : true;
+            return matchesSearch && matchesStatus && matchesSupplier;
         });
-    }, [items, searchTerm, filterStatus]);
-
-    const nextSku = useMemo(() => generateNextSku(items), [items]);
+    }, [items, searchTerm, filterStatus, filterSupplier]);
 
     const customSelectStyles = {
         control: (provided: any, state: any) => ({
@@ -186,6 +173,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         name: '',
+        supplier_id: '',
         sku: '',
         stock: 0,
         unit_cost: '',
@@ -194,6 +182,17 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
         description: '',
         unit_of_issue: '',
     });
+
+    useEffect(() => {
+        if (!isEditing && data.supplier_id && suppliers && suppliers.length > 0) {
+            const selectedSupplier = suppliers.find((s: any) => String(s.id) === String(data.supplier_id));
+            if (selectedSupplier && selectedSupplier.name) {
+                const rawName = selectedSupplier.name.trim().replace(/[^a-zA-Z0-9]/g, '');
+                const prefix = (rawName + 'XXX').substring(0, 3).toUpperCase() + '-';
+                setData('sku', generateNextSku(items, prefix));
+            }
+        }
+    }, [data.supplier_id, isEditing, items, suppliers]);
 
     const submit = (e: any) => {
         e.preventDefault();
@@ -293,6 +292,18 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
 
                                 <div className="w-full sm:w-40">
                                     <Select
+                                        value={filterSupplier}
+                                        onChange={setFilterSupplier}
+                                        options={(suppliers || []).map(s => ({ value: s.id, label: s.name }))}
+                                        placeholder="Supplier"
+                                        isClearable
+                                        styles={customSelectStyles}
+                                        classNamePrefix="react-select"
+                                    />
+                                </div>
+
+                                <div className="w-full sm:w-40">
+                                    <Select
                                         value={filterStatus}
                                         onChange={setFilterStatus}
                                         options={[
@@ -312,7 +323,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                         setIsEditing(false);
                                         setSelectedItem(null);
                                         reset();
-                                        setData('sku', nextSku);
+                                        setData('sku', ''); // Will be updated on supplier select
                                         setShowModal(true);
                                     }}
                                     className="bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2 whitespace-nowrap"
@@ -329,6 +340,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                 <thead className="bg-red-50/50">
                                     <tr>
                                         <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Item Name</th>
+                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Supplier</th>
                                         <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Unit of Issue</th>
                                         <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Description</th>
                                         <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Stock Level</th>
@@ -341,7 +353,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                 <tbody className="bg-white divide-y divide-gray-100">
                                     {filteredItems.length === 0 ? (
                                         <tr>
-                                            <td colSpan={8} className="px-8 py-12 text-center text-gray-500">
+                                            <td colSpan={9} className="px-8 py-12 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center">
                                                     <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                                                     <p>No items found.</p>
@@ -360,6 +372,9 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                                     {/* Description removed from here */}
                                                 </td>
                                                 <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600">
+                                                    {item.supplier ? item.supplier.name : 'No Supplier'}
+                                                </td>
+                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600">
                                                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
                                                         {item.unit_of_issue || '-'}
                                                     </span>
@@ -371,13 +386,13 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                                     </div>
                                                 </td>
                                                 <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
-                                                    {item.stock} <span className="text-gray-400 text-xs font-normal">units</span>
+                                                    {Number(item.stock || 0).toLocaleString('en-US')} <span className="text-gray-400 text-xs font-normal">units</span>
                                                 </td>
                                                 <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
-                                                    ₱{Number(item.unit_cost || 0).toLocaleString()}
+                                                    ₱{Number(item.unit_cost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </td>
                                                 <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
-                                                    ₱{Number(item.amount || 0).toLocaleString()}
+                                                    ₱{Number(item.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </td>
                                                 <td className="px-8 py-5 whitespace-nowrap">
                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -398,6 +413,7 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                                                             setSelectedItem(item);
                                                             setData({
                                                                 name: item.name,
+                                                                supplier_id: item.supplier_id || '',
                                                                 sku: item.sku || '',
                                                                 stock: item.stock,
                                                                 unit_cost: item.unit_cost || '',
@@ -484,6 +500,20 @@ export default function AllItems({ auth, items, categories }: { auth: any, items
                 }
             >
                 <form className="space-y-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div className="group w-full">
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Supplier</label>
+                            <Select
+                                value={suppliers?.find((s: any) => String(s.id) === String(data.supplier_id)) ? { value: data.supplier_id, label: suppliers.find((s: any) => String(s.id) === String(data.supplier_id)).name } : null}
+                                onChange={(selectedOption: any) => setData('supplier_id', selectedOption ? selectedOption.value : '')}
+                                options={(suppliers || []).map((s: any) => ({ value: s.id, label: s.name }))}
+                                placeholder="Select a Supplier..."
+                                styles={customSelectStyles}
+                                isDisabled={isEditing}
+                            />
+                            {errors.supplier_id && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.supplier_id}</p>}
+                        </div>
+                    </div>
                     <div className="flex flex-col sm:flex-row gap-5">
                         <div className="flex-[2]">
                             <FormInput 
