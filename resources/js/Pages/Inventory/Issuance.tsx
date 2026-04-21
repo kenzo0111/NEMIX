@@ -2,7 +2,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import Sidebar from '@/Components/Sidebar';
 import { Head, Link, router } from '@inertiajs/react';
-import { useState, useMemo } from 'react'; // Added useMemo
+import { useState, useMemo, useRef, useEffect } from 'react'; // Added useMemo
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
 import RequisitionIssueSlip from '../../../Official Forms/RequisitionIssueSlip';
@@ -45,11 +45,25 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
     const [issuanceItems, setIssuanceItems] = useState<IssuanceItem[]>([{ item_id: '', quantity: '' }]);
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<any>({});
+    const modalFormRef = useRef<HTMLFormElement | null>(null);
+    const newItemAnchorRef = useRef<HTMLDivElement | null>(null);
+
+    const getFormattedId = (issuance: any) => {
+        if (!issuance) return '';
+        const date = new Date(issuance.date || new Date());
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const num = String(issuance.display_id || issuance.original_id || issuance.id).padStart(4, '0');
+        return `${year}-${month}-${num}`;
+    };
 
     // --- FILTERS STATE ---
     const [searchTerm, setSearchTerm] = useState('');
     const [filterRecipient, setFilterRecipient] = useState<any>(null);
-    const [filterStatus, setFilterStatus] = useState<any>(null);
+
+    // --- PAGINATION STATE ---
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     // --- DERIVED DATA (DROPDOWN OPTIONS) ---
     const groupedIssuances = useMemo(() => {
@@ -68,16 +82,28 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
             } else {
                 groups[key].item_names.push(issuance.item);
                 groups[key].total_quantity += Number(issuance.quantity);
+                if (issuance.id < groups[key].original_id) {
+                    groups[key].original_id = issuance.id;
+                }
                 groups[key].all_ids.push(issuance.id);
                 groups[key].items_list.push({ item: issuance.item, quantity: issuance.quantity, id: issuance.id });
             }
         });
 
-        return Object.values(groups).map((g: any) => ({
-            ...g,
-            item: g.item_names.length > 1 ? `${g.item_names.length} items (${g.item_names.slice(0, 2).join(', ')}${g.item_names.length > 2 ? '...' : ''})` : g.item_names[0],
-            quantity: g.total_quantity
-        }));
+        // Sort chronologically to preserve order, then assign sequential display IDs
+        const sortedGroups = Object.values(groups).sort((a: any, b: any) => a.original_id - b.original_id);
+        let currentDisplayId = 1;
+
+        return sortedGroups.map((g: any) => {
+            const res = {
+                ...g,
+                display_id: currentDisplayId,
+                item: g.item_names.length > 1 ? `${g.item_names.length} items (${g.item_names.slice(0, 2).join(', ')}${g.item_names.length > 2 ? '...' : ''})` : g.item_names[0],
+                quantity: g.total_quantity
+            };
+            currentDisplayId++;
+            return res;
+        });
     }, [issuances]);
 
     const itemOptions = items.map(item => ({ value: item.id, label: `${item.name} (${item.sku})` }));
@@ -88,6 +114,15 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
         { value: '06', label: '06 - Business Related Funds' },
         { value: '07', label: '07 - Trust Receipts' }
     ];
+
+    const getFundClusterDisplay = (value: string | null | undefined) => {
+        if (!value) {
+            return '';
+        }
+
+        const matched = fundClusterOptions.find((option) => option.value === value);
+        return matched ? matched.label : value;
+    };
 
     const recipientOptions = useMemo(() => {
         const uniqueRecipients = Array.from(new Set(groupedIssuances.map((i: any) => i.recipient)));
@@ -106,12 +141,17 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
             // 2. Recipient Filter
             const matchesRecipient = filterRecipient ? issuance.recipient === filterRecipient.value : true;
 
-            // 3. Status Filter
-            const matchesStatus = filterStatus ? issuance.status === filterStatus.value : true;
-
-            return matchesSearch && matchesRecipient && matchesStatus;
+            return matchesSearch && matchesRecipient;
         });
-    }, [groupedIssuances, searchTerm, filterRecipient, filterStatus]);
+    }, [groupedIssuances, searchTerm, filterRecipient]);
+
+    // Reset pagination when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, filterRecipient]);
+
+    const totalPages = Math.ceil(filteredIssuances.length / itemsPerPage);
+    const paginatedIssuances = filteredIssuances.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     // --- CUSTOM STYLES FOR REACT SELECT (ORANGE THEME) ---
     const customSelectStyles = {
@@ -156,6 +196,17 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
         setIssuanceItems([...issuanceItems, { item_id: '', quantity: '' }]);
     };
 
+    useEffect(() => {
+        if (!isModalOpen || issuanceItems.length <= 1) {
+            return;
+        }
+
+        newItemAnchorRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'end',
+        });
+    }, [issuanceItems.length, isModalOpen]);
+
     const removeItem = (index: number) => {
         if (issuanceItems.length > 1) {
             setIssuanceItems(issuanceItems.filter((_, i) => i !== index));
@@ -177,7 +228,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
             recipient,
             date_issued: dateIssued,
             department,
-            fund_cluster: fundCluster?.value || '',
+            fund_cluster: fundCluster?.label || '',
             recipient_designation: recipientDesignation,
             purpose,
             approved_by: approvedBy,
@@ -226,12 +277,93 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
         setSelectedIssuance(null);
     };
 
+    const handlePrintForm = () => {
+        document.body.classList.add('printing-issuance');
+        window.print();
+        setTimeout(() => {
+            document.body.classList.remove('printing-issuance');
+        }, 500);
+    };
+
     // Sidebar Modules
     const modules = getSidebarModules('Inventory', 'Issuance');
     
     return (
         <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900 overflow-x-hidden">
             <Head title="Inventory - Issuance" />
+            <style>{`
+                @media print {
+                    @page {
+                        size: A4 portrait;
+                        margin: 8mm;
+                    }
+                    body.printing-issuance {
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                        background: white !important;
+                    }
+                    
+                    /* Completely remove Sidebar, Main content, and Dialog backdrops from layout */
+                    body.printing-issuance aside,
+                    body.printing-issuance main,
+                    body.printing-issuance .absolute.inset-0.bg-gray-900\\/60 {
+                        display: none !important;
+                    }
+                    
+                    /* Reset Modal Wrapper so it sits cleanly at the top-left */
+                    body.printing-issuance .fixed.inset-0.z-50 {
+                        position: relative !important;
+                        display: block !important;
+                        width: auto !important;
+                        height: auto !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        background: white !important;
+                    }
+
+                    body.printing-issuance .relative.bg-white.rounded-2xl {
+                        box-shadow: none !important;
+                        border: none !important;
+                        margin: 0 auto !important;
+                        padding: 0 !important;
+                        border-radius: 0 !important;
+                        max-width: 210mm !important;
+                        max-height: none !important;
+                        transform: none !important;
+                        display: flex !important;
+                        flex-direction: column !important;
+                        align-items: center !important;
+                    }
+
+                    body.printing-issuance .issuance-print-area {
+                        border: none !important;
+                        margin: 0 auto !important;
+                        padding: 0 !important;
+                        width: 100% !important;
+                        max-width: 210mm !important;
+                        display: flex !important;
+                        justify-content: center !important;
+                    }
+
+                    body.printing-issuance .print\\:hidden {
+                        display: none !important;
+                    }
+
+                    /* Make it actual A4 size without forced shrinking */
+                    body.printing-issuance .print-zoom-fit {
+                        zoom: 1;
+                        page-break-inside: avoid !important;
+                        page-break-after: avoid !important;
+                        page-break-before: avoid !important;
+                    }
+
+                    /* Disable scrollbars */
+                    ::-webkit-scrollbar {
+                        display: none;
+                    }
+                }
+            `}</style>
+
 
             <Sidebar
                 modules={modules}
@@ -306,24 +438,6 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                     />
                                 </div>
 
-                                {/* Status Filter */}
-                                <div className="w-full sm:w-40">
-                                    <Select
-                                        value={filterStatus}
-                                        onChange={setFilterStatus}
-                                        options={[
-                                            { value: 'Issued', label: 'Issued' },
-                                            { value: 'Pending', label: 'Pending' },
-                                            { value: 'Returned', label: 'Returned' },
-                                            { value: 'Cancelled', label: 'Cancelled' }
-                                        ]}
-                                        placeholder="Status"
-                                        isClearable
-                                        styles={customSelectStyles}
-                                        classNamePrefix="react-select"
-                                    />
-                                </div>
-
                                 {/* Action Button */}
                                 <button 
                                     onClick={openModal}
@@ -350,29 +464,23 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-100">
-                                    {filteredIssuances.length === 0 ? (
+                                    {paginatedIssuances.length === 0 ? (
                                         <tr>
                                             <td colSpan={7} className="px-4 lg:px-8 py-12 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center">
                                                     <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                                                     <p>No issuance records found.</p>
-                                                    {(searchTerm || filterRecipient || filterStatus) && (
+                                                    {(searchTerm || filterRecipient) && (
                                                         <p className="text-xs text-gray-400 mt-1">Try adjusting your filters.</p>
                                                     )}
                                                 </div>
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredIssuances.map((issuance, index) => (
+                                        paginatedIssuances.map((issuance: any, index: number) => (
                                             <tr key={index} className="hover:bg-gray-50 transition-colors group">
                                                 <td className="hidden lg:table-cell px-4 lg:px-8 py-5 whitespace-nowrap text-sm font-bold text-gray-900">
-                                                    {(() => {
-                                                        const date = new Date(issuance.date);
-                                                        const year = date.getFullYear();
-                                                        const month = String(date.getMonth() + 1).padStart(2, '0');
-                                                        const num = String(issuance.id).padStart(4, '0');
-                                                        return `${year}-${month}-${num}`;
-                                                    })()}
+                                                    {getFormattedId(issuance)}
                                                 </td>
                                                 <td className="px-4 lg:px-8 py-5 text-sm font-bold text-gray-900 break-words">{issuance.item}</td>
                                                 <td className="px-4 lg:px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
@@ -424,16 +532,30 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                             </table>
                         </div>
                         
-                        {/* Pagination (Placeholder) */}
-                        <div className="px-4 sm:px-6 lg:px-8 py-4 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
-                            <span className="text-xs text-gray-500">
-                                Showing {filteredIssuances.length} of {groupedIssuances.length} records
-                            </span>
-                            <div className="flex gap-2">
-                                <button className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50" disabled>Previous</button>
-                                <button className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50" disabled>Next</button>
+                        {/* Pagination */}
+                        {groupedIssuances.length > 0 && (
+                            <div className="px-4 sm:px-6 lg:px-8 py-4 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
+                                <span className="text-xs text-gray-500">
+                                    Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredIssuances.length)} to {Math.min(currentPage * itemsPerPage, filteredIssuances.length)} of {filteredIssuances.length} records
+                                </span>
+                                <div className="flex gap-2">
+                                    <button 
+                                        className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    >
+                                        Previous
+                                    </button>
+                                    <button 
+                                        className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
+                                        disabled={currentPage >= totalPages}
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                    >
+                                        Next
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                     </div>
                 </div>
@@ -446,7 +568,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                         className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
                         onClick={!processing ? closeModal : undefined}
                     ></div>
-                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-all scale-100 overflow-hidden border border-orange-100">
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-all scale-100 overflow-hidden border border-orange-100 max-h-[90vh] flex flex-col">
                         <div className="h-2 w-full bg-gradient-to-r from-orange-900 via-orange-800 to-orange-950"></div>
                         <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50/50">
                             <div className="flex items-center gap-3">
@@ -467,7 +589,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                        <form ref={modalFormRef} onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="group w-full">
                                     <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Recipient</label>
@@ -682,6 +804,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                         )}
                                     </div>
                                 ))}
+                                <div ref={newItemAnchorRef} />
                                 {errors.issuances && <p className="mt-1 text-xs text-red-600 font-medium">{errors.issuances}</p>}
                             </div>
 
@@ -735,7 +858,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900 tracking-tight">Issuance Details</h3>
-                                    <p className="text-xs text-gray-500 font-medium">Record ID: #{selectedIssuance.id}</p>
+                                    <p className="text-xs text-gray-500 font-medium">Item ID: {getFormattedId(selectedIssuance)}</p>
                                 </div>
                             </div>
                             <button 
@@ -803,16 +926,16 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                         className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
                         onClick={closeViewFormModal}
                     ></div>
-                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl transform transition-all scale-100 overflow-hidden border border-green-100 flex flex-col max-h-[90vh]">
-                        <div className="h-2 w-full bg-gradient-to-r from-green-900 via-green-800 to-green-950 flex-shrink-0"></div>
-                        <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl transform transition-all scale-100 overflow-hidden border border-green-100 flex flex-col max-h-[90vh] print:max-w-full print:max-h-full print:rounded-none print:border-none print:shadow-none print-single-page print-zoom-fit">
+                        <div className="h-2 w-full bg-gradient-to-r from-green-900 via-green-800 to-green-950 flex-shrink-0 print:hidden"></div>
+                        <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex-shrink-0 print:hidden">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-green-50 rounded-lg text-green-900">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900 tracking-tight">Issuance Form</h3>
-                                    <p className="text-xs text-gray-500 font-medium">Record ID: #{String(selectedIssuance.id).padStart(4, '0')}</p>
+                                    <p className="text-xs text-gray-500 font-medium">Item ID: {getFormattedId(selectedIssuance)}</p>
                                 </div>
                             </div>
                             <button 
@@ -823,15 +946,15 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                         </div>
-                        <div className="p-8 overflow-y-auto w-full bg-gray-100 flex justify-center">
-                            <div className="border border-gray-300 rounded shadow-sm bg-white overflow-x-auto w-full max-w-[210mm] p-4">
+                        <div className="p-8 overflow-y-auto w-full bg-gray-100 flex justify-center print:p-0 print:bg-white print:overflow-hidden">
+                            <div className="issuance-print-area border border-gray-300 rounded shadow-sm bg-white overflow-x-auto w-full max-w-[210mm] p-4 print:border-none print:rounded-none print:shadow-none print:bg-white print:p-0 print:max-w-full print-single-page">
                                 <RequisitionIssueSlip data={{
                                     entity_name: "Camarines Norte State College",
-                                    fund_cluster: selectedIssuance.fund_cluster || "",
+                                    fund_cluster: getFundClusterDisplay(selectedIssuance.fund_cluster),
                                     division: selectedIssuance.department || "",
                                     responsibility_center_code: "",
                                     office: selectedIssuance.department || "",
-                                    ris_no: String(selectedIssuance.id).padStart(4, '0'),
+                                    ris_no: getFormattedId(selectedIssuance),
                                     purpose: selectedIssuance.purpose || "",
                                     items: selectedIssuance.items_list?.map((it: any) => ({
                                         stock_no: "",
@@ -857,9 +980,9 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                 }} />
                             </div>
                         </div>
-                        <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 flex-shrink-0">
+                        <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 flex-shrink-0 print:hidden">
                             <button
-                                onClick={() => window.print()}
+                                onClick={handlePrintForm}
                                 className="px-6 py-2 text-green-700 bg-green-50 hover:bg-green-100 font-bold rounded-lg transition-colors flex items-center gap-2 border border-green-200"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
@@ -887,7 +1010,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                         <div className="h-2 w-full bg-gradient-to-r from-red-600 to-red-800"></div>
                         <div className="p-6 text-center">
                             <svg className="mx-auto mb-4 text-red-500 w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                            <h3 className="mb-5 text-lg font-bold text-gray-900">Are you sure you want to archive <br/><span className="text-red-600 border-b border-red-200">Record #{itemToVoid?.id}</span>?</h3>
+                            <h3 className="mb-5 text-lg font-bold text-gray-900">Are you sure you want to archive <br/><span className="text-red-600 border-b border-red-200">Item ID {getFormattedId(itemToVoid)}</span>?</h3>
                             <p className="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
                             <div className="flex justify-center gap-4">
                                 <button

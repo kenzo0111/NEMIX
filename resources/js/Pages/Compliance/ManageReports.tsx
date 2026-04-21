@@ -181,6 +181,30 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         return data.date;
     };
 
+    const handlePrint = () => {
+        const dynamicPrintStyleId = 'dynamic-print-orientation-style';
+        const existingStyle = document.getElementById(dynamicPrintStyleId);
+        if (existingStyle) {
+            existingStyle.remove();
+        }
+
+        const style = document.createElement('style');
+        style.id = dynamicPrintStyleId;
+        style.setAttribute('media', 'print');
+        style.textContent = `@page { size: ${formData.type === 'RPCI' ? 'A4 landscape' : 'A4 portrait'}; margin: 5mm; }`;
+        document.head.appendChild(style);
+
+        window.print();
+
+        // Keep the DOM clean after print dialog has been triggered.
+        setTimeout(() => {
+            const mountedStyle = document.getElementById(dynamicPrintStyleId);
+            if (mountedStyle) {
+                mountedStyle.remove();
+            }
+        }, 500);
+    };
+
     useEffect(() => {
         setReports(serverReports.length > 0 ? serverReports : []);
     }, [serverReports]);
@@ -356,7 +380,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             <style>{`
                 @media print {
                     @page { 
-                        size: landscape; 
+                        size: A4 portrait; 
                         margin: 5mm; 
                     }
                     body { 
@@ -427,9 +451,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                     <>
                         <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">Cancel</button>
                         
-                        {modalMode === 'view' && (formData.type === 'RPCI' || formData.type === 'STOCK_CARD') && (
+                        {modalMode === 'view' && (
                             <button
-                                onClick={() => window.print()}
+                                onClick={handlePrint}
                                 type="button"
                                 className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg border border-transparent transition-colors shadow-sm flex items-center gap-2 print:hidden"
                             >
@@ -472,7 +496,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                                 return (
                                     <RSMIFormPaper data={{
-                                        entityName: 'National Entity for Management and Information X',
+                                        entityName: 'Camarines Norte State College',
                                         serialNo: formData.reference,
                                         fundCluster: 'General Fund',
                                         date: generateDisplayDate(formData),
@@ -505,7 +529,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                                     return (
                                         <RPCIFormPaper data={{
-                                            entity_name: 'National Entity for Management and Information X',
+                                            entity_name: 'Camarines Norte State College',
                                             as_at_date: generateDisplayDate(formData),
                                             fund_cluster: 'General Fund',
                                             inventory_type: formData.title,
@@ -522,7 +546,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         <div className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
                             <div className="min-w-[800px] mx-auto print:min-w-full">
                                 <StockCardFormPaper data={{
-                                    entity_name: 'National Entity for Management and Information X',
+                                    entity_name: 'Camarines Norte State College',
                                     fund_cluster: 'General Fund',
                                     item: formData.itemName || formData.title,
                                     stock_no: formData.reference,
@@ -733,7 +757,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             {report.type === 'RSMI' && (
                                                 <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
                                                     <RSMIFormPaper data={{
-                                                        entityName: 'COA',
+                                                        entityName: 'Camarines Norte State College',
                                                         serialNo: report.reference,
                                                         fundCluster: 'GF',
                                                         date: report.date || '',
@@ -749,7 +773,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             {report.type === 'RPCI' && (
                                                 <div className="absolute top-0 right-0 w-44 h-32 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
                                                     <RPCIFormPaper data={{
-                                                        entity_name: 'COA',
+                                                        entity_name: 'Camarines Norte State College',
                                                         as_at_date: report.date || '',
                                                         fund_cluster: 'GF',
                                                         inventory_type: report.title,
@@ -763,6 +787,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             {report.type === 'STOCK_CARD' && (
                                                 <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
                                                     <StockCardFormPaper data={{
+                                                        entity_name: 'Camarines Norte State College',
                                                         item: report.itemName || report.title,
                                                         stock_no: report.reference,
                                                         entries: []
