@@ -1,6 +1,6 @@
 import { Head, usePage } from '@inertiajs/react';
 import Breadcrumbs from '@/Components/Breadcrumbs';
-import { useState, useMemo } from 'react'; // Added useMemo
+import { useState, useMemo, useEffect } from 'react'; // Added useMemo
 import Select from 'react-select';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -23,6 +23,58 @@ const normalizeActionKey = (value?: string | null) => {
     return toTitleCase(value).toLowerCase();
 };
 
+const parseAuditTimestamp = (timestamp?: string | null) => {
+    if (!timestamp) {
+        return null;
+    }
+
+    const normalized = timestamp.replace('•', ' ').trim();
+    const parsed = new Date(normalized);
+
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const formatRelativeTime = (timestamp: string | null | undefined, now: Date) => {
+    const date = parseAuditTimestamp(timestamp);
+    if (!date) {
+        return timestamp || 'Unknown time';
+    }
+
+    const diffSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    const absSeconds = Math.abs(diffSeconds);
+
+    if (absSeconds < 10) {
+        return 'Just now';
+    }
+
+    if (absSeconds < 60) {
+        return `${absSeconds} sec${absSeconds === 1 ? '' : 's'} ago`;
+    }
+
+    const diffMinutes = Math.floor(absSeconds / 60);
+    if (diffMinutes < 60) {
+        return `${diffMinutes} min${diffMinutes === 1 ? '' : 's'} ago`;
+    }
+
+    const diffHours = Math.floor(absSeconds / 3600);
+    if (diffHours < 24) {
+        return `${diffHours} hr${diffHours === 1 ? '' : 's'} ago`;
+    }
+
+    const diffDays = Math.floor(absSeconds / 86400);
+    if (diffDays < 7) {
+        return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+    }
+
+    return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+    });
+};
+
 export default function ManageTransaction({ auth, logs }: { auth: any, logs?: any[] }) {
     const { props } = usePage();
     const user = auth?.user || (props.auth as any)?.user;
@@ -34,6 +86,13 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
     const [selectedAction, setSelectedAction] = useState<{ value: string; label: string } | null>(null);
 
     const modules = getSidebarModules('Audit Logs', 'Manage Transaction');
+
+    const [now, setNow] = useState(new Date());
+
+    useEffect(() => {
+        const interval = window.setInterval(() => setNow(new Date()), 1000);
+        return () => window.clearInterval(interval);
+    }, []);
 
     // Raw Data coming from props
     const rawLogs = logs || [];
@@ -216,7 +275,7 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
                                                             {trx.status}
                                                         </span>
                                                     </td>
-                                                    <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-400 font-semibold">{trx.time}</td>
+                                                    <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-400 font-semibold">{formatRelativeTime(trx.time, now)}</td>
                                                 </tr>
                                             ))
                                         ) : (
