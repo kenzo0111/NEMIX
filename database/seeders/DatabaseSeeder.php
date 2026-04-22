@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,24 +17,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
-            RolesAndPermissionsSeeder::class,
-        ]);
+        $systemAdminRole = Role::firstOrCreate(['name' => 'System Admin']);
+        $systemAdminRole->syncPermissions(Permission::all());
 
-        // User::factory(10)->create();
+        // Designated system admin account
+        $adminUser = User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'System Administrator',
+                'password' => bcrypt('admin123'),
+            ]
+        );
 
-        $testUser = User::factory()->create([
-            'name' => 'Property Staff User',
-            'email' => 'staff@example.com',
-        ]);
-        $testUser->assignRole('Property Staff');
-
-        // Create sample admin account
-        $adminUser = User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'doc',
-            'password' => bcrypt('admin123'),
-        ]);
-        $adminUser->assignRole('System Admin');
+        if (! $adminUser->hasRole($systemAdminRole)) {
+            $adminUser->assignRole($systemAdminRole);
+        }
     }
 }

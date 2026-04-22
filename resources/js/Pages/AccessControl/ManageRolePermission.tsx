@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { Plus, Edit2, Trash2, Shield, Check } from 'lucide-react'; // Optional: for icons
 import Sidebar from '@/Components/Sidebar';
 import Breadcrumbs from '@/Components/Breadcrumbs';
@@ -14,12 +14,19 @@ interface Permission {
 interface Role {
     id: number;
     name: string;
-    permissions: number[]; // Array of permission IDs
+    permissions: number[];
     permissions_count?: number;
 }
 
-export default function ManageRolePermission({ auth, roles: initialRoles, permissions: systemPermissions }: { auth: any, roles?: Role[], permissions?: Permission[] }) {
+interface Props {
+    auth: any;
+    roles?: Role[];
+    permissions?: Permission[];
+}
+
+export default function ManageRolePermission({ auth, roles: initialRoles = [], permissions: systemPermissions = [] }: Props) {
     const user = auth?.user;
+    const { flash } = usePage().props as any;
     const [collapsed, setCollapsed] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [newRoleName, setNewRoleName] = useState('');
@@ -27,57 +34,69 @@ export default function ManageRolePermission({ auth, roles: initialRoles, permis
     const [editingRole, setEditingRole] = useState<Role | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
-    const [successModal, setSuccessModal] = useState<{isOpen: boolean, message: string}>({isOpen: false, message: ''});
+    const [successModal, setSuccessModal] = useState<{ isOpen: boolean; message: string }>({ isOpen: false, message: '' });
+    const [unauthorizedModal, setUnauthorizedModal] = useState<{ isOpen: boolean; message: string }>({ isOpen: false, message: '' });
     const modules = getSidebarModules('Access', 'Manage Role Permission');
+
+    const [roles, setRoles] = useState<Role[]>(initialRoles);
+    const [permissions, setPermissions] = useState<Permission[]>(systemPermissions);
+    const userPermissions = auth?.permissions || [];
+    const isSystemAdmin = auth?.is_system_admin ?? false;
+    const canCreateRole = isSystemAdmin || userPermissions.includes('route:access-control.role-permission.store');
+    const canUpdateRole = isSystemAdmin || userPermissions.includes('route:access-control.role-permission.update');
+    const canDeleteRole = isSystemAdmin || userPermissions.includes('route:access-control.role-permission.destroy');
+
+    const effectivePermissions = permissions;
+
+    useEffect(() => {
+        if (initialRoles.length) {
+            setRoles(initialRoles);
+        }
+    }, [initialRoles]);
+
+    useEffect(() => {
+        if (systemPermissions.length) {
+            setPermissions(systemPermissions);
+        }
+    }, [systemPermissions]);
 
     const showSuccess = (message: string) => {
         setSuccessModal({ isOpen: true, message });
-        // Optional: auto-close after 3 seconds
-        // setTimeout(() => setSuccessModal({ isOpen: false, message: '' }), 3000);
     };
 
-    // Default mock system permissions if not provided by backend
-    const defaultPermissions: Permission[] = systemPermissions || [
-        { id: 1, name: 'view_users', module: 'User Management' },
-        { id: 2, name: 'create_users', module: 'User Management' },
-        { id: 3, name: 'edit_users', module: 'User Management' },
-        { id: 4, name: 'delete_users', module: 'User Management' },
-        { id: 5, name: 'view_inventory', module: 'Inventory' },
-        { id: 6, name: 'manage_inventory', module: 'Inventory' },
-        { id: 7, name: 'view_suppliers', module: 'Suppliers' },
-        { id: 8, name: 'manage_suppliers', module: 'Suppliers' },
-        { id: 9, name: 'view_audit_logs', module: 'Audit Logs' },
-    ];
+    const showUnauthorized = (message: string) => {
+        setUnauthorizedModal({ isOpen: true, message });
+    };
 
-    // Mock data if not provided via props
-    const [roles, setRoles] = useState<Role[]>(initialRoles || [
-        { id: 1, name: 'System Admin', permissions: [1, 2, 3, 4, 5, 6, 7, 8, 9], permissions_count: 9 },
-        { id: 2, name: 'Property Staff', permissions: [5, 6, 7], permissions_count: 3 },
-        { id: 3, name: 'Internal Auditor', permissions: [1, 5, 7, 9], permissions_count: 4 },
-        { id: 4, name: 'External Auditor', permissions: [5, 7, 9], permissions_count: 3 },
-    ]);
+    useEffect(() => {
+        if (flash?.success) {
+            showSuccess(flash.success);
+        }
+    }, [flash]);
 
-    // Group permissions by module for the checklist UI
-    const permissionsByModule = defaultPermissions.reduce((acc, perm) => {
+    const permissionsByModule = effectivePermissions.reduce((acc, perm) => {
         const mod = perm.module || 'General';
         if (!acc[mod]) acc[mod] = [];
         acc[mod].push(perm);
         return acc;
     }, {} as Record<string, Permission[]>);
 
+    const formatPermissionLabel = (name: string) =>
+        name.replace(/^route:/, '').replace(/\./g, ' ').replace(/[-_]/g, ' ');
+
     const handleCreateRole = (e: React.FormEvent) => {
         e.preventDefault();
         if (!newRoleName.trim()) return;
 
-        setRoles([...roles, {
-            id: roles.length ? Math.max(...roles.map(r => r.id)) + 1 : 1,
+        router.post(route('access-control.role-permission.store'), {
             name: newRoleName,
-            permissions: [],
-            permissions_count: 0
-        }]);
-        setNewRoleName('');
-        setIsCreateModalOpen(false);
-        showSuccess('New role created successfully.');
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setNewRoleName('');
+                setIsCreateModalOpen(false);
+            },
+        });
     };
 
     const handleEditClick = (role: Role) => {
@@ -85,37 +104,62 @@ export default function ManageRolePermission({ auth, roles: initialRoles, permis
         setIsEditModalOpen(true);
     };
 
+    const handleCreateClick = () => {
+        if (canCreateRole) {
+            setIsCreateModalOpen(true);
+            return;
+        }
+
+        showUnauthorized('You do not have permission to create roles.');
+    };
+
+    const handleEditAction = (role: Role) => {
+        if (canUpdateRole) {
+            handleEditClick(role);
+            return;
+        }
+
+        showUnauthorized('You do not have permission to edit roles.');
+    };
+
+    const handleDeleteAction = (role: Role) => {
+        if (canDeleteRole) {
+            handleDeleteClick(role);
+            return;
+        }
+
+        showUnauthorized('You do not have permission to delete roles.');
+    };
+
     const handlePermissionToggle = (permissionId: number) => {
         if (!editingRole) return;
-        
+
         const hasPermission = editingRole.permissions.includes(permissionId);
         let updatedPermissions;
-        
+
         if (hasPermission) {
-            updatedPermissions = editingRole.permissions.filter(id => id !== permissionId);
+            updatedPermissions = editingRole.permissions.filter((id) => id !== permissionId);
         } else {
             updatedPermissions = [...editingRole.permissions, permissionId];
         }
-        
+
         setEditingRole({ ...editingRole, permissions: updatedPermissions });
     };
 
     const handleSelectAllModule = (moduleName: string, selectAll: boolean) => {
         if (!editingRole) return;
-        
-        const modulePermIds = permissionsByModule[moduleName].map(p => p.id);
+
+        const modulePermIds = permissionsByModule[moduleName].map((p) => p.id);
         let updatedPermissions = [...editingRole.permissions];
 
         if (selectAll) {
-            // Add all missing permissions for this module
-            modulePermIds.forEach(id => {
+            modulePermIds.forEach((id) => {
                 if (!updatedPermissions.includes(id)) {
                     updatedPermissions.push(id);
                 }
             });
         } else {
-            // Remove all permissions for this module
-            updatedPermissions = updatedPermissions.filter(id => !modulePermIds.includes(id));
+            updatedPermissions = updatedPermissions.filter((id) => !modulePermIds.includes(id));
         }
 
         setEditingRole({ ...editingRole, permissions: updatedPermissions });
@@ -124,15 +168,17 @@ export default function ManageRolePermission({ auth, roles: initialRoles, permis
     const handleUpdateRole = (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingRole || !editingRole.name.trim()) return;
-        
-        setRoles(roles.map(r => r.id === editingRole.id ? { 
-            ...editingRole, 
-            permissions_count: editingRole.permissions.length 
-        } : r));
-        
-        setIsEditModalOpen(false);
-        setEditingRole(null);
-        showSuccess('Role permissions updated successfully.');
+
+        router.put(route('access-control.role-permission.update', editingRole.id), {
+            name: editingRole.name,
+            permissions: editingRole.permissions,
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsEditModalOpen(false);
+                setEditingRole(null);
+            },
+        });
     };
 
     const handleDeleteClick = (role: Role) => {
@@ -142,10 +188,14 @@ export default function ManageRolePermission({ auth, roles: initialRoles, permis
 
     const confirmDeleteRole = () => {
         if (!roleToDelete) return;
-        setRoles(roles.filter(r => r.id !== roleToDelete.id));
-        setIsDeleteModalOpen(false);
-        setRoleToDelete(null);
-        showSuccess('Role deleted successfully.');
+
+        router.delete(route('access-control.role-permission.destroy', roleToDelete.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsDeleteModalOpen(false);
+                setRoleToDelete(null);
+            },
+        });
     };
 
     return (
@@ -188,7 +238,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles, permis
                             </p>
                         </div>
                         <button 
-                            onClick={() => setIsCreateModalOpen(true)}
+                            onClick={handleCreateClick}
                             className="inline-flex items-center px-4 py-2 bg-red-900 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-800 focus:bg-red-800 active:bg-red-950 transition ease-in-out duration-150">
                             Create New Role
                         </button>
@@ -225,8 +275,8 @@ export default function ManageRolePermission({ auth, roles: initialRoles, permis
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <button onClick={() => handleEditClick(role)} className="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
-                                                    <button onClick={() => handleDeleteClick(role)} className="text-red-600 hover:text-red-900">Delete</button>
+                                                    <button onClick={() => handleEditAction(role)} className="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
+                                                    <button onClick={() => handleDeleteAction(role)} className="text-red-600 hover:text-red-900">Delete</button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -381,7 +431,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles, permis
                                                                         <span className={`text-sm font-medium capitalize truncate ${
                                                                             editingRole?.permissions?.includes(perm.id) ? 'text-red-900' : 'text-gray-700'
                                                                         }`}>
-                                                                            {perm.name.replace(/_/g, ' ')}
+                                                                            {formatPermissionLabel(perm.name)}
                                                                         </span>
                                                                     </label>
                                                                 ))}
@@ -457,6 +507,26 @@ export default function ManageRolePermission({ auth, roles: initialRoles, permis
                                     className="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors"
                                 >
                                     Continue
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                {/* Unauthorized Action Modal */}
+                {unauthorizedModal.isOpen && (
+                    <div className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/50 backdrop-blur-sm transition-opacity">
+                        <div className="relative w-full max-w-sm p-4 mx-auto">
+                            <div className="relative bg-white rounded-xl shadow-2xl border border-red-100 p-6 text-center flex flex-col items-center">
+                                <div className="w-12 h-12 rounded-full bg-red-100 p-2 flex items-center justify-center mx-auto mb-4">
+                                    <Trash2 className="w-8 h-8 text-red-600" />
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">Permission Required</h3>
+                                <p className="mb-6 text-sm text-gray-600">{unauthorizedModal.message}</p>
+                                <button 
+                                    onClick={() => setUnauthorizedModal({ isOpen: false, message: '' })}
+                                    className="w-full text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors"
+                                >
+                                    Close
                                 </button>
                             </div>
                         </div>

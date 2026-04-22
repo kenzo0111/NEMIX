@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccessControl\ManageRolePermissionController;
 use App\Http\Controllers\AccessControl\ManageStaffController;
 use App\Http\Controllers\ProfileController;
 use Carbon\Carbon;
@@ -482,9 +483,21 @@ Route::get('/audit-logs/transaction-trails', [\Modules\AuditLogs\Http\Controller
     ->name('audit-logs.transaction-trails');
 
 
-Route::get('/access-control/role-permission', function () {
-    return Inertia::render('AccessControl/ManageRolePermission');
-})->middleware(['auth', 'verified'])->name('access-control.role-permission');
+Route::get('/access-control/role-permission', [ManageRolePermissionController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('access-control.role-permission');
+
+Route::post('/access-control/role-permission', [ManageRolePermissionController::class, 'store'])
+    ->middleware(['auth', 'verified'])
+    ->name('access-control.role-permission.store');
+
+Route::put('/access-control/role-permission/{role}', [ManageRolePermissionController::class, 'update'])
+    ->middleware(['auth', 'verified'])
+    ->name('access-control.role-permission.update');
+
+Route::delete('/access-control/role-permission/{role}', [ManageRolePermissionController::class, 'destroy'])
+    ->middleware(['auth', 'verified'])
+    ->name('access-control.role-permission.destroy');
 
 Route::get('/access-control/manage-staffs', [ManageStaffController::class, 'index'])
     ->middleware(['auth', 'verified'])

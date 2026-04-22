@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Symfony\Component\HttpFoundation\Response;
+
+class AuthorizeAction
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        if (in_array($request->method(), ['GET', 'HEAD'], true)) {
+            return $next($request);
+        }
+
+        $user = $request->user();
+        $route = $request->route();
+
+        if (! $user || ! $route) {
+            return $next($request);
+        }
+
+        $routeName = $route->getName();
+
+        if (! $routeName || $this->shouldSkipRoute($routeName)) {
+            return $next($request);
+        }
+
+        $permissionName = $this->routePermissionName($routeName);
+        $this->ensurePermissionExists($permissionName);
+
+        if ($user->hasRole('System Admin')) {
+            return $next($request);
+        }
+
+        if ($user->hasPermissionTo($permissionName)) {
+            return $next($request);
+        }
+
+        abort(403);
+    }
+
+    private function shouldSkipRoute(string $routeName): bool
+    {
+        return Str::startsWith($routeName, [
+            'login',
+            'logout',
+            'register',
+            'password.',
+            'verification.',
+            'sanctum.',
+            'telescope.',
+        ]);
+    }
+
+    private function routePermissionName(string $routeName): string
+    {
+        return 'route:' . $routeName;
+    }
+
+    private function ensurePermissionExists(string $permissionName): void
+    {
+        $permission = Permission::firstOrCreate(['name' => $permissionName]);
+
+        $systemAdmin = Role::where('name', 'System Admin')->first();
+
+        if ($systemAdmin && ! $systemAdmin->hasPermissionTo($permissionName)) {
+            $systemAdmin->givePermissionTo($permissionName);
+        }
+    }
+}
