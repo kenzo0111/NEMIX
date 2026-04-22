@@ -1,10 +1,20 @@
 @props(['url'])
 <tr>
-<td class="header">
-<a href="{{ $url }}" style="display: inline-block; text-decoration: none;">
-    <img src="{{ asset('images/cnscrefine.png') }}" class="logo" alt="CNSC Logo">
-    <div style="margin-top: 12px; font-size: 18px; font-weight: 700; color: #7f1d1d; line-height: 1.2;">{{ config('app.name') }}</div>
-    <div style="margin-top: 4px; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #b45309;">Supply and Property Management Office</div>
-</a>
+<td class="header" style="padding: 28px 0; background-color: #ffffff; border-top: 5px solid #800000; border-bottom: 2px solid #eab308;">
+    <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto;">
+        <tr>
+            <td style="padding-right: 16px; vertical-align: middle;">
+                <img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e0/Camarines_Norte_State_College_logo.png/220px-Camarines_Norte_State_College_logo.png" class="logo" alt="CNSC Logo" style="width: 75px; height: auto; display: block;">
+            </td>
+            <td style="vertical-align: middle; font-family: 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif; text-align: left;">
+                <div style="font-size: 20px; font-weight: 800; color: #800000; line-height: 1.2; margin: 0;">
+                    CNSC Notification
+                </div>
+                <div style="margin-top: 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #64748b;">
+                    Supply & Property Management Office
+                </div>
+            </td>
+        </tr>
+    </table>
 </td>
 </tr>

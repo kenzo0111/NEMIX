@@ -243,39 +243,7 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
         reset();
     };
 
-    // Mock data for consumable office supplies suppliers
-    const suppliersData = suppliers.length > 0 ? suppliers : [
-        {
-            id: 1,
-            name: 'Prime Office Essentials Trading',
-            tin: '000-123-456-000',
-            address: '123 Main St, Manila, Philippines',
-            reg_number: '2023-112233 (PhilGEPS)',
-            category: 'Consumable Office Supplies',
-            status: 'Active',
-            amount: '15000.00',
-        },
-        {
-            id: 2,
-            name: 'DailyStock Consumables Supply Co.',
-            tin: '000-987-654-001',
-            address: '456 Logistics Ave, Cebu, Philippines',
-            reg_number: '2024-998877 (PhilGEPS)',
-            category: 'Consumable Office Supplies',
-            status: 'Active',
-            amount: '22500.50',
-        },
-        {
-            id: 3,
-            name: 'Reliable Stationery and Paper Inc.',
-            tin: '000-456-789-000',
-            address: '789 Supply Blvd, Davao, Philippines',
-            reg_number: '2024-000001 (PhilGEPS)',
-            category: 'Consumable Office Supplies',
-            status: 'Active',
-            amount: '8000.00',
-        },
-    ];
+    const suppliersData = suppliers || [];
 
     const isConsumableCategory = (category: string) => {
         const normalizedCategory = (category || '').toLowerCase();

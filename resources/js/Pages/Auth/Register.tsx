@@ -6,12 +6,21 @@ import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
-export default function Register() {
+export default function Register({
+    email,
+    token,
+}: {
+    email?: string;
+    token?: string;
+}) {
+    const isInvitation = Boolean(email && token);
+
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
-        email: '',
+        email: email ?? '',
         password: '',
         password_confirmation: '',
+        token: token ?? '',
     });
 
     const submit: FormEventHandler = (e) => {
@@ -79,7 +88,7 @@ export default function Register() {
                                 </h1>
                                 <p className="text-yellow-100/90 text-sm leading-relaxed mb-4">
                                     Register for an account to access the Smart Supply and Property Management System. 
-                                    Authorized for CNSC faculty and staff only.
+                                    Authorized for SPMO staff only.
                                 </p>
                                 <div className="flex gap-2">
                                     <div className="bg-black/20 backdrop-blur-sm border border-white/10 px-3 py-1 rounded text-xs text-white/80">
@@ -109,9 +118,13 @@ export default function Register() {
                         <div className="max-w-md mx-auto w-full">
                             {/* Header */}
                             <div className="mb-8 border-b border-gray-100 pb-6">
-                                <h3 className="text-2xl font-bold text-gray-900 font-serif">Create Account</h3>
+                                <h3 className="text-2xl font-bold text-gray-900 font-serif">
+                                    {isInvitation ? 'Complete Registration' : 'Create Account'}
+                                </h3>
                                 <p className="text-gray-500 mt-2 text-sm">
-                                    Please fill in the required information to request access.
+                                    {isInvitation
+                                        ? 'Set your password to activate your staff account.'
+                                        : 'Please fill in the required information to request access.'}
                                 </p>
                             </div>
 
@@ -146,6 +159,8 @@ export default function Register() {
                                         onChange={(e) => setData('email', e.target.value)}
                                         required
                                         placeholder="juandelacruz@cnsc.edu.ph"
+                                        readOnly={isInvitation}
+                                        disabled={isInvitation}
                                     />
                                     <InputError message={errors.email} className="mt-2" />
                                 </div>
@@ -197,7 +212,9 @@ export default function Register() {
                                         className="bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white font-bold py-3 px-6 rounded shadow-lg shadow-red-900/20 border-b-4 border-red-950 active:border-b-0 active:mt-1 active:shadow-none transition-all text-sm tracking-wide"
                                         disabled={processing}
                                     >
-                                        Register Account
+                                        {processing
+                                            ? (isInvitation ? 'Activating...' : 'Registering...')
+                                            : (isInvitation ? 'Activate Account' : 'Register Account')}
                                     </PrimaryButton>
                                 </div>
                             </form>

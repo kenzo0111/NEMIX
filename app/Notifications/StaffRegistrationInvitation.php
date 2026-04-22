@@ -29,18 +29,18 @@ class StaffRegistrationInvitation extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $registrationUrl = url(route('register.invitation', [
+        $registrationUrl = route('register', [
             'token' => $this->token,
             'email' => $notifiable->getEmailForPasswordReset(),
-        ], false));
+        ]);
 
         return (new MailMessage)
-            ->subject('Complete Your Staff Registration')
-            ->greeting('Hello '.$notifiable->name.',')
-            ->line('You have been invited to join the Supply and Property Management Office system.')
-            ->line('Complete your registration by setting your password through the link below.')
-            ->action('Complete Registration', $registrationUrl)
-            ->line('This registration link will expire in 60 minutes.')
-            ->line('If you were not expecting this invitation, you can safely ignore this email.');
+            ->subject('Invitation: CNSC SPMO System Access')
+            ->greeting('Hello ' . $notifiable->name . ',')
+            ->line('You have been invited to access the newly established CNSC Supply and Property Management Office system.')
+            ->line('Please complete your registration using the link below.')
+            ->action('Register Account', $registrationUrl)
+            ->line('For security purposes, this registration link will expire in 60 minutes.')
+            ->line('If you did not request this invitation or believe it was sent in error, please disregard this email.');
     }
 }
