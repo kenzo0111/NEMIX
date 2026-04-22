@@ -187,12 +187,15 @@ Route::get('/compliance/reports', function () {
         ->latest()
         ->get()
         ->map(function ($report) {
+            $supplierName = data_get($report->payload, 'supplierName');
             return [
                 'id' => $report->id,
                 'title' => $report->title,
                 'type' => $report->type,
                 'reference' => $report->reference,
                 'itemName' => $report->item_name,
+                'supplierId' => data_get($report->payload, 'supplierId') ?? null,
+                'supplierName' => is_string($supplierName) && trim($supplierName) ? trim($supplierName) : null,
                 'date' => $report->coverage_label,
                 'periodType' => $report->period_type,
                 'dateValue' => optional($report->date)->toDateString(),
@@ -204,10 +207,15 @@ Route::get('/compliance/reports', function () {
         })
         ->values();
 
+    $suppliers = class_exists(\Modules\Suppliers\Models\Supplier::class)
+        ? \Modules\Suppliers\Models\Supplier::all()
+        : [];
+
     return Inertia::render('Compliance/ManageReports', [
         'items' => $items,
         'reports' => $reports,
         'issuances' => $issuances,
+        'suppliers' => $suppliers,
     ]);
 })->middleware(['auth', 'verified'])->name('compliance.reports');
 
@@ -217,6 +225,8 @@ Route::post('/compliance/reports', function (\Illuminate\Http\Request $request) 
         'type' => ['required', 'string', 'max:50'],
         'reference' => ['required', 'string', 'max:100'],
         'itemName' => ['nullable', 'string', 'max:255'],
+        'supplierId' => ['nullable', 'integer', 'exists:suppliers,id'],
+        'supplierName' => ['nullable', 'string', 'max:255'],
         'periodType' => ['required', 'in:specific,range,monthly,yearly'],
         'date' => ['nullable', 'date'],
         'startDate' => ['nullable', 'date'],
@@ -266,6 +276,8 @@ Route::put('/compliance/reports/{report}', function (\Illuminate\Http\Request $r
         'type' => ['required', 'string', 'max:50'],
         'reference' => ['required', 'string', 'max:100'],
         'itemName' => ['nullable', 'string', 'max:255'],
+        'supplierId' => ['nullable', 'integer', 'exists:suppliers,id'],
+        'supplierName' => ['nullable', 'string', 'max:255'],
         'periodType' => ['required', 'in:specific,range,monthly,yearly'],
         'date' => ['nullable', 'date'],
         'startDate' => ['nullable', 'date'],

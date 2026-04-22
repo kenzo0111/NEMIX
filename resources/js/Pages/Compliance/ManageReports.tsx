@@ -82,7 +82,7 @@ const FormInput = ({ label, icon, error, ...props }: any) => (
 );
 
 // --- MAIN COMPONENT ---
-export default function ManageReports({ auth, items = [], reports: serverReports = [], issuances = [] }: { auth: any, items?: any[], reports?: any[], issuances?: any[] }) {
+export default function ManageReports({ auth, items = [], reports: serverReports = [], issuances = [], suppliers = [] }: { auth: any, items?: any[], reports?: any[], issuances?: any[], suppliers?: any[] }) {
     const { props } = usePage();
     const user = auth?.user || (props.auth as any)?.user;
     const [collapsed, setCollapsed] = useState(false);
@@ -129,6 +129,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         type: '',
         reference: '',
         itemName: '',
+        supplierId: '',
+        supplierName: '',
         periodType: 'specific',
         date: new Date().toISOString().split('T')[0],
         startDate: '',
@@ -163,6 +165,17 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         { value: 7, label: 'July' }, { value: 8, label: 'August' }, { value: 9, label: 'September' },
         { value: 10, label: 'October' }, { value: 11, label: 'November' }, { value: 12, label: 'December' },
     ];
+
+    const supplierOptions = suppliers
+        .filter((supplier: any) => supplier?.name || supplier?.company_name)
+        .map((supplier: any) => ({
+            value: supplier.id,
+            label: supplier.name || supplier.company_name,
+        }));
+
+    const filteredSupplierItems = formData.supplierId
+        ? items.filter((item: any) => String(item.supplier_id) === String(formData.supplierId))
+        : items;
 
     // Format display date based on period selection
     const [reports, setReports] = useState<any[]>(serverReports.length > 0 ? serverReports : []);
@@ -209,20 +222,29 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         setReports(serverReports.length > 0 ? serverReports : []);
     }, [serverReports]);
 
-    const buildReportPayload = () => ({
-        title: formData.title,
-        type: formData.type || 'General Report',
-        reference: formData.reference,
-        itemName: formData.itemName || null,
-        periodType: formData.periodType,
-        date: formData.date || null,
-        startDate: formData.startDate || null,
-        endDate: formData.endDate || null,
-        selectedMonth: formData.periodType === 'monthly' ? Number(formData.selectedMonth) : null,
-        selectedYear: formData.periodType === 'monthly' || formData.periodType === 'yearly' ? Number(formData.selectedYear) : null,
-        coverageLabel: generateDisplayDate(formData),
-        payload: formData,
-    });
+    const buildReportPayload = () => {
+        const payload = { ...formData } as Record<string, any>;
+        if (!formData.supplierId) {
+            delete payload.supplierId;
+            delete payload.supplierName;
+        }
+
+        return {
+            title: formData.title,
+            type: formData.type || 'General Report',
+            reference: formData.reference,
+            itemName: formData.itemName || null,
+            ...(formData.supplierId ? { supplierId: formData.supplierId, supplierName: formData.supplierName } : {}),
+            periodType: formData.periodType,
+            date: formData.date || null,
+            startDate: formData.startDate || null,
+            endDate: formData.endDate || null,
+            selectedMonth: formData.periodType === 'monthly' ? Number(formData.selectedMonth) : null,
+            selectedYear: formData.periodType === 'monthly' || formData.periodType === 'yearly' ? Number(formData.selectedYear) : null,
+            coverageLabel: generateDisplayDate(formData),
+            payload,
+        };
+    };
 
     const handleCreateReport = () => {
         const payload = buildReportPayload();
@@ -263,6 +285,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     };
 
     const handleView = (report: any) => {
+        const supplier = suppliers.find((supplier: any) => String(supplier.id) === String(report.supplierId))
+            || suppliers.find((supplier: any) => (supplier.name || supplier.company_name) === report.supplierName);
+
         setModalMode('view');
         setSelectedId(report.id);
         setFormData({ 
@@ -271,6 +296,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             type: report.type,
             reference: report.reference,
             itemName: report.itemName || '',
+            supplierId: supplier?.id || report.supplierId || '',
+            supplierName: supplier ? supplier.name || supplier.company_name : (report.supplierName || ''),
             periodType: report.periodType || 'specific',
             date: report.dateValue || new Date().toISOString().split('T')[0],
             startDate: report.startDate || '',
@@ -317,6 +344,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             type: '',
             reference: '',
             itemName: '',
+            supplierId: '',
+            supplierName: '',
             periodType: 'specific',
             date: new Date().toISOString().split('T')[0],
             startDate: '',
@@ -526,7 +555,16 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         <div className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
                             <div className="min-w-[1100px] mx-auto print:min-w-[1100px]">
                                 {(() => {
-                                    const rpciItems = items.map((item: any) => ({
+                                    if (filteredSupplierItems.length === 0) {
+                                        return (
+                                            <div className="py-20 text-center text-gray-600">
+                                                <p className="text-lg font-semibold text-gray-800">No items found for the selected supplier.</p>
+                                                <p className="text-sm text-gray-500 mt-2">Please choose another supplier or add inventory items first.</p>
+                                            </div>
+                                        );
+                                    }
+
+                                    const rpciItems = filteredSupplierItems.map((item: any) => ({
                                         article: item.name || '-',
                                         description: item.description || item.name || '-',
                                         stock_no: item.sku || '-',
@@ -612,6 +650,26 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         placeholder="e.g. Monthly Supplies Issuance - March"
                         icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>}
                     />
+
+                    {formData.type === 'RPCI' && (
+                        <div className="group w-full">
+                            <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Supplier</label>
+                            <Select
+                                options={supplierOptions}
+                                value={supplierOptions.find((opt: any) => String(opt.value) === String(formData.supplierId)) || null}
+                                onChange={(opt: any) => setFormData({
+                                    ...formData,
+                                    supplierId: opt ? opt.value : '',
+                                    supplierName: opt ? opt.label : '',
+                                })}
+                                styles={customSelectStyles}
+                                isClearable
+                                placeholder="Select supplier..."
+                                menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                menuPosition="fixed"
+                            />
+                        </div>
+                    )}
 
                     {formData.type === 'STOCK_CARD' && (
                         <div className="group w-full">
@@ -818,6 +876,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                         Ref: {report.reference}
                                                     </span>
                                                 </div>
+                                                {report.supplierName && (
+                                                    <p className="text-xs text-gray-500 mb-2">Supplier: <span className="font-semibold text-gray-700">{report.supplierName}</span></p>
+                                                )}
                                                 <h3 className="text-lg font-bold text-gray-900 group-hover:text-red-900 transition-colors mb-2 line-clamp-2">{report.title}</h3>
                                             </div>
                                             
