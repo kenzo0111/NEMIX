@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import Breadcrumbs from '@/Components/Breadcrumbs';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Select from 'react-select';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -95,7 +95,7 @@ const FormInput = ({ label, icon, error, disabled, ...props }: any) => {
     );
 };
 
-export default function ManageSupplier({ auth, suppliers }: { auth: any, suppliers: any[] }) {
+export default function ManageSupplier({ auth, suppliers, items = [], issuances = [] }: { auth: any, suppliers: any[], items?: any[], issuances?: any[] }) {
     // State for filters
     const [selectedClassification, setSelectedClassification] = useState<{ value: string; label: string } | null>(null);
     const [selectedStatus, setSelectedStatus] = useState<{ value: string; label: string } | null>(null);
@@ -118,6 +118,47 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
     // Sidebar Modules
     const modules = getSidebarModules('Suppliers', 'Manage Supplier');
     const user = auth.user;
+
+    const supplierItemValues = useMemo(() => {
+        const totals: Record<string, number> = {};
+        (items || []).forEach((item: any) => {
+            if (item?.supplier_id == null) return;
+            const supplierId = String(item.supplier_id);
+            const stock = Number(item.stock || 0);
+            const unitCost = Number(item.unit_cost || 0);
+            totals[supplierId] = (totals[supplierId] || 0) + stock * unitCost;
+        });
+        return totals;
+    }, [items]);
+
+    const supplierIssuedTotals = useMemo(() => {
+        const totals: Record<string, number> = {};
+        (issuances || []).forEach((issuance: any) => {
+            const item = issuance?.item;
+            if (!item || item.supplier_id == null) return;
+            const supplierId = String(item.supplier_id);
+            const quantity = Number(issuance.quantity || 0);
+            const unitCost = Number(item.unit_cost || 0);
+            totals[supplierId] = (totals[supplierId] || 0) + quantity * unitCost;
+        });
+        return totals;
+    }, [issuances]);
+
+    const formatCurrency = (value: number) => `₱${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    const getSupplierAmount = (supplier: any) => {
+        const baseAmount = supplier.amount !== undefined && supplier.amount !== null
+            ? Number(supplier.amount || 0)
+            : null;
+        const deducted = supplierIssuedTotals[String(supplier.id)] || 0;
+        const remainingFromStock = supplierItemValues[String(supplier.id)] || 0;
+
+        if (baseAmount !== null) {
+            return baseAmount - deducted;
+        }
+
+        return remainingFromStock;
+    };
 
     // Options for React Select
     const classificationOptions = [
@@ -464,7 +505,7 @@ export default function ManageSupplier({ auth, suppliers }: { auth: any, supplie
                                                     {supplier.category}
                                                 </td>
                                                 <td className="px-4 py-3 text-sm text-gray-900 font-semibold">
-                                                    ₱{Number(supplier.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    {formatCurrency(getSupplierAmount(supplier))}
                                                 </td>
                                                 <td className="px-4 py-3 whitespace-nowrap">
                                                     {(() => {

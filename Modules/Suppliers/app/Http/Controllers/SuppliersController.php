@@ -4,6 +4,8 @@ namespace Modules\Suppliers\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Modules\Inventory\Models\Item;
+use Modules\Inventory\Models\Issuance;
 use Modules\Suppliers\Models\Supplier;
 
 class SuppliersController extends \App\Http\Controllers\Controller
@@ -14,8 +16,19 @@ class SuppliersController extends \App\Http\Controllers\Controller
     public function index()
     {
         $suppliers = Supplier::all();
+
+        $items = class_exists(Item::class)
+            ? Item::all(['id', 'supplier_id', 'stock', 'unit_cost'])
+            : collect();
+
+        $issuances = class_exists(Issuance::class)
+            ? Issuance::with('item')->get()
+            : collect();
+
         return Inertia::render('Suppliers/ManageSupplier', [
             'suppliers' => $suppliers,
+            'items' => $items,
+            'issuances' => $issuances,
         ]);
     }
 
