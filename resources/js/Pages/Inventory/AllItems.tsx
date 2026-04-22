@@ -92,24 +92,27 @@ const FormTextarea = ({ label, icon, error, ...props }: any) => (
     </div>
 );
 
-const generateNextSku = (items: any[], supplierPrefix: string) => {
-    if (!supplierPrefix) return '';
-    const matchingSkus = items
-        .map((item) => String(item.sku || '').trim())
-        .filter(sku => sku.startsWith(supplierPrefix))
-        .map((sku) => {
-            const numberPart = sku.substring(supplierPrefix.length);
-            const number = parseInt(numberPart, 10);
-            return isNaN(number) ? null : { number, width: Math.max(numberPart.length, 3) };
-        })
-        .filter((v): v is { number: number, width: number } => v !== null);
+const buildSupplierAcronym = (supplierName: string) => {
+    if (!supplierName) return '';
+    const words = supplierName.trim().split(/\s+/).slice(0, 3);
+    const letters = words.map((word) => word.charAt(0).toUpperCase());
+    while (letters.length < 3) letters.push('X');
+    return letters.join('');
+};
 
-    if (matchingSkus.length === 0) {
-        return `${supplierPrefix}001`;
-    }
+const generateNextSku = (items: any[], supplierName: string, supplierId: any) => {
+    const acronym = buildSupplierAcronym(supplierName);
+    if (!acronym) return '';
 
-    const maxNumber = Math.max(...matchingSkus.map(s => s.number));
-    return `${supplierPrefix}${String(maxNumber + 1).padStart(3, '0')}`;
+    const now = new Date();
+    const year = String(now.getFullYear()).slice(-2);
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+
+    const supplierItems = items.filter((item) => String(item.supplier_id) === String(supplierId));
+    const itemIndex = String(supplierItems.length + 1).padStart(3, '0');
+    const sequence = '0001';
+
+    return `${acronym}-${year}-${month}-${itemIndex}-${sequence}`;
 };
 
 // --- MAIN PAGE ---
@@ -171,6 +174,23 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
         singleValue: (provided: any) => ({ ...provided, color: '#1f2937' }),
     };
 
+    const unitOfIssueOptions = [
+        { value: 'pc', label: 'piece' },
+        { value: 'box', label: 'box' },
+        { value: 'pack', label: 'pack' },
+        { value: 'ream', label: 'ream' },
+        { value: 'sheet', label: 'sheet' },
+        { value: 'roll', label: 'roll' },
+        { value: 'set', label: 'set' },
+        { value: 'carton', label: 'carton' },
+        { value: 'bottle', label: 'bottle' },
+        { value: 'tube', label: 'tube' },
+        { value: 'unit', label: 'unit' },
+        { value: 'bundle', label: 'bundle' },
+        { value: 'crate', label: 'crate' },
+        { value: 'packets', label: 'packets' },
+    ];
+
     const { data, setData, post, put, processing, errors, reset } = useForm({
         name: '',
         supplier_id: '',
@@ -187,9 +207,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
         if (!isEditing && data.supplier_id && suppliers && suppliers.length > 0) {
             const selectedSupplier = suppliers.find((s: any) => String(s.id) === String(data.supplier_id));
             if (selectedSupplier && selectedSupplier.name) {
-                const rawName = selectedSupplier.name.trim().replace(/[^a-zA-Z0-9]/g, '');
-                const prefix = (rawName + 'XXX').substring(0, 3).toUpperCase() + '-';
-                setData('sku', generateNextSku(items, prefix));
+                setData('sku', generateNextSku(items, selectedSupplier.name, selectedSupplier.id));
             }
         }
     }, [data.supplier_id, isEditing, items, suppliers]);
@@ -249,7 +267,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                     <Breadcrumbs items={[{name:'Inventory'},{name:'All Items'}]} />
                                 </div>
 <h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Inventory Management</h2>
-                        <p className="text-sm text-gray-500">Master list of all supplies and equipment.</p>
+                        <p className="text-sm text-gray-500">Master list of all consumable items.</p>
                     </div>
                     <div className="flex items-center gap-6">
                         <div className="text-right hidden sm:block">
@@ -335,19 +353,19 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                         </div>
 
                         {/* Table */}
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
+                        <div className="w-full overflow-hidden">
+                            <table className="w-full table-auto divide-y divide-gray-200">
                                 <thead className="bg-red-50/50">
                                     <tr>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Item Name</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Supplier</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Unit of Issue</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Description</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Stock Level</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Unit Cost</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Amount</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Status</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-right text-red-900 uppercase">Actions</th>
+                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Item Name</th>
+                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Supplier</th>
+                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Unit of Issue</th>
+                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Description</th>
+                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Stock Level</th>
+                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Unit Cost</th>
+                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Amount</th>
+                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Status</th>
+                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-right text-red-900 uppercase">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-100">
@@ -366,35 +384,33 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                     ) : (
                                         filteredItems.map((item, index) => (
                                             <tr key={index} className="hover:bg-gray-50 transition-colors group">
-                                                <td className="px-8 py-5 whitespace-nowrap">
+                                                <td className="px-4 py-4 align-top max-w-[12rem] break-words">
                                                     <div className="text-sm font-bold text-gray-900">{item.name}</div>
                                                     <div className="text-xs text-gray-500">SKU: {item.sku || 'N/A'}</div>
-                                                    {/* Description removed from here */}
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600">
+                                                <td className="px-4 py-4 align-top text-sm text-gray-600 break-words">
                                                     {item.supplier ? item.supplier.name : 'No Supplier'}
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600">
-                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                                <td className="px-4 py-4 align-top text-sm text-gray-600">
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-800">
                                                         {item.unit_of_issue || '-'}
                                                     </span>
                                                 </td>
-                                                {/* NEW DESCRIPTION CELL */}
-                                                <td className="px-8 py-5 text-sm text-gray-600">
-                                                    <div className="max-w-xs truncate" title={item.description}>
+                                                <td className="px-4 py-4 align-top text-sm text-gray-600 max-w-[12rem] break-words">
+                                                    <div title={item.description}>
                                                         {item.description || '-'}
                                                     </div>
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
+                                                <td className="px-4 py-4 align-top text-sm text-gray-600 font-medium">
                                                     {Number(item.stock || 0).toLocaleString('en-US')} <span className="text-gray-400 text-xs font-normal">units</span>
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
+                                                <td className="px-4 py-4 align-top text-sm text-gray-600 font-medium">
                                                     ₱{Number(item.unit_cost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
+                                                <td className="px-4 py-4 align-top text-sm text-gray-600 font-medium">
                                                     ₱{Number(item.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap">
+                                                <td className="px-4 py-4 align-top">
                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                                         item.status === 'Available' ? 'bg-green-100 text-green-800' : 
                                                         item.status === 'Low Stock' ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800'
@@ -406,7 +422,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                                         {item.status}
                                                     </span>
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-right text-sm font-medium">
+                                                <td className="px-4 py-4 align-top text-right text-sm font-medium">
                                                     <button 
                                                         onClick={() => {
                                                             setIsEditing(true);
@@ -499,8 +515,8 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                     </>
                 }
             >
-                <form className="space-y-5">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <form className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="group w-full">
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Supplier</label>
                             <Select
@@ -513,9 +529,21 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                             />
                             {errors.supplier_id && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.supplier_id}</p>}
                         </div>
+                        <div className="group w-full">
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Status</label>
+                            <Select
+                                value={[{ value: 'Available', label: 'Available' }, { value: 'Low Stock', label: 'Low Stock' }, { value: 'Out of Stock', label: 'Out of Stock' }].find(option => option.value === data.status)}
+                                onChange={(selectedOption) => setData('status', selectedOption ? selectedOption.value : '')}
+                                options={[{ value: 'Available', label: 'Available' }, { value: 'Low Stock', label: 'Low Stock' }, { value: 'Out of Stock', label: 'Out of Stock' }]}
+                                placeholder="Select a status"
+                                styles={customSelectStyles}
+                            />
+                            {errors.status && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.status}</p>}
+                        </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-5">
-                        <div className="flex-[2]">
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
                             <FormInput 
                                 label="Item Name"
                                 value={data.name}
@@ -526,7 +554,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                 icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>}
                             />
                         </div>
-                        <div className="flex-1">
+                        <div>
                             <FormInput 
                                 label="SKU / Code"
                                 value={data.sku}
@@ -541,89 +569,91 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                             )}
                         </div>
                     </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                         <div className="group w-full">
-                            <FormInput 
-                                label="Unit of Issue (Measurement)"
-                                value={data.unit_of_issue}
-                                onChange={(e: any) => setData('unit_of_issue', e.target.value)}
-                                error={errors.unit_of_issue}
-                                placeholder="e.g. pad, box, pc"
-                                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>}
-                            />
-                        </div>
-                        <div className="group w-full">
-                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Status</label>
-                             <Select
-                                value={[{ value: 'Available', label: 'Available' }, { value: 'Low Stock', label: 'Low Stock' }, { value: 'Out of Stock', label: 'Out of Stock' }].find(option => option.value === data.status)}
-                                onChange={(selectedOption) => setData('status', selectedOption ? selectedOption.value : '')}
-                                options={[{ value: 'Available', label: 'Available' }, { value: 'Low Stock', label: 'Low Stock' }, { value: 'Out of Stock', label: 'Out of Stock' }]}
-                                placeholder="Select..."
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Unit of Issue</label>
+                            <Select
+                                value={unitOfIssueOptions.find(option => option.value === data.unit_of_issue) || null}
+                                onChange={(selectedOption: any) => setData('unit_of_issue', selectedOption ? selectedOption.value : '')}
+                                options={unitOfIssueOptions}
+                                placeholder="Select unit of issue"
                                 styles={customSelectStyles}
+                                isClearable
+                                classNamePrefix="react-select"
                             />
-                            {errors.status && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.status}</p>}
+                            {errors.unit_of_issue && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.unit_of_issue}</p>}
                         </div>
-                        <FormInput 
-                            label="Initial Stock"
-                            type="number"
-                            value={data.stock}
-                            onChange={(e: any) => {
-                                const newStock = parseInt(e.target.value) || 0;
-                                const cost = parseFloat(String(data.unit_cost)) || 0;
-                                setData((prev) => ({
-                                    ...prev,
-                                    stock: newStock,
-                                    amount: (newStock * cost).toFixed(2)
-                                }));
-                            }}
-                            error={errors.stock}
-                            min="0"
-                            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>}
-                        />
+                        <div>
+                            <FormInput 
+                                label="Initial Stock"
+                                type="number"
+                                value={data.stock}
+                                onChange={(e: any) => {
+                                    const newStock = parseInt(e.target.value) || 0;
+                                    const cost = parseFloat(String(data.unit_cost)) || 0;
+                                    setData((prev) => ({
+                                        ...prev,
+                                        stock: newStock,
+                                        amount: (newStock * cost).toFixed(2)
+                                    }));
+                                }}
+                                error={errors.stock}
+                                min="0"
+                                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>}
+                            />
+                        </div>
+                        <div>
+                            <FormInput 
+                                label="Unit Cost"
+                                type="number"
+                                step="0.01"
+                                value={data.unit_cost}
+                                onChange={(e: any) => {
+                                    const newCost = parseFloat(e.target.value) || 0;
+                                    const stock = Number(data.stock) || 0;
+                                    setData((prev) => ({
+                                        ...prev,
+                                        unit_cost: e.target.value,
+                                        amount: (stock * newCost).toFixed(2)
+                                    }));
+                                }}
+                                error={errors.unit_cost}
+                                min="0"
+                                placeholder="0.00"
+                                icon={<span className="text-gray-400 font-medium">₱</span>}
+                            />
+                        </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <FormInput 
-                            label="Unit Cost"
-                            type="number"
-                            step="0.01"
-                            value={data.unit_cost}
-                            onChange={(e: any) => {
-                                const newCost = parseFloat(e.target.value) || 0;
-                                const stock = Number(data.stock) || 0;
-                                setData((prev) => ({
-                                    ...prev,
-                                    unit_cost: e.target.value,
-                                    amount: (stock * newCost).toFixed(2)
-                                }));
-                            }}
-                            error={errors.unit_cost}
-                            min="0"
-                            placeholder="0.00"
-                            icon={<span className="text-gray-400 font-medium">₱</span>}
-                        />
-                        <FormInput 
-                            label="Amount"
-                            type="number"
-                            step="0.01"
-                            value={data.amount}
-                            onChange={(e: any) => setData('amount', e.target.value)}
-                            error={errors.amount}
-                            min="0"
-                            placeholder="0.00"
-                            disabled
-                            className="bg-gray-100 w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm shadow-sm focus:outline-none"
-                            icon={<span className="text-gray-400 font-medium">₱</span>}
-                        />
+
+                    <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-5">
+                        <div>
+                            <FormTextarea 
+                                label="Description"
+                                value={data.description}
+                                onChange={(e: any) => setData('description', e.target.value)}
+                                error={errors.description}
+                                placeholder="Add specifications, color, size, etc."
+                                rows={4}
+                                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>}
+                            />
+                        </div>
+                        <div>
+                            <FormInput 
+                                label="Amount"
+                                type="number"
+                                step="0.01"
+                                value={data.amount}
+                                onChange={(e: any) => setData('amount', e.target.value)}
+                                error={errors.amount}
+                                min="0"
+                                placeholder="0.00"
+                                disabled
+                                className="bg-gray-100 w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm shadow-sm focus:outline-none"
+                                icon={<span className="text-gray-400 font-medium">₱</span>}
+                            />
+                        </div>
                     </div>
-                    <FormTextarea 
-                        label="Description (Optional)"
-                        value={data.description}
-                        onChange={(e: any) => setData('description', e.target.value)}
-                        error={errors.description}
-                        placeholder="Add specifications, color, size, etc."
-                        rows={3}
-                        icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>}
-                    />
                 </form>
             </InventoryModal>
 
