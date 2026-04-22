@@ -11,6 +11,14 @@ interface Permission {
     module?: string;
 }
 
+interface PermissionItem {
+    id: number;
+    ids: number[];
+    name: string;
+    module?: string;
+    displayName: string;
+}
+
 interface Role {
     id: number;
     name: string;
@@ -38,26 +46,47 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
     const [unauthorizedModal, setUnauthorizedModal] = useState<{ isOpen: boolean; message: string }>({ isOpen: false, message: '' });
     const modules = getSidebarModules('Access', 'Manage Role Permission');
 
-    const [roles, setRoles] = useState<Role[]>(initialRoles);
-    const [permissions, setPermissions] = useState<Permission[]>(systemPermissions);
+    const isPermission = (item: unknown): item is Permission => {
+        return (
+            item !== null &&
+            typeof item === 'object' &&
+            'id' in item &&
+            'name' in item &&
+            typeof (item as Record<string, unknown>).id === 'number' &&
+            typeof (item as Record<string, unknown>).name === 'string'
+        );
+    };
+
+    const normalizePermissions = (value: unknown): Permission[] => {
+        if (Array.isArray(value)) {
+            return value.filter(isPermission);
+        }
+
+        if (value && typeof value === 'object') {
+            return Object.values(value as Record<string, unknown>).filter(isPermission);
+        }
+
+        return [];
+    };
+
+    const [roles, setRoles] = useState<Role[]>(Array.isArray(initialRoles) ? initialRoles : []);
+    const [permissions, setPermissions] = useState<Permission[]>(normalizePermissions(systemPermissions));
     const userPermissions = auth?.permissions || [];
     const isSystemAdmin = auth?.is_system_admin ?? false;
     const canCreateRole = isSystemAdmin || userPermissions.includes('route:access-control.role-permission.store');
     const canUpdateRole = isSystemAdmin || userPermissions.includes('route:access-control.role-permission.update');
     const canDeleteRole = isSystemAdmin || userPermissions.includes('route:access-control.role-permission.destroy');
 
-    const effectivePermissions = permissions;
+    const effectivePermissions = normalizePermissions(permissions);
 
     useEffect(() => {
-        if (initialRoles.length) {
+        if (Array.isArray(initialRoles)) {
             setRoles(initialRoles);
         }
     }, [initialRoles]);
 
     useEffect(() => {
-        if (systemPermissions.length) {
-            setPermissions(systemPermissions);
-        }
+        setPermissions(normalizePermissions(systemPermissions));
     }, [systemPermissions]);
 
     const showSuccess = (message: string) => {
@@ -74,15 +103,69 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
         }
     }, [flash]);
 
+    function titleCase(text: string): string {
+        return text
+            .toLowerCase()
+            .split(' ')
+            .filter(Boolean)
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ');
+    }
+
+    function formatPermissionLabel(name: string): string {
+        const cleaned = name.replace(/^route:/, '');
+        const parts = cleaned.split('.');
+        const prefix = parts[0] || '';
+        const actionPart = parts.slice(1).join('.');
+
+        const moduleName = prefix
+            .split('-')
+            .filter(Boolean)
+            .map((part) => part.replace(/_/g, ' '))
+            .map(titleCase)
+            .join(' ');
+
+        const actionLabel = (() => {
+            if (/\b(store|create)\b$/i.test(actionPart)) {
+                return 'Create';
+            }
+
+            if (/\b(update|edit)\b$/i.test(actionPart)) {
+                return 'Update';
+            }
+
+            if (/\b(destroy|delete)\b$/i.test(actionPart)) {
+                return 'Delete';
+            }
+
+            return 'View';
+        })();
+
+        return `${moduleName} - ${actionLabel}`;
+    }
+
     const permissionsByModule = effectivePermissions.reduce((acc, perm) => {
         const mod = perm.module || 'General';
-        if (!acc[mod]) acc[mod] = [];
-        acc[mod].push(perm);
-        return acc;
-    }, {} as Record<string, Permission[]>);
+        const displayName = formatPermissionLabel(perm.name);
 
-    const formatPermissionLabel = (name: string) =>
-        name.replace(/^route:/, '').replace(/\./g, ' ').replace(/[-_]/g, ' ');
+        if (!acc[mod]) acc[mod] = [];
+
+        const existingIndex = acc[mod].findIndex((item) => item.displayName === displayName);
+
+        if (existingIndex === -1) {
+            acc[mod].push({
+                id: perm.id,
+                ids: [perm.id],
+                name: perm.name,
+                module: perm.module,
+                displayName,
+            });
+        } else {
+            acc[mod][existingIndex].ids.push(perm.id);
+        }
+
+        return acc;
+    }, {} as Record<string, PermissionItem[]>);
 
     const handleCreateRole = (e: React.FormEvent) => {
         e.preventDefault();
@@ -131,16 +214,20 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
         showUnauthorized('You do not have permission to delete roles.');
     };
 
-    const handlePermissionToggle = (permissionId: number) => {
+    const handlePermissionToggle = (permission: PermissionItem) => {
         if (!editingRole) return;
 
-        const hasPermission = editingRole.permissions.includes(permissionId);
-        let updatedPermissions;
+        const hasPermission = permission.ids.some((id) => editingRole.permissions.includes(id));
+        let updatedPermissions = [...editingRole.permissions];
 
         if (hasPermission) {
-            updatedPermissions = editingRole.permissions.filter((id) => id !== permissionId);
+            updatedPermissions = updatedPermissions.filter((id) => !permission.ids.includes(id));
         } else {
-            updatedPermissions = [...editingRole.permissions, permissionId];
+            permission.ids.forEach((id) => {
+                if (!updatedPermissions.includes(id)) {
+                    updatedPermissions.push(id);
+                }
+            });
         }
 
         setEditingRole({ ...editingRole, permissions: updatedPermissions });
@@ -149,7 +236,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
     const handleSelectAllModule = (moduleName: string, selectAll: boolean) => {
         if (!editingRole) return;
 
-        const modulePermIds = permissionsByModule[moduleName].map((p) => p.id);
+        const modulePermIds = permissionsByModule[moduleName].flatMap((p) => p.ids);
         let updatedPermissions = [...editingRole.permissions];
 
         if (selectAll) {
@@ -387,9 +474,9 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                             
                                             <div className="space-y-6">
                                                 {Object.entries(permissionsByModule).map(([moduleName, permissions]) => {
-                                                    const modulePermIds = permissions.map(p => p.id);
-                                                    const isAllSelected = modulePermIds.every(id => editingRole?.permissions.includes(id));
-                                                    const isPartiallySelected = !isAllSelected && modulePermIds.some(id => editingRole?.permissions.includes(id));
+                                                    const modulePermIds = permissions.flatMap((p) => p.ids);
+                                                    const isAllSelected = modulePermIds.every((id) => editingRole?.permissions.includes(id));
+                                                    const isPartiallySelected = !isAllSelected && modulePermIds.some((id) => editingRole?.permissions.includes(id));
 
                                                     return (
                                                         <div key={moduleName} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -411,30 +498,33 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                                                 </label>
                                                             </div>
                                                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
-                                                                {permissions.map((perm) => (
-                                                                    <label 
-                                                                        key={perm.id} 
-                                                                        className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg border transition-all ${
-                                                                            editingRole?.permissions?.includes(perm.id) 
-                                                                            ? 'bg-red-50 border-red-200 shadow-sm' 
-                                                                            : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                                                                        }`}
-                                                                    >
-                                                                        <div className="flex items-center justify-center">
-                                                                            <input 
-                                                                                type="checkbox"
-                                                                                checked={editingRole?.permissions?.includes(perm.id) || false}
-                                                                                onChange={() => handlePermissionToggle(perm.id)}
-                                                                                className="w-4 h-4 text-red-900 bg-white border-gray-300 rounded focus:ring-red-900 focus:ring-2 transition-colors cursor-pointer"
-                                                                            />
-                                                                        </div>
-                                                                        <span className={`text-sm font-medium capitalize truncate ${
-                                                                            editingRole?.permissions?.includes(perm.id) ? 'text-red-900' : 'text-gray-700'
-                                                                        }`}>
-                                                                            {formatPermissionLabel(perm.name)}
-                                                                        </span>
-                                                                    </label>
-                                                                ))}
+                                                                {permissions.map((perm) => {
+                                                                    const isChecked = perm.ids.some((id) => editingRole?.permissions.includes(id));
+                                                                    return (
+                                                                        <label 
+                                                                            key={perm.id} 
+                                                                            className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg border transition-all ${
+                                                                                isChecked 
+                                                                                ? 'bg-red-50 border-red-200 shadow-sm' 
+                                                                                : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                                                                            }`}
+                                                                        >
+                                                                            <div className="flex items-center justify-center">
+                                                                                <input 
+                                                                                    type="checkbox"
+                                                                                    checked={isChecked}
+                                                                                    onChange={() => handlePermissionToggle(perm)}
+                                                                                    className="w-4 h-4 text-red-900 bg-white border-gray-300 rounded focus:ring-red-900 focus:ring-2 transition-colors cursor-pointer"
+                                                                                />
+                                                                            </div>
+                                                                            <span className={`text-sm font-medium capitalize truncate ${
+                                                                                isChecked ? 'text-red-900' : 'text-gray-700'
+                                                                            }`}>
+                                                                                {perm.displayName}
+                                                                            </span>
+                                                                        </label>
+                                                                    );
+                                                                })}
                                                             </div>
                                                         </div>
                                                     );

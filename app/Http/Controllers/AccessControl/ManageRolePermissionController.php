@@ -30,6 +30,10 @@ class ManageRolePermissionController extends Controller
 
         $permissions = Permission::orderBy('name')
             ->get()
+            ->filter(fn (Permission $permission) =>
+                ! str_starts_with($permission->name, 'route:')
+                || $this->isSidebarRoute(str_replace('route:', '', $permission->name))
+            )
             ->map(fn (Permission $permission) => [
                 'id' => $permission->id,
                 'name' => $permission->name,
@@ -49,6 +53,7 @@ class ManageRolePermissionController extends Controller
             ->filter()
             ->unique()
             ->reject(fn ($routeName) => $this->shouldSkipRoute($routeName) || str_starts_with($routeName, 'api.'))
+            ->filter(fn ($routeName) => $this->isSidebarRoute($routeName))
             ->map(fn ($routeName) => 'route:' . $routeName)
             ->values();
 
@@ -64,6 +69,25 @@ class ManageRolePermissionController extends Controller
         if ($routeNames->isNotEmpty()) {
             $systemAdmin->givePermissionTo($routeNames->all());
         }
+    }
+
+    private function isSidebarRoute(string $routeName): bool
+    {
+        $routePrefix = explode('.', $routeName)[0];
+
+        return in_array($routePrefix, $this->sidebarRoutePrefixes(), true);
+    }
+
+    private function sidebarRoutePrefixes(): array
+    {
+        return [
+            'inventory',
+            'suppliers',
+            'compliance',
+            'audit-logs',
+            'access-control',
+            'rfid-scanner',
+        ];
     }
 
     private function shouldSkipRoute(string $routeName): bool
