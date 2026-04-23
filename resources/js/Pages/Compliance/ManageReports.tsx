@@ -182,6 +182,76 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
     const selectedStockCardItem = items.find((item: any) => item.name === formData.itemName);
 
+    const getSelectedStockCardIssuances = () => {
+        if (!formData.itemName) return [];
+
+        return getFilteredIssuances().filter((issue: any) => {
+            if (issue.item_id && selectedStockCardItem?.id) {
+                return String(issue.item_id) === String(selectedStockCardItem.id);
+            }
+
+            if (issue.item && typeof issue.item === 'string') {
+                return issue.item === formData.itemName;
+            }
+
+            if (issue.item && typeof issue.item === 'object') {
+                return String(issue.item.id) === String(selectedStockCardItem?.id) || issue.item.name === formData.itemName;
+            }
+
+            return false;
+        });
+    };
+
+    const stockCardEntries = (() => {
+        const selectedIssuances = getSelectedStockCardIssuances();
+        const currentStock = Number(selectedStockCardItem?.stock || 0);
+
+        const preparedEntries = selectedIssuances
+            .map((issue: any) => {
+                const issueQty = Number(issue.quantity || issue.qty || 0);
+                return {
+                    date: issue.date_issued || issue.date || issue.created_at || '',
+                    reference: issue.reference || issue.display_id || issue.id,
+                    issue_qty: issueQty === 0 ? '' : issueQty,
+                    issue_office: issue.department || issue.recipient || issue.office || '',
+                };
+            })
+            .sort((a: any, b: any) => {
+                const dateA = new Date(a.date).getTime();
+                const dateB = new Date(b.date).getTime();
+                return dateA - dateB || String(a.reference).localeCompare(String(b.reference));
+            });
+
+        const totalIssued = preparedEntries.reduce((sum: number, entry: any) => sum + Number(entry.issue_qty || 0), 0);
+        const startingBalance = currentStock + totalIssued;
+
+        const entries = [
+            {
+                date: '',
+                reference: 'Balance',
+                receipt_qty: '',
+                issue_qty: '',
+                issue_office: '',
+                balance_qty: startingBalance,
+                days_to_consume: '',
+            }
+        ];
+
+        let runningBalance = startingBalance;
+
+        preparedEntries.forEach((entry: any) => {
+            runningBalance -= Number(entry.issue_qty || 0);
+            entries.push({
+                ...entry,
+                receipt_qty: '',
+                balance_qty: runningBalance,
+                days_to_consume: '',
+            });
+        });
+
+        return entries;
+    })();
+
     const generateDisplayDate = (data: any) => {
         if (data.periodType === 'monthly') {
             const monthName = monthOptions.find(m => m.value === data.selectedMonth)?.label;
@@ -595,26 +665,23 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                     {modalMode === 'view' && formData.type === 'STOCK_CARD' && (
                         <div className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
                             <div className="min-w-[800px] mx-auto print:min-w-full">
-                                <StockCardFormPaper data={{
-                                    entity_name: 'Camarines Norte State College',
-                                    fund_cluster: 'General Fund',
-                                    item: formData.itemName || formData.title,
-                                    stock_no: formData.reference,
-                                    description: selectedStockCardItem?.description || selectedStockCardItem?.name || formData.itemName || formData.title,
-                                    re_order_point: '-',
-                                    unit_of_measurement: 'Pieces',
-                                    entries: [
-                                        {
-                                            date: generateDisplayDate(formData),
-                                            reference: formData.reference,
-                                            receipt_qty: 0,
-                                            issue_qty: 100,
-                                            issue_office: 'Admin',
-                                            balance_qty: 100,
-                                            days_to_consume: ''
-                                        }
-                                    ]
-                                }} />
+                                {formData.itemName ? (
+                                    <StockCardFormPaper data={{
+                                        entity_name: 'Camarines Norte State College',
+                                        fund_cluster: 'General Fund',
+                                        item: formData.itemName || formData.title,
+                                        stock_no: selectedStockCardItem?.sku || formData.reference,
+                                        description: selectedStockCardItem?.description || selectedStockCardItem?.name || formData.itemName || formData.title,
+                                        re_order_point: '-',
+                                        unit_of_measurement: selectedStockCardItem?.unit_of_issue || selectedStockCardItem?.unit_measure || 'Pieces',
+                                        entries: stockCardEntries
+                                    }} />
+                                ) : (
+                                    <div className="py-20 text-center text-gray-600">
+                                        <p className="text-lg font-semibold text-gray-800">Select an item to preview a live stock card.</p>
+                                        <p className="text-sm text-gray-500 mt-2">The stock card will generate entries from issued item records once an item is chosen.</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -861,7 +928,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                     <StockCardFormPaper data={{
                                                         entity_name: 'Camarines Norte State College',
                                                         item: report.itemName || report.title,
-                                                        stock_no: report.reference,
+                                                        stock_no: items.find((item: any) => item.name === report.itemName)?.sku || report.reference,
                                                         entries: []
                                                     }} />
                                                 </div>
