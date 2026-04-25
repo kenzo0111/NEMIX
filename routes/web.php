@@ -89,6 +89,9 @@ Route::get('/dashboard', function () {
         'criticalAlerts' => class_exists(\Modules\Inventory\Models\Item::class)
             ? \Modules\Inventory\Models\Item::where('status', 'Low Stock')->count()
             : 0,
+        'activeInventoryItems' => class_exists(\Modules\Inventory\Models\Item::class)
+            ? \Modules\Inventory\Models\Item::count()
+            : 0,
     ];
 
     $lowStockAlerts = class_exists(\Modules\Inventory\Models\Item::class)

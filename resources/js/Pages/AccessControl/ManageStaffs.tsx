@@ -397,9 +397,8 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                                                 type="email" 
                                                 id="editStaffEmail" 
                                                 value={editStaffEmail}
-                                                onChange={(e) => setEditStaffEmail(e.target.value)}
-                                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 font-sans" 
-                                                required 
+                                                readOnly
+                                                className="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 font-sans cursor-not-allowed" 
                                             />
                                         </div>
                                         <div>

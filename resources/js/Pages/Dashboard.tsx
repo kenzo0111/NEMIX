@@ -37,7 +37,7 @@ type MovementInputPoint =
 
 export default function Dashboard({ 
     auth, 
-    stats = { totalInventoryValue: '₱0', totalRisIssued: 0, itemsIssuedMtd: 0, unserviceable: 0, criticalAlerts: 0 },
+    stats = { totalInventoryValue: '₱0', totalRisIssued: 0, itemsIssuedMtd: 0, unserviceable: 0, criticalAlerts: 0, activeInventoryItems: 0 },
     chartData = { monthly: [0, 0, 0, 0, 0, 0, 0, 0], yearly: [0, 0, 0, 0, 0, 0, 0, 0], custom: [] },
     lowStockAlerts = [],
     auditLogs = [],
@@ -45,7 +45,7 @@ export default function Dashboard({
     filters = { chartFilter: 'monthly', customStartDate: '', customEndDate: '' },
 }: { 
     auth: any;
-    stats?: { totalInventoryValue: string; totalRisIssued: number; itemsIssuedMtd: number; unserviceable: number; criticalAlerts: number; };
+    stats?: { totalInventoryValue: string; totalRisIssued: number; itemsIssuedMtd: number; unserviceable: number; criticalAlerts: number; activeInventoryItems?: number; };
     chartData?: { monthly: MovementInputPoint[]; yearly: MovementInputPoint[]; custom?: MovementInputPoint[]; };
     lowStockAlerts?: Array<{ name: string; sku: string; current: number; min: number; unit: string; priority: string; }>;
     auditLogs?: Array<{ user: string; role: string; action: string; details: string; id: string; status: string; time: string; badge: string; }>;
@@ -338,7 +338,7 @@ export default function Dashboard({
                                     Welcome back, {user.name.split(' ')[0]}
                                 </h1>
                                 <p className="text-red-100/90 text-lg md:text-xl font-medium leading-relaxed">
-                                    The system is currently tracking <strong className="text-white">1,240 active inventory items</strong> with real-time stock monitoring.
+                                    The system is currently tracking <strong className="text-white">{new Intl.NumberFormat('en-US').format(stats.activeInventoryItems ?? 0)} active inventory items</strong> with real-time stock monitoring.
                                 </p>
                             </div>
                             
