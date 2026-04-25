@@ -71,17 +71,19 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                     original_id: issuance.id,
                     item_names: [issuance.item],
                     total_quantity: Number(issuance.quantity),
+                    total_amount: Number(issuance.quantity) * Number(issuance.unit_cost || 0),
                     all_ids: [issuance.id],
-                    items_list: [{ item: issuance.item, quantity: issuance.quantity, id: issuance.id }]
+                    items_list: [{ item: issuance.item, quantity: issuance.quantity, id: issuance.id, stock_no: issuance.sku }]
                 };
             } else {
                 groups[key].item_names.push(issuance.item);
                 groups[key].total_quantity += Number(issuance.quantity);
+                groups[key].total_amount += Number(issuance.quantity) * Number(issuance.unit_cost || 0);
                 if (issuance.id < groups[key].original_id) {
                     groups[key].original_id = issuance.id;
                 }
                 groups[key].all_ids.push(issuance.id);
-                groups[key].items_list.push({ item: issuance.item, quantity: issuance.quantity, id: issuance.id });
+                groups[key].items_list.push({ item: issuance.item, quantity: issuance.quantity, id: issuance.id, stock_no: issuance.sku });
             }
         });
 
@@ -94,7 +96,8 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                 ...g,
                 display_id: currentDisplayId,
                 item: g.item_names.length > 1 ? `${g.item_names.length} items (${g.item_names.slice(0, 2).join(', ')}${g.item_names.length > 2 ? '...' : ''})` : g.item_names[0],
-                quantity: g.total_quantity
+                quantity: g.total_quantity,
+                amount: g.total_amount
             };
             currentDisplayId++;
             return res;
@@ -140,13 +143,19 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
         });
     }, [groupedIssuances, searchTerm, filterRecipient]);
 
-    // Reset pagination when filters change
+    // Reset pagination when filters or grouped data change
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, filterRecipient]);
+    }, [searchTerm, filterRecipient, groupedIssuances]);
 
-    const totalPages = Math.ceil(filteredIssuances.length / itemsPerPage);
+    const totalPages = Math.max(1, Math.ceil(filteredIssuances.length / itemsPerPage));
     const paginatedIssuances = filteredIssuances.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
 
     // --- CUSTOM STYLES FOR REACT SELECT (ORANGE THEME) ---
     const customSelectStyles = {
@@ -447,6 +456,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                         <th className="hidden lg:table-cell px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Item ID</th>
                                         <th className="px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Item Issued</th>
                                         <th className="px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Quantity</th>
+                                        <th className="px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Amount</th>
                                         <th className="px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Recipient / Dept.</th>
                                         <th className="hidden md:table-cell px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Date Issued</th>
                                         <th className="hidden sm:table-cell px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Status</th>
@@ -456,7 +466,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                 <tbody className="bg-white divide-y divide-gray-100">
                                     {paginatedIssuances.length === 0 ? (
                                         <tr>
-                                            <td colSpan={7} className="px-4 lg:px-8 py-12 text-center text-gray-500">
+                                            <td colSpan={8} className="px-4 lg:px-8 py-12 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center">
                                                     <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                                                     <p>No issuance records found.</p>
@@ -475,6 +485,9 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                                 <td className="px-4 lg:px-8 py-5 text-sm font-bold text-gray-900 break-words">{issuance.item}</td>
                                                 <td className="px-4 lg:px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
                                                     {issuance.quantity} <span className="text-gray-400 text-xs font-normal">pcs</span>
+                                                </td>
+                                                <td className="px-4 lg:px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
+                                                    ₱{Number(issuance.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </td>
                                                 <td className="px-4 lg:px-8 py-5 text-sm text-gray-700">
                                                     <div className="flex items-center gap-2">
@@ -518,22 +531,23 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                         
                         {/* Pagination */}
                         {groupedIssuances.length > 0 && (
-                            <div className="px-4 sm:px-6 lg:px-8 py-4 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
-                                <span className="text-xs text-gray-500">
-                                    Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredIssuances.length)} to {Math.min(currentPage * itemsPerPage, filteredIssuances.length)} of {filteredIssuances.length} records
-                                </span>
-                                <div className="flex gap-2">
-                                    <button 
-                                        className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
-                                        disabled={currentPage === 1}
+                            <div className="px-4 sm:px-6 lg:px-8 py-4 border-t border-gray-100 bg-gray-50/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+                                <span className="text-xs text-gray-500">Showing {paginatedIssuances.length} of {filteredIssuances.length} filtered records</span>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
                                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
                                     >
                                         Previous
                                     </button>
-                                    <button 
-                                        className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
-                                        disabled={currentPage >= totalPages}
+                                    <span className="text-xs text-gray-500">Page {currentPage} of {totalPages}</span>
+                                    <button
+                                        type="button"
                                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                        disabled={currentPage >= totalPages}
+                                        className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
                                     >
                                         Next
                                     </button>
@@ -941,7 +955,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                     ris_no: getFormattedId(selectedIssuance),
                                     purpose: selectedIssuance.purpose || "",
                                     items: selectedIssuance.items_list?.map((it: any) => ({
-                                        stock_no: "",
+                                        stock_no: it.stock_no || '',
                                         unit: "pcs",
                                         description: it.item,
                                         quantity: it.quantity,

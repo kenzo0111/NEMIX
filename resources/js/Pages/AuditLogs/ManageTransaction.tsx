@@ -96,6 +96,8 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
 
     // Raw Data coming from props
     const rawLogs = logs || [];
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     // --- 2. Filtering Logic ---
     const moduleOptions = useMemo(() => {
@@ -138,6 +140,19 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
             return matchesSearch && matchesModule && matchesAction;
         });
     }, [searchQuery, selectedModule, selectedAction, rawLogs]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredLogs.length / itemsPerPage));
+    const paginatedLogs = filteredLogs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, selectedModule, selectedAction, rawLogs]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
 
     const selectStyles = {
         control: (provided: any) => ({
@@ -247,8 +262,8 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
-                                        {filteredLogs.length > 0 ? (
-                                            filteredLogs.map((trx, index) => (
+                                        {paginatedLogs.length > 0 ? (
+                                            paginatedLogs.map((trx, index) => (
                                                 <tr key={index} className="hover:bg-gray-50/50 transition-colors group">
                                                     <td className="px-8 py-5 whitespace-nowrap">
                                                         <div className="flex items-center gap-4">
@@ -296,6 +311,29 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
                                         )}
                                     </tbody>
                                 </table>
+                            </div>
+
+                            <div className="px-8 py-4 border-t border-gray-100 bg-gray-50/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+                                <span className="text-xs text-gray-500">Showing {paginatedLogs.length} of {filteredLogs.length} filtered records</span>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
+                                    >
+                                        Previous
+                                    </button>
+                                    <span className="text-xs text-gray-500">Page {currentPage} of {totalPages}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
+                                    >
+                                        Next
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

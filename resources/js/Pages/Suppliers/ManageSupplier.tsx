@@ -103,6 +103,8 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
     const [collapsed, setCollapsed] = useState(false);
     const [modalMode, setModalMode] = useState<'create' | 'view' | 'edit' | null>(null);
     const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     // Form for creating/updating supplier
     const { data, setData, post, put, processing, errors, reset } = useForm({
@@ -278,6 +280,19 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
 
         return matchesClassification && matchesStatus && matchesSearch;
     });
+
+    const totalPages = Math.max(1, Math.ceil(filteredSuppliers.length / itemsPerPage));
+    const paginatedSuppliers = filteredSuppliers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, selectedClassification, selectedStatus, suppliersData]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
 
     return (
         <>
@@ -455,7 +470,7 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {filteredSuppliers.map((supplier) => (
+                                        {paginatedSuppliers.map((supplier) => (
                                             <tr key={supplier.id} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-4 py-3 text-sm font-semibold text-gray-900">
                                                     {supplier.name}
@@ -510,13 +525,26 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
                             </div>
 
                             {/* Pagination */}
-                            <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
-                                <div className="text-sm text-gray-500">
-                                    Showing <span className="font-medium">{filteredSuppliers.length === 0 ? 0 : 1}</span> to <span className="font-medium">{filteredSuppliers.length}</span> of <span className="font-medium">{filteredSuppliers.length}</span> results
-                                </div>
-                                <div className="flex gap-2">
-                                    <button className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50">Previous</button>
-                                    <button className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50">Next</button>
+                            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-200 pt-4">
+                                <div className="text-sm text-gray-500">Showing {paginatedSuppliers.length} of {filteredSuppliers.length} filtered records</div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                                    >
+                                        Previous
+                                    </button>
+                                    <span className="text-sm text-gray-500">Page {currentPage} of {totalPages}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                                    >
+                                        Next
+                                    </button>
                                 </div>
                             </div>
                             </div>

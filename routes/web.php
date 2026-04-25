@@ -42,17 +42,46 @@ Route::get('/dashboard', function () {
         })
         : [];
 
+    $supplierItemValues = [];
+    if (class_exists(\Modules\Inventory\Models\Item::class)) {
+        \Modules\Inventory\Models\Item::all(['supplier_id', 'stock', 'unit_cost'])->each(function ($item) use (&$supplierItemValues) {
+            if ($item->supplier_id === null) return;
+            $supplierId = (string) $item->supplier_id;
+            $supplierItemValues[$supplierId] = ($supplierItemValues[$supplierId] ?? 0) + (float) $item->stock * (float) $item->unit_cost;
+        });
+    }
+
+    $supplierIssuedTotals = [];
+    if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
+        \Modules\Inventory\Models\Issuance::with('item')->get()->each(function ($issuance) use (&$supplierIssuedTotals) {
+            if (! $issuance->item || $issuance->item->supplier_id === null) return;
+            $supplierId = (string) $issuance->item->supplier_id;
+            $supplierIssuedTotals[$supplierId] = ($supplierIssuedTotals[$supplierId] ?? 0) + (float) $issuance->quantity * (float) $issuance->item->unit_cost;
+        });
+    }
+
+    $totalInventoryValue = 0;
+    if (class_exists(\Modules\Suppliers\Models\Supplier::class)) {
+        \Modules\Suppliers\Models\Supplier::all()->each(function ($supplier) use (&$totalInventoryValue, $supplierIssuedTotals, $supplierItemValues) {
+            $supplierId = (string) $supplier->id;
+            $baseAmount = $supplier->amount !== null ? (float) $supplier->amount : null;
+            if ($baseAmount !== null) {
+                $totalInventoryValue += max(0, $baseAmount - ($supplierIssuedTotals[$supplierId] ?? 0));
+            } else {
+                $totalInventoryValue += $supplierItemValues[$supplierId] ?? 0;
+            }
+        });
+    }
+
     $stats = [
-        'totalInventoryValue' => class_exists(\Modules\Inventory\Models\Item::class)
-            ? '₱' . number_format(\Modules\Inventory\Models\Item::sum('amount'), 2)
-            : '₱0.00',
+        'totalInventoryValue' => '₱' . number_format($totalInventoryValue, 2),
         'totalRisIssued' => class_exists(\Modules\Inventory\Models\Issuance::class)
-            ? \Modules\Inventory\Models\Issuance::count()
+            ? (int) \Illuminate\Support\Facades\DB::table(\Illuminate\Support\Facades\DB::raw('(select distinct recipient, date_issued, status, issued_by, created_at from issuances) as distinct_issuances'))->count()
             : 0,
         'itemsIssuedMtd' => class_exists(\Modules\Inventory\Models\Issuance::class)
             ? \Modules\Inventory\Models\Issuance::whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
-                ->sum('quantity')
+                ->count()
             : 0,
         'unserviceable' => class_exists(\Modules\Inventory\Models\Item::class)
             ? \Modules\Inventory\Models\Item::where('status', 'Out of Stock')->count()
@@ -346,12 +375,43 @@ Route::get('/compliance/analytics', function () {
         })
         : collect();
 
+    $supplierItemValues = [];
+    if (class_exists(\Modules\Inventory\Models\Item::class)) {
+        \Modules\Inventory\Models\Item::all(['supplier_id', 'stock', 'unit_cost'])->each(function ($item) use (&$supplierItemValues) {
+            if ($item->supplier_id === null) return;
+            $supplierId = (string) $item->supplier_id;
+            $supplierItemValues[$supplierId] = ($supplierItemValues[$supplierId] ?? 0) + (float) $item->stock * (float) $item->unit_cost;
+        });
+    }
+
+    $supplierIssuedTotals = [];
+    if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
+        \Modules\Inventory\Models\Issuance::with('item')->get()->each(function ($issuance) use (&$supplierIssuedTotals) {
+            if (! $issuance->item || $issuance->item->supplier_id === null) return;
+            $supplierId = (string) $issuance->item->supplier_id;
+            $supplierIssuedTotals[$supplierId] = ($supplierIssuedTotals[$supplierId] ?? 0) + (float) $issuance->quantity * (float) $issuance->item->unit_cost;
+        });
+    }
+
+    $totalSupplierValue = 0;
+    if (class_exists(\Modules\Suppliers\Models\Supplier::class)) {
+        \Modules\Suppliers\Models\Supplier::all()->each(function ($supplier) use (&$totalSupplierValue, $supplierIssuedTotals, $supplierItemValues) {
+            $supplierId = (string) $supplier->id;
+            $baseAmount = $supplier->amount !== null ? (float) $supplier->amount : null;
+            if ($baseAmount !== null) {
+                $totalSupplierValue += max(0, $baseAmount - ($supplierIssuedTotals[$supplierId] ?? 0));
+            } else {
+                $totalSupplierValue += $supplierItemValues[$supplierId] ?? 0;
+            }
+        });
+    }
+
     $stats = [
         'totalItems' => $items->count(),
         'totalStock' => (int) $items->sum('stock'),
         'lowStockAlerts' => (int) $items->where('status', 'Low Stock')->count(),
         'outOfStock' => (int) $items->where('status', 'Out of Stock')->count(),
-        'totalValue' => '₱' . number_format((float) $items->sum('amount'), 2),
+        'totalValue' => '₱' . number_format($totalSupplierValue > 0 ? $totalSupplierValue : (float) $items->sum('amount'), 2),
         'highestConsumable' => data_get($items->sortByDesc('stock')->first(), 'name', 'N/A'),
         'lowestConsumable' => data_get($items->sortBy('stock')->first(), 'name', 'N/A'),
     ];

@@ -2,7 +2,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import Sidebar from '@/Components/Sidebar';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
 
@@ -45,6 +45,8 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
     // --- FILTERS STATE ---
     const [searchTerm, setSearchTerm] = useState('');
     const [filterSupplier, setFilterSupplier] = useState<any>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const rowsPerPage = 10;
 
     // --- DERIVED DATA ---
     const supplierOptions = useMemo(() => {
@@ -134,6 +136,22 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
             return matchesSearch && matchesSupplier;
         });
     }, [receivings, searchTerm, filterSupplier]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredReceivings.length / rowsPerPage));
+    const paginatedReceivings = useMemo(() => {
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        return filteredReceivings.slice(startIndex, startIndex + rowsPerPage);
+    }, [filteredReceivings, currentPage]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, filterSupplier, receivings]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
 
     // --- CUSTOM STYLES FOR REACT SELECT (GREEN THEME) ---
     const customSelectStyles = {
@@ -273,7 +291,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredReceivings.map((receiving, index) => (
+                                        paginatedReceivings.map((receiving, index) => (
                                             <tr key={index} className="hover:bg-gray-50 transition-colors group">
                                                 {/* UPDATED COLUMN WITH SKU */}
                                                 <td className="px-8 py-5 whitespace-nowrap">
@@ -315,11 +333,26 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                         </div>
                         
                         {/* Pagination */}
-                        <div className="px-8 py-4 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
-                            <span className="text-xs text-gray-500">Showing {filteredReceivings.length} of {receivings.length} records</span>
-                            <div className="flex gap-2">
-                                <button className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50" disabled>Previous</button>
-                                <button className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50" disabled>Next</button>
+                        <div className="px-8 py-4 border-t border-gray-100 bg-gray-50/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <span className="text-xs text-gray-500">Showing {paginatedReceivings.length} of {filteredReceivings.length} filtered records</span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
+                                >
+                                    Previous
+                                </button>
+                                <span className="text-xs text-gray-500">Page {currentPage} of {totalPages}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
+                                >
+                                    Next
+                                </button>
                             </div>
                         </div>
 

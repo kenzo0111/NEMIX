@@ -225,6 +225,8 @@ class InventoryController extends Controller
                     'item' => $issuance->item->name,
                     'sku' => $issuance->item->sku,
                     'quantity' => $issuance->quantity,
+                    'unit_cost' => $issuance->item->unit_cost ?? 0,
+                    'amount' => (float) $issuance->quantity * (float) ($issuance->item->unit_cost ?? 0),
                     'recipient' => $issuance->recipient,
                     'department' => $issuance->department,
                     'fund_cluster' => $issuance->fund_cluster,
