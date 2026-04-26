@@ -115,6 +115,13 @@ const generateNextSku = (items: any[], supplierName: string, supplierId: any) =>
     return `${acronym}-${year}-${month}-${itemIndex}-${sequence}`;
 };
 
+const computeStatusFromStock = (stock: string | number) => {
+    const quantity = Number(stock ?? 0);
+    if (quantity === 0) return 'Out of Stock';
+    if (quantity <= 20) return 'Low Stock';
+    return 'Available';
+};
+
 // --- MAIN PAGE ---
 
 export default function AllItems({ auth, items, categories, suppliers = [] }: { auth: any, items: any[], categories: any[], suppliers?: any[] }) {
@@ -229,6 +236,10 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
             }
         }
     }, [data.supplier_id, isEditing, items, suppliers]);
+
+    useEffect(() => {
+        setData('status', computeStatusFromStock(data.stock));
+    }, [data.stock]);
 
     const submit = (e: any) => {
         e.preventDefault();
@@ -562,13 +573,12 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                         </div>
                         <div className="group w-full">
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Status</label>
-                            <Select
-                                value={[{ value: 'Available', label: 'Available' }, { value: 'Low Stock', label: 'Low Stock' }, { value: 'Out of Stock', label: 'Out of Stock' }].find(option => option.value === data.status)}
-                                onChange={(selectedOption) => setData('status', selectedOption ? selectedOption.value : '')}
-                                options={[{ value: 'Available', label: 'Available' }, { value: 'Low Stock', label: 'Low Stock' }, { value: 'Out of Stock', label: 'Out of Stock' }]}
-                                placeholder="Select a status"
-                                styles={customSelectStyles}
+                            <input
+                                value={data.status}
+                                disabled
+                                className="w-full pl-4 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-xl text-sm shadow-sm text-gray-700"
                             />
+                            <p className="mt-1 text-xs text-gray-500 ml-1">Status is computed automatically from the stock level.</p>
                             {errors.status && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.status}</p>}
                         </div>
                     </div>
@@ -626,7 +636,8 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                     setData((prev) => ({
                                         ...prev,
                                         stock: newStock,
-                                        amount: (newStock * cost).toFixed(2)
+                                        amount: (newStock * cost).toFixed(2),
+                                        status: computeStatusFromStock(newStock),
                                     }));
                                 }}
                                 error={errors.stock}
@@ -646,7 +657,8 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                     setData((prev) => ({
                                         ...prev,
                                         unit_cost: e.target.value,
-                                        amount: (stock * newCost).toFixed(2)
+                                        amount: (stock * newCost).toFixed(2),
+                                        status: computeStatusFromStock(stock),
                                     }));
                                 }}
                                 error={errors.unit_cost}

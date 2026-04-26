@@ -62,14 +62,9 @@ Route::get('/dashboard', function () {
 
     $totalInventoryValue = 0;
     if (class_exists(\Modules\Suppliers\Models\Supplier::class)) {
-        \Modules\Suppliers\Models\Supplier::all()->each(function ($supplier) use (&$totalInventoryValue, $supplierIssuedTotals, $supplierItemValues) {
+        \Modules\Suppliers\Models\Supplier::all()->each(function ($supplier) use (&$totalInventoryValue, $supplierItemValues) {
             $supplierId = (string) $supplier->id;
-            $baseAmount = $supplier->amount !== null ? (float) $supplier->amount : null;
-            if ($baseAmount !== null) {
-                $totalInventoryValue += max(0, $baseAmount - ($supplierIssuedTotals[$supplierId] ?? 0));
-            } else {
-                $totalInventoryValue += $supplierItemValues[$supplierId] ?? 0;
-            }
+            $totalInventoryValue += $supplierItemValues[$supplierId] ?? 0;
         });
     }
 
@@ -398,14 +393,9 @@ Route::get('/compliance/analytics', function () {
 
     $totalSupplierValue = 0;
     if (class_exists(\Modules\Suppliers\Models\Supplier::class)) {
-        \Modules\Suppliers\Models\Supplier::all()->each(function ($supplier) use (&$totalSupplierValue, $supplierIssuedTotals, $supplierItemValues) {
+        \Modules\Suppliers\Models\Supplier::all()->each(function ($supplier) use (&$totalSupplierValue, $supplierItemValues) {
             $supplierId = (string) $supplier->id;
-            $baseAmount = $supplier->amount !== null ? (float) $supplier->amount : null;
-            if ($baseAmount !== null) {
-                $totalSupplierValue += max(0, $baseAmount - ($supplierIssuedTotals[$supplierId] ?? 0));
-            } else {
-                $totalSupplierValue += $supplierItemValues[$supplierId] ?? 0;
-            }
+            $totalSupplierValue += $supplierItemValues[$supplierId] ?? 0;
         });
     }
 

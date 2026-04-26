@@ -133,33 +133,11 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
         return totals;
     }, [items]);
 
-    const supplierIssuedTotals = useMemo(() => {
-        const totals: Record<string, number> = {};
-        (issuances || []).forEach((issuance: any) => {
-            const item = issuance?.item;
-            if (!item || item.supplier_id == null) return;
-            const supplierId = String(item.supplier_id);
-            const quantity = Number(issuance.quantity || 0);
-            const unitCost = Number(item.unit_cost || 0);
-            totals[supplierId] = (totals[supplierId] || 0) + quantity * unitCost;
-        });
-        return totals;
-    }, [issuances]);
-
     const formatCurrency = (value: number) => `₱${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
     const getSupplierAmount = (supplier: any) => {
-        const baseAmount = supplier.amount !== undefined && supplier.amount !== null
-            ? Number(supplier.amount || 0)
-            : null;
-        const deducted = supplierIssuedTotals[String(supplier.id)] || 0;
-        const remainingFromStock = supplierItemValues[String(supplier.id)] || 0;
-
-        if (baseAmount !== null) {
-            return baseAmount - deducted;
-        }
-
-        return remainingFromStock;
+        const supplierId = String(supplier.id);
+        return supplierItemValues[supplierId] || 0;
     };
 
     // Options for React Select
