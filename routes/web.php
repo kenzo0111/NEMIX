@@ -44,10 +44,11 @@ Route::get('/dashboard', function () {
 
     $supplierItemValues = [];
     if (class_exists(\Modules\Inventory\Models\Item::class)) {
-        \Modules\Inventory\Models\Item::all(['supplier_id', 'stock', 'unit_cost'])->each(function ($item) use (&$supplierItemValues) {
+        \Modules\Inventory\Models\Item::all(['supplier_id', 'stock', 'unit_cost', 'amount'])->each(function ($item) use (&$supplierItemValues) {
             if ($item->supplier_id === null) return;
             $supplierId = (string) $item->supplier_id;
-            $supplierItemValues[$supplierId] = ($supplierItemValues[$supplierId] ?? 0) + (float) $item->stock * (float) $item->unit_cost;
+            $itemAmount = $item->amount !== null ? (float) $item->amount : (float) $item->stock * (float) $item->unit_cost;
+            $supplierItemValues[$supplierId] = ($supplierItemValues[$supplierId] ?? 0) + $itemAmount;
         });
     }
 
@@ -375,10 +376,11 @@ Route::get('/compliance/analytics', function () {
 
     $supplierItemValues = [];
     if (class_exists(\Modules\Inventory\Models\Item::class)) {
-        \Modules\Inventory\Models\Item::all(['supplier_id', 'stock', 'unit_cost'])->each(function ($item) use (&$supplierItemValues) {
+        \Modules\Inventory\Models\Item::all(['supplier_id', 'stock', 'unit_cost', 'amount'])->each(function ($item) use (&$supplierItemValues) {
             if ($item->supplier_id === null) return;
             $supplierId = (string) $item->supplier_id;
-            $supplierItemValues[$supplierId] = ($supplierItemValues[$supplierId] ?? 0) + (float) $item->stock * (float) $item->unit_cost;
+            $itemAmount = $item->amount !== null ? (float) $item->amount : (float) $item->stock * (float) $item->unit_cost;
+            $supplierItemValues[$supplierId] = ($supplierItemValues[$supplierId] ?? 0) + $itemAmount;
         });
     }
 

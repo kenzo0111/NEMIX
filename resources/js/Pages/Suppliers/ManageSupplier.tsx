@@ -126,6 +126,12 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
         (items || []).forEach((item: any) => {
             if (item?.supplier_id == null) return;
             const supplierId = String(item.supplier_id);
+            const amount = Number(item.amount ?? NaN);
+            if (!Number.isNaN(amount) && amount !== 0) {
+                totals[supplierId] = (totals[supplierId] || 0) + amount;
+                return;
+            }
+
             const stock = Number(item.stock || 0);
             const unitCost = Number(item.unit_cost || 0);
             totals[supplierId] = (totals[supplierId] || 0) + stock * unitCost;

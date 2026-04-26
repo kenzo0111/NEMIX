@@ -139,6 +139,13 @@ class InventoryController extends Controller
         ]);
     }
 
+    private function refreshItemTotals(Item $item): void
+    {
+        $item->amount = (float) $item->stock * (float) ($item->unit_cost ?? 0);
+        $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= 10 ? 'Low Stock' : 'Available');
+        $item->save();
+    }
+
     public function storeReceiving(Request $request)
     {
         $request->validate([
@@ -153,14 +160,7 @@ class InventoryController extends Controller
 
             $item = Item::findOrFail($request->item_id);
             $item->stock += $request->quantity;
-            
-            if ($item->stock > 0 && $item->stock <= 10) {
-                $item->status = 'Low Stock';
-            } elseif ($item->stock > 10) {
-                $item->status = 'Available';
-            }
-            
-            $item->save();
+            $this->refreshItemTotals($item);
         });
 
         return redirect()->route('inventory.receiving')->with('success', 'Receiving record created successfully.');
@@ -184,18 +184,15 @@ class InventoryController extends Controller
             if ($oldItem->id == $request->item_id) {
                 // Revert old quantity, apply new quantity
                 $oldItem->stock = $oldItem->stock - $oldQuantity + $request->quantity;
-                $oldItem->status = $oldItem->stock <= 0 ? 'Out of Stock' : ($oldItem->stock <= 10 ? 'Low Stock' : 'Available');
-                $oldItem->save();
+                $this->refreshItemTotals($oldItem);
             } else {
                 // Item changed. Revert old item stock, update new item stock
                 $oldItem->stock -= $oldQuantity;
-                $oldItem->status = $oldItem->stock <= 0 ? 'Out of Stock' : ($oldItem->stock <= 10 ? 'Low Stock' : 'Available');
-                $oldItem->save();
+                $this->refreshItemTotals($oldItem);
 
                 $newItem = Item::findOrFail($request->item_id);
                 $newItem->stock += $request->quantity;
-                $newItem->status = $newItem->stock <= 0 ? 'Out of Stock' : ($newItem->stock <= 10 ? 'Low Stock' : 'Available');
-                $newItem->save();
+                $this->refreshItemTotals($newItem);
             }
         });
 
@@ -207,8 +204,7 @@ class InventoryController extends Controller
         \DB::transaction(function () use ($receiving) {
             $item = Item::findOrFail($receiving->item_id);
             $item->stock -= $receiving->quantity;
-            $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= 10 ? 'Low Stock' : 'Available');
-            $item->save();
+            $this->refreshItemTotals($item);
 
             $receiving->delete();
         });
@@ -287,8 +283,7 @@ class InventoryController extends Controller
                 ]);
                 
                 $item->stock -= $issuanceData['quantity'];
-                $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= 10 ? 'Low Stock' : 'Available');
-                $item->save();
+                $this->refreshItemTotals($item);
             }
         });
 
@@ -326,8 +321,7 @@ class InventoryController extends Controller
             if ($oldStatus === 'Issued') {
                 $oldItem->stock += $oldQuantity;
             }
-            $oldItem->status = $oldItem->stock <= 0 ? 'Out of Stock' : ($oldItem->stock <= 10 ? 'Low Stock' : 'Available');
-            $oldItem->save();
+            $this->refreshItemTotals($oldItem);
 
             // Deduct new stock if new status is 'Issued'
             if ($request->status === 'Issued') {
@@ -338,8 +332,7 @@ class InventoryController extends Controller
                     ]);
                 }
                 $newItem->stock -= $request->quantity;
-                $newItem->status = $newItem->stock <= 0 ? 'Out of Stock' : ($newItem->stock <= 10 ? 'Low Stock' : 'Available');
-                $newItem->save();
+                $this->refreshItemTotals($newItem);
             }
         });
 
@@ -352,8 +345,7 @@ class InventoryController extends Controller
             if ($issuance->status === 'Issued') {
                 $item = Item::findOrFail($issuance->item_id);
                 $item->stock += $issuance->quantity;
-                $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= 10 ? 'Low Stock' : 'Available');
-                $item->save();
+                $this->refreshItemTotals($item);
             }
 
             $issuance->delete();

@@ -18,12 +18,27 @@ class SuppliersController extends \App\Http\Controllers\Controller
         $suppliers = Supplier::all();
 
         $items = class_exists(Item::class)
-            ? Item::all(['id', 'supplier_id', 'stock', 'unit_cost'])
+            ? Item::all(['id', 'supplier_id', 'stock', 'unit_cost', 'amount'])
             : collect();
+
+        $supplierItemValues = [];
+        foreach ($items as $item) {
+            if ($item->supplier_id === null) {
+                continue;
+            }
+            $supplierId = (string) $item->supplier_id;
+            $supplierItemValues[$supplierId] = ($supplierItemValues[$supplierId] ?? 0) + (float) $item->stock * (float) $item->unit_cost;
+        }
 
         $issuances = class_exists(Issuance::class)
             ? Issuance::with('item')->get()
             : collect();
+
+        $suppliers = $suppliers->map(function ($supplier) use ($supplierItemValues) {
+            $supplierId = (string) $supplier->id;
+            $supplier->amount = $supplierItemValues[$supplierId] ?? 0;
+            return $supplier;
+        });
 
         return Inertia::render('Suppliers/ManageSupplier', [
             'suppliers' => $suppliers,
