@@ -29,10 +29,10 @@ class StaffRegistrationInvitation extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $registrationUrl = route('register', [
+        $registrationUrl = rtrim(config('app.url'), '/') . route('register', [
             'token' => $this->token,
             'email' => $notifiable->getEmailForPasswordReset(),
-        ]);
+        ], false);
 
         return (new MailMessage)
             ->subject('Invitation: CNSC SPMO System Access')
