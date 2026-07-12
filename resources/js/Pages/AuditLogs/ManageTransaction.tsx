@@ -222,7 +222,7 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
                                     <thead>
                                         <tr className="border-b border-gray-100 bg-gray-50/50">
                                             <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Authorized User</th>
-                                            <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Action Performed</th>
+                                            <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Action</th>
                                             <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Audit Status</th>
                                             <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Timestamp</th>
                                         </tr>
@@ -243,8 +243,8 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
                                                         </div>
                                                     </td>
                                                     <td className="px-8 py-5 whitespace-nowrap">
-                                                        <div className="text-sm font-bold text-gray-700">{toTitleCase(trx.action) || 'Unknown Action'}</div>
-                                                        <div className="text-xs text-gray-500">{trx.details}</div>
+                                                        <div className="text-sm font-bold text-gray-700">{trx.details || toTitleCase(trx.action) || 'Unknown Action'}</div>
+                                                        <div className="text-xs text-gray-500">{toTitleCase(trx.action) || 'Unknown Action'}</div>
                                                     </td>
                                                     <td className="px-8 py-5 whitespace-nowrap">
                                                         <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700">

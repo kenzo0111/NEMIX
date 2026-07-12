@@ -4,6 +4,7 @@ namespace Modules\AuditLogs\Traits;
 
 use Illuminate\Support\Facades\Auth;
 use Modules\AuditLogs\Models\TransactionTrail;
+use Modules\AuditLogs\Support\AuditLogFormatter;
 
 trait LogsTransactions
 {
@@ -13,25 +14,18 @@ trait LogsTransactions
     protected static function bootLogsTransactions()
     {
         static::created(function ($model) {
-            $model->logTransaction('Created', 'Added a new ' . static::getLogResourceName());
+            $model->logTransaction('Created');
         });
 
         static::updated(function ($model) {
-            // Get the changed fields except timestamps
             $changes = $model->getChanges();
             unset($changes['updated_at']);
-            
-            $details = 'Updated ' . static::getLogResourceName();
-            if (!empty($changes)) {
-                $fields = implode(', ', array_keys($changes));
-                $details .= " (Fields: {$fields})";
-            }
-            
-            $model->logTransaction('Updated', $details);
+
+            $model->logTransaction('Updated', $changes);
         });
 
         static::deleted(function ($model) {
-            $model->logTransaction('Deleted', 'Removed ' . static::getLogResourceName());
+            $model->logTransaction('Deleted');
         });
     }
 
@@ -48,18 +42,18 @@ trait LogsTransactions
      */
     public function logTransaction($action, $details = null)
     {
-        // Default to logged in user if available
         $userId = Auth::id();
 
-        // Prevent logging if no user is authenticated (e.g. seeder/console), 
-        // unless you want system operations logged too. We'll leave it as null for system.
+        $formattedDetails = is_array($details)
+            ? AuditLogFormatter::describe($action, static::getLogResourceName(), $details)
+            : $details;
         
         TransactionTrail::create([
             'user_id' => $userId,
             'module' => static::getLogResourceName(),
             'action' => $action,
             'resource_ref' => 'ID-' . $this->getKey(),
-            'details' => $details ?? "Performed {$action} on " . static::getLogResourceName(),
+            'details' => $formattedDetails ?? AuditLogFormatter::describe($action, static::getLogResourceName()),
             'status' => match (strtolower($action)) {
                 'created' => 'Success',
                 'updated' => 'Updated',

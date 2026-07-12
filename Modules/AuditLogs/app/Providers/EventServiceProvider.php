@@ -10,6 +10,7 @@ use Modules\AuditLogs\Listeners\LoginListener;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Auth;
 use Modules\AuditLogs\Models\TransactionTrail;
+use Modules\AuditLogs\Support\AuditLogFormatter;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -68,15 +69,11 @@ class EventServiceProvider extends ServiceProvider
             $user_id = Auth::id() ?? request()->user()?->id;
 
             $resourceName = class_basename($model);
-            
-            $details = "Performed {$action} on {$resourceName}";
+            $changes = [];
+
             if ($action === 'Updated') {
                 $changes = $model->getChanges();
                 unset($changes['updated_at']);
-                if (!empty($changes)) {
-                    $fields = implode(', ', array_keys($changes));
-                    $details .= " (Fields: {$fields})";
-                }
             }
 
             // Fallback for ID string
@@ -87,7 +84,7 @@ class EventServiceProvider extends ServiceProvider
                 'module' => $resourceName,
                 'action' => $action,
                 'resource_ref' => $resourceRef,
-                'details' => $details,
+                'details' => AuditLogFormatter::describe($action, $resourceName, $changes),
                 'status' => match (strtolower($action)) {
                     'created' => 'Verified',
                     'updated' => 'Updated',
