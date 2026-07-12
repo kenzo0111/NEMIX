@@ -560,7 +560,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                     </svg>
                                     Saving...
                                 </>
-                            ) : isEditing ? 'Update Item' : 'Create Item'}
+                            ) : isEditing ? 'Update Item' : 'Save Item'}
                         </button>
                     </>
                 }
