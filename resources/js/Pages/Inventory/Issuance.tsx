@@ -818,7 +818,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="px-6 py-2.5 bg-gradient-to-r from-orange-700 to-orange-600 hover:from-orange-600 hover:to-orange-500 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 flex items-center gap-2"
+                                    className="px-6 py-2.5 bg-gradient-to-r from-orange-700 to-orange-600 hover:from-orange-600 hover:to-orange-500 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
                                 >
                                     {processing ? (
                                         <>
@@ -947,7 +947,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                         <div className="p-8 overflow-y-auto w-full bg-gray-100 flex justify-center print:p-0 print:bg-white print:overflow-hidden">
                             <div className="issuance-print-area border border-gray-300 rounded shadow-sm bg-white overflow-x-auto w-full max-w-[210mm] p-4 print:border-none print:rounded-none print:shadow-none print:bg-white print:p-0 print:max-w-full print-single-page">
                                 <RequisitionIssueSlip data={{
-                                    entity_name: "Camarines Norte State College",
+                                    entity_name: "University of Camarines Norte",
                                     fund_cluster: getFundClusterDisplay(selectedIssuance.fund_cluster),
                                     division: selectedIssuance.department || "",
                                     responsibility_center_code: "",

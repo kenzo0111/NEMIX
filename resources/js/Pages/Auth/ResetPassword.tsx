@@ -131,7 +131,7 @@ export default function ResetPassword({
                     {/* Footer */}
                     <div className="mt-8 pt-4 border-t border-gray-100 text-center">
                         <p className="text-xs text-gray-400">
-                            &copy; 2025 Camarines Norte State College.
+                            &copy; 2025 University of Camarines Norte.
                         </p>
                     </div>
                 </div>

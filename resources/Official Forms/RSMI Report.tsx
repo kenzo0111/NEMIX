@@ -194,7 +194,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
                 </div>
                 <div className="info-row">
                     <span className="info-label">Fund Cluster:</span>
-                    <div className="info-value">{data.fundCluster}</div>
+                    <div className="info-value">Regular Agency Fund</div>
                 </div>
             </div>
             <div>

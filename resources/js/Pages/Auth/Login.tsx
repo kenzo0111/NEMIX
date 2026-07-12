@@ -70,7 +70,9 @@ export default function Login({
                                 </div>
                                 <div className="text-center lg:text-left">
                                     <p className="font-serif text-yellow-400 uppercase tracking-widest text-xs mb-1 font-semibold">Republic of the Philippines</p>
-                                    <h2 className="font-serif text-2xl font-bold leading-tight text-white drop-shadow-md">Camarines Norte<br/>State College</h2>
+                                    <h2 className="font-serif text-xl md:text-2xl font-bold leading-tight text-white drop-shadow-md">
+                                        University of Camarines Norte
+                                    </h2>
                                 </div>
                             </div>
                         </div>
@@ -189,7 +191,7 @@ export default function Login({
                             {/* Footer */}
                             <div className="mt-10 pt-6 border-t border-gray-100 text-center">
                                 <p className="text-xs text-gray-400">
-                                    &copy; 2025 Camarines Norte State College. All rights reserved. <br/>
+                                    &copy; 2025 University of Camarines Norte. All rights reserved. <br/>
                                     Authorized Personnel Only.
                                 </p>
                             </div>

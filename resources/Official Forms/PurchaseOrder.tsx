@@ -58,7 +58,7 @@ const formatNumber = (num?: number) => {
 export const PurchaseOrder: React.FC<PurchaseOrderProps> = (props) => {
   const {
     po_number = 'PO',
-    entity_name = 'Camarines Norte State College',
+    entity_name = 'University of Camarines Norte',
     entity_address = 'lot 8, F. Pimentel',
     supplier = '',
     supplier_address = '',

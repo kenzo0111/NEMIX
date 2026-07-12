@@ -583,7 +583,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                                 return (
                                     <RSMIFormPaper data={{
-                                        entityName: 'Camarines Norte State College',
+                                        entityName: 'University of Camarines Norte',
                                         serialNo: formData.reference,
                                         fundCluster: 'General Fund',
                                         date: generateDisplayDate(formData),
@@ -625,7 +625,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                                     return (
                                         <RPCIFormPaper data={{
-                                            entity_name: 'Camarines Norte State College',
+                                            entity_name: 'University of Camarines Norte',
                                             as_at_date: generateDisplayDate(formData),
                                             fund_cluster: 'General Fund',
                                             inventory_type: formData.title,
@@ -643,7 +643,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                             <div className="min-w-[800px] mx-auto print:min-w-full">
                                 {formData.itemName ? (
                                     <StockCardFormPaper data={{
-                                        entity_name: 'Camarines Norte State College',
+                                        entity_name: 'University of Camarines Norte',
                                         fund_cluster: 'General Fund',
                                         item: formData.itemName || formData.title,
                                         stock_no: selectedStockCardItem?.sku || formData.reference,
@@ -870,7 +870,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             {report.type === 'RSMI' && (
                                                 <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
                                                     <RSMIFormPaper data={{
-                                                        entityName: 'Camarines Norte State College',
+                                                        entityName: 'University of Camarines Norte',
                                                         serialNo: report.reference,
                                                         fundCluster: 'GF',
                                                         date: report.date || '',
@@ -888,7 +888,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             {report.type === 'RPCI' && (
                                                 <div className="absolute top-0 right-0 w-44 h-32 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
                                                     <RPCIFormPaper data={{
-                                                        entity_name: 'Camarines Norte State College',
+                                                        entity_name: 'University of Camarines Norte',
                                                         as_at_date: report.date || '',
                                                         fund_cluster: 'GF',
                                                         inventory_type: report.title,
@@ -902,7 +902,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             {report.type === 'STOCK_CARD' && (
                                                 <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
                                                     <StockCardFormPaper data={{
-                                                        entity_name: 'Camarines Norte State College',
+                                                        entity_name: 'University of Camarines Norte',
                                                         item: report.itemName || report.title,
                                                         stock_no: items.find((item: any) => item.name === report.itemName)?.sku || report.reference,
                                                         entries: []

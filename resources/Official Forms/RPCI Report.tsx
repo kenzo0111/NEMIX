@@ -140,7 +140,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
           <tbody>
             <tr>
               <td style={{ width: '50%' }}>
-                <strong>Fund Cluster :</strong> <span className="underline-input" style={{ minWidth: '200px' }}>{data.fund_cluster}</span>
+                <strong>Fund Cluster :</strong> <span className="underline-input" style={{ minWidth: '200px' }}>Regular Agency Fund</span>
               </td>
               <td style={{ width: '50%' }}></td>
             </tr>
@@ -149,7 +149,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                 <div style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
                   <div style={{ display: 'flex', width: '65%', alignItems: 'baseline', flexWrap: 'wrap', paddingRight: '8px' }}>
                     <span style={{ marginRight: '4px' }}><strong>For which</strong></span>
-                    <span className="underline-input text-center" style={{ flexGrow: 1, minWidth: '100px' }}>{data.accountable_officer || '\u00A0'.repeat(30)}</span><span style={{ marginRight: '4px' }}>,</span>
+                    <span className="underline-input text-center" style={{ flexGrow: 1, minWidth: '100px' }}>Arsenio Gem A. Garcillanosa</span><span style={{ marginRight: '4px' }}>,</span>
                     <span className="underline-input text-center" style={{ flexGrow: 1, minWidth: '100px' }}>{data.designation || '\u00A0'.repeat(25)}</span><span style={{ marginRight: '4px' }}>,</span>
                     <span className="underline-input text-center" style={{ flexGrow: 1, minWidth: '150px' }}>{data.entity_name || '\u00A0'.repeat(30)}</span>
                   </div>
