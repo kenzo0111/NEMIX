@@ -38,6 +38,7 @@ Route::get('/dashboard', function () {
                 'status' => $trail->status,
                 'badge' => $badge,
                 'time' => $trail->created_at->diffForHumans(),
+                'timestamp' => $trail->created_at->format('M d, Y • h:i A'),
             ];
         })
         : [];

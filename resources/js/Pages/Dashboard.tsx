@@ -48,7 +48,7 @@ export default function Dashboard({
     stats?: { totalInventoryValue: string; totalRisIssued: number; itemsIssuedMtd: number; unserviceable: number; criticalAlerts: number; activeInventoryItems?: number; };
     chartData?: { monthly: MovementInputPoint[]; yearly: MovementInputPoint[]; custom?: MovementInputPoint[]; };
     lowStockAlerts?: Array<{ name: string; sku: string; current: number; min: number; unit: string; priority: string; }>;
-    auditLogs?: Array<{ user: string; role: string; action: string; details: string; id: string; status: string; time: string; badge: string; }>;
+    auditLogs?: Array<{ user: string; role: string; action: string; details: string; id: string; status: string; time: string; timestamp?: string; badge: string; }>;
     roles?: Array<{ value: string; label: string; }>;
     filters?: { chartFilter?: string; customStartDate?: string; customEndDate?: string; };
 }) {
@@ -265,6 +265,21 @@ export default function Dashboard({
             },
         },
     }), []);
+
+    const getAuditStatusClass = (status: string) => {
+        switch (status) {
+            case 'Verified':
+                return 'bg-green-50 text-green-700 ring-1 ring-green-600/20';
+            case 'Logged':
+                return 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20';
+            case 'Flagged':
+                return 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20';
+            case 'In Progress':
+                return 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20';
+            default:
+                return 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/20';
+        }
+    };
 
     const getProgressWidthClass = (current: number, min: number) => {
         if (min <= 0) return 'w-0';
@@ -529,7 +544,6 @@ export default function Dashboard({
                                     <tr className="border-b border-gray-100 bg-gray-50/50">
                                         <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Authorized User</th>
                                         <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Action Performed</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Resource Ref</th>
                                         <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Audit Status</th>
                                         <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Timestamp</th>
                                     </tr>
@@ -554,21 +568,16 @@ export default function Dashboard({
                                                 <div className="text-xs text-gray-500">{row.details}</div>
                                             </td>
                                             <td className="px-8 py-5 whitespace-nowrap">
-                                                <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700">
-                                                    {row.id}
+                                                <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold ${getAuditStatusClass(row.status)}`}>
+                                                    {row.status || 'Unknown'}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-5 whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold ${row.badge}`}>
-                                                    {row.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-400 font-semibold">{row.time}</td>
+                                            <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-400 font-semibold">{row.timestamp || row.time}</td>
                                         </tr>
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={5} className="px-8 py-20 text-center">
+                                            <td colSpan={4} className="px-8 py-20 text-center">
                                                 <p className="text-gray-500 font-medium">No activity logs match your filter.</p>
                                             </td>
                                         </tr>

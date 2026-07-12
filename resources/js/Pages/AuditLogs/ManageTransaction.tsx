@@ -34,36 +34,10 @@ const parseAuditTimestamp = (timestamp?: string | null) => {
     return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
-const formatRelativeTime = (timestamp: string | null | undefined, now: Date) => {
+const formatAuditTimestamp = (timestamp: string | null | undefined) => {
     const date = parseAuditTimestamp(timestamp);
     if (!date) {
         return timestamp || 'Unknown time';
-    }
-
-    const diffSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    const absSeconds = Math.abs(diffSeconds);
-
-    if (absSeconds < 10) {
-        return 'Just now';
-    }
-
-    if (absSeconds < 60) {
-        return `${absSeconds} sec${absSeconds === 1 ? '' : 's'} ago`;
-    }
-
-    const diffMinutes = Math.floor(absSeconds / 60);
-    if (diffMinutes < 60) {
-        return `${diffMinutes} min${diffMinutes === 1 ? '' : 's'} ago`;
-    }
-
-    const diffHours = Math.floor(absSeconds / 3600);
-    if (diffHours < 24) {
-        return `${diffHours} hr${diffHours === 1 ? '' : 's'} ago`;
-    }
-
-    const diffDays = Math.floor(absSeconds / 86400);
-    if (diffDays < 7) {
-        return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
     }
 
     return date.toLocaleString('en-US', {
@@ -86,13 +60,6 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
     const [selectedAction, setSelectedAction] = useState<{ value: string; label: string } | null>(null);
 
     const modules = getSidebarModules('Audit Logs', 'Manage Transaction');
-
-    const [now, setNow] = useState(new Date());
-
-    useEffect(() => {
-        const interval = window.setInterval(() => setNow(new Date()), 1000);
-        return () => window.clearInterval(interval);
-    }, []);
 
     // Raw Data coming from props
     const rawLogs = logs || [];
@@ -256,7 +223,6 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
                                         <tr className="border-b border-gray-100 bg-gray-50/50">
                                             <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Authorized User</th>
                                             <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Action Performed</th>
-                                            <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Resource Ref</th>
                                             <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Audit Status</th>
                                             <th className="px-8 py-4 text-xs font-bold tracking-widest text-left text-gray-500 uppercase">Timestamp</th>
                                         </tr>
@@ -282,20 +248,15 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
                                                     </td>
                                                     <td className="px-8 py-5 whitespace-nowrap">
                                                         <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 text-gray-700">
-                                                            {trx.id}
+                                                            {trx.status || 'Unknown'}
                                                         </span>
                                                     </td>
-                                                    <td className="px-8 py-5 whitespace-nowrap">
-                                                        <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold ${trx.badge}`}>
-                                                            {trx.status}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-400 font-semibold">{formatRelativeTime(trx.time, now)}</td>
+                                                    <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-400 font-semibold">{formatAuditTimestamp(trx.time)}</td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={5} className="px-8 py-20 text-center">
+                                                <td colSpan={4} className="px-8 py-20 text-center">
                                                     <div className="flex flex-col items-center gap-2">
                                                         <Search size={40} className="text-gray-200" />
                                                         <p className="text-gray-500 font-medium">No transactions match your filters.</p>
