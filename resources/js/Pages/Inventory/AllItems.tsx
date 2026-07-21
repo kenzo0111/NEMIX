@@ -276,7 +276,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
 
     return (
         <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900">
-            <Head title="CNSC Supply Management Inventory" />
+            <Head title="UCN Supply Management Inventory" />
 
             <Sidebar
                 modules={modules}

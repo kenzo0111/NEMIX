@@ -303,7 +303,7 @@ export default function Dashboard({
 
     return (
         <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
-            <Head title="CNSC Supply & Inventory Management Dashboard" />
+            <Head title="UCN Supply & Inventory Management Dashboard" />
 
             <Sidebar
                 modules={modules}

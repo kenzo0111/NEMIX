@@ -35,9 +35,9 @@ class StaffRegistrationInvitation extends Notification
         ], false);
 
         return (new MailMessage)
-            ->subject('Invitation: CNSC SPMO System Access')
+            ->subject('Invitation: UCN SPMO System Access')
             ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('You have been invited to access the newly established CNSC Supply and Property Management Office system.')
+            ->line('You have been invited to access the newly established UCN Supply and Property Management Office system.')
             ->line('Please complete your registration using the link below.')
             ->action('Register Account', $registrationUrl)
             ->line('For security purposes, this registration link will expire in 60 minutes.')

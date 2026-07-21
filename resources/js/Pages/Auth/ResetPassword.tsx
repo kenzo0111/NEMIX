@@ -62,7 +62,7 @@ export default function ResetPassword({
                     <div className="mb-8 text-center">
                         <div className="inline-flex justify-center mb-4">
                             <div className="bg-white p-2 rounded-full shadow-lg border border-yellow-500/30">
-                                <img src="/images/cnscrefine.png" alt="CNSC Logo" className="h-12 w-12 object-contain" />
+                                <img src="/images/cnscrefine.png" alt="UCN Logo" className="h-12 w-12 object-contain" />
                             </div>
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 font-serif">Create New Password</h2>

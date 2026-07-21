@@ -71,7 +71,7 @@ export default function Register({
                         <div className="relative z-10 text-center lg:text-left space-y-4">
                             <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4">
                                 <div className="bg-white p-2 rounded-full shadow-lg border border-yellow-500/30">
-                                    <img src="/images/cnscrefine.png" alt="CNSC Logo" className="h-16 w-16 object-contain" />
+                                    <img src="/images/cnscrefine.png" alt="UCN Logo" className="h-16 w-16 object-contain" />
                                 </div>
                                 <div className="text-center lg:text-left">
                                     <p className="font-serif text-yellow-400 uppercase tracking-widest text-xs mb-1 font-semibold">Republic of the Philippines</p>
@@ -158,7 +158,7 @@ export default function Register({
                                         autoComplete="username"
                                         onChange={(e) => setData('email', e.target.value)}
                                         required
-                                        placeholder="juandelacruz@cnsc.edu.ph"
+                                        placeholder="juandelacruz@ucn.edu.ph"
                                         readOnly={isInvitation}
                                         disabled={isInvitation}
                                     />
@@ -222,7 +222,7 @@ export default function Register({
                              {/* Footer */}
                              <div className="mt-8 pt-6 border-t border-gray-100 text-center">
                                 <p className="text-xs text-gray-400">
-                                    By registering, you agree to the CNSC Data Privacy Policy.
+                                    By registering, you agree to the UCN Data Privacy Policy.
                                 </p>
                             </div>
                         </div>

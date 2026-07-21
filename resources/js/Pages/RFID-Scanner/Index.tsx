@@ -67,9 +67,9 @@ export default function Index({ auth }: { auth: any }) {
     };
 
     return (
-        // CNSC Background: Warm gray/cream to be easy on the eyes
+        // UCN Background: Warm gray/cream to be easy on the eyes
         <div className="min-h-screen bg-[#FDFCFB] flex font-sans text-slate-800 relative">
-            <Head title="RFID Scanner | CNSC" />
+            <Head title="RFID Scanner | UCN" />
 
             {/* Locked Feature Modal */}
             {showModal && (
@@ -112,7 +112,7 @@ export default function Index({ auth }: { auth: any }) {
             />
 
             <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
-                {/* Header with CNSC Maroon Border Accent */}
+                {/* Header with UCN Maroon Border Accent */}
                 <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b-4 border-[#800000] px-8 py-6 flex items-center justify-between shadow-sm">
                     <div>
                         <div className="mb-1">

@@ -66,7 +66,7 @@ export default function Login({
                         <div className="relative z-10 text-center lg:text-left space-y-4">
                             <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4">
                                 <div className="bg-white p-2 rounded-full shadow-lg border-2 border-yellow-500/50">
-                                    <img src="/images/cnscrefine.png" alt="CNSC Logo" className="h-16 w-16" />
+                                    <img src="/images/cnscrefine.png" alt="UCN Logo" className="h-16 w-16" />
                                 </div>
                                 <div className="text-center lg:text-left">
                                     <p className="font-serif text-yellow-400 uppercase tracking-widest text-xs mb-1 font-semibold">Republic of the Philippines</p>
@@ -87,7 +87,7 @@ export default function Login({
                                     RFID Integration Tracking and Automated Reporting
                                 </p>
                                 <div className="inline-block bg-white/10 backdrop-blur-sm border border-yellow-500/30 px-3 py-1 rounded text-xs uppercase tracking-wider text-yellow-100 font-semibold shadow-sm">
-                                    For Government Compliance
+                                    For Enhance inventory Control and Asset Management
                                 </div>
                             </div>
                         </div>
@@ -98,7 +98,7 @@ export default function Login({
                             <p className="font-bold text-lg uppercase tracking-wide text-white mt-1 text-shadow-sm">
                                 Supply and Property Management Office
                             </p>
-                            <p className="text-xs text-white/40 mt-4 font-mono">System Ref: CNSC-SPMO-2025</p>
+                            <p className="text-xs text-white/40 mt-4 font-mono">System Ref: UCN-SPMO-2025</p>
                         </div>
                     </div>
 
@@ -135,7 +135,7 @@ export default function Login({
                                         autoComplete="username"
                                         isFocused={true}
                                         onChange={(e) => setData('email', e.target.value)}
-                                        placeholder="juandelacruz@cnsc.edu.ph"
+                                        placeholder="juandelacruz@ucn.edu.ph"
                                     />
                                     <InputError message={errors.email} className="mt-2" />
                                 </div>

@@ -64,12 +64,12 @@ export default function Sidebar({
             {/* Branding Section */}
             <div className={`p-6 flex items-center border-b border-red-800/50 relative z-10 transition-all h-[88px] ${collapsed ? 'justify-center' : 'justify-start gap-4'}`}>
                 <div className="bg-white p-1.5 rounded-full shadow-lg border-2 border-yellow-500 shrink-0">
-                    <img src="/images/cnscrefine.png" className="w-8 h-8" alt="CNSC Logo" />
+                    <img src="/images/cnscrefine.png" className="w-8 h-8" alt="UCN Logo" />
                 </div>
 
                 {!collapsed && (
                     <div className="overflow-hidden whitespace-nowrap">
-                        <h1 className="font-bold tracking-wider text-base">CNSC SPMO</h1>
+                        <h1 className="font-bold tracking-wider text-base">UCN SPMO</h1>
                         <p className="text-[10px] text-yellow-400 uppercase tracking-widest leading-none">Supply Management</p>
                     </div>
                 )}
@@ -183,7 +183,7 @@ export default function Sidebar({
                     {!collapsed && (
                         <div className="flex-1 min-w-0 overflow-hidden">
                             <p className="text-sm font-medium text-white truncate">{user?.name || 'Admin User'}</p>
-                            <p className="text-[10px] text-red-300 truncate opacity-80">{user?.email || 'admin@cnsc.edu.ph'}</p>
+                            <p className="text-[10px] text-red-300 truncate opacity-80">{user?.email || 'admin@ucn.edu.ph'}</p>
                         </div>
                     )}
                 </div>

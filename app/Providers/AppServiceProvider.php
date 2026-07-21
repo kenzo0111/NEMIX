@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        app(Markdown::class)->theme('cnsc');
+        app(Markdown::class)->theme('ucn');
 
         ResetPassword::toMailUsing(function (object $notifiable, string $token): MailMessage {
             $resetUrl = url(route('password.reset', [
