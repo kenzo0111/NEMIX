@@ -1,8 +1,10 @@
 import Sidebar from '@/Components/Sidebar';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import { Head, router, usePage } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Select from 'react-select';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import RSMIFormPaper from '../../../Official Forms/RSMI Report';
 import RPCIFormPaper from '../../../Official Forms/RPCI Report';
@@ -90,6 +92,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [modalMode, setModalMode] = useState<'create' | 'view'>('create');
     const [selectedId, setSelectedId] = useState<number | null>(null);
+    const reportContentRef = useRef<HTMLDivElement | null>(null);
 
     // Dialog state for user actions
     const [actionDialog, setActionDialog] = useState<{
@@ -348,10 +351,53 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             router.post(route('compliance.reports.store'), payload, requestOptions);
             return;
         }
+    };
 
-        if (selectedId) {
-            router.put(route('compliance.reports.update', selectedId), payload, requestOptions);
+    const handleDownload = async () => {
+        const reportElement = reportContentRef.current;
+        if (!reportElement) {
+            setActionDialog({
+                show: true,
+                type: 'error',
+                title: 'Download Failed',
+                message: 'The report preview is not ready for export yet.'
+            });
+            return;
         }
+
+        const payload = buildReportPayload();
+        const safeName = [payload.type, payload.reference, payload.title]
+            .filter(Boolean)
+            .join('_')
+            .replace(/[^a-z0-9_-]+/gi, '_')
+            .replace(/_+/g, '_')
+            .replace(/^_|_$/g, '');
+        const fileName = `${safeName || 'compliance_report'}.pdf`;
+        const doc = new jsPDF({ orientation: formData.type === 'RPCI' ? 'l' : 'p', unit: 'pt', format: 'a4' });
+        const canvas = await html2canvas(reportElement, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            logging: false,
+            windowWidth: reportElement.scrollWidth,
+            windowHeight: reportElement.scrollHeight,
+        });
+
+        const imageData = canvas.toDataURL('image/png');
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 24;
+        const availableWidth = pageWidth - margin * 2;
+        const availableHeight = pageHeight - margin * 2;
+        const scale = Math.min(availableWidth / canvas.width, availableHeight / canvas.height);
+        const imageWidth = canvas.width * scale;
+        const imageHeight = canvas.height * scale;
+        const x = (pageWidth - imageWidth) / 2;
+        const y = (pageHeight - imageHeight) / 2;
+
+        doc.addImage(imageData, 'PNG', x, y, imageWidth, imageHeight, undefined, 'FAST');
+
+        doc.save(fileName);
     };
 
     const handleView = (report: any) => {
@@ -537,24 +583,35 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                             </button>
                         )}
                         
-                        <button
-                            onClick={handleCreateReport}
-                            disabled={isSubmitting || !formData.title || !formData.type || !formData.reference}
-                            className="px-6 py-2 bg-gradient-to-r from-red-800 to-red-900 text-white font-bold rounded-lg hover:from-red-900 hover:to-red-950 transition-all shadow-lg disabled:opacity-70 flex items-center"
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                    Processing...
-                                </>
-                            ) : (modalMode === 'create' ? 'Generate Document' : 'Update Record')}
-                        </button>
+                        {modalMode === 'create' ? (
+                            <button
+                                onClick={handleCreateReport}
+                                disabled={isSubmitting || !formData.title || !formData.type || !formData.reference}
+                                className="px-6 py-2 bg-gradient-to-r from-red-800 to-red-900 text-white font-bold rounded-lg hover:from-red-900 hover:to-red-950 transition-all shadow-lg disabled:opacity-70 flex items-center"
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        Processing...
+                                    </>
+                                ) : 'Generate Document'}
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleDownload}
+                                type="button"
+                                className="px-6 py-2 bg-gradient-to-r from-red-800 to-red-900 text-white font-bold rounded-lg hover:from-red-900 hover:to-red-950 transition-all shadow-lg flex items-center gap-2"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v10m0 0l4-4m-4 4l-4-4m-5 8v2a2 2 0 002 2h12a2 2 0 002-2v-2"></path></svg>
+                                Download
+                            </button>
+                        )}
                     </>
                 }
             >
                 <div className="flex flex-col gap-6 print:gap-0 print:overflow-hidden print-single-page print-zoom-fit">
                     {modalMode === 'view' && formData.type === 'RSMI' && (
-                        <div className="bg-gray-100 p-6 rounded-xl border border-gray-200 print:bg-white print:p-0 print:border-none print-single-page">
+                        <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 print:bg-white print:p-0 print:border-none print-single-page">
                             {(() => {
                                 const filteredIssuances = getFilteredIssuances();
                                 
@@ -598,7 +655,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         </div>
                     )}
                     {modalMode === 'view' && formData.type === 'RPCI' && (
-                        <div className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
+                        <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
                             <div className="min-w-[1100px] mx-auto print:min-w-[1100px]">
                                 {(() => {
                                     if (filteredSupplierItems.length === 0) {
@@ -639,7 +696,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         </div>
                     )}
                     {modalMode === 'view' && formData.type === 'STOCK_CARD' && (
-                        <div className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
+                        <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
                             <div className="min-w-[800px] mx-auto print:min-w-full">
                                 {formData.itemName ? (
                                     <StockCardFormPaper data={{
