@@ -1,14 +1,33 @@
 import Sidebar from '@/Components/Sidebar';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import { Head, router, usePage } from '@inertiajs/react';
-import { useState, useEffect, useRef } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import Select from 'react-select';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import RSMIFormPaper from '../../../Official Forms/RSMI Report';
-import RPCIFormPaper from '../../../Official Forms/RPCI Report';
-import { StockCard as StockCardFormPaper } from '../../../Official Forms/Stock Card Report';
+
+const RSMIFormPaper = lazy(() =>
+    import('../../../Official Forms/RSMI Report').then((module) => ({
+        default: module.RSMIFormPaper,
+    })),
+);
+
+const RPCIFormPaper = lazy(() =>
+    import('../../../Official Forms/RPCI Report').then((module) => ({
+        default: module.ReportPhysicalCount,
+    })),
+);
+
+const StockCardFormPaper = lazy(() =>
+    import('../../../Official Forms/Stock Card Report').then((module) => ({
+        default: module.StockCard,
+    })),
+);
+
+const reportTemplateFallback = (
+    <div className="flex items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white/80 p-12 text-sm font-medium text-gray-500 print:hidden">
+        Loading report template...
+    </div>
+);
 
 // --- REUSABLE UI COMPONENTS ---
 const ReportModal = ({ show, onClose, title, children, footer, isSubmitting, isLandscape, collapsed }: any) => {
@@ -373,6 +392,11 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             .replace(/_+/g, '_')
             .replace(/^_|_$/g, '');
         const fileName = `${safeName || 'compliance_report'}.pdf`;
+        const [{ jsPDF }, html2canvasModule] = await Promise.all([
+            import('jspdf'),
+            import('html2canvas'),
+        ]);
+        const html2canvas = html2canvasModule.default;
         const doc = new jsPDF({ orientation: formData.type === 'RPCI' ? 'l' : 'p', unit: 'pt', format: 'a4' });
         const canvas = await html2canvas(reportElement, {
             scale: 2,
@@ -639,17 +663,19 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 }));
 
                                 return (
-                                    <RSMIFormPaper data={{
-                                        entityName: 'University of Camarines Norte',
-                                        serialNo: formData.reference,
-                                        fundCluster: 'General Fund',
-                                        date: generateDisplayDate(formData),
-                                        issuedItems: issuedItems,
-                                        recapitulationItems: recaps,
-                                        supplyCustodianName: user?.name || 'Supply Officer',
-                                        accountingStaffName: 'Accounting Staff',
-                                        accountingDate: generateDisplayDate(formData),
-                                    }} />
+                                    <Suspense fallback={reportTemplateFallback}>
+                                        <RSMIFormPaper data={{
+                                            entityName: 'University of Camarines Norte',
+                                            serialNo: formData.reference,
+                                            fundCluster: 'General Fund',
+                                            date: generateDisplayDate(formData),
+                                            issuedItems: issuedItems,
+                                            recapitulationItems: recaps,
+                                            supplyCustodianName: user?.name || 'Supply Officer',
+                                            accountingStaffName: 'Accounting Staff',
+                                            accountingDate: generateDisplayDate(formData),
+                                        }} />
+                                    </Suspense>
                                 );
                             })()}
                         </div>
@@ -681,15 +707,17 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     }));
 
                                     return (
-                                        <RPCIFormPaper data={{
-                                            entity_name: 'University of Camarines Norte',
-                                            as_at_date: generateDisplayDate(formData),
-                                            fund_cluster: 'General Fund',
-                                            inventory_type: formData.title,
-                                            accountable_officer: 'Jane Doe',
-                                            designation: 'Supply Officer',
-                                            items: rpciItems,
-                                        }} />
+                                        <Suspense fallback={reportTemplateFallback}>
+                                            <RPCIFormPaper data={{
+                                                entity_name: 'University of Camarines Norte',
+                                                as_at_date: generateDisplayDate(formData),
+                                                fund_cluster: 'General Fund',
+                                                inventory_type: formData.title,
+                                                accountable_officer: 'Jane Doe',
+                                                designation: 'Supply Officer',
+                                                items: rpciItems,
+                                            }} />
+                                        </Suspense>
                                     );
                                 })()}
                             </div>
@@ -698,18 +726,20 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                     {modalMode === 'view' && formData.type === 'STOCK_CARD' && (
                         <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
                             <div className="min-w-[800px] mx-auto print:min-w-full">
-                                {formData.itemName ? (
-                                    <StockCardFormPaper data={{
-                                        entity_name: 'University of Camarines Norte',
-                                        fund_cluster: 'General Fund',
-                                        item: formData.itemName || formData.title,
-                                        stock_no: selectedStockCardItem?.sku || formData.reference,
-                                        description: selectedStockCardItem?.description || selectedStockCardItem?.name || formData.itemName || formData.title,
-                                        re_order_point: '-',
-                                        unit_of_measurement: selectedStockCardItem?.unit_of_issue || selectedStockCardItem?.unit_measure || 'Pieces',
-                                        entries: stockCardEntries
-                                    }} />
-                                ) : (
+                                    {formData.itemName ? (
+                                        <Suspense fallback={reportTemplateFallback}>
+                                            <StockCardFormPaper data={{
+                                                entity_name: 'University of Camarines Norte',
+                                                fund_cluster: 'General Fund',
+                                                item: formData.itemName || formData.title,
+                                                stock_no: selectedStockCardItem?.sku || formData.reference,
+                                                description: selectedStockCardItem?.description || selectedStockCardItem?.name || formData.itemName || formData.title,
+                                                re_order_point: '-',
+                                                unit_of_measurement: selectedStockCardItem?.unit_of_issue || selectedStockCardItem?.unit_measure || 'Pieces',
+                                                entries: stockCardEntries
+                                            }} />
+                                        </Suspense>
+                                    ) : (
                                     <div className="py-20 text-center text-gray-600">
                                         <p className="text-lg font-semibold text-gray-800">Select an item to preview a live stock card.</p>
                                         <p className="text-sm text-gray-500 mt-2">The stock card will generate entries from issued item records once an item is chosen.</p>
@@ -926,44 +956,50 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             
                                             {report.type === 'RSMI' && (
                                                 <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
-                                                    <RSMIFormPaper data={{
-                                                        entityName: 'University of Camarines Norte',
-                                                        serialNo: report.reference,
-                                                        fundCluster: 'GF',
-                                                        date: report.date || '',
-                                                        issuedItems: [
-                                                            { risNo: '1', responsibilityCenterCode: '-', stockNo: '1', itemDescription: 'Sample', unit: 'pc', quantityIssued: 1, unitCost: 100, amount: 100 }
-                                                        ], 
-                                                        recapitulationItems: [
-                                                            { stockNo: '1', quantity: 1, unitCost: '', totalCost: '', uacsObjectCode: '' }
-                                                        ],
-                                                        supplyCustodianName: '', accountingStaffName: '', accountingDate: ''
-                                                    }} />
+                                                    <Suspense fallback={reportTemplateFallback}>
+                                                        <RSMIFormPaper data={{
+                                                            entityName: 'University of Camarines Norte',
+                                                            serialNo: report.reference,
+                                                            fundCluster: 'GF',
+                                                            date: report.date || '',
+                                                            issuedItems: [
+                                                                { risNo: '1', responsibilityCenterCode: '-', stockNo: '1', itemDescription: 'Sample', unit: 'pc', quantityIssued: 1, unitCost: 100, amount: 100 }
+                                                            ], 
+                                                            recapitulationItems: [
+                                                                { stockNo: '1', quantity: 1, unitCost: '', totalCost: '', uacsObjectCode: '' }
+                                                            ],
+                                                            supplyCustodianName: '', accountingStaffName: '', accountingDate: ''
+                                                        }} />
+                                                    </Suspense>
                                                 </div>
                                             )}
                                             
                                             {report.type === 'RPCI' && (
                                                 <div className="absolute top-0 right-0 w-44 h-32 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
-                                                    <RPCIFormPaper data={{
-                                                        entity_name: 'University of Camarines Norte',
-                                                        as_at_date: report.date || '',
-                                                        fund_cluster: 'GF',
-                                                        inventory_type: report.title,
-                                                        items: [
-                                                            { article: 'Sample', description: '-', stock_no: '1', unit: 'pc', unit_value: 100, balance_per_card: 10, on_hand_count: 10, shortage_qty: '', shortage_value: '', remarks: '' }
-                                                        ]
-                                                    }} />
+                                                    <Suspense fallback={reportTemplateFallback}>
+                                                        <RPCIFormPaper data={{
+                                                            entity_name: 'University of Camarines Norte',
+                                                            as_at_date: report.date || '',
+                                                            fund_cluster: 'GF',
+                                                            inventory_type: report.title,
+                                                            items: [
+                                                                { article: 'Sample', description: '-', stock_no: '1', unit: 'pc', unit_value: 100, balance_per_card: 10, on_hand_count: 10, shortage_qty: '', shortage_value: '', remarks: '' }
+                                                            ]
+                                                        }} />
+                                                    </Suspense>
                                                 </div>
                                             )}
 
                                             {report.type === 'STOCK_CARD' && (
                                                 <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
-                                                    <StockCardFormPaper data={{
-                                                        entity_name: 'University of Camarines Norte',
-                                                        item: report.itemName || report.title,
-                                                        stock_no: items.find((item: any) => item.name === report.itemName)?.sku || report.reference,
-                                                        entries: []
-                                                    }} />
+                                                    <Suspense fallback={reportTemplateFallback}>
+                                                        <StockCardFormPaper data={{
+                                                            entity_name: 'University of Camarines Norte',
+                                                            item: report.itemName || report.title,
+                                                            stock_no: items.find((item: any) => item.name === report.itemName)?.sku || report.reference,
+                                                            entries: []
+                                                        }} />
+                                                    </Suspense>
                                                 </div>
                                             )}
 

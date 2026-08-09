@@ -113,6 +113,103 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
         { value: '07', label: '07 - Trust Receipts' }
     ];
 
+    const divisionOptions = [
+        {
+            label: 'University Offices and Services',
+            options: [
+                { value: 'Admission Office', label: 'Admission Office' },
+                { value: 'Center for Equity, Inclusivity and Diversity (CEID)', label: 'Center for Equity, Inclusivity and Diversity (CEID)' },
+                { value: 'Culture and Performing Arts Unit (CPAU)', label: 'Culture and Performing Arts Unit (CPAU)' },
+                { value: 'Electronic Counseling Services (E-Counseling)', label: 'Electronic Counseling Services (E-Counseling)' },
+                { value: 'Extension Services Division (ESD)', label: 'Extension Services Division (ESD)' },
+                { value: 'Fabrication and Manufacturing Research Center (FMRC)', label: 'Fabrication and Manufacturing Research Center (FMRC)' },
+                { value: 'General Services Office (GSO)', label: 'General Services Office (GSO)' },
+                { value: 'Guidance and Counseling Office', label: 'Guidance and Counseling Office' },
+                { value: 'Information Technology Services Office (ITSO)', label: 'Information Technology Services Office (ITSO)' },
+                { value: 'Integrated Sustainability and Resilience Office (ISRO)', label: 'Integrated Sustainability and Resilience Office (ISRO)' },
+                { value: 'Legal Affairs Office (LAO)', label: 'Legal Affairs Office (LAO)' },
+                { value: 'Library', label: 'Library' },
+                { value: 'Medical and Dental Services', label: 'Medical and Dental Services' },
+                { value: 'Office of the President (OP)', label: 'Office of the President (OP)' },
+                { value: 'Office of Student Services and Development (OSSD)', label: 'Office of Student Services and Development (OSSD)' },
+                { value: 'Office of the Vice President for Academic Affairs (OVPAA)', label: 'Office of the Vice President for Academic Affairs (OVPAA)' },
+                { value: 'Public Information and Community Relations Office (PICRO)', label: 'Public Information and Community Relations Office (PICRO)' },
+                { value: 'Quality Assurance Office (QAO)', label: 'Quality Assurance Office (QAO)' },
+                { value: "Registrar's Office", label: "Registrar's Office" },
+                { value: 'Research Services Division (RSD)', label: 'Research Services Division (RSD)' },
+                { value: 'Sentro ng Wika at Kultura', label: 'Sentro ng Wika at Kultura' },
+                { value: 'Sports and Development Office', label: 'Sports and Development Office' },
+                { value: 'Student Financial Assistance Unit (SFAU)', label: 'Student Financial Assistance Unit (SFAU)' },
+                { value: 'Testing and Evaluation', label: 'Testing and Evaluation' },
+            ],
+        },
+        {
+            label: 'Colleges / Academic Institutions',
+            options: [
+                { value: 'College of Arts and Sciences (CAS) - Main Campus', label: 'College of Arts and Sciences (CAS) - Main Campus' },
+                { value: 'College of Business and Public Administration (CBPA) - Main Campus', label: 'College of Business and Public Administration (CBPA) - Main Campus' },
+                { value: 'College of Engineering - Main Campus', label: 'College of Engineering - Main Campus' },
+                { value: 'Graduate School (GS) - Main Campus', label: 'Graduate School (GS) - Main Campus' },
+                { value: 'College of Computing and Multimedia Studies (CCMS) - Main Campus', label: 'College of Computing and Multimedia Studies (CCMS) - Main Campus' },
+                { value: 'College of Education (CoEd) - Abaño Campus', label: 'College of Education (CoEd) - Abaño Campus' },
+                { value: 'College of Fisheries, Aquatic Sciences, & Technology (CFAST) - Mercedes Campus', label: 'College of Fisheries, Aquatic Sciences, & Technology (CFAST) - Mercedes Campus' },
+                { value: 'College of Agriculture and Natural Resources (CANR) - Labo Campus', label: 'College of Agriculture and Natural Resources (CANR) - Labo Campus' },
+                { value: 'College of Trades and Technology (CoTT) - Jose Panganiban Campus', label: 'College of Trades and Technology (CoTT) - Jose Panganiban Campus' },
+            ],
+        },
+    ];
+
+    const selectedDivisionOption = useMemo(() => {
+        for (const group of divisionOptions) {
+            const found = group.options.find((option) => option.value === department);
+            if (found) {
+                return found;
+            }
+        }
+        return null;
+    }, [department]);
+
+    const divisionSelectStyles = {
+        control: (provided: any, state: any) => ({
+            ...provided,
+            borderRadius: '0.75rem',
+            borderColor: errors.department ? '#fca5a5' : state.isFocused ? '#f97316' : '#d1d5db',
+            boxShadow: state.isFocused ? '0 0 0 2px rgba(249, 115, 22, 0.2)' : 'none',
+            '&:hover': { borderColor: '#f97316' },
+            minHeight: '42px',
+            fontSize: '0.875rem',
+        }),
+        option: (provided: any, state: any) => ({
+            ...provided,
+            backgroundColor: state.isSelected ? '#9a3412' : state.isFocused ? '#fed7aa' : '#ffffff',
+            color: state.isSelected ? '#ffffff' : '#1f2937',
+            cursor: 'pointer',
+            fontSize: '0.875rem',
+        }),
+        groupHeading: (provided: any) => ({
+            ...provided,
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            color: '#7c2d12',
+            textTransform: 'none',
+            paddingTop: '0.25rem',
+            paddingBottom: '0.25rem',
+        }),
+        menuList: (provided: any) => ({
+            ...provided,
+            maxHeight: '260px',
+            overflowY: 'auto',
+        }),
+        placeholder: (provided: any) => ({
+            ...provided,
+            color: '#9ca3af',
+        }),
+        singleValue: (provided: any) => ({
+            ...provided,
+            color: '#1f2937',
+        }),
+    };
+
     const getFundClusterDisplay = (value: string | null | undefined) => {
         if (!value) {
             return '';
@@ -629,20 +726,17 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="group w-full">
                                     <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Division</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                        </div>
-                                        <input
-                                            type="text"
-                                            value={department}
-                                            onChange={(e) => setDepartment(e.target.value)}
-                                            className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
-                                            focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200
-                                            ${errors.department ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-orange-500'}`}
-                                            placeholder="Enter Division"
-                                        />
-                                    </div>
+                                    <Select
+                                        value={selectedDivisionOption}
+                                        onChange={(selected: any) => setDepartment(selected?.value || '')}
+                                        options={divisionOptions}
+                                        placeholder="Select Division"
+                                        styles={divisionSelectStyles}
+                                        classNamePrefix="react-select"
+                                        isSearchable
+                                        isClearable
+                                        maxMenuHeight={260}
+                                    />
                                     {errors.department && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.department}</p>}
                                 </div>
                                 <div className="group w-full">

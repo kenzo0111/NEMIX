@@ -1,7 +1,7 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import Sidebar from '@/Components/Sidebar';
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { useState, useEffect, useMemo } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
@@ -16,12 +16,6 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
     const [isEditMode, setIsEditMode] = useState(false);
     const [selectedReceiving, setSelectedReceiving] = useState<any>(null);
 
-    // --- DIALOG MODALS STATE ---
-    const [itemToVoid, setItemToVoid] = useState<any>(null);
-    const [showVoidModal, setShowVoidModal] = useState(false);
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [isVoiding, setIsVoiding] = useState(false);
-    
     const [showFormSuccessModal, setShowFormSuccessModal] = useState(false);
     const [showFormErrorModal, setShowFormErrorModal] = useState(false);
     const [formSuccessMessage, setFormSuccessMessage] = useState('');
@@ -88,9 +82,16 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
         resetEdit();
     };
 
-    const handleVoid = (receiving: any) => {
-        setItemToVoid(receiving);
-        setShowVoidModal(true);
+    const handleUpdateAction = (receiving: any) => {
+        setSelectedReceiving(receiving);
+        setEditData({
+            item_id: receiving.item_id || '',
+            supplier_id: receiving.supplier_id || '',
+            quantity: receiving.quantity || '',
+            date_received: receiving.date_received || '',
+        });
+        setIsDetailsModalOpen(true);
+        setIsEditMode(true);
     };
 
     const handleUpdate = (e: React.FormEvent) => {
@@ -316,13 +317,13 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                                         onClick={() => openDetailsModal(receiving)}
                                                         className="text-blue-600 hover:text-blue-900 mr-4 transition-colors"
                                                     >
-                                                        Details
+                                                        View
                                                     </button>
                                                     <button 
-                                                        onClick={() => handleVoid(receiving)}
-                                                        className="text-red-600 hover:text-red-900 transition-colors"
+                                                        onClick={() => handleUpdateAction(receiving)}
+                                                        className="text-green-600 hover:text-green-900 transition-colors"
                                                     >
-                                                        Void
+                                                        Update
                                                     </button>
                                                 </td>
                                             </tr>
@@ -564,14 +565,6 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                {!isEditMode && (
-                                    <button 
-                                        onClick={() => setIsEditMode(true)}
-                                        className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
-                                    >
-                                        Edit
-                                    </button>
-                                )}
                                 <button 
                                     onClick={closeDetailsModal}
                                     className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-colors"
@@ -627,7 +620,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                                 </div>
                                                 {editErrors.item_id && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{editErrors.item_id}</p>}
                                             </div>
-                                            
+
                                             <div className="group w-full">
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Supplier</label>
                                                 <div className="relative">
@@ -670,7 +663,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                                 {editErrors.supplier_id && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{editErrors.supplier_id}</p>}
                                             </div>
                                         </div>
-                                        
+
                                         <div className="space-y-4">
                                             <div className="group w-full">
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Quantity</label>
@@ -691,7 +684,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                                 </div>
                                                 {editErrors.quantity && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{editErrors.quantity}</p>}
                                             </div>
-                                            
+
                                             <div className="group w-full">
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Date Received</label>
                                                 <div className="relative">
@@ -711,191 +704,98 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
                                         <button 
                                             type="button"
-                                            onClick={() => setIsEditMode(false)}
+                                            onClick={() => {
+                                                setIsEditMode(false);
+                                                closeDetailsModal();
+                                            }}
                                             className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-xl font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all duration-200"
                                         >
-                                            Cancel Edit
+                                            Cancel
                                         </button>
                                         <button
                                             type="submit"
                                             disabled={editProcessing}
                                             className="px-6 py-2.5 bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 flex items-center gap-2"
                                         >
-                                            {editProcessing ? (
-                                                <>
-                                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                    </svg>
-                                                    Updating...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                                                    Update Record
-                                                </>
-                                            )}
+                                            {editProcessing ? 'Updating...' : 'Update Record'}
                                         </button>
                                     </div>
                                 </form>
                             ) : (
                                 <div className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-4">
-                                            <div>
-                                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Item</label>
-                                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                                                    <div className="p-2 bg-white rounded-lg border border-gray-200">
-                                                        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-semibold text-gray-900">{selectedReceiving.item}</p>
-                                                        <p className="text-xs text-gray-500">SKU: {selectedReceiving.sku}</p>
-                                                    </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Item</label>
+                                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                                                <div className="p-2 bg-white rounded-lg border border-gray-200">
+                                                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                                                 </div>
-                                            </div>
-                                            
-                                            <div>
-                                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Supplier</label>
-                                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                                                    <div className="p-2 bg-white rounded-lg border border-gray-200">
-                                                        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                                    </div>
-                                                    <p className="font-semibold text-gray-900">{selectedReceiving.supplier}</p>
+                                                <div>
+                                                    <p className="font-semibold text-gray-900">{selectedReceiving.item}</p>
+                                                    <p className="text-xs text-gray-500">SKU: {selectedReceiving.sku}</p>
                                                 </div>
                                             </div>
                                         </div>
                                         
-                                        <div className="space-y-4">
-                                            <div>
-                                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Quantity</label>
-                                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                                                    <div className="p-2 bg-white rounded-lg border border-gray-200">
-                                                        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h16"></path></svg>
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-semibold text-gray-900">{selectedReceiving.quantity} pcs</p>
-                                                        <p className="text-xs text-green-600 font-medium">+{selectedReceiving.quantity} added to inventory</p>
-                                                    </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Supplier</label>
+                                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                                                <div className="p-2 bg-white rounded-lg border border-gray-200">
+                                                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                                                 </div>
-                                            </div>
-                                            
-                                            <div>
-                                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Date Received</label>
-                                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                                                    <div className="p-2 bg-white rounded-lg border border-gray-200">
-                                                        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                                    </div>
-                                                    <p className="font-semibold text-gray-900">{selectedReceiving.date}</p>
-                                                </div>
+                                                <p className="font-semibold text-gray-900">{selectedReceiving.supplier}</p>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <div className="pt-4 border-t border-gray-100">
-                                        <div className="flex items-center justify-between">
-                                            <div className="text-xs text-gray-500">
-                                                Created: {new Date().toLocaleDateString()} • ID: #{selectedReceiving.id}
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Quantity</label>
+                                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                                                <div className="p-2 bg-white rounded-lg border border-gray-200">
+                                                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h16"></path></svg>
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-gray-900">{selectedReceiving.quantity} pcs</p>
+                                                    <p className="text-xs text-green-600 font-medium">+{selectedReceiving.quantity} added to inventory</p>
+                                                </div>
                                             </div>
-                                            <div className="flex gap-3">
-                                                <button 
-                                                    onClick={closeDetailsModal}
-                                                    className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-xl font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all duration-200"
-                                                >
-                                                    Close
-                                                </button>
-                                                <button 
-                                                    onClick={() => setIsEditMode(true)}
-                                                    className="px-4 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
-                                                >
-                                                    Update Record
-                                                </button>
+                                        </div>
+                                        
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Date Received</label>
+                                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                                                <div className="p-2 bg-white rounded-lg border border-gray-200">
+                                                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                </div>
+                                                <p className="font-semibold text-gray-900">{selectedReceiving.date}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                
+                                <div className="pt-4 border-t border-gray-100">
+                                    <div className="flex items-center justify-between">
+                                        <div className="text-xs text-gray-500">
+                                            Created: {new Date().toLocaleDateString()} • ID: #{selectedReceiving.id}
+                                        </div>
+                                        <div className="flex gap-3">
+                                            <button 
+                                                onClick={closeDetailsModal}
+                                                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-xl font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all duration-200"
+                                            >
+                                                Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* VOID CONFIRMATION MODAL */}
-            {showVoidModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
-                    <div 
-                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
-                        onClick={() => !isVoiding && setShowVoidModal(false)}
-                    ></div>
-                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-red-100">
-                        <div className="h-2 w-full bg-gradient-to-r from-red-600 to-red-800"></div>
-                        <div className="p-6 text-center">
-                            <svg className="mx-auto mb-4 text-red-500 w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                            <h3 className="mb-5 text-lg font-bold text-gray-900">Are you sure you want to void <br/><span className="text-red-600 border-b border-red-200">Record #{itemToVoid?.id}</span>?</h3>
-                            <p className="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
-                            <div className="flex justify-center gap-4">
-                                <button
-                                    onClick={() => setShowVoidModal(false)}
-                                    disabled={isVoiding}
-                                    className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none transition-all disabled:opacity-50"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        if (itemToVoid) {
-                                            setIsVoiding(true);
-                                            router.delete(route('inventory.receiving.destroy', itemToVoid.id), {
-                                                onSuccess: () => {
-                                                    setIsVoiding(false);
-                                                    setShowVoidModal(false);
-                                                    setShowSuccessModal(true);
-                                                    setItemToVoid(null);
-                                                },
-                                                onError: () => {
-                                                    setIsVoiding(false);
-                                                    setShowVoidModal(false);
-                                                    setShowFormErrorModal(true);
-                                                }
-                                            });
-                                        }
-                                    }}
-                                    disabled={isVoiding}
-                                    className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 shadow-md focus:outline-none transition-all disabled:opacity-50"
-                                >
-                                    {isVoiding ? 'Voiding...' : 'Yes, Void'}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* VOID SUCCESS MODAL */}
-            {showSuccessModal && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
-                    <div 
-                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
-                        onClick={() => setShowSuccessModal(false)}
-                    ></div>
-                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-green-100 text-center animate-fade-in-up">
-                        <div className="h-2 w-full bg-gradient-to-r from-green-500 to-green-600"></div>
-                        <div className="p-8">
-                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
-                                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Record Voided!</h3>
-                            <p className="text-sm text-gray-500 mb-8">The receiving record has been successfully voided.</p>
-                            <button
-                                onClick={() => setShowSuccessModal(false)}
-                                className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 shadow-md focus:outline-none transition-all"
-                            >
-                                Close
-                            </button>
                         </div>
                     </div>
                 </div>
