@@ -146,6 +146,11 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
         return supplierItemValues[supplierId] || 0;
     };
 
+    const capitalize = (s: string) => {
+        if (!s) return '';
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    };
+
     // Options for React Select
     const classificationOptions = [
         { value: '', label: 'All Classifications' },
@@ -469,7 +474,7 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
                                                     {supplier.address}
                                                 </td>
                                                 <td className="px-4 py-3 text-sm text-gray-500">
-                                                    {supplier.category}
+                                                    {capitalize(String(supplier.category || ''))}
                                                 </td>
                                                 <td className="px-4 py-3 text-sm text-gray-900 font-semibold">
                                                     {formatCurrency(getSupplierAmount(supplier))}
@@ -486,7 +491,7 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
                                                         return (
                                                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
                                                         ${statusClass}`}>
-                                                        {supplier.status}
+                                                        {capitalize(supplierStatus)}
                                                     </span>
                                                         );
                                                     })()}
