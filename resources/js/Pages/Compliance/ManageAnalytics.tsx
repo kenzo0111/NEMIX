@@ -1,5 +1,6 @@
 import Sidebar from '@/Components/Sidebar';
 import Breadcrumbs from '@/Components/Breadcrumbs';
+import Modal from '@/Components/Modal';
 import { Head, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -338,8 +339,10 @@ export default function ManageAnalytics({ auth }: { auth: any }) {
     const { props } = usePage<{ auth: any; analytics?: InventoryAnalyticsProps }>();
     const user = auth?.user || (props.auth as any)?.user;
     const [collapsed, setCollapsed] = useState(false);
+    const [showAllItems, setShowAllItems] = useState(false);
     const analytics = props.analytics ?? fallbackAnalytics;
     const chartData = analytics.chartData ?? fallbackAnalytics.chartData;
+    const allItems = analytics.items ?? fallbackAnalytics.items;
     
     const modules = getSidebarModules('Compliance', 'Manage Analytics');
 
@@ -351,6 +354,7 @@ export default function ManageAnalytics({ auth }: { auth: any }) {
             icon: '📦',
             color: 'text-red-700',
             bg: 'bg-red-50',
+            clickable: true,
         },
         {
             label: 'Total Stock',
@@ -465,7 +469,13 @@ export default function ManageAnalytics({ auth }: { auth: any }) {
 
                             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                                 {overviewCards.map((stat) => (
-                                    <div key={stat.label} className="group overflow-hidden rounded-3xl bg-white p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+                                    <button
+                                        key={stat.label}
+                                        type="button"
+                                        onClick={stat.clickable ? () => setShowAllItems(true) : undefined}
+                                        className={`group overflow-hidden rounded-3xl bg-white p-6 shadow-sm border border-gray-100 transition-all duration-300 text-left ${stat.clickable ? 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-red-500/20' : ''}`}
+                                        aria-label={stat.clickable ? `View all items for ${stat.label}` : stat.label}
+                                    >
                                         <div className="flex items-start justify-between gap-4 mb-4">
                                             <div className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${stat.bg} ${stat.color} text-xl ring-1 ring-gray-900/5 group-hover:scale-105 transition-transform`}>
                                                 {stat.icon}
@@ -475,7 +485,7 @@ export default function ManageAnalytics({ auth }: { auth: any }) {
                                         <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">{stat.label}</p>
                                         <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 truncate">{stat.value}</p>
                                         <p className="mt-2 text-xs font-medium text-gray-400">{stat.sub}</p>
-                                    </div>
+                                    </button>
                                 ))}
                             </div>
                         </section>
@@ -587,6 +597,135 @@ export default function ManageAnalytics({ auth }: { auth: any }) {
                     </div>
                 </div>
             </main>
+
+            <Modal show={showAllItems} onClose={() => setShowAllItems(false)} maxWidth="2xl">
+                <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-lg bg-white shadow-2xl">
+                    <div className="h-2 w-full flex-shrink-0 bg-gradient-to-r from-red-900 via-red-800 to-red-950" />
+
+                    <div className="flex items-center justify-between gap-4 border-b border-gray-100 bg-gray-50/50 px-6 py-5 flex-shrink-0">
+                        <div className="flex items-center gap-3">
+                            <div className="rounded-lg bg-red-50 p-2 text-red-900">
+                                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-6 4h6M7 5h10a2 2 0 012 2v12l-3-2-3 2-3-2-3 2V7a2 2 0 012-2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold tracking-tight text-gray-900">All Items</h3>
+                                <p className="text-xs font-medium text-gray-500">Inventory analytics detail view</p>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => setShowAllItems(false)}
+                            className="rounded-full p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-700"
+                            aria-label="Close all items list"
+                        >
+                            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto px-6 py-6">
+                        <div className="mb-5 flex items-center justify-between gap-3 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-900">
+                            <span className="font-semibold">Total items: {allItems.length}</span>
+                            <span className="text-red-700">Showing every item from the current analytics payload</span>
+                        </div>
+
+                        <div className="hidden md:block overflow-hidden rounded-2xl border border-gray-100">
+                            <div className="max-h-[55vh] overflow-auto">
+                                <table className="min-w-full divide-y divide-gray-200 bg-white">
+                                    <thead className="sticky top-0 bg-gray-50">
+                                        <tr>
+                                            <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-500">Item</th>
+                                            <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-500">SKU</th>
+                                            <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-500">Stock</th>
+                                            <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-500">Unit Cost</th>
+                                            <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-500">Amount</th>
+                                            <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-500">Status</th>
+                                            <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-500">Unit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 bg-white">
+                                        {allItems.length > 0 ? (
+                                            allItems.map((item) => (
+                                                <tr key={item.id} className="hover:bg-gray-50/80">
+                                                    <td className="px-4 py-4 align-top">
+                                                        <div className="max-w-[16rem]">
+                                                            <p className="font-semibold text-gray-900 break-words">{item.name}</p>
+                                                            <p className="mt-1 text-xs text-gray-500 break-words">{item.description || 'No description available.'}</p>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-4 align-top text-sm text-gray-600">{item.sku || 'N/A'}</td>
+                                                    <td className="px-4 py-4 align-top text-sm font-medium text-gray-900">{Number(item.stock || 0).toLocaleString('en-PH')}</td>
+                                                    <td className="px-4 py-4 align-top text-sm text-gray-700">{formatCurrency(Number(item.unitCost || 0))}</td>
+                                                    <td className="px-4 py-4 align-top text-sm text-gray-700">{formatCurrency(Number(item.amount || 0))}</td>
+                                                    <td className="px-4 py-4 align-top">
+                                                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${item.status === 'Available' ? 'bg-emerald-100 text-emerald-700' : item.status === 'Low Stock' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
+                                                            {item.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-4 align-top text-sm text-gray-700">{item.unitOfIssue || '-'}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={7} className="px-6 py-12 text-center text-sm text-gray-500">
+                                                    No item data available.
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div className="grid gap-3 md:hidden">
+                            {allItems.length > 0 ? (
+                                allItems.map((item) => (
+                                    <div key={item.id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <p className="font-semibold text-gray-900 break-words">{item.name}</p>
+                                                <p className="mt-1 text-xs text-gray-500 break-words">SKU: {item.sku || 'N/A'}</p>
+                                            </div>
+                                            <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${item.status === 'Available' ? 'bg-emerald-100 text-emerald-700' : item.status === 'Low Stock' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
+                                                {item.status}
+                                            </span>
+                                        </div>
+
+                                        <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                                            <div>
+                                                <p className="text-xs uppercase tracking-wider text-gray-400">Stock</p>
+                                                <p className="mt-1 font-semibold text-gray-900">{Number(item.stock || 0).toLocaleString('en-PH')}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs uppercase tracking-wider text-gray-400">Unit</p>
+                                                <p className="mt-1 font-semibold text-gray-900">{item.unitOfIssue || '-'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs uppercase tracking-wider text-gray-400">Unit Cost</p>
+                                                <p className="mt-1 font-semibold text-gray-900">{formatCurrency(Number(item.unitCost || 0))}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs uppercase tracking-wider text-gray-400">Amount</p>
+                                                <p className="mt-1 font-semibold text-gray-900">{formatCurrency(Number(item.amount || 0))}</p>
+                                            </div>
+                                        </div>
+
+                                        <p className="mt-4 text-sm text-gray-600 break-words">{item.description || 'No description available.'}</p>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-sm text-gray-500">
+                                    No item data available.
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }
