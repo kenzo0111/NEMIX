@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react'; // Added useMemo
 import Select from 'react-select';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { Search, Filter, ArrowRight, Download, Activity, User, Box } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 const toTitleCase = (value?: string | null) => {
     if (!value) {
@@ -163,9 +163,7 @@ export default function ManageTransaction({ auth, logs }: { auth: any, logs?: an
                                 <span className="text-red-700 font-medium">{filteredLogs.length} results found</span>
                             </div>
                         </div>
-                        <button className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all shadow-sm">
-                            <Download size={16} /> Export CSV
-                        </button>
+                        {/* Export CSV button removed per request */}
                     </div>
 
                     <div className="p-10 space-y-8">

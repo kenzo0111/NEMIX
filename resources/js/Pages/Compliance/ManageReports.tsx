@@ -172,6 +172,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         { value: 'RSMI', label: 'RSMI - Supplies and Materials Issued' },
         { value: 'RPCI', label: 'RPCI - Report on the Physical Count of Inventories' },
         { value: 'STOCK_CARD', label: 'Stock Card' },
+        { value: 'MOR', label: 'Memorandum of Receipt' },
     ];
 
     const periodOptions = [
