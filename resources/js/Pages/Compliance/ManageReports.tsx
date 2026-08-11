@@ -1,9 +1,26 @@
 import Sidebar from '@/Components/Sidebar';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import Select from 'react-select';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+
+let mammothModule: typeof import('mammoth') | null = null;
+let pdfjsModule: typeof import('pdfjs-dist/legacy/build/pdf.mjs') | null = null;
+
+const loadDocumentParsers = async () => {
+    if (!mammothModule) {
+        mammothModule = await import('mammoth');
+    }
+
+    if (!pdfjsModule) {
+        const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+        pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/legacy/build/pdf.worker.min.mjs', import.meta.url).toString();
+        pdfjsModule = pdfjs;
+    }
+
+    return { mammoth: mammothModule, pdfjs: pdfjsModule };
+};
 
 const RSMIFormPaper = lazy(() =>
     import('../../../Official Forms/RSMI Report').then((module) => ({
@@ -103,15 +120,24 @@ const FormInput = ({ label, icon, error, ...props }: any) => (
 );
 
 // --- MAIN COMPONENT ---
-export default function ManageReports({ auth, items = [], reports: serverReports = [], issuances = [], suppliers = [] }: { auth: any, items?: any[], reports?: any[], issuances?: any[], suppliers?: any[] }) {
+export default function ManageReports({ auth, items = [], reports: serverReports = [], issuances = [], suppliers = [], migratedRecords = [] }: { auth: any, items?: any[], reports?: any[], issuances?: any[], suppliers?: any[], migratedRecords?: any[] }) {
     const { props } = usePage();
     const user = auth?.user || (props.auth as any)?.user;
     const [collapsed, setCollapsed] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [showMigrationModal, setShowMigrationModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [modalMode, setModalMode] = useState<'create' | 'view'>('create');
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const reportContentRef = useRef<HTMLDivElement | null>(null);
+    const [migrationFormType, setMigrationFormType] = useState<'RSMI' | 'RPCI' | 'STOCK_CARD'>('RSMI');
+    const [migrationSource, setMigrationSource] = useState('');
+    const [migrationInputText, setMigrationInputText] = useState('');
+    const [migrationFileName, setMigrationFileName] = useState('');
+    const [migrationPreview, setMigrationPreview] = useState<any[]>([]);
+    const [migrationValidation, setMigrationValidation] = useState({ validCount: 0, invalidCount: 0, duplicateCount: 0 });
+    const [migrationSubmitting, setMigrationSubmitting] = useState(false);
+    const migrationPreviewRef = useRef<HTMLDivElement | null>(null);
 
     // Dialog state for user actions
     const [actionDialog, setActionDialog] = useState<{
@@ -124,14 +150,318 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
     const closeActionDialog = () => setActionDialog(prev => ({ ...prev, show: false }));
 
+    const extractMigrationTextFromFile = async (file: File) => {
+        const fileName = file.name.toLowerCase();
+
+        try {
+            const { mammoth, pdfjs } = await loadDocumentParsers();
+
+            if (fileName.endsWith('.docx')) {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                return result.value || '';
+            }
+
+            if (fileName.endsWith('.pdf')) {
+                const arrayBuffer = await file.arrayBuffer();
+
+                try {
+                    const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+                    let extractedText = '';
+
+                    for (let pageIndex = 1; pageIndex <= pdf.numPages; pageIndex += 1) {
+                        const page = await pdf.getPage(pageIndex);
+                        const textContent = await page.getTextContent();
+                        const pageText = textContent.items
+                            .map((item: any) => ('str' in item ? item.str : ''))
+                            .filter(Boolean)
+                            .join(' ');
+
+                        extractedText += `${pageText}\n`;
+                    }
+
+                    return extractedText.trim();
+                } catch (error) {
+                    console.warn('PDF text extraction failed, falling back to empty content.', error);
+                    return '';
+                }
+            }
+
+            return await file.text();
+        } catch (error) {
+            console.warn('Failed to read uploaded migration file, falling back to empty content.', error);
+            return '';
+        }
+    };
+
+    const parseMigrationInput = (raw: string) => {
+        const trimmed = raw.trim();
+        if (!trimmed) return [];
+
+        try {
+            const parsed = JSON.parse(trimmed);
+            if (Array.isArray(parsed)) return parsed;
+            if (parsed && typeof parsed === 'object' && Array.isArray(parsed.records)) return parsed.records;
+        } catch {
+            // fall back to simple text parsing
+        }
+
+        const normalizedText = trimmed.replace(/\r/g, '').replace(/\t/g, ' ');
+        const blocks = normalizedText.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
+
+        if (blocks.length === 0) return [];
+
+        const rows = blocks
+            .map((block) => {
+                const lines = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
+                const row: Record<string, string> = {};
+
+                lines.forEach((line) => {
+                    const cleanedLine = line.replace(/\s+/g, ' ');
+
+                    const reference = cleanedLine.match(/(?:reference|ref|serial|doc no|doc_no)[:#-]?\s*([A-Za-z0-9\-\/]+)/i)?.[1];
+                    if (reference) row.reference = reference;
+
+                    const itemName = cleanedLine.match(/(?:item(?: name)?|article|description)[:#-]?\s*(.+)$/i)?.[1];
+                    if (itemName) row.item_name = itemName.trim();
+
+                    const quantity = cleanedLine.match(/(?:quantity|qty|quantity issued)[:#-]?\s*([0-9]+)/i)?.[1];
+                    if (quantity) row.quantity = quantity;
+
+                    const date = cleanedLine.match(/(?:date|date issued|issued date)[:#-]?\s*([0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{2}\/[0-9]{2}\/([0-9]{2,4}))/i)?.[1];
+                    if (date) row.date = date;
+
+                    const recipient = cleanedLine.match(/(?:recipient|requester|issued to|office)[:#-]?\s*(.+)$/i)?.[1];
+                    if (recipient) row.recipient = recipient.trim();
+
+                    const department = cleanedLine.match(/(?:department|dept)[:#-]?\s*(.+)$/i)?.[1];
+                    if (department) row.department = department.trim();
+
+                    const designation = cleanedLine.match(/(?:designation|position)[:#-]?\s*(.+)$/i)?.[1];
+                    if (designation) row.designation = designation.trim();
+
+                    const remarks = cleanedLine.match(/(?:remarks|notes|comment)[:#-]?\s*(.+)$/i)?.[1];
+                    if (remarks) row.remarks = remarks.trim();
+                });
+
+                if (Object.keys(row).length > 0) {
+                    return row;
+                }
+
+                const fallbackText = lines[0] || block;
+                return { reference: fallbackText, item_name: fallbackText };
+            })
+            .filter((row) => row && Object.keys(row).length > 0);
+
+        if (rows.length > 0) return rows;
+
+        const fallbackText = normalizedText.split(/\n/).map((line) => line.trim()).filter(Boolean)[0] || trimmed;
+        return [{ reference: `IMPORTED-${Date.now()}`, item_name: fallbackText.slice(0, 80), remarks: trimmed }];
+    };
+
+    const populateFormFromMigrationRow = (row: any) => {
+        const rawDate = String(row.date || row.date_issued || row.issued_date || '').trim();
+        const parsedDate = rawDate ? new Date(rawDate) : new Date();
+        const safeDate = Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+        const reference = String(row.reference || row.ref || row.serial || row.doc_no || '').trim();
+        const itemName = String(row.item_name || row.item || row.article || row.description || '').trim();
+        const title = String(row.title || row.designation || row.department || row.remarks || row.recipient || '').trim();
+
+        setFormData({
+            title: title || itemName || '',
+            type: migrationFormType,
+            reference,
+            itemName: migrationFormType === 'STOCK_CARD' ? itemName : '',
+            supplierId: '',
+            supplierName: '',
+            periodType: 'specific',
+            date: safeDate.toISOString().split('T')[0],
+            startDate: '',
+            endDate: '',
+            selectedMonth: safeDate.getMonth() + 1,
+            selectedYear: safeDate.getFullYear(),
+        });
+        setSelectedId(null);
+    };
+
+    const buildMigrationPreview = (raw: string) => {
+        const parsedRows = parseMigrationInput(raw);
+        const existingReferences = new Set(
+            (migratedRecords || [])
+                .filter((record: any) => String(record.form_type) === migrationFormType)
+                .map((record: any) => String(record.reference || '').trim().toLowerCase())
+        );
+
+        const preview = parsedRows.map((row: any) => {
+            const normalized = {
+                reference: String(row.reference || row.ref || row.serial || row.doc_no || '').trim(),
+                date: String(row.date || row.date_issued || row.issued_date || '').trim(),
+                item_name: String(row.item_name || row.item || row.article || row.description || '').trim(),
+                quantity: Number(row.quantity || row.qty || row.quantity_issued || 0),
+                recipient: String(row.recipient || row.requester || row.issued_to || row.office || '').trim(),
+                department: String(row.department || row.dept || '').trim(),
+                designation: String(row.designation || row.position || '').trim(),
+                remarks: String(row.remarks || row.notes || row.comment || '').trim(),
+            };
+
+            const errors: string[] = [];
+            if (!normalized.reference && !normalized.item_name) {
+                errors.push('Missing reference or item name');
+            }
+            if (!normalized.item_name) {
+                errors.push('Missing item name');
+            }
+            if (normalized.date) {
+                const parsedDate = new Date(normalized.date);
+                if (Number.isNaN(parsedDate.getTime())) {
+                    errors.push('Invalid date');
+                }
+            }
+            if (normalized.reference && existingReferences.has(normalized.reference.toLowerCase())) {
+                errors.push('Duplicate reference already exists');
+            }
+
+            return {
+                ...normalized,
+                errors,
+            };
+        });
+
+        const validCount = preview.filter((row: any) => row.errors.length === 0).length;
+        const invalidCount = preview.length - validCount;
+        const duplicateCount = preview.filter((row: any) => row.errors.some((error: string) => error.includes('Duplicate'))).length;
+
+        setMigrationPreview(preview);
+        setMigrationValidation({ validCount, invalidCount, duplicateCount });
+
+        const firstValidRow = preview.find((row: any) => row.errors.length === 0);
+        if (firstValidRow) {
+            populateFormFromMigrationRow(firstValidRow);
+            setModalMode('create');
+        }
+
+        return preview;
+    };
+
+    const openMigrationModal = () => {
+        setMigrationFormType('RSMI');
+        setMigrationSource('');
+        setMigrationInputText('');
+        setMigrationFileName('');
+        setMigrationPreview([]);
+        setMigrationValidation({ validCount: 0, invalidCount: 0, duplicateCount: 0 });
+        setShowMigrationModal(true);
+    };
+
+    const handleMigrationFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const text = await extractMigrationTextFromFile(file);
+        setMigrationFileName(file.name);
+        setMigrationInputText(text);
+        buildMigrationPreview(text);
+    };
+
+    const handlePreviewMigration = () => {
+        const preview = buildMigrationPreview(migrationInputText);
+
+        if (!migrationInputText.trim()) {
+            setActionDialog({
+                show: true,
+                type: 'error',
+                title: 'No File Content Found',
+                message: 'Upload a supported PDF or DOCX with selectable text, then preview it again.',
+            });
+            return;
+        }
+
+        if (!preview.length) {
+            setActionDialog({
+                show: true,
+                type: 'error',
+                title: 'Nothing to Preview',
+                message: 'The uploaded file did not produce any preview rows. Try another file or paste the raw text export.',
+            });
+            return;
+        }
+
+        window.setTimeout(() => {
+            migrationPreviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 0);
+    };
+
+    const handleConfirmMigration = () => {
+        const payloadRecords = migrationPreview
+            .filter((row: any) => row.errors.length === 0)
+            .map((row: any) => ({
+                reference: row.reference,
+                date: row.date,
+                item_name: row.item_name,
+                quantity: row.quantity,
+                recipient: row.recipient,
+                department: row.department,
+                designation: row.designation,
+                remarks: row.remarks,
+            }));
+
+        if (!payloadRecords.length) {
+            setActionDialog({
+                show: true,
+                type: 'error',
+                title: 'Nothing to Migrate',
+                message: 'Please add at least one valid row before confirming the migration.',
+            });
+            return;
+        }
+
+        setMigrationSubmitting(true);
+        router.post(route('compliance.migrations.store'), {
+            form_type: migrationFormType,
+            source: migrationSource || migrationFileName || 'manual',
+            records: payloadRecords,
+        }, {
+            preserveScroll: true,
+            onStart: () => setMigrationSubmitting(true),
+            onFinish: () => setMigrationSubmitting(false),
+            onSuccess: () => {
+                setShowMigrationModal(false);
+                setMigrationInputText('');
+                setMigrationPreview([]);
+                setMigrationValidation({ validCount: 0, invalidCount: 0, duplicateCount: 0 });
+                setActionDialog({
+                    show: true,
+                    type: 'success',
+                    title: 'Migration Completed',
+                    message: `Historical ${migrationFormType} records were saved to the database and are now available for report generation.`,
+                });
+            },
+            onError: () => {
+                setActionDialog({
+                    show: true,
+                    type: 'error',
+                    title: 'Migration Failed',
+                    message: 'We could not save the historical records. Please review the data and try again.',
+                });
+            },
+        });
+    };
+
     // Filter logic for Issuances Data
     const getFilteredIssuances = () => {
-        return issuances.filter((issue: any) => {
-            const issueDate = new Date(issue.date_issued || issue.created_at);
-            if (isNaN(issueDate.getTime())) return false; // Handle invalid dates
+        const combinedEntries = [
+            ...issuances.map((issue: any) => ({ ...issue, _source: 'issuance' })),
+            ...migratedRecords
+                .filter((record: any) => String(record.form_type) === String(formData.type))
+                .map((record: any) => ({ ...record, _source: 'migration' })),
+        ];
+
+        return combinedEntries.filter((entry: any) => {
+            const issueDate = new Date(entry.date_issued || entry.date || entry.created_at);
+            if (Number.isNaN(issueDate.getTime())) return false;
 
             if (formData.periodType === 'specific') {
-                return (issueDate.toISOString().split('T')[0] === formData.date); 
+                return (issueDate.toISOString().split('T')[0] === formData.date);
             } else if (formData.periodType === 'range') {
                 const start = new Date(formData.startDate);
                 const end = new Date(formData.endDate);
@@ -208,17 +538,21 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     const getSelectedStockCardIssuances = () => {
         if (!formData.itemName) return [];
 
-        return getFilteredIssuances().filter((issue: any) => {
-            if (issue.item_id && selectedStockCardItem?.id) {
-                return String(issue.item_id) === String(selectedStockCardItem.id);
+        return getFilteredIssuances().filter((entry: any) => {
+            if (entry._source === 'migration') {
+                return String(entry.item_name || '').toLowerCase() === String(formData.itemName).toLowerCase();
             }
 
-            if (issue.item && typeof issue.item === 'string') {
-                return issue.item === formData.itemName;
+            if (entry.item_id && selectedStockCardItem?.id) {
+                return String(entry.item_id) === String(selectedStockCardItem.id);
             }
 
-            if (issue.item && typeof issue.item === 'object') {
-                return String(issue.item.id) === String(selectedStockCardItem?.id) || issue.item.name === formData.itemName;
+            if (entry.item && typeof entry.item === 'string') {
+                return entry.item === formData.itemName;
+            }
+
+            if (entry.item && typeof entry.item === 'object') {
+                return String(entry.item.id) === String(selectedStockCardItem?.id) || entry.item.name === formData.itemName;
             }
 
             return false;
@@ -914,10 +1248,97 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 <h1 className="text-2xl font-bold text-gray-800">COA Forms Archive</h1>
                                 <p className="text-sm text-gray-500 mt-1">Generate and track RIS, RSMI, RPCI, and Stock Cards.</p>
                             </div>
-                            <button onClick={openCreateModal} className="bg-red-900 hover:bg-red-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-md flex items-center gap-2">
-                                <span>+</span> Generate New Report
-                            </button>
+                            <div className="flex flex-wrap gap-3">
+                                <button onClick={openMigrationModal} className="border border-red-200 bg-white text-red-800 px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-sm hover:bg-red-50 flex items-center gap-2">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"></path></svg>
+                                    Migrate Data to Database
+                                </button>
+                                <button onClick={openCreateModal} className="bg-red-900 hover:bg-red-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-md flex items-center gap-2">
+                                    <span>+</span> Generate New Report
+                                </button>
+                            </div>
                         </div>
+
+                        <ReportModal
+                            show={showMigrationModal}
+                            onClose={() => setShowMigrationModal(false)}
+                            title="Migrate Historical Data"
+                            isSubmitting={migrationSubmitting}
+                            isLandscape={false}
+                            collapsed={collapsed}
+                            footer={
+                                <>
+                                    <button onClick={() => setShowMigrationModal(false)} className="px-4 py-2 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">Cancel</button>
+                                    <button type="button" onClick={handlePreviewMigration} className="px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors">Preview Data</button>
+                                    <button onClick={handleConfirmMigration} disabled={migrationSubmitting || migrationPreview.length === 0} className="px-6 py-2 bg-gradient-to-r from-red-800 to-red-900 text-white font-bold rounded-lg hover:from-red-900 hover:to-red-950 transition-all shadow-lg disabled:opacity-70 flex items-center">
+                                        {migrationSubmitting ? 'Migrating...' : 'Confirm Migration'}
+                                    </button>
+                                </>
+                            }
+                        >
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Form Type</label>
+                                        <Select
+                                            options={typeOptions.filter((option) => ['RSMI', 'RPCI', 'STOCK_CARD'].includes(option.value))}
+                                            value={typeOptions.find((option) => option.value === migrationFormType) || null}
+                                            onChange={(option: any) => setMigrationFormType(option?.value || 'RSMI')}
+                                            styles={customSelectStyles}
+                                            menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                                            menuPosition="fixed"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Source / Legacy System</label>
+                                        <input value={migrationSource} onChange={(event) => setMigrationSource(event.target.value)} placeholder="e.g. legacy excel export" className="w-full border-gray-300 rounded-xl shadow-sm focus:ring-red-500 focus:border-red-500 h-[42px] px-4" />
+                                    </div>
+                                </div>
+
+                                <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
+                                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Upload Old Data</label>
+                                    <input type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={handleMigrationFileUpload} className="block w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-red-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-800" />
+                                    {migrationFileName ? <p className="mt-2 text-sm text-gray-500">Loaded file: {migrationFileName}</p> : null}
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-xl border border-gray-200 bg-white p-4">
+                                    <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700"><span className="block font-semibold">Valid rows</span>{migrationValidation.validCount}</div>
+                                    <div className="rounded-lg bg-yellow-50 p-3 text-sm text-yellow-700"><span className="block font-semibold">Invalid rows</span>{migrationValidation.invalidCount}</div>
+                                    <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700"><span className="block font-semibold">Duplicate rows</span>{migrationValidation.duplicateCount}</div>
+                                </div>
+
+                                <div ref={migrationPreviewRef}>
+                                    {migrationPreview.length > 0 ? (
+                                        <div className="overflow-x-auto rounded-xl border border-gray-200">
+                                            <table className="min-w-full text-sm">
+                                                <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-600">
+                                                    <tr>
+                                                        <th className="px-3 py-2">Reference</th>
+                                                        <th className="px-3 py-2">Date</th>
+                                                        <th className="px-3 py-2">Item</th>
+                                                        <th className="px-3 py-2">Qty</th>
+                                                        <th className="px-3 py-2">Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {migrationPreview.map((row: any, index: number) => (
+                                                        <tr key={`${row.reference || index}-${index}`} className="border-t border-gray-100">
+                                                            <td className="px-3 py-2">{row.reference || '-'}</td>
+                                                            <td className="px-3 py-2">{row.date || '-'}</td>
+                                                            <td className="px-3 py-2">{row.item_name || '-'}</td>
+                                                            <td className="px-3 py-2">{row.quantity || 0}</td>
+                                                            <td className={`px-3 py-2 font-semibold ${row.errors.length ? 'text-red-600' : 'text-green-600'}`}>{row.errors.length ? row.errors[0] : 'Ready'}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <div className="rounded-xl border border-dashed border-gray-200 bg-white p-6 text-center text-sm text-gray-500">Paste or upload data, then preview it before migrating.</div>
+                                    )}
+                                </div>
+                            </div>
+                        </ReportModal>
 
                         {/* Filters */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-white p-5 rounded-xl border border-gray-200 shadow-sm">

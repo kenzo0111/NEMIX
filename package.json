@@ -33,6 +33,8 @@
         "jspdf": "^4.2.1",
         "jspdf-autotable": "^5.0.7",
         "lucide-react": "^0.577.0",
+        "mammoth": "^1.12.1",
+        "pdfjs-dist": "^6.2.108",
         "react-chartjs-2": "^5.3.1",
         "react-datepicker": "^9.1.0",
         "react-router-dom": "^7.11.0",
