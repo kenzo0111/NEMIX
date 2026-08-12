@@ -32,10 +32,10 @@ export default function Login({
             <Head title="Log in" />
 
             {/* MAIN CONTAINER */}
-            <div 
+            <div
                 className="min-h-screen flex items-center justify-center p-4 sm:p-6 relative overflow-hidden login-bg"
             >
-                
+
                 {/* === ENHANCED OVERLAY SYSTEM === */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     {/* Layer 1: Deep Maroon Tint (Multiplies with image for rich color) */}
@@ -50,13 +50,13 @@ export default function Login({
                     {/* Layer 4: Subtle Texture/Noise (Optional depth) */}
                     <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
                 </div>
-                
+
                 {/* CARD CONTAINER */}
                 <div className="relative z-10 w-full max-w-6xl bg-white/95 backdrop-blur-md rounded-xl shadow-2xl shadow-black/50 overflow-hidden flex flex-col lg:flex-row min-h-[600px] border border-white/20">
-                    
+
                     {/* LEFT PANEL: The "Book Cover" */}
                     <div className="lg:w-5/12 text-white p-10 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-red-900 to-red-950">
-                        
+
                         {/* Internal Watermark */}
                         <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
                             <img src="/images/cnscrefine.png" alt="" className="w-96 h-96 object-contain grayscale brightness-150" />
@@ -191,7 +191,7 @@ export default function Login({
                             {/* Footer */}
                             <div className="mt-10 pt-6 border-t border-gray-100 text-center">
                                 <p className="text-xs text-gray-400">
-                                    &copy; 2025 University of Camarines Norte. All rights reserved. <br/>
+                                    &copy; 2025 University of Camarines Norte. All rights reserved. <br />
                                     Authorized Personnel Only.
                                 </p>
                             </div>

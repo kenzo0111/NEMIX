@@ -5,10 +5,16 @@ import { Suspense, lazy, useEffect, useRef, useState, type ChangeEvent } from 'r
 import Select from 'react-select';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 
+let xlsxModule: typeof import('xlsx') | null = null;
 let mammothModule: typeof import('mammoth') | null = null;
 let pdfjsModule: typeof import('pdfjs-dist/legacy/build/pdf.mjs') | null = null;
+let tesseractModule: typeof import('tesseract.js') | null = null;
 
 const loadDocumentParsers = async () => {
+    if (!xlsxModule) {
+        xlsxModule = await import('xlsx');
+    }
+
     if (!mammothModule) {
         mammothModule = await import('mammoth');
     }
@@ -19,7 +25,11 @@ const loadDocumentParsers = async () => {
         pdfjsModule = pdfjs;
     }
 
-    return { mammoth: mammothModule, pdfjs: pdfjsModule };
+    if (!tesseractModule) {
+        tesseractModule = await import('tesseract.js');
+    }
+
+    return { xlsx: xlsxModule, mammoth: mammothModule, pdfjs: pdfjsModule, tesseract: tesseractModule };
 };
 
 const RSMIFormPaper = lazy(() =>
@@ -137,6 +147,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     const [migrationPreview, setMigrationPreview] = useState<any[]>([]);
     const [migrationValidation, setMigrationValidation] = useState({ validCount: 0, invalidCount: 0, duplicateCount: 0 });
     const [migrationSubmitting, setMigrationSubmitting] = useState(false);
+    const [isExtractingFile, setIsExtractingFile] = useState(false);
+    const [ocrStatus, setOcrStatus] = useState('');
     const migrationPreviewRef = useRef<HTMLDivElement | null>(null);
 
     // Dialog state for user actions
@@ -154,28 +166,99 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         const fileName = file.name.toLowerCase();
 
         try {
-            const { mammoth, pdfjs } = await loadDocumentParsers();
+            const { xlsx, mammoth, pdfjs, tesseract } = await loadDocumentParsers();
+
+            // Spreadsheet processing (.xlsx, .xls, .csv)
+            if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls') || fileName.endsWith('.csv')) {
+                setOcrStatus('Extracting tabular spreadsheet data...');
+                const arrayBuffer = await file.arrayBuffer();
+                const workbook = xlsx.read(arrayBuffer, { type: 'array', cellDates: true });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const jsonRows = xlsx.utils.sheet_to_json(worksheet, { defval: '' });
+                return JSON.stringify(jsonRows);
+            }
 
             if (fileName.endsWith('.docx')) {
                 const arrayBuffer = await file.arrayBuffer();
+                setOcrStatus('Extracting text from DOCX...');
                 const result = await mammoth.extractRawText({ arrayBuffer });
-                return result.value || '';
+                let text = result.value || '';
+
+                // Fallback to OCR if raw text is empty or minimal (scanned images inside DOCX)
+                if (text.trim().length < 20) {
+                    setOcrStatus('Scanning embedded DOCX images for OCR...');
+                    const imageSrcs: string[] = [];
+                    await mammoth.convertToHtml({ arrayBuffer }, {
+                        convertImage: (mammoth.images as any).inline((element: any) => {
+                            return element.read("base64").then((imageBuffer: string) => {
+                                const src = `data:${element.contentType};base64,${imageBuffer}`;
+                                imageSrcs.push(src);
+                                return { src };
+                            });
+                        })
+                    });
+
+                    if (imageSrcs.length > 0) {
+                        let ocrTextCombined = '';
+                        for (let i = 0; i < imageSrcs.length; i += 1) {
+                            setOcrStatus(`Running OCR on image ${i + 1} of ${imageSrcs.length}...`);
+                            try {
+                                const res = await tesseract.recognize(imageSrcs[i], 'eng');
+                                if (res?.data?.text?.trim()) {
+                                    ocrTextCombined += `${res.data.text.trim()}\n\n`;
+                                }
+                            } catch (ocrErr) {
+                                console.warn('OCR error on DOCX image:', ocrErr);
+                            }
+                        }
+                        if (ocrTextCombined.trim()) {
+                            text = ocrTextCombined.trim();
+                        }
+                    }
+                }
+
+                return text.trim();
             }
 
             if (fileName.endsWith('.pdf')) {
                 const arrayBuffer = await file.arrayBuffer();
 
                 try {
+                    setOcrStatus('Reading PDF pages...');
                     const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
                     let extractedText = '';
 
                     for (let pageIndex = 1; pageIndex <= pdf.numPages; pageIndex += 1) {
+                        setOcrStatus(`Reading PDF text (page ${pageIndex}/${pdf.numPages})...`);
                         const page = await pdf.getPage(pageIndex);
                         const textContent = await page.getTextContent();
-                        const pageText = textContent.items
+                        let pageText = textContent.items
                             .map((item: any) => ('str' in item ? item.str : ''))
                             .filter(Boolean)
                             .join(' ');
+
+                        // If direct text extraction yields empty/minimal text (scanned PDF page), run Tesseract OCR
+                        if (pageText.trim().length < 20) {
+                            setOcrStatus(`Running OCR character recognition on PDF page ${pageIndex} of ${pdf.numPages}...`);
+                            const viewport = page.getViewport({ scale: 2.0 });
+                            const canvas = document.createElement('canvas');
+                            const context = canvas.getContext('2d');
+                            if (context) {
+                                canvas.width = viewport.width;
+                                canvas.height = viewport.height;
+                                await page.render({ canvasContext: context, viewport, canvas } as any).promise;
+
+                                try {
+                                    const res = await tesseract.recognize(canvas, 'eng');
+                                    if (res?.data?.text?.trim()) {
+                                        pageText = res.data.text.trim();
+                                    }
+                                } catch (ocrErr) {
+                                    console.warn(`OCR failed on PDF page ${pageIndex}:`, ocrErr);
+                                }
+                            }
+                        }
 
                         extractedText += `${pageText}\n`;
                     }
@@ -194,69 +277,179 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         }
     };
 
-    const parseMigrationInput = (raw: string) => {
+    const parseFormSpecificRows = (raw: string, formType: 'RSMI' | 'RPCI' | 'STOCK_CARD') => {
         const trimmed = raw.trim();
         if (!trimmed) return [];
 
+        let rawRows: any[] = [];
         try {
             const parsed = JSON.parse(trimmed);
-            if (Array.isArray(parsed)) return parsed;
-            if (parsed && typeof parsed === 'object' && Array.isArray(parsed.records)) return parsed.records;
+            if (Array.isArray(parsed)) {
+                rawRows = parsed;
+            } else if (parsed && typeof parsed === 'object' && Array.isArray(parsed.records)) {
+                rawRows = parsed.records;
+            }
         } catch {
-            // fall back to simple text parsing
+            // Not JSON structure
         }
 
+        if (rawRows.length > 0) {
+            return rawRows.map((row: any, idx: number) => {
+                if (typeof row === 'string') {
+                    return {
+                        reference: `${formType}-HIST-${idx + 1}`,
+                        item_name: row,
+                        quantity: 1,
+                        date: new Date().toISOString().split('T')[0],
+                        remarks: 'Parsed raw text row',
+                    };
+                }
+
+                if (formType === 'RSMI') {
+                    const ref = String(row['RIS No'] || row['RIS'] || row['Serial No'] || row['Reference'] || row['reference'] || row['risNo'] || row['ris_no'] || row['Doc No'] || '').trim();
+                    const itemName = String(row['Item'] || row['Item Description'] || row['Description'] || row['Article'] || row['item_name'] || row['itemDescription'] || '').trim();
+                    const qty = Number(row['Quantity'] || row['Qty Issued'] || row['Qty'] || row['quantity'] || row['quantityIssued'] || 0);
+                    const dt = String(row['Date'] || row['Date Issued'] || row['date'] || row['date_issued'] || '').trim();
+                    const cost = Number(row['Unit Cost'] || row['Unit Value'] || row['unitCost'] || row['unit_cost'] || 0);
+                    const amt = Number(row['Amount'] || row['Total Cost'] || row['amount'] || (qty * cost));
+                    const unit = String(row['Unit'] || row['Unit of Issue'] || row['unit'] || 'pc').trim();
+                    const stockNo = String(row['Stock No'] || row['SKU'] || row['stockNo'] || row['stock_no'] || '').trim();
+                    const recipient = String(row['Recipient'] || row['Requested By'] || row['Issued To'] || row['recipient'] || '').trim();
+                    const dept = String(row['Responsibility Center'] || row['Department'] || row['Office'] || row['department'] || '').trim();
+                    const fundCluster = String(row['Fund Cluster'] || row['fund_cluster'] || 'General Fund').trim();
+                    const remarks = String(row['Remarks'] || row['remarks'] || '').trim();
+
+                    return {
+                        reference: ref || (itemName ? `RSMI-HIST-${idx + 1}` : ''),
+                        date: dt,
+                        item_name: itemName,
+                        quantity: qty,
+                        unit_cost: cost,
+                        amount: amt,
+                        unit: unit,
+                        stock_no: stockNo,
+                        recipient: recipient,
+                        department: dept,
+                        fund_cluster: fundCluster,
+                        remarks: remarks,
+                    };
+                }
+
+                if (formType === 'RPCI') {
+                    const itemName = String(row['Article'] || row['Description'] || row['Item Description'] || row['item_name'] || row['article'] || '').trim();
+                    const ref = String(row['Property No'] || row['Stock No'] || row['Serial No'] || row['reference'] || row['property_no'] || row['stock_no'] || '').trim();
+                    const unit = String(row['Unit'] || row['Unit of Measure'] || row['unit'] || 'pc').trim();
+                    const cost = Number(row['Unit Value'] || row['Unit Cost'] || row['unit_value'] || row['unit_cost'] || 0);
+                    const qty = Number(row['Balance per Card'] || row['Property Card Qty'] || row['Quantity'] || row['quantity'] || row['balance_per_card'] || 0);
+                    const onHand = Number(row['On Hand Count'] || row['Physical Count'] || row['on_hand_count'] || qty);
+                    const shortageQty = row['Shortage Qty'] !== undefined ? row['Shortage Qty'] : (row['shortage_qty'] ?? '');
+                    const shortageVal = row['Shortage Value'] !== undefined ? row['Shortage Value'] : (row['shortage_value'] ?? '');
+                    const recipient = String(row['Accountable Officer'] || row['Recipient'] || row['accountable_officer'] || row['recipient'] || '').trim();
+                    const dept = String(row['Location'] || row['Department'] || row['Office'] || row['department'] || '').trim();
+                    const dt = String(row['As at Date'] || row['Date'] || row['as_at_date'] || row['date'] || '').trim();
+                    const remarks = String(row['Remarks'] || row['State of Property'] || row['remarks'] || '').trim();
+
+                    return {
+                        reference: ref || (itemName ? `RPCI-HIST-${idx + 1}` : ''),
+                        date: dt,
+                        item_name: itemName,
+                        quantity: qty,
+                        unit_cost: cost,
+                        unit: unit,
+                        on_hand_count: onHand,
+                        shortage_qty: shortageQty,
+                        shortage_value: shortageVal,
+                        recipient: recipient,
+                        department: dept,
+                        remarks: remarks,
+                    };
+                }
+
+                // STOCK_CARD
+                const itemName = String(row['Item'] || row['Description'] || row['Item Description'] || row['item_name'] || row['item'] || '').trim();
+                const stockNo = String(row['Stock No'] || row['SKU'] || row['stock_no'] || row['stockNo'] || '').trim();
+                const unit = String(row['Unit'] || row['Unit of Measurement'] || row['unit'] || 'Pieces').trim();
+                const reorderPoint = String(row['Re-order Point'] || row['Reorder Point'] || row['re_order_point'] || '-').trim();
+                const dt = String(row['Date'] || row['Transaction Date'] || row['date'] || '').trim();
+                const ref = String(row['Reference'] || row['RIS No'] || row['PO No'] || row['IAR No'] || row['reference'] || '').trim();
+                const receiptQty = Number(row['Receipt Qty'] || row['Receipts'] || row['receipt_qty'] || 0);
+                const issueQty = Number(row['Issue Qty'] || row['Issuance'] || row['quantity'] || row['issue_qty'] || 0);
+                const balanceQty = Number(row['Balance Qty'] || row['Balance'] || row['balance_qty'] || 0);
+                const recipient = String(row['Office'] || row['Recipient'] || row['Department'] || row['recipient'] || row['issue_office'] || '').trim();
+                const remarks = String(row['Remarks'] || row['Days to Consume'] || row['remarks'] || '').trim();
+
+                return {
+                    reference: ref || (itemName ? `SC-HIST-${idx + 1}` : ''),
+                    date: dt,
+                    item_name: itemName,
+                    stock_no: stockNo,
+                    unit: unit,
+                    re_order_point: reorderPoint,
+                    receipt_qty: receiptQty,
+                    quantity: issueQty,
+                    balance_qty: balanceQty,
+                    recipient: recipient,
+                    remarks: remarks,
+                };
+            });
+        }
+
+        // Unparsed text parsing fallback
         const normalizedText = trimmed.replace(/\r/g, '').replace(/\t/g, ' ');
         const blocks = normalizedText.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
 
         if (blocks.length === 0) return [];
 
-        const rows = blocks
-            .map((block) => {
-                const lines = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
-                const row: Record<string, string> = {};
+        return blocks.map((block, idx) => {
+            const lines = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
 
-                lines.forEach((line) => {
-                    const cleanedLine = line.replace(/\s+/g, ' ');
+            const refMatch = block.match(/(?:reference|ref|ris|serial|doc no|property no)[:#-]?\s*([A-Za-z0-9\-\/]+)/i)?.[1];
+            const itemMatch = block.match(/(?:item|article|description)[:#-]?\s*(.+)$/im)?.[1];
+            const qtyMatch = block.match(/(?:quantity|qty|balance)[:#-]?\s*([0-9]+)/i)?.[1];
+            const dateMatch = block.match(/(?:date)[:#-]?\s*([0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{2}\/[0-9]{2}\/([0-9]{2,4}))/i)?.[1];
+            const recipientMatch = block.match(/(?:recipient|officer|issued to|office)[:#-]?\s*(.+)$/im)?.[1];
 
-                    const reference = cleanedLine.match(/(?:reference|ref|serial|doc no|doc_no)[:#-]?\s*([A-Za-z0-9\-\/]+)/i)?.[1];
-                    if (reference) row.reference = reference;
+            return {
+                reference: refMatch || `${formType}-LEGACY-${idx + 1}`,
+                date: dateMatch || '',
+                item_name: itemMatch ? itemMatch.trim() : (lines[0] || `Historical ${formType} Record`),
+                quantity: qtyMatch ? Number(qtyMatch) : 1,
+                recipient: recipientMatch ? recipientMatch.trim() : '',
+                remarks: 'Parsed from imported document text',
+            };
+        });
+    };
 
-                    const itemName = cleanedLine.match(/(?:item(?: name)?|article|description)[:#-]?\s*(.+)$/i)?.[1];
-                    if (itemName) row.item_name = itemName.trim();
-
-                    const quantity = cleanedLine.match(/(?:quantity|qty|quantity issued)[:#-]?\s*([0-9]+)/i)?.[1];
-                    if (quantity) row.quantity = quantity;
-
-                    const date = cleanedLine.match(/(?:date|date issued|issued date)[:#-]?\s*([0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{2}\/[0-9]{2}\/([0-9]{2,4}))/i)?.[1];
-                    if (date) row.date = date;
-
-                    const recipient = cleanedLine.match(/(?:recipient|requester|issued to|office)[:#-]?\s*(.+)$/i)?.[1];
-                    if (recipient) row.recipient = recipient.trim();
-
-                    const department = cleanedLine.match(/(?:department|dept)[:#-]?\s*(.+)$/i)?.[1];
-                    if (department) row.department = department.trim();
-
-                    const designation = cleanedLine.match(/(?:designation|position)[:#-]?\s*(.+)$/i)?.[1];
-                    if (designation) row.designation = designation.trim();
-
-                    const remarks = cleanedLine.match(/(?:remarks|notes|comment)[:#-]?\s*(.+)$/i)?.[1];
-                    if (remarks) row.remarks = remarks.trim();
-                });
-
-                if (Object.keys(row).length > 0) {
-                    return row;
-                }
-
-                const fallbackText = lines[0] || block;
-                return { reference: fallbackText, item_name: fallbackText };
-            })
-            .filter((row) => row && Object.keys(row).length > 0);
-
-        if (rows.length > 0) return rows;
-
-        const fallbackText = normalizedText.split(/\n/).map((line) => line.trim()).filter(Boolean)[0] || trimmed;
-        return [{ reference: `IMPORTED-${Date.now()}`, item_name: fallbackText.slice(0, 80), remarks: trimmed }];
+    const getFieldMappingMatrix = (formType: string, previewRows: any[]) => {
+        const sample = previewRows[0] || {};
+        if (formType === 'RSMI') {
+            return [
+                { field: 'Reference / RIS No', type: 'String', sample: sample.reference || 'RIS-2024-001', dbField: 'reference' },
+                { field: 'Date Issued', type: 'Date', sample: sample.date || '2024-01-15', dbField: 'date' },
+                { field: 'Item Description', type: 'String', sample: sample.item_name || 'A4 Bond Paper', dbField: 'item_name' },
+                { field: 'Quantity Issued', type: 'Number', sample: sample.quantity ?? 10, dbField: 'quantity' },
+                { field: 'Unit Cost & Amount', type: 'Number', sample: sample.unit_cost ? `₱${sample.unit_cost}` : '₱250.00', dbField: 'payload.unit_cost' },
+                { field: 'Recipient / Office', type: 'String', sample: sample.recipient || sample.department || 'Accounting Dept', dbField: 'recipient / department' },
+            ];
+        } else if (formType === 'RPCI') {
+            return [
+                { field: 'Property No / Stock No', type: 'String', sample: sample.reference || 'PROP-2024-88', dbField: 'reference' },
+                { field: 'As At Date', type: 'Date', sample: sample.date || '2024-12-31', dbField: 'date' },
+                { field: 'Article / Description', type: 'String', sample: sample.item_name || 'Desktop Computer', dbField: 'item_name' },
+                { field: 'Balance per Card / On-Hand', type: 'Number', sample: sample.quantity ?? 5, dbField: 'quantity / on_hand_count' },
+                { field: 'Accountable Officer', type: 'String', sample: sample.recipient || 'Supply Custodian', dbField: 'recipient' },
+                { field: 'Location / Office', type: 'String', sample: sample.department || 'IT Laboratory', dbField: 'department' },
+            ];
+        } else {
+            return [
+                { field: 'Stock Card Item', type: 'String', sample: sample.item_name || 'Ballpen Black', dbField: 'item_name' },
+                { field: 'Reference / Doc No', type: 'String', sample: sample.reference || 'PO-2024-09', dbField: 'reference' },
+                { field: 'Transaction Date', type: 'Date', sample: sample.date || '2024-03-10', dbField: 'date' },
+                { field: 'Receipt / Issue Qty', type: 'Number', sample: sample.receipt_qty ? `+${sample.receipt_qty}` : `-${sample.quantity || 1}`, dbField: 'quantity / receipt_qty' },
+                { field: 'Balance Quantity', type: 'Number', sample: sample.balance_qty ?? 45, dbField: 'payload.balance_qty' },
+                { field: 'Office / Recipient', type: 'String', sample: sample.recipient || 'Admin Office', dbField: 'recipient' },
+            ];
+        }
     };
 
     const populateFormFromMigrationRow = (row: any) => {
@@ -285,44 +478,51 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     };
 
     const buildMigrationPreview = (raw: string) => {
-        const parsedRows = parseMigrationInput(raw);
+        const parsedRows = parseFormSpecificRows(raw, migrationFormType);
+
         const existingReferences = new Set(
             (migratedRecords || [])
                 .filter((record: any) => String(record.form_type) === migrationFormType)
                 .map((record: any) => String(record.reference || '').trim().toLowerCase())
         );
 
-        const preview = parsedRows.map((row: any) => {
-            const normalized = {
-                reference: String(row.reference || row.ref || row.serial || row.doc_no || '').trim(),
-                date: String(row.date || row.date_issued || row.issued_date || '').trim(),
-                item_name: String(row.item_name || row.item || row.article || row.description || '').trim(),
-                quantity: Number(row.quantity || row.qty || row.quantity_issued || 0),
-                recipient: String(row.recipient || row.requester || row.issued_to || row.office || '').trim(),
-                department: String(row.department || row.dept || '').trim(),
-                designation: String(row.designation || row.position || '').trim(),
-                remarks: String(row.remarks || row.notes || row.comment || '').trim(),
-            };
+        const existingCombinations = new Set(
+            (migratedRecords || [])
+                .filter((record: any) => String(record.form_type) === migrationFormType)
+                .map((record: any) => {
+                    const item = String(record.item_name || '').trim().toLowerCase();
+                    const dt = String(record.date || '').trim();
+                    const qty = Number(record.quantity || 0);
+                    return `${item}||${dt}||${qty}`;
+                })
+        );
 
+        const preview = parsedRows.map((row: any) => {
             const errors: string[] = [];
-            if (!normalized.reference && !normalized.item_name) {
+            if (!row.reference && !row.item_name) {
                 errors.push('Missing reference or item name');
             }
-            if (!normalized.item_name) {
-                errors.push('Missing item name');
+            if (!row.item_name) {
+                errors.push('Missing item description');
             }
-            if (normalized.date) {
-                const parsedDate = new Date(normalized.date);
+            if (row.date) {
+                const parsedDate = new Date(row.date);
                 if (Number.isNaN(parsedDate.getTime())) {
-                    errors.push('Invalid date');
+                    errors.push('Invalid date format');
                 }
             }
-            if (normalized.reference && existingReferences.has(normalized.reference.toLowerCase())) {
-                errors.push('Duplicate reference already exists');
+
+            const refLower = String(row.reference || '').trim().toLowerCase();
+            const comboKey = `${String(row.item_name || '').trim().toLowerCase()}||${String(row.date || '').trim()}||${Number(row.quantity || 0)}`;
+
+            if (refLower && existingReferences.has(refLower)) {
+                errors.push(`Duplicate ${migrationFormType} record: reference number exists`);
+            } else if (row.item_name && row.date && existingCombinations.has(comboKey)) {
+                errors.push(`Duplicate ${migrationFormType} record: matching item, date, and qty exist`);
             }
 
             return {
-                ...normalized,
+                ...row,
                 errors,
             };
         });
@@ -350,6 +550,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         setMigrationFileName('');
         setMigrationPreview([]);
         setMigrationValidation({ validCount: 0, invalidCount: 0, duplicateCount: 0 });
+        setIsExtractingFile(false);
+        setOcrStatus('');
         setShowMigrationModal(true);
     };
 
@@ -357,10 +559,18 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         const file = event.target.files?.[0];
         if (!file) return;
 
-        const text = await extractMigrationTextFromFile(file);
+        setIsExtractingFile(true);
         setMigrationFileName(file.name);
-        setMigrationInputText(text);
-        buildMigrationPreview(text);
+        try {
+            const text = await extractMigrationTextFromFile(file);
+            setMigrationInputText(text);
+            buildMigrationPreview(text);
+        } catch (err) {
+            console.error('Error processing migration file:', err);
+        } finally {
+            setIsExtractingFile(false);
+            setOcrStatus('');
+        }
     };
 
     const handlePreviewMigration = () => {
@@ -403,6 +613,19 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 department: row.department,
                 designation: row.designation,
                 remarks: row.remarks,
+                unit_cost: row.unit_cost,
+                amount: row.amount,
+                unit: row.unit,
+                stock_no: row.stock_no,
+                receipt_qty: row.receipt_qty,
+                balance_qty: row.balance_qty,
+                on_hand_count: row.on_hand_count,
+                shortage_qty: row.shortage_qty,
+                shortage_value: row.shortage_value,
+                fund_cluster: row.fund_cluster,
+                responsibility_center_code: row.responsibility_center_code,
+                re_order_point: row.re_order_point,
+                data_source: 'historical_migration',
             }));
 
         if (!payloadRecords.length) {
@@ -410,7 +633,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 show: true,
                 type: 'error',
                 title: 'Nothing to Migrate',
-                message: 'Please add at least one valid row before confirming the migration.',
+                message: 'Please provide at least one valid historical record without validation errors or duplicates before confirming.',
             });
             return;
         }
@@ -418,7 +641,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         setMigrationSubmitting(true);
         router.post(route('compliance.migrations.store'), {
             form_type: migrationFormType,
-            source: migrationSource || migrationFileName || 'manual',
+            source: migrationSource || migrationFileName || 'historical_migration',
             records: payloadRecords,
         }, {
             preserveScroll: true,
@@ -432,8 +655,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 setActionDialog({
                     show: true,
                     type: 'success',
-                    title: 'Migration Completed',
-                    message: `Historical ${migrationFormType} records were saved to the database and are now available for report generation.`,
+                    title: 'Migration Successful',
+                    message: `Historical ${migrationFormType} records were stored in the database and integrated into the report-generation data source.`,
                 });
             },
             onError: () => {
@@ -441,7 +664,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                     show: true,
                     type: 'error',
                     title: 'Migration Failed',
-                    message: 'We could not save the historical records. Please review the data and try again.',
+                    message: 'Unable to complete historical data migration. Please verify field mappings and try again.',
                 });
             },
         });
@@ -565,12 +788,26 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
         const preparedEntries = selectedIssuances
             .map((issue: any) => {
+                if (issue._source === 'migration') {
+                    const issueQty = Number(issue.quantity || issue.payload?.issue_qty || 0);
+                    const receiptQty = Number(issue.payload?.receipt_qty || 0);
+                    return {
+                        date: issue.date || issue.created_at || '',
+                        reference: issue.reference || `MIGRATED-${issue.id}`,
+                        receipt_qty: receiptQty === 0 ? '' : receiptQty,
+                        issue_qty: issueQty === 0 ? '' : issueQty,
+                        issue_office: issue.recipient || issue.department || issue.payload?.issue_office || '',
+                        days_to_consume: issue.remarks || 'Historical Migration'
+                    };
+                }
                 const issueQty = Number(issue.quantity || issue.qty || 0);
                 return {
                     date: issue.date_issued || issue.date || issue.created_at || '',
                     reference: issue.reference || issue.display_id || issue.id,
+                    receipt_qty: '',
                     issue_qty: issueQty === 0 ? '' : issueQty,
                     issue_office: issue.department || issue.recipient || issue.office || '',
+                    days_to_consume: '',
                 };
             })
             .sort((a: any, b: any) => {
@@ -580,12 +817,13 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             });
 
         const totalIssued = preparedEntries.reduce((sum: number, entry: any) => sum + Number(entry.issue_qty || 0), 0);
-        const startingBalance = currentStock + totalIssued;
+        const totalReceived = preparedEntries.reduce((sum: number, entry: any) => sum + Number(entry.receipt_qty || 0), 0);
+        const startingBalance = Math.max(0, currentStock + totalIssued - totalReceived);
 
         const entries = [
             {
                 date: '',
-                reference: 'Balance',
+                reference: 'Balance / Opening Historical',
                 receipt_qty: '',
                 issue_qty: '',
                 issue_office: '',
@@ -595,14 +833,12 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         ];
 
         let runningBalance = startingBalance;
-
         preparedEntries.forEach((entry: any) => {
-            runningBalance -= Number(entry.issue_qty || 0);
+            if (entry.receipt_qty) runningBalance += Number(entry.receipt_qty);
+            if (entry.issue_qty) runningBalance -= Number(entry.issue_qty);
             entries.push({
                 ...entry,
-                receipt_qty: '',
-                balance_qty: runningBalance,
-                days_to_consume: '',
+                balance_qty: Math.max(0, runningBalance),
             });
         });
 
@@ -1262,7 +1498,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         <ReportModal
                             show={showMigrationModal}
                             onClose={() => setShowMigrationModal(false)}
-                            title="Migrate Historical Data"
+                            title={`Migrate Historical ${migrationFormType} COA Data`}
                             isSubmitting={migrationSubmitting}
                             isLandscape={false}
                             collapsed={collapsed}
@@ -1279,62 +1515,131 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                             <div className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                     <div>
-                                        <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Form Type</label>
+                                        <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">COA Form Type</label>
                                         <Select
                                             options={typeOptions.filter((option) => ['RSMI', 'RPCI', 'STOCK_CARD'].includes(option.value))}
                                             value={typeOptions.find((option) => option.value === migrationFormType) || null}
-                                            onChange={(option: any) => setMigrationFormType(option?.value || 'RSMI')}
+                                            onChange={(option: any) => {
+                                                const nextType = option?.value || 'RSMI';
+                                                setMigrationFormType(nextType);
+                                                if (migrationInputText) {
+                                                    buildMigrationPreview(migrationInputText);
+                                                }
+                                            }}
                                             styles={customSelectStyles}
                                             menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
                                             menuPosition="fixed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Source / Legacy System</label>
-                                        <input value={migrationSource} onChange={(event) => setMigrationSource(event.target.value)} placeholder="e.g. legacy excel export" className="w-full border-gray-300 rounded-xl shadow-sm focus:ring-red-500 focus:border-red-500 h-[42px] px-4" />
+                                        <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Source / Legacy System Identifier</label>
+                                        <input value={migrationSource} onChange={(event) => setMigrationSource(event.target.value)} placeholder="e.g. Legacy Excel 2024 Archive" className="w-full border-gray-300 rounded-xl shadow-sm focus:ring-red-500 focus:border-red-500 h-[42px] px-4" />
                                     </div>
                                 </div>
 
                                 <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
-                                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Upload Old Data</label>
-                                    <input type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={handleMigrationFileUpload} className="block w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-red-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-800" />
-                                    {migrationFileName ? <p className="mt-2 text-sm text-gray-500">Loaded file: {migrationFileName}</p> : null}
+                                    <div className="flex items-center justify-between mb-1">
+                                        <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">Upload Old COA Form (Excel .xlsx / .xls / .csv, PDF, DOCX)</label>
+                                        <span className="text-[11px] font-semibold text-red-800 bg-red-100 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                            Parsers & OCR Active
+                                        </span>
+                                    </div>
+                                    <input type="file" disabled={isExtractingFile} accept=".xlsx,.xls,.csv,.pdf,.docx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={handleMigrationFileUpload} className="block w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-red-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-800 disabled:opacity-50" />
+                                    {isExtractingFile ? (
+                                        <div className="mt-3 flex items-center gap-2.5 text-sm text-red-900 font-medium bg-red-50 p-3 rounded-xl border border-red-200 animate-pulse">
+                                            <svg className="w-4 h-4 animate-spin text-red-800 flex-shrink-0" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                            <span>{ocrStatus || 'Processing file content...'}</span>
+                                        </div>
+                                    ) : migrationFileName ? (
+                                        <p className="mt-2 text-sm text-gray-500">Loaded file: <span className="font-semibold text-gray-700">{migrationFileName}</span></p>
+                                    ) : null}
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-xl border border-gray-200 bg-white p-4">
-                                    <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700"><span className="block font-semibold">Valid rows</span>{migrationValidation.validCount}</div>
-                                    <div className="rounded-lg bg-yellow-50 p-3 text-sm text-yellow-700"><span className="block font-semibold">Invalid rows</span>{migrationValidation.invalidCount}</div>
-                                    <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700"><span className="block font-semibold">Duplicate rows</span>{migrationValidation.duplicateCount}</div>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 rounded-xl border border-gray-200 bg-white p-4">
+                                    <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-700"><span className="block font-semibold text-gray-500 uppercase text-[10px]">Form Selected</span><span className="text-sm font-bold text-red-900">{migrationFormType}</span></div>
+                                    <div className="rounded-lg bg-green-50 p-3 text-xs text-green-800"><span className="block font-semibold uppercase text-[10px]">Ready to Import</span><span className="text-sm font-bold">{migrationValidation.validCount}</span></div>
+                                    <div className="rounded-lg bg-yellow-50 p-3 text-xs text-yellow-800"><span className="block font-semibold uppercase text-[10px]">Missing Data</span><span className="text-sm font-bold">{migrationValidation.invalidCount}</span></div>
+                                    <div className="rounded-lg bg-red-50 p-3 text-xs text-red-800"><span className="block font-semibold uppercase text-[10px]">Duplicate Records</span><span className="text-sm font-bold">{migrationValidation.duplicateCount}</span></div>
                                 </div>
+
+                                {migrationPreview.length > 0 && (
+                                    <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
+                                        <h4 className="text-xs font-bold uppercase text-gray-700 tracking-wider mb-2 flex items-center gap-1.5">
+                                            <svg className="w-4 h-4 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                                            Field Mapping Schema ({migrationFormType})
+                                        </h4>
+                                        <div className="overflow-x-auto">
+                                            <table className="min-w-full text-xs">
+                                                <thead className="bg-gray-200 text-gray-700 font-bold uppercase text-[10px] tracking-wider">
+                                                    <tr>
+                                                        <th className="px-3 py-1.5 text-left">COA Form Field</th>
+                                                        <th className="px-3 py-1.5 text-left">Target DB Attribute</th>
+                                                        <th className="px-3 py-1.5 text-left">Data Type</th>
+                                                        <th className="px-3 py-1.5 text-left">Sample Extracted Value</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-200 bg-white">
+                                                    {getFieldMappingMatrix(migrationFormType, migrationPreview).map((mapItem, mIdx) => (
+                                                        <tr key={mIdx}>
+                                                            <td className="px-3 py-1.5 font-semibold text-gray-900">{mapItem.field}</td>
+                                                            <td className="px-3 py-1.5 font-mono text-red-900">{mapItem.dbField}</td>
+                                                            <td className="px-3 py-1.5 text-gray-500">{mapItem.type}</td>
+                                                            <td className="px-3 py-1.5 font-medium text-gray-800">{String(mapItem.sample || '-')}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div ref={migrationPreviewRef}>
                                     {migrationPreview.length > 0 ? (
-                                        <div className="overflow-x-auto rounded-xl border border-gray-200">
-                                            <table className="min-w-full text-sm">
-                                                <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-600">
+                                        <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
+                                            <table className="min-w-full text-xs">
+                                                <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
                                                     <tr>
-                                                        <th className="px-3 py-2">Reference</th>
-                                                        <th className="px-3 py-2">Date</th>
-                                                        <th className="px-3 py-2">Item</th>
-                                                        <th className="px-3 py-2">Qty</th>
-                                                        <th className="px-3 py-2">Status</th>
+                                                        <th className="px-3 py-2.5">Ref / Doc No</th>
+                                                        <th className="px-3 py-2.5">Date</th>
+                                                        <th className="px-3 py-2.5">Item Description</th>
+                                                        <th className="px-3 py-2.5">Qty</th>
+                                                        <th className="px-3 py-2.5">Recipient / Office</th>
+                                                        <th className="px-3 py-2.5">Source Tag</th>
+                                                        <th className="px-3 py-2.5">Validation Status</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody>
+                                                <tbody className="divide-y divide-gray-100">
                                                     {migrationPreview.map((row: any, index: number) => (
-                                                        <tr key={`${row.reference || index}-${index}`} className="border-t border-gray-100">
-                                                            <td className="px-3 py-2">{row.reference || '-'}</td>
-                                                            <td className="px-3 py-2">{row.date || '-'}</td>
-                                                            <td className="px-3 py-2">{row.item_name || '-'}</td>
-                                                            <td className="px-3 py-2">{row.quantity || 0}</td>
-                                                            <td className={`px-3 py-2 font-semibold ${row.errors.length ? 'text-red-600' : 'text-green-600'}`}>{row.errors.length ? row.errors[0] : 'Ready'}</td>
+                                                        <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
+                                                            <td className="px-3 py-2 font-semibold text-gray-900">{row.reference || '-'}</td>
+                                                            <td className="px-3 py-2 text-gray-600">{row.date || '-'}</td>
+                                                            <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
+                                                            <td className="px-3 py-2 font-bold text-gray-900">{row.quantity || 0}</td>
+                                                            <td className="px-3 py-2 text-gray-600">{row.recipient || row.department || '-'}</td>
+                                                            <td className="px-3 py-2">
+                                                                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-gray-100 text-gray-700">historical_migration</span>
+                                                            </td>
+                                                            <td className="px-3 py-2">
+                                                                {row.errors.length > 0 ? (
+                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">
+                                                                        {row.errors[0]}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">
+                                                                        Ready to Import
+                                                                    </span>
+                                                                )}
+                                                            </td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
                                             </table>
                                         </div>
                                     ) : (
-                                        <div className="rounded-xl border border-dashed border-gray-200 bg-white p-6 text-center text-sm text-gray-500">Paste or upload data, then preview it before migrating.</div>
+                                        <div className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-500">
+                                            Upload an old {migrationFormType} COA form file (Excel, PDF, DOCX) to inspect detected records and field mappings before migrating to database.
+                                        </div>
                                     )}
                                 </div>
                             </div>

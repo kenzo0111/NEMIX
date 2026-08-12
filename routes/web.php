@@ -95,11 +95,23 @@ Route::post('/compliance/migrations', function (\Illuminate\Http\Request $reques
         'records.*.reference' => ['nullable', 'string', 'max:100'],
         'records.*.date' => ['nullable', 'date'],
         'records.*.item_name' => ['nullable', 'string', 'max:255'],
-        'records.*.quantity' => ['nullable', 'integer', 'min:0'],
+        'records.*.quantity' => ['nullable', 'numeric', 'min:0'],
+        'records.*.unit_cost' => ['nullable', 'numeric', 'min:0'],
+        'records.*.amount' => ['nullable', 'numeric', 'min:0'],
+        'records.*.unit' => ['nullable', 'string', 'max:50'],
+        'records.*.stock_no' => ['nullable', 'string', 'max:100'],
         'records.*.recipient' => ['nullable', 'string', 'max:255'],
         'records.*.department' => ['nullable', 'string', 'max:255'],
         'records.*.designation' => ['nullable', 'string', 'max:255'],
         'records.*.remarks' => ['nullable', 'string'],
+        'records.*.receipt_qty' => ['nullable', 'numeric', 'min:0'],
+        'records.*.balance_qty' => ['nullable', 'numeric', 'min:0'],
+        'records.*.on_hand_count' => ['nullable', 'numeric', 'min:0'],
+        'records.*.shortage_qty' => ['nullable', 'numeric'],
+        'records.*.shortage_value' => ['nullable', 'numeric'],
+        'records.*.fund_cluster' => ['nullable', 'string', 'max:100'],
+        'records.*.responsibility_center_code' => ['nullable', 'string', 'max:100'],
+        'records.*.re_order_point' => ['nullable', 'string', 'max:50'],
     ]);
 
     $records = collect($validated['records'] ?? []);
@@ -113,29 +125,46 @@ Route::post('/compliance/migrations', function (\Illuminate\Http\Request $reques
         }
 
         $reference = trim((string) ($recordInput['reference'] ?? '')) ?: 'MIGRATED-' . ($index + 1);
-        $existing = \App\Models\ComplianceMigratedRecord::query()
-            ->where('form_type', $validated['form_type'])
-            ->where('reference', $reference)
-            ->exists();
+        $itemName = trim((string) ($recordInput['item_name'] ?? ''));
+        $date = !empty($recordInput['date']) ? $recordInput['date'] : null;
+
+        $query = \App\Models\ComplianceMigratedRecord::query()
+            ->where('form_type', $validated['form_type']);
+
+        $existing = $query->where(function ($q) use ($reference, $itemName, $date, $recordInput) {
+            $q->where('reference', $reference);
+            if ($itemName && $date) {
+                $q->orWhere(function ($sub) use ($itemName, $date, $recordInput) {
+                    $sub->where('item_name', $itemName)
+                        ->where('date', $date)
+                        ->where('quantity', (int) ($recordInput['quantity'] ?? 0));
+                });
+            }
+        })->exists();
 
         if ($existing) {
             $skipped++;
             continue;
         }
 
+        $payload = array_merge($recordInput, [
+            'data_source' => 'historical_migration',
+            'migrated_at' => now()->toIso8601String(),
+        ]);
+
         \App\Models\ComplianceMigratedRecord::create([
             'form_type' => $validated['form_type'],
-            'source' => $validated['source'] ?? 'manual',
+            'source' => $validated['source'] ?? 'historical_migration',
             'reference' => $reference,
-            'item_name' => $recordInput['item_name'] ?? null,
-            'quantity' => $recordInput['quantity'] ?? 0,
+            'item_name' => $itemName ?: null,
+            'quantity' => (int) ($recordInput['quantity'] ?? 0),
             'recipient' => $recordInput['recipient'] ?? null,
             'department' => $recordInput['department'] ?? null,
             'designation' => $recordInput['designation'] ?? null,
             'remarks' => $recordInput['remarks'] ?? null,
-            'date' => !empty($recordInput['date']) ? $recordInput['date'] : null,
-            'status' => 'migrated',
-            'payload' => $recordInput,
+            'date' => $date,
+            'status' => 'historical_migration',
+            'payload' => $payload,
             'created_by' => optional($request->user())->id,
         ]);
 
@@ -144,10 +173,10 @@ Route::post('/compliance/migrations', function (\Illuminate\Http\Request $reques
 
     \App\Models\ComplianceMigrationLog::create([
         'form_type' => $validated['form_type'],
-        'source' => $validated['source'] ?? 'manual',
+        'source' => $validated['source'] ?? 'historical_migration',
         'records_count' => $saved,
         'status' => 'completed',
-        'message' => 'Migrated ' . $saved . ' records; skipped ' . $skipped . ' duplicates or incomplete rows.',
+        'message' => 'Migrated ' . $saved . ' historical ' . $validated['form_type'] . ' records; skipped ' . $skipped . ' duplicates or invalid rows.',
         'created_by' => optional($request->user())->id,
     ]);
 
