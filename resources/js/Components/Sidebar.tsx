@@ -63,8 +63,8 @@ export default function Sidebar({
 
             {/* Branding Section */}
             <div className={`p-6 flex items-center border-b border-red-800/50 relative z-10 transition-all h-[88px] ${collapsed ? 'justify-center' : 'justify-start gap-4'}`}>
-                <div className="bg-white p-1.5 rounded-full shadow-lg border-2 border-yellow-500 shrink-0">
-                    <img src="/images/cnscrefine.png" className="w-8 h-8" alt="UCN Logo" />
+                <div className="bg-white p-1.5 rounded-full shadow-lg border-2 border-yellow-500 shrink-0 flex items-center justify-center">
+                    <img src="/images/cnscrefine.png" className="w-8 h-8 object-contain" alt="UCN Logo" />
                 </div>
 
                 {!collapsed && (

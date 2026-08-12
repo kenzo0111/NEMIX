@@ -64,9 +64,9 @@ export default function Login({
 
                         {/* Top: Institution Hierarchy */}
                         <div className="relative z-10 text-center lg:text-left space-y-4">
-                            <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4">
-                                <div className="bg-white p-2 rounded-full shadow-lg border-2 border-yellow-500/50">
-                                    <img src="/images/cnscrefine.png" alt="UCN Logo" className="h-16 w-16" />
+                            <div className="flex flex-col lg:flex-row items-center gap-4">
+                                <div className="bg-white p-2 rounded-full shadow-lg border-2 border-yellow-500/50 shrink-0 flex items-center justify-center">
+                                    <img src="/images/cnscrefine.png" alt="UCN Logo" className="h-16 w-16 object-contain" />
                                 </div>
                                 <div className="text-center lg:text-left">
                                     <p className="font-serif text-yellow-400 uppercase tracking-widest text-xs mb-1 font-semibold">Republic of the Philippines</p>

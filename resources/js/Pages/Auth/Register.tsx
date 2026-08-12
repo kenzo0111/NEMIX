@@ -69,8 +69,8 @@ export default function Register({
 
                         {/* Top: Institution Hierarchy */}
                         <div className="relative z-10 text-center lg:text-left space-y-4">
-                            <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4">
-                                <div className="bg-white p-2 rounded-full shadow-lg border border-yellow-500/30">
+                            <div className="flex flex-col lg:flex-row items-center gap-4">
+                                <div className="bg-white p-2 rounded-full shadow-lg border border-yellow-500/30 shrink-0 flex items-center justify-center">
                                     <img src="/images/cnscrefine.png" alt="UCN Logo" className="h-16 w-16 object-contain" />
                                 </div>
                                 <div className="text-center lg:text-left">
