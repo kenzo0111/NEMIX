@@ -7,3 +7,18 @@
     background-size: cover;
     background-position: center;
 }
+
+/* Hide scrollbars across WebKit, Firefox, and Edge */
+.scrollbar-hide::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.scrollbar-hide,
+.no-scrollbar {
+    -ms-overflow-style: none !important; /* IE and Edge */
+    scrollbar-width: none !important; /* Firefox */
+}
+

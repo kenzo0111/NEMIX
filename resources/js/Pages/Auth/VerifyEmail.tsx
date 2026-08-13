@@ -1,3 +1,4 @@
+import ApplicationLogo from '@/Components/ApplicationLogo';
 import PrimaryButton from '@/Components/PrimaryButton';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
@@ -42,7 +43,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
                     <div className="mb-6 text-center space-y-3">
                         <div className="inline-flex justify-center">
                             <div className="bg-white/95 p-3 rounded-2xl shadow-xl ring-2 ring-yellow-400/60 shrink-0 flex items-center justify-center backdrop-blur-md">
-                                <img src="/images/cnscrefine.png" alt="UCN Logo" className="h-14 w-14 object-contain" />
+                                <ApplicationLogo alt="UCN Logo" className="h-14 w-14 object-contain" />
                             </div>
                         </div>
 

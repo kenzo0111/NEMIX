@@ -5,7 +5,7 @@ export default function ApplicationLogo({ className = '', alt = 'UCN Logo', ...p
         <img
             alt={alt}
             {...props}
-            src="/images/cnscrefine.png"
+            src="/images/ucnlogo.png"
             className={`object-contain ${className || 'h-12 w-12'}`}
         />
     );

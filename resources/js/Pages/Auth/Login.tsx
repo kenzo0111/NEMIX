@@ -64,14 +64,14 @@ export default function Login({
 
                         {/* Internal Watermark Seal */}
                         <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-                            <img src="/images/cnscrefine.png" alt="" className="w-[420px] h-[420px] object-contain grayscale brightness-150 transform scale-110" />
+                            <ApplicationLogo alt="" className="w-[420px] h-[420px] object-contain grayscale brightness-150 transform scale-110" />
                         </div>
 
                         {/* Top: Institution Hierarchy & Tagline */}
                         <div className="relative z-10 space-y-4">
                             <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4 text-center lg:text-left">
                                 <div className="bg-white/95 p-3 rounded-2xl shadow-xl ring-2 ring-yellow-400/60 shrink-0 flex items-center justify-center backdrop-blur-md transition-transform duration-300 hover:scale-105">
-                                    <img src="/images/cnscrefine.png" alt="UCN Seal" className="h-16 w-16 md:h-18 md:w-18 object-contain" />
+                                    <ApplicationLogo alt="UCN Seal" className="h-16 w-16 md:h-18 md:w-18 object-contain" />
                                 </div>
                                 <div className="space-y-1">
                                     <p className="font-serif text-yellow-400 uppercase tracking-[0.2em] text-[11px] font-extrabold drop-shadow">
