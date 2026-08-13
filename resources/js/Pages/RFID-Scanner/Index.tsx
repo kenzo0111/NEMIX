@@ -224,7 +224,7 @@ export default function Index({ auth, items = [], selectedItemId = null }: PageP
 
                 <div className="p-6 lg:p-8 max-w-7xl mx-auto pb-20 space-y-8">
                     {/* Top Status Bar */}
-                    <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-[#600000] rounded-3xl p-6 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="bg-[#800000] rounded-3xl p-6 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
                         <div className="flex items-center gap-4">
                             <div className="p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20">
                                 <svg className="w-8 h-8 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
