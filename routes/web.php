@@ -511,9 +511,101 @@ Route::patch('/access-control/manage-staffs/{user}/toggle-status', [ManageStaffC
     ->middleware(['auth', 'verified'])
     ->name('access-control.staffs.toggle-status');
 
-Route::get('/rfid-scanner', function () {
-    return Inertia::render('RFID-Scanner/Index');
+Route::get('/rfid-scanner', function (\Illuminate\Http\Request $request) {
+    $items = class_exists(\Modules\Inventory\Models\Item::class)
+        ? \Modules\Inventory\Models\Item::with('supplier')->latest()->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'sku' => $item->sku,
+                'description' => $item->description,
+                'unit_of_issue' => $item->unit_of_issue,
+                'stock' => $item->stock,
+                'status' => $item->status,
+                'rfid_tag' => $item->rfid_tag,
+                'supplier_id' => $item->supplier_id,
+                'supplier_name' => $item->supplier ? $item->supplier->name : 'N/A',
+                'updated_at' => optional($item->updated_at)->toDateTimeString(),
+            ];
+        })
+        : collect();
+
+    return Inertia::render('RFID-Scanner/Index', [
+        'items' => $items,
+        'selectedItemId' => $request->query('item_id'),
+    ]);
 })->middleware(['auth', 'verified'])->name('rfid-scanner.index');
+
+Route::post('/rfid-scanner/assign', function (\Illuminate\Http\Request $request) {
+    $validated = $request->validate([
+        'item_id' => ['required', 'exists:items,id'],
+        'rfid_tag' => ['required', 'string', 'max:100'],
+    ]);
+
+    $itemId = $validated['item_id'];
+    $rfidTag = trim($validated['rfid_tag']);
+
+    // Check if the RFID ID is already assigned to a DIFFERENT item
+    $existing = \Modules\Inventory\Models\Item::where('rfid_tag', $rfidTag)
+        ->where('id', '!=', $itemId)
+        ->first();
+
+    if ($existing) {
+        return back()->withErrors([
+            'rfid_tag' => "Conflict: RFID ID '{$rfidTag}' is already assigned to '{$existing->name}' (Property No: " . ($existing->sku ?? 'N/A') . ").",
+            'conflict_item' => [
+                'id' => $existing->id,
+                'name' => $existing->name,
+                'sku' => $existing->sku ?? 'N/A',
+                'description' => $existing->description,
+            ],
+        ]);
+    }
+
+    $item = \Modules\Inventory\Models\Item::findOrFail($itemId);
+    $item->update(['rfid_tag' => $rfidTag]);
+
+    return redirect()->route('rfid-scanner.index', ['item_id' => $itemId])->with('success', "RFID Tag {$rfidTag} successfully assigned to {$item->name}.");
+})->middleware(['auth', 'verified'])->name('rfid-scanner.assign');
+
+Route::post('/rfid-scanner/unassign', function (\Illuminate\Http\Request $request) {
+    $validated = $request->validate([
+        'item_id' => ['required', 'exists:items,id'],
+    ]);
+
+    $item = \Modules\Inventory\Models\Item::findOrFail($validated['item_id']);
+    $item->update(['rfid_tag' => null]);
+
+    return redirect()->route('rfid-scanner.index', ['item_id' => $item->id])->with('success', "RFID Tag unassigned from {$item->name}.");
+})->middleware(['auth', 'verified'])->name('rfid-scanner.unassign');
+
+Route::get('/rfid-scanner/lookup/{tag}', function ($tag) {
+    $item = \Modules\Inventory\Models\Item::where('rfid_tag', $tag)
+        ->with('supplier')
+        ->first();
+
+    if (!$item) {
+        return response()->json([
+            'found' => false,
+            'message' => "No item associated with RFID tag '{$tag}'.",
+        ], 404);
+    }
+
+    return response()->json([
+        'found' => true,
+        'item' => [
+            'id' => $item->id,
+            'name' => $item->name,
+            'sku' => $item->sku,
+            'description' => $item->description,
+            'supplier_id' => $item->supplier_id,
+            'supplier_name' => $item->supplier ? $item->supplier->name : '',
+            'rfid_tag' => $item->rfid_tag,
+            'stock' => $item->stock,
+            'unit_of_issue' => $item->unit_of_issue,
+        ],
+    ]);
+})->middleware(['auth', 'verified'])->name('rfid-scanner.lookup');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

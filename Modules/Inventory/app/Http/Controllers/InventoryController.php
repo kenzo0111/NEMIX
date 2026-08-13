@@ -31,6 +31,7 @@ class InventoryController extends Controller
                     'unit_of_issue' => $item->unit_of_issue,
                     'supplier_id' => $item->supplier_id,
                     'supplier' => $item->supplier,
+                    'rfid_tag' => $item->rfid_tag,
                 ];
             }),
             'categories' => Category::all(),
@@ -130,11 +131,22 @@ class InventoryController extends Controller
                     'item' => $receiving->item->name,
                     'sku' => $receiving->item->sku,
                     'quantity' => $receiving->quantity,
-                    'supplier' => $receiving->supplier->name,
+                    'supplier' => $receiving->supplier ? $receiving->supplier->name : '',
                     'date' => $receiving->date_received->format('Y-m-d'),
                 ];
             }),
-            'items' => Item::all(['id', 'name', 'sku']),
+            'items' => Item::with('supplier')->get()->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'sku' => $item->sku,
+                    'rfid_tag' => $item->rfid_tag,
+                    'supplier_id' => $item->supplier_id,
+                    'supplier_name' => $item->supplier ? $item->supplier->name : '',
+                    'description' => $item->description,
+                    'unit_of_issue' => $item->unit_of_issue,
+                ];
+            }),
             'suppliers' => Supplier::all(['id', 'name']),
         ]);
     }

@@ -17,6 +17,7 @@ class Item extends Model
         'status',
         'description',
         'unit_of_issue',
+        'rfid_tag',
     ];
 
     protected $casts = [

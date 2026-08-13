@@ -403,6 +403,19 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                                 <td className="px-4 py-4 align-top max-w-[12rem] break-words">
                                                     <div className="text-sm font-bold text-gray-900">{item.name}</div>
                                                     <div className="text-xs text-gray-500">SKU: {item.sku || 'N/A'}</div>
+                                                    {item.rfid_tag ? (
+                                                        <div className="mt-1">
+                                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#800000]/10 text-[#800000] border border-[#800000]/20">
+                                                                🏷️ {item.rfid_tag}
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="mt-1">
+                                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-500">
+                                                                Not Tagged
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </td>
                                                 <td className="px-4 py-4 align-top text-sm text-gray-600 break-words">
                                                     {item.supplier ? item.supplier.name : 'No Supplier'}
@@ -439,6 +452,12 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-4 align-top text-right text-sm font-medium">
+                                                    <Link
+                                                        href={route('rfid-scanner.index', { item_id: item.id })}
+                                                        className="text-[#800000] hover:text-[#600000] mr-3 transition-colors font-bold text-xs uppercase tracking-wide inline-flex items-center gap-1 bg-[#800000]/5 px-2 py-1 rounded hover:bg-[#800000]/10"
+                                                    >
+                                                        🏷️ Tag RFID
+                                                    </Link>
                                                     <button 
                                                         onClick={() => {
                                                             setIsEditing(true);
@@ -456,7 +475,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                                             });
                                                             setShowModal(true);
                                                         }}
-                                                        className="text-blue-600 hover:text-blue-900 mr-4 transition-colors font-semibold text-xs uppercase tracking-wide"
+                                                        className="text-blue-600 hover:text-blue-900 mr-3 transition-colors font-semibold text-xs uppercase tracking-wide"
                                                     >
                                                         Edit
                                                     </button>

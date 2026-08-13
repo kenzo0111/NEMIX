@@ -43,6 +43,48 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 10;
 
+    // --- RFID SCAN MODAL STATE ---
+    const [isRfidModalOpen, setIsRfidModalOpen] = useState(false);
+    const [rfidScanInput, setRfidScanInput] = useState('');
+    const [scannedItemMatch, setScannedItemMatch] = useState<any>(null);
+    const [rfidErrorMsg, setRfidErrorMsg] = useState('');
+
+    const handleRfidScanLookup = (scannedCode: string) => {
+        const cleanTag = scannedCode.trim().toUpperCase();
+        if (!cleanTag) return;
+
+        setRfidScanInput(cleanTag);
+        const match = items.find(i => i.rfid_tag && i.rfid_tag.trim().toUpperCase() === cleanTag);
+
+        if (match) {
+            setScannedItemMatch(match);
+            setRfidErrorMsg('');
+        } else {
+            setScannedItemMatch(null);
+            setRfidErrorMsg(`No item associated with RFID tag '${cleanTag}'. Please assign this tag in the RFID Tagging page first.`);
+        }
+    };
+
+    const handleConfirmRfidReceive = () => {
+        if (!scannedItemMatch) return;
+
+        // Find supplier ID associated with item
+        const matchingSupplierId = scannedItemMatch.supplier_id || (suppliers.length > 0 ? suppliers[0].id : '');
+
+        setData({
+            item_id: scannedItemMatch.id,
+            supplier_id: matchingSupplierId,
+            quantity: '1',
+            date_received: new Date().toISOString().split('T')[0],
+        });
+
+        setIsRfidModalOpen(false);
+        setRfidScanInput('');
+        setScannedItemMatch(null);
+        setRfidErrorMsg('');
+        setIsModalOpen(true);
+    };
+
     // --- DERIVED DATA ---
     const supplierOptions = useMemo(() => {
         const uniqueSuppliers = Array.from(new Set(receivings.map(r => r.supplier)));
@@ -256,6 +298,19 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                         classNamePrefix="react-select"
                                     />
                                 </div>
+
+                                <button 
+                                    onClick={() => {
+                                        setRfidScanInput('');
+                                        setScannedItemMatch(null);
+                                        setRfidErrorMsg('');
+                                        setIsRfidModalOpen(true);
+                                    }}
+                                    className="bg-gradient-to-r from-[#800000] to-[#600000] hover:from-[#600000] hover:to-[#400000] text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2 whitespace-nowrap"
+                                >
+                                    <svg className="w-4 h-4 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                                    Scan RFID to Receive
+                                </button>
 
                                 <button 
                                     onClick={openModal}
@@ -828,6 +883,113 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                         >
                             Close
                         </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* RFID RECEIVING SCANNER MODAL */}
+            <Modal show={isRfidModalOpen} onClose={() => setIsRfidModalOpen(false)} maxWidth="md">
+                <div className="relative bg-white rounded-2xl shadow-2xl w-full overflow-hidden border border-red-100">
+                    <div className="h-2 w-full bg-gradient-to-r from-[#800000] via-red-800 to-[#800000]"></div>
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-red-50 rounded-xl text-[#800000]">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 tracking-tight">Scan RFID to Identify Item</h3>
+                                <p className="text-xs text-gray-500 font-medium">Automatic item lookup & receiving pre-fill</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setIsRfidModalOpen(false)}
+                            className="text-gray-400 hover:text-red-600 p-1.5 rounded-full transition-colors"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <div className="p-6 space-y-5">
+                        <div className="space-y-2">
+                            <label className="block text-xs font-bold uppercase text-gray-500 tracking-wider">
+                                Scan RFID Tag or Enter ID
+                            </label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={rfidScanInput}
+                                    onChange={(e) => handleRfidScanLookup(e.target.value)}
+                                    placeholder="Scan or type RFID tag (e.g. RFID-8A72F91C)..."
+                                    className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#800000]/20 focus:border-[#800000]"
+                                    autoFocus
+                                />
+                            </div>
+                        </div>
+
+                        {/* MATCH FOUND CARD */}
+                        {scannedItemMatch && (
+                            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 animate-in fade-in zoom-in-95">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
+                                        Item Identified Successfully ✓
+                                    </span>
+                                    <span className="text-xs font-mono font-bold text-[#800000]">{scannedItemMatch.rfid_tag}</span>
+                                </div>
+                                <h4 className="text-base font-bold text-gray-900">{scannedItemMatch.name}</h4>
+                                <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                                    <div>
+                                        <span className="text-gray-400">Property No / SKU:</span>
+                                        <p className="font-semibold text-gray-800 font-mono">{scannedItemMatch.sku || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400">Supplier:</span>
+                                        <p className="font-semibold text-gray-800">{scannedItemMatch.supplier_name || 'N/A'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ERROR BANNER */}
+                        {rfidErrorMsg && (
+                            <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-xs text-red-900 space-y-2">
+                                <div className="flex items-center gap-2 font-bold text-red-700">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                    <span>Tag Not Found</span>
+                                </div>
+                                <p>{rfidErrorMsg}</p>
+                                <button
+                                    type="button"
+                                    onClick={() => router.visit(route('rfid-scanner.index'))}
+                                    className="px-3 py-1.5 bg-[#800000] text-white font-bold rounded-lg text-xs hover:bg-[#600000] transition-colors"
+                                >
+                                    Go to RFID Tagging Console →
+                                </button>
+                            </div>
+                        )}
+
+                        <div className="flex justify-end gap-3 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setIsRfidModalOpen(false)}
+                                className="px-4 py-2 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmRfidReceive}
+                                disabled={!scannedItemMatch}
+                                className={`px-5 py-2 text-xs font-bold text-white rounded-xl transition-all ${
+                                    scannedItemMatch
+                                    ? 'bg-[#800000] hover:bg-[#600000] shadow-md shadow-[#800000]/20'
+                                    : 'bg-gray-300 cursor-not-allowed'
+                                }`}
+                            >
+                                Proceed to Receiving →
+                            </button>
+                        </div>
                     </div>
                 </div>
             </Modal>
