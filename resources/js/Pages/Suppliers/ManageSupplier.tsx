@@ -1,5 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import Breadcrumbs from '@/Components/Breadcrumbs';
+import Modal from '@/Components/Modal';
 import { useState, useEffect, useMemo } from 'react';
 import Select from 'react-select';
 import Sidebar from '@/Components/Sidebar';
@@ -8,27 +9,14 @@ import { getSidebarModules } from '@/utils/sidebarConfig';
 // --- REUSABLE UI COMPONENTS (Internal) ---
 
 const SupplierModal = ({ show, onClose, title, children, footer, isSubmitting }: any) => {
-    if (!show) return null;
-
-    useEffect(() => {
-        const handleEsc = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
-        };
-        window.addEventListener('keydown', handleEsc);
-        return () => window.removeEventListener('keydown', handleEsc);
-    }, [onClose]);
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
-            {/* Backdrop with Blur */}
-            <div
-                className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
-                onClick={!isSubmitting ? onClose : undefined}
-            ></div>
-
-            {/* Modal Card */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl transform transition-all scale-100 overflow-hidden border border-red-100 flex flex-col max-h-[90vh]">
-
+        <Modal
+            show={show}
+            onClose={() => !isSubmitting && onClose()}
+            maxWidth="4xl"
+            closeable={!isSubmitting}
+        >
+            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
                 {/* Decorative Top Bar */}
                 <div className="h-2 w-full bg-gradient-to-r from-red-900 via-red-800 to-red-950 shrink-0"></div>
 
@@ -46,6 +34,7 @@ const SupplierModal = ({ show, onClose, title, children, footer, isSubmitting }:
                         </div>
                     </div>
                     <button
+                        type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
                         className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-colors disabled:opacity-50"
@@ -58,16 +47,18 @@ const SupplierModal = ({ show, onClose, title, children, footer, isSubmitting }:
                 </div>
 
                 {/* Body (Scrollable) */}
-                <div className="p-8 overflow-y-auto custom-scrollbar">
+                <div className="p-8 overflow-y-auto custom-scrollbar flex-1">
                     {children}
                 </div>
 
                 {/* Footer */}
-                <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
-                    {footer}
-                </div>
+                {footer && (
+                    <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
+                        {footer}
+                    </div>
+                )}
             </div>
-        </div>
+        </Modal>
     );
 };
 

@@ -73,7 +73,7 @@ export default function Index({ auth }: { auth: any }) {
 
             {/* Locked Feature Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4 transition-all duration-300">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/75 backdrop-blur-md p-4 transition-all duration-300">
                     <div className="bg-white rounded-[2rem] p-10 max-w-lg w-full shadow-2xl border border-slate-100 transform -translate-y-4 animate-in fade-in slide-in-from-bottom-8 duration-500">
                         <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-[#FFF5F5] mb-6 ring-8 ring-[#FFF5F5]/50">
                             <svg className="h-10 w-10 text-[#800000]" fill="none" viewBox="0 0 24 24" stroke="currentColor">

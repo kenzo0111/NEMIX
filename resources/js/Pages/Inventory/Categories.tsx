@@ -1,5 +1,6 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
+import Modal from '@/Components/Modal';
 import Sidebar from '@/Components/Sidebar';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
@@ -8,28 +9,14 @@ import { getSidebarModules } from '@/utils/sidebarConfig';
 // --- REUSABLE UI COMPONENTS (Internal for this file) ---
 
 const InventoryModal = ({ show, onClose, title, children, footer, isSubmitting }: any) => {
-    if (!show) return null;
-
-    // Close on Escape key
-    useEffect(() => {
-        const handleEsc = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
-        };
-        window.addEventListener('keydown', handleEsc);
-        return () => window.removeEventListener('keydown', handleEsc);
-    }, [onClose]);
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
-            {/* Backdrop with Blur */}
-            <div 
-                className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
-                onClick={!isSubmitting ? onClose : undefined}
-            ></div>
-
-            {/* Modal Card */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg transform transition-all scale-100 overflow-hidden border border-red-100">
-                
+        <Modal
+            show={show}
+            onClose={() => !isSubmitting && onClose()}
+            maxWidth="lg"
+            closeable={!isSubmitting}
+        >
+            <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
                 {/* Decorative Top Bar */}
                 <div className="h-2 w-full bg-gradient-to-r from-red-900 via-red-800 to-red-950"></div>
 
@@ -45,6 +32,7 @@ const InventoryModal = ({ show, onClose, title, children, footer, isSubmitting }
                         </div>
                     </div>
                     <button
+                        type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
                         aria-label="Close"
@@ -60,11 +48,13 @@ const InventoryModal = ({ show, onClose, title, children, footer, isSubmitting }
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3">
-                    {footer}
-                </div>
+                {footer && (
+                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3">
+                        {footer}
+                    </div>
+                )}
             </div>
-        </div>
+        </Modal>
     );
 };
 
@@ -469,56 +459,38 @@ export default function Categories({ auth, categories }: { auth: any, categories
             </InventoryModal>
 
             {/* FORM SUCCESS MODAL */}
-            {showFormSuccessModal && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
-                    <div 
-                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
-                        onClick={() => setShowFormSuccessModal(false)}
-                    ></div>
-                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-green-100 text-center animate-fade-in-up">
-                        <div className="h-2 w-full bg-gradient-to-r from-green-500 to-green-600"></div>
-                        <div className="p-8">
-                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
-                                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
-                            <p className="text-sm text-gray-500 mb-8">{formSuccessMessage}</p>
-                            <button
-                                onClick={() => setShowFormSuccessModal(false)}
-                                className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 shadow-md focus:outline-none transition-all"
-                            >
-                                Close
-                            </button>
-                        </div>
+            <Modal show={showFormSuccessModal} onClose={() => setShowFormSuccessModal(false)} maxWidth="sm">
+                <div className="p-8 text-center">
+                    <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+                        <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                     </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
+                    <p className="text-sm text-gray-500 mb-8">{formSuccessMessage}</p>
+                    <button
+                        onClick={() => setShowFormSuccessModal(false)}
+                        className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 shadow-md focus:outline-none transition-all"
+                    >
+                        Close
+                    </button>
                 </div>
-            )}
+            </Modal>
 
             {/* FORM ERROR MODAL */}
-            {showFormErrorModal && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
-                    <div 
-                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
-                        onClick={() => setShowFormErrorModal(false)}
-                    ></div>
-                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all scale-100 overflow-hidden border border-red-100 text-center animate-fade-in-up">
-                        <div className="h-2 w-full bg-gradient-to-r from-red-500 to-red-600"></div>
-                        <div className="p-8">
-                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
-                                <svg className="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Operation Failed</h3>
-                            <p className="text-sm text-gray-500 mb-8">Please check the form for completeness or errors and try again.</p>
-                            <button
-                                onClick={() => setShowFormErrorModal(false)}
-                                className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 shadow-md focus:outline-none transition-all"
-                            >
-                                Close
-                            </button>
-                        </div>
+            <Modal show={showFormErrorModal} onClose={() => setShowFormErrorModal(false)} maxWidth="sm">
+                <div className="p-8 text-center">
+                    <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+                        <svg className="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Operation Failed</h3>
+                    <p className="text-sm text-gray-500 mb-8">Please check the form for completeness or errors and try again.</p>
+                    <button
+                        onClick={() => setShowFormErrorModal(false)}
+                        className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 shadow-md focus:outline-none transition-all"
+                    >
+                        Close
+                    </button>
                 </div>
-            )}
+            </Modal>
         </div>
     );
 }

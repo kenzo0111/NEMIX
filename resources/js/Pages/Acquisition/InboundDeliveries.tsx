@@ -23,7 +23,7 @@ const InventoryModal = ({ show, onClose, title, children, footer, isSubmitting }
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
             <div 
-                className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+                className="absolute inset-0 bg-slate-900/75 backdrop-blur-md transition-opacity" 
                 onClick={!isSubmitting ? onClose : undefined}
             ></div>
             <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl transform transition-all scale-100 overflow-hidden border border-red-100 flex flex-col max-h-[90vh]">

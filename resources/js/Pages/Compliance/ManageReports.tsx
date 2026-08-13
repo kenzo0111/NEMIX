@@ -1,5 +1,6 @@
 import Sidebar from '@/Components/Sidebar';
 import Breadcrumbs from '@/Components/Breadcrumbs';
+import Modal from '@/Components/Modal';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Suspense, lazy, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import Select from 'react-select';
@@ -63,26 +64,17 @@ const reportTemplateFallback = (
 );
 
 // --- REUSABLE UI COMPONENTS ---
-const ReportModal = ({ show, onClose, title, children, footer, isSubmitting, isLandscape, collapsed }: any) => {
-    if (!show) return null;
-
-    useEffect(() => {
-        const handleEsc = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
-        };
-        window.addEventListener('keydown', handleEsc);
-        return () => window.removeEventListener('keydown', handleEsc);
-    }, [onClose]);
-
-        return (
-            <div className={`fixed inset-y-0 right-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all duration-300 ${collapsed ? 'left-20' : 'left-[18rem]'} print:static print:inset-auto print:p-0 print:block print:w-full print:translate-x-0`}>
-                <div 
-                    className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity print:hidden" 
-                    onClick={!isSubmitting ? onClose : undefined}
-                ></div>
-                <div className={`relative bg-white rounded-2xl shadow-2xl w-full ${isLandscape ? 'max-w-7xl lg:max-w-[95vw]' : 'max-w-4xl lg:max-w-5xl'} transform transition-all scale-100 flex flex-col max-h-[90vh] print:shadow-none print:max-w-none print:max-h-none print:block print:m-0 print:p-0`}>
-                    <div className="h-2 w-full flex-shrink-0 bg-gradient-to-r from-red-900 via-red-800 to-red-950 rounded-t-2xl print:hidden"></div>
-                    <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex-shrink-0 print:hidden">
+const ReportModal = ({ show, onClose, title, children, footer, isSubmitting, isLandscape }: any) => {
+    return (
+        <Modal
+            show={show}
+            onClose={() => !isSubmitting && onClose()}
+            maxWidth={isLandscape ? '7xl' : '5xl'}
+            closeable={!isSubmitting}
+        >
+            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl print:max-h-none print:shadow-none print:block print:m-0 print:p-0">
+                <div className="h-2 w-full flex-shrink-0 bg-gradient-to-r from-red-900 via-red-800 to-red-950 rounded-t-2xl print:hidden"></div>
+                <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex-shrink-0 print:hidden">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-red-50 rounded-lg text-red-900">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -107,11 +99,13 @@ const ReportModal = ({ show, onClose, title, children, footer, isSubmitting, isL
                     {children}
                 </div>
                 
-                <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 flex-shrink-0 rounded-b-2xl print:hidden">
-                    {footer}
-                </div>
+                {footer && (
+                    <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 flex-shrink-0 rounded-b-2xl print:hidden">
+                        {footer}
+                    </div>
+                )}
             </div>
-        </div>
+        </Modal>
     );
 };
 
@@ -1167,39 +1161,36 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             `}</style>
             
             {/* Action Dialog Modal */}
-            {actionDialog.show && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={closeActionDialog}></div>
-                    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center transform transition-all scale-100 flex flex-col items-center">
-                        {actionDialog.type === 'success' && (
-                            <div className="mx-auto flex flex-shrink-0 items-center justify-center h-14 w-14 rounded-full bg-green-100 mb-4">
-                                <svg className="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                </svg>
-                            </div>
-                        )}
-                        {actionDialog.type === 'confirm' && (
-                            <div className="mx-auto flex flex-shrink-0 items-center justify-center h-14 w-14 rounded-full bg-yellow-100 mb-4">
-                                <svg className="h-7 w-7 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                            </div>
-                        )}
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">{actionDialog.title}</h3>
-                        <p className="text-sm text-gray-500 mb-6">{actionDialog.message}</p>
-                        <div className="flex gap-3 justify-center w-full">
-                            {actionDialog.type === 'confirm' ? (
-                                <>
-                                    <button onClick={closeActionDialog} className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors">Cancel</button>
-                                    <button onClick={actionDialog.onConfirm} className="flex-1 px-4 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors">Confirm</button>
-                                </>
-                            ) : (
-                                <button onClick={closeActionDialog} className="w-full px-4 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors">Close</button>
-                            )}
+            <Modal show={actionDialog.show} onClose={closeActionDialog} maxWidth="sm">
+                <div className="p-6 text-center transform transition-all flex flex-col items-center">
+                    {actionDialog.type === 'success' && (
+                        <div className="mx-auto flex flex-shrink-0 items-center justify-center h-14 w-14 rounded-full bg-green-100 mb-4">
+                            <svg className="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                            </svg>
                         </div>
+                    )}
+                    {actionDialog.type === 'confirm' && (
+                        <div className="mx-auto flex flex-shrink-0 items-center justify-center h-14 w-14 rounded-full bg-yellow-100 mb-4">
+                            <svg className="h-7 w-7 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                    )}
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">{actionDialog.title}</h3>
+                    <p className="text-sm text-gray-500 mb-6">{actionDialog.message}</p>
+                    <div className="flex gap-3 justify-center w-full">
+                        {actionDialog.type === 'confirm' ? (
+                            <>
+                                <button onClick={closeActionDialog} className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors">Cancel</button>
+                                <button onClick={actionDialog.onConfirm} className="flex-1 px-4 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors">Confirm</button>
+                            </>
+                        ) : (
+                            <button onClick={closeActionDialog} className="w-full px-4 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors">Close</button>
+                        )}
                     </div>
                 </div>
-            )}
+            </Modal>
             <ReportModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
