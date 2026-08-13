@@ -1,7 +1,8 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { Plus, Edit2, Trash2, Shield, Check } from 'lucide-react'; // Optional: for icons
+import { Plus, Edit2, Trash2, Shield, Check, X } from 'lucide-react'; // Optional: for icons
 import Sidebar from '@/Components/Sidebar';
 import Breadcrumbs from '@/Components/Breadcrumbs';
+import Modal from '@/Components/Modal';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useState, useEffect } from 'react';
 
@@ -390,250 +391,300 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                 </div>
 
                 {/* Create Role Modal */}
-                {isCreateModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/50 backdrop-blur-sm transition-opacity">
-                        <div className="relative w-full max-w-md p-4 mx-auto">
-                            <div className="relative bg-white rounded-xl shadow-2xl border border-gray-100">
-                                <div className="flex items-center justify-between p-5 border-b border-gray-100 rounded-t-xl">
-                                    <h3 className="text-xl font-bold text-red-950 font-serif">Create New Role</h3>
-                                    <button 
-                                        onClick={() => setIsCreateModalOpen(false)}
-                                        className="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm w-8 h-8 flex justify-center items-center"
-                                    >
-                                        <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                                        </svg>
-                                    </button>
+                <Modal show={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} maxWidth="md">
+                    <div className="overflow-hidden rounded-xl">
+                        {/* Top Decorative Accent Gradient */}
+                        <div className="h-1.5 w-full bg-gradient-to-r from-red-900 via-red-800 to-red-950 shrink-0"></div>
+
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2.5 bg-red-50 border border-red-100 rounded-xl text-red-900 flex items-center justify-center shadow-xs">
+                                    <Shield className="w-5 h-5 text-red-900" />
                                 </div>
-                                <div className="p-5 space-y-4">
-                                    <form onSubmit={handleCreateRole}>
-                                        <div>
-                                            <label htmlFor="roleName" className="block mb-2 text-sm font-medium text-gray-900 font-sans">Role Name</label>
-                                            <input 
-                                                type="text" 
-                                                id="roleName" 
-                                                value={newRoleName}
-                                                onChange={(e) => setNewRoleName(e.target.value)}
-                                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-900 focus:border-red-900 block w-full p-2.5 font-sans" 
-                                                placeholder="e.g. Audit Manager" 
-                                                required 
-                                            />
-                                        </div>
-                                        <div className="flex items-center justify-end mt-6 space-x-3">
-                                            <button 
-                                                type="button" 
-                                                onClick={() => setIsCreateModalOpen(false)}
-                                                className="text-gray-700 bg-white border border-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 hover:bg-gray-50 focus:z-10"
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button 
-                                                type="submit" 
-                                                disabled={isCreatingRole}
-                                                className="text-white bg-red-900 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                            >
-                                                {isCreatingRole ? (
-                                                    <>
-                                                        <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                        </svg>
-                                                        Creating...
-                                                    </>
-                                                ) : 'Create Role'}
-                                            </button>
-                                        </div>
-                                    </form>
+                                <div>
+                                    <h3 className="text-xl font-bold text-red-950 font-serif tracking-tight">Create New Role</h3>
+                                    <p className="text-xs text-gray-500 font-medium mt-0.5">Define a user role to configure module access permissions.</p>
                                 </div>
                             </div>
+                            <button 
+                                type="button"
+                                onClick={() => setIsCreateModalOpen(false)}
+                                className="text-gray-400 hover:text-red-900 hover:bg-red-50 p-2 rounded-full transition-colors"
+                                aria-label="Close"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
                         </div>
+
+                        {/* Form Body */}
+                        <form onSubmit={handleCreateRole}>
+                            <div className="p-6 space-y-4">
+                                <div>
+                                    <label htmlFor="roleName" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-700 font-sans">
+                                        Role Name <span className="text-red-600">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <Shield className="w-4 h-4" />
+                                        </div>
+                                        <input 
+                                            type="text" 
+                                            id="roleName" 
+                                            value={newRoleName}
+                                            onChange={(e) => setNewRoleName(e.target.value)}
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-red-900/20 focus:border-red-900 block w-full pl-9 p-2.5 font-sans transition-all" 
+                                            placeholder="e.g. Audit Manager" 
+                                            required 
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="flex items-center justify-end px-6 py-4 bg-gray-50/80 border-t border-gray-100 space-x-3">
+                                <button 
+                                    type="button" 
+                                    onClick={() => setIsCreateModalOpen(false)}
+                                    className="text-gray-700 bg-white border border-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 hover:bg-gray-50 focus:z-10 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    type="submit" 
+                                    disabled={isCreatingRole}
+                                    className="text-white bg-red-900 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm transition-all"
+                                >
+                                    {isCreatingRole ? (
+                                        <>
+                                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Creating...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Plus className="w-4 h-4" />
+                                            Create Role
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                )}
+                </Modal>
 
                 {/* Edit Role Modal */}
-                {isEditModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/50 backdrop-blur-sm transition-opacity">
-                        <div className="relative w-full max-w-3xl p-4 mx-auto my-8 max-h-[90vh] flex flex-col">
-                            <div className="relative bg-white rounded-xl shadow-2xl border border-gray-100 flex flex-col max-h-full">
-                                <div className="flex items-center justify-between p-5 border-b border-gray-100 rounded-t-xl shrink-0">
-                                    <h3 className="text-xl font-bold text-red-950 font-serif">Edit Role & Permissions</h3>
-                                    <button 
-                                        onClick={() => setIsEditModalOpen(false)}
-                                        className="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm w-8 h-8 flex justify-center items-center"
-                                    >
-                                        <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                                        </svg>
-                                    </button>
+                <Modal show={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} maxWidth="3xl">
+                    <div className="overflow-hidden rounded-xl flex flex-col max-h-[85vh]">
+                        {/* Top Decorative Accent Gradient */}
+                        <div className="h-1.5 w-full bg-gradient-to-r from-red-900 via-red-800 to-red-950 shrink-0"></div>
+
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50 shrink-0">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2.5 bg-red-50 border border-red-100 rounded-xl text-red-900 flex items-center justify-center shadow-xs">
+                                    <Edit2 className="w-5 h-5 text-red-900" />
                                 </div>
-                                <div className="p-5 space-y-6 overflow-y-auto grow">
-                                    <form id="edit-role-form" onSubmit={handleUpdateRole}>
-                                        <div className="mb-6">
-                                            <label htmlFor="editRoleName" className="block mb-2 text-sm font-medium text-gray-900 font-sans">Role Name</label>
-                                            <input 
-                                                type="text" 
-                                                id="editRoleName" 
-                                                value={editingRole?.name || ''}
-                                                onChange={(e) => setEditingRole(editingRole ? { ...editingRole, name: e.target.value } : null)}
-                                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-900 focus:border-red-900 block w-full p-2.5 font-sans" 
-                                                required 
-                                            />
+                                <div>
+                                    <h3 className="text-xl font-bold text-red-950 font-serif tracking-tight">Edit Role & Permissions</h3>
+                                    <p className="text-xs text-gray-500 font-medium mt-0.5">Modify role name and grant module capabilities.</p>
+                                </div>
+                            </div>
+                            <button 
+                                type="button"
+                                onClick={() => setIsEditModalOpen(false)}
+                                className="text-gray-400 hover:text-red-900 hover:bg-red-50 p-2 rounded-full transition-colors"
+                                aria-label="Close"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Body */}
+                        <div className="p-6 space-y-6 overflow-y-auto grow">
+                            <form id="edit-role-form" onSubmit={handleUpdateRole}>
+                                <div className="mb-6">
+                                    <label htmlFor="editRoleName" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-700 font-sans">
+                                        Role Name <span className="text-red-600">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <Shield className="w-4 h-4" />
                                         </div>
+                                        <input 
+                                            type="text" 
+                                            id="editRoleName" 
+                                            value={editingRole?.name || ''}
+                                            onChange={(e) => setEditingRole(editingRole ? { ...editingRole, name: e.target.value } : null)}
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-red-900/20 focus:border-red-900 block w-full pl-9 p-2.5 font-sans transition-all" 
+                                            required 
+                                        />
+                                    </div>
+                                </div>
 
-                                        <div className="border-t border-gray-200 py-4">
-                                            <h4 className="text-lg font-semibold text-gray-900 mb-4">Assign Permissions</h4>
-                                            <p className="text-sm text-gray-500 mb-4">Select the permissions this role will have across the system modules.</p>
-                                            
-                                            <div className="space-y-6">
-                                                {Object.entries(permissionsByModule).map(([moduleName, permissions]) => {
-                                                    const modulePermIds = permissions.flatMap((p) => p.ids);
-                                                    const isAllSelected = modulePermIds.every((id) => editingRole?.permissions.includes(id));
-                                                    const isPartiallySelected = !isAllSelected && modulePermIds.some((id) => editingRole?.permissions.includes(id));
+                                <div className="border-t border-gray-200 pt-6">
+                                    <h4 className="text-base font-bold text-gray-900 mb-1">Assign Permissions</h4>
+                                    <p className="text-xs text-gray-500 mb-4">Select the permissions this role will have across the system modules.</p>
+                                    
+                                    <div className="space-y-6">
+                                        {Object.entries(permissionsByModule).map(([moduleName, permissions]) => {
+                                            const modulePermIds = permissions.flatMap((p) => p.ids);
+                                            const isAllSelected = modulePermIds.every((id) => editingRole?.permissions.includes(id));
+                                            const isPartiallySelected = !isAllSelected && modulePermIds.some((id) => editingRole?.permissions.includes(id));
 
-                                                    return (
-                                                        <div key={moduleName} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                                            <div className="flex items-center justify-between mb-3 border-b border-gray-200 pb-2">
-                                                                <h5 className="font-semibold text-gray-800">{moduleName}</h5>
-                                                                <label className="flex items-center space-x-2 cursor-pointer relative">
-                                                                    <div className="flex items-center h-5">
+                                            return (
+                                                <div key={moduleName} className="bg-gray-50/80 rounded-xl p-4 border border-gray-200">
+                                                    <div className="flex items-center justify-between mb-3 border-b border-gray-200/80 pb-3">
+                                                        <h5 className="font-bold text-gray-800 text-sm">{moduleName}</h5>
+                                                        <label className="flex items-center space-x-2 cursor-pointer relative">
+                                                            <div className="flex items-center h-5">
+                                                                <input 
+                                                                    type="checkbox"
+                                                                    checked={isAllSelected}
+                                                                    ref={input => {
+                                                                        if (input) input.indeterminate = isPartiallySelected;
+                                                                    }}
+                                                                    onChange={(e) => handleSelectAllModule(moduleName, e.target.checked)}
+                                                                    className="w-4 h-4 text-red-900 bg-white border-gray-300 rounded focus:ring-red-900 focus:ring-2"
+                                                                />
+                                                            </div>
+                                                            <span className="text-xs font-semibold text-gray-600">Select All in Module</span>
+                                                        </label>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+                                                        {permissions.map((perm) => {
+                                                            const isChecked = perm.ids.some((id) => editingRole?.permissions.includes(id));
+                                                            return (
+                                                                <label 
+                                                                    key={perm.id} 
+                                                                    className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg border transition-all ${
+                                                                        isChecked 
+                                                                        ? 'bg-red-50/80 border-red-200 shadow-xs' 
+                                                                        : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                                                                    }`}
+                                                                >
+                                                                    <div className="flex items-center justify-center">
                                                                         <input 
                                                                             type="checkbox"
-                                                                            checked={isAllSelected}
-                                                                            ref={input => {
-                                                                                if (input) input.indeterminate = isPartiallySelected;
-                                                                            }}
-                                                                            onChange={(e) => handleSelectAllModule(moduleName, e.target.checked)}
-                                                                            className="w-4 h-4 text-red-900 bg-white border-gray-300 rounded focus:ring-red-900 focus:ring-2"
+                                                                            checked={isChecked}
+                                                                            onChange={() => handlePermissionToggle(perm)}
+                                                                            className="w-4 h-4 text-red-900 bg-white border-gray-300 rounded focus:ring-red-900 focus:ring-2 transition-colors cursor-pointer"
                                                                         />
                                                                     </div>
-                                                                    <span className="text-sm font-medium text-gray-700">Select All in Module</span>
+                                                                    <span className={`text-xs font-medium capitalize truncate ${
+                                                                        isChecked ? 'text-red-950 font-semibold' : 'text-gray-700'
+                                                                    }`}>
+                                                                        {perm.displayName}
+                                                                    </span>
                                                                 </label>
-                                                            </div>
-                                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
-                                                                {permissions.map((perm) => {
-                                                                    const isChecked = perm.ids.some((id) => editingRole?.permissions.includes(id));
-                                                                    return (
-                                                                        <label 
-                                                                            key={perm.id} 
-                                                                            className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg border transition-all ${
-                                                                                isChecked 
-                                                                                ? 'bg-red-50 border-red-200 shadow-sm' 
-                                                                                : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                                                                            }`}
-                                                                        >
-                                                                            <div className="flex items-center justify-center">
-                                                                                <input 
-                                                                                    type="checkbox"
-                                                                                    checked={isChecked}
-                                                                                    onChange={() => handlePermissionToggle(perm)}
-                                                                                    className="w-4 h-4 text-red-900 bg-white border-gray-300 rounded focus:ring-red-900 focus:ring-2 transition-colors cursor-pointer"
-                                                                                />
-                                                                            </div>
-                                                                            <span className={`text-sm font-medium capitalize truncate ${
-                                                                                isChecked ? 'text-red-900' : 'text-gray-700'
-                                                                            }`}>
-                                                                                {perm.displayName}
-                                                                            </span>
-                                                                        </label>
-                                                                    );
-                                                                })}
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    </form>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                                <div className="flex items-center justify-end p-5 border-t border-gray-100 shrink-0 space-x-3 bg-gray-50 rounded-b-xl">
-                                    <button 
-                                        type="button" 
-                                        onClick={() => setIsEditModalOpen(false)}
-                                        className="text-gray-700 bg-white border border-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 hover:bg-gray-50 focus:z-10"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button 
-                                        type="submit" 
-                                        form="edit-role-form"
-                                        className="text-white bg-red-900 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors"
-                                    >
-                                        Update Role & Permissions
-                                    </button>
-                                </div>
-                            </div>
+                            </form>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="flex items-center justify-end px-6 py-4 border-t border-gray-100 shrink-0 space-x-3 bg-gray-50/80">
+                            <button 
+                                type="button" 
+                                onClick={() => setIsEditModalOpen(false)}
+                                className="text-gray-700 bg-white border border-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 hover:bg-gray-50 focus:z-10 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                type="submit" 
+                                form="edit-role-form"
+                                className="text-white bg-red-900 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center shadow-sm transition-all"
+                            >
+                                Update Role & Permissions
+                            </button>
                         </div>
                     </div>
-                )}
+                </Modal>
 
                 {/* Delete Confirmation Modal */}
-                {isDeleteModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/50 backdrop-blur-sm transition-opacity">
-                        <div className="relative w-full max-w-md p-4 mx-auto">
-                            <div className="relative bg-white rounded-xl shadow-2xl border border-gray-100 p-6 text-center">
-                                <Trash2 className="mx-auto mb-4 text-red-500 w-12 h-12" />
-                                <h3 className="mb-5 text-lg font-normal text-gray-500">
-                                    Are you sure you want to delete the role <span className="font-bold text-gray-900">"{roleToDelete?.name}"</span>?
-                                </h3>
-                                <div className="flex justify-center space-x-3">
-                                    <button 
-                                        onClick={() => setIsDeleteModalOpen(false)}
-                                        className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 transition-colors"
-                                    >
-                                        No, cancel
-                                    </button>
-                                    <button 
-                                        onClick={confirmDeleteRole}
-                                        className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center transition-colors"
-                                    >
-                                        Yes, delete it
-                                    </button>
-                                </div>
+                <Modal show={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} maxWidth="md">
+                    <div className="overflow-hidden rounded-xl">
+                        <div className="h-1.5 w-full bg-gradient-to-r from-red-600 to-red-800 shrink-0"></div>
+                        <div className="p-6 text-center">
+                            <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
+                                <Trash2 className="w-6 h-6" />
+                            </div>
+                            <h3 className="mb-2 text-lg font-bold text-gray-900 font-serif">
+                                Delete Role
+                            </h3>
+                            <p className="mb-6 text-sm text-gray-500">
+                                Are you sure you want to delete the role <strong className="text-gray-900">"{roleToDelete?.name}"</strong>?
+                            </p>
+                            <div className="flex justify-center space-x-3">
+                                <button 
+                                    type="button"
+                                    onClick={() => setIsDeleteModalOpen(false)}
+                                    className="text-gray-700 bg-white hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-300 text-sm font-medium px-5 py-2.5 transition-all"
+                                >
+                                    No, cancel
+                                </button>
+                                <button 
+                                    type="button"
+                                    onClick={confirmDeleteRole}
+                                    className="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center shadow-sm transition-all"
+                                >
+                                    Yes, delete it
+                                </button>
                             </div>
                         </div>
                     </div>
-                )}
+                </Modal>
 
                 {/* Success Notification Modal */}
-                {successModal.isOpen && (
-                    <div className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/50 backdrop-blur-sm transition-opacity">
-                        <div className="relative w-full max-w-sm p-4 mx-auto">
-                            <div className="relative bg-white rounded-xl shadow-2xl border border-green-100 p-6 text-center flex flex-col items-center">
-                                <div className="w-12 h-12 rounded-full bg-green-100 p-2 flex items-center justify-center mx-auto mb-4">
-                                    <Check className="w-8 h-8 text-green-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
-                                <p className="mb-6 text-sm text-gray-600">{successModal.message}</p>
-                                <button 
-                                    onClick={() => setSuccessModal({ isOpen: false, message: '' })}
-                                    className="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors"
-                                >
-                                    Continue
-                                </button>
+                <Modal show={successModal.isOpen} onClose={() => setSuccessModal({ isOpen: false, message: '' })} maxWidth="sm">
+                    <div className="overflow-hidden rounded-xl">
+                        <div className="h-1.5 w-full bg-gradient-to-r from-green-600 to-green-800 shrink-0"></div>
+                        <div className="p-6 text-center flex flex-col items-center">
+                            <div className="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mx-auto mb-4">
+                                <Check className="w-6 h-6 text-green-600" />
                             </div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-2 font-serif">Success!</h3>
+                            <p className="mb-6 text-sm text-gray-600">{successModal.message}</p>
+                            <button 
+                                type="button"
+                                onClick={() => setSuccessModal({ isOpen: false, message: '' })}
+                                className="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all shadow-sm"
+                            >
+                                Continue
+                            </button>
                         </div>
                     </div>
-                )}
+                </Modal>
+
                 {/* Unauthorized Action Modal */}
-                {unauthorizedModal.isOpen && (
-                    <div className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/50 backdrop-blur-sm transition-opacity">
-                        <div className="relative w-full max-w-sm p-4 mx-auto">
-                            <div className="relative bg-white rounded-xl shadow-2xl border border-red-100 p-6 text-center flex flex-col items-center">
-                                <div className="w-12 h-12 rounded-full bg-red-100 p-2 flex items-center justify-center mx-auto mb-4">
-                                    <Trash2 className="w-8 h-8 text-red-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">Permission Required</h3>
-                                <p className="mb-6 text-sm text-gray-600">{unauthorizedModal.message}</p>
-                                <button 
-                                    onClick={() => setUnauthorizedModal({ isOpen: false, message: '' })}
-                                    className="w-full text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors"
-                                >
-                                    Close
-                                </button>
+                <Modal show={unauthorizedModal.isOpen} onClose={() => setUnauthorizedModal({ isOpen: false, message: '' })} maxWidth="sm">
+                    <div className="overflow-hidden rounded-xl">
+                        <div className="h-1.5 w-full bg-gradient-to-r from-red-600 to-red-800 shrink-0"></div>
+                        <div className="p-6 text-center flex flex-col items-center">
+                            <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
+                                <Shield className="w-6 h-6 text-red-600" />
                             </div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-2 font-serif">Permission Required</h3>
+                            <p className="mb-6 text-sm text-gray-600">{unauthorizedModal.message}</p>
+                            <button 
+                                type="button"
+                                onClick={() => setUnauthorizedModal({ isOpen: false, message: '' })}
+                                className="w-full text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all shadow-sm"
+                            >
+                                Close
+                            </button>
                         </div>
                     </div>
-                )}
+                </Modal>
             </main>
         </div>
     );

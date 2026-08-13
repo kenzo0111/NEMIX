@@ -1,9 +1,11 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import Breadcrumbs from '@/Components/Breadcrumbs';
+import Modal from '@/Components/Modal';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useEffect, useState } from 'react';
 import Select from 'react-select';
+import { UserPlus, User, Mail, X, AlertTriangle } from 'lucide-react';
 
 interface Staff {
     id: number;
@@ -291,208 +293,281 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                 </div>
 
                 {/* Create Staff Modal */}
-                {isCreateModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/50 backdrop-blur-sm transition-opacity">
-                        <div className="relative w-full max-w-md p-4 mx-auto">
-                            <div className="relative bg-white rounded-xl shadow-2xl border border-gray-100">
-                                <div className="flex items-center justify-between p-5 border-b border-gray-100 rounded-t-xl">
-                                    <h3 className="text-xl font-bold text-red-950 font-serif">Add New Staff</h3>
-                                    <button 
-                                        onClick={() => setIsCreateModalOpen(false)}
-                                        className="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm w-8 h-8 flex justify-center items-center"
-                                    >
-                                        <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                                        </svg>
-                                    </button>
+                <Modal show={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} maxWidth="md">
+                    <div className="overflow-hidden rounded-xl">
+                        {/* Decorative Top Bar */}
+                        <div className="h-1.5 w-full bg-gradient-to-r from-red-900 via-red-800 to-red-950 shrink-0"></div>
+
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2.5 bg-red-50 border border-red-100 rounded-xl text-red-900 flex items-center justify-center shadow-xs">
+                                    <UserPlus className="w-5 h-5 text-red-900" />
                                 </div>
-                                <div className="p-5 space-y-4">
-                                    <form onSubmit={handleCreateStaff} className="space-y-4">
-                                        <div>
-                                            <label htmlFor="staffName" className="block mb-2 text-sm font-medium text-gray-900 font-sans">Full Name</label>
-                                            <input 
-                                                type="text" 
-                                                id="staffName" 
-                                                value={newStaffName}
-                                                onChange={(e) => setNewStaffName(e.target.value)}
-                                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-900 focus:border-red-900 block w-full p-2.5 font-sans" 
-                                                placeholder="e.g. Jane Doe" 
-                                                required 
-                                            />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="staffEmail" className="block mb-2 text-sm font-medium text-gray-900 font-sans">Email Address</label>
-                                            <input 
-                                                type="email" 
-                                                id="staffEmail" 
-                                                value={newStaffEmail}
-                                                onChange={(e) => setNewStaffEmail(e.target.value)}
-                                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-900 focus:border-red-900 block w-full p-2.5 font-sans" 
-                                                placeholder="e.g. jane@example.com" 
-                                                required 
-                                            />
-                                            <p className="mt-2 text-xs text-gray-500">A registration link will be sent to this email.</p>
-                                        </div>
-                                        <div>
-                                            <label htmlFor="staffRole" className="block mb-2 text-sm font-medium text-gray-900 font-sans">Assign Role</label>
-                                            <Select
-                                                inputId="staffRole"
-                                                value={roleOptions.find((option) => option.value === newStaffRole) || null}
-                                                onChange={(selected) => setNewStaffRole(selected?.value || 'Property Staff')}
-                                                options={roleOptions}
-                                                styles={createRoleSelectStyles}
-                                                classNamePrefix="react-select"
-                                                menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
-                                                menuPosition="fixed"
-                                            />
-                                        </div>
-                                        <div className="flex items-center justify-end mt-6 space-x-3 pt-4 border-t border-gray-100">
-                                            <button 
-                                                type="button" 
-                                                onClick={() => setIsCreateModalOpen(false)}
-                                                className="text-gray-700 bg-white border border-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 hover:bg-gray-50 focus:z-10"
-                                            >
-                                                Cancel
-                                            </button>
-                                                <button 
-                                                type="submit" 
-                                                disabled={isAddingStaff}
-                                                className="text-white bg-red-900 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                            >
-                                                {isAddingStaff ? (
-                                                    <>
-                                                        <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                        </svg>
-                                                        Adding...
-                                                    </>
-                                                ) : 'Add Staff'}
-                                            </button>
-                                        </div>
-                                    </form>
+                                <div>
+                                    <h3 className="text-xl font-bold text-red-950 font-serif tracking-tight">Add New Staff</h3>
+                                    <p className="text-xs text-gray-500 font-medium mt-0.5">Register a new staff member and assign their system role.</p>
                                 </div>
                             </div>
+                            <button 
+                                type="button"
+                                onClick={() => setIsCreateModalOpen(false)}
+                                className="text-gray-400 hover:text-red-900 hover:bg-red-50 p-2 rounded-full transition-colors"
+                                aria-label="Close"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
                         </div>
-                    </div>
-                )}
 
-                {/* Edit Staff Modal */}
-                {isEditModalOpen && selectedStaff && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/50 backdrop-blur-sm transition-opacity">
-                        <div className="relative w-full max-w-md p-4 mx-auto">
-                            <div className="relative bg-white rounded-xl shadow-2xl border border-gray-100">
-                                <div className="flex items-center justify-between p-5 border-b border-gray-100 rounded-t-xl">
-                                    <h3 className="text-xl font-bold text-gray-900 font-serif">Edit Staff</h3>
-                                    <button 
-                                        onClick={() => setIsEditModalOpen(false)}
-                                        className="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm w-8 h-8 flex justify-center items-center"
-                                    >
-                                        <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <div className="p-5 space-y-4">
-                                    <form onSubmit={handleEditSubmit} className="space-y-4">
-                                        <div>
-                                            <label htmlFor="editStaffName" className="block mb-2 text-sm font-medium text-gray-900 font-sans">Full Name</label>
-                                            <input 
-                                                type="text" 
-                                                id="editStaffName" 
-                                                value={editStaffName}
-                                                onChange={(e) => setEditStaffName(e.target.value)}
-                                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 font-sans" 
-                                                required 
-                                            />
+                        {/* Form Body */}
+                        <form onSubmit={handleCreateStaff}>
+                            <div className="p-6 space-y-4">
+                                <div>
+                                    <label htmlFor="staffName" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-700 font-sans">
+                                        Full Name <span className="text-red-600">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <User className="w-4 h-4" />
                                         </div>
-                                        <div>
-                                            <label htmlFor="editStaffEmail" className="block mb-2 text-sm font-medium text-gray-900 font-sans">Email Address</label>
-                                            <input 
-                                                type="email" 
-                                                id="editStaffEmail" 
-                                                value={editStaffEmail}
-                                                readOnly
-                                                className="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 font-sans cursor-not-allowed" 
-                                            />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="editStaffRole" className="block mb-2 text-sm font-medium text-gray-900 font-sans">Assign Role</label>
-                                            <Select
-                                                inputId="editStaffRole"
-                                                value={roleOptions.find((option) => option.value === editStaffRole) || null}
-                                                onChange={(selected) => setEditStaffRole(selected?.value || '')}
-                                                options={roleOptions}
-                                                styles={editRoleSelectStyles}
-                                                classNamePrefix="react-select"
-                                                menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
-                                                menuPosition="fixed"
-                                            />
-                                        </div>
-                                        <div className="flex items-center justify-end mt-6 space-x-3 pt-4 border-t border-gray-100">
-                                            <button 
-                                                type="button" 
-                                                onClick={() => setIsEditModalOpen(false)}
-                                                className="text-gray-700 bg-white border border-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 hover:bg-gray-50 focus:z-10"
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button 
-                                                type="submit" 
-                                                disabled={isUpdatingStaff}
-                                                className="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                            >
-                                                {isUpdatingStaff ? (
-                                                    <>
-                                                        <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                        </svg>
-                                                        Updating...
-                                                    </>
-                                                ) : (
-                                                    'Save Changes'
-                                                )}
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Disable/Enable Confirmation Modal */}
-                {isDisableModalOpen && selectedStaff && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/50 backdrop-blur-sm transition-opacity">
-                        <div className="relative w-full max-w-md p-4 mx-auto">
-                            <div className="relative bg-white rounded-xl shadow-2xl border border-gray-100">
-                                <div className="p-6 text-center">
-                                    <svg className={`mx-auto mb-4 w-12 h-12 ${selectedStaff.status === 'Active' ? 'text-red-500' : 'text-green-500'}`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                    </svg>
-                                    <h3 className="mb-5 text-lg font-normal text-gray-500">
-                                        Are you sure you want to {selectedStaff.status === 'Active' ? 'disable' : 'enable'} the account for <strong>{selectedStaff.name}</strong>?
-                                    </h3>
-                                    <div className="flex justify-center space-x-3">
-                                        <button 
-                                            onClick={() => setIsDisableModalOpen(false)}
-                                            className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                        >
-                                            No, cancel
-                                        </button>
-                                        <button 
-                                            onClick={handleDisableConfirm}
-                                            className={`text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center ${selectedStaff.status === 'Active' ? 'bg-red-600 hover:bg-red-800 focus:ring-red-300' : 'bg-green-600 hover:bg-green-800 focus:ring-green-300'}`}
-                                        >
-                                            Yes, I'm sure
-                                        </button>
+                                        <input 
+                                            type="text" 
+                                            id="staffName" 
+                                            value={newStaffName}
+                                            onChange={(e) => setNewStaffName(e.target.value)}
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-red-900/20 focus:border-red-900 block w-full pl-9 p-2.5 font-sans transition-all" 
+                                            placeholder="e.g. Jane Doe" 
+                                            required 
+                                        />
                                     </div>
                                 </div>
+
+                                <div>
+                                    <label htmlFor="staffEmail" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-700 font-sans">
+                                        Email Address <span className="text-red-600">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <Mail className="w-4 h-4" />
+                                        </div>
+                                        <input 
+                                            type="email" 
+                                            id="staffEmail" 
+                                            value={newStaffEmail}
+                                            onChange={(e) => setNewStaffEmail(e.target.value)}
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-red-900/20 focus:border-red-900 block w-full pl-9 p-2.5 font-sans transition-all" 
+                                            placeholder="e.g. jane@example.com" 
+                                            required 
+                                        />
+                                    </div>
+                                    <p className="mt-1.5 text-xs text-gray-500 flex items-center gap-1 font-medium">
+                                        <svg className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        A registration link will automatically be dispatched to this email.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="staffRole" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-700 font-sans">
+                                        Assign Role <span className="text-red-600">*</span>
+                                    </label>
+                                    <Select
+                                        inputId="staffRole"
+                                        value={roleOptions.find((option) => option.value === newStaffRole) || null}
+                                        onChange={(selected) => setNewStaffRole(selected?.value || 'Property Staff')}
+                                        options={roleOptions}
+                                        styles={createRoleSelectStyles}
+                                        classNamePrefix="react-select"
+                                        menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                                        menuPosition="fixed"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="flex items-center justify-end px-6 py-4 bg-gray-50/80 border-t border-gray-100 space-x-3">
+                                <button 
+                                    type="button" 
+                                    onClick={() => setIsCreateModalOpen(false)}
+                                    className="text-gray-700 bg-white border border-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 hover:bg-gray-50 focus:z-10 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    type="submit" 
+                                    disabled={isAddingStaff}
+                                    className="text-white bg-red-900 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm transition-all"
+                                >
+                                    {isAddingStaff ? (
+                                        <>
+                                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Adding Staff...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <UserPlus className="w-4 h-4" />
+                                            Add Staff
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </Modal>
+
+                {/* Edit Staff Modal */}
+                <Modal show={isEditModalOpen && Boolean(selectedStaff)} onClose={() => setIsEditModalOpen(false)} maxWidth="md">
+                    <div className="overflow-hidden rounded-xl">
+                        {/* Decorative Top Bar */}
+                        <div className="h-1.5 w-full bg-gradient-to-r from-indigo-600 via-indigo-700 to-indigo-900 shrink-0"></div>
+
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2.5 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-700 flex items-center justify-center shadow-xs">
+                                    <User className="w-5 h-5 text-indigo-700" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900 font-serif tracking-tight">Edit Staff Details</h3>
+                                    <p className="text-xs text-gray-500 font-medium mt-0.5">Update staff account information and role assignment.</p>
+                                </div>
+                            </div>
+                            <button 
+                                type="button"
+                                onClick={() => setIsEditModalOpen(false)}
+                                className="text-gray-400 hover:text-indigo-900 hover:bg-indigo-50 p-2 rounded-full transition-colors"
+                                aria-label="Close"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Form Body */}
+                        <form onSubmit={handleEditSubmit}>
+                            <div className="p-6 space-y-4">
+                                <div>
+                                    <label htmlFor="editStaffName" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-700 font-sans">
+                                        Full Name <span className="text-red-600">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <User className="w-4 h-4" />
+                                        </div>
+                                        <input 
+                                            type="text" 
+                                            id="editStaffName" 
+                                            value={editStaffName}
+                                            onChange={(e) => setEditStaffName(e.target.value)}
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 block w-full pl-9 p-2.5 font-sans transition-all" 
+                                            required 
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="editStaffEmail" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-700 font-sans">
+                                        Email Address
+                                    </label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <Mail className="w-4 h-4" />
+                                        </div>
+                                        <input 
+                                            type="email" 
+                                            id="editStaffEmail" 
+                                            value={editStaffEmail}
+                                            readOnly
+                                            className="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full pl-9 p-2.5 font-sans cursor-not-allowed text-gray-600" 
+                                        />
+                                    </div>
+                                    <p className="mt-1 text-xs text-gray-400">Email address cannot be modified.</p>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="editStaffRole" className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-700 font-sans">
+                                        Assign Role <span className="text-red-600">*</span>
+                                    </label>
+                                    <Select
+                                        inputId="editStaffRole"
+                                        value={roleOptions.find((option) => option.value === editStaffRole) || null}
+                                        onChange={(selected) => setEditStaffRole(selected?.value || '')}
+                                        options={roleOptions}
+                                        styles={editRoleSelectStyles}
+                                        classNamePrefix="react-select"
+                                        menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                                        menuPosition="fixed"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="flex items-center justify-end px-6 py-4 bg-gray-50/80 border-t border-gray-100 space-x-3">
+                                <button 
+                                    type="button" 
+                                    onClick={() => setIsEditModalOpen(false)}
+                                    className="text-gray-700 bg-white border border-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 hover:bg-gray-50 focus:z-10 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    type="submit" 
+                                    disabled={isUpdatingStaff}
+                                    className="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm transition-all"
+                                >
+                                    {isUpdatingStaff ? (
+                                        <>
+                                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Updating...
+                                        </>
+                                    ) : (
+                                        'Save Changes'
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </Modal>
+
+                {/* Disable/Enable Confirmation Modal */}
+                <Modal show={isDisableModalOpen && Boolean(selectedStaff)} onClose={() => setIsDisableModalOpen(false)} maxWidth="md">
+                    <div className="overflow-hidden rounded-xl">
+                        <div className={`h-1.5 w-full shrink-0 ${selectedStaff?.status === 'Active' ? 'bg-gradient-to-r from-red-600 to-red-800' : 'bg-gradient-to-r from-green-600 to-green-800'}`}></div>
+                        <div className="p-6 text-center">
+                            <div className={`mx-auto mb-4 w-12 h-12 rounded-full flex items-center justify-center ${selectedStaff?.status === 'Active' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                                <AlertTriangle className="w-6 h-6" />
+                            </div>
+                            <h3 className="mb-2 text-lg font-bold text-gray-900 font-serif">
+                                {selectedStaff?.status === 'Active' ? 'Disable Account' : 'Enable Account'}
+                            </h3>
+                            <p className="mb-6 text-sm text-gray-500">
+                                Are you sure you want to {selectedStaff?.status === 'Active' ? 'disable' : 'enable'} the account for <strong className="text-gray-900">{selectedStaff?.name}</strong>?
+                            </p>
+                            <div className="flex justify-center space-x-3">
+                                <button 
+                                    type="button"
+                                    onClick={() => setIsDisableModalOpen(false)}
+                                    className="text-gray-700 bg-white hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-300 text-sm font-medium px-5 py-2.5 transition-all"
+                                >
+                                    No, cancel
+                                </button>
+                                <button 
+                                    type="button"
+                                    onClick={handleDisableConfirm}
+                                    className={`text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center shadow-sm transition-all ${selectedStaff?.status === 'Active' ? 'bg-red-600 hover:bg-red-700 focus:ring-red-300' : 'bg-green-600 hover:bg-green-700 focus:ring-green-300'}`}
+                                >
+                                    Yes, confirm
+                                </button>
                             </div>
                         </div>
                     </div>
-                )}
+                </Modal>
             </main>
         </div>
     );
