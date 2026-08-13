@@ -50,6 +50,12 @@ const StockCardFormPaper = lazy(() =>
     })),
 );
 
+const MRFormPaper = lazy(() =>
+    import('../../../Official Forms/MRForm').then((module) => ({
+        default: module.MRFormPaper,
+    })),
+);
+
 const reportTemplateFallback = (
     <div className="flex items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white/80 p-12 text-sm font-medium text-gray-500 print:hidden">
         Loading report template...
@@ -140,7 +146,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     const [modalMode, setModalMode] = useState<'create' | 'view'>('create');
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const reportContentRef = useRef<HTMLDivElement | null>(null);
-    const [migrationFormType, setMigrationFormType] = useState<'RSMI' | 'RPCI' | 'STOCK_CARD'>('RSMI');
+    const [migrationFormType, setMigrationFormType] = useState<'RSMI' | 'RPCI' | 'STOCK_CARD' | 'MR'>('RSMI');
     const [migrationSource, setMigrationSource] = useState('');
     const [migrationInputText, setMigrationInputText] = useState('');
     const [migrationFileName, setMigrationFileName] = useState('');
@@ -277,7 +283,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         }
     };
 
-    const parseFormSpecificRows = (raw: string, formType: 'RSMI' | 'RPCI' | 'STOCK_CARD') => {
+    const parseFormSpecificRows = (raw: string, formType: 'RSMI' | 'RPCI' | 'STOCK_CARD' | 'MR') => {
         const trimmed = raw.trim();
         if (!trimmed) return [];
 
@@ -467,6 +473,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             itemName: migrationFormType === 'STOCK_CARD' ? itemName : '',
             supplierId: '',
             supplierName: '',
+            endUser: row.recipient || '',
             periodType: 'specific',
             date: safeDate.toISOString().split('T')[0],
             startDate: '',
@@ -706,6 +713,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         itemName: '',
         supplierId: '',
         supplierName: '',
+        endUser: '',
         periodType: 'specific',
         date: new Date().toISOString().split('T')[0],
         startDate: '',
@@ -725,7 +733,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         { value: 'RSMI', label: 'RSMI - Supplies and Materials Issued' },
         { value: 'RPCI', label: 'RPCI - Report on the Physical Count of Inventories' },
         { value: 'STOCK_CARD', label: 'Stock Card' },
-        { value: 'MOR', label: 'Memorandum of Receipt' },
+        { value: 'MR', label: 'MR - Memorandum Receipt for Property' },
     ];
 
     const periodOptions = [
@@ -748,6 +756,39 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             value: supplier.id,
             label: supplier.name || supplier.company_name,
         }));
+
+    const endUserOptions = Array.from(
+        new Set(
+            [
+                ...issuances.map((i: any) => i.recipient).filter(Boolean),
+                ...migratedRecords.map((m: any) => m.recipient).filter(Boolean),
+            ]
+        )
+    ).map((name: string) => ({
+        value: name,
+        label: name,
+    }));
+
+    const getEndUserIssuances = (endUserName: string) => {
+        if (!endUserName) return [];
+        const nameLower = endUserName.trim().toLowerCase();
+
+        const matchedIssuances = issuances.filter((issue: any) => 
+            String(issue.recipient || '').trim().toLowerCase() === nameLower
+        ).map((issue: any) => ({
+            ...issue,
+            _source: 'issuance'
+        }));
+
+        const matchedMigrations = migratedRecords.filter((record: any) => 
+            String(record.recipient || '').trim().toLowerCase() === nameLower
+        ).map((record: any) => ({
+            ...record,
+            _source: 'migration'
+        }));
+
+        return [...matchedIssuances, ...matchedMigrations];
+    };
 
     const filteredSupplierItems = formData.supplierId
         ? items.filter((item: any) => String(item.supplier_id) === String(formData.supplierId))
@@ -898,6 +939,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             reference: formData.reference,
             itemName: formData.itemName || null,
             ...(formData.supplierId ? { supplierId: formData.supplierId, supplierName: formData.supplierName } : {}),
+            ...(formData.endUser ? { endUser: formData.endUser } : {}),
             periodType: formData.periodType,
             date: formData.date || null,
             startDate: formData.startDate || null,
@@ -1009,6 +1051,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             itemName: report.itemName || '',
             supplierId: supplier?.id || report.supplierId || '',
             supplierName: supplier ? supplier.name || supplier.company_name : (report.supplierName || ''),
+            endUser: report.endUser || report.payload?.endUser || '',
             periodType: report.periodType || 'specific',
             date: report.dateValue || new Date().toISOString().split('T')[0],
             startDate: report.startDate || '',
@@ -1033,6 +1076,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             itemName: '',
             supplierId: '',
             supplierName: '',
+            endUser: '',
             periodType: 'specific',
             date: new Date().toISOString().split('T')[0],
             startDate: '',
@@ -1320,6 +1364,57 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         </div>
                     )}
                     
+                    {modalMode === 'view' && (formData.type === 'MR' || formData.type === 'MOR') && (
+                        <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 print:bg-white print:p-0 print:border-none print-single-page">
+                            {(() => {
+                                const endUserName = formData.endUser || '';
+                                const endUserRecords = endUserName 
+                                    ? getEndUserIssuances(endUserName)
+                                    : getFilteredIssuances();
+                                
+                                const mrItems = endUserRecords.map((issue: any) => {
+                                    const qty = issue.quantity || issue.qty || issue.payload?.quantity || 1;
+                                    const cost = issue.item?.unit_cost || issue.unit_cost || issue.payload?.unit_cost || 0;
+                                    return {
+                                        quantity: qty,
+                                        unit: issue.item?.unit_measure || issue.item?.unit_of_issue || issue.unit || issue.payload?.unit || 'pc',
+                                        description: issue.item?.name || issue.item_name || issue.payload?.item_name || issue.description || '-',
+                                        propertyNo: issue.item?.sku || issue.stock_no || issue.payload?.stock_no || issue.reference || issue.payload?.reference || '-',
+                                        dateAcquired: issue.date_issued || issue.date || issue.created_at || '',
+                                        unitValue: cost,
+                                        totalValue: qty * cost,
+                                    };
+                                });
+
+                                const firstRecord = endUserRecords[0];
+                                const resolvedEndUser = endUserName || firstRecord?.recipient || firstRecord?.issued_to || 'End User';
+                                const endUserPos = firstRecord?.recipient_designation || firstRecord?.designation || firstRecord?.position || firstRecord?.payload?.recipient_designation || 'Accountable Officer';
+                                const endUserOffice = firstRecord?.department || firstRecord?.office || firstRecord?.payload?.department || 'Official Business';
+
+                                return (
+                                    <Suspense fallback={reportTemplateFallback}>
+                                        <MRFormPaper data={{
+                                            entityName: 'University of Camarines Norte',
+                                            fundCluster: 'General Fund',
+                                            mrNo: formData.reference,
+                                            date: generateDisplayDate(formData),
+                                            purpose: endUserOffice,
+                                            items: mrItems,
+                                            receivedByName: resolvedEndUser,
+                                            receivedByPosition: endUserPos,
+                                            receivedByOffice: endUserOffice,
+                                            receivedByDate: generateDisplayDate(formData),
+                                            issuedByName: user?.name || 'ARSENIO GEM A. GARCILLANOSA',
+                                            issuedByPosition: 'SUPPLY OFFICER III / PROPERTY CUSTODIAN',
+                                            issuedByOffice: 'Supply & Property Division',
+                                            issuedByDate: generateDisplayDate(formData),
+                                        }} />
+                                    </Suspense>
+                                );
+                            })()}
+                        </div>
+                    )}
+                    
                     <div className="print:hidden space-y-6">
                         {/* Basic Info Section */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -1388,6 +1483,84 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 menuPortalTarget={typeof window !== "undefined" ? document.body : null}
                                 menuPosition="fixed"
                             />
+                        </div>
+                    )}
+
+                    {formData.type === 'MR' && (
+                        <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-5 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-red-800"></div>
+                            <div className="flex items-center gap-2 mb-2 text-gray-800">
+                                <svg className="w-5 h-5 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                <h4 className="text-sm font-bold uppercase tracking-wider">End User Search & RIS Data Retrieval</h4>
+                            </div>
+                            <p className="text-xs text-gray-500 mb-4">Select or enter an End User to search the RIS database and auto-populate issued items into the Memorandum Receipt.</p>
+                            
+                            <div className="group w-full mb-3">
+                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">End User / Recipient Name</label>
+                                <Select
+                                    options={endUserOptions}
+                                    value={formData.endUser ? { value: formData.endUser, label: formData.endUser } : null}
+                                    onChange={(opt: any) => {
+                                        const selectedName = opt ? opt.value : '';
+                                        const matched = getEndUserIssuances(selectedName);
+                                        const firstMatch = matched[0];
+                                        setFormData({
+                                            ...formData,
+                                            endUser: selectedName,
+                                            title: formData.title || (selectedName ? `Memorandum Receipt - ${selectedName}` : ''),
+                                            reference: formData.reference || (selectedName ? `MR-${new Date().getFullYear()}-${selectedName.replace(/[^a-z0-9]+/gi, '-').toUpperCase()}` : ''),
+                                        });
+                                    }}
+                                    onInputChange={(newValue: string, actionMeta: any) => {
+                                        if (actionMeta.action === 'input-change' && newValue) {
+                                            setFormData((prev) => ({ ...prev, endUser: newValue }));
+                                        }
+                                    }}
+                                    styles={customSelectStyles}
+                                    isClearable
+                                    placeholder="Select or enter End User name..."
+                                    menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                    menuPosition="fixed"
+                                />
+                            </div>
+
+                            {formData.endUser && (() => {
+                                const endUserRecords = getEndUserIssuances(formData.endUser);
+                                const firstRecord = endUserRecords[0];
+                                const designation = firstRecord?.recipient_designation || firstRecord?.designation || firstRecord?.payload?.recipient_designation || 'Accountable Officer';
+                                const department = firstRecord?.department || firstRecord?.office || firstRecord?.payload?.department || 'Official Business';
+
+                                return (
+                                    <div className="mt-3 p-4 bg-red-50/50 rounded-lg border border-red-100 space-y-2">
+                                        <div className="flex justify-between items-center pb-2 border-b border-red-200/60">
+                                            <span className="text-xs font-bold text-red-900 uppercase tracking-wide">RIS Database Records Found</span>
+                                            <span className="px-2 py-0.5 bg-red-900 text-white rounded text-[10px] font-bold">{endUserRecords.length} Items Retrieved</span>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                                            <div><strong className="text-gray-600">End User:</strong> <span className="font-semibold text-gray-900">{formData.endUser}</span></div>
+                                            <div><strong className="text-gray-600">Designation:</strong> <span className="font-semibold text-gray-900">{designation}</span></div>
+                                            <div><strong className="text-gray-600">Office/Dept:</strong> <span className="font-semibold text-gray-900">{department}</span></div>
+                                        </div>
+                                        {endUserRecords.length > 0 ? (
+                                            <div className="mt-2 text-[11px] text-gray-600">
+                                                <strong>Issued Items Preview:</strong>{' '}
+                                                {endUserRecords.slice(0, 5).map((rec: any, i: number) => (
+                                                    <span key={i} className="inline-block bg-white px-2 py-0.5 rounded border border-gray-200 mr-1 mb-1 font-mono">
+                                                        {rec.item?.name || rec.item_name || rec.payload?.item_name || 'Item'} ({rec.quantity || 1} {rec.item?.unit_measure || rec.unit || 'pc'})
+                                                    </span>
+                                                ))}
+                                                {endUserRecords.length > 5 && <span className="font-semibold text-red-800">+{endUserRecords.length - 5} more</span>}
+                                            </div>
+                                        ) : (
+                                            <div className="mt-2 text-xs text-amber-700 font-medium">
+                                                No RIS issuance records matching "{formData.endUser}" found in database yet. Blank rows will be generated on the MR form for manual entry.
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })()}
                         </div>
                     )}
 
@@ -1517,7 +1690,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     <div>
                                         <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">COA Form Type</label>
                                         <Select
-                                            options={typeOptions.filter((option) => ['RSMI', 'RPCI', 'STOCK_CARD'].includes(option.value))}
+                                            options={typeOptions.filter((option) => ['RSMI', 'RPCI', 'STOCK_CARD', 'MR'].includes(option.value))}
                                             value={typeOptions.find((option) => option.value === migrationFormType) || null}
                                             onChange={(option: any) => {
                                                 const nextType = option?.value || 'RSMI';
@@ -1725,6 +1898,23 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                             item: report.itemName || report.title,
                                                             stock_no: items.find((item: any) => item.name === report.itemName)?.sku || report.reference,
                                                             entries: []
+                                                        }} />
+                                                    </Suspense>
+                                                </div>
+                                            )}
+
+                                            {(report.type === 'MR' || report.type === 'MOR') && (
+                                                <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
+                                                    <Suspense fallback={reportTemplateFallback}>
+                                                        <MRFormPaper data={{
+                                                            entityName: 'University of Camarines Norte',
+                                                            fundCluster: 'GF',
+                                                            mrNo: report.reference,
+                                                            date: report.date || '',
+                                                            items: [
+                                                                { quantity: 1, unit: 'pc', description: 'Sample Property', propertyNo: 'PROP-001', dateAcquired: '', unitValue: 1000, totalValue: 1000 }
+                                                            ],
+                                                            receivedByName: '', issuedByName: ''
                                                         }} />
                                                     </Suspense>
                                                 </div>

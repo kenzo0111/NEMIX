@@ -27,52 +27,58 @@ Route::get('/compliance/reports', function () {
         ? \Modules\Inventory\Models\Issuance::with(['item', 'issuer'])->latest()->get()
         : [];
 
-    $migratedRecords = \App\Models\ComplianceMigratedRecord::query()
-        ->latest()
-        ->get()
-        ->map(function ($record) {
-            return [
-                'id' => $record->id,
-                'form_type' => $record->form_type,
-                'source' => $record->source,
-                'reference' => $record->reference,
-                'item_name' => $record->item_name,
-                'quantity' => (int) ($record->quantity ?? 0),
-                'recipient' => $record->recipient,
-                'department' => $record->department,
-                'designation' => $record->designation,
-                'remarks' => $record->remarks,
-                'date' => optional($record->date)->toDateString(),
-                'status' => $record->status,
-                'payload' => $record->payload ?? [],
-            ];
-        })
-        ->values();
+    $migratedRecords = \Illuminate\Support\Facades\Schema::hasTable('compliance_migrated_records')
+        ? \App\Models\ComplianceMigratedRecord::query()
+            ->latest()
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'id' => $record->id,
+                    'form_type' => $record->form_type,
+                    'source' => $record->source,
+                    'reference' => $record->reference,
+                    'item_name' => $record->item_name,
+                    'quantity' => (int) ($record->quantity ?? 0),
+                    'recipient' => $record->recipient,
+                    'department' => $record->department,
+                    'designation' => $record->designation,
+                    'remarks' => $record->remarks,
+                    'date' => optional($record->date)->toDateString(),
+                    'status' => $record->status,
+                    'payload' => $record->payload ?? [],
+                ];
+            })
+            ->values()
+        : collect();
 
-    $reports = \App\Models\ComplianceReport::query()
-        ->whereNull('archived_at')
-        ->latest()
-        ->get()
-        ->map(function ($report) {
-            $supplierName = data_get($report->payload, 'supplierName');
-            return [
-                'id' => $report->id,
-                'title' => $report->title,
-                'type' => $report->type,
-                'reference' => $report->reference,
-                'itemName' => $report->item_name,
-                'supplierId' => data_get($report->payload, 'supplierId') ?? null,
-                'supplierName' => is_string($supplierName) && trim($supplierName) ? trim($supplierName) : null,
-                'date' => $report->coverage_label,
-                'periodType' => $report->period_type,
-                'dateValue' => optional($report->date)->toDateString(),
-                'startDate' => optional($report->start_date)->toDateString(),
-                'endDate' => optional($report->end_date)->toDateString(),
-                'selectedMonth' => $report->selected_month,
-                'selectedYear' => $report->selected_year,
-            ];
-        })
-        ->values();
+    $reports = \Illuminate\Support\Facades\Schema::hasTable('compliance_reports')
+        ? \App\Models\ComplianceReport::query()
+            ->whereNull('archived_at')
+            ->latest()
+            ->get()
+            ->map(function ($report) {
+                $supplierName = data_get($report->payload, 'supplierName');
+                return [
+                    'id' => $report->id,
+                    'title' => $report->title,
+                    'type' => $report->type,
+                    'reference' => $report->reference,
+                    'itemName' => $report->item_name,
+                    'supplierId' => data_get($report->payload, 'supplierId') ?? null,
+                    'supplierName' => is_string($supplierName) && trim($supplierName) ? trim($supplierName) : null,
+                    'endUser' => data_get($report->payload, 'endUser') ?? null,
+                    'payload' => $report->payload ?? [],
+                    'date' => $report->coverage_label,
+                    'periodType' => $report->period_type,
+                    'dateValue' => optional($report->date)->toDateString(),
+                    'startDate' => optional($report->start_date)->toDateString(),
+                    'endDate' => optional($report->end_date)->toDateString(),
+                    'selectedMonth' => $report->selected_month,
+                    'selectedYear' => $report->selected_year,
+                ];
+            })
+            ->values()
+        : collect();
 
     $suppliers = class_exists(\Modules\Suppliers\Models\Supplier::class)
         ? \Modules\Suppliers\Models\Supplier::all()
@@ -89,7 +95,7 @@ Route::get('/compliance/reports', function () {
 
 Route::post('/compliance/migrations', function (\Illuminate\Http\Request $request) {
     $validated = $request->validate([
-        'form_type' => ['required', 'in:RSMI,RPCI,STOCK_CARD'],
+        'form_type' => ['required', 'in:RSMI,RPCI,STOCK_CARD,MR,MOR'],
         'source' => ['nullable', 'string', 'max:100'],
         'records' => ['required', 'array'],
         'records.*.reference' => ['nullable', 'string', 'max:100'],

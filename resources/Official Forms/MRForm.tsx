@@ -1,255 +1,400 @@
 import React from 'react';
 
-// --- RPCI Interfaces ---
-export interface InventoryItem {
-  article?: string;
-  description?: string;
-  stock_no?: string;
-  unit?: string;
-  unit_value?: number | string;
-  balance_per_card?: number | string;
-  on_hand_count?: number | string;
-  shortage_qty?: number | string;
-  shortage_value?: number | string;
-  remarks?: string;
-}
+// --- Interfaces ---
 
-export interface RpciData {
-  inventory_type?: string;
-  as_at_date?: string;
-  fund_cluster?: string;
-  accountable_officer?: string;
-  designation?: string;
-  entity_name?: string;
-  date_assumption?: string;
-  items?: InventoryItem[];
-  committee_chair_name?: string;
-  head_of_agency_name?: string;
-  coa_representative_name?: string;
-}
-
-// --- MOR Interfaces ---
-export interface MorItem {
-  qty?: number | string;
+export interface MrItem {
+  quantity?: number | string;
   unit?: string;
   description?: string;
-  property_no?: string;
-  condition?: string;
+  propertyNo?: string;
+  dateAcquired?: string;
+  unitValue?: number | string;
+  totalValue?: number | string;
 }
 
-export interface MorData {
-  mor_no?: string;
-  date_issued?: string;
-  requester_name?: string;
-  position?: string;
-  office?: string;
-  items?: MorItem[];
-  received_by_name?: string;
-  issued_by_name?: string;
-  approved_by_name?: string;
+export interface MrData {
+  entityName?: string;
+  fundCluster?: string;
+  mrNo?: string;
+  date?: string;
+  purpose?: string;
+
+  items?: MrItem[];
+  grandTotal?: number | string;
+
+  // Signatories - Received By (End User)
+  receivedByName?: string;
+  receivedByPosition?: string;
+  receivedByOffice?: string;
+  receivedByDate?: string;
+
+  // Signatories - Issued By (Property / Supply Officer)
+  issuedByName?: string;
+  issuedByPosition?: string;
+  issuedByOffice?: string;
+  issuedByDate?: string;
 }
 
-// --- Components ---
-
-interface ReportPhysicalCountProps {
-  data: RpciData;
+export interface MRFormProps {
+  data: MrData;
+  targetRows?: number; // Default rows to fill A4 page cleanly
 }
 
-export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }) => {
+// --- Helper Functions ---
+
+const formatDate = (dateString?: string) => {
+  if (!dateString) return '\u00A0';
+  try {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+  } catch {
+    return dateString;
+  }
+};
+
+const formatCurrency = (amount?: number | string) => {
+  if (amount === undefined || amount === null || amount === '') return '\u00A0';
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(num)) return '\u00A0';
+  return num.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+const renderDescription = (text?: string) => {
+  if (!text) return '\u00A0';
+  return text.split('\n').map((str, index, array) => (
+    <React.Fragment key={index}>
+      {str}
+      {index < array.length - 1 && <br />}
+    </React.Fragment>
+  ));
+};
+
+export const MRFormPaper: React.FC<MRFormProps> = ({ 
+  data, 
+  targetRows = 16 
+}) => {
   const items = data.items || [];
-  const targetRowCount = 15;
-  const emptyRowsCount = Math.max(0, targetRowCount - items.length);
+  
+  // Calculate empty rows needed to fill page
+  const emptyRowsCount = Math.max(0, targetRows - items.length);
   const emptyRows = Array.from({ length: emptyRowsCount });
+
+  // Calculate grand total if not provided
+  const computedTotal = items.reduce((sum, item) => {
+    const val = item.totalValue ?? (Number(item.quantity || 0) * Number(item.unitValue || 0));
+    const num = typeof val === 'string' ? parseFloat(val) : val;
+    return sum + (isNaN(num) ? 0 : num);
+  }, 0);
+
+  const grandTotalDisplay = data.grandTotal !== undefined 
+    ? formatCurrency(data.grandTotal) 
+    : (computedTotal > 0 ? formatCurrency(computedTotal) : '\u00A0');
 
   return (
     <>
       <style>{`
         @page {
-            size: A4 landscape;
-            margin: 15px;
+          size: A4 portrait;
+          margin: 20px;
         }
-        .rpci-container {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 10pt;
-            background: #fff;
-            color: #000;
-            width: 100%;
-            margin: 0 auto;
-            box-sizing: border-box;
-            page-break-after: always;
+        .mr-container {
+          font-family: 'Times New Roman', Times, serif;
+          font-size: 11pt;
+          background: #fff;
+          color: #000;
+          width: 100%;
+          max-width: 210mm;
+          margin: 0 auto;
+          box-sizing: border-box;
+          padding: 10px;
         }
-        .appendix-label {
-            text-align: right;
-            font-style: italic;
-            font-size: 14pt;
-            margin-bottom: 5px;
+        .header-appendix {
+          text-align: right;
+          font-style: italic;
+          font-weight: bold;
+          font-size: 11pt;
+          margin-bottom: 5px;
         }
         .main-title {
-            text-align: center;
-            font-weight: bold;
-            font-size: 12pt;
-            margin-bottom: 2px;
+          text-align: center;
+          font-weight: bold;
+          font-size: 14pt;
+          margin-bottom: 4px;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
         }
         .sub-title {
-            text-align: center;
-            font-size: 9pt;
-            margin-bottom: 15px;
+          text-align: center;
+          font-style: italic;
+          font-size: 10pt;
+          margin-bottom: 20px;
         }
-        .underline-input {
-            border-bottom: 1px solid #000;
-            display: inline-block;
-            padding: 0 5px;
-            font-weight: bold;
+
+        /* Top Meta Grid */
+        .info-grid {
+          display: grid;
+          grid-template-columns: 1.2fr 0.8fr;
+          column-gap: 30px;
+          margin-bottom: 12px;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
+        .info-row {
+          display: flex;
+          align-items: flex-end;
+          margin-bottom: 6px;
         }
-        .meta-table td {
-            padding: 5px 0;
-            vertical-align: bottom;
+        .info-label {
+          font-weight: bold;
+          white-space: nowrap;
+          margin-right: 6px;
+        }
+        .info-value {
+          flex-grow: 1;
+          border-bottom: 1px solid #000;
+          min-height: 16pt;
+          padding-left: 5px;
+          font-weight: bold;
+        }
+
+        /* Purpose / Intro statement */
+        .purpose-statement {
+          margin-bottom: 12px;
+          line-height: 1.4;
+          text-align: justify;
+          font-size: 10.5pt;
+        }
+
+        /* Main Table Grid */
+        .main-table {
+          width: 100%;
+          border-collapse: collapse;
+          border: 2px solid #000;
         }
         .main-table th, .main-table td {
-            border: 1px solid #000;
-            padding: 3px;
-            word-wrap: break-word;
-            text-align: center;
-            font-size: 9.5pt;
+          border: 1px solid #000;
+          padding: 5px;
+          font-size: 10pt;
         }
         .main-table th {
-            font-weight: bold;
+          text-align: center;
+          font-weight: bold;
+          background-color: #ffffff;
         }
         .main-table td {
-            height: 22px;
+          height: 24px;
         }
-        .text-left { text-align: left !important; }
-        .footer-table {
-            margin-top: 10px;
-            width: 100%;
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .text-left { text-align: left; }
+        .font-bold { font-weight: bold; }
+
+        /* Column widths */
+        .col-qty { width: 7%; }
+        .col-unit { width: 8%; }
+        .col-desc { width: 37%; }
+        .col-prop-no { width: 18%; }
+        .col-date { width: 12%; }
+        .col-val { width: 18%; }
+
+        /* Signatures Section */
+        .signatures-table {
+          width: 100%;
+          border-collapse: collapse;
+          border: 2px solid #000;
+          border-top: none;
         }
-        .footer-table td {
-            width: 33.33%;
-            padding: 10px 5px;
-            vertical-align: top;
+        .sig-cell {
+          width: 50%;
+          vertical-align: top;
+          padding: 12px 15px;
+          box-sizing: border-box;
+        }
+        .sig-cell:first-child {
+          border-right: 1px solid #000;
+        }
+        .sig-header {
+          font-weight: bold;
+          margin-bottom: 35px;
         }
         .sig-line {
-            border-top: 1px solid #000;
-            margin-top: 40px;
-            text-align: center;
-            padding-top: 3px;
-            font-size: 8pt;
+          border-bottom: 1px solid #000;
+          width: 85%;
+          margin: 0 auto 4px auto;
+          text-align: center;
+          font-weight: bold;
+          text-transform: uppercase;
+          min-height: 18px;
         }
+        .sig-label {
+          text-align: center;
+          font-size: 9pt;
+          line-height: 1.3;
+        }
+        .sig-subinfo {
+          margin-top: 10px;
+          font-size: 9.5pt;
+        }
+        .sig-subrow {
+          display: flex;
+          margin-top: 4px;
+        }
+        .sig-subrow .sub-label {
+          width: 70px;
+          font-weight: bold;
+        }
+        .sig-subrow .sub-val {
+          flex-grow: 1;
+          border-bottom: 1px solid #000;
+          min-height: 14px;
+        }
+
         @media print {
-            body { margin: 0; }
-            .rpci-container { width: 100%; }
+          body { margin: 0; padding: 0; background: #fff; }
+          .mr-container { width: 100%; max-width: none; padding: 0; }
+          .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
       `}</style>
 
-      <div className="rpci-container">
-        <div className="appendix-label">Appendix 66</div>
+      <div className="mr-container">
+        {/* Header Appendix */}
+        <div className="header-appendix">Appendix 59-A</div>
 
-        <div className="main-title">REPORT ON THE PHYSICAL COUNT OF INVENTORIES</div>
-        <div className="sub-title">
-            <span className="underline-input" style={{ minWidth: '300px' }}>{data.inventory_type}</span><br/>
-            (Type of Inventory Item)<br/><br/>
-            As at <span className="underline-input" style={{ minWidth: '200px' }}>{data.as_at_date}</span>
+        {/* Form Title */}
+        <div className="main-title">MEMORANDUM RECEIPT FOR PROPERTY</div>
+        <div className="sub-title">(MEMORANDUM OF RECEIPT)</div>
+
+        {/* Top Info Grid */}
+        <div className="info-grid">
+          <div>
+            <div className="info-row">
+              <span className="info-label">Entity Name:</span>
+              <div className="info-value">{data.entityName || '____________________________________'}</div>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Fund Cluster:</span>
+              <div className="info-value">{data.fundCluster || 'Regular Agency Fund'}</div>
+            </div>
+          </div>
+          <div>
+            <div className="info-row">
+              <span className="info-label">MR No. :</span>
+              <div className="info-value">{data.mrNo || '_______________'}</div>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Date :</span>
+              <div className="info-value">{data.date || formatDate(new Date().toISOString())}</div>
+            </div>
+          </div>
         </div>
 
-        <table className="meta-table">
-          <tbody>
-            <tr>
-              <td style={{ width: '50%' }}>
-                <strong>Fund Cluster :</strong> <span className="underline-input" style={{ minWidth: '200px' }}>Regular Agency Fund</span>
-              </td>
-              <td style={{ width: '50%' }}></td>
-            </tr>
-            <tr>
-              <td colSpan={2}>
-                <div style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', width: '65%', alignItems: 'baseline', flexWrap: 'wrap', paddingRight: '8px' }}>
-                    <span style={{ marginRight: '4px' }}><strong>For which</strong></span>
-                    <span className="underline-input text-center" style={{ flexGrow: 1, minWidth: '100px' }}>Arsenio Gem A. Garcillanosa</span><span style={{ marginRight: '4px' }}>,</span>
-                    <span className="underline-input text-center" style={{ flexGrow: 1, minWidth: '100px' }}>{data.designation || '\u00A0'.repeat(25)}</span><span style={{ marginRight: '4px' }}>,</span>
-                    <span className="underline-input text-center" style={{ flexGrow: 1, minWidth: '150px' }}>{data.entity_name || '\u00A0'.repeat(30)}</span>
-                  </div>
-                  <div style={{ display: 'flex', width: '35%', alignItems: 'baseline', flexWrap: 'nowrap' }}>
-                    <span style={{ margin: '0 4px', whiteSpace: 'nowrap' }}><strong>is accountable, having assumed such accountability on</strong></span>
-                    <span className="underline-input text-center" style={{ flexGrow: 1, minWidth: '50px' }}>{data.date_assumption || ''}</span>
-                    <span>.</span>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        {/* Purpose Statement */}
+        <div className="purpose-statement">
+          I hereby acknowledge to have received from <strong>{data.issuedByName || 'ARSENIO GEM A. GARCILLANOSA'}</strong>, {data.issuedByPosition || 'SUPPLY OFFICER III / PROPERTY CUSTODIAN'}, the following property for which I am responsible, subject to the provisions of law, and which will be used in <strong>{data.receivedByOffice || data.purpose || 'Official Business'}</strong>:
+        </div>
 
+        {/* Main Items Table */}
         <table className="main-table">
           <thead>
             <tr>
-              <th rowSpan={2} style={{ width: '7%' }}>Article</th>
-              <th rowSpan={2} style={{ width: '18%' }}>Description</th>
-              <th rowSpan={2} style={{ width: '8%' }}>Stock Number</th>
-              <th rowSpan={2} style={{ width: '6%' }}>Unit of Measure</th>
-              <th rowSpan={2} style={{ width: '8%' }}>Unit Value</th>
-              <th style={{ width: '9%' }}>Balance Per Card</th>
-              <th style={{ width: '9%' }}>On Hand Per Count</th>
-              <th colSpan={2} style={{ width: '14%' }}>Shortage/Overage</th>
-              <th rowSpan={2} style={{ width: '21%' }}>Remarks</th>
-            </tr>
-            <tr>
-              <th>(Quantity)</th>
-              <th>(Quantity)</th>
-              <th style={{ width: '7%' }}>Quantity</th>
-              <th style={{ width: '7%' }}>Value</th>
+              <th className="col-qty">Qty.</th>
+              <th className="col-unit">Unit</th>
+              <th className="col-desc">Description / Item Name</th>
+              <th className="col-prop-no">Property No. / Serial No.</th>
+              <th className="col-date">Date Acquired</th>
+              <th className="col-val">Unit Value / Cost</th>
             </tr>
           </thead>
           <tbody>
-            {items.map((item, idx) => (
-              <tr key={idx}>
-                <td>{item.article}</td>
-                <td className="text-left">{item.description}</td>
-                <td>{item.stock_no}</td>
-                <td>{item.unit}</td>
-                <td>{item.unit_value}</td>
-                <td>{item.balance_per_card}</td>
-                <td>{item.on_hand_count}</td>
-                <td>{item.shortage_qty}</td>
-                <td>{item.shortage_value}</td>
-                <td className="text-left">{item.remarks}</td>
+            {/* Populated Items */}
+            {items.map((item, index) => (
+              <tr key={index}>
+                <td className="text-center">{item.quantity ?? '\u00A0'}</td>
+                <td className="text-center">{item.unit ?? '\u00A0'}</td>
+                <td className="text-left">{renderDescription(item.description)}</td>
+                <td className="text-center">{item.propertyNo ?? '\u00A0'}</td>
+                <td className="text-center">{formatDate(item.dateAcquired)}</td>
+                <td className="text-right">{formatCurrency(item.unitValue)}</td>
               </tr>
             ))}
-            {emptyRows.map((_, idx) => (
-              <tr key={`empty-${idx}`}>
-                <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
-                <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+
+            {/* Empty Padding Rows */}
+            {emptyRows.map((_, index) => (
+              <tr key={`empty-${index}`}>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
               </tr>
             ))}
+
+            {/* Total Row */}
+            <tr>
+              <td colSpan={5} className="text-right font-bold">
+                Grand Total Value:
+              </td>
+              <td className="text-right font-bold">
+                {grandTotalDisplay}
+              </td>
+            </tr>
           </tbody>
         </table>
 
-        <table className="footer-table">
+        {/* Signatures Section */}
+        <table className="signatures-table">
           <tbody>
             <tr>
-              <td>
-                Certified Correct by:
+              {/* Issued By (Property Custodian) */}
+              <td className="sig-cell">
+                <div className="sig-header">Issued / Released by:</div>
+                <div style={{ height: '35px' }}></div>
                 <div className="sig-line">
-                  <strong>{data.committee_chair_name || '\u00A0'}</strong><br/>
-                  Signature over Printed Name of Inventory Committee Chair and Members
+                  {data.issuedByName || 'ARSENIO GEM A. GARCILLANOSA'}
+                </div>
+                <div className="sig-label">
+                  Signature over Printed Name of Supply and/or<br />Property Custodian
+                </div>
+                <div className="sig-subinfo">
+                  <div className="sig-subrow">
+                    <span className="sub-label">Position:</span>
+                    <span className="sub-val">{data.issuedByPosition || 'SUPPLY OFFICER III / ADMIN OFFICER V'}</span>
+                  </div>
+                  <div className="sig-subrow">
+                    <span className="sub-label">Date:</span>
+                    <span className="sub-val">{data.issuedByDate || '_________________'}</span>
+                  </div>
                 </div>
               </td>
-              <td>
-                Approved by:
+
+              {/* Received By (End User) */}
+              <td className="sig-cell">
+                <div className="sig-header">Received by:</div>
+                <div style={{ height: '35px' }}></div>
                 <div className="sig-line">
-                  <strong>{data.head_of_agency_name || '\u00A0'}</strong><br/>
-                  Signature over Printed Name of Head of Agency/Entity or Authorized Representative
+                  {data.receivedByName || '_______________________________________'}
                 </div>
-              </td>
-              <td>
-                Verified by:
-                <div className="sig-line">
-                  <strong>{data.coa_representative_name || '\u00A0'}</strong><br/>
-                  Signature over Printed Name of COA Representative
+                <div className="sig-label">
+                  Signature over Printed Name of End-User /<br />Accountable Officer
+                </div>
+                <div className="sig-subinfo">
+                  <div className="sig-subrow">
+                    <span className="sub-label">Position:</span>
+                    <span className="sub-val">{data.receivedByPosition || '_________________'}</span>
+                  </div>
+                  <div className="sig-subrow">
+                    <span className="sub-label">Office:</span>
+                    <span className="sub-val">{data.receivedByOffice || '_________________'}</span>
+                  </div>
+                  <div className="sig-subrow">
+                    <span className="sub-label">Date:</span>
+                    <span className="sub-val">{data.receivedByDate || '_________________'}</span>
+                  </div>
                 </div>
               </td>
             </tr>
@@ -260,198 +405,4 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
   );
 };
 
-interface MemorandumOfReceiptProps {
-  data: MorData;
-}
-
-export const MemorandumOfReceipt: React.FC<MemorandumOfReceiptProps> = ({ data }) => {
-  const items = data.items || [];
-  const targetRowCount = 10; // Adjust for standard A4 Portrait
-  const emptyRowsCount = Math.max(0, targetRowCount - items.length);
-  const emptyRows = Array.from({ length: emptyRowsCount });
-
-  return (
-    <>
-      <style>{`
-        @page {
-            size: A4 portrait;
-            margin: 20px;
-        }
-        .mor-container {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 11pt;
-            background: #fff;
-            color: #000;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            box-sizing: border-box;
-            padding: 20px;
-        }
-        .mor-header {
-            text-align: center;
-            margin-bottom: 30px;
-            line-height: 1.3;
-        }
-        .mor-header h2 {
-            margin: 0;
-            font-size: 12pt;
-            font-weight: bold;
-        }
-        .mor-header h3 {
-            margin: 0;
-            font-size: 11pt;
-            font-weight: normal;
-        }
-        .mor-title {
-            text-align: center;
-            font-weight: bold;
-            font-size: 14pt;
-            margin: 20px 0;
-            text-transform: uppercase;
-        }
-        .mor-meta {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .mor-info-grid {
-            display: grid;
-            grid-template-columns: 150px 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-            align-items: end;
-        }
-        .mor-underline {
-            border-bottom: 1px solid #000;
-            padding: 0 5px;
-            font-weight: bold;
-        }
-        .mor-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        .mor-table th, .mor-table td {
-            border: 1px solid #000;
-            padding: 6px;
-            text-align: center;
-            font-size: 10pt;
-        }
-        .mor-table th {
-            font-weight: bold;
-            background-color: #f9f9f9;
-        }
-        .mor-table td {
-            height: 25px;
-        }
-        .mor-text-left { text-align: left !important; }
-        .mor-terms {
-            font-size: 10pt;
-            text-align: justify;
-            margin-bottom: 40px;
-            line-height: 1.5;
-        }
-        .mor-signatures {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            margin-top: 50px;
-        }
-        .mor-sig-block {
-            text-align: center;
-        }
-        .mor-sig-line {
-            border-top: 1px solid #000;
-            margin-top: 40px;
-            padding-top: 5px;
-            font-weight: bold;
-        }
-        .mor-sig-title {
-            font-size: 9pt;
-        }
-        @media print {
-            body { margin: 0; }
-            .mor-container { width: 100%; padding: 0; }
-        }
-      `}</style>
-
-      <div className="mor-container">
-        <div className="mor-header">
-          <h2>CAMARINES NORTE STATE COLLEGE</h2>
-          <h3>Supply and Property Management Office (SPMO)</h3>
-        </div>
-
-        <div className="mor-title">Memorandum of Receipt</div>
-
-        <div className="mor-meta">
-          <div><strong>MOR No.:</strong> <span className="mor-underline" style={{ minWidth: '150px', display: 'inline-block' }}>{data.mor_no || '\u00A0'}</span></div>
-          <div><strong>Date Issued:</strong> <span className="mor-underline" style={{ minWidth: '150px', display: 'inline-block' }}>{data.date_issued || '\u00A0'}</span></div>
-        </div>
-
-        <div className="mor-info-grid">
-          <div><strong>Name of Requester:</strong></div>
-          <div className="mor-underline">{data.requester_name || '\u00A0'}</div>
-          
-          <div><strong>Position / Designation:</strong></div>
-          <div className="mor-underline">{data.position || '\u00A0'}</div>
-          
-          <div><strong>Office / College:</strong></div>
-          <div className="mor-underline">{data.office || '\u00A0'}</div>
-        </div>
-
-        <table className="mor-table">
-          <thead>
-            <tr>
-              <th style={{ width: '10%' }}>Qty</th>
-              <th style={{ width: '10%' }}>Unit</th>
-              <th style={{ width: '40%' }}>Item Description & Specifications</th>
-              <th style={{ width: '25%' }}>Property / Serial Number</th>
-              <th style={{ width: '15%' }}>Condition</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item, idx) => (
-              <tr key={idx}>
-                <td>{item.qty}</td>
-                <td>{item.unit}</td>
-                <td className="mor-text-left">{item.description}</td>
-                <td>{item.property_no}</td>
-                <td>{item.condition}</td>
-              </tr>
-            ))}
-            {emptyRows.map((_, idx) => (
-              <tr key={`empty-${idx}`}>
-                <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div className="mor-terms">
-          I hereby acknowledge receipt of the item(s) listed above in good and working condition. I assume full responsibility for the proper care, maintenance, and safekeeping of the said property. I understand that I am accountable for these items and must surrender them upon clearance, transfer of office, or upon demand by the Supply and Property Management Office.
-        </div>
-
-        <div className="mor-signatures">
-          <div className="mor-sig-block">
-            <div style={{ textAlign: 'left', marginBottom: '10px', fontSize: '9pt', fontWeight: 'bold' }}>RECEIVED BY:</div>
-            <div className="mor-sig-line">{data.received_by_name || '\u00A0'}</div>
-            <div className="mor-sig-title">Signature over Printed Name</div>
-          </div>
-
-          <div className="mor-sig-block">
-            <div style={{ textAlign: 'left', marginBottom: '10px', fontSize: '9pt', fontWeight: 'bold' }}>ISSUED BY:</div>
-            <div className="mor-sig-line">{data.issued_by_name || '\u00A0'}</div>
-            <div className="mor-sig-title">Supply/Inventory Officer</div>
-          </div>
-
-          <div className="mor-sig-block">
-            <div style={{ textAlign: 'left', marginBottom: '10px', fontSize: '9pt', fontWeight: 'bold' }}>APPROVED BY:</div>
-            <div className="mor-sig-line">{data.approved_by_name || '\u00A0'}</div>
-            <div className="mor-sig-title">Department Head / Dean</div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
+export default MRFormPaper;
