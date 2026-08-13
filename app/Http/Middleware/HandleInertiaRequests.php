@@ -29,10 +29,20 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        if ($user) {
+            $user->loadMissing('roles');
+            $userArray = $user->toArray();
+            $userArray['role'] = $user->roles->first()?->name ?? 'Supply Officer';
+            $userArray['roles'] = $user->getRoleNames()->toArray();
+        } else {
+            $userArray = null;
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $userArray,
                 'permissions' => $request->user()?->getPermissionNames()->toArray() ?? [],
                 'is_system_admin' => $request->user()?->hasRole('System Admin') ?? false,
             ],
@@ -43,3 +53,4 @@ class HandleInertiaRequests extends Middleware
         ];
     }
 }
+

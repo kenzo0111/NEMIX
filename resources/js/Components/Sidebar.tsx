@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ReactNode, useState, useEffect } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
@@ -25,9 +25,10 @@ export interface Module {
 interface SidebarProps {
     modules: Module[];
     user?: {
-        name: string;
-        email: string;
+        name?: string;
+        email?: string;
         role?: string;
+        roles?: string[];
     };
     collapsed?: boolean;
     onToggleCollapse?: () => void;
@@ -41,12 +42,25 @@ export default function Sidebar({
     onToggleCollapse,
     className = ''
 }: SidebarProps) {
+    const pageProps = usePage().props as any;
+    const currentUser = user || pageProps.auth?.user;
+
+    const userRole =
+        currentUser?.role ||
+        (Array.isArray(currentUser?.roles) && currentUser.roles.length > 0
+            ? typeof currentUser.roles[0] === 'string'
+                ? currentUser.roles[0]
+                : currentUser.roles[0]?.name
+            : null) ||
+        'Supply Officer';
+
     // Find active module to auto-expand accordion
     const activeModuleTitle = modules.find(
         (m) => m.active || (m.submodules && m.submodules.some((s) => s.active))
     )?.title;
 
     const [expandedModule, setExpandedModule] = useState<string | null>(activeModuleTitle || null);
+
 
     // Keep expanded module synced if active module changes
     useEffect(() => {
@@ -254,15 +268,15 @@ export default function Sidebar({
             <div className="p-3 border-t border-red-800/60 bg-red-950/60 relative z-10 space-y-2 overflow-hidden">
                 <div className="flex items-center gap-3 px-1">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 border border-yellow-300/60 flex items-center justify-center text-red-950 font-extrabold text-base shrink-0 shadow-md shadow-yellow-500/20">
-                        {user?.name?.charAt(0) || 'U'}
+                        {currentUser?.name?.charAt(0)?.toUpperCase() || 'U'}
                     </div>
                     <div className={`whitespace-nowrap flex-1 min-w-0 overflow-hidden transition-all duration-300 ease-in-out ${collapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-[170px] opacity-100'}`}>
                         <div className="flex items-center gap-1.5">
-                            <p className="text-xs font-bold text-white truncate leading-tight">{user?.name || 'SPMO Administrator'}</p>
+                            <p className="text-xs font-bold text-white truncate leading-tight">{currentUser?.name || 'SPMO Administrator'}</p>
                         </div>
-                        <p className="text-[10px] text-red-300/80 truncate">{user?.email || 'admin@ucn.edu.ph'}</p>
+                        <p className="text-[10px] text-red-300/80 truncate">{currentUser?.email || 'admin@ucn.edu.ph'}</p>
                         <span className="inline-block mt-0.5 text-[9px] text-yellow-300/90 font-medium tracking-wide">
-                            {user?.role || 'Supply Officer'}
+                            {userRole}
                         </span>
                     </div>
                 </div>
@@ -283,7 +297,7 @@ export default function Sidebar({
                 </div>
 
                 <div className={`pt-1.5 text-center border-t border-red-800/30 whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${collapsed ? 'max-h-0 opacity-0 pointer-events-none py-0 border-t-0' : 'max-h-10 opacity-100'}`}>
-                    {user ? (
+                    {currentUser ? (
                         <Link
                             href={route('logout')}
                             method="post"
