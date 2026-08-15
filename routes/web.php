@@ -466,12 +466,6 @@ Route::get('/compliance/analytics', function () {
     ]);
 })->middleware(['auth', 'verified'])->name('compliance.analytics');
 
-Route::get('/acquisition/inbound-deliveries', function () {
-    return Inertia::render('Acquisition/InboundDeliveries', [
-        'purchaseOrders' => \Modules\Acquisition\Models\PurchaseOrder::with('items')->latest()->get(),
-    ]);
-})->middleware(['auth', 'verified'])->name('acquisition.inbound-deliveries');
-
 // Note: /audit-logs/login-trails is now handled by the AuditLogs module routes.
 
 Route::get('/audit-logs/transaction-trails', [\Modules\AuditLogs\Http\Controllers\TransactionTrailController::class, 'index'])

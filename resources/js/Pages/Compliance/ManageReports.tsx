@@ -84,7 +84,7 @@ const ReportModal = ({ show, onClose, title, children, footer, isSubmitting, isL
                             <p className="text-xs text-gray-500 font-medium">COA Compliance Reporting Module</p>
                         </div>
                     </div>
-                    <button 
+                    <button
                         type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
@@ -94,11 +94,11 @@ const ReportModal = ({ show, onClose, title, children, footer, isSubmitting, isL
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-                
+
                 <div className="p-8 overflow-y-auto custom-scrollbar flex-1 print:p-0 print:overflow-visible">
                     {children}
                 </div>
-                
+
                 {footer && (
                     <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 flex-shrink-0 rounded-b-2xl print:hidden">
                         {footer}
@@ -118,7 +118,7 @@ const FormInput = ({ label, icon, error, ...props }: any) => (
                     {icon}
                 </div>
             )}
-            <input 
+            <input
                 {...props}
                 className={`w-full ${icon ? 'pl-10' : 'pl-4'} pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
                 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all duration-200
@@ -767,14 +767,14 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         if (!endUserName) return [];
         const nameLower = endUserName.trim().toLowerCase();
 
-        const matchedIssuances = issuances.filter((issue: any) => 
+        const matchedIssuances = issuances.filter((issue: any) =>
             String(issue.recipient || '').trim().toLowerCase() === nameLower
         ).map((issue: any) => ({
             ...issue,
             _source: 'issuance'
         }));
 
-        const matchedMigrations = migratedRecords.filter((record: any) => 
+        const matchedMigrations = migratedRecords.filter((record: any) =>
             String(record.recipient || '').trim().toLowerCase() === nameLower
         ).map((record: any) => ({
             ...record,
@@ -1037,8 +1037,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
         setModalMode('view');
         setSelectedId(report.id);
-        setFormData({ 
-            ...formData, 
+        setFormData({
+            ...formData,
             title: report.title,
             type: report.type,
             reference: report.reference,
@@ -1082,31 +1082,45 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     };
 
     const customSelectStyles = {
-        control: (provided: any) => ({
+        control: (provided: any, state: any) => ({
             ...provided,
-            borderColor: '#d1d5db',
-            borderRadius: '0.75rem',
-            padding: '2px',
-            boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-            '&:hover': { borderColor: '#dc2626' },
-            '&:focus-within': { borderColor: '#dc2626', boxShadow: '0 0 0 1px #dc2626' },
+            borderRadius: '0.375rem',
+            borderColor: state.isFocused ? '#7f1d1d' : '#d1d5db',
+            borderWidth: '1px',
+            padding: '1px 2px',
+            minWidth: '150px',
+            boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
+            fontSize: '0.8125rem',
+            fontWeight: '600',
+            backgroundColor: '#ffffff',
+            '&:hover': { borderColor: '#7f1d1d' },
         }),
-        placeholder: (provided: any) => ({ ...provided, color: '#9ca3af', fontSize: '0.875rem' }),
-        singleValue: (provided: any) => ({ ...provided, fontSize: '0.875rem' }),
         option: (provided: any, state: any) => ({
             ...provided,
-            fontSize: '0.875rem',
-            backgroundColor: state.isSelected ? '#dc2626' : state.isFocused ? '#fef2f2' : 'white',
-            color: state.isSelected ? 'white' : '#374151',
+            backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? '#fef2f2' : '#ffffff',
+            color: state.isSelected ? '#ffffff' : '#111827',
+            padding: '7px 12px',
+            fontSize: '0.8125rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+        }),
+        singleValue: (provided: any) => ({ ...provided, color: '#111827' }),
+        menu: (provided: any) => ({
+            ...provided,
+            borderRadius: '0.375rem',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            border: '1px solid #e5e7eb',
+            zIndex: 50,
         }),
         menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+        indicatorSeparator: () => ({ display: 'none' }),
     };
 
     // --- FILTER LOGIC ---
-    
+
     // 1. Dynamic Reference Options based on Type Selection
-    const availableReferences = selectedType 
-        ? reports.filter(r => r.type === selectedType.value) 
+    const availableReferences = selectedType
+        ? reports.filter(r => r.type === selectedType.value)
         : reports;
 
     const referenceOptions = Array.from(new Set(availableReferences.map(r => r.reference))).map(ref => ({
@@ -1121,16 +1135,16 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
     // 2. Filter Reports
     const filteredReports = reports.filter(r => {
-        const matchesSearch = r.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                             r.reference.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = r.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            r.reference.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesType = selectedType ? r.type === selectedType.value : true;
-        const matchesRef = selectedReference ? r.reference === selectedReference.value : true; 
+        const matchesRef = selectedReference ? r.reference === selectedReference.value : true;
         return matchesSearch && matchesType && matchesRef;
     });
 
     return (
-        <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900 print:bg-white">
-            <Head title="COA Compliance Reports" />
+        <div className="min-h-screen bg-gray-100/80 flex font-sans text-gray-900 selection:bg-red-900 selection:text-white print:bg-white">
+            <Head title="COA Compliance Reports & Official Forms" />
             <style>{`
                 @media print {
                     @page { 
@@ -1159,7 +1173,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                     }
                 }
             `}</style>
-            
+
             {/* Action Dialog Modal */}
             <Modal show={actionDialog.show} onClose={closeActionDialog} maxWidth="sm">
                 <div className="p-6 text-center transform transition-all flex flex-col items-center">
@@ -1201,7 +1215,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 footer={
                     <>
                         <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">Cancel</button>
-                        
+
                         {modalMode === 'view' && (
                             <button
                                 onClick={handlePrint}
@@ -1212,7 +1226,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 Print Form
                             </button>
                         )}
-                        
+
                         {modalMode === 'create' ? (
                             <button
                                 onClick={handleCreateReport}
@@ -1244,7 +1258,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 print:bg-white print:p-0 print:border-none print-single-page">
                             {(() => {
                                 const filteredIssuances = getFilteredIssuances();
-                                
+
                                 const issuedItems = filteredIssuances.map((issue: any) => {
                                     const qty = issue.quantity || 0;
                                     const cost = issue.item?.unit_cost || 0;
@@ -1332,20 +1346,20 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                     {modalMode === 'view' && formData.type === 'STOCK_CARD' && (
                         <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
                             <div className="min-w-[800px] mx-auto print:min-w-full">
-                                    {formData.itemName ? (
-                                        <Suspense fallback={reportTemplateFallback}>
-                                            <StockCardFormPaper data={{
-                                                entity_name: 'University of Camarines Norte',
-                                                fund_cluster: 'General Fund',
-                                                item: formData.itemName || formData.title,
-                                                stock_no: selectedStockCardItem?.sku || formData.reference,
-                                                description: selectedStockCardItem?.description || selectedStockCardItem?.name || formData.itemName || formData.title,
-                                                re_order_point: '-',
-                                                unit_of_measurement: selectedStockCardItem?.unit_of_issue || selectedStockCardItem?.unit_measure || 'Pieces',
-                                                entries: stockCardEntries
-                                            }} />
-                                        </Suspense>
-                                    ) : (
+                                {formData.itemName ? (
+                                    <Suspense fallback={reportTemplateFallback}>
+                                        <StockCardFormPaper data={{
+                                            entity_name: 'University of Camarines Norte',
+                                            fund_cluster: 'General Fund',
+                                            item: formData.itemName || formData.title,
+                                            stock_no: selectedStockCardItem?.sku || formData.reference,
+                                            description: selectedStockCardItem?.description || selectedStockCardItem?.name || formData.itemName || formData.title,
+                                            re_order_point: '-',
+                                            unit_of_measurement: selectedStockCardItem?.unit_of_issue || selectedStockCardItem?.unit_measure || 'Pieces',
+                                            entries: stockCardEntries
+                                        }} />
+                                    </Suspense>
+                                ) : (
                                     <div className="py-20 text-center text-gray-600">
                                         <p className="text-lg font-semibold text-gray-800">Select an item to preview a live stock card.</p>
                                         <p className="text-sm text-gray-500 mt-2">The stock card will generate entries from issued item records once an item is chosen.</p>
@@ -1354,15 +1368,15 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                             </div>
                         </div>
                     )}
-                    
+
                     {modalMode === 'view' && (formData.type === 'MR' || formData.type === 'MOR') && (
                         <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 print:bg-white print:p-0 print:border-none print-single-page">
                             {(() => {
                                 const endUserName = formData.endUser || '';
-                                const endUserRecords = endUserName 
+                                const endUserRecords = endUserName
                                     ? getEndUserIssuances(endUserName)
                                     : getFilteredIssuances();
-                                
+
                                 const mrItems = endUserRecords.map((issue: any) => {
                                     const qty = issue.quantity || issue.qty || issue.payload?.quantity || 1;
                                     const cost = issue.item?.unit_cost || issue.unit_cost || issue.payload?.unit_cost || 0;
@@ -1405,218 +1419,218 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                             })()}
                         </div>
                     )}
-                    
+
                     <div className="print:hidden space-y-6">
                         {/* Basic Info Section */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                            <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">COA Report Type</label>
-                            <Select
-                                options={typeOptions}
-                                value={typeOptions.find(opt => opt.value === formData.type)}
-                                onChange={(opt: any) => setFormData({...formData, type: opt?.value || ''})}
-                                placeholder="Select Form Type..."
-                                styles={customSelectStyles}
-                                menuPortalTarget={typeof window !== "undefined" ? document.body : null}
-                                menuPosition="fixed"
-                            />
-                        </div>
-                        <FormInput
-                            label="Serial / Ref No."
-                            value={formData.reference}
-                            onChange={(e: any) => setFormData({...formData, reference: e.target.value})}
-                            placeholder="e.g. 2026-03-001"
-                            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>}
-                        />
-                    </div>
-                    
-                    <FormInput
-                        label="Document Title"
-                        value={formData.title}
-                        onChange={(e: any) => setFormData({...formData, title: e.target.value})}
-                        placeholder="e.g. Monthly Supplies Issuance - March"
-                        icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>}
-                    />
-
-                    {formData.type === 'RPCI' && (
-                        <div className="group w-full">
-                            <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Supplier</label>
-                            <Select
-                                options={supplierOptions}
-                                value={supplierOptions.find((opt: any) => String(opt.value) === String(formData.supplierId)) || null}
-                                onChange={(opt: any) => setFormData({
-                                    ...formData,
-                                    supplierId: opt ? opt.value : '',
-                                    supplierName: opt ? opt.label : '',
-                                })}
-                                styles={customSelectStyles}
-                                isClearable
-                                placeholder="Select supplier..."
-                                menuPortalTarget={typeof window !== "undefined" ? document.body : null}
-                                menuPosition="fixed"
-                            />
-                        </div>
-                    )}
-
-                    {formData.type === 'STOCK_CARD' && (
-                        <div className="group w-full">
-                            <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Target Item</label>
-                            <Select
-                                options={items.map((item: any) => ({
-                                    value: item.name,
-                                    label: `${item.name} ${item.sku ? `(${item.sku})` : ''}`
-                                }))}
-                                value={formData.itemName ? { value: formData.itemName, label: items.find((i: any) => i.name === formData.itemName)?.name ? `${items.find((i: any) => i.name === formData.itemName)?.name} ${items.find((i: any) => i.name === formData.itemName)?.sku ? `(${items.find((i: any) => i.name === formData.itemName)?.sku})` : ''}` : formData.itemName } : null}
-                                onChange={(opt: any) => setFormData({...formData, itemName: opt ? opt.value : ''})}
-                                styles={customSelectStyles}
-                                isClearable
-                                placeholder="Select an item..."
-                                menuPortalTarget={typeof window !== "undefined" ? document.body : null}
-                                menuPosition="fixed"
-                            />
-                        </div>
-                    )}
-
-                    {formData.type === 'MR' && (
-                        <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-5 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-red-800"></div>
-                            <div className="flex items-center gap-2 mb-2 text-gray-800">
-                                <svg className="w-5 h-5 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                                <h4 className="text-sm font-bold uppercase tracking-wider">End User Search & RIS Data Retrieval</h4>
-                            </div>
-                            <p className="text-xs text-gray-500 mb-4">Select or enter an End User to search the RIS database and auto-populate issued items into the Memorandum Receipt.</p>
-                            
-                            <div className="group w-full mb-3">
-                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">End User / Recipient Name</label>
+                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">COA Report Type</label>
                                 <Select
-                                    options={endUserOptions}
-                                    value={formData.endUser ? { value: formData.endUser, label: formData.endUser } : null}
-                                    onChange={(opt: any) => {
-                                        const selectedName = opt ? opt.value : '';
-                                        const matched = getEndUserIssuances(selectedName);
-                                        const firstMatch = matched[0];
-                                        setFormData({
-                                            ...formData,
-                                            endUser: selectedName,
-                                            title: formData.title || (selectedName ? `Memorandum Receipt - ${selectedName}` : ''),
-                                            reference: formData.reference || (selectedName ? `MR-${new Date().getFullYear()}-${selectedName.replace(/[^a-z0-9]+/gi, '-').toUpperCase()}` : ''),
-                                        });
-                                    }}
-                                    onInputChange={(newValue: string, actionMeta: any) => {
-                                        if (actionMeta.action === 'input-change' && newValue) {
-                                            setFormData((prev) => ({ ...prev, endUser: newValue }));
-                                        }
-                                    }}
+                                    options={typeOptions}
+                                    value={typeOptions.find(opt => opt.value === formData.type)}
+                                    onChange={(opt: any) => setFormData({ ...formData, type: opt?.value || '' })}
+                                    placeholder="Select Form Type..."
+                                    styles={customSelectStyles}
+                                    menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                    menuPosition="fixed"
+                                />
+                            </div>
+                            <FormInput
+                                label="Serial / Ref No."
+                                value={formData.reference}
+                                onChange={(e: any) => setFormData({ ...formData, reference: e.target.value })}
+                                placeholder="e.g. 2026-03-001"
+                                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>}
+                            />
+                        </div>
+
+                        <FormInput
+                            label="Document Title"
+                            value={formData.title}
+                            onChange={(e: any) => setFormData({ ...formData, title: e.target.value })}
+                            placeholder="e.g. Monthly Supplies Issuance - March"
+                            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>}
+                        />
+
+                        {formData.type === 'RPCI' && (
+                            <div className="group w-full">
+                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Supplier</label>
+                                <Select
+                                    options={supplierOptions}
+                                    value={supplierOptions.find((opt: any) => String(opt.value) === String(formData.supplierId)) || null}
+                                    onChange={(opt: any) => setFormData({
+                                        ...formData,
+                                        supplierId: opt ? opt.value : '',
+                                        supplierName: opt ? opt.label : '',
+                                    })}
                                     styles={customSelectStyles}
                                     isClearable
-                                    placeholder="Select or enter End User name..."
+                                    placeholder="Select supplier..."
                                     menuPortalTarget={typeof window !== "undefined" ? document.body : null}
                                     menuPosition="fixed"
                                 />
                             </div>
+                        )}
 
-                            {formData.endUser && (() => {
-                                const endUserRecords = getEndUserIssuances(formData.endUser);
-                                const firstRecord = endUserRecords[0];
-                                const designation = firstRecord?.recipient_designation || firstRecord?.designation || firstRecord?.payload?.recipient_designation || 'Accountable Officer';
-                                const department = firstRecord?.department || firstRecord?.office || firstRecord?.payload?.department || 'Official Business';
-
-                                return (
-                                    <div className="mt-3 p-4 bg-red-50/50 rounded-lg border border-red-100 space-y-2">
-                                        <div className="flex justify-between items-center pb-2 border-b border-red-200/60">
-                                            <span className="text-xs font-bold text-red-900 uppercase tracking-wide">RIS Database Records Found</span>
-                                            <span className="px-2 py-0.5 bg-red-900 text-white rounded text-[10px] font-bold">{endUserRecords.length} Items Retrieved</span>
-                                        </div>
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                                            <div><strong className="text-gray-600">End User:</strong> <span className="font-semibold text-gray-900">{formData.endUser}</span></div>
-                                            <div><strong className="text-gray-600">Designation:</strong> <span className="font-semibold text-gray-900">{designation}</span></div>
-                                            <div><strong className="text-gray-600">Office/Dept:</strong> <span className="font-semibold text-gray-900">{department}</span></div>
-                                        </div>
-                                        {endUserRecords.length > 0 ? (
-                                            <div className="mt-2 text-[11px] text-gray-600">
-                                                <strong>Issued Items Preview:</strong>{' '}
-                                                {endUserRecords.slice(0, 5).map((rec: any, i: number) => (
-                                                    <span key={i} className="inline-block bg-white px-2 py-0.5 rounded border border-gray-200 mr-1 mb-1 font-mono">
-                                                        {rec.item?.name || rec.item_name || rec.payload?.item_name || 'Item'} ({rec.quantity || 1} {rec.item?.unit_measure || rec.unit || 'pc'})
-                                                    </span>
-                                                ))}
-                                                {endUserRecords.length > 5 && <span className="font-semibold text-red-800">+{endUserRecords.length - 5} more</span>}
-                                            </div>
-                                        ) : (
-                                            <div className="mt-2 text-xs text-amber-700 font-medium">
-                                                No RIS issuance records matching "{formData.endUser}" found in database yet. Blank rows will be generated on the MR form for manual entry.
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })()}
-                        </div>
-                    )}
-
-                    {/* COVERAGE PERIOD SECTION */}
-                    <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-5 relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-1 h-full bg-red-800"></div>
-                        <div className="flex items-center gap-2 mb-4 text-gray-800">
-                            <svg className="w-5 h-5 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <h4 className="text-sm font-bold uppercase tracking-wider">Coverage Period</h4>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-end">
-                            <div>
-                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Period Format</label>
+                        {formData.type === 'STOCK_CARD' && (
+                            <div className="group w-full">
+                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Target Item</label>
                                 <Select
-                                    options={periodOptions}
-                                    value={periodOptions.find(opt => opt.value === formData.periodType)}
-                                    onChange={(opt: any) => setFormData({...formData, periodType: opt?.value || 'specific'})}
+                                    options={items.map((item: any) => ({
+                                        value: item.name,
+                                        label: `${item.name} ${item.sku ? `(${item.sku})` : ''}`
+                                    }))}
+                                    value={formData.itemName ? { value: formData.itemName, label: items.find((i: any) => i.name === formData.itemName)?.name ? `${items.find((i: any) => i.name === formData.itemName)?.name} ${items.find((i: any) => i.name === formData.itemName)?.sku ? `(${items.find((i: any) => i.name === formData.itemName)?.sku})` : ''}` : formData.itemName } : null}
+                                    onChange={(opt: any) => setFormData({ ...formData, itemName: opt ? opt.value : '' })}
                                     styles={customSelectStyles}
+                                    isClearable
+                                    placeholder="Select an item..."
                                     menuPortalTarget={typeof window !== "undefined" ? document.body : null}
                                     menuPosition="fixed"
                                 />
                             </div>
+                        )}
 
-                            {/* Conditional Inputs */}
-                            {formData.periodType === 'specific' && (
-                                <FormInput
-                                    label="Specific Date"
-                                    type="date"
-                                    value={formData.date}
-                                    onChange={(e: any) => setFormData({...formData, date: e.target.value})}
-                                />
-                            )}
-
-                            {formData.periodType === 'range' && (
-                                <div className="flex items-end gap-3 w-full">
-                                    <FormInput label="From Date" type="date" value={formData.startDate} onChange={(e: any) => setFormData({...formData, startDate: e.target.value})} />
-                                    <FormInput label="To Date" type="date" value={formData.endDate} onChange={(e: any) => setFormData({...formData, endDate: e.target.value})} />
+                        {formData.type === 'MR' && (
+                            <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-5 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-1 h-full bg-red-800"></div>
+                                <div className="flex items-center gap-2 mb-2 text-gray-800">
+                                    <svg className="w-5 h-5 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <h4 className="text-sm font-bold uppercase tracking-wider">End User Search & RIS Data Retrieval</h4>
                                 </div>
-                            )}
+                                <p className="text-xs text-gray-500 mb-4">Select or enter an End User to search the RIS database and auto-populate issued items into the Memorandum Receipt.</p>
 
-                            {formData.periodType === 'monthly' && (
-                                <div className="flex items-end gap-3 w-full">
-                                    <div className="flex-1">
-                                        <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Month</label>
-                                        <Select 
-                                            options={monthOptions} 
-                                            value={monthOptions.find(m => m.value === formData.selectedMonth)}
-                                            onChange={(opt: any) => setFormData({...formData, selectedMonth: opt.value})}
-                                            styles={customSelectStyles} 
-                                            menuPortalTarget={typeof window !== "undefined" ? document.body : null}
-                                            menuPosition="fixed"
-                                        />
-                                    </div>
-                                    <div className="w-1/3">
-                                        <FormInput label="Year" type="number" min="2000" max="2100" value={formData.selectedYear} onChange={(e: any) => setFormData({...formData, selectedYear: e.target.value})} />
-                                    </div>
+                                <div className="group w-full mb-3">
+                                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">End User / Recipient Name</label>
+                                    <Select
+                                        options={endUserOptions}
+                                        value={formData.endUser ? { value: formData.endUser, label: formData.endUser } : null}
+                                        onChange={(opt: any) => {
+                                            const selectedName = opt ? opt.value : '';
+                                            const matched = getEndUserIssuances(selectedName);
+                                            const firstMatch = matched[0];
+                                            setFormData({
+                                                ...formData,
+                                                endUser: selectedName,
+                                                title: formData.title || (selectedName ? `Memorandum Receipt - ${selectedName}` : ''),
+                                                reference: formData.reference || (selectedName ? `MR-${new Date().getFullYear()}-${selectedName.replace(/[^a-z0-9]+/gi, '-').toUpperCase()}` : ''),
+                                            });
+                                        }}
+                                        onInputChange={(newValue: string, actionMeta: any) => {
+                                            if (actionMeta.action === 'input-change' && newValue) {
+                                                setFormData((prev) => ({ ...prev, endUser: newValue }));
+                                            }
+                                        }}
+                                        styles={customSelectStyles}
+                                        isClearable
+                                        placeholder="Select or enter End User name..."
+                                        menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                        menuPosition="fixed"
+                                    />
                                 </div>
-                            )}
 
-                            {formData.periodType === 'yearly' && (
-                                <FormInput label="Fiscal Year" type="number" min="2000" max="2100" value={formData.selectedYear} onChange={(e: any) => setFormData({...formData, selectedYear: e.target.value})} />
-                            )}
+                                {formData.endUser && (() => {
+                                    const endUserRecords = getEndUserIssuances(formData.endUser);
+                                    const firstRecord = endUserRecords[0];
+                                    const designation = firstRecord?.recipient_designation || firstRecord?.designation || firstRecord?.payload?.recipient_designation || 'Accountable Officer';
+                                    const department = firstRecord?.department || firstRecord?.office || firstRecord?.payload?.department || 'Official Business';
+
+                                    return (
+                                        <div className="mt-3 p-4 bg-red-50/50 rounded-lg border border-red-100 space-y-2">
+                                            <div className="flex justify-between items-center pb-2 border-b border-red-200/60">
+                                                <span className="text-xs font-bold text-red-900 uppercase tracking-wide">RIS Database Records Found</span>
+                                                <span className="px-2 py-0.5 bg-red-900 text-white rounded text-[10px] font-bold">{endUserRecords.length} Items Retrieved</span>
+                                            </div>
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                                                <div><strong className="text-gray-600">End User:</strong> <span className="font-semibold text-gray-900">{formData.endUser}</span></div>
+                                                <div><strong className="text-gray-600">Designation:</strong> <span className="font-semibold text-gray-900">{designation}</span></div>
+                                                <div><strong className="text-gray-600">Office/Dept:</strong> <span className="font-semibold text-gray-900">{department}</span></div>
+                                            </div>
+                                            {endUserRecords.length > 0 ? (
+                                                <div className="mt-2 text-[11px] text-gray-600">
+                                                    <strong>Issued Items Preview:</strong>{' '}
+                                                    {endUserRecords.slice(0, 5).map((rec: any, i: number) => (
+                                                        <span key={i} className="inline-block bg-white px-2 py-0.5 rounded border border-gray-200 mr-1 mb-1 font-mono">
+                                                            {rec.item?.name || rec.item_name || rec.payload?.item_name || 'Item'} ({rec.quantity || 1} {rec.item?.unit_measure || rec.unit || 'pc'})
+                                                        </span>
+                                                    ))}
+                                                    {endUserRecords.length > 5 && <span className="font-semibold text-red-800">+{endUserRecords.length - 5} more</span>}
+                                                </div>
+                                            ) : (
+                                                <div className="mt-2 text-xs text-amber-700 font-medium">
+                                                    No RIS issuance records matching "{formData.endUser}" found in database yet. Blank rows will be generated on the MR form for manual entry.
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+                        )}
+
+                        {/* COVERAGE PERIOD SECTION */}
+                        <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-5 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-red-800"></div>
+                            <div className="flex items-center gap-2 mb-4 text-gray-800">
+                                <svg className="w-5 h-5 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <h4 className="text-sm font-bold uppercase tracking-wider">Coverage Period</h4>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-end">
+                                <div>
+                                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Period Format</label>
+                                    <Select
+                                        options={periodOptions}
+                                        value={periodOptions.find(opt => opt.value === formData.periodType)}
+                                        onChange={(opt: any) => setFormData({ ...formData, periodType: opt?.value || 'specific' })}
+                                        styles={customSelectStyles}
+                                        menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                        menuPosition="fixed"
+                                    />
+                                </div>
+
+                                {/* Conditional Inputs */}
+                                {formData.periodType === 'specific' && (
+                                    <FormInput
+                                        label="Specific Date"
+                                        type="date"
+                                        value={formData.date}
+                                        onChange={(e: any) => setFormData({ ...formData, date: e.target.value })}
+                                    />
+                                )}
+
+                                {formData.periodType === 'range' && (
+                                    <div className="flex items-end gap-3 w-full">
+                                        <FormInput label="From Date" type="date" value={formData.startDate} onChange={(e: any) => setFormData({ ...formData, startDate: e.target.value })} />
+                                        <FormInput label="To Date" type="date" value={formData.endDate} onChange={(e: any) => setFormData({ ...formData, endDate: e.target.value })} />
+                                    </div>
+                                )}
+
+                                {formData.periodType === 'monthly' && (
+                                    <div className="flex items-end gap-3 w-full">
+                                        <div className="flex-1">
+                                            <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Month</label>
+                                            <Select
+                                                options={monthOptions}
+                                                value={monthOptions.find(m => m.value === formData.selectedMonth)}
+                                                onChange={(opt: any) => setFormData({ ...formData, selectedMonth: opt.value })}
+                                                styles={customSelectStyles}
+                                                menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+                                                menuPosition="fixed"
+                                            />
+                                        </div>
+                                        <div className="w-1/3">
+                                            <FormInput label="Year" type="number" min="2000" max="2100" value={formData.selectedYear} onChange={(e: any) => setFormData({ ...formData, selectedYear: e.target.value })} />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {formData.periodType === 'yearly' && (
+                                    <FormInput label="Fiscal Year" type="number" min="2000" max="2100" value={formData.selectedYear} onChange={(e: any) => setFormData({ ...formData, selectedYear: e.target.value })} />
+                                )}
+                            </div>
                         </div>
-                    </div>
                     </div>
                 </div>
             </ReportModal>
@@ -1625,335 +1639,455 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 <Sidebar modules={modules} user={user} collapsed={collapsed} onToggleCollapse={() => setCollapsed(!collapsed)} />
             </div>
 
-            <main className={`flex-1 transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-72'} print:hidden`}>
-                <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm">
-                    <div>
-                        
-                                <div className="mb-2">
-                                    <Breadcrumbs items={[{name:'Compliance'},{name:'Manage Reports'}]} />
-                                </div>
-<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Compliance Reports</h2>
-                        <p className="text-sm text-gray-500">Official COA Inventory Documentation</p>
-                    </div>
-                    <div className="text-right hidden sm:block">
-                        <span className="block text-sm font-bold text-gray-800">{new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-                        <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">System Active</span>
-                    </div>
-                </div>
+            <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'} print:hidden`}>
 
-                <div className="p-8">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-800">COA Forms Archive</h1>
-                                <p className="text-sm text-gray-500 mt-1">Generate and track RIS, RSMI, RPCI, and Stock Cards.</p>
+                {/* Merged Sticky Institutional Header */}
+                <header className="sticky top-0 z-40 shadow-xs print:hidden">
+                    {/* Top Institutional Bar */}
+                    <div className="bg-red-950 text-red-100 text-[11px] px-6 lg:px-8 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide">
+                        <div className="flex items-center gap-3">
+                            <span className="font-bold tracking-wider uppercase text-amber-300">Supply & Property Management Office (SPMO)</span>
+                            <span className="hidden md:inline text-red-400">|</span>
+                            <span className="hidden md:inline text-red-200/80">University Enterprise Administrative System</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
+                            <span>SYSTEM MODE: LIVE PRODUCTION</span>
+                            <span>•</span>
+                            <span>ACCESS LEVEL: AUTHORIZED PERSONNEL</span>
+                        </div>
+                    </div>
+
+                    {/* Main Header Content */}
+                    <div className="bg-white border-b border-gray-200 px-6 lg:px-8 py-4 flex items-center justify-between">
+                        <div>
+                            <div className="mb-1">
+                                <Breadcrumbs items={[{ name: 'Compliance' }, { name: 'Manage Reports' }]} />
                             </div>
-                            <div className="flex flex-wrap gap-3">
-                                <button onClick={openMigrationModal} className="border border-red-200 bg-white text-red-800 px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-sm hover:bg-red-50 flex items-center gap-2">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"></path></svg>
-                                    Migrate Data to Database
+                            <h2 className="text-2xl font-bold text-gray-900 font-serif tracking-tight">COA Compliance Reports & Forms Archive</h2>
+                            <p className="text-xs text-gray-500 font-medium">Official COA Inventory Documentation & Compliance Reporting Module</p>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right hidden sm:block border-l border-gray-200 pl-6">
+                                <span className="block text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                                    {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                </span>
+                                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold block mt-0.5">
+                                    {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16">
+
+                    {/* Welcome / System Overview Banner */}
+                    <div className="bg-red-950 text-white rounded-lg border border-red-900 border-l-4 border-l-amber-400 p-6 lg:p-7 shadow-xs relative overflow-hidden">
+                        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
+                            <div className="max-w-3xl space-y-2.5">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-red-900/90 border border-red-800 text-[11px] font-bold text-amber-300 uppercase tracking-wider font-mono">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                                    </span>
+                                    Official COA Reporting: Active & Audited
+                                </div>
+                                <h1 className="text-2xl lg:text-3xl font-bold font-serif leading-tight text-white tracking-tight">
+                                    Commission on Audit Compliance Forms Archive
+                                </h1>
+                                <p className="text-red-100/90 text-sm font-normal leading-relaxed">
+                                    Generate, inspect, print, and track official COA inventory documentation including RSMI, RPCI, Stock Cards, and Memorandum Receipts for institutional audit compliance.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-3 shrink-0 w-full lg:w-auto">
+                                <button
+                                    onClick={openMigrationModal}
+                                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-red-900/90 hover:bg-red-900 text-amber-300 border border-red-800 rounded font-bold text-xs uppercase tracking-wider transition-colors shadow-xs"
+                                >
+                                    <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"></path></svg>
+                                    <span>Migrate Historical COA Data</span>
                                 </button>
-                                <button onClick={openCreateModal} className="bg-red-900 hover:bg-red-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-md flex items-center gap-2">
-                                    <span>+</span> Generate New Report
+                                <button
+                                    onClick={openCreateModal}
+                                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-400 text-red-950 rounded font-bold text-xs uppercase tracking-wider hover:bg-amber-300 transition-colors shadow-xs border border-amber-300"
+                                >
+                                    <svg className="w-4 h-4 text-red-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path></svg>
+                                    <span>Generate New Report</span>
                                 </button>
                             </div>
                         </div>
+                    </div>
 
-                        <ReportModal
-                            show={showMigrationModal}
-                            onClose={() => setShowMigrationModal(false)}
-                            title={`Migrate Historical ${migrationFormType} COA Data`}
-                            isSubmitting={migrationSubmitting}
-                            isLandscape={false}
-                            collapsed={collapsed}
-                            footer={
-                                <>
-                                    <button onClick={() => setShowMigrationModal(false)} className="px-4 py-2 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">Cancel</button>
-                                    <button type="button" onClick={handlePreviewMigration} className="px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors">Preview Data</button>
-                                    <button onClick={handleConfirmMigration} disabled={migrationSubmitting || migrationPreview.length === 0} className="px-6 py-2 bg-gradient-to-r from-red-800 to-red-900 text-white font-bold rounded-lg hover:from-red-900 hover:to-red-950 transition-all shadow-lg disabled:opacity-70 flex items-center">
-                                        {migrationSubmitting ? 'Migrating...' : 'Confirm Migration'}
-                                    </button>
-                                </>
-                            }
-                        >
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                    <div>
-                                        <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">COA Form Type</label>
-                                        <Select
-                                            options={typeOptions.filter((option) => ['RSMI', 'RPCI', 'STOCK_CARD', 'MR'].includes(option.value))}
-                                            value={typeOptions.find((option) => option.value === migrationFormType) || null}
-                                            onChange={(option: any) => {
-                                                const nextType = option?.value || 'RSMI';
-                                                setMigrationFormType(nextType);
-                                                if (migrationInputText) {
-                                                    buildMigrationPreview(migrationInputText);
-                                                }
-                                            }}
-                                            styles={customSelectStyles}
-                                            menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
-                                            menuPosition="fixed"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Source / Legacy System Identifier</label>
-                                        <input value={migrationSource} onChange={(event) => setMigrationSource(event.target.value)} placeholder="e.g. Legacy Excel 2024 Archive" className="w-full border-gray-300 rounded-xl shadow-sm focus:ring-red-500 focus:border-red-500 h-[42px] px-4" />
-                                    </div>
+                    {/* Quick Statistics Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-xs flex items-center justify-between">
+                            <div>
+                                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider font-mono block mb-1">Total Archived Reports</span>
+                                <span className="text-2xl font-bold text-gray-900 font-serif">{reports.length}</span>
+                                <span className="text-[11px] font-medium text-emerald-700 block mt-1">Verified Audit Records</span>
+                            </div>
+                            <div className="p-3 bg-red-50 rounded-lg text-red-900">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-xs flex items-center justify-between">
+                            <div>
+                                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider font-mono block mb-1">RSMI Reports</span>
+                                <span className="text-2xl font-bold text-gray-900 font-serif">{reports.filter(r => r.type === 'RSMI').length}</span>
+                                <span className="text-[11px] font-medium text-gray-500 block mt-1">Supplies & Materials Issued</span>
+                            </div>
+                            <div className="p-3 bg-amber-50 rounded-lg text-amber-800">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-xs flex items-center justify-between">
+                            <div>
+                                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider font-mono block mb-1">RPCI Audit Reports</span>
+                                <span className="text-2xl font-bold text-gray-900 font-serif">{reports.filter(r => r.type === 'RPCI').length}</span>
+                                <span className="text-[11px] font-medium text-gray-500 block mt-1">Physical Inventory Count</span>
+                            </div>
+                            <div className="p-3 bg-blue-50 rounded-lg text-blue-900">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-xs flex items-center justify-between">
+                            <div>
+                                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider font-mono block mb-1">Stock Cards & MR</span>
+                                <span className="text-2xl font-bold text-gray-900 font-serif">{reports.filter(r => r.type === 'STOCK_CARD' || r.type === 'MR' || r.type === 'MOR').length}</span>
+                                <span className="text-[11px] font-medium text-gray-500 block mt-1">Stock Cards & Memorandum Receipts</span>
+                            </div>
+                            <div className="p-3 bg-emerald-50 rounded-lg text-emerald-900">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Historical Migration Modal */}
+                    <ReportModal
+                        show={showMigrationModal}
+                        onClose={() => setShowMigrationModal(false)}
+                        title={`Migrate Historical ${migrationFormType} COA Data`}
+                        isSubmitting={migrationSubmitting}
+                        isLandscape={false}
+                        collapsed={collapsed}
+                        footer={
+                            <>
+                                <button onClick={() => setShowMigrationModal(false)} className="px-4 py-2 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">Cancel</button>
+                                <button type="button" onClick={handlePreviewMigration} className="px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors">Preview Data</button>
+                                <button onClick={handleConfirmMigration} disabled={migrationSubmitting || migrationPreview.length === 0} className="px-6 py-2 bg-gradient-to-r from-red-800 to-red-900 text-white font-bold rounded-lg hover:from-red-900 hover:to-red-950 transition-all shadow-lg disabled:opacity-70 flex items-center">
+                                    {migrationSubmitting ? 'Migrating...' : 'Confirm Migration'}
+                                </button>
+                            </>
+                        }
+                    >
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">COA Form Type</label>
+                                    <Select
+                                        options={typeOptions.filter((option) => ['RSMI', 'RPCI', 'STOCK_CARD', 'MR'].includes(option.value))}
+                                        value={typeOptions.find((option) => option.value === migrationFormType) || null}
+                                        onChange={(option: any) => {
+                                            const nextType = option?.value || 'RSMI';
+                                            setMigrationFormType(nextType);
+                                            if (migrationInputText) {
+                                                buildMigrationPreview(migrationInputText);
+                                            }
+                                        }}
+                                        styles={customSelectStyles}
+                                        menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                                        menuPosition="fixed"
+                                    />
                                 </div>
+                                <div>
+                                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Source / Legacy System Identifier</label>
+                                    <input value={migrationSource} onChange={(event) => setMigrationSource(event.target.value)} placeholder="e.g. Legacy Excel 2024 Archive" className="w-full border-gray-300 rounded-xl shadow-sm focus:ring-red-500 focus:border-red-500 h-[42px] px-4" />
+                                </div>
+                            </div>
 
-                                <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">Upload Old COA Form (Excel .xlsx / .xls / .csv, PDF, DOCX)</label>
-                                        <span className="text-[11px] font-semibold text-red-800 bg-red-100 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                            Parsers & OCR Active
-                                        </span>
+                            <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
+                                <div className="flex items-center justify-between mb-1">
+                                    <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">Upload Old COA Form (Excel .xlsx / .xls / .csv, PDF, DOCX)</label>
+                                    <span className="text-[11px] font-semibold text-red-800 bg-red-100 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                        Parsers & OCR Active
+                                    </span>
+                                </div>
+                                <input type="file" disabled={isExtractingFile} accept=".xlsx,.xls,.csv,.pdf,.docx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={handleMigrationFileUpload} className="block w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-red-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-800 disabled:opacity-50" />
+                                {isExtractingFile ? (
+                                    <div className="mt-3 flex items-center gap-2.5 text-sm text-red-900 font-medium bg-red-50 p-3 rounded-xl border border-red-200 animate-pulse">
+                                        <svg className="w-4 h-4 animate-spin text-red-800 flex-shrink-0" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        <span>{ocrStatus || 'Processing file content...'}</span>
                                     </div>
-                                    <input type="file" disabled={isExtractingFile} accept=".xlsx,.xls,.csv,.pdf,.docx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={handleMigrationFileUpload} className="block w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-red-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-800 disabled:opacity-50" />
-                                    {isExtractingFile ? (
-                                        <div className="mt-3 flex items-center gap-2.5 text-sm text-red-900 font-medium bg-red-50 p-3 rounded-xl border border-red-200 animate-pulse">
-                                            <svg className="w-4 h-4 animate-spin text-red-800 flex-shrink-0" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                            <span>{ocrStatus || 'Processing file content...'}</span>
-                                        </div>
-                                    ) : migrationFileName ? (
-                                        <p className="mt-2 text-sm text-gray-500">Loaded file: <span className="font-semibold text-gray-700">{migrationFileName}</span></p>
-                                    ) : null}
-                                </div>
+                                ) : migrationFileName ? (
+                                    <p className="mt-2 text-sm text-gray-500">Loaded file: <span className="font-semibold text-gray-700">{migrationFileName}</span></p>
+                                ) : null}
+                            </div>
 
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 rounded-xl border border-gray-200 bg-white p-4">
-                                    <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-700"><span className="block font-semibold text-gray-500 uppercase text-[10px]">Form Selected</span><span className="text-sm font-bold text-red-900">{migrationFormType}</span></div>
-                                    <div className="rounded-lg bg-green-50 p-3 text-xs text-green-800"><span className="block font-semibold uppercase text-[10px]">Ready to Import</span><span className="text-sm font-bold">{migrationValidation.validCount}</span></div>
-                                    <div className="rounded-lg bg-yellow-50 p-3 text-xs text-yellow-800"><span className="block font-semibold uppercase text-[10px]">Missing Data</span><span className="text-sm font-bold">{migrationValidation.invalidCount}</span></div>
-                                    <div className="rounded-lg bg-red-50 p-3 text-xs text-red-800"><span className="block font-semibold uppercase text-[10px]">Duplicate Records</span><span className="text-sm font-bold">{migrationValidation.duplicateCount}</span></div>
-                                </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 rounded-xl border border-gray-200 bg-white p-4">
+                                <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-700"><span className="block font-semibold text-gray-500 uppercase text-[10px]">Form Selected</span><span className="text-sm font-bold text-red-900">{migrationFormType}</span></div>
+                                <div className="rounded-lg bg-green-50 p-3 text-xs text-green-800"><span className="block font-semibold uppercase text-[10px]">Ready to Import</span><span className="text-sm font-bold">{migrationValidation.validCount}</span></div>
+                                <div className="rounded-lg bg-yellow-50 p-3 text-xs text-yellow-800"><span className="block font-semibold uppercase text-[10px]">Missing Data</span><span className="text-sm font-bold">{migrationValidation.invalidCount}</span></div>
+                                <div className="rounded-lg bg-red-50 p-3 text-xs text-red-800"><span className="block font-semibold uppercase text-[10px]">Duplicate Records</span><span className="text-sm font-bold">{migrationValidation.duplicateCount}</span></div>
+                            </div>
 
-                                {migrationPreview.length > 0 && (
-                                    <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
-                                        <h4 className="text-xs font-bold uppercase text-gray-700 tracking-wider mb-2 flex items-center gap-1.5">
-                                            <svg className="w-4 h-4 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                                            Field Mapping Schema ({migrationFormType})
-                                        </h4>
-                                        <div className="overflow-x-auto">
-                                            <table className="min-w-full text-xs">
-                                                <thead className="bg-gray-200 text-gray-700 font-bold uppercase text-[10px] tracking-wider">
-                                                    <tr>
-                                                        <th className="px-3 py-1.5 text-left">COA Form Field</th>
-                                                        <th className="px-3 py-1.5 text-left">Target DB Attribute</th>
-                                                        <th className="px-3 py-1.5 text-left">Data Type</th>
-                                                        <th className="px-3 py-1.5 text-left">Sample Extracted Value</th>
+                            {migrationPreview.length > 0 && (
+                                <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
+                                    <h4 className="text-xs font-bold uppercase text-gray-700 tracking-wider mb-2 flex items-center gap-1.5">
+                                        <svg className="w-4 h-4 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                                        Field Mapping Schema ({migrationFormType})
+                                    </h4>
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full text-xs">
+                                            <thead className="bg-gray-200 text-gray-700 font-bold uppercase text-[10px] tracking-wider">
+                                                <tr>
+                                                    <th className="px-3 py-1.5 text-left">COA Form Field</th>
+                                                    <th className="px-3 py-1.5 text-left">Target DB Attribute</th>
+                                                    <th className="px-3 py-1.5 text-left">Data Type</th>
+                                                    <th className="px-3 py-1.5 text-left">Sample Extracted Value</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-200 bg-white">
+                                                {getFieldMappingMatrix(migrationFormType, migrationPreview).map((mapItem, mIdx) => (
+                                                    <tr key={mIdx}>
+                                                        <td className="px-3 py-1.5 font-semibold text-gray-900">{mapItem.field}</td>
+                                                        <td className="px-3 py-1.5 font-mono text-red-900">{mapItem.dbField}</td>
+                                                        <td className="px-3 py-1.5 text-gray-500">{mapItem.type}</td>
+                                                        <td className="px-3 py-1.5 font-medium text-gray-800">{String(mapItem.sample || '-')}</td>
                                                     </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-gray-200 bg-white">
-                                                    {getFieldMappingMatrix(migrationFormType, migrationPreview).map((mapItem, mIdx) => (
-                                                        <tr key={mIdx}>
-                                                            <td className="px-3 py-1.5 font-semibold text-gray-900">{mapItem.field}</td>
-                                                            <td className="px-3 py-1.5 font-mono text-red-900">{mapItem.dbField}</td>
-                                                            <td className="px-3 py-1.5 text-gray-500">{mapItem.type}</td>
-                                                            <td className="px-3 py-1.5 font-medium text-gray-800">{String(mapItem.sample || '-')}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div ref={migrationPreviewRef}>
+                                {migrationPreview.length > 0 ? (
+                                    <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
+                                        <table className="min-w-full text-xs">
+                                            <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
+                                                <tr>
+                                                    <th className="px-3 py-2.5">Ref / Doc No</th>
+                                                    <th className="px-3 py-2.5">Date</th>
+                                                    <th className="px-3 py-2.5">Item Description</th>
+                                                    <th className="px-3 py-2.5">Qty</th>
+                                                    <th className="px-3 py-2.5">Recipient / Office</th>
+                                                    <th className="px-3 py-2.5">Source Tag</th>
+                                                    <th className="px-3 py-2.5">Validation Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {migrationPreview.map((row: any, index: number) => (
+                                                    <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
+                                                        <td className="px-3 py-2 font-semibold text-gray-900">{row.reference || '-'}</td>
+                                                        <td className="px-3 py-2 text-gray-600">{row.date || '-'}</td>
+                                                        <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
+                                                        <td className="px-3 py-2 font-bold text-gray-900">{row.quantity || 0}</td>
+                                                        <td className="px-3 py-2 text-gray-600">{row.recipient || row.department || '-'}</td>
+                                                        <td className="px-3 py-2">
+                                                            <span className="inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-gray-100 text-gray-700">historical_migration</span>
+                                                        </td>
+                                                        <td className="px-3 py-2">
+                                                            {row.errors.length > 0 ? (
+                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">
+                                                                    {row.errors[0]}
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">
+                                                                    Ready to Import
+                                                                </span>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <div className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-500">
+                                        Upload an old {migrationFormType} COA form file (Excel, PDF, DOCX) to inspect detected records and field mappings before migrating to database.
                                     </div>
                                 )}
+                            </div>
+                        </div>
+                    </ReportModal>
 
-                                <div ref={migrationPreviewRef}>
-                                    {migrationPreview.length > 0 ? (
-                                        <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-                                            <table className="min-w-full text-xs">
-                                                <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
-                                                    <tr>
-                                                        <th className="px-3 py-2.5">Ref / Doc No</th>
-                                                        <th className="px-3 py-2.5">Date</th>
-                                                        <th className="px-3 py-2.5">Item Description</th>
-                                                        <th className="px-3 py-2.5">Qty</th>
-                                                        <th className="px-3 py-2.5">Recipient / Office</th>
-                                                        <th className="px-3 py-2.5">Source Tag</th>
-                                                        <th className="px-3 py-2.5">Validation Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-gray-100">
-                                                    {migrationPreview.map((row: any, index: number) => (
-                                                        <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
-                                                            <td className="px-3 py-2 font-semibold text-gray-900">{row.reference || '-'}</td>
-                                                            <td className="px-3 py-2 text-gray-600">{row.date || '-'}</td>
-                                                            <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
-                                                            <td className="px-3 py-2 font-bold text-gray-900">{row.quantity || 0}</td>
-                                                            <td className="px-3 py-2 text-gray-600">{row.recipient || row.department || '-'}</td>
-                                                            <td className="px-3 py-2">
-                                                                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-gray-100 text-gray-700">historical_migration</span>
-                                                            </td>
-                                                            <td className="px-3 py-2">
-                                                                {row.errors.length > 0 ? (
-                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">
-                                                                        {row.errors[0]}
-                                                                    </span>
-                                                                ) : (
-                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">
-                                                                        Ready to Import
-                                                                    </span>
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    ) : (
-                                        <div className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-500">
-                                            Upload an old {migrationFormType} COA form file (Excel, PDF, DOCX) to inspect detected records and field mappings before migrating to database.
-                                        </div>
-                                    )}
+                    {/* Main Content Card Container */}
+                    <div className="bg-white rounded-xl shadow-xs border border-gray-200/80 overflow-hidden">
+                        {/* Card Header */}
+                        <div className="px-6 lg:px-8 py-5 border-b border-gray-200/80 bg-gray-50/50">
+                            <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">Official COA Documents Registry</h3>
+                            <p className="text-xs text-gray-500 font-medium mt-0.5">Filter, view, or generate official compliance reports for state inventory auditing.</p>
+                        </div>
+
+                        {/* Search and Filter Section */}
+                        <div className="px-6 lg:px-8 py-4 bg-gray-50/30 border-b border-gray-200/80 flex flex-wrap items-center gap-3">
+                            <div className="relative flex-grow sm:w-64">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 </div>
+                                <input
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder="Search by title or reference..."
+                                    className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-md text-xs font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-xs"
+                                />
                             </div>
-                        </ReportModal>
-
-                        {/* Filters */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                            <div>
-                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Search Documents</label>
-                                <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search by title..." className="w-full border-gray-300 rounded-xl shadow-sm focus:ring-red-500 focus:border-red-500 h-[42px] px-4" />
+                            <div className="w-full sm:w-64">
+                                <Select
+                                    options={typeOptions}
+                                    value={selectedType}
+                                    onChange={setSelectedType}
+                                    placeholder="All COA Form Types"
+                                    isClearable
+                                    classNamePrefix="react-select"
+                                    styles={customSelectStyles}
+                                />
                             </div>
-                            <div>
-                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Filter by Form Type</label>
-                                <Select options={typeOptions} value={selectedType} onChange={setSelectedType} placeholder="All COA Types" isClearable styles={customSelectStyles} menuPortalTarget={typeof window !== "undefined" ? document.body : null} menuPosition="fixed" />
-                            </div>
-                            <div>
-                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Filter by Reference</label>
-                                <Select 
-                                    options={referenceOptions} 
-                                    value={selectedReference} 
-                                    onChange={setSelectedReference} 
+                            <div className="w-full sm:w-56">
+                                <Select
+                                    options={referenceOptions}
+                                    value={selectedReference}
+                                    onChange={setSelectedReference}
                                     placeholder={selectedType ? "Select Reference..." : "Select Type first..."}
-                                    isClearable 
-                                    styles={customSelectStyles} 
-                                    menuPortalTarget={typeof window !== "undefined" ? document.body : null} 
-                                    menuPosition="fixed" 
+                                    isClearable
+                                    classNamePrefix="react-select"
+                                    styles={customSelectStyles}
                                     isDisabled={referenceOptions.length === 0}
                                 />
                             </div>
                         </div>
 
-                        {/* Reports Cards */}
-                        {filteredReports.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {filteredReports.map((report) => {
-                                    // Match the abbreviation to its full label from the options array
-                                    const fullTypeLabel = typeOptions.find(opt => opt.value === report.type)?.label || report.type;
-                                    
-                                    return (
-                                        <div key={report.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all group flex flex-col relative h-full">
-                                            
-                                            {report.type === 'RSMI' && (
-                                                <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
-                                                    <Suspense fallback={reportTemplateFallback}>
-                                                        <RSMIFormPaper data={{
-                                                            entityName: 'University of Camarines Norte',
-                                                            serialNo: report.reference,
-                                                            fundCluster: 'GF',
-                                                            date: report.date || '',
-                                                            issuedItems: [
-                                                                { risNo: '1', responsibilityCenterCode: '-', stockNo: '1', itemDescription: 'Sample', unit: 'pc', quantityIssued: 1, unitCost: 100, amount: 100 }
-                                                            ], 
-                                                            recapitulationItems: [
-                                                                { stockNo: '1', quantity: 1, unitCost: '', totalCost: '', uacsObjectCode: '' }
-                                                            ],
-                                                            supplyCustodianName: '', accountingStaffName: '', accountingDate: ''
-                                                        }} />
-                                                    </Suspense>
-                                                </div>
-                                            )}
-                                            
-                                            {report.type === 'RPCI' && (
-                                                <div className="absolute top-0 right-0 w-44 h-32 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
-                                                    <Suspense fallback={reportTemplateFallback}>
-                                                        <RPCIFormPaper data={{
-                                                            entity_name: 'University of Camarines Norte',
-                                                            as_at_date: report.date || '',
-                                                            fund_cluster: 'GF',
-                                                            inventory_type: report.title,
-                                                            items: [
-                                                                { article: 'Sample', description: '-', stock_no: '1', unit: 'pc', unit_value: 100, balance_per_card: 10, on_hand_count: 10, shortage_qty: '', shortage_value: '', remarks: '' }
-                                                            ]
-                                                        }} />
-                                                    </Suspense>
-                                                </div>
-                                            )}
+                        {/* Reports Cards Grid Container */}
+                        <div className="p-6 lg:p-8 bg-gray-50/20">
+                            {filteredReports.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {filteredReports.map((report) => {
+                                        const fullTypeLabel = typeOptions.find(opt => opt.value === report.type)?.label || report.type;
 
-                                            {report.type === 'STOCK_CARD' && (
-                                                <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
-                                                    <Suspense fallback={reportTemplateFallback}>
-                                                        <StockCardFormPaper data={{
-                                                            entity_name: 'University of Camarines Norte',
-                                                            item: report.itemName || report.title,
-                                                            stock_no: items.find((item: any) => item.name === report.itemName)?.sku || report.reference,
-                                                            entries: []
-                                                        }} />
-                                                    </Suspense>
-                                                </div>
-                                            )}
+                                        return (
+                                            <div key={report.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-all group flex flex-col relative h-full">
 
-                                            {(report.type === 'MR' || report.type === 'MOR') && (
-                                                <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
-                                                    <Suspense fallback={reportTemplateFallback}>
-                                                        <MRFormPaper data={{
-                                                            entityName: 'University of Camarines Norte',
-                                                            fundCluster: 'GF',
-                                                            mrNo: report.reference,
-                                                            date: report.date || '',
-                                                            items: [
-                                                                { quantity: 1, unit: 'pc', description: 'Sample Property', propertyNo: 'PROP-001', dateAcquired: '', unitValue: 1000, totalValue: 1000 }
-                                                            ],
-                                                            receivedByName: '', issuedByName: ''
-                                                        }} />
-                                                    </Suspense>
-                                                </div>
-                                            )}
-
-                                            <div className="p-5 flex-1 relative z-10">
-                                                <div className="flex justify-between items-start mb-4 gap-3">
-                                                    <span className={`px-2.5 py-1 rounded text-[10px] font-black bg-red-950 text-white uppercase shadow-sm leading-tight text-left`}>
-                                                        {fullTypeLabel}
-                                                    </span>
-                                                    <span className={`inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase bg-gray-100 text-gray-700 flex-shrink-0 whitespace-nowrap`}>
-                                                        Ref: {report.reference}
-                                                    </span>
-                                                </div>
-                                                {report.supplierName && (
-                                                    <p className="text-xs text-gray-500 mb-2">Supplier: <span className="font-semibold text-gray-700">{report.supplierName}</span></p>
+                                                {/* Background Paper Preview Thumbnail */}
+                                                {report.type === 'RSMI' && (
+                                                    <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
+                                                        <Suspense fallback={reportTemplateFallback}>
+                                                            <RSMIFormPaper data={{
+                                                                entityName: 'University of Camarines Norte',
+                                                                serialNo: report.reference,
+                                                                fundCluster: 'GF',
+                                                                date: report.date || '',
+                                                                issuedItems: [
+                                                                    { risNo: '1', responsibilityCenterCode: '-', stockNo: '1', itemDescription: 'Sample', unit: 'pc', quantityIssued: 1, unitCost: 100, amount: 100 }
+                                                                ],
+                                                                recapitulationItems: [
+                                                                    { stockNo: '1', quantity: 1, unitCost: '', totalCost: '', uacsObjectCode: '' }
+                                                                ],
+                                                                supplyCustodianName: '', accountingStaffName: '', accountingDate: ''
+                                                            }} />
+                                                        </Suspense>
+                                                    </div>
                                                 )}
-                                                <h3 className="text-lg font-bold text-gray-900 group-hover:text-red-900 transition-colors mb-2 line-clamp-2">{report.title}</h3>
-                                            </div>
-                                            
-                                            <div className="px-5 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between mt-auto">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Coverage</span>
-                                                    <span className="text-sm font-semibold text-gray-700">{report.date}</span>
+
+                                                {report.type === 'RPCI' && (
+                                                    <div className="absolute top-0 right-0 w-44 h-32 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
+                                                        <Suspense fallback={reportTemplateFallback}>
+                                                            <RPCIFormPaper data={{
+                                                                entity_name: 'University of Camarines Norte',
+                                                                as_at_date: report.date || '',
+                                                                fund_cluster: 'GF',
+                                                                inventory_type: report.title,
+                                                                items: [
+                                                                    { article: 'Sample', description: '-', stock_no: '1', unit: 'pc', unit_value: 100, balance_per_card: 10, on_hand_count: 10, shortage_qty: '', shortage_value: '', remarks: '' }
+                                                                ]
+                                                            }} />
+                                                        </Suspense>
+                                                    </div>
+                                                )}
+
+                                                {report.type === 'STOCK_CARD' && (
+                                                    <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
+                                                        <Suspense fallback={reportTemplateFallback}>
+                                                            <StockCardFormPaper data={{
+                                                                entity_name: 'University of Camarines Norte',
+                                                                item: report.itemName || report.title,
+                                                                stock_no: items.find((item: any) => item.name === report.itemName)?.sku || report.reference,
+                                                                entries: []
+                                                            }} />
+                                                        </Suspense>
+                                                    </div>
+                                                )}
+
+                                                {(report.type === 'MR' || report.type === 'MOR') && (
+                                                    <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
+                                                        <Suspense fallback={reportTemplateFallback}>
+                                                            <MRFormPaper data={{
+                                                                entityName: 'University of Camarines Norte',
+                                                                fundCluster: 'GF',
+                                                                mrNo: report.reference,
+                                                                date: report.date || '',
+                                                                items: [
+                                                                    { quantity: 1, unit: 'pc', description: 'Sample Property', propertyNo: 'PROP-001', dateAcquired: '', unitValue: 1000, totalValue: 1000 }
+                                                                ],
+                                                                receivedByName: '', issuedByName: ''
+                                                            }} />
+                                                        </Suspense>
+                                                    </div>
+                                                )}
+
+                                                <div className="p-5 flex-1 relative z-10">
+                                                    <div className="flex justify-between items-start mb-3 gap-3">
+                                                        <span className="px-2.5 py-1 rounded text-[10px] font-black bg-red-950 text-amber-300 uppercase shadow-xs leading-tight text-left font-mono">
+                                                            {fullTypeLabel}
+                                                        </span>
+                                                        <span className="inline-flex items-center px-2 py-1 rounded text-[10px] font-mono font-bold uppercase bg-gray-100 text-gray-700 flex-shrink-0 whitespace-nowrap">
+                                                            Ref: {report.reference}
+                                                        </span>
+                                                    </div>
+                                                    {report.supplierName && (
+                                                        <p className="text-xs text-gray-500 mb-1.5 font-medium">Supplier: <span className="font-semibold text-gray-800">{report.supplierName}</span></p>
+                                                    )}
+                                                    <h3 className="text-base font-bold text-gray-900 group-hover:text-red-900 transition-colors mb-2 line-clamp-2 font-serif">{report.title}</h3>
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    <button onClick={() => handleView(report)} className="px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100 rounded-lg transition-colors flex items-center gap-1">
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                                        View
-                                                    </button>
+
+                                                <div className="px-5 py-3.5 bg-gray-50/80 border-t border-gray-100 flex items-center justify-between mt-auto">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider font-mono">Coverage</span>
+                                                        <span className="text-xs font-semibold text-gray-700">{report.date}</span>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => handleView(report)}
+                                                            className="px-3 py-1.5 text-xs font-bold text-red-900 hover:bg-red-50 rounded transition-colors flex items-center gap-1.5 border border-red-200 bg-white shadow-xs"
+                                                        >
+                                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                            Inspect & Print
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <div className="bg-white border-2 border-dashed border-gray-200 rounded-2xl p-20 flex flex-col items-center justify-center text-center">
-                                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-400">
-                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        );
+                                    })}
                                 </div>
-                                <h3 className="text-lg font-bold text-gray-900 mb-1">No reports found</h3>
-                                <p className="text-gray-500 text-sm max-w-sm">We couldn't find any compliance documents matching your current filters or search terms.</p>
-                                <button onClick={openCreateModal} className="mt-6 text-red-700 font-semibold hover:text-red-800 text-sm flex items-center gap-1">
-                                    Generate a new report <span aria-hidden="true">&rarr;</span>
-                                </button>
-                            </div>
-                        )}
+                            ) : (
+                                <div className="bg-white border-2 border-dashed border-gray-200 rounded-xl p-16 flex flex-col items-center justify-center text-center">
+                                    <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mb-4 text-red-900">
+                                        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </div>
+                                    <h3 className="text-base font-bold text-gray-900 mb-1 font-serif">No compliance reports found</h3>
+                                    <p className="text-gray-500 text-xs max-w-sm">We couldn't find any compliance documents matching your current filters or search terms.</p>
+                                    <button onClick={openCreateModal} className="mt-5 text-red-900 font-bold hover:text-red-950 text-xs flex items-center gap-1 uppercase tracking-wider font-mono">
+                                        Generate a new report <span aria-hidden="true">&rarr;</span>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </main>

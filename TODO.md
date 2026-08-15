@@ -12,13 +12,6 @@
   - [x] Implement Role-Based Access Control (RBAC).
   - [x] Map permissions to specific roles.
 
-## 2. Acquisition
-- [x] **Procurement Panel (`Acquisition/ProcurementPanel.tsx`)**
-  - [x] Handle purchase requests and procurement bidding/approvals.
-- [x] **Inbound Deliveries (`Acquisition/InboundDeliveries.tsx`)**
-  - [x] Set up tracking for supplier shipments in transit.
-  - [x] Link deliveries to the Inventory Receiving feature.
-
 ## 3. AuditLogs
 - [x] **Login Trails (`AuditLogs/ManageLoginTrails.tsx`)**
   - [x] Track and display user login/logout history and IP addresses.

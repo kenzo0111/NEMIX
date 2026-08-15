@@ -148,7 +148,6 @@ class ManageRolePermissionController extends Controller
                 'dashboard' => 'Dashboard',
                 'compliance' => 'Compliance',
                 'inventory' => 'Inventory',
-                'acquisition' => 'Acquisition',
                 'audit-logs' => 'Audit Logs',
                 'access-control' => 'Access Control',
                 'suppliers' => 'Suppliers',

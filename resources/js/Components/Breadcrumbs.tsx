@@ -27,7 +27,7 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
                     <li key={index} className="flex items-center">
                         <ChevronRightIcon className="w-4 h-4 text-gray-400 mx-1" />
                         {item.href ? (
-                            <Link href={item.href} className="text-gray-600 hover:text-gray-900 transition">    
+                            <Link href={item.href} className="text-gray-600 hover:text-gray-900 transition">
                                 {item.name}
                             </Link>
                         ) : (

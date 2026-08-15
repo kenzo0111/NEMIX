@@ -230,10 +230,10 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
         return groupedIssuances.filter((issuance: any) => {
             // 1. Search Filter (Item Name OR Recipient)
             const lowerTerm = searchTerm.toLowerCase();
-            const matchesSearch = 
-                issuance.item_names.some((name: string) => name.toLowerCase().includes(lowerTerm)) || 
+            const matchesSearch =
+                issuance.item_names.some((name: string) => name.toLowerCase().includes(lowerTerm)) ||
                 issuance.recipient.toLowerCase().includes(lowerTerm);
-            
+
             // 2. Recipient Filter
             const matchesRecipient = filterRecipient ? issuance.recipient === filterRecipient.value : true;
 
@@ -255,27 +255,39 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
         }
     }, [currentPage, totalPages]);
 
-    // --- CUSTOM STYLES FOR REACT SELECT (ORANGE THEME) ---
+    // --- CUSTOM STYLES FOR REACT SELECT ---
     const customSelectStyles = {
         control: (provided: any, state: any) => ({
             ...provided,
-            paddingLeft: '0.5rem',
-            borderRadius: '0.5rem',
-            borderColor: '#d1d5db', // gray-300
-            boxShadow: state.isFocused ? '0 0 0 2px rgba(234, 88, 12, 0.2)' : provided.boxShadow, // orange-600 ring
-            '&:hover': { borderColor: '#ea580c' }, // orange-600
-            minHeight: '42px',
-            fontSize: '0.875rem',
+            borderRadius: '0.375rem',
+            borderColor: state.isFocused ? '#7f1d1d' : '#d1d5db',
+            borderWidth: '1px',
+            padding: '1px 2px',
+            minWidth: '150px',
+            boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
+            fontSize: '0.8125rem',
+            fontWeight: '600',
+            backgroundColor: '#ffffff',
+            '&:hover': { borderColor: '#7f1d1d' },
         }),
         option: (provided: any, state: any) => ({
             ...provided,
-            backgroundColor: state.isSelected ? '#c2410c' : state.isFocused ? '#ffedd5' : null, // orange-700 selected, orange-100 hover
-            color: state.isSelected ? 'white' : '#1f2937',
+            backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? '#fef2f2' : '#ffffff',
+            color: state.isSelected ? '#ffffff' : '#111827',
+            padding: '7px 12px',
+            fontSize: '0.8125rem',
+            fontWeight: '600',
             cursor: 'pointer',
-            fontSize: '0.875rem',
         }),
-        input: (provided: any) => ({ ...provided, color: '#1f2937' }),
-        singleValue: (provided: any) => ({ ...provided, color: '#1f2937' }),
+        singleValue: (provided: any) => ({ ...provided, color: '#111827' }),
+        menu: (provided: any) => ({
+            ...provided,
+            borderRadius: '0.375rem',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            border: '1px solid #e5e7eb',
+            zIndex: 50,
+        }),
+        indicatorSeparator: () => ({ display: 'none' }),
     };
 
     // --- HANDLERS (Unchanged) ---
@@ -384,7 +396,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
 
     // Sidebar Modules
     const modules = getSidebarModules('Inventory', 'Issuance');
-    
+
     return (
         <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900 overflow-x-hidden">
             <Head title="Inventory - Issuance" />
@@ -470,42 +482,58 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
             />
 
             {/* --- MAIN CONTENT --- */}
-            <main className={`flex-1 min-w-0 transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-72'}`}>
-                
-                {/* Fixed Top Header */}
-                <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm">
-                    <div>
-                        
-                                <div className="mb-2">
-                                    <Breadcrumbs items={[{name:'Inventory'},{name:'Issuance'}]} />
-                                </div>
-<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Inventory Management</h2>
-                        <p className="text-sm text-gray-500">Stock distribution and issuance records.</p>
-                    </div>
-                    <div className="flex items-center gap-6">
-                        <div className="text-right hidden sm:block">
-                            <span className="block text-sm font-bold text-gray-800">
-                                {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
-                            </span>
-                            <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">
-                                {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
-                            </span>
+            <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
+
+                {/* Merged Sticky Institutional Header */}
+                <header className="sticky top-0 z-40 shadow-xs">
+                    {/* Top Institutional Bar */}
+                    <div className="bg-red-950 text-red-100 text-[11px] px-6 lg:px-8 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide">
+                        <div className="flex items-center gap-3">
+                            <span className="font-bold tracking-wider uppercase text-amber-300">Supply & Property Management Office (SPMO)</span>
+                            <span className="hidden md:inline text-red-400">|</span>
+                            <span className="hidden md:inline text-red-200/80">University Enterprise Administrative System</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
+                            <span>SYSTEM MODE: LIVE PRODUCTION</span>
+                            <span>•</span>
+                            <span>ACCESS LEVEL: AUTHORIZED PERSONNEL</span>
                         </div>
                     </div>
-                </div>
 
-                <div className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden">
-                    
-                    {/* Content Card */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        
-                        {/* Card Header & Actions */}
-                        <div className="px-4 sm:px-6 lg:px-8 py-6 border-b border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-50/30">
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-900">Inventory Issuance</h3>
-                                <p className="text-xs text-gray-500 mt-1">Track items released to faculty and departments.</p>
+                    {/* Main Header Content */}
+                    <div className="bg-white border-b border-gray-200 px-6 lg:px-8 py-4 flex items-center justify-between">
+                        <div>
+                            <div className="mb-1">
+                                <Breadcrumbs items={[{ name: 'Inventory' }, { name: 'Issuance' }]} />
                             </div>
-                            
+                            <h2 className="text-2xl font-bold text-gray-900 font-serif tracking-tight">Inventory Management</h2>
+                            <p className="text-xs text-gray-500 font-medium">Stock distribution and issuance records</p>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right hidden sm:block border-l border-gray-200 pl-6">
+                                <span className="block text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                                    {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                </span>
+                                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold block mt-0.5">
+                                    {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden pb-16">
+
+                    {/* Content Card */}
+                    <div className="bg-white rounded-xl shadow-xs border border-gray-200/80 overflow-hidden">
+
+                        {/* Card Header & Actions */}
+                        <div className="px-6 lg:px-8 py-5 border-b border-gray-200/80 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50">
+                            <div>
+                                <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">Inventory Issuance Records</h3>
+                                <p className="text-xs text-gray-500 font-medium mt-0.5">Track items released to faculty and departments.</p>
+                            </div>
+
                             {/* Filter Controls Container */}
                             <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
                                 {/* Search Input */}
@@ -513,12 +541,12 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                     </div>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        placeholder="Search item or recipient..." 
-                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm"
+                                        placeholder="Search item or recipient..."
+                                        className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-md text-xs font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-xs"
                                     />
                                 </div>
 
@@ -536,11 +564,11 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                 </div>
 
                                 {/* Action Button */}
-                                <button 
+                                <button
                                     onClick={openModal}
-                                    className="bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2 whitespace-nowrap"
+                                    className="bg-red-950 hover:bg-red-900 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-all text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider"
                                 >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                                     Record Issuance
                                 </button>
                             </div>
@@ -549,16 +577,16 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                         {/* Table */}
                         <div className="overflow-x-hidden">
                             <table className="w-full table-fixed divide-y divide-gray-200">
-                                <thead className="bg-red-50/50">
+                                <thead className="bg-gray-50/80 border-b border-gray-200">
                                     <tr>
-                                        <th className="hidden lg:table-cell px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Item ID</th>
-                                        <th className="px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Item Issued</th>
-                                        <th className="px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Quantity</th>
-                                        <th className="px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Amount</th>
-                                        <th className="px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Recipient / Dept.</th>
-                                        <th className="hidden md:table-cell px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Date Issued</th>
-                                        <th className="hidden sm:table-cell px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-left text-red-900 uppercase">Status</th>
-                                        <th className="px-4 lg:px-8 py-4 text-xs font-bold tracking-wider text-right text-red-900 uppercase w-[240px]">Actions</th>
+                                        <th className="hidden lg:table-cell px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Item ID</th>
+                                        <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Item Issued</th>
+                                        <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Quantity</th>
+                                        <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Amount</th>
+                                        <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Recipient / Dept.</th>
+                                        <th className="hidden md:table-cell px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Date Issued</th>
+                                        <th className="hidden sm:table-cell px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Status</th>
+                                        <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono w-[240px]">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-100">
@@ -567,7 +595,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                             <td colSpan={8} className="px-4 lg:px-8 py-12 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center">
                                                     <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                                                    <p>No issuance records found.</p>
+                                                    <p className="font-medium text-sm">No issuance records found.</p>
                                                     {(searchTerm || filterRecipient) && (
                                                         <p className="text-xs text-gray-400 mt-1">Try adjusting your filters.</p>
                                                     )}
@@ -576,45 +604,46 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                         </tr>
                                     ) : (
                                         paginatedIssuances.map((issuance: any, index: number) => (
-                                            <tr key={index} className="hover:bg-gray-50 transition-colors group">
-                                                <td className="hidden lg:table-cell px-4 lg:px-8 py-5 whitespace-nowrap text-sm font-bold text-gray-900">
+                                            <tr key={index} className="hover:bg-red-50/30 transition-colors border-b border-gray-100 last:border-0 group">
+                                                <td className="hidden lg:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 font-mono">
                                                     {getFormattedId(issuance)}
                                                 </td>
-                                                <td className="px-4 lg:px-8 py-5 text-sm font-bold text-gray-900 break-words">{issuance.item}</td>
-                                                <td className="px-4 lg:px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
-                                                    {issuance.quantity} <span className="text-gray-400 text-xs font-normal">pcs</span>
+                                                <td className="px-4 lg:px-6 py-4 text-sm font-bold text-gray-900 break-words">{issuance.item}</td>
+                                                <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-bold font-mono">
+                                                    {issuance.quantity} <span className="text-gray-400 text-xs font-normal font-sans">pcs</span>
                                                 </td>
-                                                <td className="px-4 lg:px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
+                                                <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium font-mono">
                                                     ₱{Number(issuance.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </td>
-                                                <td className="px-4 lg:px-8 py-5 text-sm text-gray-700">
+                                                <td className="px-4 lg:px-6 py-4 text-sm text-gray-700">
                                                     <div className="flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-500 font-bold">
+                                                        <div className="w-6 h-6 rounded-full bg-red-950/10 text-red-950 border border-red-950/20 flex items-center justify-center text-xs font-bold font-mono">
                                                             {issuance.recipient.charAt(0)}
                                                         </div>
-                                                        <span className="break-words">{issuance.recipient}</span>
+                                                        <span className="break-words font-medium">{issuance.recipient}</span>
                                                     </div>
                                                 </td>
-                                                <td className="hidden md:table-cell px-4 lg:px-8 py-5 whitespace-nowrap text-sm text-gray-500 font-mono">{issuance.date}</td>
-                                                <td className="hidden sm:table-cell px-4 lg:px-8 py-5 whitespace-nowrap">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                                        issuance.status === 'Issued' ? 'bg-green-100 text-green-800' : 
-                                                        issuance.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                                                <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-mono">{issuance.date}</td>
+                                                <td className="hidden sm:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
+                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                                                        issuance.status === 'Issued' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/80' :
+                                                        issuance.status === 'Pending' ? 'bg-amber-50 text-amber-800 border border-amber-200/80' : 
+                                                        'bg-red-50 text-red-800 border border-red-200/80'
                                                     }`}>
                                                         {issuance.status}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 lg:px-8 py-5 text-sm font-medium">
+                                                <td className="px-4 lg:px-6 py-4 text-sm font-medium">
                                                     <div className="flex flex-wrap justify-end items-center gap-x-3 gap-y-1 text-right">
-                                                        <button 
+                                                        <button
                                                             onClick={() => handleViewForm(issuance)}
-                                                            className="text-green-600 hover:text-green-900 transition-colors"
+                                                            className="text-emerald-700 hover:text-emerald-900 transition-colors font-semibold text-xs uppercase tracking-wide"
                                                         >
                                                             View Form
                                                         </button>
-                                                        <button 
+                                                        <button
                                                             onClick={() => handleDetails(issuance)}
-                                                            className="text-blue-600 hover:text-blue-900 transition-colors"
+                                                            className="text-blue-700 hover:text-blue-900 transition-colors font-semibold text-xs uppercase tracking-wide"
                                                         >
                                                             Quick Details
                                                         </button>
@@ -626,26 +655,26 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                 </tbody>
                             </table>
                         </div>
-                        
+
                         {/* Pagination */}
                         {groupedIssuances.length > 0 && (
-                            <div className="px-4 sm:px-6 lg:px-8 py-4 border-t border-gray-100 bg-gray-50/30 flex flex-col sm:flex-row items-center justify-between gap-3">
-                                <span className="text-xs text-gray-500">Showing {paginatedIssuances.length} of {filteredIssuances.length} filtered records</span>
+                            <div className="px-6 lg:px-8 py-4 border-t border-gray-200/80 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3">
+                                <span className="text-xs text-gray-500 font-medium">Showing <span className="font-bold text-gray-800">{paginatedIssuances.length}</span> of <span className="font-bold text-gray-800">{filteredIssuances.length}</span> filtered records</span>
                                 <div className="flex items-center gap-2">
                                     <button
                                         type="button"
                                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                         disabled={currentPage === 1}
-                                        className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
+                                        className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-50 transition-colors"
                                     >
                                         Previous
                                     </button>
-                                    <span className="text-xs text-gray-500">Page {currentPage} of {totalPages}</span>
+                                    <span className="text-xs text-gray-500 font-medium">Page {currentPage} of {totalPages}</span>
                                     <button
                                         type="button"
                                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                         disabled={currentPage >= totalPages}
-                                        className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
+                                        className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-50 transition-colors"
                                     >
                                         Next
                                     </button>
@@ -660,274 +689,274 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
             {/* ... MODALS ... */}
             <Modal show={isModalOpen} onClose={() => !processing && closeModal()} maxWidth="2xl" closeable={!processing}>
                 <div className="relative bg-white rounded-2xl shadow-2xl w-full overflow-hidden border border-orange-100 max-h-[90vh] flex flex-col">
-                        <div className="h-2 w-full bg-gradient-to-r from-orange-900 via-orange-800 to-orange-950"></div>
-                        <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50/50">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-orange-50 rounded-lg text-orange-900">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-bold text-gray-900 tracking-tight">Record New Issuance</h3>
-                                    <p className="text-xs text-gray-500 font-medium">Issue multiple items in one transaction</p>
-                                </div>
+                    <div className="h-2 w-full bg-gradient-to-r from-orange-900 via-orange-800 to-orange-950"></div>
+                    <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50/50">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-orange-50 rounded-lg text-orange-900">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                             </div>
-                            <button 
-                                onClick={closeModal}
-                                disabled={processing}
-                                className="text-gray-400 hover:text-orange-600 hover:bg-orange-50 p-2 rounded-full transition-colors disabled:opacity-50"
-                                aria-label="Close"
-                            >
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            </button>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 tracking-tight">Record New Issuance</h3>
+                                <p className="text-xs text-gray-500 font-medium">Issue multiple items in one transaction</p>
+                            </div>
                         </div>
-                        <form ref={modalFormRef} onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="group w-full">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Recipient</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                        </div>
-                                        <input
-                                            type="text"
-                                            value={recipient}
-                                            onChange={(e) => setRecipient(e.target.value)}
-                                            className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
+                        <button
+                            onClick={closeModal}
+                            disabled={processing}
+                            className="text-gray-400 hover:text-orange-600 hover:bg-orange-50 p-2 rounded-full transition-colors disabled:opacity-50"
+                            aria-label="Close"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    <form ref={modalFormRef} onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="group w-full">
+                                <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Recipient</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={recipient}
+                                        onChange={(e) => setRecipient(e.target.value)}
+                                        className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
                                             focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200
                                             ${errors.recipient ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-orange-500'}`}
-                                            placeholder="Enter recipient name"
-                                        />
-                                    </div>
-                                    {errors.recipient && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.recipient}</p>}
+                                        placeholder="Enter recipient name"
+                                    />
                                 </div>
-                                <div className="group w-full">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Date Issued</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        </div>
-                                        <input
-                                            type="date"
-                                            value={dateIssued}
-                                            onChange={(e) => setDateIssued(e.target.value)}
-                                            className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
+                                {errors.recipient && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.recipient}</p>}
+                            </div>
+                            <div className="group w-full">
+                                <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Date Issued</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    </div>
+                                    <input
+                                        type="date"
+                                        value={dateIssued}
+                                        onChange={(e) => setDateIssued(e.target.value)}
+                                        className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
                                             focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200
                                             ${errors.date_issued ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-orange-500'}`}
-                                        />
-                                    </div>
-                                    {errors.date_issued && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.date_issued}</p>}
+                                    />
                                 </div>
+                                {errors.date_issued && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.date_issued}</p>}
                             </div>
+                        </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="group w-full">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Division</label>
-                                    <Select
-                                        value={selectedDivisionOption}
-                                        onChange={(selected: any) => setDepartment(selected?.value || '')}
-                                        options={divisionOptions}
-                                        placeholder="Select Division"
-                                        styles={divisionSelectStyles}
-                                        classNamePrefix="react-select"
-                                        isSearchable
-                                        isClearable
-                                        maxMenuHeight={260}
-                                    />
-                                    {errors.department && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.department}</p>}
-                                </div>
-                                <div className="group w-full">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Fund Cluster</label>
-                                    <Select
-                                        value={fundCluster}
-                                        onChange={setFundCluster}
-                                        options={fundClusterOptions}
-                                        placeholder="Select fund cluster"
-                                        styles={customSelectStyles}
-                                        classNamePrefix="react-select"
-                                    />
-                                    {errors.fund_cluster && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.fund_cluster}</p>}
-                                </div>
-                                <div className="group w-full">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Recipient Designation</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        </div>
-                                        <input
-                                            type="text"
-                                            value={recipientDesignation}
-                                            onChange={(e) => setRecipientDesignation(e.target.value)}
-                                            className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="group w-full">
+                                <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Division</label>
+                                <Select
+                                    value={selectedDivisionOption}
+                                    onChange={(selected: any) => setDepartment(selected?.value || '')}
+                                    options={divisionOptions}
+                                    placeholder="Select Division"
+                                    styles={divisionSelectStyles}
+                                    classNamePrefix="react-select"
+                                    isSearchable
+                                    isClearable
+                                    maxMenuHeight={260}
+                                />
+                                {errors.department && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.department}</p>}
+                            </div>
+                            <div className="group w-full">
+                                <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Fund Cluster</label>
+                                <Select
+                                    value={fundCluster}
+                                    onChange={setFundCluster}
+                                    options={fundClusterOptions}
+                                    placeholder="Select fund cluster"
+                                    styles={customSelectStyles}
+                                    classNamePrefix="react-select"
+                                />
+                                {errors.fund_cluster && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.fund_cluster}</p>}
+                            </div>
+                            <div className="group w-full">
+                                <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Recipient Designation</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={recipientDesignation}
+                                        onChange={(e) => setRecipientDesignation(e.target.value)}
+                                        className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
                                             focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200
                                             ${errors.recipient_designation ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-orange-500'}`}
-                                            placeholder="Enter recipient designation"
-                                        />
-                                    </div>
-                                    {errors.recipient_designation && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.recipient_designation}</p>}
+                                        placeholder="Enter recipient designation"
+                                    />
                                 </div>
-                                <div className="group w-full">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Purpose</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        </div>
-                                        <input
-                                            type="text"
-                                            value={purpose}
-                                            onChange={(e) => setPurpose(e.target.value)}
-                                            className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
+                                {errors.recipient_designation && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.recipient_designation}</p>}
+                            </div>
+                            <div className="group w-full">
+                                <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Purpose</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={purpose}
+                                        onChange={(e) => setPurpose(e.target.value)}
+                                        className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
                                             focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200
                                             ${errors.purpose ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-orange-500'}`}
-                                            placeholder="Enter purpose"
-                                        />
-                                    </div>
-                                    {errors.purpose && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.purpose}</p>}
+                                        placeholder="Enter purpose"
+                                    />
                                 </div>
-                                <div className="group w-full">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Approved By</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                        </div>
-                                        <input
-                                            type="text"
-                                            value={approvedBy}
-                                            onChange={(e) => setApprovedBy(e.target.value)}
-                                            className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
+                                {errors.purpose && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.purpose}</p>}
+                            </div>
+                            <div className="group w-full">
+                                <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Approved By</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={approvedBy}
+                                        onChange={(e) => setApprovedBy(e.target.value)}
+                                        className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
                                             focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200
                                             ${errors.approved_by ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-orange-500'}`}
-                                            placeholder="Enter approver name"
-                                        />
-                                    </div>
-                                    {errors.approved_by && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.approved_by}</p>}
+                                        placeholder="Enter approver name"
+                                    />
                                 </div>
-                                <div className="group w-full">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Approved By Designation</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        </div>
-                                        <input
-                                            type="text"
-                                            value={approvedByDesignation}
-                                            onChange={(e) => setApprovedByDesignation(e.target.value)}
-                                            className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
+                                {errors.approved_by && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.approved_by}</p>}
+                            </div>
+                            <div className="group w-full">
+                                <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Approved By Designation</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={approvedByDesignation}
+                                        onChange={(e) => setApprovedByDesignation(e.target.value)}
+                                        className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
                                             focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200
                                             ${errors.approved_by_designation ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-orange-500'}`}
-                                            placeholder="Enter approver designation"
-                                        />
-                                    </div>
-                                    {errors.approved_by_designation && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.approved_by_designation}</p>}
+                                        placeholder="Enter approver designation"
+                                    />
                                 </div>
+                                {errors.approved_by_designation && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.approved_by_designation}</p>}
                             </div>
+                        </div>
 
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <label className="block text-sm font-semibold text-gray-700">Items to Issue</label>
-                                    <button
-                                        type="button"
-                                        onClick={addItem}
-                                        className="text-orange-600 hover:text-orange-700 text-sm font-medium flex items-center gap-1"
-                                    >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
-                                        Add Item
-                                    </button>
-                                </div>
-                                {issuanceItems.map((item, index) => (
-                                    <div key={index} className="flex gap-4 items-end">
-                                        <div className="flex-1">
-                                            <label className="block text-xs font-medium text-gray-600 mb-1">Item</label>
-                                            <Select
-                                                value={itemOptions.find(option => option.value === item.item_id)}
-                                                onChange={(selected) => updateItem(index, 'item_id', selected?.value || '')}
-                                                options={itemOptions}
-                                                placeholder="Select item"
-                                                styles={{
-                                                    control: (provided: any, state: any) => ({
-                                                        ...provided,
-                                                        borderRadius: '0.5rem',
-                                                        borderColor: state.isFocused ? '#ea580c' : '#d1d5db',
-                                                        boxShadow: state.isFocused ? '0 0 0 2px rgba(234, 88, 12, 0.2)' : provided.boxShadow,
-                                                        '&:hover': { borderColor: '#ea580c' },
-                                                        minHeight: '38px',
-                                                        fontSize: '0.875rem',
-                                                    }),
-                                                    option: (provided: any, state: any) => ({
-                                                        ...provided,
-                                                        backgroundColor: state.isSelected ? '#9a3412' : state.isFocused ? '#fed7aa' : null,
-                                                        color: state.isSelected ? 'white' : '#1f2937',
-                                                        cursor: 'pointer',
-                                                        fontSize: '0.875rem',
-                                                    }),
-                                                    input: (provided: any) => ({ ...provided, color: '#1f2937' }),
-                                                    singleValue: (provided: any) => ({ ...provided, color: '#1f2937' }),
-                                                }}
-                                                classNamePrefix="react-select"
-                                            />
-                                            {errors[`issuances.${index}.item_id`] && <p className="mt-1 text-xs text-red-600 font-medium">{errors[`issuances.${index}.item_id`]}</p>}
-                                        </div>
-                                        <div className="w-24">
-                                            <label className="block text-xs font-medium text-gray-600 mb-1">Qty</label>
-                                            <input
-                                                type="number"
-                                                value={item.quantity}
-                                                onChange={(e) => updateItem(index, 'quantity', e.target.value)}
-                                                className={`w-full px-3 py-2 bg-white border rounded-lg text-sm shadow-sm placeholder-gray-400
-                                                focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200
-                                                ${errors[`issuances.${index}.quantity`] ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-orange-500'}`}
-                                                min="1"
-                                                placeholder="Qty"
-                                            />
-                                            {errors[`issuances.${index}.quantity`] && <p className="mt-1 text-xs text-red-600 font-medium">{errors[`issuances.${index}.quantity`]}</p>}
-                                        </div>
-                                        {issuanceItems.length > 1 && (
-                                            <button
-                                                type="button"
-                                                onClick={() => removeItem(index)}
-                                                className="text-red-500 hover:text-red-700 p-2"
-                                                title="Remove item"
-                                            >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                            </button>
-                                        )}
-                                    </div>
-                                ))}
-                                <div ref={newItemAnchorRef} />
-                                {errors.issuances && <p className="mt-1 text-xs text-red-600 font-medium">{errors.issuances}</p>}
-                            </div>
-
-                            <div className="pt-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 -m-8 px-8 py-5">
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <label className="block text-sm font-semibold text-gray-700">Items to Issue</label>
                                 <button
                                     type="button"
-                                    onClick={closeModal}
-                                    disabled={processing}
-                                    className="px-6 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-xl font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200 disabled:opacity-50"
+                                    onClick={addItem}
+                                    className="text-orange-600 hover:text-orange-700 text-sm font-medium flex items-center gap-1"
                                 >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={processing}
-                                    className="px-6 py-2.5 bg-gradient-to-r from-orange-700 to-orange-600 hover:from-orange-600 hover:to-orange-500 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
-                                >
-                                    {processing ? (
-                                        <>
-                                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            Issuing...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                                            Issue Items
-                                        </>
-                                    )}
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                                    Add Item
                                 </button>
                             </div>
-                        </form>
-                    </div>
+                            {issuanceItems.map((item, index) => (
+                                <div key={index} className="flex gap-4 items-end">
+                                    <div className="flex-1">
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">Item</label>
+                                        <Select
+                                            value={itemOptions.find(option => option.value === item.item_id)}
+                                            onChange={(selected) => updateItem(index, 'item_id', selected?.value || '')}
+                                            options={itemOptions}
+                                            placeholder="Select item"
+                                            styles={{
+                                                control: (provided: any, state: any) => ({
+                                                    ...provided,
+                                                    borderRadius: '0.5rem',
+                                                    borderColor: state.isFocused ? '#ea580c' : '#d1d5db',
+                                                    boxShadow: state.isFocused ? '0 0 0 2px rgba(234, 88, 12, 0.2)' : provided.boxShadow,
+                                                    '&:hover': { borderColor: '#ea580c' },
+                                                    minHeight: '38px',
+                                                    fontSize: '0.875rem',
+                                                }),
+                                                option: (provided: any, state: any) => ({
+                                                    ...provided,
+                                                    backgroundColor: state.isSelected ? '#9a3412' : state.isFocused ? '#fed7aa' : null,
+                                                    color: state.isSelected ? 'white' : '#1f2937',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.875rem',
+                                                }),
+                                                input: (provided: any) => ({ ...provided, color: '#1f2937' }),
+                                                singleValue: (provided: any) => ({ ...provided, color: '#1f2937' }),
+                                            }}
+                                            classNamePrefix="react-select"
+                                        />
+                                        {errors[`issuances.${index}.item_id`] && <p className="mt-1 text-xs text-red-600 font-medium">{errors[`issuances.${index}.item_id`]}</p>}
+                                    </div>
+                                    <div className="w-24">
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">Qty</label>
+                                        <input
+                                            type="number"
+                                            value={item.quantity}
+                                            onChange={(e) => updateItem(index, 'quantity', e.target.value)}
+                                            className={`w-full px-3 py-2 bg-white border rounded-lg text-sm shadow-sm placeholder-gray-400
+                                                focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200
+                                                ${errors[`issuances.${index}.quantity`] ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-orange-500'}`}
+                                            min="1"
+                                            placeholder="Qty"
+                                        />
+                                        {errors[`issuances.${index}.quantity`] && <p className="mt-1 text-xs text-red-600 font-medium">{errors[`issuances.${index}.quantity`]}</p>}
+                                    </div>
+                                    {issuanceItems.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeItem(index)}
+                                            className="text-red-500 hover:text-red-700 p-2"
+                                            title="Remove item"
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            <div ref={newItemAnchorRef} />
+                            {errors.issuances && <p className="mt-1 text-xs text-red-600 font-medium">{errors.issuances}</p>}
+                        </div>
+
+                        <div className="pt-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 -m-8 px-8 py-5">
+                            <button
+                                type="button"
+                                onClick={closeModal}
+                                disabled={processing}
+                                className="px-6 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-xl font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200 disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={processing}
+                                className="px-6 py-2.5 bg-gradient-to-r from-orange-700 to-orange-600 hover:from-orange-600 hover:to-orange-500 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                                {processing ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Issuing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                        Issue Items
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </Modal>
 
             <Modal show={isDetailsModalOpen && Boolean(selectedIssuance)} onClose={closeDetailsModal} maxWidth="2xl">
@@ -944,7 +973,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                     <p className="text-xs text-gray-500 font-medium">Item ID: {getFormattedId(selectedIssuance)}</p>
                                 </div>
                             </div>
-                            <button 
+                            <button
                                 onClick={closeDetailsModal}
                                 className="text-gray-400 hover:text-blue-600 hover:bg-blue-50 p-2 rounded-full transition-colors"
                                 aria-label="Close"
@@ -978,10 +1007,9 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                        selectedIssuance.status === 'Issued' ? 'bg-green-100 text-green-800' : 
+                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${selectedIssuance.status === 'Issued' ? 'bg-green-100 text-green-800' :
                                         selectedIssuance.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
-                                    }`}>
+                                        }`}>
                                         {selectedIssuance.status}
                                     </span>
                                 </div>
@@ -1017,7 +1045,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                     <p className="text-xs text-gray-500 font-medium">Item ID: {getFormattedId(selectedIssuance)}</p>
                                 </div>
                             </div>
-                            <button 
+                            <button
                                 onClick={closeViewFormModal}
                                 className="text-gray-400 hover:text-green-600 hover:bg-green-50 p-2 rounded-full transition-colors"
                                 aria-label="Close"

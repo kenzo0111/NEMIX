@@ -170,10 +170,10 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
         return receivings.filter(item => {
             // 1. Search Filter (Item Name OR SKU)
             const lowerTerm = searchTerm.toLowerCase();
-            const matchesSearch = 
-                item.item.toLowerCase().includes(lowerTerm) || 
+            const matchesSearch =
+                item.item.toLowerCase().includes(lowerTerm) ||
                 (item.sku && item.sku.toLowerCase().includes(lowerTerm)); // Added SKU search logic
-            
+
             // 2. Supplier Filter
             const matchesSupplier = filterSupplier ? item.supplier === filterSupplier.value : true;
 
@@ -197,27 +197,39 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
         }
     }, [currentPage, totalPages]);
 
-    // --- CUSTOM STYLES FOR REACT SELECT (GREEN THEME) ---
+    // --- CUSTOM STYLES FOR REACT SELECT ---
     const customSelectStyles = {
         control: (provided: any, state: any) => ({
             ...provided,
-            paddingLeft: '0.5rem',
-            borderRadius: '0.5rem',
-            borderColor: '#d1d5db',
-            boxShadow: state.isFocused ? '0 0 0 2px rgba(22, 163, 74, 0.2)' : provided.boxShadow,
-            '&:hover': { borderColor: '#16a34a' },
-            minHeight: '42px',
-            fontSize: '0.875rem',
+            borderRadius: '0.375rem',
+            borderColor: state.isFocused ? '#7f1d1d' : '#d1d5db',
+            borderWidth: '1px',
+            padding: '1px 2px',
+            minWidth: '150px',
+            boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
+            fontSize: '0.8125rem',
+            fontWeight: '600',
+            backgroundColor: '#ffffff',
+            '&:hover': { borderColor: '#7f1d1d' },
         }),
         option: (provided: any, state: any) => ({
             ...provided,
-            backgroundColor: state.isSelected ? '#15803d' : state.isFocused ? '#dcfce7' : null,
-            color: state.isSelected ? 'white' : '#1f2937',
+            backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? '#fef2f2' : '#ffffff',
+            color: state.isSelected ? '#ffffff' : '#111827',
+            padding: '7px 12px',
+            fontSize: '0.8125rem',
+            fontWeight: '600',
             cursor: 'pointer',
-            fontSize: '0.875rem',
         }),
-        input: (provided: any) => ({ ...provided, color: '#1f2937' }),
-        singleValue: (provided: any) => ({ ...provided, color: '#1f2937' }),
+        singleValue: (provided: any) => ({ ...provided, color: '#111827' }),
+        menu: (provided: any) => ({
+            ...provided,
+            borderRadius: '0.375rem',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            border: '1px solid #e5e7eb',
+            zIndex: 50,
+        }),
+        indicatorSeparator: () => ({ display: 'none' }),
     };
 
     const modules = getSidebarModules('Inventory', 'Receiving');
@@ -234,42 +246,58 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
             />
 
             {/* --- MAIN CONTENT --- */}
-            <main className={`flex-1 transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-72'}`}>
-                
-                {/* Fixed Top Header */}
-                <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm">
-                    <div>
-                        
-                                <div className="mb-2">
-                                    <Breadcrumbs items={[{name:'Inventory'},{name:'Receiving'}]} />
-                                </div>
-<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Inventory Management</h2>
-                        <p className="text-sm text-gray-500">Incoming stock and supplier deliveries.</p>
-                    </div>
-                    <div className="flex items-center gap-6">
-                        <div className="text-right hidden sm:block">
-                            <span className="block text-sm font-bold text-gray-800">
-                                {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
-                            </span>
-                            <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">
-                                {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
-                            </span>
+            <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
+
+                {/* Merged Sticky Institutional Header */}
+                <header className="sticky top-0 z-40 shadow-xs">
+                    {/* Top Institutional Bar */}
+                    <div className="bg-red-950 text-red-100 text-[11px] px-6 lg:px-8 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide">
+                        <div className="flex items-center gap-3">
+                            <span className="font-bold tracking-wider uppercase text-amber-300">Supply & Property Management Office (SPMO)</span>
+                            <span className="hidden md:inline text-red-400">|</span>
+                            <span className="hidden md:inline text-red-200/80">University Enterprise Administrative System</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
+                            <span>SYSTEM MODE: LIVE PRODUCTION</span>
+                            <span>•</span>
+                            <span>ACCESS LEVEL: AUTHORIZED PERSONNEL</span>
                         </div>
                     </div>
-                </div>
 
-                <div className="p-8 max-w-[1600px] mx-auto">
-                    
-                    {/* Content Card */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        
-                        {/* Card Header & Actions */}
-                        <div className="px-8 py-6 border-b border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-50/30">
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-900">Inventory Receiving</h3>
-                                <p className="text-xs text-gray-500 mt-1">Handle incoming inventory, verify counts, and update stock.</p>
+                    {/* Main Header Content */}
+                    <div className="bg-white border-b border-gray-200 px-6 lg:px-8 py-4 flex items-center justify-between">
+                        <div>
+                            <div className="mb-1">
+                                <Breadcrumbs items={[{ name: 'Inventory' }, { name: 'Receiving' }]} />
                             </div>
-                            
+                            <h2 className="text-2xl font-bold text-gray-900 font-serif tracking-tight">Inventory Management</h2>
+                            <p className="text-xs text-gray-500 font-medium">Incoming stock and supplier deliveries</p>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right hidden sm:block border-l border-gray-200 pl-6">
+                                <span className="block text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                                    {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                </span>
+                                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold block mt-0.5">
+                                    {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16">
+
+                    {/* Content Card */}
+                    <div className="bg-white rounded-xl shadow-xs border border-gray-200/80 overflow-hidden">
+
+                        {/* Card Header & Actions */}
+                        <div className="px-6 lg:px-8 py-5 border-b border-gray-200/80 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50">
+                            <div>
+                                <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">Inventory Receiving Records</h3>
+                                <p className="text-xs text-gray-500 font-medium mt-0.5">Handle incoming inventory, verify counts, and update stock.</p>
+                            </div>
+
                             {/* Filters Container */}
                             <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
                                 {/* Search Input */}
@@ -277,12 +305,12 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                     </div>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        placeholder="Search item or SKU..." 
-                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 shadow-sm"
+                                        placeholder="Search item or SKU..."
+                                        className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-md text-xs font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-xs"
                                     />
                                 </div>
 
@@ -299,24 +327,24 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                     />
                                 </div>
 
-                                <button 
+                                <button
                                     onClick={() => {
                                         setRfidScanInput('');
                                         setScannedItemMatch(null);
                                         setRfidErrorMsg('');
                                         setIsRfidModalOpen(true);
                                     }}
-                                    className="bg-gradient-to-r from-[#800000] to-[#600000] hover:from-[#600000] hover:to-[#400000] text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2 whitespace-nowrap"
+                                    className="bg-red-950/10 hover:bg-red-950/20 text-red-950 border border-red-950/20 font-bold py-2 px-4 rounded-md shadow-xs transition-all text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider"
                                 >
-                                    <svg className="w-4 h-4 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                                    <svg className="w-4 h-4 text-red-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
                                     Scan RFID to Receive
                                 </button>
 
-                                <button 
+                                <button
                                     onClick={openModal}
-                                    className="bg-gradient-to-r from-green-700 to-green-600 hover:from-green-600 hover:to-green-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2 whitespace-nowrap"
+                                    className="bg-red-950 hover:bg-red-900 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-all text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider"
                                 >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                                     Record New Receiving
                                 </button>
                             </div>
@@ -325,13 +353,13 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                         {/* Table */}
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-green-50/50">
+                                <thead className="bg-gray-50/80 border-b border-gray-200">
                                     <tr>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-green-900 uppercase">Item Received</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-green-900 uppercase">Quantity</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-green-900 uppercase">Supplier</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-left text-green-900 uppercase">Date Received</th>
-                                        <th className="px-8 py-4 text-xs font-bold tracking-wider text-right text-green-900 uppercase">Actions</th>
+                                        <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Item Received</th>
+                                        <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Quantity</th>
+                                        <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Supplier</th>
+                                        <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Date Received</th>
+                                        <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-100">
@@ -340,7 +368,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                             <td colSpan={5} className="px-8 py-12 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center">
                                                     <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
-                                                    <p>No receiving records found.</p>
+                                                    <p className="font-medium text-sm">No receiving records found.</p>
                                                     {(searchTerm || filterSupplier) && (
                                                         <p className="text-xs text-gray-400 mt-1">Try adjusting your filters.</p>
                                                     )}
@@ -349,35 +377,35 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                         </tr>
                                     ) : (
                                         paginatedReceivings.map((receiving, index) => (
-                                            <tr key={index} className="hover:bg-gray-50 transition-colors group">
+                                            <tr key={index} className="hover:bg-red-50/30 transition-colors border-b border-gray-100 last:border-0 group">
                                                 {/* UPDATED COLUMN WITH SKU */}
-                                                <td className="px-8 py-5 whitespace-nowrap">
+                                                <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="text-sm font-bold text-gray-900">{receiving.item}</div>
-                                                    <div className="text-xs text-gray-500">SKU: {receiving.sku || 'N/A'}</div>
+                                                    <div className="text-xs text-gray-500 font-mono">SKU: {receiving.sku || 'N/A'}</div>
                                                 </td>
-                                                
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
-                                                    <span className="text-green-600 mr-1">+</span>{receiving.quantity} <span className="text-gray-400 text-xs font-normal">pcs</span>
+
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-bold font-mono">
+                                                    <span className="text-emerald-600 mr-1">+</span>{receiving.quantity} <span className="text-gray-400 text-xs font-normal font-sans">pcs</span>
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-700">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                     <div className="flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-500 font-bold">
+                                                        <div className="w-6 h-6 rounded-full bg-red-950/10 text-red-950 border border-red-950/20 flex items-center justify-center text-xs font-bold font-mono">
                                                             {receiving.supplier.charAt(0)}
                                                         </div>
-                                                        {receiving.supplier}
+                                                        <span className="font-medium">{receiving.supplier}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-500 font-mono">{receiving.date}</td>
-                                                <td className="px-8 py-5 whitespace-nowrap text-right text-sm font-medium">
-                                                    <button 
+                                                <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-mono">{receiving.date}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    <button
                                                         onClick={() => openDetailsModal(receiving)}
-                                                        className="text-blue-600 hover:text-blue-900 mr-4 transition-colors"
+                                                        className="text-blue-700 hover:text-blue-900 mr-4 transition-colors font-semibold text-xs uppercase tracking-wide"
                                                     >
                                                         View
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         onClick={() => handleUpdateAction(receiving)}
-                                                        className="text-green-600 hover:text-green-900 transition-colors"
+                                                        className="text-emerald-700 hover:text-emerald-900 transition-colors font-semibold text-xs uppercase tracking-wide"
                                                     >
                                                         Update
                                                     </button>
@@ -388,25 +416,25 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                 </tbody>
                             </table>
                         </div>
-                        
+
                         {/* Pagination */}
-                        <div className="px-8 py-4 border-t border-gray-100 bg-gray-50/30 flex flex-col sm:flex-row items-center justify-between gap-3">
-                            <span className="text-xs text-gray-500">Showing {paginatedReceivings.length} of {filteredReceivings.length} filtered records</span>
+                        <div className="px-6 lg:px-8 py-4 border-t border-gray-200/80 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <span className="text-xs text-gray-500 font-medium">Showing <span className="font-bold text-gray-800">{paginatedReceivings.length}</span> of <span className="font-bold text-gray-800">{filteredReceivings.length}</span> filtered records</span>
                             <div className="flex items-center gap-2">
                                 <button
                                     type="button"
                                     onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                                     disabled={currentPage === 1}
-                                    className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
+                                    className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-50 transition-colors"
                                 >
                                     Previous
                                 </button>
-                                <span className="text-xs text-gray-500">Page {currentPage} of {totalPages}</span>
+                                <span className="text-xs text-gray-500 font-medium">Page {currentPage} of {totalPages}</span>
                                 <button
                                     type="button"
                                     onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
+                                    className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-50 transition-colors"
                                 >
                                     Next
                                 </button>
@@ -431,7 +459,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                 <p className="text-xs text-gray-500 font-medium">Add incoming inventory details</p>
                             </div>
                         </div>
-                        <button 
+                        <button
                             onClick={closeModal}
                             disabled={processing}
                             className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-colors disabled:opacity-50"
@@ -611,7 +639,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <button 
+                                <button
                                     onClick={closeDetailsModal}
                                     className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-colors"
                                     aria-label="Close"
@@ -824,14 +852,14 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="pt-4 border-t border-gray-100">
                                         <div className="flex items-center justify-between">
                                             <div className="text-xs text-gray-500">
                                                 Created: {new Date().toLocaleDateString()} • ID: #{selectedReceiving.id}
                                             </div>
                                             <div className="flex gap-3">
-                                                <button 
+                                                <button
                                                     onClick={closeDetailsModal}
                                                     className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-xl font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all duration-200"
                                                 >
@@ -981,11 +1009,10 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                 type="button"
                                 onClick={handleConfirmRfidReceive}
                                 disabled={!scannedItemMatch}
-                                className={`px-5 py-2 text-xs font-bold text-white rounded-xl transition-all ${
-                                    scannedItemMatch
+                                className={`px-5 py-2 text-xs font-bold text-white rounded-xl transition-all ${scannedItemMatch
                                     ? 'bg-[#800000] hover:bg-[#600000] shadow-md shadow-[#800000]/20'
                                     : 'bg-gray-300 cursor-not-allowed'
-                                }`}
+                                    }`}
                             >
                                 Proceed to Receiving →
                             </button>

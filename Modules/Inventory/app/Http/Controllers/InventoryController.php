@@ -4,7 +4,6 @@ namespace Modules\Inventory\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Modules\Inventory\Models\Category;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\Receiving;
 use Modules\Inventory\Models\Issuance;
@@ -34,7 +33,6 @@ class InventoryController extends Controller
                     'rfid_tag' => $item->rfid_tag,
                 ];
             }),
-            'categories' => Category::all(),
             'suppliers' => Supplier::all()
         ]);
     }
@@ -82,44 +80,6 @@ class InventoryController extends Controller
         $inventory->delete();
 
         return redirect()->route('inventory.index')->with('success', 'Item deleted successfully.');
-    }
-
-    public function categories()
-    {
-        return Inertia::render('Inventory/Categories', [
-            'categories' => Category::all()
-        ]);
-    }
-
-    public function storeCategory(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
-        Category::create($request->only(['name', 'description']));
-
-        return redirect()->route('inventory.categories')->with('success', 'Category created successfully.');
-    }
-
-    public function updateCategory(Request $request, Category $category)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
-        $category->update($request->only(['name', 'description']));
-
-        return redirect()->route('inventory.categories')->with('success', 'Category updated successfully.');
-    }
-
-    public function deleteCategory(Category $category)
-    {
-        $category->delete();
-
-        return redirect()->route('inventory.categories')->with('success', 'Category deleted successfully.');
     }
 
     public function receiving()

@@ -23,7 +23,7 @@ const InventoryModal = ({ show, onClose, title, children, footer, isSubmitting }
                             <p className="text-xs text-gray-500 font-medium">Add details to master list</p>
                         </div>
                     </div>
-                    <button 
+                    <button
                         onClick={onClose}
                         disabled={isSubmitting}
                         className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-colors disabled:opacity-50"
@@ -50,7 +50,7 @@ const FormInput = ({ label, icon, error, ...props }: any) => (
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-red-600 transition-colors">
                 {icon}
             </div>
-            <input 
+            <input
                 {...props}
                 className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
                 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all duration-200
@@ -68,7 +68,7 @@ const FormTextarea = ({ label, icon, error, ...props }: any) => (
             <div className="absolute top-3 left-0 pl-3 flex items-start pointer-events-none text-gray-400 group-focus-within:text-red-600 transition-colors">
                 {icon}
             </div>
-            <textarea 
+            <textarea
                 {...props}
                 className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
                 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all duration-200 min-h-[100px]
@@ -111,7 +111,7 @@ const computeStatusFromStock = (stock: string | number) => {
 
 // --- MAIN PAGE ---
 
-export default function AllItems({ auth, items, categories, suppliers = [] }: { auth: any, items: any[], categories: any[], suppliers?: any[] }) {
+export default function AllItems({ auth, items, suppliers = [] }: { auth: any, items: any[], categories?: any[], suppliers?: any[] }) {
     const user = auth.user;
     const [collapsed, setCollapsed] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -139,8 +139,8 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
     // --- FILTERING LOGIC ---
     const filteredItems = useMemo(() => {
         return items.filter(item => {
-            const matchesSearch = 
-                item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            const matchesSearch =
+                item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 (item.sku && item.sku.toLowerCase().includes(searchTerm.toLowerCase()));
             const matchesStatus = filterStatus ? item.status === filterStatus.value : true;
             const matchesSupplier = filterSupplier ? String(item.supplier_id) === String(filterSupplier.value) : true;
@@ -167,23 +167,35 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
     const customSelectStyles = {
         control: (provided: any, state: any) => ({
             ...provided,
-            paddingLeft: '0.5rem',
-            borderRadius: '0.5rem',
-            borderColor: '#d1d5db',
-            boxShadow: state.isFocused ? '0 0 0 2px rgba(220, 38, 38, 0.1)' : provided.boxShadow,
-            '&:hover': { borderColor: '#ef4444' },
-            minHeight: '42px',
-            fontSize: '0.875rem',
+            borderRadius: '0.375rem',
+            borderColor: state.isFocused ? '#7f1d1d' : '#d1d5db',
+            borderWidth: '1px',
+            padding: '1px 2px',
+            minWidth: '150px',
+            boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
+            fontSize: '0.8125rem',
+            fontWeight: '600',
+            backgroundColor: '#ffffff',
+            '&:hover': { borderColor: '#7f1d1d' },
         }),
         option: (provided: any, state: any) => ({
             ...provided,
-            backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? '#fef2f2' : null,
-            color: state.isSelected ? 'white' : '#1f2937',
+            backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? '#fef2f2' : '#ffffff',
+            color: state.isSelected ? '#ffffff' : '#111827',
+            padding: '7px 12px',
+            fontSize: '0.8125rem',
+            fontWeight: '600',
             cursor: 'pointer',
-            fontSize: '0.875rem',
         }),
-        input: (provided: any) => ({ ...provided, color: '#1f2937' }),
-        singleValue: (provided: any) => ({ ...provided, color: '#1f2937' }),
+        singleValue: (provided: any) => ({ ...provided, color: '#111827' }),
+        menu: (provided: any) => ({
+            ...provided,
+            borderRadius: '0.375rem',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            border: '1px solid #e5e7eb',
+            zIndex: 50,
+        }),
+        indicatorSeparator: () => ({ display: 'none' }),
     };
 
     const unitOfIssueOptions = [
@@ -273,54 +285,70 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
             />
 
             {/* --- MAIN CONTENT --- */}
-            <main className={`flex-1 transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-72'}`}>
-                
-                {/* Fixed Top Header */}
-                <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm">
-                    <div>
-                        
-                                <div className="mb-2">
-                                    <Breadcrumbs items={[{name:'Inventory'},{name:'All Items'}]} />
-                                </div>
-<h2 className="text-2xl font-bold text-red-950 font-serif tracking-tight">Inventory Management</h2>
-                        <p className="text-sm text-gray-500">Master list of all consumable items.</p>
-                    </div>
-                    <div className="flex items-center gap-6">
-                        <div className="text-right hidden sm:block">
-                            <span className="block text-sm font-bold text-gray-800">
-                                {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
-                            </span>
-                            <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">
-                                {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
-                            </span>
+            <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
+
+                {/* Merged Sticky Institutional Header */}
+                <header className="sticky top-0 z-40 shadow-xs">
+                    {/* Top Institutional Bar */}
+                    <div className="bg-red-950 text-red-100 text-[11px] px-6 lg:px-8 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide">
+                        <div className="flex items-center gap-3">
+                            <span className="font-bold tracking-wider uppercase text-amber-300">Supply & Property Management Office (SPMO)</span>
+                            <span className="hidden md:inline text-red-400">|</span>
+                            <span className="hidden md:inline text-red-200/80">University Enterprise Administrative System</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
+                            <span>SYSTEM MODE: LIVE PRODUCTION</span>
+                            <span>•</span>
+                            <span>ACCESS LEVEL: AUTHORIZED PERSONNEL</span>
                         </div>
                     </div>
-                </div>
 
-                <div className="p-8 max-w-[1600px] mx-auto">
-                    
-                    {/* Content Card */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        
-                        {/* Card Header & Actions */}
-                        <div className="px-8 py-6 border-b border-gray-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-gray-50/30">
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-900">All Items</h3>
-                                <p className="text-xs text-gray-500 mt-1">Manage stock levels, edit details, or remove items.</p>
+                    {/* Main Header Content */}
+                    <div className="bg-white border-b border-gray-200 px-6 lg:px-8 py-4 flex items-center justify-between">
+                        <div>
+                            <div className="mb-1">
+                                <Breadcrumbs items={[{ name: 'Inventory' }, { name: 'All Items' }]} />
                             </div>
-                            
+                            <h2 className="text-2xl font-bold text-gray-900 font-serif tracking-tight">Inventory Management</h2>
+                            <p className="text-xs text-gray-500 font-medium">Master list of all consumable items & stock assets</p>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right hidden sm:block border-l border-gray-200 pl-6">
+                                <span className="block text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                                    {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                </span>
+                                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold block mt-0.5">
+                                    {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16">
+
+                    {/* Content Card */}
+                    <div className="bg-white rounded-xl shadow-xs border border-gray-200/80 overflow-hidden">
+
+                        {/* Card Header & Actions */}
+                        <div className="px-6 lg:px-8 py-5 border-b border-gray-200/80 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50">
+                            <div>
+                                <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">All Items Master List</h3>
+                                <p className="text-xs text-gray-500 font-medium mt-0.5">Manage stock levels, edit details, or remove items.</p>
+                            </div>
+
                             {/* Filter Controls Container */}
                             <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
                                 <div className="relative flex-grow sm:w-64">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                     </div>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        placeholder="Search name or SKU..." 
-                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 shadow-sm"
+                                        placeholder="Search name or SKU..."
+                                        className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-md text-xs font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-xs"
                                     />
                                 </div>
 
@@ -352,7 +380,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                     />
                                 </div>
 
-                                <button 
+                                <button
                                     onClick={() => {
                                         setIsEditing(false);
                                         setSelectedItem(null);
@@ -360,9 +388,9 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                         setData('sku', ''); // Will be updated on supplier select
                                         setShowModal(true);
                                     }}
-                                    className="bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2 whitespace-nowrap"
+                                    className="bg-red-950 hover:bg-red-900 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-all text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider"
                                 >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                                     Add Item
                                 </button>
                             </div>
@@ -371,17 +399,17 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                         {/* Table */}
                         <div className="w-full overflow-hidden">
                             <table className="w-full table-auto divide-y divide-gray-200">
-                                <thead className="bg-red-50/50">
+                                <thead className="bg-gray-50/80 border-b border-gray-200">
                                     <tr>
-                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Item Name</th>
-                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Supplier</th>
-                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Unit of Issue</th>
-                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Description</th>
-                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Stock Level</th>
-                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Unit Cost</th>
-                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Amount</th>
-                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-left text-red-900 uppercase">Status</th>
-                                        <th className="px-4 py-3 text-[10px] font-bold tracking-wider text-right text-red-900 uppercase">Actions</th>
+                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Item Name</th>
+                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Supplier</th>
+                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Unit of Issue</th>
+                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Description</th>
+                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Stock Level</th>
+                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Unit Cost</th>
+                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Amount</th>
+                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Status</th>
+                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-100">
@@ -390,7 +418,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                             <td colSpan={9} className="px-8 py-12 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center">
                                                     <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
-                                                    <p>No items found.</p>
+                                                    <p className="font-medium text-sm">No items found.</p>
                                                     {(searchTerm || filterStatus || filterSupplier) && (
                                                         <p className="text-xs text-gray-400 mt-1">Try adjusting your filters.</p>
                                                     )}
@@ -399,13 +427,13 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                         </tr>
                                     ) : (
                                         paginatedItems.map((item, index) => (
-                                            <tr key={index} className="hover:bg-gray-50 transition-colors group">
+                                            <tr key={index} className="hover:bg-red-50/30 transition-colors border-b border-gray-100 last:border-0 group">
                                                 <td className="px-4 py-4 align-top max-w-[12rem] break-words">
                                                     <div className="text-sm font-bold text-gray-900">{item.name}</div>
-                                                    <div className="text-xs text-gray-500">SKU: {item.sku || 'N/A'}</div>
+                                                    <div className="text-xs text-gray-500 font-mono">SKU: {item.sku || 'N/A'}</div>
                                                     {item.rfid_tag ? (
                                                         <div className="mt-1">
-                                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#800000]/10 text-[#800000] border border-[#800000]/20">
+                                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950/10 text-red-950 border border-red-950/20">
                                                                 🏷️ {item.rfid_tag}
                                                             </span>
                                                         </div>
@@ -417,11 +445,11 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                                         </div>
                                                     )}
                                                 </td>
-                                                <td className="px-4 py-4 align-top text-sm text-gray-600 break-words">
+                                                <td className="px-4 py-4 align-top text-sm text-gray-600 break-words font-medium">
                                                     {item.supplier ? item.supplier.name : 'No Supplier'}
                                                 </td>
                                                 <td className="px-4 py-4 align-top text-sm text-gray-600">
-                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-800">
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-800 font-mono uppercase">
                                                         {item.unit_of_issue || '-'}
                                                     </span>
                                                 </td>
@@ -430,23 +458,25 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                                         {item.description || '-'}
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-4 align-top text-sm text-gray-600 font-medium">
-                                                    {Number(item.stock || 0).toLocaleString('en-US')} <span className="text-gray-400 text-xs font-normal">units</span>
+                                                <td className="px-4 py-4 align-top text-sm text-gray-700 font-bold font-mono">
+                                                    {Number(item.stock || 0).toLocaleString('en-US')} <span className="text-gray-400 text-xs font-normal font-sans">units</span>
                                                 </td>
-                                                <td className="px-4 py-4 align-top text-sm text-gray-600 font-medium">
+                                                <td className="px-4 py-4 align-top text-sm text-gray-700 font-medium font-mono">
                                                     ₱{Number(item.unit_cost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </td>
-                                                <td className="px-4 py-4 align-top text-sm text-gray-600 font-medium">
+                                                <td className="px-4 py-4 align-top text-sm text-gray-700 font-medium font-mono">
                                                     ₱{Number(item.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </td>
                                                 <td className="px-4 py-4 align-top">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                                        item.status === 'Available' ? 'bg-green-100 text-green-800' : 
-                                                        item.status === 'Low Stock' ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800'
+                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                                                        item.status === 'Available' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/80' :
+                                                        item.status === 'Low Stock' ? 'bg-amber-50 text-amber-800 border border-amber-200/80' : 
+                                                        'bg-red-50 text-red-800 border border-red-200/80'
                                                     }`}>
                                                         <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                                                            item.status === 'Available' ? 'bg-green-500' : 
-                                                            item.status === 'Low Stock' ? 'bg-orange-500' : 'bg-red-500'
+                                                            item.status === 'Available' ? 'bg-emerald-500' :
+                                                            item.status === 'Low Stock' ? 'bg-amber-500' : 
+                                                            'bg-red-500'
                                                         }`}></span>
                                                         {item.status}
                                                     </span>
@@ -454,11 +484,11 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                                 <td className="px-4 py-4 align-top text-right text-sm font-medium">
                                                     <Link
                                                         href={route('rfid-scanner.index', { item_id: item.id })}
-                                                        className="text-[#800000] hover:text-[#600000] mr-3 transition-colors font-bold text-xs uppercase tracking-wide inline-flex items-center gap-1 bg-[#800000]/5 px-2 py-1 rounded hover:bg-[#800000]/10"
+                                                        className="text-red-900 hover:text-red-950 mr-3 transition-colors font-bold text-xs uppercase tracking-wide inline-flex items-center gap-1 bg-red-950/5 px-2 py-1 rounded border border-red-900/10 hover:bg-red-950/10 font-mono"
                                                     >
                                                         🏷️ Tag RFID
                                                     </Link>
-                                                    <button 
+                                                    <button
                                                         onClick={() => {
                                                             setIsEditing(true);
                                                             setSelectedItem(item);
@@ -475,16 +505,16 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                                             });
                                                             setShowModal(true);
                                                         }}
-                                                        className="text-blue-600 hover:text-blue-900 mr-3 transition-colors font-semibold text-xs uppercase tracking-wide"
+                                                        className="text-blue-700 hover:text-blue-900 mr-3 transition-colors font-semibold text-xs uppercase tracking-wide"
                                                     >
                                                         Edit
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         onClick={() => {
                                                             setItemToDelete(item);
                                                             setShowDeleteModal(true);
                                                         }}
-                                                        className="text-red-600 hover:text-red-900 transition-colors font-semibold text-xs uppercase tracking-wide"
+                                                        className="text-red-700 hover:text-red-900 transition-colors font-semibold text-xs uppercase tracking-wide"
                                                     >
                                                         Delete
                                                     </button>
@@ -495,25 +525,25 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                                 </tbody>
                             </table>
                         </div>
-                        
+
                         {/* Pagination */}
-                        <div className="px-8 py-4 border-t border-gray-100 bg-gray-50/30 flex flex-col sm:flex-row items-center sm:justify-between gap-3">
-                            <span className="text-xs text-gray-500">
-                                Showing {paginatedItems.length} of {filteredItems.length} filtered records
+                        <div className="px-6 lg:px-8 py-4 border-t border-gray-200/80 bg-gray-50/50 flex flex-col sm:flex-row items-center sm:justify-between gap-3">
+                            <span className="text-xs text-gray-500 font-medium">
+                                Showing <span className="font-bold text-gray-800">{paginatedItems.length}</span> of <span className="font-bold text-gray-800">{filteredItems.length}</span> filtered records
                             </span>
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                                     disabled={currentPage === 1}
-                                    className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
+                                    className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-50 transition-colors"
                                 >
                                     Previous
                                 </button>
-                                <span className="text-xs text-gray-500">Page {currentPage} of {totalPages}</span>
+                                <span className="text-xs text-gray-500 font-medium">Page {currentPage} of {totalPages}</span>
                                 <button
                                     onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="px-3 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-white disabled:opacity-50"
+                                    className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-50 transition-colors"
                                 >
                                     Next
                                 </button>
@@ -525,8 +555,8 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
             </main>
 
             {/* MODAL & FORM (Unchanged) */}
-            <InventoryModal 
-                show={showModal} 
+            <InventoryModal
+                show={showModal}
                 onClose={() => {
                     setShowModal(false);
                     if (isEditing) {
@@ -599,7 +629,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                            <FormInput 
+                            <FormInput
                                 label="Item Name"
                                 value={data.name}
                                 onChange={(e: any) => setData('name', e.target.value)}
@@ -610,7 +640,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                             />
                         </div>
                         <div>
-                            <FormInput 
+                            <FormInput
                                 label="SKU / Code"
                                 value={data.sku}
                                 onChange={(e: any) => setData('sku', e.target.value)}
@@ -640,7 +670,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                             {errors.unit_of_issue && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.unit_of_issue}</p>}
                         </div>
                         <div>
-                            <FormInput 
+                            <FormInput
                                 label="Initial Stock"
                                 type="number"
                                 value={data.stock}
@@ -660,7 +690,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                             />
                         </div>
                         <div>
-                            <FormInput 
+                            <FormInput
                                 label="Unit Cost"
                                 type="number"
                                 step="0.01"
@@ -685,7 +715,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
 
                     <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-5">
                         <div>
-                            <FormTextarea 
+                            <FormTextarea
                                 label="Description"
                                 value={data.description}
                                 onChange={(e: any) => setData('description', e.target.value)}
@@ -696,7 +726,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                             />
                         </div>
                         <div>
-                            <FormInput 
+                            <FormInput
                                 label="Amount"
                                 type="number"
                                 step="0.01"
@@ -720,7 +750,7 @@ export default function AllItems({ auth, items, categories, suppliers = [] }: { 
                     <div className="h-2 w-full bg-gradient-to-r from-red-600 to-red-800"></div>
                     <div className="p-6 text-center">
                         <svg className="mx-auto mb-4 text-red-500 w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        <h3 className="mb-5 text-lg font-bold text-gray-900">Are you sure you want to delete <br/><span className="text-red-600">"{itemToDelete?.name}"</span>?</h3>
+                        <h3 className="mb-5 text-lg font-bold text-gray-900">Are you sure you want to delete <br /><span className="text-red-600">"{itemToDelete?.name}"</span>?</h3>
                         <p className="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
                         <div className="flex justify-center gap-4">
                             <button
