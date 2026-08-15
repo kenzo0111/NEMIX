@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Inventory\App\DTOs;
+namespace Modules\Inventory\DTOs;
 
 use App\Contracts\DTOInterface;
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace Modules\Inventory\App\Services;
+namespace Modules\Inventory\Services;
 
 use App\Contracts\ServiceInterface;
-use Modules\Inventory\App\DTOs\InventoryItemDTO;
-use Modules\Inventory\App\DTOs\ReceivingDTO;
-use Modules\Inventory\App\DTOs\IssuanceDTO;
+use Modules\Inventory\DTOs\InventoryItemDTO;
+use Modules\Inventory\DTOs\ReceivingDTO;
+use Modules\Inventory\DTOs\IssuanceDTO;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\Receiving;
 use Modules\Inventory\Models\Issuance;

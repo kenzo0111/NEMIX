@@ -451,7 +451,7 @@ export default function Dashboard({
                                     University Supply & Inventory Management Overview
                                 </h1>
                                 <p className="text-red-100/90 text-sm font-normal leading-relaxed">
-                                    Welcome back, <strong className="text-white">{user.name}</strong>. The Supply & Property Management Office Stockroom currently has <strong className="text-amber-300 font-semibold">{new Intl.NumberFormat('en-US').format(stats.activeInventoryItems ?? 0)} {(stats.activeInventoryItems ?? 0) === 1 ? 'available inventory item' : 'available inventory items'}</strong>.
+                                    Welcome back, <strong className="text-white">{user.name}</strong>. The Supply & Property Management Office Stockroom currently has <strong className="text-amber-300 font-semibold">{new Intl.NumberFormat('en-US').format(stats.activeInventoryItems ?? 0)} {(stats.activeInventoryItems ?? 0) === 1 ? 'available consumable item' : 'available consumable items'}</strong>.
                                 </p>
                             </div>
 

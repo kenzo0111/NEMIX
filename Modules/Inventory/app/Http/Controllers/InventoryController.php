@@ -11,8 +11,8 @@ use Modules\Suppliers\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
-use Modules\Inventory\App\Services\InventoryService;
-use Modules\Inventory\App\DTOs\InventoryItemDTO;
+use Modules\Inventory\Services\InventoryService;
+use Modules\Inventory\DTOs\InventoryItemDTO;
 
 class InventoryController extends Controller
 {
@@ -41,7 +41,7 @@ class InventoryController extends Controller
         ]);
     }
 
-    public function __construct(\Modules\Inventory\App\Services\InventoryService $inventoryService)
+    public function __construct(InventoryService $inventoryService)
     {
         $this->inventoryService = $inventoryService;
     }
@@ -60,7 +60,7 @@ class InventoryController extends Controller
             'unit_of_issue' => 'nullable|string|max:255',
         ]);
 
-        $dto = \Modules\Inventory\App\DTOs\InventoryItemDTO::fromArray($request->only([
+        $dto = InventoryItemDTO::fromArray($request->only([
             'name', 'supplier_id', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'unit_of_issue'
         ]));
 
