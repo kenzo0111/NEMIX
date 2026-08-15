@@ -1,3 +1,4 @@
+import SystemModeBadge from '@/Components/SystemModeBadge';
 import { Head, usePage } from '@inertiajs/react';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import { useState, useMemo, useEffect } from 'react';
@@ -209,7 +210,7 @@ export default function ManageTransaction({ auth, logs: serverLogs = [] }: { aut
                             <span className="hidden md:inline text-red-200/80">University Enterprise Administrative System</span>
                         </div>
                         <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
-                            <span>SYSTEM MODE: LIVE PRODUCTION</span>
+                            <SystemModeBadge />
                             <span>•</span>
                             <span>ACCESS LEVEL: AUTHORIZED PERSONNEL</span>
                         </div>

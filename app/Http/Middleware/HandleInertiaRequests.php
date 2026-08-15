@@ -46,6 +46,12 @@ class HandleInertiaRequests extends Middleware
                 'permissions' => $request->user()?->getPermissionNames()->toArray() ?? [],
                 'is_system_admin' => $request->user()?->hasRole('System Admin') ?? false,
             ],
+            'system' => [
+                'mode' => strtoupper(config('app.env', 'production')) === 'PRODUCTION' ? 'LIVE PRODUCTION' : (strtoupper(config('app.env')) === 'STAGING' ? 'STAGING SANDBOX' : 'DEVELOPMENT MODE'),
+                'env' => config('app.env', 'production'),
+                'status' => 'OPERATIONAL',
+                'version' => 'v2.4.0-Enterprise',
+            ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

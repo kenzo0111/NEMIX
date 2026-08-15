@@ -1,3 +1,4 @@
+import SystemModeBadge from '@/Components/SystemModeBadge';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import Sidebar from '@/Components/Sidebar';
@@ -297,7 +298,7 @@ export default function AllItems({ auth, items, suppliers = [] }: { auth: any, i
                             <span className="hidden md:inline text-red-200/80">University Enterprise Administrative System</span>
                         </div>
                         <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
-                            <span>SYSTEM MODE: LIVE PRODUCTION</span>
+                            <SystemModeBadge />
                             <span>•</span>
                             <span>ACCESS LEVEL: AUTHORIZED PERSONNEL</span>
                         </div>

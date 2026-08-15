@@ -11,9 +11,13 @@ use Modules\Suppliers\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Modules\Inventory\App\Services\InventoryService;
+use Modules\Inventory\App\DTOs\InventoryItemDTO;
 
 class InventoryController extends Controller
 {
+    protected $inventoryService;
+
     public function index()
     {
         return Inertia::render('Inventory/AllItems', [
@@ -37,6 +41,11 @@ class InventoryController extends Controller
         ]);
     }
 
+    public function __construct(\Modules\Inventory\App\Services\InventoryService $inventoryService)
+    {
+        $this->inventoryService = $inventoryService;
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -51,7 +60,11 @@ class InventoryController extends Controller
             'unit_of_issue' => 'nullable|string|max:255',
         ]);
 
-        Item::create($request->only(['name', 'supplier_id', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'unit_of_issue']));
+        $dto = \Modules\Inventory\App\DTOs\InventoryItemDTO::fromArray($request->only([
+            'name', 'supplier_id', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'unit_of_issue'
+        ]));
+
+        $this->inventoryService->createItem($dto);
 
         return redirect()->route('inventory.index')->with('success', 'Item created successfully.');
     }
