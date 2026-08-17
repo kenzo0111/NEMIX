@@ -29,6 +29,7 @@ interface Staff {
     email: string;
     role: string;
     status: string;
+    email_verified?: boolean;
 }
 
 const defaultRoleOptions = [
@@ -112,6 +113,9 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
     const { flash } = usePage().props as any;
     const [collapsed, setCollapsed] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
+    const [warningMessage, setWarningMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [resendingStaffId, setResendingStaffId] = useState<number | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDisableModalOpen, setIsDisableModalOpen] = useState(false);
@@ -138,15 +142,30 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
     }, [roles]);
 
     useEffect(() => {
-        if (!flash?.success) {
-            return;
+        if (flash?.success) {
+            setSuccessMessage(flash.success);
+            const timeoutId = window.setTimeout(() => setSuccessMessage(''), 7000);
+            return () => window.clearTimeout(timeoutId);
         }
-
-        setSuccessMessage(flash.success);
-        const timeoutId = window.setTimeout(() => setSuccessMessage(''), 5000);
-
-        return () => window.clearTimeout(timeoutId);
+        if (flash?.warning) {
+            setWarningMessage(flash.warning);
+            const timeoutId = window.setTimeout(() => setWarningMessage(''), 9000);
+            return () => window.clearTimeout(timeoutId);
+        }
+        if (flash?.error) {
+            setErrorMessage(flash.error);
+            const timeoutId = window.setTimeout(() => setErrorMessage(''), 9000);
+            return () => window.clearTimeout(timeoutId);
+        }
     }, [flash]);
+
+    const handleResendInvitation = (staff: Staff) => {
+        router.post(route('access-control.staffs.resend-invitation', staff.id), {}, {
+            preserveScroll: true,
+            onStart: () => setResendingStaffId(staff.id),
+            onFinish: () => setResendingStaffId(null),
+        });
+    };
 
     const modules = getSidebarModules('Access', 'Manage Staffs');
 
@@ -305,6 +324,45 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                                 type="button"
                                 onClick={() => setSuccessMessage('')}
                                 className="text-emerald-600 hover:text-emerald-800 p-1 rounded transition-colors"
+                                aria-label="Close message"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Warning Alert Banner */}
+                    {warningMessage && (
+                        <div className="bg-amber-50 border border-amber-300 rounded-lg p-4 flex items-start gap-3 shadow-xs">
+                            <div className="flex-shrink-0 text-amber-600 mt-0.5">
+                                <AlertTriangle className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1">
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-amber-900">Mailer Warning</h4>
+                                <p className="text-xs font-medium text-amber-800 mt-0.5">{warningMessage}</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setWarningMessage('')}
+                                className="text-amber-600 hover:text-amber-800 p-1 rounded transition-colors"
+                                aria-label="Close message"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Error Alert Banner */}
+                    {errorMessage && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3 shadow-xs">
+                            <div className="flex-shrink-0 text-red-600">
+                                <AlertTriangle className="w-5 h-5" />
+                            </div>
+                            <p className="text-sm font-semibold text-red-900 flex-1">{errorMessage}</p>
+                            <button
+                                type="button"
+                                onClick={() => setErrorMessage('')}
+                                className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
                                 aria-label="Close message"
                             >
                                 <X className="w-4 h-4" />
@@ -491,6 +549,17 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex items-center justify-end gap-2">
+                                                        {staff.status !== 'Active' && (
+                                                            <button
+                                                                onClick={() => handleResendInvitation(staff)}
+                                                                disabled={resendingStaffId === staff.id}
+                                                                className="px-3 py-1.5 text-xs font-bold rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
+                                                                title="Resend invitation email"
+                                                            >
+                                                                <Mail className="w-3.5 h-3.5" />
+                                                                <span>{resendingStaffId === staff.id ? 'Sending...' : 'Resend Invite'}</span>
+                                                            </button>
+                                                        )}
                                                         <button
                                                             onClick={() => handleEditClick(staff)}
                                                             className="px-3 py-1.5 text-xs font-bold rounded-lg text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors inline-flex items-center gap-1.5"

@@ -505,6 +505,10 @@ Route::patch('/access-control/manage-staffs/{user}/toggle-status', [ManageStaffC
     ->middleware(['auth', 'verified'])
     ->name('access-control.staffs.toggle-status');
 
+Route::post('/access-control/manage-staffs/{user}/resend-invitation', [ManageStaffController::class, 'resendInvitation'])
+    ->middleware(['auth', 'verified'])
+    ->name('access-control.staffs.resend-invitation');
+
 Route::get('/rfid-scanner', function (\Illuminate\Http\Request $request) {
     $items = class_exists(\Modules\Inventory\Models\Item::class)
         ? \Modules\Inventory\Models\Item::with('supplier')->latest()->get()->map(function ($item) {

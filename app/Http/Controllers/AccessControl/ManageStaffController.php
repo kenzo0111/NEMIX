@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Auth\Passwords\PasswordBroker;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -29,6 +30,7 @@ class ManageStaffController extends Controller
                 'email' => $user->email,
                 'role' => $user->roles->first()?->name ?? 'Unassigned',
                 'status' => $user->is_active ? 'Active' : 'Inactive',
+                'email_verified' => ! is_null($user->email_verified_at),
             ]);
 
         $roles = Role::query()
@@ -59,12 +61,46 @@ class ManageStaffController extends Controller
 
         $user->assignRole($validated['role']);
 
-        /** @var PasswordBroker $passwordBroker */
-        $passwordBroker = Password::broker();
-        $token = $passwordBroker->createToken($user);
-        $user->notify(new StaffRegistrationInvitation($token));
+        $mailSent = true;
+        try {
+            /** @var PasswordBroker $passwordBroker */
+            $passwordBroker = Password::broker();
+            $token = $passwordBroker->createToken($user);
+            $user->notify(new StaffRegistrationInvitation($token));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send staff invitation email: '.$e->getMessage(), [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'exception' => $e,
+            ]);
+            $mailSent = false;
+        }
+
+        if (! $mailSent) {
+            return back()->with('warning', 'Staff account created for '.$user->email.', but the invitation email could not be sent due to a mail server configuration error. You can resend the invitation once mailer settings are configured.');
+        }
 
         return back()->with('success', 'Staff invitation sent to '.$user->email.'.');
+    }
+
+    public function resendInvitation(User $user): RedirectResponse
+    {
+        try {
+            /** @var PasswordBroker $passwordBroker */
+            $passwordBroker = Password::broker();
+            $token = $passwordBroker->createToken($user);
+            $user->notify(new StaffRegistrationInvitation($token));
+        } catch (\Throwable $e) {
+            Log::error('Failed to resend staff invitation email: '.$e->getMessage(), [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'exception' => $e,
+            ]);
+
+            return back()->with('error', 'Could not send invitation email. Please check server mailer configuration settings.');
+        }
+
+        return back()->with('success', 'Invitation email resent to '.$user->email.'.');
     }
 
     public function update(Request $request, User $user): RedirectResponse
