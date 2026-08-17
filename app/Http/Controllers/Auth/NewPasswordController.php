@@ -33,10 +33,9 @@ class NewPasswordController extends Controller
      */
     public function createFromInvitation(Request $request): Response
     {
-        return Inertia::render('Auth/ResetPassword', [
+        return Inertia::render('Auth/Register', [
             'email' => $request->email,
             'token' => $request->route('token'),
-            'mode' => 'registration',
         ]);
     }
 
