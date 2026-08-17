@@ -50,7 +50,7 @@ class ManageStaffInvitationTest extends TestCase
             function (StaffRegistrationInvitation $notification) use ($staff) {
                 $mailMessage = $notification->toMail($staff);
 
-                $this->assertStringContainsString('/register', $mailMessage->actionUrl ?? '');
+                $this->assertStringContainsString('/register-invitation/', $mailMessage->actionUrl ?? '');
                 $this->assertStringContainsString(urlencode($staff->email), $mailMessage->actionUrl ?? '');
 
                 return true;
