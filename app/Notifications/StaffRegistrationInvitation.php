@@ -30,7 +30,7 @@ class StaffRegistrationInvitation extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $registrationUrl = rtrim(config('app.url'), '/') . route('register.invitation', [
+        $registrationUrl = rtrim(config('app.url'), '/') . route('register', [
             'token' => $this->token,
             'email' => $notifiable->getEmailForPasswordReset(),
         ], false);
