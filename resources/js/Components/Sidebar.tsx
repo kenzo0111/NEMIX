@@ -245,8 +245,8 @@ export default function Sidebar({
                                                             <div className="flex items-center gap-2 truncate">
                                                                 <span
                                                                     className={`w-1.5 h-1.5 rounded-full transition-transform shrink-0 ${subItem.active
-                                                                            ? 'bg-yellow-400 shadow-sm shadow-yellow-400/80 scale-125'
-                                                                            : 'bg-red-700'
+                                                                        ? 'bg-yellow-400 shadow-sm shadow-yellow-400/80 scale-125'
+                                                                        : 'bg-red-700'
                                                                         }`}
                                                                 ></span>
                                                                 <span className="truncate">{subItem.title}</span>
