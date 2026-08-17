@@ -403,7 +403,7 @@ export default function Dashboard({
                         <div className="flex items-center gap-3">
                             <span className="font-bold tracking-wider uppercase text-amber-300">Supply & Property Management Office (SPMO)</span>
                             <span className="hidden md:inline text-red-400">|</span>
-                            <span className="hidden md:inline text-red-200/80">University Enterprise Administrative System</span>
+                            <span className="hidden md:inline text-red-200/80">Supply and Inventory Management System (SIMS)</span>
                         </div>
                         <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
                             <SystemModeBadge />
