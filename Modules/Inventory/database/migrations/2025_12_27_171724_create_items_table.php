@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('stock')->default(0);
             $table->enum('status', ['Available', 'Low Stock', 'Out of Stock'])->default('Available');
             $table->text('description')->nullable();
-            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
+            $table->foreignId('category_id')->nullable();
             $table->timestamps();
         });
     }
