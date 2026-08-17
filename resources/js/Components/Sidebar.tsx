@@ -90,7 +90,7 @@ export default function Sidebar({
     return (
         <aside
             className={`
-                fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-red-900 via-red-950 to-slate-950 border-r border-red-800/60
+                fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-red-950 via-red-950 to-slate-950 border-r border-red-900/80
                 text-white shadow-2xl transition-all duration-300 ease-in-out flex flex-col select-none overflow-x-hidden
                 ${collapsed ? 'w-20' : 'w-72'} ${className}
             `}
@@ -98,8 +98,22 @@ export default function Sidebar({
             {/* Background Texture Overlay */}
             <div className="absolute inset-0 opacity-[0.04] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] pointer-events-none"></div>
 
+            {/* Top Institutional Bar Extension (Matches & Aligns with Top Institutional Bar) */}
+            <div className="bg-red-950 text-red-100 text-[11px] px-4 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide h-[33px] shrink-0 select-none">
+                <div className="flex items-center gap-2 overflow-hidden">
+                    <span className="font-bold tracking-wider uppercase text-amber-300 truncate text-[10px] font-mono">
+                        {collapsed ? 'UCN' : 'INVENTORY PORTAL'}
+                    </span>
+                </div>
+                {!collapsed && (
+                    <span className="text-[9px] text-red-300/80 font-mono tracking-widest uppercase">
+                        SPMO v2.0
+                    </span>
+                )}
+            </div>
+
             {/* University Branding & Crest Header */}
-            <div className="p-4 border-b border-red-800/60 relative z-10 flex items-center h-20 gap-3.5 px-4 overflow-hidden">
+            <div className="p-4 border-b border-red-900/60 relative z-10 flex items-center h-20 gap-3.5 px-4 overflow-hidden bg-red-950/40">
                 <div className="relative shrink-0 group">
                     <div className="w-11 h-11 rounded-full bg-white p-1 shadow-lg shadow-black/40 border-2 border-yellow-500 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
                         <ApplicationLogo className="w-8 h-8 object-contain" alt="UCN Logo" />
@@ -109,12 +123,7 @@ export default function Sidebar({
                 </div>
 
                 <div className={`whitespace-nowrap flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-[200px] opacity-100'}`}>
-                    <div className="flex items-center gap-1.5">
-                        <h1 className="font-extrabold tracking-wider text-base text-white drop-shadow-sm leading-tight">UCN SPMO</h1>
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 font-bold uppercase tracking-wider">
-                            Official
-                        </span>
-                    </div>
+                    <h1 className="font-extrabold tracking-wider text-base text-white drop-shadow-sm leading-tight">UCN SPMO</h1>
                     <p className="text-[10px] text-yellow-400/90 font-medium uppercase tracking-widest leading-normal truncate">
                         Supply & Property Management
                     </p>
@@ -145,10 +154,9 @@ export default function Sidebar({
                                     <div
                                         className={`
                                             relative w-full group flex items-center px-2.5 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer overflow-hidden
-                                            ${
-                                                isItemActive
-                                                    ? 'bg-red-800/90 text-white shadow-lg border border-red-700/50 ring-1 ring-yellow-500/40'
-                                                    : 'text-red-100/90 hover:bg-white/10 hover:text-white'
+                                            ${isItemActive
+                                                ? 'bg-red-800/90 text-white shadow-lg border border-red-700/50 ring-1 ring-yellow-500/40'
+                                                : 'text-red-100/90 hover:bg-white/10 hover:text-white'
                                             }
                                         `}
                                         title={collapsed ? item.title : undefined}
@@ -186,9 +194,8 @@ export default function Sidebar({
                                         {/* Chevron Icon for Submodules */}
                                         {hasSubmodules && (
                                             <svg
-                                                className={`w-4 h-4 text-red-300/80 transition-all duration-300 shrink-0 ml-auto ${
-                                                    isExpanded ? 'rotate-180 text-yellow-400' : ''
-                                                } ${collapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-4 opacity-100'}`}
+                                                className={`w-4 h-4 text-red-300/80 transition-all duration-300 shrink-0 ml-auto ${isExpanded ? 'rotate-180 text-yellow-400' : ''
+                                                    } ${collapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-4 opacity-100'}`}
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24"
@@ -229,20 +236,18 @@ export default function Sidebar({
                                                             href={subItem.href}
                                                             className={`
                                                                 flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 whitespace-nowrap overflow-hidden
-                                                                ${
-                                                                    subItem.active
-                                                                        ? 'text-yellow-300 bg-yellow-500/20 font-semibold border border-yellow-500/40 shadow-sm shadow-yellow-500/10'
-                                                                        : 'text-red-200/80 hover:text-white hover:bg-white/10'
+                                                                ${subItem.active
+                                                                    ? 'text-yellow-300 bg-yellow-500/20 font-semibold border border-yellow-500/40 shadow-sm shadow-yellow-500/10'
+                                                                    : 'text-red-200/80 hover:text-white hover:bg-white/10'
                                                                 }
                                                             `}
                                                         >
                                                             <div className="flex items-center gap-2 truncate">
                                                                 <span
-                                                                    className={`w-1.5 h-1.5 rounded-full transition-transform shrink-0 ${
-                                                                        subItem.active
+                                                                    className={`w-1.5 h-1.5 rounded-full transition-transform shrink-0 ${subItem.active
                                                                             ? 'bg-yellow-400 shadow-sm shadow-yellow-400/80 scale-125'
                                                                             : 'bg-red-700'
-                                                                    }`}
+                                                                        }`}
                                                                 ></span>
                                                                 <span className="truncate">{subItem.title}</span>
                                                             </div>
