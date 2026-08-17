@@ -66,10 +66,6 @@ export default function Register({
                         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full border border-yellow-500/10 pointer-events-none"></div>
                         <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full border border-yellow-500/10 pointer-events-none"></div>
 
-                        {/* Internal Watermark Seal */}
-                        <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-                            <ApplicationLogo alt="" className="w-[420px] h-[420px] object-contain grayscale brightness-150 transform scale-110" />
-                        </div>
 
                         {/* Top: Institution Hierarchy & Tagline */}
                         <div className="relative z-10 space-y-4">
