@@ -3,7 +3,7 @@
 > **Project:** NEMIX - Inventory, Supply & Property Management System  
 > **Client / Organization:** Supply and Property Management Office (SPMO) - University of Camarines Norte (UCN)  
 > **Core Technologies:** Laravel, React/Inertia, PostgreSQL, Docker, RFID Hardware Integration  
-> **Domain Name:** `nemix-ucn.com` (Cloudflare Registrar)  
+> **Domain Name:** `unc-nemix.com` (Cloudflare Registrar)  
 
 ---
 
