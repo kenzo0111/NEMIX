@@ -48,4 +48,14 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_active' => 'boolean',
         ];
     }
+
+    /**
+     * Send the email verification notification.
+     *
+     * @return void
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new \App\Notifications\VerifyEmailNotification());
+    }
 }

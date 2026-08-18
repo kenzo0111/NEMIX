@@ -86,7 +86,7 @@ class EmailVerificationTest extends TestCase
     {
         $user = User::factory()->unverified()->create(['name' => 'Juan Dela Cruz']);
 
-        $notification = new \Illuminate\Auth\Notifications\VerifyEmail();
+        $notification = new \App\Notifications\VerifyEmailNotification();
         $mail = $notification->toMail($user);
 
         $this->assertEquals('[SPMO System] Automated Email Verification Request', $mail->subject);
