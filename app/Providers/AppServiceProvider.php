@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Listeners\LogAuthenticationActivity;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Mail\Markdown;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -24,6 +27,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (app()->environment('production') || config('app.force_https', env('FORCE_HTTPS', false))) {
+            URL::forceScheme('https');
+        }
+
+        Event::subscribe(LogAuthenticationActivity::class);
+
         app(Markdown::class)->theme('ucn');
 
         Password::defaults(function () {
