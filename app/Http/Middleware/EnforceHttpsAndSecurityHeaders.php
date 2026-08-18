@@ -41,6 +41,6 @@ class EnforceHttpsAndSecurityHeaders
             return false;
         }
 
-        return app()->environment('production') || config('app.force_https', env('FORCE_HTTPS', false));
+        return app()->environment('production') || config('app.force_https', false);
     }
 }
