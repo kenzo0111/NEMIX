@@ -55,13 +55,13 @@ class SuppliersController extends \App\Http\Controllers\Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'tin' => 'required|string|unique:suppliers,tin',
-            'address' => 'required|string|max:255',
-            'reg_number' => 'required|string|unique:suppliers,reg_number',
-            'category' => 'required|string',
-            'status' => 'required|in:active,pending,blacklisted',
-            'amount' => 'nullable|numeric',
+            'name' => ['required', 'string', 'max:255'],
+            'tin' => ['required', 'string', 'max:50', 'unique:suppliers,tin'],
+            'address' => ['required', 'string', 'max:255'],
+            'reg_number' => ['required', 'string', 'max:100', 'unique:suppliers,reg_number'],
+            'category' => ['required', 'string', 'max:100'],
+            'status' => ['required', 'in:active,pending,blacklisted'],
+            'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
         ]);
 
         $validated['created_by'] = auth()->id();
@@ -106,13 +106,13 @@ class SuppliersController extends \App\Http\Controllers\Controller
         ResourceOwnershipPolicy::authorize(auth()->user(), $supplier, 'created_by');
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'tin' => 'required|string|unique:suppliers,tin,' . $supplier->id,
-            'address' => 'required|string|max:255',
-            'reg_number' => 'required|string|unique:suppliers,reg_number,' . $supplier->id,
-            'category' => 'required|string',
-            'status' => 'required|in:active,pending,blacklisted',
-            'amount' => 'nullable|numeric',
+            'name' => ['required', 'string', 'max:255'],
+            'tin' => ['required', 'string', 'max:50', 'unique:suppliers,tin,' . $supplier->id],
+            'address' => ['required', 'string', 'max:255'],
+            'reg_number' => ['required', 'string', 'max:100', 'unique:suppliers,reg_number,' . $supplier->id],
+            'category' => ['required', 'string', 'max:100'],
+            'status' => ['required', 'in:active,pending,blacklisted'],
+            'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
         ]);
 
         $supplier->update($validated);

@@ -53,16 +53,16 @@ class InventoryController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'supplier_id' => 'required|exists:suppliers,id',
-            'sku' => 'nullable|string|max:255|unique:items,sku',
-            'stock' => 'required|integer|min:0',
-            'unit_cost' => 'nullable|numeric|min:0',
-            'amount' => 'nullable|numeric|min:0',
-            'status' => 'required|in:Available,Low Stock,Out of Stock',
-            'description' => 'nullable|string',
-            'unit_of_issue' => 'nullable|string|max:255',
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
+            'sku' => ['nullable', 'string', 'max:255', 'unique:items,sku'],
+            'stock' => ['required', 'integer', 'min:0', 'max:1000000'],
+            'unit_cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
+            'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
+            'status' => ['required', 'string', 'in:Available,Low Stock,Out of Stock'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'unit_of_issue' => ['nullable', 'string', 'max:255'],
         ]);
 
         $data = $request->only([
@@ -79,16 +79,16 @@ class InventoryController extends Controller
     {
         ResourceOwnershipPolicy::authorize(auth()->user(), $inventory, 'created_by');
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'supplier_id' => 'required|exists:suppliers,id',
-            'sku' => 'nullable|string|max:255|unique:items,sku,' . $inventory->id,
-            'stock' => 'required|integer|min:0',
-            'unit_cost' => 'nullable|numeric|min:0',
-            'amount' => 'nullable|numeric|min:0',
-            'status' => 'required|in:Available,Low Stock,Out of Stock',
-            'description' => 'nullable|string',
-            'unit_of_issue' => 'nullable|string|max:255',
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
+            'sku' => ['nullable', 'string', 'max:255', 'unique:items,sku,' . $inventory->id],
+            'stock' => ['required', 'integer', 'min:0', 'max:1000000'],
+            'unit_cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
+            'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
+            'status' => ['required', 'string', 'in:Available,Low Stock,Out of Stock'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'unit_of_issue' => ['nullable', 'string', 'max:255'],
         ]);
 
         $inventory->update($request->only(['name', 'supplier_id', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'unit_of_issue']));
@@ -147,11 +147,11 @@ class InventoryController extends Controller
 
     public function storeReceiving(Request $request)
     {
-        $request->validate([
-            'item_id' => 'required|exists:items,id',
-            'supplier_id' => 'required|exists:suppliers,id',
-            'quantity' => 'required|integer|min:1',
-            'date_received' => 'required|date',
+        $validated = $request->validate([
+            'item_id' => ['required', 'integer', 'exists:items,id'],
+            'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
+            'quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
+            'date_received' => ['required', 'date'],
         ]);
 
         \DB::transaction(function () use ($request) {
@@ -171,11 +171,11 @@ class InventoryController extends Controller
     {
         ResourceOwnershipPolicy::authorize(auth()->user(), $receiving, 'created_by');
 
-        $request->validate([
-            'item_id' => 'required|exists:items,id',
-            'supplier_id' => 'required|exists:suppliers,id',
-            'quantity' => 'required|integer|min:1',
-            'date_received' => 'required|date',
+        $validated = $request->validate([
+            'item_id' => ['required', 'integer', 'exists:items,id'],
+            'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
+            'quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
+            'date_received' => ['required', 'date'],
         ]);
 
         \DB::transaction(function () use ($request, $receiving) {
@@ -250,18 +250,18 @@ class InventoryController extends Controller
 
     public function storeIssuance(Request $request)
     {
-        $request->validate([
-            'issuances' => 'required|array|min:1',
-            'issuances.*.item_id' => 'required|exists:items,id',
-            'issuances.*.quantity' => 'required|integer|min:1',
-            'recipient' => 'required|string|max:255',
-            'department' => 'nullable|string|max:255',
-            'fund_cluster' => 'nullable|string|max:255',
-            'recipient_designation' => 'nullable|string|max:255',
-            'purpose' => 'nullable|string',
-            'approved_by' => 'nullable|string|max:255',
-            'approved_by_designation' => 'nullable|string|max:255',
-            'date_issued' => 'required|date',
+        $validated = $request->validate([
+            'issuances' => ['required', 'array', 'min:1', 'max:100'],
+            'issuances.*.item_id' => ['required', 'integer', 'exists:items,id'],
+            'issuances.*.quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
+            'recipient' => ['required', 'string', 'max:255'],
+            'department' => ['nullable', 'string', 'max:255'],
+            'fund_cluster' => ['nullable', 'string', 'max:255'],
+            'recipient_designation' => ['nullable', 'string', 'max:255'],
+            'purpose' => ['nullable', 'string', 'max:2000'],
+            'approved_by' => ['nullable', 'string', 'max:255'],
+            'approved_by_designation' => ['nullable', 'string', 'max:255'],
+            'date_issued' => ['required', 'date'],
         ]);
 
         // Use database transaction for bulk insert
@@ -302,18 +302,18 @@ class InventoryController extends Controller
     {
         ResourceOwnershipPolicy::authorize(auth()->user(), $issuance, 'issued_by');
 
-        $request->validate([
-            'item_id' => 'required|exists:items,id',
-            'quantity' => 'required|integer|min:1',
-            'recipient' => 'required|string|max:255',
-            'department' => 'nullable|string|max:255',
-            'fund_cluster' => 'nullable|string|max:255',
-            'recipient_designation' => 'nullable|string|max:255',
-            'purpose' => 'nullable|string',
-            'approved_by' => 'nullable|string|max:255',
-            'approved_by_designation' => 'nullable|string|max:255',
-            'date_issued' => 'required|date',
-            'status' => 'required|in:Pending,Issued,Cancelled',
+        $validated = $request->validate([
+            'item_id' => ['required', 'integer', 'exists:items,id'],
+            'quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
+            'recipient' => ['required', 'string', 'max:255'],
+            'department' => ['nullable', 'string', 'max:255'],
+            'fund_cluster' => ['nullable', 'string', 'max:255'],
+            'recipient_designation' => ['nullable', 'string', 'max:255'],
+            'purpose' => ['nullable', 'string', 'max:2000'],
+            'approved_by' => ['nullable', 'string', 'max:255'],
+            'approved_by_designation' => ['nullable', 'string', 'max:255'],
+            'date_issued' => ['required', 'date'],
+            'status' => ['required', 'string', 'in:Pending,Issued,Cancelled'],
         ]);
 
         \DB::transaction(function () use ($request, $issuance) {

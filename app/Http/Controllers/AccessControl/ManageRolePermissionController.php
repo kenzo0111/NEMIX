@@ -114,7 +114,7 @@ class ManageRolePermissionController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:roles,name'],
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\-_]+$/', 'unique:roles,name'],
             'permissions' => ['sometimes', 'array'],
             'permissions.*' => ['integer', 'exists:permissions,id'],
         ]);
@@ -132,7 +132,7 @@ class ManageRolePermissionController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:roles,name,' . $role->id],
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\-_]+$/', 'unique:roles,name,' . $role->id],
             'permissions' => ['sometimes', 'array'],
             'permissions.*' => ['integer', 'exists:permissions,id'],
         ]);

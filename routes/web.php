@@ -514,6 +514,10 @@ Route::post('/access-control/manage-staffs/{user}/resend-invitation', [ManageSta
     ->name('access-control.staffs.resend-invitation');
 
 Route::get('/rfid-scanner', function (\Illuminate\Http\Request $request) {
+    $validated = $request->validate([
+        'item_id' => ['nullable', 'integer', 'exists:items,id'],
+    ]);
+
     $items = class_exists(\Modules\Inventory\Models\Item::class)
         ? \Modules\Inventory\Models\Item::with('supplier')->latest()->get()->map(function ($item) {
             return [
@@ -534,14 +538,14 @@ Route::get('/rfid-scanner', function (\Illuminate\Http\Request $request) {
 
     return Inertia::render('RFID-Scanner/Index', [
         'items' => $items,
-        'selectedItemId' => $request->query('item_id'),
+        'selectedItemId' => $validated['item_id'] ?? null,
     ]);
 })->middleware(['auth', 'verified'])->name('rfid-scanner.index');
 
 Route::post('/rfid-scanner/assign', function (\Illuminate\Http\Request $request) {
     $validated = $request->validate([
-        'item_id' => ['required', 'exists:items,id'],
-        'rfid_tag' => ['required', 'string', 'max:100'],
+        'item_id' => ['required', 'integer', 'exists:items,id'],
+        'rfid_tag' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\-_]+$/'],
     ]);
 
     $itemId = $validated['item_id'];
@@ -575,7 +579,7 @@ Route::post('/rfid-scanner/assign', function (\Illuminate\Http\Request $request)
 
 Route::post('/rfid-scanner/unassign', function (\Illuminate\Http\Request $request) {
     $validated = $request->validate([
-        'item_id' => ['required', 'exists:items,id'],
+        'item_id' => ['required', 'integer', 'exists:items,id'],
     ]);
 
     $item = \Modules\Inventory\Models\Item::findOrFail($validated['item_id']);
@@ -586,15 +590,28 @@ Route::post('/rfid-scanner/unassign', function (\Illuminate\Http\Request $reques
     return redirect()->route('rfid-scanner.index', ['item_id' => $item->id])->with('success', "RFID Tag unassigned from {$item->name}.");
 })->middleware(['auth', 'verified'])->name('rfid-scanner.unassign');
 
-Route::get('/rfid-scanner/lookup/{tag}', function ($tag) {
-    $item = \Modules\Inventory\Models\Item::where('rfid_tag', $tag)
+Route::get('/rfid-scanner/lookup/{tag}', function (\Illuminate\Http\Request $request, $tag) {
+    $validator = \Illuminate\Support\Facades\Validator::make(['tag' => $tag], [
+        'tag' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\-_]+$/'],
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'found' => false,
+            'message' => 'Invalid RFID tag format.',
+        ], 422);
+    }
+
+    $sanitizedTag = $validator->validated()['tag'];
+
+    $item = \Modules\Inventory\Models\Item::where('rfid_tag', $sanitizedTag)
         ->with('supplier')
         ->first();
 
     if (!$item) {
         return response()->json([
             'found' => false,
-            'message' => "No item associated with RFID tag '{$tag}'.",
+            'message' => "No item associated with RFID tag '{$sanitizedTag}'.",
         ], 404);
     }
 
