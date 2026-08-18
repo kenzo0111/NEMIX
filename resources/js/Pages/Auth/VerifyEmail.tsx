@@ -73,10 +73,10 @@ export default function VerifyEmail({ status, flash }: { status?: string; flash?
                             <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                             </svg>
-                            Registration Submitted Successfully
+                            Automated Verification Required
                         </p>
                         <p>
-                            Before accessing institutional records, please verify your email address by clicking on the confirmation link we emailed to you. If you didn't receive the email, click below to request a new link.
+                            This is an automated notification from the UCN Supply and Property Management Office (SPMO) System. Before accessing institutional records, please verify your email address by clicking on the confirmation link we emailed to you. If you didn't receive the email, click below to request a new link.
                         </p>
                     </div>
 

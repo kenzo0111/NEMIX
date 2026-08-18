@@ -81,4 +81,17 @@ class EmailVerificationTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('error');
     }
+
+    public function test_email_verification_notification_mail_matches_invitation_format(): void
+    {
+        $user = User::factory()->unverified()->create(['name' => 'Juan Dela Cruz']);
+
+        $notification = new \Illuminate\Auth\Notifications\VerifyEmail();
+        $mail = $notification->toMail($user);
+
+        $this->assertEquals('[SPMO System] Automated Email Verification Request', $mail->subject);
+        $this->assertStringContainsString('Hello Juan Dela Cruz,', $mail->greeting);
+        $this->assertContains('This is an automated notification from the UCN Supply and Property Management Office (SPMO) System.', $mail->introLines);
+        $this->assertStringContainsString('Supply & Property Management Office (SPMO)', $mail->salutation);
+    }
 }
