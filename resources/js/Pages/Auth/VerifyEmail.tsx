@@ -3,7 +3,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
-export default function VerifyEmail({ status }: { status?: string }) {
+export default function VerifyEmail({ status, flash }: { status?: string; flash?: { success?: string; error?: string } }) {
     const { post, processing } = useForm({});
 
     const submit: FormEventHandler = (e) => {
@@ -79,6 +79,17 @@ export default function VerifyEmail({ status }: { status?: string }) {
                             Before accessing institutional records, please verify your email address by clicking on the confirmation link we emailed to you. If you didn't receive the email, click below to request a new link.
                         </p>
                     </div>
+
+                    {flash?.error && (
+                        <div className="mb-6 bg-red-50 border-l-4 border-red-600 p-4 rounded-r-lg shadow-sm flex items-start gap-3">
+                            <svg className="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-red-800 text-xs font-medium">
+                                {flash.error}
+                            </p>
+                        </div>
+                    )}
 
                     {status === 'verification-link-sent' && (
                         <div className="mb-6 bg-emerald-50 border-l-4 border-emerald-600 p-4 rounded-r-lg shadow-sm flex items-start gap-3">

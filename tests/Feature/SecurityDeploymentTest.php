@@ -22,6 +22,9 @@ class SecurityDeploymentTest extends TestCase
         $response->assertHeader('X-XSS-Protection', '1; mode=block');
         $response->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->assertHeader('Content-Security-Policy');
+        $cspHeader = $response->headers->get('Content-Security-Policy');
+        $this->assertStringContainsString('https://fonts.bunny.net', $cspHeader);
+        $this->assertStringContainsString('https://static.cloudflareinsights.com', $cspHeader);
     }
 
     public function test_successful_login_logs_security_event(): void

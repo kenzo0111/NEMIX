@@ -7,6 +7,7 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class EmailVerificationTest extends TestCase
@@ -54,5 +55,30 @@ class EmailVerificationTest extends TestCase
         $this->actingAs($user)->get($verificationUrl);
 
         $this->assertFalse($user->fresh()->hasVerifiedEmail());
+    }
+
+    public function test_email_verification_notification_can_be_sent(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->unverified()->create();
+
+        $response = $this->actingAs($user)->post('/email/verification-notification');
+
+        $response->assertRedirect();
+        $response->assertSessionHas('status', 'verification-link-sent');
+    }
+
+    public function test_email_verification_notification_handles_mailer_exception_gracefully_without_500_error(): void
+    {
+        Notification::shouldReceive('send')
+            ->andThrow(new \Exception('SMTP Connection failed'));
+
+        $user = User::factory()->unverified()->create();
+
+        $response = $this->actingAs($user)->post('/email/verification-notification');
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
     }
 }
