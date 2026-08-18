@@ -14,14 +14,19 @@ use Inertia\Inertia;
 use Modules\Inventory\Services\InventoryService;
 use Modules\Inventory\DTOs\InventoryItemDTO;
 
+use App\Policies\ResourceOwnershipPolicy;
+
 class InventoryController extends Controller
 {
     protected $inventoryService;
 
     public function index()
     {
+        $itemsQuery = ResourceOwnershipPolicy::scopeQuery(Item::with('supplier'), auth()->user());
+        $suppliersQuery = ResourceOwnershipPolicy::scopeQuery(Supplier::query(), auth()->user());
+
         return Inertia::render('Inventory/AllItems', [
-            'items' => Item::with('supplier')->get()->map(function ($item) {
+            'items' => $itemsQuery->get()->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
@@ -37,7 +42,7 @@ class InventoryController extends Controller
                     'rfid_tag' => $item->rfid_tag,
                 ];
             }),
-            'suppliers' => Supplier::all()
+            'suppliers' => $suppliersQuery->get()
         ]);
     }
 
@@ -60,17 +65,20 @@ class InventoryController extends Controller
             'unit_of_issue' => 'nullable|string|max:255',
         ]);
 
-        $dto = InventoryItemDTO::fromArray($request->only([
+        $data = $request->only([
             'name', 'supplier_id', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'unit_of_issue'
-        ]));
+        ]);
+        $data['created_by'] = auth()->id();
 
-        $this->inventoryService->createItem($dto);
+        Item::create($data);
 
         return redirect()->route('inventory.index')->with('success', 'Item created successfully.');
     }
 
     public function update(Request $request, Item $inventory)
     {
+        ResourceOwnershipPolicy::authorize(auth()->user(), $inventory, 'created_by');
+
         $request->validate([
             'name' => 'required|string|max:255',
             'supplier_id' => 'required|exists:suppliers,id',
@@ -90,6 +98,8 @@ class InventoryController extends Controller
 
     public function destroy(Item $inventory)
     {
+        ResourceOwnershipPolicy::authorize(auth()->user(), $inventory, 'created_by');
+
         $inventory->delete();
 
         return redirect()->route('inventory.index')->with('success', 'Item deleted successfully.');
@@ -97,18 +107,22 @@ class InventoryController extends Controller
 
     public function receiving()
     {
+        $receivingsQuery = ResourceOwnershipPolicy::scopeQuery(Receiving::with(['item', 'supplier']), auth()->user());
+        $itemsQuery = ResourceOwnershipPolicy::scopeQuery(Item::with('supplier'), auth()->user());
+        $suppliersQuery = ResourceOwnershipPolicy::scopeQuery(Supplier::query(), auth()->user());
+
         return Inertia::render('Inventory/Receiving', [
-            'receivings' => Receiving::with(['item', 'supplier'])->get()->map(function ($receiving) {
+            'receivings' => $receivingsQuery->get()->map(function ($receiving) {
                 return [
                     'id' => $receiving->id,
-                    'item' => $receiving->item->name,
-                    'sku' => $receiving->item->sku,
+                    'item' => $receiving->item ? $receiving->item->name : 'N/A',
+                    'sku' => $receiving->item ? $receiving->item->sku : '',
                     'quantity' => $receiving->quantity,
                     'supplier' => $receiving->supplier ? $receiving->supplier->name : '',
-                    'date' => $receiving->date_received->format('Y-m-d'),
+                    'date' => $receiving->date_received ? $receiving->date_received->format('Y-m-d') : '',
                 ];
             }),
-            'items' => Item::with('supplier')->get()->map(function ($item) {
+            'items' => $itemsQuery->get()->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
@@ -120,7 +134,7 @@ class InventoryController extends Controller
                     'unit_of_issue' => $item->unit_of_issue,
                 ];
             }),
-            'suppliers' => Supplier::all(['id', 'name']),
+            'suppliers' => $suppliersQuery->get(['id', 'name']),
         ]);
     }
 
@@ -141,7 +155,9 @@ class InventoryController extends Controller
         ]);
 
         \DB::transaction(function () use ($request) {
-            Receiving::create($request->only(['item_id', 'supplier_id', 'quantity', 'date_received']));
+            $data = $request->only(['item_id', 'supplier_id', 'quantity', 'date_received']);
+            $data['created_by'] = auth()->id();
+            Receiving::create($data);
 
             $item = Item::findOrFail($request->item_id);
             $item->stock += $request->quantity;
@@ -153,6 +169,8 @@ class InventoryController extends Controller
 
     public function updateReceiving(Request $request, Receiving $receiving)
     {
+        ResourceOwnershipPolicy::authorize(auth()->user(), $receiving, 'created_by');
+
         $request->validate([
             'item_id' => 'required|exists:items,id',
             'supplier_id' => 'required|exists:suppliers,id',
@@ -186,6 +204,8 @@ class InventoryController extends Controller
 
     public function destroyReceiving(Receiving $receiving)
     {
+        ResourceOwnershipPolicy::authorize(auth()->user(), $receiving, 'created_by');
+
         \DB::transaction(function () use ($receiving) {
             $item = Item::findOrFail($receiving->item_id);
             $item->stock -= $receiving->quantity;
@@ -199,12 +219,15 @@ class InventoryController extends Controller
 
     public function issuance()
     {
+        $issuancesQuery = ResourceOwnershipPolicy::scopeQuery(Issuance::with(['item', 'issuer']), auth()->user(), 'issued_by');
+        $itemsQuery = ResourceOwnershipPolicy::scopeQuery(Item::query(), auth()->user());
+
         return Inertia::render('Inventory/Issuance', [
-            'issuances' => Issuance::with(['item', 'issuer'])->get()->map(function ($issuance) {
+            'issuances' => $issuancesQuery->get()->map(function ($issuance) {
                 return [
                     'id' => $issuance->id,
-                    'item' => $issuance->item->name,
-                    'sku' => $issuance->item->sku,
+                    'item' => $issuance->item ? $issuance->item->name : 'N/A',
+                    'sku' => $issuance->item ? $issuance->item->sku : '',
                     'quantity' => $issuance->quantity,
                     'unit_cost' => $issuance->item->unit_cost ?? 0,
                     'amount' => (float) $issuance->quantity * (float) ($issuance->item->unit_cost ?? 0),
@@ -215,13 +238,13 @@ class InventoryController extends Controller
                     'purpose' => $issuance->purpose,
                     'approved_by' => $issuance->approved_by,
                     'approved_by_designation' => $issuance->approved_by_designation,
-                    'date' => $issuance->date_issued->format('Y-m-d'),
+                    'date' => $issuance->date_issued ? $issuance->date_issued->format('Y-m-d') : '',
                     'status' => $issuance->status,
                     'issued_by' => $issuance->issuer ? $issuance->issuer->name : 'Unknown',
-                    'created_at' => $issuance->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => $issuance->created_at ? $issuance->created_at->format('Y-m-d H:i:s') : '',
                 ];
             }),
-            'items' => Item::all(['id', 'name', 'sku']),
+            'items' => $itemsQuery->get(['id', 'name', 'sku']),
         ]);
     }
 
@@ -277,6 +300,8 @@ class InventoryController extends Controller
 
     public function updateIssuance(Request $request, Issuance $issuance)
     {
+        ResourceOwnershipPolicy::authorize(auth()->user(), $issuance, 'issued_by');
+
         $request->validate([
             'item_id' => 'required|exists:items,id',
             'quantity' => 'required|integer|min:1',
@@ -326,6 +351,8 @@ class InventoryController extends Controller
 
     public function destroyIssuance(Issuance $issuance)
     {
+        ResourceOwnershipPolicy::authorize(auth()->user(), $issuance, 'issued_by');
+
         \DB::transaction(function () use ($issuance) {
             if ($issuance->status === 'Issued') {
                 $item = Item::findOrFail($issuance->item_id);

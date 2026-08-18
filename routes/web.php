@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccessControl\ManageRolePermissionController;
 use App\Http\Controllers\AccessControl\ManageStaffController;
 use App\Http\Controllers\ProfileController;
+use App\Policies\ResourceOwnershipPolicy;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Foundation\Application;
@@ -52,8 +53,7 @@ Route::get('/compliance/reports', function () {
         : collect();
 
     $reports = \Illuminate\Support\Facades\Schema::hasTable('compliance_reports')
-        ? \App\Models\ComplianceReport::query()
-            ->whereNull('archived_at')
+        ? ResourceOwnershipPolicy::scopeQuery(\App\Models\ComplianceReport::query()->whereNull('archived_at'), request()->user(), 'created_by')
             ->latest()
             ->get()
             ->map(function ($report) {
@@ -241,6 +241,8 @@ Route::post('/compliance/reports', function (\Illuminate\Http\Request $request) 
 })->middleware(['auth', 'verified'])->name('compliance.reports.store');
 
 Route::put('/compliance/reports/{report}', function (\Illuminate\Http\Request $request, \App\Models\ComplianceReport $report) {
+    ResourceOwnershipPolicy::authorize($request->user(), $report, 'created_by');
+
     $validated = $request->validate([
         'title' => ['required', 'string', 'max:255'],
         'type' => ['required', 'string', 'max:50'],
@@ -290,7 +292,9 @@ Route::put('/compliance/reports/{report}', function (\Illuminate\Http\Request $r
     return redirect()->route('compliance.reports');
 })->middleware(['auth', 'verified'])->name('compliance.reports.update');
 
-Route::delete('/compliance/reports/{report}', function (\App\Models\ComplianceReport $report) {
+Route::delete('/compliance/reports/{report}', function (\Illuminate\Http\Request $request, \App\Models\ComplianceReport $report) {
+    ResourceOwnershipPolicy::authorize($request->user(), $report, 'created_by');
+
     $report->update([
         'archived_at' => now(),
     ]);
@@ -543,6 +547,9 @@ Route::post('/rfid-scanner/assign', function (\Illuminate\Http\Request $request)
     $itemId = $validated['item_id'];
     $rfidTag = trim($validated['rfid_tag']);
 
+    $item = \Modules\Inventory\Models\Item::findOrFail($itemId);
+    ResourceOwnershipPolicy::authorize($request->user(), $item, 'created_by');
+
     // Check if the RFID ID is already assigned to a DIFFERENT item
     $existing = \Modules\Inventory\Models\Item::where('rfid_tag', $rfidTag)
         ->where('id', '!=', $itemId)
@@ -572,6 +579,8 @@ Route::post('/rfid-scanner/unassign', function (\Illuminate\Http\Request $reques
     ]);
 
     $item = \Modules\Inventory\Models\Item::findOrFail($validated['item_id']);
+    ResourceOwnershipPolicy::authorize($request->user(), $item, 'created_by');
+
     $item->update(['rfid_tag' => null]);
 
     return redirect()->route('rfid-scanner.index', ['item_id' => $item->id])->with('success', "RFID Tag unassigned from {$item->name}.");

@@ -2,6 +2,7 @@
 
 namespace Modules\Suppliers\Http\Controllers;
 
+use App\Policies\ResourceOwnershipPolicy;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Modules\Inventory\Models\Item;
@@ -15,10 +16,11 @@ class SuppliersController extends \App\Http\Controllers\Controller
      */
     public function index()
     {
-        $suppliers = Supplier::all();
+        $suppliersQuery = ResourceOwnershipPolicy::scopeQuery(Supplier::query(), auth()->user());
+        $suppliers = $suppliersQuery->get();
 
         $items = class_exists(Item::class)
-            ? Item::all(['id', 'supplier_id', 'stock', 'unit_cost', 'amount'])
+            ? ResourceOwnershipPolicy::scopeQuery(Item::query(), auth()->user())->get(['id', 'supplier_id', 'stock', 'unit_cost', 'amount'])
             : collect();
 
         $supplierItemValues = [];
@@ -31,7 +33,7 @@ class SuppliersController extends \App\Http\Controllers\Controller
         }
 
         $issuances = class_exists(Issuance::class)
-            ? Issuance::with('item')->get()
+            ? ResourceOwnershipPolicy::scopeQuery(Issuance::with('item'), auth()->user(), 'issued_by')->get()
             : collect();
 
         $suppliers = $suppliers->map(function ($supplier) use ($supplierItemValues) {
@@ -52,7 +54,7 @@ class SuppliersController extends \App\Http\Controllers\Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'tin' => 'required|string|unique:suppliers,tin',
             'address' => 'required|string|max:255',
@@ -62,7 +64,9 @@ class SuppliersController extends \App\Http\Controllers\Controller
             'amount' => 'nullable|numeric',
         ]);
 
-        Supplier::create($request->all());
+        $validated['created_by'] = auth()->id();
+
+        Supplier::create($validated);
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier created successfully.');
     }
@@ -73,6 +77,8 @@ class SuppliersController extends \App\Http\Controllers\Controller
     public function show($id)
     {
         $supplier = Supplier::findOrFail($id);
+        ResourceOwnershipPolicy::authorize(auth()->user(), $supplier, 'created_by');
+
         return Inertia::render('Suppliers/ShowSupplier', [
             'supplier' => $supplier,
         ]);
@@ -84,6 +90,8 @@ class SuppliersController extends \App\Http\Controllers\Controller
     public function edit($id)
     {
         $supplier = Supplier::findOrFail($id);
+        ResourceOwnershipPolicy::authorize(auth()->user(), $supplier, 'created_by');
+
         return Inertia::render('Suppliers/EditSupplier', [
             'supplier' => $supplier,
         ]);
@@ -95,7 +103,9 @@ class SuppliersController extends \App\Http\Controllers\Controller
     public function update(Request $request, $id)
     {
         $supplier = Supplier::findOrFail($id);
-        $request->validate([
+        ResourceOwnershipPolicy::authorize(auth()->user(), $supplier, 'created_by');
+
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'tin' => 'required|string|unique:suppliers,tin,' . $supplier->id,
             'address' => 'required|string|max:255',
@@ -105,7 +115,7 @@ class SuppliersController extends \App\Http\Controllers\Controller
             'amount' => 'nullable|numeric',
         ]);
 
-        $supplier->update($request->all());
+        $supplier->update($validated);
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully.');
     }
@@ -116,6 +126,8 @@ class SuppliersController extends \App\Http\Controllers\Controller
     public function destroy($id)
     {
         $supplier = Supplier::findOrFail($id);
+        ResourceOwnershipPolicy::authorize(auth()->user(), $supplier, 'created_by');
+
         $supplier->delete();
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier deleted successfully.');

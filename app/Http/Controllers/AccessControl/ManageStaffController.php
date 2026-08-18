@@ -16,6 +16,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
 
+use App\Policies\ResourceOwnershipPolicy;
+
 class ManageStaffController extends Controller
 {
     public function index(): Response
@@ -46,6 +48,10 @@ class ManageStaffController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if (! $request->user()?->hasRole('System Admin')) {
+            abort(403, 'Unauthorized action. System Admin access required.');
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
@@ -85,6 +91,8 @@ class ManageStaffController extends Controller
 
     public function resendInvitation(User $user): RedirectResponse
     {
+        ResourceOwnershipPolicy::authorize(auth()->user(), $user, 'id');
+
         try {
             /** @var PasswordBroker $passwordBroker */
             $passwordBroker = Password::broker();
@@ -105,6 +113,8 @@ class ManageStaffController extends Controller
 
     public function update(Request $request, User $user): RedirectResponse
     {
+        ResourceOwnershipPolicy::authorize($request->user(), $user, 'id');
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,' . $user->id],
@@ -116,13 +126,19 @@ class ManageStaffController extends Controller
             'email' => $validated['email'],
         ]);
 
-        $user->syncRoles([$validated['role']]);
+        if ($request->user()?->hasRole('System Admin')) {
+            $user->syncRoles([$validated['role']]);
+        }
 
         return back();
     }
 
     public function toggleStatus(Request $request, User $user): RedirectResponse
     {
+        if (! $request->user()?->hasRole('System Admin')) {
+            abort(403, 'Unauthorized action. System Admin access required.');
+        }
+
         if ($user->id === $request->user()->id) {
             return back()->with('error', 'You cannot deactivate your own logged-in account.');
         }

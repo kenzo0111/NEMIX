@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Modules\AuditLogs\Models\TransactionTrail;
 
+use App\Policies\ResourceOwnershipPolicy;
+
 class TransactionTrailController extends Controller
 {
     /**
@@ -14,7 +16,9 @@ class TransactionTrailController extends Controller
      */
     public function index()
     {
-        $logs = TransactionTrail::with('user.roles')->latest()->get()->map(function ($trail) {
+        $query = ResourceOwnershipPolicy::scopeQuery(TransactionTrail::with('user.roles'), auth()->user(), 'user_id');
+
+        $logs = $query->latest()->get()->map(function ($trail) {
             
             // Map the status to styling class, feel free to update the mapping
             $badge = match ($trail->status) {
@@ -34,7 +38,7 @@ class TransactionTrailController extends Controller
                 'details' => $trail->details,
                 'status' => $trail->status,
                 'badge' => $badge,
-                'time' => $trail->created_at->format('M d, Y • h:i A'),
+                'time' => $trail->created_at ? $trail->created_at->format('M d, Y • h:i A') : '',
             ];
         });
 

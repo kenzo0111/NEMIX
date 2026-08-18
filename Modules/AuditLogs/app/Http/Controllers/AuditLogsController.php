@@ -8,6 +8,8 @@ use Inertia\Inertia;
 use Modules\AuditLogs\Models\LoginTrail;
 use Modules\AuditLogs\Models\TransactionTrail;
 
+use App\Policies\ResourceOwnershipPolicy;
+
 class AuditLogsController extends Controller
 {
     /**
@@ -15,17 +17,17 @@ class AuditLogsController extends Controller
      */
     public function loginTrails()
     {
-        $loginTrails = LoginTrail::with('user:id,name,email')
-            ->latest()
+        $query = ResourceOwnershipPolicy::scopeQuery(LoginTrail::with('user:id,name,email'), auth()->user(), 'user_id');
+
+        $loginTrails = $query->latest()
             ->get()
             ->map(function ($trail) {
-                // To match the frontend state, provide a formatted object
                 return [
                     'id' => $trail->id,
                     'name' => $trail->name,
                     'email' => $trail->email,
                     'role' => $trail->user ? ($trail->user->getRoleNames()->first() ?? 'User') : 'Unknown',
-                    'time' => $trail->created_at->format('Y-m-d H:i:s'),
+                    'time' => $trail->created_at ? $trail->created_at->format('Y-m-d H:i:s') : '',
                     'ip' => $trail->ip_address,
                     'status' => $trail->status,
                 ];
@@ -41,8 +43,9 @@ class AuditLogsController extends Controller
      */
     public function manageTransactions()
     {
-        $transactionTrails = TransactionTrail::with('user:id,name,email')
-            ->latest()
+        $query = ResourceOwnershipPolicy::scopeQuery(TransactionTrail::with('user:id,name,email'), auth()->user(), 'user_id');
+
+        $transactionTrails = $query->latest()
             ->get()
             ->map(function ($trail) {
                 return [
@@ -51,7 +54,7 @@ class AuditLogsController extends Controller
                     'role' => $trail->user && method_exists($trail->user, 'getRoleNames') ? ($trail->user->getRoleNames()->first() ?? 'User') : 'Administrator',
                     'action' => $trail->action,
                     'details' => $trail->details,
-                    'time' => $trail->created_at->format('M d, Y h:i A'),
+                    'time' => $trail->created_at ? $trail->created_at->format('M d, Y h:i A') : '',
                     'module' => $trail->module ?: 'General',
                     'status' => $trail->status ?: 'Logged',
                     'badge' => $this->getStatusBadge($trail->status),

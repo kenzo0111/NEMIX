@@ -18,6 +18,7 @@ class Receiving extends Model
         'supplier_id',
         'quantity',
         'date_received',
+        'created_by',
     ];
 
     /**
@@ -41,5 +42,13 @@ class Receiving extends Model
     public function supplier()
     {
         return $this->belongsTo(\Modules\Suppliers\Models\Supplier::class);
+    }
+
+    /**
+     * Get the user who recorded the receiving.
+     */
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
     }
 }

@@ -16,6 +16,10 @@ class ManageRolePermissionController extends Controller
 {
     public function index(): Response
     {
+        if (! request()->user()?->hasRole('System Admin')) {
+            abort(403, 'Unauthorized action. System Admin access required.');
+        }
+
         $this->ensureRoutePermissionsExist();
 
         $roles = Role::with('permissions')
@@ -105,6 +109,10 @@ class ManageRolePermissionController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if (! $request->user()?->hasRole('System Admin')) {
+            abort(403, 'Unauthorized action. System Admin access required.');
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:roles,name'],
             'permissions' => ['sometimes', 'array'],
@@ -119,6 +127,10 @@ class ManageRolePermissionController extends Controller
 
     public function update(Request $request, Role $role): RedirectResponse
     {
+        if (! $request->user()?->hasRole('System Admin')) {
+            abort(403, 'Unauthorized action. System Admin access required.');
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:roles,name,' . $role->id],
             'permissions' => ['sometimes', 'array'],
@@ -133,6 +145,10 @@ class ManageRolePermissionController extends Controller
 
     public function destroy(Role $role): RedirectResponse
     {
+        if (! request()->user()?->hasRole('System Admin')) {
+            abort(403, 'Unauthorized action. System Admin access required.');
+        }
+
         $role->delete();
 
         return back()->with('success', 'Role deleted successfully.');

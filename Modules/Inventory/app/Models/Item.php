@@ -18,6 +18,7 @@ class Item extends Model
         'description',
         'unit_of_issue',
         'rfid_tag',
+        'created_by',
     ];
 
     protected $casts = [
@@ -29,5 +30,10 @@ class Item extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(\Modules\Suppliers\Models\Supplier::class, 'supplier_id');
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
     }
 }
