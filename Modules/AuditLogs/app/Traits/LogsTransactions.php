@@ -42,24 +42,35 @@ trait LogsTransactions
      */
     public function logTransaction($action, $details = null)
     {
-        $userId = Auth::id();
+        $userId = Auth::id() ?? request()->user()?->id;
+        if ($userId && ! \App\Models\User::where('id', $userId)->exists()) {
+            $userId = null;
+        }
 
         $formattedDetails = is_array($details)
             ? AuditLogFormatter::describe($action, static::getLogResourceName(), $details)
             : $details;
         
-        TransactionTrail::create([
-            'user_id' => $userId,
-            'module' => static::getLogResourceName(),
-            'action' => $action,
-            'resource_ref' => 'ID-' . $this->getKey(),
-            'details' => $formattedDetails ?? AuditLogFormatter::describe($action, static::getLogResourceName()),
-            'status' => match (strtolower($action)) {
-                'created' => 'Success',
-                'updated' => 'Updated',
-                'deleted' => 'Deleted',
-                default => 'Logged',
-            },
-        ]);
+        try {
+            TransactionTrail::create([
+                'user_id' => $userId,
+                'module' => static::getLogResourceName(),
+                'action' => $action,
+                'resource_ref' => 'ID-' . $this->getKey(),
+                'details' => $formattedDetails ?? AuditLogFormatter::describe($action, static::getLogResourceName()),
+                'status' => match (strtolower($action)) {
+                    'created' => 'Success',
+                    'updated' => 'Updated',
+                    'deleted' => 'Deleted',
+                    default => 'Logged',
+                },
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to log transaction: '.$e->getMessage(), [
+                'user_id' => $userId,
+                'action' => $action,
+                'exception' => $e,
+            ]);
+        }
     }
 }

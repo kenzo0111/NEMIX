@@ -67,6 +67,9 @@ class EventServiceProvider extends ServiceProvider
             $action = isset($matches[1]) ? ucfirst($matches[1]) : 'Unknown';
 
             $user_id = Auth::id() ?? request()->user()?->id;
+            if ($user_id && ! \App\Models\User::where('id', $user_id)->exists()) {
+                $user_id = null;
+            }
 
             $resourceName = class_basename($model);
             $changes = [];
@@ -79,19 +82,28 @@ class EventServiceProvider extends ServiceProvider
             // Fallback for ID string
             $resourceRef = 'ID-' . $model->getKey();
 
-            TransactionTrail::create([
-                'user_id' => $user_id,
-                'module' => $resourceName,
-                'action' => $action,
-                'resource_ref' => $resourceRef,
-                'details' => AuditLogFormatter::describe($action, $resourceName, $changes),
-                'status' => match (strtolower($action)) {
-                    'created' => 'Verified',
-                    'updated' => 'Updated',
-                    'deleted' => 'Deleted',
-                    default => 'Logged',
-                },
-            ]);
+            try {
+                TransactionTrail::create([
+                    'user_id' => $user_id,
+                    'module' => $resourceName,
+                    'action' => $action,
+                    'resource_ref' => $resourceRef,
+                    'details' => AuditLogFormatter::describe($action, $resourceName, $changes),
+                    'status' => match (strtolower($action)) {
+                        'created' => 'Verified',
+                        'updated' => 'Updated',
+                        'deleted' => 'Deleted',
+                        default => 'Logged',
+                    },
+                ]);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to create audit log entry: '.$e->getMessage(), [
+                    'user_id' => $user_id,
+                    'module' => $resourceName,
+                    'action' => $action,
+                    'exception' => $e,
+                ]);
+            }
         });
     }
 
