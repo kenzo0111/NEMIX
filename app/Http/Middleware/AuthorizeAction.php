@@ -54,6 +54,7 @@ class AuthorizeAction
             'verification.',
             'sanctum.',
             'telescope.',
+            'profile.',
         ]);
     }
 

@@ -7,6 +7,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Mail\Markdown;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +25,14 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         app(Markdown::class)->theme('ucn');
+
+        Password::defaults(function () {
+            $rule = Password::min(12);
+
+            return app()->environment('testing')
+                ? $rule
+                : $rule->mixedCase()->numbers()->symbols()->uncompromised();
+        });
 
         ResetPassword::toMailUsing(function (object $notifiable, string $token): MailMessage {
             $resetUrl = url(route('password.reset', [

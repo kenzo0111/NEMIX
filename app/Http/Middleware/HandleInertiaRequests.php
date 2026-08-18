@@ -32,9 +32,15 @@ class HandleInertiaRequests extends Middleware
         $user = $request->user();
         if ($user) {
             $user->loadMissing('roles');
-            $userArray = $user->toArray();
-            $userArray['role'] = $user->roles->first()?->name ?? 'Supply Officer';
-            $userArray['roles'] = $user->getRoleNames()->toArray();
+            $userArray = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'email_verified_at' => $user->email_verified_at,
+                'is_active' => (bool) $user->is_active,
+                'role' => $user->roles->first()?->name ?? 'Supply Officer',
+                'roles' => $user->getRoleNames()->toArray(),
+            ];
         } else {
             $userArray = null;
         }

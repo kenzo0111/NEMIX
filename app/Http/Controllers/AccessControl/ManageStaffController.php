@@ -121,12 +121,16 @@ class ManageStaffController extends Controller
         return back();
     }
 
-    public function toggleStatus(User $user): RedirectResponse
+    public function toggleStatus(Request $request, User $user): RedirectResponse
     {
+        if ($user->id === $request->user()->id) {
+            return back()->with('error', 'You cannot deactivate your own logged-in account.');
+        }
+
         $user->update([
             'is_active' => ! $user->is_active,
         ]);
 
-        return back();
+        return back()->with('success', 'User account status updated.');
     }
 }
