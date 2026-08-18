@@ -2,7 +2,7 @@ import SystemModeBadge from '@/Components/SystemModeBadge';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import Sidebar from '@/Components/Sidebar';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState, useMemo, useEffect } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
@@ -398,6 +398,27 @@ export default function Dashboard({
 
                 {/* Merged Sticky Institutional Header */}
                 <header className="sticky top-0 z-40 shadow-xs">
+                    {/* Non-Production Mode Alert Banner */}
+                    {(usePage().props as any).system?.mode && (usePage().props as any).system?.mode !== 'LIVE PRODUCTION' && (
+                        <div className={`px-6 py-2 text-xs font-mono font-bold text-center flex items-center justify-center gap-2 shadow-xs border-b ${
+                            (usePage().props as any).system?.mode === 'MAINTENANCE MODE'
+                                ? 'bg-amber-950 text-amber-300 border-amber-800'
+                                : (usePage().props as any).system?.mode === 'STAGING SANDBOX'
+                                ? 'bg-sky-950 text-sky-300 border-sky-800'
+                                : 'bg-purple-950 text-purple-300 border-purple-800'
+                        }`}>
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+                            </span>
+                            <span>
+                                {(usePage().props as any).system?.mode === 'MAINTENANCE MODE' && 'SYSTEM MAINTENANCE MODE ACTIVE — Write operations restricted to System Administrators.'}
+                                {(usePage().props as any).system?.mode === 'STAGING SANDBOX' && 'STAGING SANDBOX ENVIRONMENT — Operating with isolated test database.'}
+                                {(usePage().props as any).system?.mode === 'TRAINING SIMULATION' && 'TRAINING SIMULATION MODE — Operating with synthetic demo data.'}
+                            </span>
+                        </div>
+                    )}
+
                     {/* Top Institutional Bar */}
                     <div className="bg-red-950 text-red-100 text-[11px] px-6 lg:px-8 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide">
                         <div className="flex items-center gap-3">

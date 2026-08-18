@@ -19,6 +19,14 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::post('/system/mode', [\App\Http\Controllers\SystemModeController::class, 'update'])
+    ->middleware(['auth', 'verified'])
+    ->name('system.mode.update');
+
+Route::get('/system/mode', [\App\Http\Controllers\SystemModeController::class, 'show'])
+    ->middleware(['auth', 'verified'])
+    ->name('system.mode.show');
+
 Route::get('/compliance/reports', function () {
     $items = class_exists(\Modules\Inventory\Models\Item::class)
         ? \Modules\Inventory\Models\Item::all()

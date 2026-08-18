@@ -2,6 +2,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
+import SystemModeBadge from '@/Components/SystemModeBadge';
 import { Link, usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode, useState } from 'react';
 
@@ -9,13 +10,36 @@ export default function Authenticated({
     header,
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
-    const user = usePage().props.auth.user;
+    const pageProps = usePage().props as any;
+    const user = pageProps.auth.user;
+    const systemMode = pageProps.system?.mode || 'LIVE PRODUCTION';
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
     return (
         <div className="min-h-screen bg-gray-100">
+            {/* System Operating Mode Global Warning Banner */}
+            {systemMode !== 'LIVE PRODUCTION' && (
+                <div className={`px-4 py-2 text-xs font-mono font-bold text-center flex items-center justify-center gap-2 shadow-xs border-b ${
+                    systemMode === 'MAINTENANCE MODE'
+                        ? 'bg-amber-900 text-amber-200 border-amber-800'
+                        : systemMode === 'STAGING SANDBOX'
+                        ? 'bg-sky-900 text-sky-200 border-sky-800'
+                        : 'bg-purple-900 text-purple-200 border-purple-800'
+                }`}>
+                    <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+                    </span>
+                    <span>
+                        {systemMode === 'MAINTENANCE MODE' && 'SYSTEM MAINTENANCE MODE ACTIVE — Write transactions are restricted to authorized administrators.'}
+                        {systemMode === 'STAGING SANDBOX' && 'STAGING SANDBOX ENVIRONMENT — Operating with isolated test database records.'}
+                        {systemMode === 'TRAINING SIMULATION' && 'TRAINING SIMULATION MODE — Operating with synthetic demo data.'}
+                    </span>
+                </div>
+            )}
+
             <nav className="border-b border-gray-100 bg-white">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
@@ -36,8 +60,9 @@ export default function Authenticated({
                             </div>
                         </div>
 
-                        <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                            <div className="relative ms-3">
+                        <div className="hidden sm:ms-6 sm:flex sm:items-center sm:gap-4">
+                            <SystemModeBadge />
+                            <div className="relative ms-1">
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <span className="inline-flex rounded-md">

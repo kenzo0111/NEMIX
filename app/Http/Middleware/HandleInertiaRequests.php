@@ -45,17 +45,35 @@ class HandleInertiaRequests extends Middleware
             $userArray = null;
         }
 
+        $isSystemAdmin = $user && (
+            $user->hasRole('System Admin') ||
+            $user->hasRole('System Administrator') ||
+            ($user->role ?? null) === 'System Admin' ||
+            ($user->role ?? null) === 'System Administrator'
+        );
+
+        $sysConfig = \App\Models\SystemConfiguration::current();
+        $sysConfig->loadMissing('changedBy');
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $userArray,
                 'permissions' => $request->user()?->getPermissionNames()->toArray() ?? [],
-                'is_system_admin' => $request->user()?->hasRole('System Admin') ?? false,
+                'is_system_admin' => $isSystemAdmin,
             ],
             'system' => [
-                'mode' => strtoupper(config('app.env', 'production')) === 'PRODUCTION' ? 'LIVE PRODUCTION' : (strtoupper(config('app.env')) === 'STAGING' ? 'STAGING SANDBOX' : 'DEVELOPMENT MODE'),
-                'env' => config('app.env', 'production'),
-                'status' => 'OPERATIONAL',
+                'mode' => $sysConfig->active_mode,
+                'previous_mode' => $sysConfig->previous_mode,
+                'env' => $sysConfig->environment,
+                'status' => $sysConfig->status,
+                'server_node' => $sysConfig->server_node,
+                'ping_ms' => $sysConfig->ping_ms,
+                'security_status' => $sysConfig->security_status,
+                'changed_by' => $sysConfig->changedBy?->name ?? ($sysConfig->changed_by_user_id ? 'Administrator' : 'System Administrator'),
+                'changed_at' => $sysConfig->changed_at ? $sysConfig->changed_at->diffForHumans() : 'Initial System Setup',
+                'changed_at_iso' => $sysConfig->changed_at ? $sysConfig->changed_at->toIso8601String() : null,
+                'change_reason' => $sysConfig->change_reason,
                 'version' => 'v2.4.0-Enterprise',
             ],
             'flash' => [
