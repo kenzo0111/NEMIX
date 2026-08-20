@@ -228,7 +228,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         if (fundVal) currentMetadata['fundCluster'] = fundVal;
 
                         const serialVal = extractLabelVal(/(?:serial|mr|ris|doc|property)\s*no\.?/i);
-                        if (serialVal) currentMetadata['topSerialNo'] = serialVal;
+                        if (serialVal && !/^(center\s*code|resp|responsibility|entity|fund|date|page|sheet|division)/i.test(serialVal)) {
+                            currentMetadata['topSerialNo'] = serialVal;
+                        }
 
                         const dateVal = extractLabelVal(/(?:as\s*at\s*date|date\s*issued|date\s*:)/i);
                         if (dateVal) currentMetadata['topDate'] = dateVal;
@@ -526,35 +528,71 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         return '';
     };
 
-    const mapRowToItem = (row: any, idx: number, formType: string, groupMetadata: any, lastRefObj: { current: string }) => {
+    const mapRowToItem = (row: any, idx: number, formType: string, groupMetadata: any, lastRefObj: { current: string; centerCode?: string }) => {
         if (typeof row === 'string') {
             return { reference: `${formType}-HIST-${idx + 1}`, item_name: row, quantity: 1, date: new Date().toISOString().split('T')[0], remarks: 'Parsed raw text row' };
         }
 
         if (formType === 'RSMI') {
-            let ref = getRowVal(row, ['RIS No.', 'RIS No', 'RIS', 'Serial No.', 'Serial No', 'Reference', 'reference', 'risNo', 'ris_no', 'Doc No.', 'Doc No', 'topSerialNo']);
-            if (!ref && groupMetadata?.topSerialNo) ref = groupMetadata.topSerialNo;
-            if (!ref && lastRefObj.current) ref = lastRefObj.current;
-            if (ref) lastRefObj.current = ref;
-
-            const rcc = getRowVal(row, ['Responsibility Center Code', 'Responsibility Center', 'Resp. Center Code', 'Resp Center Code', 'Center Code', 'RCC', 'responsibilityCenterCode', 'responsibility_center_code', 'center_code']);
-            const dept = getRowVal(row, ['Department', 'Office', 'Location', 'division', 'office', 'department']) || rcc || groupMetadata?.topOffice || '';
+            let rawRef = getRowVal(row, ['RIS No.', 'RIS No', 'RIS', 'Serial No.', 'Serial No', 'Reference', 'reference', 'risNo', 'ris_no', 'Doc No.', 'Doc No']);
+            const rccFromRow = getRowVal(row, ['Responsibility Center Code', 'Responsibility Center', 'Resp. Center Code', 'Resp Center Code', 'Center Code', 'RCC', 'responsibilityCenterCode', 'responsibility_center_code', 'center_code']);
             const stockNo = getRowVal(row, ['Stock No.', 'Stock No', 'Stock Number', 'SKU', 'stockNo', 'stock_no', 'Stock']);
-            const itemName = getRowVal(row, ['Item', 'Item Description', 'Description', 'Article', 'Item / Description', 'item_name', 'itemDescription', 'Item Name']);
+            const rawItemName = getRowVal(row, ['Item', 'Item Description', 'Description', 'Article', 'Item / Description', 'item_name', 'itemDescription', 'Item Name']);
             const unit = getRowVal(row, ['Unit', 'Unit of Issue', 'Unit of Measurement', 'unit']) || 'pc';
             const qty = Number(getRowVal(row, ['Quantity Issued', 'Qty Issued', 'Qty. Issued', 'Quantity', 'Qty', 'Qty.', 'quantity', 'quantityIssued', 'quantity_issued', 'issue_qty', 'Issued']) || 0);
             const cost = Number(getRowVal(row, ['Unit Cost', 'Unit Value', 'Cost', 'unitCost', 'unit_cost', 'unit_value']) || 0);
             const amt = Number(getRowVal(row, ['Amount', 'Total Cost', 'Total Amount', 'Total Value', 'amount', 'totalCost', 'total_cost']) || (qty * cost));
+
+            // Check if this row is a section header like "Center Code: SPMO" or "Resp. Center Code: ..."
+            const firstCell = String(Object.values(row)[0] || '').trim();
+            const isCenterCodeHeader = /^(center\s*code|resp|responsibility)/i.test(rawRef) || (/^(center\s*code|resp|responsibility)/i.test(firstCell) && !stockNo && qty === 0);
+            if (isCenterCodeHeader) {
+                const detectedCode = (rccFromRow && !/center\s*code|resp/i.test(rccFromRow))
+                    ? rccFromRow
+                    : Object.values(row).find((v: any) => typeof v === 'string' && v.trim() && !/center\s*code|resp|appendix|report/i.test(v)) || '';
+                if (detectedCode) {
+                    lastRefObj.centerCode = String(detectedCode).trim();
+                }
+                // Skip the section header row from being parsed as a dummy item
+                return null;
+            }
+
+            if (/^(center\s*code|resp|responsibility|entity|fund|date|page|sheet)/i.test(rawRef)) {
+                rawRef = '';
+            }
+
+            if (rccFromRow && !/^(center\s*code|resp|responsibility)/i.test(rccFromRow)) {
+                lastRefObj.centerCode = rccFromRow;
+            }
+
+            const activeCenterCode = (rccFromRow && !/^(center\s*code|resp|responsibility)/i.test(rccFromRow))
+                ? rccFromRow
+                : (lastRefObj.centerCode || groupMetadata?.topOffice || '');
+
+            if (rawRef) {
+                lastRefObj.current = rawRef;
+            }
+            let ref = rawRef || lastRefObj.current;
+            if (!ref && groupMetadata?.topSerialNo && !/^(center\s*code|resp)/i.test(groupMetadata.topSerialNo)) {
+                ref = groupMetadata.topSerialNo;
+            }
+
             let dt = getRowVal(row, ['Date', 'Date Issued', 'Transaction Date', 'date', 'date_issued', 'topDate']);
             if (!dt && groupMetadata?.topDate) dt = groupMetadata.topDate;
-            const recipient = getRowVal(row, ['Recipient', 'Requested By', 'Issued To', 'recipient', 'topRecipient']) || groupMetadata?.topRecipient || dept;
+            const recipient = getRowVal(row, ['Recipient', 'Requested By', 'Issued To', 'recipient', 'topRecipient']) || groupMetadata?.topRecipient || activeCenterCode;
             const fundCluster = getRowVal(row, ['Fund Cluster', 'fund_cluster', 'General Fund']) || groupMetadata?.fundCluster;
             const entityName = groupMetadata?.entityName || 'University of Camarines Norte';
             const remarks = getRowVal(row, ['Remarks', 'remarks']);
 
-            const fallbackItem = itemName || Object.values(row).find((v: any) => typeof v === 'string' && v.trim().length > 1 && !v.includes('RIS') && !v.includes('Appendix') && !v.includes('REPORT') && !v.includes('University') && !v.includes('Camarines')) || '';
+            const fallbackItem = rawItemName || Object.values(row).find((v: any) => typeof v === 'string' && v.trim().length > 1 && !v.includes('RIS') && !v.includes('Appendix') && !v.includes('REPORT') && !v.includes('University') && !v.includes('Camarines') && !/^(center\s*code|spmo|acc)/i.test(v)) || '';
+
+            // If completely empty row (no description, no stock no, qty 0), skip
+            if (!String(fallbackItem).trim() && !stockNo && qty === 0) {
+                return null;
+            }
+
             return {
-                reference: ref || (fallbackItem ? `RSMI-HIST-${idx + 1}` : ''),
+                reference: ref || `RSMI-HIST-${idx + 1}`,
                 date: formatDateToIso(dt),
                 item_name: String(fallbackItem).trim(),
                 quantity: qty,
@@ -563,10 +601,10 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 unit: unit,
                 stock_no: stockNo,
                 recipient: recipient,
-                department: dept,
+                department: activeCenterCode,
                 fund_cluster: fundCluster,
-                responsibility_center_code: rcc || dept,
-                center_code: rcc || dept,
+                responsibility_center_code: activeCenterCode,
+                center_code: activeCenterCode,
                 entity_name: entityName,
                 remarks: remarks,
             };
@@ -644,17 +682,29 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             const parsed = JSON.parse(trimmed);
             if (parsed && parsed.isGroups) {
                 return parsed.groups.map((group: any) => {
-                    const lastRefObj = { current: '' };
-                    const items = group.items.map((row: any, idx: number) => mapRowToItem(row, idx, formType, group.metadata, lastRefObj));
+                    const lastRefObj = { current: '', centerCode: '' };
+                    const items: any[] = [];
+                    group.items.forEach((row: any, idx: number) => {
+                        const mapped = mapRowToItem(row, idx, formType, group.metadata, lastRefObj);
+                        if (mapped) items.push(mapped);
+                    });
                     return { ...group, items };
                 });
             } else if (Array.isArray(parsed)) {
-                const lastRefObj = { current: '' };
-                const items = parsed.map((row: any, idx: number) => mapRowToItem(row, idx, formType, null, lastRefObj));
+                const lastRefObj = { current: '', centerCode: '' };
+                const items: any[] = [];
+                parsed.forEach((row: any, idx: number) => {
+                    const mapped = mapRowToItem(row, idx, formType, null, lastRefObj);
+                    if (mapped) items.push(mapped);
+                });
                 return [{ sheetName: 'Default', metadata: {}, items }];
             } else if (parsed && typeof parsed === 'object' && Array.isArray(parsed.records)) {
-                const lastRefObj = { current: '' };
-                const items = parsed.records.map((row: any, idx: number) => mapRowToItem(row, idx, formType, null, lastRefObj));
+                const lastRefObj = { current: '', centerCode: '' };
+                const items: any[] = [];
+                parsed.records.forEach((row: any, idx: number) => {
+                    const mapped = mapRowToItem(row, idx, formType, null, lastRefObj);
+                    if (mapped) items.push(mapped);
+                });
                 return [{ sheetName: 'Default', metadata: {}, items }];
             }
         } catch {
@@ -664,8 +714,12 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         // Fallback for raw text lines (DOCX/PDF)
         const lines = trimmed.split('\n').map(l => l.trim()).filter(l => l.length > 5);
         if (lines.length > 0) {
-            const lastRefObj = { current: '' };
-            const items = lines.map((row: any, idx: number) => mapRowToItem(row, idx, formType, null, lastRefObj));
+            const lastRefObj = { current: '', centerCode: '' };
+            const items: any[] = [];
+            lines.forEach((row: any, idx: number) => {
+                const mapped = mapRowToItem(row, idx, formType, null, lastRefObj);
+                if (mapped) items.push(mapped);
+            });
             return [{ sheetName: 'Extracted Text', metadata: {}, items }];
         }
         return [];
@@ -776,9 +830,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 const refLower = String(row.reference || '').trim().toLowerCase();
                 const comboKey = `${String(row.item_name || '').trim().toLowerCase()}||${String(row.date || '').trim()}||${Number(row.quantity || 0)}`;
 
-                if (refLower && existingReferences.has(refLower)) {
+                if (migrationFormType !== 'RSMI' && refLower && existingReferences.has(refLower)) {
                     errors.push(`Duplicate ${migrationFormType} record: reference number exists`);
-                } else if (row.item_name && row.date && existingCombinations.has(comboKey)) {
+                } else if (row.item_name && existingCombinations.has(comboKey)) {
                     errors.push(`Duplicate ${migrationFormType} record: matching item, date, and qty exist`);
                 }
 
