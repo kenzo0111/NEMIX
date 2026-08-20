@@ -282,7 +282,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 r = actualDataStart;
                 const resultRows: any[] = [];
                 let hitRecapOrFooter = false;
-                
+
                 while (r < matrix.length) {
                     const row = matrix[r];
                     if (!Array.isArray(row)) { r++; continue; }
@@ -592,18 +592,18 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             // Item Name resolution: Never use center code or RIS reference as item description
             let resolvedItem: string = rawItemName;
             if (!resolvedItem && (stockNo || qty > 0)) {
-                const found = Object.values(row).find((v: any) => 
-                    typeof v === 'string' && 
-                    v.trim().length > 1 && 
-                    v.trim() !== activeCenterCode && 
-                    v.trim() !== rccFromRow && 
-                    v.trim() !== rawRef && 
-                    v.trim() !== ref && 
-                    !v.includes('RIS') && 
-                    !v.includes('Appendix') && 
-                    !v.includes('REPORT') && 
-                    !v.includes('University') && 
-                    !v.includes('Camarines') && 
+                const found = Object.values(row).find((v: any) =>
+                    typeof v === 'string' &&
+                    v.trim().length > 1 &&
+                    v.trim() !== activeCenterCode &&
+                    v.trim() !== rccFromRow &&
+                    v.trim() !== rawRef &&
+                    v.trim() !== ref &&
+                    !v.includes('RIS') &&
+                    !v.includes('Appendix') &&
+                    !v.includes('REPORT') &&
+                    !v.includes('University') &&
+                    !v.includes('Camarines') &&
                     !/^(center\s*code|spmo|acc|pc|pcs|box|ream|bot|unit|kg|pack|meter|pad)/i.test(v)
                 );
                 resolvedItem = found ? String(found) : '';
@@ -676,7 +676,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             const fallbackItem = itemName || Object.values(row).find((v: any) => typeof v === 'string' && v.trim().length > 1 && !v.includes('MEMORANDUM') && !v.includes('Appendix')) || '';
             return { reference: ref || (fallbackItem ? `${formType}-HIST-${idx + 1}` : ''), date: formatDateToIso(dt), item_name: String(fallbackItem).trim(), quantity: qty, unit_cost: cost, amount: totalVal, unit: unit, recipient: recipient, department: dept, designation: designation, remarks: remarks };
         }
-        
+
         let ref = getRowVal(row, ['Reference', 'RIS No.', 'RIS No', 'PO No.', 'PO No', 'IAR No.', 'IAR No', 'reference', 'topSerialNo']);
         if (!ref && groupMetadata?.topSerialNo) ref = groupMetadata.topSerialNo;
         if (!ref && lastRefObj.current) ref = lastRefObj.current;
@@ -733,7 +733,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         } catch {
             // Not JSON
         }
-        
+
         // Fallback for raw text lines (DOCX/PDF)
         const lines = trimmed.split('\n').map(l => l.trim()).filter(l => l.length > 5);
         if (lines.length > 0) {
@@ -945,115 +945,138 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     };
 
     const handleConfirmMigration = () => {
-    const payloadRecords: any[] = [];
-    migrationPreview.forEach((group: any) => {
-        group.items.forEach((row: any) => {
-            if (row.errors.length === 0) {
-                payloadRecords.push({
-                    reference: row.reference,
-                    date: row.date,
-                    item_name: row.item_name,
-                    quantity: row.quantity,
-                    quantity_issued: row.quantity,
-                    recipient: row.recipient,
-                    department: row.department,
-                    designation: row.designation,
-                    remarks: row.remarks,
-                    unit_cost: row.unit_cost,
-                    amount: row.amount,
-                    unit: row.unit,
-                    stock_no: row.stock_no,
-                    receipt_qty: row.receipt_qty,
-                    balance_qty: row.balance_qty,
-                    re_order_point: row.re_order_point,
-                    on_hand_count: row.on_hand_count,
-                    shortage_qty: row.shortage_qty,
-                    shortage_value: row.shortage_value,
-                    fund_cluster: row.fund_cluster,
-                    responsibility_center_code: row.responsibility_center_code || row.center_code || row.department,
-                    center_code: row.center_code || row.responsibility_center_code || row.department,
-                    entity_name: row.entity_name || group.metadata?.entityName || 'University of Camarines Norte',
-                    source_sheet: group.sheetName,
-                });
-            }
-        });
-    });
-
-    if (!payloadRecords.length) {
-        setActionDialog({
-            show: true,
-            type: 'error',
-            title: 'Nothing to Migrate',
-            message: 'Please provide at least one valid historical record without validation errors or duplicates before confirming.',
-        });
-        return;
-    }
-
-    // Determine correct endpoint based on selected form type
-    const endpoint =
-        migrationFormType === 'RSMI' || migrationFormType === 'RPCI'
-            ? route('compliance.migrations.store')
-            : migrationFormType === 'STOCK_CARD'
-            ? route('compliance.migrate.stock_card')
-            : route('compliance.migrate.memorandum_receipt');
-
-    setMigrationSubmitting(true);
-    router.post(endpoint, {
-        form_type: migrationFormType,
-        source: migrationSource || migrationFileName || 'historical_migration',
-        records: payloadRecords,
-    }, {
-        preserveScroll: true,
-        onStart: () => setMigrationSubmitting(true),
-        onFinish: () => setMigrationSubmitting(false),
-        onSuccess: () => {
-            setShowMigrationModal(false);
-            setMigrationInputText('');
-            setMigrationPreview([]);
-            setMigrationValidation({ validCount: 0, invalidCount: 0, duplicateCount: 0 });
-            setActionDialog({
-                show: true,
-                type: 'success',
-                title: 'Migration Successful',
-                message: `Historical ${migrationFormType} records were stored in the database and integrated into the report-generation data source.`,
+        const payloadRecords: any[] = [];
+        migrationPreview.forEach((group: any) => {
+            group.items.forEach((row: any) => {
+                if (row.errors.length === 0) {
+                    payloadRecords.push({
+                        reference: row.reference,
+                        date: row.date,
+                        item_name: row.item_name,
+                        quantity: row.quantity,
+                        quantity_issued: row.quantity,
+                        recipient: row.recipient,
+                        department: row.department,
+                        designation: row.designation,
+                        remarks: row.remarks,
+                        unit_cost: row.unit_cost,
+                        amount: row.amount,
+                        unit: row.unit,
+                        stock_no: row.stock_no,
+                        receipt_qty: row.receipt_qty,
+                        balance_qty: row.balance_qty,
+                        re_order_point: row.re_order_point,
+                        on_hand_count: row.on_hand_count,
+                        shortage_qty: row.shortage_qty,
+                        shortage_value: row.shortage_value,
+                        fund_cluster: row.fund_cluster,
+                        responsibility_center_code: row.responsibility_center_code || row.center_code || row.department,
+                        center_code: row.center_code || row.responsibility_center_code || row.department,
+                        entity_name: row.entity_name || group.metadata?.entityName || 'University of Camarines Norte',
+                        source_sheet: group.sheetName,
+                    });
+                }
             });
-        },
-        onError: () => {
+        });
+
+        if (!payloadRecords.length) {
             setActionDialog({
                 show: true,
                 type: 'error',
-                title: 'Migration Failed',
-                message: 'Unable to complete historical data migration. Please verify field mappings and try again.',
+                title: 'Nothing to Migrate',
+                message: 'Please provide at least one valid historical record without validation errors or duplicates before confirming.',
             });
-        },
-    });
-};
+            return;
+        }
 
-    // Filter logic for Issuances Data
+        // Determine correct endpoint based on selected form type
+        const endpoint =
+            migrationFormType === 'RSMI' || migrationFormType === 'RPCI'
+                ? route('compliance.migrations.store')
+                : migrationFormType === 'STOCK_CARD'
+                    ? route('compliance.migrate.stock_card')
+                    : route('compliance.migrate.memorandum_receipt');
+
+        setMigrationSubmitting(true);
+        router.post(endpoint, {
+            form_type: migrationFormType,
+            source: migrationSource || migrationFileName || 'historical_migration',
+            records: payloadRecords,
+        }, {
+            preserveScroll: true,
+            onStart: () => setMigrationSubmitting(true),
+            onFinish: () => setMigrationSubmitting(false),
+            onSuccess: () => {
+                setShowMigrationModal(false);
+                setMigrationInputText('');
+                setMigrationPreview([]);
+                setMigrationValidation({ validCount: 0, invalidCount: 0, duplicateCount: 0 });
+                setActionDialog({
+                    show: true,
+                    type: 'success',
+                    title: 'Migration Successful',
+                    message: `Historical ${migrationFormType} records were stored in the database and integrated into the report-generation data source.`,
+                });
+            },
+            onError: () => {
+                setActionDialog({
+                    show: true,
+                    type: 'error',
+                    title: 'Migration Failed',
+                    message: 'Unable to complete historical data migration. Please verify field mappings and try again.',
+                });
+            },
+        });
+    };
+
+    // Safe period check helper
+    const isDateInPeriod = (dateStr: any) => {
+        if (!dateStr) return true;
+        const cleanDateStr = String(dateStr).split('T')[0].trim();
+        if (!cleanDateStr) return true;
+
+        if (formData.periodType === 'specific') {
+            return cleanDateStr === (formData.date || '').split('T')[0];
+        } else if (formData.periodType === 'range') {
+            const start = (formData.startDate || '').split('T')[0];
+            const end = (formData.endDate || '').split('T')[0];
+            if (start && end) return cleanDateStr >= start && cleanDateStr <= end;
+            if (start) return cleanDateStr >= start;
+            if (end) return cleanDateStr <= end;
+            return true;
+        } else if (formData.periodType === 'monthly') {
+            const parts = cleanDateStr.split('-');
+            if (parts.length >= 2) {
+                const year = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10);
+                return month === Number(formData.selectedMonth) && year === Number(formData.selectedYear);
+            }
+            const d = new Date(cleanDateStr);
+            return (d.getMonth() + 1) === Number(formData.selectedMonth) && d.getFullYear() === Number(formData.selectedYear);
+        } else if (formData.periodType === 'yearly') {
+            const parts = cleanDateStr.split('-');
+            if (parts.length >= 1) {
+                const year = parseInt(parts[0], 10);
+                return year === Number(formData.selectedYear);
+            }
+            const d = new Date(cleanDateStr);
+            return d.getFullYear() === Number(formData.selectedYear);
+        }
+        return true;
+    };
+
+    // Filter logic for Issuances & Historical Data
     const getFilteredIssuances = () => {
         const combinedEntries = [
             ...issuances.map((issue: any) => ({ ...issue, _source: 'issuance' })),
-            ...migratedRecords
+            ...(migratedRecords || [])
                 .filter((record: any) => String(record.form_type) === String(formData.type))
                 .map((record: any) => ({ ...record, _source: 'migration' })),
         ];
 
         return combinedEntries.filter((entry: any) => {
-            const issueDate = new Date(entry.date_issued || entry.date || entry.created_at);
-            if (Number.isNaN(issueDate.getTime())) return false;
-
-            if (formData.periodType === 'specific') {
-                return (issueDate.toISOString().split('T')[0] === formData.date);
-            } else if (formData.periodType === 'range') {
-                const start = new Date(formData.startDate);
-                const end = new Date(formData.endDate);
-                return issueDate >= start && issueDate <= end;
-            } else if (formData.periodType === 'monthly') {
-                return (issueDate.getMonth() + 1) === Number(formData.selectedMonth) && issueDate.getFullYear() === Number(formData.selectedYear);
-            } else if (formData.periodType === 'yearly') {
-                return issueDate.getFullYear() === Number(formData.selectedYear);
-            }
-            return true;
+            const dt = entry.date_issued || entry.date || entry.date_received || entry.created_at;
+            return isDateInPeriod(dt);
         });
     };
 
@@ -1113,7 +1136,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         new Set(
             [
                 ...issuances.map((i: any) => i.recipient).filter(Boolean),
-                ...migratedRecords.map((m: any) => m.recipient).filter(Boolean),
+                ...(migratedRecords || []).map((m: any) => m.recipient || m.received_by || m.payload?.recipient || m.payload?.received_by).filter(Boolean),
             ]
         )
     ).map((name: string) => ({
@@ -1132,15 +1155,40 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             _source: 'issuance'
         }));
 
-        const matchedMigrations = migratedRecords.filter((record: any) =>
-            String(record.recipient || '').trim().toLowerCase() === nameLower
-        ).map((record: any) => ({
+        const matchedMigrations = (migratedRecords || []).filter((record: any) => {
+            const recip = String(record.recipient || record.received_by || record.payload?.recipient || record.payload?.received_by || '').trim().toLowerCase();
+            return recip === nameLower;
+        }).map((record: any) => ({
             ...record,
             _source: 'migration'
         }));
 
         return [...matchedIssuances, ...matchedMigrations];
     };
+
+    // Merged Target Item options for Stock Card (Active Inventory + Migrated Historical Items)
+    const stockCardItemOptions = (() => {
+        const map = new Map<string, { value: string; label: string }>();
+        items.forEach((item: any) => {
+            if (item?.name) {
+                map.set(item.name.toLowerCase().trim(), {
+                    value: item.name,
+                    label: `${item.name}${item.sku ? ` (${item.sku})` : ''}`,
+                });
+            }
+        });
+        (migratedRecords || []).forEach((m: any) => {
+            const name = m.item_name || m.item || m.payload?.item_name || m.payload?.item;
+            if (name && !map.has(String(name).toLowerCase().trim())) {
+                const stockNo = m.stock_no || m.payload?.stock_no || m.reference;
+                map.set(String(name).toLowerCase().trim(), {
+                    value: name,
+                    label: `${name}${stockNo ? ` (${stockNo})` : ''} [Historical]`,
+                });
+            }
+        });
+        return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label));
+    })();
 
     const filteredSupplierItems = formData.supplierId
         ? items.filter((item: any) => String(item.supplier_id) === String(formData.supplierId))
@@ -1150,29 +1198,35 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     const [reports, setReports] = useState<any[]>(serverReports.length > 0 ? serverReports : []);
 
     const selectedStockCardItem = items.find((item: any) => item.name === formData.itemName);
+    const matchingStockCardMigrated = (migratedRecords || []).find((m: any) =>
+        String(m.item_name || m.item || m.payload?.item_name || '').trim().toLowerCase() === String(formData.itemName || '').trim().toLowerCase()
+    );
 
     const getSelectedStockCardIssuances = () => {
         if (!formData.itemName) return [];
+        const targetNameLower = String(formData.itemName).trim().toLowerCase();
 
-        return getFilteredIssuances().filter((entry: any) => {
-            if (entry._source === 'migration') {
-                return String(entry.item_name || '').toLowerCase() === String(formData.itemName).toLowerCase();
-            }
-
-            if (entry.item_id && selectedStockCardItem?.id) {
-                return String(entry.item_id) === String(selectedStockCardItem.id);
-            }
-
-            if (entry.item && typeof entry.item === 'string') {
-                return entry.item === formData.itemName;
-            }
-
-            if (entry.item && typeof entry.item === 'object') {
-                return String(entry.item.id) === String(selectedStockCardItem?.id) || entry.item.name === formData.itemName;
-            }
-
+        // 1. Active inventory issuances
+        const matchedActive = issuances.filter((issue: any) => {
+            if (issue.item_id && selectedStockCardItem?.id && String(issue.item_id) === String(selectedStockCardItem.id)) return true;
+            if (issue.item && typeof issue.item === 'string' && issue.item.trim().toLowerCase() === targetNameLower) return true;
+            if (issue.item?.name && issue.item.name.trim().toLowerCase() === targetNameLower) return true;
             return false;
-        });
+        }).filter((issue: any) => {
+            const dt = issue.date_issued || issue.date || issue.created_at;
+            return isDateInPeriod(dt);
+        }).map((issue: any) => ({ ...issue, _source: 'issuance' }));
+
+        // 2. Historical records (from STOCK_CARD, RSMI, or any migration matching this item)
+        const matchedMigrated = (migratedRecords || []).filter((record: any) => {
+            const recItem = String(record.item_name || record.item || record.payload?.item_name || '').trim().toLowerCase();
+            return recItem === targetNameLower;
+        }).filter((record: any) => {
+            const dt = record.date || record.date_received || record.created_at;
+            return isDateInPeriod(dt);
+        }).map((record: any) => ({ ...record, _source: 'migration' }));
+
+        return [...matchedActive, ...matchedMigrated];
     };
 
     const stockCardEntries = (() => {
@@ -1182,30 +1236,39 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         const preparedEntries = selectedIssuances
             .map((issue: any) => {
                 if (issue._source === 'migration') {
-                    const issueQty = Number(issue.quantity || issue.payload?.issue_qty || 0);
-                    const receiptQty = Number(issue.payload?.receipt_qty || 0);
+                    const payload = issue.payload || {};
+                    const receiptQty = Number(issue.receipt_qty ?? payload.receipt_qty ?? issue.receipt_quantity ?? payload.receipt_quantity ?? 0);
+                    const issueQty = Number(issue.issue_qty ?? payload.issue_qty ?? issue.issue_quantity ?? payload.issue_quantity ?? (issue.form_type === 'RSMI' ? (issue.quantity || issue.quantity_issued || 0) : (issue.quantity || 0)));
+                    const balQty = issue.balance_qty ?? payload.balance_qty ?? issue.balance ?? payload.balance;
+                    const ref = issue.reference || issue.reference_no || payload.reference_no || issue.ris_no || payload.ris_no || `SC-HIST-${issue.id}`;
+                    const office = issue.recipient || issue.office_end_user || issue.department || issue.supplier_source || payload.office_end_user || payload.supplier_source || payload.issue_office || '';
+                    const days = issue.remarks || payload.remarks || 'Historical Migration';
+
                     return {
                         date: issue.date || issue.created_at || '',
-                        reference: issue.reference || `MIGRATED-${issue.id}`,
-                        receipt_qty: receiptQty === 0 ? '' : receiptQty,
-                        issue_qty: issueQty === 0 ? '' : issueQty,
-                        issue_office: issue.recipient || issue.department || issue.payload?.issue_office || '',
-                        days_to_consume: issue.remarks || 'Historical Migration'
+                        reference: ref,
+                        receipt_qty: receiptQty > 0 ? receiptQty : '',
+                        issue_qty: issueQty > 0 ? issueQty : '',
+                        issue_office: office,
+                        balance_qty: balQty !== undefined && balQty !== null && balQty !== '' ? Number(balQty) : undefined,
+                        days_to_consume: days,
+                        _source: 'migration',
                     };
                 }
                 const issueQty = Number(issue.quantity || issue.qty || 0);
                 return {
                     date: issue.date_issued || issue.date || issue.created_at || '',
-                    reference: issue.reference || issue.display_id || issue.id,
+                    reference: issue.reference || issue.display_id || (issue.id ? `RIS-${issue.id}` : 'RIS'),
                     receipt_qty: '',
                     issue_qty: issueQty === 0 ? '' : issueQty,
                     issue_office: issue.department || issue.recipient || issue.office || '',
                     days_to_consume: '',
+                    _source: 'issuance',
                 };
             })
             .sort((a: any, b: any) => {
-                const dateA = new Date(a.date).getTime();
-                const dateB = new Date(b.date).getTime();
+                const dateA = a.date ? new Date(a.date).getTime() : 0;
+                const dateB = b.date ? new Date(b.date).getTime() : 0;
                 return dateA - dateB || String(a.reference).localeCompare(String(b.reference));
             });
 
@@ -1213,7 +1276,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         const totalReceived = preparedEntries.reduce((sum: number, entry: any) => sum + Number(entry.receipt_qty || 0), 0);
         const startingBalance = Math.max(0, currentStock + totalIssued - totalReceived);
 
-        const entries = [
+        const entries: any[] = [
             {
                 date: '',
                 reference: 'Balance / Opening Historical',
@@ -1231,7 +1294,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             if (entry.issue_qty) runningBalance -= Number(entry.issue_qty);
             entries.push({
                 ...entry,
-                balance_qty: Math.max(0, runningBalance),
+                balance_qty: entry.balance_qty !== undefined ? entry.balance_qty : Math.max(0, runningBalance),
             });
         });
 
@@ -1478,12 +1541,14 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
     // 1. Dynamic Reference Options based on Type Selection
     const availableReferences = selectedType
-        ? reports.filter(r => r.type === selectedType.value)
+        ? reports.filter(r => r && String(r.type) === String(selectedType.value))
         : reports;
 
-    const referenceOptions = Array.from(new Set(availableReferences.map(r => r.reference))).map(ref => ({
-        value: ref,
-        label: ref
+    const referenceOptions = Array.from(
+        new Set(availableReferences.map(r => r?.reference).filter(Boolean))
+    ).map(ref => ({
+        value: String(ref),
+        label: String(ref)
     }));
 
     // Reset Reference filter if Type changes to avoid impossible combinations
@@ -1493,10 +1558,16 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
     // 2. Filter Reports
     const filteredReports = reports.filter(r => {
-        const matchesSearch = r.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            r.reference.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesType = selectedType ? r.type === selectedType.value : true;
-        const matchesRef = selectedReference ? r.reference === selectedReference.value : true;
+        if (!r) return false;
+        const searchLower = (searchTerm || '').trim().toLowerCase();
+        const matchesSearch = !searchLower ||
+            String(r.title || '').toLowerCase().includes(searchLower) ||
+            String(r.reference || '').toLowerCase().includes(searchLower) ||
+            String(r.type || '').toLowerCase().includes(searchLower) ||
+            String(r.itemName || '').toLowerCase().includes(searchLower) ||
+            String(r.supplierName || '').toLowerCase().includes(searchLower);
+        const matchesType = selectedType ? String(r.type) === String(selectedType.value) : true;
+        const matchesRef = selectedReference ? String(r.reference) === String(selectedReference.value) : true;
         return matchesSearch && matchesType && matchesRef;
     });
 
@@ -1649,28 +1720,29 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         itemDescription: itemName,
                                         unit,
                                         quantityIssued: qty,
-                                        unitCost: cost ? `₱${cost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '0.00',
-                                        amount: amt ? `₱${amt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '0.00'
+                                        unitCost: cost ? `₱${cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00',
+                                        amount: amt ? `₱${amt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00'
                                     };
                                 });
 
                                 const recaps = issuedItems.map(item => ({
                                     stockNo: item.stockNo,
                                     quantity: item.quantityIssued,
-                                    unitCost: '',
-                                    totalCost: '',
+                                    unitCost: item.unitCost || '',
+                                    totalCost: item.amount || '',
                                     uacsObjectCode: ''
                                 }));
 
-                                const firstMigrated = filteredIssuances.find((i: any) => i._source === 'migration');
+                                const firstMigrated: any = filteredIssuances.find((i: any) => i._source === 'migration');
                                 const displayEntityName = firstMigrated?.entity_name || firstMigrated?.payload?.entity_name || 'University of Camarines Norte';
+                                const displayFundCluster = firstMigrated?.fund_cluster || firstMigrated?.payload?.fund_cluster || 'General Fund';
 
                                 return (
                                     <Suspense fallback={reportTemplateFallback}>
                                         <RSMIFormPaper data={{
                                             entityName: displayEntityName,
                                             serialNo: formData.reference,
-                                            fundCluster: 'General Fund',
+                                            fundCluster: displayFundCluster,
                                             date: generateDisplayDate(formData),
                                             issuedItems: issuedItems,
                                             recapitulationItems: recaps,
@@ -1687,16 +1759,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
                             <div className="min-w-[1100px] mx-auto print:min-w-[1100px]">
                                 {(() => {
-                                    if (filteredSupplierItems.length === 0) {
-                                        return (
-                                            <div className="py-20 text-center text-gray-600">
-                                                <p className="text-lg font-semibold text-gray-800">No items found for the selected supplier.</p>
-                                                <p className="text-sm text-gray-500 mt-2">Please choose another supplier or add inventory items first.</p>
-                                            </div>
-                                        );
-                                    }
-
-                                    const rpciItems = filteredSupplierItems.map((item: any) => ({
+                                    const activeRpciItems = filteredSupplierItems.map((item: any) => ({
                                         article: item.name || '-',
                                         description: item.description || item.name || '-',
                                         stock_no: item.sku || '-',
@@ -1706,19 +1769,75 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         on_hand_count: item.stock || 0,
                                         shortage_qty: '',  // To be filled manually
                                         shortage_value: '',// To be filled manually
-                                        remarks: ''        // To be filled manually
+                                        remarks: item.remarks || '',
+                                        _source: 'inventory',
                                     }));
+
+                                    const historicalRpciRecords = (migratedRecords || [])
+                                        .filter((r: any) => String(r.form_type) === 'RPCI')
+                                        .filter((r: any) => {
+                                            if (formData.supplierId && r.payload?.supplier_id && String(r.payload.supplier_id) !== String(formData.supplierId)) {
+                                                return false;
+                                            }
+                                            if (formData.periodType && r.date) {
+                                                return isDateInPeriod(r.date);
+                                            }
+                                            return true;
+                                        })
+                                        .map((r: any) => {
+                                            const payload = r.payload || {};
+                                            const stockNo = r.stock_no || r.reference || payload.stock_no || payload.property_no || '-';
+                                            const itemName = r.item_name || r.item || payload.item_name || payload.article || '-';
+                                            const unit = r.unit || payload.unit || 'pc';
+                                            const cost = Number(r.unit_cost ?? payload.unit_cost ?? payload.unit_value ?? 0);
+                                            const bal = Number(r.quantity ?? payload.balance_per_card ?? payload.quantity_per_books ?? payload.physical_count ?? 0);
+                                            const onHand = Number(r.physical_count ?? r.on_hand_count ?? payload.physical_count ?? payload.on_hand_count ?? bal);
+                                            const shortageQty = r.shortage_qty ?? r.variance ?? payload.shortage_qty ?? payload.variance ?? (bal !== onHand ? (bal - onHand) : '');
+                                            const shortageVal = r.shortage_value ?? payload.shortage_value ?? (shortageQty ? (Number(shortageQty) * cost) : '');
+                                            const remarks = r.remarks || payload.remarks || payload.condition || (r.department ? `Loc: ${r.department}` : '');
+
+                                            return {
+                                                article: itemName,
+                                                description: payload.description || itemName,
+                                                stock_no: stockNo,
+                                                unit: unit,
+                                                unit_value: cost,
+                                                balance_per_card: bal,
+                                                on_hand_count: onHand,
+                                                shortage_qty: shortageQty !== null && shortageQty !== undefined && shortageQty !== '' ? String(shortageQty) : '',
+                                                shortage_value: shortageVal !== null && shortageVal !== undefined && shortageVal !== '' ? String(shortageVal) : '',
+                                                remarks: remarks,
+                                                _source: 'migration',
+                                            };
+                                        });
+
+                                    const combinedRpciItems = [...activeRpciItems, ...historicalRpciRecords];
+
+                                    if (combinedRpciItems.length === 0) {
+                                        return (
+                                            <div className="py-20 text-center text-gray-600">
+                                                <p className="text-lg font-semibold text-gray-800">No items found for the selected supplier/period.</p>
+                                                <p className="text-sm text-gray-500 mt-2">Please choose another supplier, adjust the date filter, or migrate historical RPCI records.</p>
+                                            </div>
+                                        );
+                                    }
+
+                                    const rawHistoricalRpci: any = (migratedRecords || []).find((r: any) => String(r.form_type) === 'RPCI');
+                                    const displayEntity = rawHistoricalRpci?.entity_name || rawHistoricalRpci?.payload?.entity_name || 'University of Camarines Norte';
+                                    const displayFund = rawHistoricalRpci?.fund_cluster || rawHistoricalRpci?.payload?.fund_cluster || 'General Fund';
+                                    const displayOfficer = rawHistoricalRpci?.recipient || rawHistoricalRpci?.accountable_officer || rawHistoricalRpci?.payload?.accountable_officer || user?.name || 'Supply Officer';
+                                    const displayDesig = rawHistoricalRpci?.designation || rawHistoricalRpci?.payload?.designation || 'Supply Custodian';
 
                                     return (
                                         <Suspense fallback={reportTemplateFallback}>
                                             <RPCIFormPaper data={{
-                                                entity_name: 'University of Camarines Norte',
+                                                entity_name: displayEntity,
                                                 as_at_date: generateDisplayDate(formData),
-                                                fund_cluster: 'General Fund',
-                                                inventory_type: formData.title,
-                                                accountable_officer: 'Jane Doe',
-                                                designation: 'Supply Officer',
-                                                items: rpciItems,
+                                                fund_cluster: displayFund,
+                                                inventory_type: formData.title || 'Physical Count of Inventories',
+                                                accountable_officer: displayOfficer,
+                                                designation: displayDesig,
+                                                items: combinedRpciItems,
                                             }} />
                                         </Suspense>
                                     );
@@ -1732,20 +1851,20 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 {formData.itemName ? (
                                     <Suspense fallback={reportTemplateFallback}>
                                         <StockCardFormPaper data={{
-                                            entity_name: 'University of Camarines Norte',
-                                            fund_cluster: 'General Fund',
+                                            entity_name: matchingStockCardMigrated?.entity_name || matchingStockCardMigrated?.payload?.entity_name || 'University of Camarines Norte',
+                                            fund_cluster: matchingStockCardMigrated?.fund_cluster || matchingStockCardMigrated?.payload?.fund_cluster || 'General Fund',
                                             item: formData.itemName || formData.title,
-                                            stock_no: selectedStockCardItem?.sku || formData.reference,
-                                            description: selectedStockCardItem?.description || selectedStockCardItem?.name || formData.itemName || formData.title,
-                                            re_order_point: '-',
-                                            unit_of_measurement: selectedStockCardItem?.unit_of_issue || selectedStockCardItem?.unit_measure || 'Pieces',
+                                            stock_no: selectedStockCardItem?.sku || matchingStockCardMigrated?.stock_no || matchingStockCardMigrated?.payload?.stock_no || formData.reference || '-',
+                                            description: selectedStockCardItem?.description || selectedStockCardItem?.name || matchingStockCardMigrated?.item_name || matchingStockCardMigrated?.item || formData.itemName || formData.title,
+                                            re_order_point: selectedStockCardItem?.reorder_point || matchingStockCardMigrated?.payload?.re_order_point || '-',
+                                            unit_of_measurement: selectedStockCardItem?.unit_of_issue || selectedStockCardItem?.unit_measure || matchingStockCardMigrated?.unit || matchingStockCardMigrated?.payload?.unit || 'Pieces',
                                             entries: stockCardEntries
                                         }} />
                                     </Suspense>
                                 ) : (
                                     <div className="py-20 text-center text-gray-600">
                                         <p className="text-lg font-semibold text-gray-800">Select an item to preview a live stock card.</p>
-                                        <p className="text-sm text-gray-500 mt-2">The stock card will generate entries from issued item records once an item is chosen.</p>
+                                        <p className="text-sm text-gray-500 mt-2">The stock card will generate entries from issued item records and imported historical ledger data once an item is chosen.</p>
                                     </div>
                                 )}
                             </div>
@@ -1758,32 +1877,51 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 const endUserName = formData.endUser || '';
                                 const endUserRecords = endUserName
                                     ? getEndUserIssuances(endUserName)
-                                    : getFilteredIssuances();
+                                    : (formData.type === 'MR' || formData.type === 'MOR'
+                                        ? [
+                                            ...issuances.map((issue: any) => ({ ...issue, _source: 'issuance' })),
+                                            ...(migratedRecords || [])
+                                                .filter((record: any) => record.form_type === 'MR' || record.form_type === 'MOR' || !record.form_type)
+                                                .map((record: any) => ({ ...record, _source: 'migration' }))
+                                          ].filter((entry: any) => {
+                                              const dt = entry.date_issued || entry.date || entry.date_received || entry.created_at;
+                                              if (!dt) return true;
+                                              return isDateInPeriod(dt);
+                                          })
+                                        : getFilteredIssuances());
 
                                 const mrItems = endUserRecords.map((issue: any) => {
-                                    const qty = issue.quantity || issue.qty || issue.payload?.quantity || 1;
-                                    const cost = issue.item?.unit_cost || issue.unit_cost || issue.payload?.unit_cost || 0;
+                                    const qty = Number(issue.quantity || issue.qty || issue.payload?.quantity || 1);
+                                    const cost = Number(issue.item?.unit_cost || issue.unit_cost || issue.payload?.unit_cost || issue.payload?.unit_value || 0);
+                                    const totalVal = Number(issue.amount || issue.payload?.amount || issue.payload?.total_value || (qty * cost));
+                                    const desc = issue.item?.name || issue.item_name || issue.payload?.item_name || issue.payload?.description || issue.description || issue.remarks || '-';
+                                    const propNo = issue.item?.sku || issue.stock_no || issue.property_no || issue.payload?.stock_no || issue.payload?.property_no || issue.reference || issue.payload?.reference || '-';
+                                    const unit = issue.item?.unit_measure || issue.item?.unit_of_issue || issue.unit || issue.payload?.unit || 'pc';
+                                    const dtAcquired = issue.date_issued || issue.date || issue.date_received || issue.created_at || '';
+
                                     return {
                                         quantity: qty,
-                                        unit: issue.item?.unit_measure || issue.item?.unit_of_issue || issue.unit || issue.payload?.unit || 'pc',
-                                        description: issue.item?.name || issue.item_name || issue.payload?.item_name || issue.description || '-',
-                                        propertyNo: issue.item?.sku || issue.stock_no || issue.payload?.stock_no || issue.reference || issue.payload?.reference || '-',
-                                        dateAcquired: issue.date_issued || issue.date || issue.created_at || '',
+                                        unit: unit,
+                                        description: desc,
+                                        propertyNo: propNo,
+                                        dateAcquired: dtAcquired,
                                         unitValue: cost,
-                                        totalValue: qty * cost,
+                                        totalValue: totalVal,
                                     };
                                 });
 
-                                const firstRecord = endUserRecords[0];
-                                const resolvedEndUser = endUserName || firstRecord?.recipient || firstRecord?.issued_to || 'End User';
-                                const endUserPos = firstRecord?.recipient_designation || firstRecord?.designation || firstRecord?.position || firstRecord?.payload?.recipient_designation || 'Accountable Officer';
-                                const endUserOffice = firstRecord?.department || firstRecord?.office || firstRecord?.payload?.department || 'Official Business';
+                                const firstRecord: any = endUserRecords[0];
+                                const resolvedEndUser = endUserName || firstRecord?.recipient || firstRecord?.received_by || firstRecord?.issued_to || 'End User';
+                                const endUserPos = firstRecord?.recipient_designation || firstRecord?.designation || firstRecord?.position || firstRecord?.payload?.recipient_designation || firstRecord?.payload?.designation || 'Accountable Officer';
+                                const endUserOffice = firstRecord?.department || firstRecord?.office || firstRecord?.payload?.department || firstRecord?.payload?.office || 'Official Business';
+                                const displayEntity = firstRecord?.entity_name || firstRecord?.payload?.entity_name || 'University of Camarines Norte';
+                                const displayFund = firstRecord?.fund_cluster || firstRecord?.payload?.fund_cluster || 'General Fund';
 
                                 return (
                                     <Suspense fallback={reportTemplateFallback}>
                                         <MRFormPaper data={{
-                                            entityName: 'University of Camarines Norte',
-                                            fundCluster: 'General Fund',
+                                            entityName: displayEntity,
+                                            fundCluster: displayFund,
                                             mrNo: formData.reference,
                                             date: generateDisplayDate(formData),
                                             purpose: endUserOffice,
@@ -1859,15 +1997,12 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                             <div className="group w-full">
                                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Target Item</label>
                                 <Select
-                                    options={items.map((item: any) => ({
-                                        value: item.name,
-                                        label: `${item.name} ${item.sku ? `(${item.sku})` : ''}`
-                                    }))}
-                                    value={formData.itemName ? { value: formData.itemName, label: items.find((i: any) => i.name === formData.itemName)?.name ? `${items.find((i: any) => i.name === formData.itemName)?.name} ${items.find((i: any) => i.name === formData.itemName)?.sku ? `(${items.find((i: any) => i.name === formData.itemName)?.sku})` : ''}` : formData.itemName } : null}
+                                    options={stockCardItemOptions}
+                                    value={formData.itemName ? (stockCardItemOptions.find((opt: any) => opt.value === formData.itemName) || { value: formData.itemName, label: formData.itemName }) : null}
                                     onChange={(opt: any) => setFormData({ ...formData, itemName: opt ? opt.value : '' })}
                                     styles={customSelectStyles}
                                     isClearable
-                                    placeholder="Select an item..."
+                                    placeholder="Select an item (Inventory or Historical)..."
                                     menuPortalTarget={typeof window !== "undefined" ? document.body : null}
                                     menuPosition="fixed"
                                 />
@@ -1916,7 +2051,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                                 {formData.endUser && (() => {
                                     const endUserRecords = getEndUserIssuances(formData.endUser);
-                                    const firstRecord = endUserRecords[0];
+                                    const firstRecord: any = endUserRecords[0];
                                     const designation = firstRecord?.recipient_designation || firstRecord?.designation || firstRecord?.payload?.recipient_designation || 'Accountable Officer';
                                     const department = firstRecord?.department || firstRecord?.office || firstRecord?.payload?.department || 'Official Business';
 
@@ -2269,175 +2404,175 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                         {group.duplicateCount > 0 && <span className="text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">{group.duplicateCount} Duplicates</span>}
                                                     </div>
                                                 </div>
-                                                
+
                                                 {/* RSMI Table */}
                                                 {migrationFormType === 'RSMI' && (
-                                                <div className="overflow-x-auto">
-                                                    <table className="min-w-full text-xs">
-                                                    <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
-                                                        <tr>
-                                                            <th className="px-3 py-2.5">RIS No.</th>
-                                                            <th className="px-3 py-2.5">Resp. Center Code</th>
-                                                            <th className="px-3 py-2.5">Stock No.</th>
-                                                            <th className="px-3 py-2.5">Item Description</th>
-                                                            <th className="px-3 py-2.5 text-center">Unit</th>
-                                                            <th className="px-3 py-2.5 text-right">Qty Issued</th>
-                                                            <th className="px-3 py-2.5 text-right">Unit Cost</th>
-                                                            <th className="px-3 py-2.5 text-right">Amount</th>
-                                                            <th className="px-3 py-2.5">Validation Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-gray-100">
-                                                        {group.items.map((row: any, index: number) => (
-                                                            <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
-                                                                <td className="px-3 py-2 font-semibold text-gray-900">{row.reference || '-'}</td>
-                                                                <td className="px-3 py-2 text-gray-600">{row.responsibility_center_code || row.center_code || row.department || '-'}</td>
-                                                                <td className="px-3 py-2 font-mono text-xs text-gray-700">{row.stock_no || '-'}</td>
-                                                                <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
-                                                                <td className="px-3 py-2 text-center text-gray-600">{row.unit || 'pc'}</td>
-                                                                <td className="px-3 py-2 text-right font-bold text-gray-900">{row.quantity || 0}</td>
-                                                                <td className="px-3 py-2 text-right text-gray-700">{row.unit_cost ? `₱${Number(row.unit_cost).toLocaleString(undefined, {minimumFractionDigits:2})}` : '₱0.00'}</td>
-                                                                <td className="px-3 py-2 text-right font-semibold text-gray-900">{row.amount ? `₱${Number(row.amount).toLocaleString(undefined, {minimumFractionDigits:2})}` : '₱0.00'}</td>
-                                                                <td className="px-3 py-2">
-                                                                    {row.errors.length > 0 ? (
-                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">{row.errors[0]}</span>
-                                                                    ) : (
-                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Ready to Import</span>
-                                                                    )}
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                    </table>
-                                                </div>
+                                                    <div className="overflow-x-auto">
+                                                        <table className="min-w-full text-xs">
+                                                            <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
+                                                                <tr>
+                                                                    <th className="px-3 py-2.5">RIS No.</th>
+                                                                    <th className="px-3 py-2.5">Resp. Center Code</th>
+                                                                    <th className="px-3 py-2.5">Stock No.</th>
+                                                                    <th className="px-3 py-2.5">Item Description</th>
+                                                                    <th className="px-3 py-2.5 text-center">Unit</th>
+                                                                    <th className="px-3 py-2.5 text-right">Qty Issued</th>
+                                                                    <th className="px-3 py-2.5 text-right">Unit Cost</th>
+                                                                    <th className="px-3 py-2.5 text-right">Amount</th>
+                                                                    <th className="px-3 py-2.5">Validation Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="divide-y divide-gray-100">
+                                                                {group.items.map((row: any, index: number) => (
+                                                                    <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
+                                                                        <td className="px-3 py-2 font-semibold text-gray-900">{row.reference || '-'}</td>
+                                                                        <td className="px-3 py-2 text-gray-600">{row.responsibility_center_code || row.center_code || row.department || '-'}</td>
+                                                                        <td className="px-3 py-2 font-mono text-xs text-gray-700">{row.stock_no || '-'}</td>
+                                                                        <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
+                                                                        <td className="px-3 py-2 text-center text-gray-600">{row.unit || 'pc'}</td>
+                                                                        <td className="px-3 py-2 text-right font-bold text-gray-900">{row.quantity || 0}</td>
+                                                                        <td className="px-3 py-2 text-right text-gray-700">{row.unit_cost ? `₱${Number(row.unit_cost).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '₱0.00'}</td>
+                                                                        <td className="px-3 py-2 text-right font-semibold text-gray-900">{row.amount ? `₱${Number(row.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '₱0.00'}</td>
+                                                                        <td className="px-3 py-2">
+                                                                            {row.errors.length > 0 ? (
+                                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">{row.errors[0]}</span>
+                                                                            ) : (
+                                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Ready to Import</span>
+                                                                            )}
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 )}
 
                                                 {/* RPCI Table */}
                                                 {migrationFormType === 'RPCI' && (
-                                                <div className="overflow-x-auto">
-                                                    <table className="min-w-full text-xs">
-                                                    <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
-                                                        <tr>
-                                                            <th className="px-3 py-2.5">Stock / Prop No.</th>
-                                                            <th className="px-3 py-2.5">Article / Item</th>
-                                                            <th className="px-3 py-2.5 text-center">Unit</th>
-                                                            <th className="px-3 py-2.5 text-right">Unit Value</th>
-                                                            <th className="px-3 py-2.5 text-right">Balance Per Card</th>
-                                                            <th className="px-3 py-2.5 text-right">On Hand Count</th>
-                                                            <th className="px-3 py-2.5 text-right">Shortage/Overage</th>
-                                                            <th className="px-3 py-2.5">Accountable Officer</th>
-                                                            <th className="px-3 py-2.5">Validation Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-gray-100">
-                                                        {group.items.map((row: any, index: number) => (
-                                                            <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
-                                                                <td className="px-3 py-2 font-mono text-xs font-semibold text-gray-900">{row.reference || row.stock_no || '-'}</td>
-                                                                <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
-                                                                <td className="px-3 py-2 text-center text-gray-600">{row.unit || 'pc'}</td>
-                                                                <td className="px-3 py-2 text-right text-gray-700">{row.unit_cost ? `₱${Number(row.unit_cost).toLocaleString(undefined, {minimumFractionDigits:2})}` : '₱0.00'}</td>
-                                                                <td className="px-3 py-2 text-right font-bold text-gray-900">{row.quantity || 0}</td>
-                                                                <td className="px-3 py-2 text-right text-gray-800">{row.on_hand_count ?? row.quantity ?? 0}</td>
-                                                                <td className="px-3 py-2 text-right text-gray-600">{row.shortage_qty || '0'}</td>
-                                                                <td className="px-3 py-2 text-gray-600">{row.recipient || row.department || '-'}</td>
-                                                                <td className="px-3 py-2">
-                                                                    {row.errors.length > 0 ? (
-                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">{row.errors[0]}</span>
-                                                                    ) : (
-                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Ready to Import</span>
-                                                                    )}
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                    </table>
-                                                </div>
+                                                    <div className="overflow-x-auto">
+                                                        <table className="min-w-full text-xs">
+                                                            <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
+                                                                <tr>
+                                                                    <th className="px-3 py-2.5">Stock / Prop No.</th>
+                                                                    <th className="px-3 py-2.5">Article / Item</th>
+                                                                    <th className="px-3 py-2.5 text-center">Unit</th>
+                                                                    <th className="px-3 py-2.5 text-right">Unit Value</th>
+                                                                    <th className="px-3 py-2.5 text-right">Balance Per Card</th>
+                                                                    <th className="px-3 py-2.5 text-right">On Hand Count</th>
+                                                                    <th className="px-3 py-2.5 text-right">Shortage/Overage</th>
+                                                                    <th className="px-3 py-2.5">Accountable Officer</th>
+                                                                    <th className="px-3 py-2.5">Validation Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="divide-y divide-gray-100">
+                                                                {group.items.map((row: any, index: number) => (
+                                                                    <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
+                                                                        <td className="px-3 py-2 font-mono text-xs font-semibold text-gray-900">{row.reference || row.stock_no || '-'}</td>
+                                                                        <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
+                                                                        <td className="px-3 py-2 text-center text-gray-600">{row.unit || 'pc'}</td>
+                                                                        <td className="px-3 py-2 text-right text-gray-700">{row.unit_cost ? `₱${Number(row.unit_cost).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '₱0.00'}</td>
+                                                                        <td className="px-3 py-2 text-right font-bold text-gray-900">{row.quantity || 0}</td>
+                                                                        <td className="px-3 py-2 text-right text-gray-800">{row.on_hand_count ?? row.quantity ?? 0}</td>
+                                                                        <td className="px-3 py-2 text-right text-gray-600">{row.shortage_qty || '0'}</td>
+                                                                        <td className="px-3 py-2 text-gray-600">{row.recipient || row.department || '-'}</td>
+                                                                        <td className="px-3 py-2">
+                                                                            {row.errors.length > 0 ? (
+                                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">{row.errors[0]}</span>
+                                                                            ) : (
+                                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Ready to Import</span>
+                                                                            )}
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 )}
 
                                                 {/* STOCK CARD Table */}
                                                 {migrationFormType === 'STOCK_CARD' && (
-                                                <div className="overflow-x-auto">
-                                                    <table className="min-w-full text-xs">
-                                                    <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
-                                                        <tr>
-                                                            <th className="px-3 py-2.5">Date</th>
-                                                            <th className="px-3 py-2.5">Reference</th>
-                                                            <th className="px-3 py-2.5">Item Description</th>
-                                                            <th className="px-3 py-2.5">Stock No.</th>
-                                                            <th className="px-3 py-2.5 text-center">Unit</th>
-                                                            <th className="px-3 py-2.5 text-right">Receipt Qty</th>
-                                                            <th className="px-3 py-2.5 text-right">Issue Qty</th>
-                                                            <th className="px-3 py-2.5 text-right">Balance Qty</th>
-                                                            <th className="px-3 py-2.5">Issue Office</th>
-                                                            <th className="px-3 py-2.5">Validation Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-gray-100">
-                                                        {group.items.map((row: any, index: number) => (
-                                                            <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
-                                                                <td className="px-3 py-2 text-gray-600">{row.date || '-'}</td>
-                                                                <td className="px-3 py-2 font-semibold text-gray-900">{row.reference || '-'}</td>
-                                                                <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
-                                                                <td className="px-3 py-2 font-mono text-xs text-gray-700">{row.stock_no || '-'}</td>
-                                                                <td className="px-3 py-2 text-center text-gray-600">{row.unit || 'Pieces'}</td>
-                                                                <td className="px-3 py-2 text-right text-green-700 font-medium">{row.receipt_qty || 0}</td>
-                                                                <td className="px-3 py-2 text-right text-gray-900 font-bold">{row.quantity || 0}</td>
-                                                                <td className="px-3 py-2 text-right text-gray-800 font-semibold">{row.balance_qty || 0}</td>
-                                                                <td className="px-3 py-2 text-gray-600">{row.recipient || row.department || '-'}</td>
-                                                                <td className="px-3 py-2">
-                                                                    {row.errors.length > 0 ? (
-                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">{row.errors[0]}</span>
-                                                                    ) : (
-                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Ready to Import</span>
-                                                                    )}
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                    </table>
-                                                </div>
+                                                    <div className="overflow-x-auto">
+                                                        <table className="min-w-full text-xs">
+                                                            <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
+                                                                <tr>
+                                                                    <th className="px-3 py-2.5">Date</th>
+                                                                    <th className="px-3 py-2.5">Reference</th>
+                                                                    <th className="px-3 py-2.5">Item Description</th>
+                                                                    <th className="px-3 py-2.5">Stock No.</th>
+                                                                    <th className="px-3 py-2.5 text-center">Unit</th>
+                                                                    <th className="px-3 py-2.5 text-right">Receipt Qty</th>
+                                                                    <th className="px-3 py-2.5 text-right">Issue Qty</th>
+                                                                    <th className="px-3 py-2.5 text-right">Balance Qty</th>
+                                                                    <th className="px-3 py-2.5">Issue Office</th>
+                                                                    <th className="px-3 py-2.5">Validation Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="divide-y divide-gray-100">
+                                                                {group.items.map((row: any, index: number) => (
+                                                                    <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
+                                                                        <td className="px-3 py-2 text-gray-600">{row.date || '-'}</td>
+                                                                        <td className="px-3 py-2 font-semibold text-gray-900">{row.reference || '-'}</td>
+                                                                        <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
+                                                                        <td className="px-3 py-2 font-mono text-xs text-gray-700">{row.stock_no || '-'}</td>
+                                                                        <td className="px-3 py-2 text-center text-gray-600">{row.unit || 'Pieces'}</td>
+                                                                        <td className="px-3 py-2 text-right text-green-700 font-medium">{row.receipt_qty || 0}</td>
+                                                                        <td className="px-3 py-2 text-right text-gray-900 font-bold">{row.quantity || 0}</td>
+                                                                        <td className="px-3 py-2 text-right text-gray-800 font-semibold">{row.balance_qty || 0}</td>
+                                                                        <td className="px-3 py-2 text-gray-600">{row.recipient || row.department || '-'}</td>
+                                                                        <td className="px-3 py-2">
+                                                                            {row.errors.length > 0 ? (
+                                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">{row.errors[0]}</span>
+                                                                            ) : (
+                                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Ready to Import</span>
+                                                                            )}
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 )}
 
                                                 {/* MR/MOR Table */}
                                                 {(migrationFormType === 'MR' || migrationFormType === 'MOR') && (
-                                                <div className="overflow-x-auto">
-                                                    <table className="min-w-full text-xs">
-                                                    <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
-                                                        <tr>
-                                                            <th className="px-3 py-2.5">Prop No. / Serial (MR No.)</th>
-                                                            <th className="px-3 py-2.5">Date Acquired</th>
-                                                            <th className="px-3 py-2.5">Description / Item Name</th>
-                                                            <th className="px-3 py-2.5 text-right">Qty</th>
-                                                            <th className="px-3 py-2.5 text-center">Unit</th>
-                                                            <th className="px-3 py-2.5 text-right">Unit Value / Cost</th>
-                                                            <th className="px-3 py-2.5 text-right">Total Value</th>
-                                                            <th className="px-3 py-2.5">Received By / Office</th>
-                                                            <th className="px-3 py-2.5">Validation Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-gray-100">
-                                                        {group.items.map((row: any, index: number) => (
-                                                            <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
-                                                                <td className="px-3 py-2 font-semibold font-mono text-xs text-gray-900">{row.reference || '-'}</td>
-                                                                <td className="px-3 py-2 text-gray-600">{row.date || '-'}</td>
-                                                                <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
-                                                                <td className="px-3 py-2 text-right font-bold text-gray-900">{row.quantity || 1}</td>
-                                                                <td className="px-3 py-2 text-center text-gray-600">{row.unit || 'pc'}</td>
-                                                                <td className="px-3 py-2 text-right text-gray-700">{row.unit_cost ? `₱${Number(row.unit_cost).toLocaleString(undefined, {minimumFractionDigits:2})}` : '₱0.00'}</td>
-                                                                <td className="px-3 py-2 text-right font-semibold text-gray-900">{row.amount ? `₱${Number(row.amount).toLocaleString(undefined, {minimumFractionDigits:2})}` : '₱0.00'}</td>
-                                                                <td className="px-3 py-2 text-gray-600">{row.recipient || row.department || '-'}</td>
-                                                                <td className="px-3 py-2">
-                                                                    {row.errors.length > 0 ? (
-                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">{row.errors[0]}</span>
-                                                                    ) : (
-                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Ready to Import</span>
-                                                                    )}
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                    </table>
-                                                </div>
+                                                    <div className="overflow-x-auto">
+                                                        <table className="min-w-full text-xs">
+                                                            <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
+                                                                <tr>
+                                                                    <th className="px-3 py-2.5">Prop No. / Serial (MR No.)</th>
+                                                                    <th className="px-3 py-2.5">Date Acquired</th>
+                                                                    <th className="px-3 py-2.5">Description / Item Name</th>
+                                                                    <th className="px-3 py-2.5 text-right">Qty</th>
+                                                                    <th className="px-3 py-2.5 text-center">Unit</th>
+                                                                    <th className="px-3 py-2.5 text-right">Unit Value / Cost</th>
+                                                                    <th className="px-3 py-2.5 text-right">Total Value</th>
+                                                                    <th className="px-3 py-2.5">Received By / Office</th>
+                                                                    <th className="px-3 py-2.5">Validation Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="divide-y divide-gray-100">
+                                                                {group.items.map((row: any, index: number) => (
+                                                                    <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
+                                                                        <td className="px-3 py-2 font-semibold font-mono text-xs text-gray-900">{row.reference || '-'}</td>
+                                                                        <td className="px-3 py-2 text-gray-600">{row.date || '-'}</td>
+                                                                        <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
+                                                                        <td className="px-3 py-2 text-right font-bold text-gray-900">{row.quantity || 1}</td>
+                                                                        <td className="px-3 py-2 text-center text-gray-600">{row.unit || 'pc'}</td>
+                                                                        <td className="px-3 py-2 text-right text-gray-700">{row.unit_cost ? `₱${Number(row.unit_cost).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '₱0.00'}</td>
+                                                                        <td className="px-3 py-2 text-right font-semibold text-gray-900">{row.amount ? `₱${Number(row.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '₱0.00'}</td>
+                                                                        <td className="px-3 py-2 text-gray-600">{row.recipient || row.department || '-'}</td>
+                                                                        <td className="px-3 py-2">
+                                                                            {row.errors.length > 0 ? (
+                                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">{row.errors[0]}</span>
+                                                                            ) : (
+                                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Ready to Import</span>
+                                                                            )}
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 )}
                                             </div>
                                         ))}

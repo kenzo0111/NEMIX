@@ -40,39 +40,45 @@ Route::get('/compliance/reports', function () {
 
     if (\Illuminate\Support\Facades\Schema::hasTable('rsmi_migrated_records')) {
         $rsmiRecords = \App\Models\Compliance\RsmiMigratedRecord::query()->latest()->get()->map(function ($record) {
+            $raw = $record->raw_data ?? [];
+            $recordDate = $record->date instanceof \DateTimeInterface
+                ? $record->date->format('Y-m-d')
+                : ($record->date ? (string) $record->date : data_get($raw, 'date'));
+
             return [
                 'id' => $record->id,
                 'form_type' => 'RSMI',
                 'source' => $record->source_file ?? $record->source_sheet ?? 'historical_migration',
                 'reference' => $record->ris_no ?? $record->serial_no ?? ('RSMI-HIST-' . $record->id),
                 'ris_no' => $record->ris_no ?? $record->serial_no,
-                'item_name' => $record->item,
-                'item' => $record->item,
-                'quantity' => (int) ($record->quantity_issued ?? 0),
-                'quantity_issued' => (int) ($record->quantity_issued ?? 0),
-                'recipient' => $record->center_code ?? $record->entity_name,
-                'department' => $record->center_code ?? $record->entity_name,
-                'responsibility_center_code' => $record->center_code,
+                'serial_no' => $record->serial_no,
+                'item_name' => $record->item ?? data_get($raw, 'item_name'),
+                'item' => $record->item ?? data_get($raw, 'item_name'),
+                'quantity' => (int) ($record->quantity_issued ?? data_get($raw, 'quantity') ?? 0),
+                'quantity_issued' => (int) ($record->quantity_issued ?? data_get($raw, 'quantity') ?? 0),
+                'recipient' => $record->center_code ?? $record->entity_name ?? data_get($raw, 'recipient'),
+                'department' => $record->center_code ?? $record->entity_name ?? data_get($raw, 'department'),
+                'responsibility_center_code' => $record->center_code ?? data_get($raw, 'responsibility_center_code'),
                 'center_code' => $record->center_code,
-                'entity_name' => $record->entity_name ?? 'University of Camarines Norte',
-                'stock_no' => $record->stock_no,
-                'unit' => $record->unit,
-                'unit_cost' => $record->unit_cost,
-                'amount' => $record->amount,
-                'fund_cluster' => $record->fund_cluster,
-                'designation' => null,
-                'remarks' => null,
-                'date' => optional($record->date)->toDateString(),
+                'entity_name' => $record->entity_name ?? data_get($raw, 'entity_name') ?? 'University of Camarines Norte',
+                'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no'),
+                'unit' => $record->unit ?? data_get($raw, 'unit') ?? 'pc',
+                'unit_cost' => $record->unit_cost ?? data_get($raw, 'unit_cost'),
+                'amount' => $record->amount ?? data_get($raw, 'amount'),
+                'fund_cluster' => $record->fund_cluster ?? data_get($raw, 'fund_cluster') ?? 'General Fund',
+                'designation' => data_get($raw, 'designation'),
+                'remarks' => $record->remarks ?? data_get($raw, 'remarks'),
+                'date' => $recordDate,
                 'status' => 'historical_migration',
-                'payload' => array_merge($record->raw_data ?? [], [
-                    'stock_no' => $record->stock_no,
-                    'unit' => $record->unit,
-                    'unit_cost' => $record->unit_cost,
-                    'amount' => $record->amount,
-                    'fund_cluster' => $record->fund_cluster,
+                'payload' => array_merge($raw, [
+                    'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no'),
+                    'unit' => $record->unit ?? data_get($raw, 'unit') ?? 'pc',
+                    'unit_cost' => $record->unit_cost ?? data_get($raw, 'unit_cost'),
+                    'amount' => $record->amount ?? data_get($raw, 'amount'),
+                    'fund_cluster' => $record->fund_cluster ?? data_get($raw, 'fund_cluster') ?? 'General Fund',
                     'center_code' => $record->center_code,
                     'responsibility_center_code' => $record->center_code,
-                    'entity_name' => $record->entity_name,
+                    'entity_name' => $record->entity_name ?? 'University of Camarines Norte',
                     'quantity_issued' => $record->quantity_issued,
                     'item_name' => $record->item,
                     'ris_no' => $record->ris_no ?? $record->serial_no,
@@ -84,28 +90,70 @@ Route::get('/compliance/reports', function () {
 
     if (\Illuminate\Support\Facades\Schema::hasTable('rpci_migrated_records')) {
         $rpciRecords = \App\Models\Compliance\RpcIMigratedRecord::query()->latest()->get()->map(function ($record) {
+            $raw = $record->raw_data ?? [];
+            $itemName = $record->item ?? data_get($raw, 'item_name') ?? data_get($raw, 'description') ?? data_get($raw, 'article') ?? 'Inventory Item';
+            $unitCost = (float) ($record->unit_cost ?? data_get($raw, 'unit_cost') ?? data_get($raw, 'unit_value') ?? 0);
+            $qtyBooks = (int) ($record->quantity_per_books ?? data_get($raw, 'quantity') ?? data_get($raw, 'balance_per_card') ?? 0);
+            $physCount = (int) ($record->physical_count ?? data_get($raw, 'on_hand_count') ?? data_get($raw, 'physical_count') ?? $qtyBooks);
+            $shortageQty = $record->variance ?? data_get($raw, 'shortage_qty') ?? data_get($raw, 'variance');
+            $shortageVal = data_get($raw, 'shortage_value') ?? ($shortageQty ? ((float)$shortageQty * $unitCost) : null);
+            $totalVal = (float) ($record->total_value ?? data_get($raw, 'amount') ?? data_get($raw, 'total_value') ?? ($qtyBooks * $unitCost));
+            $recordDate = $record->date instanceof \DateTimeInterface
+                ? $record->date->format('Y-m-d')
+                : ($record->date ? (string) $record->date : data_get($raw, 'date'));
+
             return [
                 'id' => $record->id,
                 'form_type' => 'RPCI',
                 'source' => $record->source_file ?? $record->source_sheet ?? 'historical_migration',
                 'reference' => $record->serial_no ?? $record->stock_no ?? ('RPCI-HIST-' . $record->id),
-                'item_name' => $record->item,
-                'quantity' => (int) ($record->quantity_per_books ?? $record->physical_count ?? 0),
-                'recipient' => data_get($record->raw_data, 'recipient'),
-                'department' => $record->location ?? $record->entity_name,
-                'designation' => data_get($record->raw_data, 'designation'),
-                'remarks' => $record->remarks,
-                'date' => optional($record->date)->toDateString(),
+                'serial_no' => $record->serial_no,
+                'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no'),
+                'item_name' => $itemName,
+                'item' => $itemName,
+                'article' => data_get($raw, 'article') ?? $itemName,
+                'description' => data_get($raw, 'description') ?? $itemName,
+                'unit' => $record->unit ?? data_get($raw, 'unit') ?? 'pc',
+                'unit_cost' => $unitCost,
+                'unit_value' => $unitCost,
+                'quantity' => $qtyBooks,
+                'quantity_per_books' => $qtyBooks,
+                'balance_per_card' => $qtyBooks,
+                'physical_count' => $physCount,
+                'on_hand_count' => $physCount,
+                'variance' => $shortageQty,
+                'shortage_qty' => $shortageQty,
+                'shortage_value' => $shortageVal,
+                'total_value' => $totalVal,
+                'amount' => $totalVal,
+                'recipient' => data_get($raw, 'recipient') ?? data_get($raw, 'accountable_officer'),
+                'accountable_officer' => data_get($raw, 'recipient') ?? data_get($raw, 'accountable_officer'),
+                'department' => $record->location ?? $record->entity_name ?? data_get($raw, 'department'),
+                'location' => $record->location,
+                'designation' => data_get($raw, 'designation'),
+                'condition' => $record->condition,
+                'remarks' => $record->remarks ?? data_get($raw, 'remarks'),
+                'entity_name' => $record->entity_name ?? data_get($raw, 'entity_name') ?? 'University of Camarines Norte',
+                'fund_cluster' => $record->fund_cluster ?? data_get($raw, 'fund_cluster') ?? 'General Fund',
+                'date' => $recordDate,
                 'status' => 'historical_migration',
-                'payload' => array_merge($record->raw_data ?? [], [
-                    'stock_no' => $record->stock_no,
-                    'unit' => $record->unit,
-                    'unit_cost' => $record->unit_cost,
-                    'total_value' => $record->total_value,
-                    'physical_count' => $record->physical_count,
-                    'variance' => $record->variance,
+                'payload' => array_merge($raw, [
+                    'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no'),
+                    'unit' => $record->unit ?? data_get($raw, 'unit') ?? 'pc',
+                    'unit_cost' => $unitCost,
+                    'unit_value' => $unitCost,
+                    'total_value' => $totalVal,
+                    'physical_count' => $physCount,
+                    'on_hand_count' => $physCount,
+                    'balance_per_card' => $qtyBooks,
+                    'quantity_per_books' => $qtyBooks,
+                    'variance' => $shortageQty,
+                    'shortage_qty' => $shortageQty,
+                    'shortage_value' => $shortageVal,
                     'location' => $record->location,
                     'condition' => $record->condition,
+                    'remarks' => $record->remarks,
+                    'item_name' => $itemName,
                 ]),
             ];
         });
@@ -114,27 +162,56 @@ Route::get('/compliance/reports', function () {
 
     if (\Illuminate\Support\Facades\Schema::hasTable('stock_card_migrated_records')) {
         $stockCardRecords = \App\Models\Compliance\StockCardMigratedRecord::query()->latest()->get()->map(function ($record) {
+            $raw = $record->raw_data ?? [];
+            $itemName = $record->item ?? data_get($raw, 'item_name') ?? data_get($raw, 'item') ?? 'Stock Item';
+            $receiptQty = (int) ($record->receipt_quantity ?? data_get($raw, 'receipt_qty') ?? data_get($raw, 'receipt_quantity') ?? 0);
+            $issueQty = (int) ($record->issue_quantity ?? data_get($raw, 'issue_qty') ?? data_get($raw, 'issue_quantity') ?? data_get($raw, 'quantity') ?? 0);
+            $balanceQty = (int) ($record->balance ?? data_get($raw, 'balance_qty') ?? data_get($raw, 'balance') ?? 0);
+            $recordDate = $record->date instanceof \DateTimeInterface
+                ? $record->date->format('Y-m-d')
+                : ($record->date ? (string) $record->date : data_get($raw, 'date'));
+
             return [
                 'id' => $record->id,
                 'form_type' => 'STOCK_CARD',
                 'source' => $record->source_file ?? $record->source_sheet ?? 'historical_migration',
                 'reference' => $record->reference_no ?? ('SC-HIST-' . $record->id),
-                'item_name' => $record->item,
-                'quantity' => (int) ($record->issue_quantity ?? $record->receipt_quantity ?? $record->balance ?? 0),
-                'recipient' => $record->office_end_user,
-                'department' => $record->supplier_source,
+                'reference_no' => $record->reference_no,
+                'item_name' => $itemName,
+                'item' => $itemName,
+                'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no'),
+                'unit' => $record->unit ?? data_get($raw, 'unit') ?? 'Pieces',
+                'quantity' => $issueQty,
+                'issue_quantity' => $issueQty,
+                'issue_qty' => $issueQty,
+                'receipt_quantity' => $receiptQty,
+                'receipt_qty' => $receiptQty,
+                'balance' => $balanceQty,
+                'balance_qty' => $balanceQty,
+                'recipient' => $record->office_end_user ?? data_get($raw, 'recipient') ?? data_get($raw, 'issue_office'),
+                'office_end_user' => $record->office_end_user ?? data_get($raw, 'recipient') ?? data_get($raw, 'issue_office'),
+                'department' => $record->supplier_source ?? data_get($raw, 'department') ?? data_get($raw, 'supplier_source'),
+                'supplier_source' => $record->supplier_source,
+                'unit_cost' => $record->unit_cost ?? data_get($raw, 'unit_cost'),
+                'total_cost' => $record->total_cost ?? data_get($raw, 'total_cost') ?? data_get($raw, 'amount'),
                 'designation' => null,
-                'remarks' => $record->remarks,
-                'date' => optional($record->date)->toDateString(),
+                'remarks' => $record->remarks ?? data_get($raw, 'remarks'),
+                'date' => $recordDate,
                 'status' => 'historical_migration',
-                'payload' => array_merge($record->raw_data ?? [], [
-                    'stock_no' => $record->stock_no,
-                    'unit' => $record->unit,
-                    'receipt_qty' => $record->receipt_quantity,
-                    'issue_qty' => $record->issue_quantity,
-                    'balance_qty' => $record->balance,
+                'payload' => array_merge($raw, [
+                    'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no'),
+                    'unit' => $record->unit ?? data_get($raw, 'unit') ?? 'Pieces',
+                    'receipt_qty' => $receiptQty,
+                    'receipt_quantity' => $receiptQty,
+                    'issue_qty' => $issueQty,
+                    'issue_quantity' => $issueQty,
+                    'balance_qty' => $balanceQty,
+                    'balance' => $balanceQty,
                     'unit_cost' => $record->unit_cost,
                     'total_cost' => $record->total_cost,
+                    'item_name' => $itemName,
+                    'office_end_user' => $record->office_end_user,
+                    'supplier_source' => $record->supplier_source,
                 ]),
             ];
         });
@@ -143,20 +220,59 @@ Route::get('/compliance/reports', function () {
 
     if (\Illuminate\Support\Facades\Schema::hasTable('memorandum_receipt_migrated_records')) {
         $mrRecords = \App\Models\Compliance\MemorandumReceiptMigratedRecord::query()->latest()->get()->map(function ($record) {
+            $raw = $record->raw_data ?? [];
+            $itemName = data_get($raw, 'item_name') ?? data_get($raw, 'item') ?? data_get($raw, 'description') ?? $record->remarks ?? 'Property Item';
+            $qty = (int) (data_get($raw, 'quantity') ?? data_get($raw, 'qty') ?? 1);
+            $cost = (float) (data_get($raw, 'unit_cost') ?? data_get($raw, 'unit_value') ?? data_get($raw, 'cost') ?? 0);
+            $totalVal = (float) (data_get($raw, 'amount') ?? data_get($raw, 'total_value') ?? ($qty * $cost));
+            $unit = data_get($raw, 'unit') ?? 'pc';
+            $propNo = data_get($raw, 'stock_no') ?? data_get($raw, 'property_no') ?? $record->memorial_no ?? ('MR-HIST-' . $record->id);
+            $recipient = $record->received_by ?? data_get($raw, 'recipient') ?? data_get($raw, 'received_by') ?? 'Accountable Officer';
+            $dept = $record->received_from ?? $record->received_for ?? data_get($raw, 'department') ?? data_get($raw, 'office') ?? 'Official Business';
+            $desig = data_get($raw, 'designation') ?? data_get($raw, 'position') ?? $record->received_for ?? 'Property Custodian';
+            $recordDate = $record->date_received instanceof \DateTimeInterface
+                ? $record->date_received->format('Y-m-d')
+                : ($record->date_received ? (string) $record->date_received : data_get($raw, 'date'));
+
             return [
                 'id' => $record->id,
                 'form_type' => 'MR',
                 'source' => $record->source_file ?? $record->source_sheet ?? 'historical_migration',
                 'reference' => $record->memorial_no ?? ('MR-HIST-' . $record->id),
-                'item_name' => data_get($record->raw_data, 'item_name') ?? data_get($record->raw_data, 'item') ?? $record->remarks ?? 'Property Item',
-                'quantity' => (int) (data_get($record->raw_data, 'quantity') ?? 1),
-                'recipient' => $record->received_by,
-                'department' => $record->received_from ?? $record->received_for,
-                'designation' => data_get($record->raw_data, 'designation'),
-                'remarks' => $record->remarks,
-                'date' => optional($record->date_received)->toDateString(),
+                'item_name' => $itemName,
+                'item' => $itemName,
+                'quantity' => $qty,
+                'unit' => $unit,
+                'unit_cost' => $cost,
+                'unit_value' => $cost,
+                'amount' => $totalVal,
+                'total_value' => $totalVal,
+                'stock_no' => $propNo,
+                'property_no' => $propNo,
+                'recipient' => $recipient,
+                'received_by' => $recipient,
+                'department' => $dept,
+                'received_from' => $record->received_from,
+                'received_for' => $record->received_for,
+                'designation' => $desig,
+                'remarks' => $record->remarks ?? data_get($raw, 'remarks'),
+                'date' => $recordDate,
                 'status' => 'historical_migration',
-                'payload' => $record->raw_data ?? [],
+                'payload' => array_merge($raw, [
+                    'item_name' => $itemName,
+                    'quantity' => $qty,
+                    'unit' => $unit,
+                    'unit_cost' => $cost,
+                    'unit_value' => $cost,
+                    'amount' => $totalVal,
+                    'total_value' => $totalVal,
+                    'property_no' => $propNo,
+                    'stock_no' => $propNo,
+                    'recipient' => $recipient,
+                    'received_by' => $recipient,
+                    'department' => $dept,
+                    'designation' => $desig,
+                ]),
             ];
         });
         $migratedRecords = $migratedRecords->concat($mrRecords);
@@ -167,6 +283,11 @@ Route::get('/compliance/reports', function () {
             ->latest()
             ->get()
             ->map(function ($record) {
+                $raw = $record->payload ?? [];
+                $recordDate = $record->date instanceof \DateTimeInterface
+                    ? $record->date->format('Y-m-d')
+                    : ($record->date ? (string) $record->date : data_get($raw, 'date'));
+
                 return [
                     'id' => $record->id,
                     'form_type' => $record->form_type,
@@ -178,9 +299,9 @@ Route::get('/compliance/reports', function () {
                     'department' => $record->department,
                     'designation' => $record->designation,
                     'remarks' => $record->remarks,
-                    'date' => optional($record->date)->toDateString(),
+                    'date' => $recordDate,
                     'status' => $record->status,
-                    'payload' => $record->payload ?? [],
+                    'payload' => $raw,
                 ];
             });
         $migratedRecords = $migratedRecords->concat($legacyRecords);
