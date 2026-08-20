@@ -822,10 +822,8 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                     <input
                                         type="text"
                                         value={approvedBy}
-                                        onChange={(e) => setApprovedBy(e.target.value)}
-                                        className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
-                                            focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200
-                                            ${errors.approved_by ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-orange-500'}`}
+                                        readOnly
+                                        className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-xl text-sm shadow-sm text-gray-700 font-medium cursor-not-allowed focus:outline-none"
                                         placeholder="ARSENIO GEM A. GARCILLANOSA"
                                     />
                                 </div>
@@ -840,10 +838,8 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                     <input
                                         type="text"
                                         value={approvedByDesignation}
-                                        onChange={(e) => setApprovedByDesignation(e.target.value)}
-                                        className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
-                                            focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200
-                                            ${errors.approved_by_designation ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-orange-500'}`}
+                                        readOnly
+                                        className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-xl text-sm shadow-sm text-gray-700 font-medium cursor-not-allowed focus:outline-none"
                                         placeholder="SUPPLY OFFICER III/ADMIN OFFICER V"
                                     />
                                 </div>
