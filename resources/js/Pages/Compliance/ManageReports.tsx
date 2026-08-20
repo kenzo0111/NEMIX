@@ -141,7 +141,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     const [modalMode, setModalMode] = useState<'create' | 'view'>('create');
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const reportContentRef = useRef<HTMLDivElement | null>(null);
-    const [migrationFormType, setMigrationFormType] = useState<'RSMI' | 'RPCI' | 'STOCK_CARD' | 'MR'>('RSMI');
+    const [migrationFormType, setMigrationFormType] = useState<'RSMI' | 'RPCI' | 'STOCK_CARD' | 'MR' | 'MOR'>('RSMI');
     const [migrationSource, setMigrationSource] = useState('');
     const [migrationInputText, setMigrationInputText] = useState('');
     const [migrationFileName, setMigrationFileName] = useState('');
@@ -454,7 +454,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         return '';
     };
 
-    const parseFormSpecificRows = (raw: string, formType: 'RSMI' | 'RPCI' | 'STOCK_CARD' | 'MR') => {
+    const parseFormSpecificRows = (raw: string, formType: 'RSMI' | 'RPCI' | 'STOCK_CARD' | 'MR' | 'MOR') => {
         const trimmed = raw.trim();
         if (!trimmed) return [];
 
