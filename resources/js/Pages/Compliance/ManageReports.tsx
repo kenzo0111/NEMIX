@@ -2055,10 +2055,29 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                             <div ref={migrationPreviewRef}>
                                 {migrationPreview.length > 0 ? (
-                                    <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-                                        <table className="min-w-full text-xs">
-                                            {migrationFormType === 'RSMI' && (
-                                                <>
+                                    <div className="space-y-8">
+                                        {migrationPreview.map((group: any, gIdx: number) => (
+                                            <div key={gIdx} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                                                <div className="bg-slate-50 border-b border-gray-200 px-6 py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                                                    <div>
+                                                        <h4 className="text-lg font-bold text-slate-800">Form #{gIdx + 1} <span className="text-sm font-medium text-slate-500 ml-2">(Sheet: {group.sheetName})</span></h4>
+                                                        <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-slate-600">
+                                                            {group.metadata?.topSerialNo && <span className="bg-white px-2 py-1 rounded border shadow-sm">Serial No: <strong>{group.metadata.topSerialNo}</strong></span>}
+                                                            {group.metadata?.topDate && <span className="bg-white px-2 py-1 rounded border shadow-sm">Date: <strong>{group.metadata.topDate}</strong></span>}
+                                                            {group.metadata?.entityName && <span className="bg-white px-2 py-1 rounded border shadow-sm">Entity: <strong>{group.metadata.entityName}</strong></span>}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-4 text-sm font-medium">
+                                                        <span className="text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-200">{group.validCount} Valid</span>
+                                                        {group.invalidCount > 0 && <span className="text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-200">{group.invalidCount} Invalid</span>}
+                                                        {group.duplicateCount > 0 && <span className="text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">{group.duplicateCount} Duplicates</span>}
+                                                    </div>
+                                                </div>
+                                                
+                                                {/* RSMI Table */}
+                                                {migrationFormType === 'RSMI' && (
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-full text-xs">
                                                     <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
                                                         <tr>
                                                             <th className="px-3 py-2.5">RIS No.</th>
@@ -2073,7 +2092,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-100">
-                                                        {migrationPreview.map((row: any, index: number) => (
+                                                        {group.items.map((row: any, index: number) => (
                                                             <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
                                                                 <td className="px-3 py-2 font-semibold text-gray-900">{row.reference || '-'}</td>
                                                                 <td className="px-3 py-2 text-gray-600">{row.department || row.responsibility_center_code || '-'}</td>
@@ -2093,11 +2112,14 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                             </tr>
                                                         ))}
                                                     </tbody>
-                                                </>
-                                            )}
+                                                    </table>
+                                                </div>
+                                                )}
 
-                                            {migrationFormType === 'RPCI' && (
-                                                <>
+                                                {/* RPCI Table */}
+                                                {migrationFormType === 'RPCI' && (
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-full text-xs">
                                                     <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
                                                         <tr>
                                                             <th className="px-3 py-2.5">Stock / Prop No.</th>
@@ -2112,7 +2134,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-100">
-                                                        {migrationPreview.map((row: any, index: number) => (
+                                                        {group.items.map((row: any, index: number) => (
                                                             <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
                                                                 <td className="px-3 py-2 font-mono text-xs font-semibold text-gray-900">{row.reference || row.stock_no || '-'}</td>
                                                                 <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
@@ -2132,11 +2154,14 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                             </tr>
                                                         ))}
                                                     </tbody>
-                                                </>
-                                            )}
+                                                    </table>
+                                                </div>
+                                                )}
 
-                                            {migrationFormType === 'STOCK_CARD' && (
-                                                <>
+                                                {/* STOCK CARD Table */}
+                                                {migrationFormType === 'STOCK_CARD' && (
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-full text-xs">
                                                     <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
                                                         <tr>
                                                             <th className="px-3 py-2.5">Date</th>
@@ -2152,7 +2177,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-100">
-                                                        {migrationPreview.map((row: any, index: number) => (
+                                                        {group.items.map((row: any, index: number) => (
                                                             <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
                                                                 <td className="px-3 py-2 text-gray-600">{row.date || '-'}</td>
                                                                 <td className="px-3 py-2 font-semibold text-gray-900">{row.reference || '-'}</td>
@@ -2173,11 +2198,14 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                             </tr>
                                                         ))}
                                                     </tbody>
-                                                </>
-                                            )}
+                                                    </table>
+                                                </div>
+                                                )}
 
-                                            {(migrationFormType === 'MR' || migrationFormType === 'MOR') && (
-                                                <>
+                                                {/* MR/MOR Table */}
+                                                {(migrationFormType === 'MR' || migrationFormType === 'MOR') && (
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-full text-xs">
                                                     <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
                                                         <tr>
                                                             <th className="px-3 py-2.5">Prop No. / Serial (MR No.)</th>
@@ -2192,7 +2220,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-100">
-                                                        {migrationPreview.map((row: any, index: number) => (
+                                                        {group.items.map((row: any, index: number) => (
                                                             <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
                                                                 <td className="px-3 py-2 font-semibold font-mono text-xs text-gray-900">{row.reference || '-'}</td>
                                                                 <td className="px-3 py-2 text-gray-600">{row.date || '-'}</td>
@@ -2212,9 +2240,11 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                             </tr>
                                                         ))}
                                                     </tbody>
-                                                </>
-                                            )}
-                                        </table>
+                                                    </table>
+                                                </div>
+                                                )}
+                                            </div>
+                                        ))}
                                     </div>
                                 ) : (
                                     <div className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-500">
