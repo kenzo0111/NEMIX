@@ -2099,42 +2099,163 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 {migrationPreview.length > 0 ? (
                                     <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
                                         <table className="min-w-full text-xs">
-                                            <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
-                                                <tr>
-                                                    <th className="px-3 py-2.5">Ref / Doc No</th>
-                                                    <th className="px-3 py-2.5">Date</th>
-                                                    <th className="px-3 py-2.5">Item Description</th>
-                                                    <th className="px-3 py-2.5">Qty</th>
-                                                    <th className="px-3 py-2.5">Recipient / Office</th>
-                                                    <th className="px-3 py-2.5">Source Tag</th>
-                                                    <th className="px-3 py-2.5">Validation Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-gray-100">
-                                                {migrationPreview.map((row: any, index: number) => (
-                                                    <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
-                                                        <td className="px-3 py-2 font-semibold text-gray-900">{row.reference || '-'}</td>
-                                                        <td className="px-3 py-2 text-gray-600">{row.date || '-'}</td>
-                                                        <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
-                                                        <td className="px-3 py-2 font-bold text-gray-900">{row.quantity || 0}</td>
-                                                        <td className="px-3 py-2 text-gray-600">{row.recipient || row.department || '-'}</td>
-                                                        <td className="px-3 py-2">
-                                                            <span className="inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-gray-100 text-gray-700">historical_migration</span>
-                                                        </td>
-                                                        <td className="px-3 py-2">
-                                                            {row.errors.length > 0 ? (
-                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">
-                                                                    {row.errors[0]}
-                                                                </span>
-                                                            ) : (
-                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">
-                                                                    Ready to Import
-                                                                </span>
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
+                                            {migrationFormType === 'RSMI' && (
+                                                <>
+                                                    <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
+                                                        <tr>
+                                                            <th className="px-3 py-2.5">RIS No.</th>
+                                                            <th className="px-3 py-2.5">Resp. Center Code</th>
+                                                            <th className="px-3 py-2.5">Stock No.</th>
+                                                            <th className="px-3 py-2.5">Item Description</th>
+                                                            <th className="px-3 py-2.5 text-center">Unit</th>
+                                                            <th className="px-3 py-2.5 text-right">Qty Issued</th>
+                                                            <th className="px-3 py-2.5 text-right">Unit Cost</th>
+                                                            <th className="px-3 py-2.5 text-right">Amount</th>
+                                                            <th className="px-3 py-2.5">Validation Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100">
+                                                        {migrationPreview.map((row: any, index: number) => (
+                                                            <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
+                                                                <td className="px-3 py-2 font-semibold text-gray-900">{row.reference || '-'}</td>
+                                                                <td className="px-3 py-2 text-gray-600">{row.department || row.responsibility_center_code || '-'}</td>
+                                                                <td className="px-3 py-2 font-mono text-xs text-gray-700">{row.stock_no || '-'}</td>
+                                                                <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
+                                                                <td className="px-3 py-2 text-center text-gray-600">{row.unit || 'pc'}</td>
+                                                                <td className="px-3 py-2 text-right font-bold text-gray-900">{row.quantity || 0}</td>
+                                                                <td className="px-3 py-2 text-right text-gray-700">{row.unit_cost ? `₱${Number(row.unit_cost).toLocaleString(undefined, {minimumFractionDigits:2})}` : '₱0.00'}</td>
+                                                                <td className="px-3 py-2 text-right font-semibold text-gray-900">{row.amount ? `₱${Number(row.amount).toLocaleString(undefined, {minimumFractionDigits:2})}` : '₱0.00'}</td>
+                                                                <td className="px-3 py-2">
+                                                                    {row.errors.length > 0 ? (
+                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">{row.errors[0]}</span>
+                                                                    ) : (
+                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Ready to Import</span>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </>
+                                            )}
+
+                                            {migrationFormType === 'RPCI' && (
+                                                <>
+                                                    <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
+                                                        <tr>
+                                                            <th className="px-3 py-2.5">Stock / Prop No.</th>
+                                                            <th className="px-3 py-2.5">Article / Item</th>
+                                                            <th className="px-3 py-2.5 text-center">Unit</th>
+                                                            <th className="px-3 py-2.5 text-right">Unit Value</th>
+                                                            <th className="px-3 py-2.5 text-right">Balance Per Card</th>
+                                                            <th className="px-3 py-2.5 text-right">On Hand Count</th>
+                                                            <th className="px-3 py-2.5 text-right">Shortage/Overage</th>
+                                                            <th className="px-3 py-2.5">Accountable Officer</th>
+                                                            <th className="px-3 py-2.5">Validation Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100">
+                                                        {migrationPreview.map((row: any, index: number) => (
+                                                            <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
+                                                                <td className="px-3 py-2 font-mono text-xs font-semibold text-gray-900">{row.reference || row.stock_no || '-'}</td>
+                                                                <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
+                                                                <td className="px-3 py-2 text-center text-gray-600">{row.unit || 'pc'}</td>
+                                                                <td className="px-3 py-2 text-right text-gray-700">{row.unit_cost ? `₱${Number(row.unit_cost).toLocaleString(undefined, {minimumFractionDigits:2})}` : '₱0.00'}</td>
+                                                                <td className="px-3 py-2 text-right font-bold text-gray-900">{row.quantity || 0}</td>
+                                                                <td className="px-3 py-2 text-right text-gray-800">{row.on_hand_count ?? row.quantity ?? 0}</td>
+                                                                <td className="px-3 py-2 text-right text-gray-600">{row.shortage_qty || '0'}</td>
+                                                                <td className="px-3 py-2 text-gray-600">{row.recipient || row.department || '-'}</td>
+                                                                <td className="px-3 py-2">
+                                                                    {row.errors.length > 0 ? (
+                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">{row.errors[0]}</span>
+                                                                    ) : (
+                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Ready to Import</span>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </>
+                                            )}
+
+                                            {migrationFormType === 'STOCK_CARD' && (
+                                                <>
+                                                    <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
+                                                        <tr>
+                                                            <th className="px-3 py-2.5">Date</th>
+                                                            <th className="px-3 py-2.5">Reference</th>
+                                                            <th className="px-3 py-2.5">Item Description</th>
+                                                            <th className="px-3 py-2.5">Stock No.</th>
+                                                            <th className="px-3 py-2.5 text-center">Unit</th>
+                                                            <th className="px-3 py-2.5 text-right">Receipt Qty</th>
+                                                            <th className="px-3 py-2.5 text-right">Issue Qty</th>
+                                                            <th className="px-3 py-2.5 text-right">Balance Qty</th>
+                                                            <th className="px-3 py-2.5">Issue Office</th>
+                                                            <th className="px-3 py-2.5">Validation Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100">
+                                                        {migrationPreview.map((row: any, index: number) => (
+                                                            <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
+                                                                <td className="px-3 py-2 text-gray-600">{row.date || '-'}</td>
+                                                                <td className="px-3 py-2 font-semibold text-gray-900">{row.reference || '-'}</td>
+                                                                <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
+                                                                <td className="px-3 py-2 font-mono text-xs text-gray-700">{row.stock_no || '-'}</td>
+                                                                <td className="px-3 py-2 text-center text-gray-600">{row.unit || 'Pieces'}</td>
+                                                                <td className="px-3 py-2 text-right text-green-700 font-medium">{row.receipt_qty || 0}</td>
+                                                                <td className="px-3 py-2 text-right text-gray-900 font-bold">{row.quantity || 0}</td>
+                                                                <td className="px-3 py-2 text-right text-gray-800 font-semibold">{row.balance_qty || 0}</td>
+                                                                <td className="px-3 py-2 text-gray-600">{row.recipient || row.department || '-'}</td>
+                                                                <td className="px-3 py-2">
+                                                                    {row.errors.length > 0 ? (
+                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">{row.errors[0]}</span>
+                                                                    ) : (
+                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Ready to Import</span>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </>
+                                            )}
+
+                                            {(migrationFormType === 'MR' || migrationFormType === 'MOR') && (
+                                                <>
+                                                    <thead className="bg-gray-100 text-left text-[11px] uppercase tracking-wide text-gray-700 font-bold">
+                                                        <tr>
+                                                            <th className="px-3 py-2.5">Prop No. / Serial (MR No.)</th>
+                                                            <th className="px-3 py-2.5">Date Acquired</th>
+                                                            <th className="px-3 py-2.5">Description / Item Name</th>
+                                                            <th className="px-3 py-2.5 text-right">Qty</th>
+                                                            <th className="px-3 py-2.5 text-center">Unit</th>
+                                                            <th className="px-3 py-2.5 text-right">Unit Value / Cost</th>
+                                                            <th className="px-3 py-2.5 text-right">Total Value</th>
+                                                            <th className="px-3 py-2.5">Received By / Office</th>
+                                                            <th className="px-3 py-2.5">Validation Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100">
+                                                        {migrationPreview.map((row: any, index: number) => (
+                                                            <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
+                                                                <td className="px-3 py-2 font-semibold font-mono text-xs text-gray-900">{row.reference || '-'}</td>
+                                                                <td className="px-3 py-2 text-gray-600">{row.date || '-'}</td>
+                                                                <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
+                                                                <td className="px-3 py-2 text-right font-bold text-gray-900">{row.quantity || 1}</td>
+                                                                <td className="px-3 py-2 text-center text-gray-600">{row.unit || 'pc'}</td>
+                                                                <td className="px-3 py-2 text-right text-gray-700">{row.unit_cost ? `₱${Number(row.unit_cost).toLocaleString(undefined, {minimumFractionDigits:2})}` : '₱0.00'}</td>
+                                                                <td className="px-3 py-2 text-right font-semibold text-gray-900">{row.amount ? `₱${Number(row.amount).toLocaleString(undefined, {minimumFractionDigits:2})}` : '₱0.00'}</td>
+                                                                <td className="px-3 py-2 text-gray-600">{row.recipient || row.department || '-'}</td>
+                                                                <td className="px-3 py-2">
+                                                                    {row.errors.length > 0 ? (
+                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">{row.errors[0]}</span>
+                                                                    ) : (
+                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">Ready to Import</span>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </>
+                                            )}
                                         </table>
                                     </div>
                                 ) : (
