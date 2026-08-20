@@ -102,96 +102,120 @@ Route::get('/compliance/reports', function () {
 })->middleware(['auth', 'verified'])->name('compliance.reports');
 
 Route::post('/compliance/migrations', function (\Illuminate\Http\Request $request) {
+    @set_time_limit(300);
+    @ini_set('memory_limit', '512M');
+
     $validated = $request->validate([
         'form_type' => ['required', 'in:RSMI,RPCI,STOCK_CARD,MR,MOR'],
         'source' => ['nullable', 'string', 'max:100'],
-        'records' => ['required', 'array'],
-        'records.*.reference' => ['nullable', 'string', 'max:100'],
-        'records.*.date' => ['nullable', 'date'],
-        'records.*.item_name' => ['nullable', 'string', 'max:255'],
-        'records.*.quantity' => ['nullable', 'numeric', 'min:0'],
-        'records.*.unit_cost' => ['nullable', 'numeric', 'min:0'],
-        'records.*.amount' => ['nullable', 'numeric', 'min:0'],
-        'records.*.unit' => ['nullable', 'string', 'max:50'],
-        'records.*.stock_no' => ['nullable', 'string', 'max:100'],
-        'records.*.recipient' => ['nullable', 'string', 'max:255'],
-        'records.*.department' => ['nullable', 'string', 'max:255'],
-        'records.*.designation' => ['nullable', 'string', 'max:255'],
-        'records.*.remarks' => ['nullable', 'string'],
-        'records.*.receipt_qty' => ['nullable', 'numeric', 'min:0'],
-        'records.*.balance_qty' => ['nullable', 'numeric', 'min:0'],
-        'records.*.on_hand_count' => ['nullable', 'numeric', 'min:0'],
-        'records.*.shortage_qty' => ['nullable', 'numeric'],
-        'records.*.shortage_value' => ['nullable', 'numeric'],
-        'records.*.fund_cluster' => ['nullable', 'string', 'max:100'],
-        'records.*.responsibility_center_code' => ['nullable', 'string', 'max:100'],
-        'records.*.re_order_point' => ['nullable', 'string', 'max:50'],
+        'records' => ['required', 'array', 'min:1'],
     ]);
 
-    $records = collect($validated['records'] ?? []);
+    $formType = $validated['form_type'];
+    $source = $validated['source'] ?? 'historical_migration';
+    $userId = optional($request->user())->id;
+    $now = now();
+    $nowIso = $now->toIso8601String();
+
+    // 1. Bulk fetch existing references & item combinations to avoid N+1 queries
+    $existingRefSet = \App\Models\ComplianceMigratedRecord::query()
+        ->where('form_type', $formType)
+        ->pluck('reference')
+        ->map(fn ($r) => strtolower(trim((string) $r)))
+        ->filter()
+        ->flip()
+        ->toArray();
+
+    $existingComboSet = \App\Models\ComplianceMigratedRecord::query()
+        ->where('form_type', $formType)
+        ->select(['item_name', 'date', 'quantity'])
+        ->get()
+        ->map(function ($r) {
+            $item = strtolower(trim((string) ($r->item_name ?? '')));
+            $dt = optional($r->date)->toDateString() ?? '';
+            $qty = (int) ($r->quantity ?? 0);
+            return "{$item}||{$dt}||{$qty}";
+        })
+        ->filter()
+        ->flip()
+        ->toArray();
+
+    $insertData = [];
     $saved = 0;
     $skipped = 0;
 
-    foreach ($records as $index => $recordInput) {
-        if (empty($recordInput['reference']) && empty($recordInput['item_name'])) {
+    foreach ($request->input('records', []) as $index => $recordInput) {
+        if (!is_array($recordInput)) {
             $skipped++;
             continue;
         }
 
         $reference = trim((string) ($recordInput['reference'] ?? '')) ?: 'MIGRATED-' . ($index + 1);
         $itemName = trim((string) ($recordInput['item_name'] ?? ''));
-        $date = !empty($recordInput['date']) ? $recordInput['date'] : null;
+        $date = !empty($recordInput['date']) ? substr((string) $recordInput['date'], 0, 10) : null;
+        $qty = (int) ($recordInput['quantity'] ?? 0);
 
-        $query = \App\Models\ComplianceMigratedRecord::query()
-            ->where('form_type', $validated['form_type']);
-
-        $existing = $query->where(function ($q) use ($reference, $itemName, $date, $recordInput) {
-            $q->where('reference', $reference);
-            if ($itemName && $date) {
-                $q->orWhere(function ($sub) use ($itemName, $date, $recordInput) {
-                    $sub->where('item_name', $itemName)
-                        ->where('date', $date)
-                        ->where('quantity', (int) ($recordInput['quantity'] ?? 0));
-                });
-            }
-        })->exists();
-
-        if ($existing) {
+        if (empty($reference) && empty($itemName)) {
             $skipped++;
             continue;
         }
 
+        $refLower = strtolower($reference);
+        $comboKey = strtolower($itemName) . "||" . ($date ?? '') . "||{$qty}";
+
+        // Duplicate protection in memory
+        if (isset($existingRefSet[$refLower]) || ($itemName && $date && isset($existingComboSet[$comboKey]))) {
+            $skipped++;
+            continue;
+        }
+
+        // Add to existing sets to prevent internal batch duplicates
+        $existingRefSet[$refLower] = true;
+        if ($itemName && $date) {
+            $existingComboSet[$comboKey] = true;
+        }
+
         $payload = array_merge($recordInput, [
             'data_source' => 'historical_migration',
-            'migrated_at' => now()->toIso8601String(),
+            'migrated_at' => $nowIso,
         ]);
 
-        \App\Models\ComplianceMigratedRecord::create([
-            'form_type' => $validated['form_type'],
-            'source' => $validated['source'] ?? 'historical_migration',
+        $insertData[] = [
+            'form_type' => $formType,
+            'source' => $source,
             'reference' => $reference,
             'item_name' => $itemName ?: null,
-            'quantity' => (int) ($recordInput['quantity'] ?? 0),
-            'recipient' => $recordInput['recipient'] ?? null,
-            'department' => $recordInput['department'] ?? null,
-            'designation' => $recordInput['designation'] ?? null,
-            'remarks' => $recordInput['remarks'] ?? null,
+            'quantity' => $qty,
+            'recipient' => isset($recordInput['recipient']) ? (string) $recordInput['recipient'] : null,
+            'department' => isset($recordInput['department']) ? (string) $recordInput['department'] : null,
+            'designation' => isset($recordInput['designation']) ? (string) $recordInput['designation'] : null,
+            'remarks' => isset($recordInput['remarks']) ? (string) $recordInput['remarks'] : null,
             'date' => $date,
             'status' => 'historical_migration',
-            'payload' => $payload,
-            'created_by' => optional($request->user())->id,
-        ]);
+            'payload' => json_encode($payload),
+            'created_by' => $userId,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
 
         $saved++;
     }
 
+    // 2. Perform high-speed batch insertion in chunks of 500 records
+    if (!empty($insertData)) {
+        foreach (array_chunk($insertData, 500) as $chunk) {
+            \App\Models\ComplianceMigratedRecord::insert($chunk);
+        }
+    }
+
+    // 3. Log migration summary
     \App\Models\ComplianceMigrationLog::create([
-        'form_type' => $validated['form_type'],
-        'source' => $validated['source'] ?? 'historical_migration',
+        'form_type' => $formType,
+        'source' => $source,
         'records_count' => $saved,
         'status' => 'completed',
-        'message' => 'Migrated ' . $saved . ' historical ' . $validated['form_type'] . ' records; skipped ' . $skipped . ' duplicates or invalid rows.',
-        'created_by' => optional($request->user())->id,
+        'message' => "Migrated {$saved} historical {$formType} records; skipped {$skipped} duplicates or invalid rows.",
+        'created_by' => $userId,
     ]);
 
     return redirect()->route('compliance.reports');
