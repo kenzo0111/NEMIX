@@ -432,6 +432,18 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         return '';
     };
 
+    const formatDateToIso = (rawDate: any) => {
+        if (!rawDate) return '';
+        const str = String(rawDate).trim();
+        if (!str || str === '-' || str === 'N/A') return '';
+        if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+        const d = new Date(str);
+        if (!Number.isNaN(d.getTime()) && d.getFullYear() >= 1970 && d.getFullYear() <= 2100) {
+            return d.toISOString().split('T')[0];
+        }
+        return '';
+    };
+
     const parseFormSpecificRows = (raw: string, formType: 'RSMI' | 'RPCI' | 'STOCK_CARD' | 'MR') => {
         const trimmed = raw.trim();
         if (!trimmed) return [];
@@ -478,7 +490,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                     return {
                         reference: ref || (fallbackItem ? `RSMI-HIST-${idx + 1}` : ''),
-                        date: dt,
+                        date: formatDateToIso(dt),
                         item_name: String(fallbackItem).trim(),
                         quantity: qty,
                         unit_cost: cost,
@@ -513,7 +525,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                     return {
                         reference: stockNo || (fallbackItem ? `RPCI-HIST-${idx + 1}` : ''),
-                        date: dt,
+                        date: formatDateToIso(dt),
                         item_name: String(fallbackItem).trim(),
                         quantity: qty,
                         unit_cost: cost,
@@ -545,7 +557,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                     return {
                         reference: ref || (fallbackItem ? `MR-HIST-${idx + 1}` : ''),
-                        date: dt,
+                        date: formatDateToIso(dt),
                         item_name: String(fallbackItem).trim(),
                         quantity: qty,
                         unit_cost: cost,
@@ -575,7 +587,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                 return {
                     reference: ref || (fallbackItem ? `SC-HIST-${idx + 1}` : ''),
-                    date: dt,
+                    date: formatDateToIso(dt),
                     item_name: String(fallbackItem).trim(),
                     stock_no: stockNo,
                     unit: unit,

@@ -144,6 +144,27 @@ Route::post('/compliance/migrations', function (\Illuminate\Http\Request $reques
     $saved = 0;
     $skipped = 0;
 
+    $parseValidDate = function ($dateInput) {
+        if (empty($dateInput)) return null;
+        $str = trim((string) $dateInput);
+        if (!$str || $str === '-' || $str === 'N/A') return null;
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $str)) {
+            return $str;
+        }
+
+        try {
+            $carbon = \Carbon\Carbon::parse($str);
+            if ($carbon->year >= 1970 && $carbon->year <= 2100) {
+                return $carbon->toDateString();
+            }
+        } catch (\Throwable $e) {
+            // Not a parseable date
+        }
+
+        return null;
+    };
+
     foreach ($request->input('records', []) as $index => $recordInput) {
         if (!is_array($recordInput)) {
             $skipped++;
@@ -152,7 +173,7 @@ Route::post('/compliance/migrations', function (\Illuminate\Http\Request $reques
 
         $reference = trim((string) ($recordInput['reference'] ?? '')) ?: 'MIGRATED-' . ($index + 1);
         $itemName = trim((string) ($recordInput['item_name'] ?? ''));
-        $date = !empty($recordInput['date']) ? substr((string) $recordInput['date'], 0, 10) : null;
+        $date = $parseValidDate($recordInput['date'] ?? null);
         $qty = (int) ($recordInput['quantity'] ?? 0);
 
         if (empty($reference) && empty($itemName)) {
