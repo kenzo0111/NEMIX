@@ -47,23 +47,24 @@ trait LogsTransactions
             $userId = null;
         }
 
-        $formattedDetails = is_array($details)
-            ? AuditLogFormatter::describe($action, static::getLogResourceName(), $details)
-            : $details;
-        
+        $changes = is_array($details) ? $details : ($this->getChanges() ?: []);
+        unset($changes['updated_at']);
+
+        $original = $this->getOriginal();
+        $formatted = AuditLogFormatter::formatForModel($this, $action, $changes, $original);
+
+        if (is_string($details) && !empty($details)) {
+            $formatted['details'] = $details;
+        }
+
         try {
             TransactionTrail::create([
                 'user_id' => $userId,
-                'module' => static::getLogResourceName(),
-                'action' => $action,
-                'resource_ref' => 'ID-' . $this->getKey(),
-                'details' => $formattedDetails ?? AuditLogFormatter::describe($action, static::getLogResourceName()),
-                'status' => match (strtolower($action)) {
-                    'created' => 'Success',
-                    'updated' => 'Updated',
-                    'deleted' => 'Deleted',
-                    default => 'Logged',
-                },
+                'module' => $formatted['module'],
+                'action' => $formatted['action'],
+                'resource_ref' => $formatted['resource_ref'],
+                'details' => $formatted['details'],
+                'status' => $formatted['status'],
             ]);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Failed to log transaction: '.$e->getMessage(), [

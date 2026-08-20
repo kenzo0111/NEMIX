@@ -71,36 +71,39 @@ class EventServiceProvider extends ServiceProvider
                 $user_id = null;
             }
 
-            $resourceName = class_basename($model);
-            $changes = [];
+            // Ignore models handled explicitly to prevent duplication
+            if ($model instanceof \App\Models\SystemConfiguration) {
+                return;
+            }
 
+            $changes = [];
             if ($action === 'Updated') {
                 $changes = $model->getChanges();
                 unset($changes['updated_at']);
+
+                // If no substantive changes (e.g. only updated_at was touched), skip logging
+                if (empty($changes)) {
+                    return;
+                }
             }
 
-            // Fallback for ID string
-            $resourceRef = 'ID-' . $model->getKey();
+            $original = $model->getOriginal();
+            $formatted = AuditLogFormatter::formatForModel($model, $action, $changes, $original);
 
             try {
                 TransactionTrail::create([
                     'user_id' => $user_id,
-                    'module' => $resourceName,
-                    'action' => $action,
-                    'resource_ref' => $resourceRef,
-                    'details' => AuditLogFormatter::describe($action, $resourceName, $changes),
-                    'status' => match (strtolower($action)) {
-                        'created' => 'Verified',
-                        'updated' => 'Updated',
-                        'deleted' => 'Deleted',
-                        default => 'Logged',
-                    },
+                    'module' => $formatted['module'],
+                    'action' => $formatted['action'],
+                    'resource_ref' => $formatted['resource_ref'],
+                    'details' => $formatted['details'],
+                    'status' => $formatted['status'],
                 ]);
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::error('Failed to create audit log entry: '.$e->getMessage(), [
                     'user_id' => $user_id,
-                    'module' => $resourceName,
-                    'action' => $action,
+                    'module' => $formatted['module'] ?? class_basename($model),
+                    'action' => $formatted['action'] ?? $action,
                     'exception' => $e,
                 ]);
             }

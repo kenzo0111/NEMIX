@@ -147,11 +147,11 @@ export default function Dashboard({
     };
 
     const auditTrailLogs = auditLogs && auditLogs.length > 0 ? auditLogs : [
-        { user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', details: 'Added 5 items to disposal list', id: 'TRX-1006', status: 'Verified', time: '15 mins ago', badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
-        { user: 'Maria Santos', role: 'Internal Auditor', action: 'Exported Annual Supply Report', details: 'Generated PDF report for 2025', id: 'TRX-1007', status: 'Logged', time: '1 hour ago', badge: 'bg-blue-50 text-blue-800 border border-blue-200' },
-        { user: 'Staff Member', role: 'Property Staff', action: 'Overrode Stock Level Warning', details: 'Authorized release of low-stock items', id: 'TRX-1008', status: 'Flagged', time: '3 hours ago', badge: 'bg-amber-50 text-amber-800 border border-amber-200' },
-        { user: 'System Auditor', role: 'External Auditor', action: 'Initiated Inventory Reconciliation', details: 'Started monthly cycle count', id: 'TRX-1009', status: 'In Progress', time: '5 hours ago', badge: 'bg-indigo-50 text-indigo-800 border border-indigo-200' },
-        { user: 'Admin User', role: 'System Admin', action: 'Updated Asset Category Schema', details: 'Modified depreciation schedules', id: 'TRX-1010', status: 'Verified', time: '1 day ago', badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
+        { user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', details: 'Added 5 unserviceable desktop units to disposal list', id: 'TRX-1006', status: 'Verified', time: '15 mins ago', badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
+        { user: 'Maria Santos', role: 'Internal Auditor', action: 'Generated Compliance Report', details: 'Generated Annual Physical Inventory & Inspection Report for FY 2025', id: 'TRX-1007', status: 'Logged', time: '1 hour ago', badge: 'bg-blue-50 text-blue-800 border border-blue-200' },
+        { user: 'Juan Dela Cruz', role: 'Property Staff', action: 'Stock In Requisition', details: 'Received 100 reams of A4 Copy Paper from Advance Paper Corp', id: 'TRX-1008', status: 'Verified', time: '3 hours ago', badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
+        { user: 'Staff Member', role: 'Property Staff', action: 'Issued Inventory Stock', details: 'Issued 20 units of Ballpen Black to SPMO Administrative Office', id: 'TRX-1009', status: 'Flagged', time: '5 hours ago', badge: 'bg-amber-50 text-amber-800 border border-amber-200' },
+        { user: 'System Admin', role: 'System Admin', action: 'Operating Mode Switched', details: 'Switched system operating mode from LIVE PRODUCTION to MAINTENANCE MODE', id: 'TRX-1010', status: 'Verified', time: '1 day ago', badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
     ];
 
     const statusFilterOptions = useMemo(() => {

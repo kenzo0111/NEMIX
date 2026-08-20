@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Modules\AuditLogs\Models\LoginTrail;
 use Modules\AuditLogs\Models\TransactionTrail;
-
+use Modules\AuditLogs\Support\AuditLogFormatter;
 use App\Policies\ResourceOwnershipPolicy;
 
 class AuditLogsController extends Controller
@@ -48,16 +48,18 @@ class AuditLogsController extends Controller
         $transactionTrails = $query->latest()
             ->get()
             ->map(function ($trail) {
+                $resolved = AuditLogFormatter::resolveLogEntry($trail);
+
                 return [
-                    'id' => $trail->resource_ref ?? 'TRX-' . $trail->id,
+                    'id' => $resolved['resource_ref'] ?: ('TRX-' . $trail->id),
                     'user' => $trail->user ? $trail->user->name : 'System',
                     'role' => $trail->user && method_exists($trail->user, 'getRoleNames') ? ($trail->user->getRoleNames()->first() ?? 'User') : 'Administrator',
-                    'action' => $trail->action,
-                    'details' => $trail->details,
+                    'action' => $resolved['action'],
+                    'details' => $resolved['details'],
                     'time' => $trail->created_at ? $trail->created_at->format('M d, Y h:i A') : '',
-                    'module' => $trail->module ?: 'General',
-                    'status' => $trail->status ?: 'Logged',
-                    'badge' => $this->getStatusBadge($trail->status),
+                    'module' => $resolved['module'],
+                    'status' => $resolved['status'],
+                    'badge' => $this->getStatusBadge($resolved['status']),
                 ];
             });
 

@@ -57,11 +57,11 @@ export default function ManageTransaction({ auth, logs: serverLogs = [] }: { aut
 
     // Fallback Data if server data is empty
     const defaultTransactionLogs = [
-        { id: 'TRX-1001', user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', module: 'Inventory', details: 'Added 5 items to disposal list', status: 'Verified', time: '2026-08-15 08:30:12' },
-        { id: 'TRX-1002', user: 'Maria Santos', role: 'Internal Auditor', action: 'Exported Annual Supply Report', module: 'Reports', details: 'Generated PDF report for 2025', status: 'Logged', time: '2026-08-15 09:14:45' },
-        { id: 'TRX-1003', user: 'Juan Dela Cruz', role: 'Property Staff', action: 'Stock In Requisition', module: 'Requisition', details: 'Received 100 reams of A4 paper', status: 'Verified', time: '2026-08-15 10:05:30' },
-        { id: 'TRX-1004', user: 'Staff Member', role: 'Property Staff', action: 'Overrode Stock Level Warning', module: 'Inventory', details: 'Authorized release of low-stock items', status: 'Flagged', time: '2026-08-15 11:20:18' },
-        { id: 'TRX-1005', user: 'System Auditor', role: 'External Auditor', action: 'Initiated Inventory Reconciliation', module: 'Audit Logs', details: 'Started monthly cycle count', status: 'In Progress', time: '2026-08-15 13:02:55' },
+        { id: 'TRX-1001', user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', module: 'Inventory', details: 'Added 5 unserviceable desktop units to disposal list', status: 'Verified', time: '2026-08-15 08:30:12' },
+        { id: 'TRX-1002', user: 'Maria Santos', role: 'Internal Auditor', action: 'Generated Compliance Report', module: 'Compliance', details: 'Generated Annual Physical Inventory & Inspection Report for FY 2025', status: 'Logged', time: '2026-08-15 09:14:45' },
+        { id: 'TRX-1003', user: 'Juan Dela Cruz', role: 'Property Staff', action: 'Stock In Requisition', module: 'Inventory', details: 'Received 100 reams of A4 Copy Paper from Advance Paper Corp', status: 'Verified', time: '2026-08-15 10:05:30' },
+        { id: 'TRX-1004', user: 'Staff Member', role: 'Property Staff', action: 'Issued Inventory Stock', module: 'Inventory', details: 'Issued 20 units of Ballpen Black to SPMO Administrative Office', status: 'Flagged', time: '2026-08-15 11:20:18' },
+        { id: 'TRX-1005', user: 'System Admin', role: 'System Admin', action: 'Operating Mode Switched', module: 'System Configuration', details: 'Switched system operating mode from LIVE PRODUCTION to MAINTENANCE MODE', status: 'Verified', time: '2026-08-15 13:02:55' },
     ];
 
     const rawLogs = serverLogs && serverLogs.length > 0 ? serverLogs : defaultTransactionLogs;
@@ -403,8 +403,10 @@ export default function ManageTransaction({ auth, logs: serverLogs = [] }: { aut
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="font-bold text-gray-900">{trx.details || toTitleCase(trx.action) || 'Unknown Action'}</div>
-                                                    <div className="text-[11px] text-gray-500">{toTitleCase(trx.action) || 'Unknown Action'}</div>
+                                                    <div className="font-bold text-gray-900 text-xs tracking-tight">{toTitleCase(trx.action) || 'System Operation'}</div>
+                                                    {trx.details && (
+                                                        <div className="text-[11px] text-gray-600 mt-0.5 leading-snug">{trx.details}</div>
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200 font-mono">
