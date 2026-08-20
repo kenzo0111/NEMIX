@@ -163,10 +163,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
     const closeActionDialog = () => setActionDialog(prev => ({ ...prev, show: false }));
 
-    const parseExcelWorksheetToRows = (worksheet: any, formType: string, xlsx: any) => {
-        const matrix: any[][] = xlsx.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' });
-        if (!matrix || matrix.length === 0) return [];
-
+    const parseWorkbookToGroups = (workbook: any, formType: string, xlsx: any) => {
+        const groups: any[] = [];
         const isMatchKeyword = (cellVal: any, keywords: string[]) => {
             const str = String(cellVal || '').toLowerCase().trim();
             return keywords.some(kw => str.includes(kw));
@@ -183,128 +181,132 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             targetKeywords = ['date', 'reference', 'receipt', 'issue', 'balance', 'consume', 'office'];
         }
 
-        let headerRowIdx = -1;
-        let maxMatches = 0;
+        workbook.SheetNames.forEach((sheetName: string) => {
+            const worksheet = workbook.Sheets[sheetName];
+            const matrix: any[][] = xlsx.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' });
+            if (!matrix || matrix.length === 0) return;
 
-        const scanLimit = Math.min(35, matrix.length);
-        for (let r = 0; r < scanLimit; r++) {
-            const row = matrix[r];
-            if (!Array.isArray(row)) continue;
+            let r = 0;
+            while (r < matrix.length) {
+                let headerRowIdx = -1;
+                let maxMatches = 0;
+                let currentMetadata: Record<string, string> = {};
 
-            const rowStr = row.map(c => String(c || '').toLowerCase().trim()).join(' ');
-            if (rowStr.includes('to be filled up by') || rowStr.includes('recapitulation')) {
-                continue;
-            }
+                const scanLimit = Math.min(r + 50, matrix.length);
+                let foundHeader = false;
+                for (let sr = r; sr < scanLimit; sr++) {
+                    const row = matrix[sr];
+                    if (!Array.isArray(row)) continue;
 
-            let matches = 0;
-            row.forEach(cell => {
-                if (isMatchKeyword(cell, targetKeywords)) {
-                    matches++;
+                    const rowStr = row.map(c => String(c || '').toLowerCase().trim()).join(' ');
+                    if (rowStr.includes('to be filled up by') || rowStr.includes('recapitulation')) {
+                        continue;
+                    }
+
+                    for (let c = 0; c < row.length; c++) {
+                        const cellStr = String(row[c] || '').trim();
+                        if (!cellStr) continue;
+                        if (/entity\s*name/i.test(cellStr) && row[c + 1]) currentMetadata['entityName'] = String(row[c + 1]).trim();
+                        if (/fund\s*cluster/i.test(cellStr) && row[c + 1]) currentMetadata['fundCluster'] = String(row[c + 1]).trim();
+                        if (/(?:serial|mr|ris|doc|property)\s*no/i.test(cellStr) && row[c + 1]) currentMetadata['topSerialNo'] = String(row[c + 1]).trim();
+                        if (/(?:as\s*at\s*date|date\s*issued|date)/i.test(cellStr) && row[c + 1]) currentMetadata['topDate'] = String(row[c + 1]).trim();
+                        if (/(?:accountable|officer|custodian|received\s*by)/i.test(cellStr) && row[c + 1]) currentMetadata['topRecipient'] = String(row[c + 1]).trim();
+                        if (/(?:office|department)/i.test(cellStr) && row[c + 1]) currentMetadata['topOffice'] = String(row[c + 1]).trim();
+                    }
+
+                    let matches = 0;
+                    row.forEach(cell => {
+                        if (isMatchKeyword(cell, targetKeywords)) matches++;
+                    });
+
+                    if (matches >= 2 && matches > maxMatches) {
+                        maxMatches = matches;
+                        headerRowIdx = sr;
+                        if (matches >= 4) foundHeader = true;
+                    }
+                    if (foundHeader && headerRowIdx !== -1) break;
                 }
-            });
 
-            if (matches >= 2 && matches > maxMatches) {
-                maxMatches = matches;
-                headerRowIdx = r;
-            }
-        }
+                if (headerRowIdx === -1) break;
 
-        const metadata: Record<string, string> = {};
-        const topLimit = headerRowIdx > 0 ? headerRowIdx : Math.min(10, matrix.length);
-        for (let r = 0; r < topLimit; r++) {
-            const row = matrix[r];
-            if (!Array.isArray(row)) continue;
-            for (let c = 0; c < row.length; c++) {
-                const cellStr = String(row[c] || '').trim();
-                if (!cellStr) continue;
+                r = headerRowIdx;
+                const rawHeaders = matrix[headerRowIdx] || [];
+                const nextRow = matrix[headerRowIdx + 1] || [];
+                let actualDataStart = headerRowIdx + 1;
 
-                if (/entity\s*name/i.test(cellStr) && row[c + 1]) metadata['entityName'] = String(row[c + 1]).trim();
-                if (/fund\s*cluster/i.test(cellStr) && row[c + 1]) metadata['fundCluster'] = String(row[c + 1]).trim();
-                if (/(?:serial|mr|ris|doc|property)\s*no/i.test(cellStr) && row[c + 1]) metadata['topSerialNo'] = String(row[c + 1]).trim();
-                if (/(?:as\s*at\s*date|date\s*issued|date)/i.test(cellStr) && row[c + 1]) metadata['topDate'] = String(row[c + 1]).trim();
-                if (/(?:accountable|officer|custodian|received\s*by)/i.test(cellStr) && row[c + 1]) metadata['topRecipient'] = String(row[c + 1]).trim();
-            }
-        }
+                const headers: string[] = [];
+                rawHeaders.forEach((hCell, cIdx) => {
+                    let hName = String(hCell || '').trim();
+                    const subName = String(nextRow[cIdx] || '').trim();
+                    if (subName && (subName.startsWith('(') || /quantity|value|cost|office|amount/i.test(subName))) {
+                        hName = hName ? `${hName} ${subName}` : subName;
+                    }
+                    headers[cIdx] = hName;
+                });
 
-        if (headerRowIdx === -1) {
-            for (let r = 0; r < scanLimit; r++) {
-                const row = matrix[r];
-                if (Array.isArray(row) && row.filter(cell => String(cell || '').trim() !== '').length >= 3) {
-                    headerRowIdx = r;
-                    break;
+                if (nextRow.some(cell => String(cell || '').trim().startsWith('('))) {
+                    actualDataStart = headerRowIdx + 2;
+                }
+
+                r = actualDataStart;
+                const resultRows: any[] = [];
+                
+                while (r < matrix.length) {
+                    const row = matrix[r];
+                    if (!Array.isArray(row)) { r++; continue; }
+
+                    const fullRowStr = row.map(c => String(c || '').toLowerCase().trim()).join(' ');
+
+                    if (
+                        fullRowStr.includes('recapitulation') ||
+                        fullRowStr.includes('certified correct') ||
+                        fullRowStr.includes('posted by') ||
+                        fullRowStr.includes('approved by') ||
+                        fullRowStr.includes('i hereby certify')
+                    ) {
+                        r++;
+                        break;
+                    }
+
+                    if (fullRowStr.includes('report of supplies') || fullRowStr.includes('report of physical count') || fullRowStr.includes('stock card')) {
+                        break;
+                    }
+
+                    if (row.every(cell => String(cell || '').trim() === '')) {
+                        r++; continue;
+                    }
+
+                    const firstCellStr = String(row[0] || '').toLowerCase().trim();
+                    if (firstCellStr.includes('total') || firstCellStr === 'grand total') {
+                        r++; continue;
+                    }
+
+                    const rowObj: Record<string, any> = { ...currentMetadata };
+                    let hasContent = false;
+
+                    headers.forEach((hName, cIdx) => {
+                        const cellVal = row[cIdx] !== undefined ? row[cIdx] : '';
+                        if (hName) rowObj[hName] = cellVal;
+                        else rowObj[`__col_${cIdx}`] = cellVal;
+                        if (String(cellVal).trim()) hasContent = true;
+                    });
+
+                    if (hasContent) resultRows.push(rowObj);
+                    r++;
+                }
+
+                if (resultRows.length > 0) {
+                    groups.push({
+                        sheetName,
+                        metadata: { ...currentMetadata },
+                        items: resultRows
+                    });
                 }
             }
-        }
-
-        if (headerRowIdx === -1) {
-            return xlsx.utils.sheet_to_json(worksheet, { defval: '' });
-        }
-
-        const rawHeaders = matrix[headerRowIdx] || [];
-        const nextRow = matrix[headerRowIdx + 1] || [];
-        let actualDataStart = headerRowIdx + 1;
-
-        const headers: string[] = [];
-        rawHeaders.forEach((hCell, cIdx) => {
-            let hName = String(hCell || '').trim();
-            const subName = String(nextRow[cIdx] || '').trim();
-
-            if (subName && (subName.startsWith('(') || /quantity|value|cost|office|amount/i.test(subName))) {
-                hName = hName ? `${hName} ${subName}` : subName;
-            }
-            headers[cIdx] = hName;
         });
 
-        if (nextRow.some(cell => String(cell || '').trim().startsWith('('))) {
-            actualDataStart = headerRowIdx + 2;
-        }
-
-        const resultRows: any[] = [];
-        for (let r = actualDataStart; r < matrix.length; r++) {
-            const row = matrix[r];
-            if (!Array.isArray(row) || row.every(cell => String(cell || '').trim() === '')) {
-                continue;
-            }
-
-            const fullRowStr = row.map(c => String(c || '').toLowerCase().trim()).join(' ');
-
-            // Stop scanning data rows immediately when encountering section footers/recapitulations
-            if (
-                fullRowStr.includes('recapitulation') ||
-                fullRowStr.includes('certified correct') ||
-                fullRowStr.includes('posted by') ||
-                fullRowStr.includes('approved by') ||
-                fullRowStr.includes('i hereby certify')
-            ) {
-                break;
-            }
-
-            const firstCellStr = String(row[0] || '').toLowerCase().trim();
-            if (firstCellStr.includes('total') || firstCellStr === 'grand total') {
-                continue;
-            }
-
-            const rowObj: Record<string, any> = { ...metadata };
-            let hasContent = false;
-
-            headers.forEach((hName, cIdx) => {
-                const cellVal = row[cIdx] !== undefined ? row[cIdx] : '';
-                if (hName) {
-                    rowObj[hName] = cellVal;
-                } else {
-                    rowObj[`__col_${cIdx}`] = cellVal;
-                }
-                if (String(cellVal).trim()) hasContent = true;
-            });
-
-            if (hasContent) {
-                resultRows.push(rowObj);
-            }
-        }
-
-        return resultRows;
+        return groups;
     };
-
     const extractMigrationTextFromFile = async (file: File) => {
         const fileName = file.name.toLowerCase();
 
@@ -318,8 +320,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 const workbook = xlsx.read(arrayBuffer, { type: 'array', cellDates: true });
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
-                const jsonRows = parseExcelWorksheetToRows(worksheet, migrationFormType, xlsx);
-                return JSON.stringify(jsonRows);
+                const groups = parseWorkbookToGroups(workbook, migrationFormType, xlsx);
+                return JSON.stringify({ isGroups: true, groups });
             }
 
             if (fileName.endsWith('.docx')) {
@@ -655,7 +657,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     };
 
     const buildMigrationPreview = (raw: string) => {
-        const parsedRows = parseFormSpecificRows(raw, migrationFormType);
+        const parsedGroups = parseFormSpecificRows(raw, migrationFormType);
 
         const existingReferences = new Set(
             (migratedRecords || [])
@@ -674,50 +676,54 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 })
         );
 
-        const preview = parsedRows.map((row: any) => {
-            const errors: string[] = [];
-            if (!row.reference && !row.item_name) {
-                errors.push('Missing reference or item name');
-            }
-            if (!row.item_name) {
-                errors.push('Missing item description');
-            }
-            if (row.date) {
-                const parsedDate = new Date(row.date);
-                if (Number.isNaN(parsedDate.getTime())) {
-                    errors.push('Invalid date format');
+        let totalValid = 0;
+        let totalInvalid = 0;
+        let totalDuplicate = 0;
+
+        const previewGroups = parsedGroups.map((group: any) => {
+            const groupItems = group.items.map((row: any) => {
+                const errors: string[] = [];
+                if (!row.reference && !row.item_name) errors.push('Missing reference or item name');
+                if (!row.item_name) errors.push('Missing item description');
+                if (row.date) {
+                    const parsedDate = new Date(row.date);
+                    if (Number.isNaN(parsedDate.getTime())) errors.push('Invalid date format');
                 }
-            }
 
-            const refLower = String(row.reference || '').trim().toLowerCase();
-            const comboKey = `${String(row.item_name || '').trim().toLowerCase()}||${String(row.date || '').trim()}||${Number(row.quantity || 0)}`;
+                const refLower = String(row.reference || '').trim().toLowerCase();
+                const comboKey = `${String(row.item_name || '').trim().toLowerCase()}||${String(row.date || '').trim()}||${Number(row.quantity || 0)}`;
 
-            if (refLower && existingReferences.has(refLower)) {
-                errors.push(`Duplicate ${migrationFormType} record: reference number exists`);
-            } else if (row.item_name && row.date && existingCombinations.has(comboKey)) {
-                errors.push(`Duplicate ${migrationFormType} record: matching item, date, and qty exist`);
-            }
+                if (refLower && existingReferences.has(refLower)) {
+                    errors.push(`Duplicate ${migrationFormType} record: reference number exists`);
+                } else if (row.item_name && row.date && existingCombinations.has(comboKey)) {
+                    errors.push(`Duplicate ${migrationFormType} record: matching item, date, and qty exist`);
+                }
 
-            return {
-                ...row,
-                errors,
-            };
+                return { ...row, errors };
+            });
+
+            const validCount = groupItems.filter((row: any) => row.errors.length === 0).length;
+            const invalidCount = groupItems.length - validCount;
+            const duplicateCount = groupItems.filter((row: any) => row.errors.some((error: string) => error.includes('Duplicate'))).length;
+
+            totalValid += validCount;
+            totalInvalid += invalidCount;
+            totalDuplicate += duplicateCount;
+
+            return { ...group, items: groupItems, validCount, invalidCount, duplicateCount };
         });
 
-        const validCount = preview.filter((row: any) => row.errors.length === 0).length;
-        const invalidCount = preview.length - validCount;
-        const duplicateCount = preview.filter((row: any) => row.errors.some((error: string) => error.includes('Duplicate'))).length;
+        setMigrationPreview(previewGroups);
+        setMigrationValidation({ validCount: totalValid, invalidCount: totalInvalid, duplicateCount: totalDuplicate });
 
-        setMigrationPreview(preview);
-        setMigrationValidation({ validCount, invalidCount, duplicateCount });
-
-        const firstValidRow = preview.find((row: any) => row.errors.length === 0);
-        if (firstValidRow) {
-            populateFormFromMigrationRow(firstValidRow);
+        const firstValidGroup = previewGroups.find((g: any) => g.items.some((r: any) => r.errors.length === 0));
+        if (firstValidGroup) {
+            const firstValidRow = firstValidGroup.items.find((r: any) => r.errors.length === 0);
+            populateFormFromMigrationRow({ ...firstValidRow, sheetName: firstValidGroup.sheetName, metadata: firstValidGroup.metadata });
             setModalMode('create');
         }
 
-        return preview;
+        return previewGroups;
     };
 
     const openMigrationModal = () => {
