@@ -163,6 +163,138 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
     const closeActionDialog = () => setActionDialog(prev => ({ ...prev, show: false }));
 
+    const parseExcelWorksheetToRows = (worksheet: any, formType: string, xlsx: any) => {
+        const matrix: any[][] = xlsx.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' });
+        if (!matrix || matrix.length === 0) return [];
+
+        const isMatchKeyword = (cellVal: any, keywords: string[]) => {
+            const str = String(cellVal || '').toLowerCase().trim();
+            return keywords.some(kw => str.includes(kw));
+        };
+
+        let targetKeywords: string[] = [];
+        if (formType === 'RSMI') {
+            targetKeywords = ['ris', 'item', 'stock', 'quantity', 'qty', 'issued', 'unit cost', 'amount', 'responsibility'];
+        } else if (formType === 'RPCI') {
+            targetKeywords = ['article', 'description', 'stock', 'property', 'unit', 'unit value', 'balance', 'hand', 'shortage', 'remarks'];
+        } else if (formType === 'MR' || formType === 'MOR') {
+            targetKeywords = ['qty', 'quantity', 'unit', 'description', 'item', 'property', 'serial', 'mr no', 'acquired', 'value', 'cost'];
+        } else {
+            targetKeywords = ['date', 'reference', 'receipt', 'issue', 'balance', 'consume', 'office'];
+        }
+
+        let headerRowIdx = -1;
+        let maxMatches = 0;
+
+        const scanLimit = Math.min(35, matrix.length);
+        for (let r = 0; r < scanLimit; r++) {
+            const row = matrix[r];
+            if (!Array.isArray(row)) continue;
+
+            let matches = 0;
+            row.forEach(cell => {
+                if (isMatchKeyword(cell, targetKeywords)) {
+                    matches++;
+                }
+            });
+
+            if (matches >= 2 && matches > maxMatches) {
+                maxMatches = matches;
+                headerRowIdx = r;
+            }
+        }
+
+        const metadata: Record<string, string> = {};
+        const topLimit = headerRowIdx > 0 ? headerRowIdx : Math.min(10, matrix.length);
+        for (let r = 0; r < topLimit; r++) {
+            const row = matrix[r];
+            if (!Array.isArray(row)) continue;
+            for (let c = 0; c < row.length; c++) {
+                const cellStr = String(row[c] || '').trim();
+                if (!cellStr) continue;
+
+                if (/entity\s*name/i.test(cellStr) && row[c + 1]) metadata['entityName'] = String(row[c + 1]).trim();
+                if (/fund\s*cluster/i.test(cellStr) && row[c + 1]) metadata['fundCluster'] = String(row[c + 1]).trim();
+                if (/(?:serial|mr|ris|doc|property)\s*no/i.test(cellStr) && row[c + 1]) metadata['topSerialNo'] = String(row[c + 1]).trim();
+                if (/(?:as\s*at\s*date|date\s*issued|date)/i.test(cellStr) && row[c + 1]) metadata['topDate'] = String(row[c + 1]).trim();
+                if (/(?:accountable|officer|custodian|received\s*by)/i.test(cellStr) && row[c + 1]) metadata['topRecipient'] = String(row[c + 1]).trim();
+            }
+        }
+
+        if (headerRowIdx === -1) {
+            for (let r = 0; r < scanLimit; r++) {
+                const row = matrix[r];
+                if (Array.isArray(row) && row.filter(cell => String(cell || '').trim() !== '').length >= 3) {
+                    headerRowIdx = r;
+                    break;
+                }
+            }
+        }
+
+        if (headerRowIdx === -1) {
+            return xlsx.utils.sheet_to_json(worksheet, { defval: '' });
+        }
+
+        const rawHeaders = matrix[headerRowIdx] || [];
+        const nextRow = matrix[headerRowIdx + 1] || [];
+        let actualDataStart = headerRowIdx + 1;
+
+        const headers: string[] = [];
+        rawHeaders.forEach((hCell, cIdx) => {
+            let hName = String(hCell || '').trim();
+            const subName = String(nextRow[cIdx] || '').trim();
+
+            if (subName && (subName.startsWith('(') || /quantity|value|cost|office|amount/i.test(subName))) {
+                hName = hName ? `${hName} ${subName}` : subName;
+            }
+            headers[cIdx] = hName;
+        });
+
+        if (nextRow.some(cell => String(cell || '').trim().startsWith('('))) {
+            actualDataStart = headerRowIdx + 2;
+        }
+
+        const resultRows: any[] = [];
+        for (let r = actualDataStart; r < matrix.length; r++) {
+            const row = matrix[r];
+            if (!Array.isArray(row) || row.every(cell => String(cell || '').trim() === '')) {
+                continue;
+            }
+
+            const rowObj: Record<string, any> = { ...metadata };
+            let hasContent = false;
+
+            headers.forEach((hName, cIdx) => {
+                const cellVal = row[cIdx] !== undefined ? row[cIdx] : '';
+                if (hName) {
+                    rowObj[hName] = cellVal;
+                } else {
+                    rowObj[`__col_${cIdx}`] = cellVal;
+                }
+                if (String(cellVal).trim()) hasContent = true;
+            });
+
+            const firstCellStr = String(row[0] || '').toLowerCase().trim();
+            const secondCellStr = String(row[1] || '').toLowerCase().trim();
+            if (
+                firstCellStr.includes('total') ||
+                firstCellStr.includes('recapitulation') ||
+                firstCellStr.includes('certified correct') ||
+                firstCellStr.includes('posted by') ||
+                secondCellStr.includes('recapitulation') ||
+                secondCellStr.includes('total')
+            ) {
+                continue;
+            }
+
+            if (hasContent) {
+                resultRows.push(rowObj);
+            }
+        }
+
+        return resultRows;
+    };
+
     const extractMigrationTextFromFile = async (file: File) => {
         const fileName = file.name.toLowerCase();
 
@@ -176,7 +308,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 const workbook = xlsx.read(arrayBuffer, { type: 'array', cellDates: true });
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
-                const jsonRows = xlsx.utils.sheet_to_json(worksheet, { defval: '' });
+                const jsonRows = parseExcelWorksheetToRows(worksheet, migrationFormType, xlsx);
                 return JSON.stringify(jsonRows);
             }
 
@@ -278,6 +410,28 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         }
     };
 
+    const getRowVal = (row: any, possibleKeys: string[]) => {
+        if (!row || typeof row !== 'object') return '';
+
+        for (const key of possibleKeys) {
+            if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+                return String(row[key]).trim();
+            }
+        }
+
+        const rowKeys = Object.keys(row);
+        for (const key of possibleKeys) {
+            const normKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (!normKey) continue;
+            const matchedRowKey = rowKeys.find(rk => rk.toLowerCase().replace(/[^a-z0-9]/g, '') === normKey);
+            if (matchedRowKey && row[matchedRowKey] !== undefined && row[matchedRowKey] !== null && String(row[matchedRowKey]).trim() !== '') {
+                return String(row[matchedRowKey]).trim();
+            }
+        }
+
+        return '';
+    };
+
     const parseFormSpecificRows = (raw: string, formType: 'RSMI' | 'RPCI' | 'STOCK_CARD' | 'MR') => {
         const trimmed = raw.trim();
         if (!trimmed) return [];
@@ -307,24 +461,25 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 }
 
                 if (formType === 'RSMI') {
-                    // Table Headers: RIS No. | Responsibility Center Code | Stock No. | Item | Unit | Quantity Issued | Unit Cost | Amount
-                    const ref = String(row['RIS No.'] || row['RIS No'] || row['RIS'] || row['Serial No.'] || row['Serial No'] || row['Reference'] || row['reference'] || row['risNo'] || row['ris_no'] || row['Doc No.'] || row['Doc No'] || '').trim();
-                    const dept = String(row['Responsibility Center Code'] || row['Responsibility Center'] || row['RCC'] || row['Department'] || row['Office'] || row['department'] || row['responsibilityCenterCode'] || row['responsibility_center_code'] || '').trim();
-                    const stockNo = String(row['Stock No.'] || row['Stock No'] || row['SKU'] || row['stockNo'] || row['stock_no'] || '').trim();
-                    const itemName = String(row['Item'] || row['Item Description'] || row['Description'] || row['Article'] || row['item_name'] || row['itemDescription'] || '').trim();
-                    const unit = String(row['Unit'] || row['Unit of Issue'] || row['unit'] || 'pc').trim();
-                    const qty = Number(row['Quantity Issued'] || row['Qty Issued'] || row['Quantity'] || row['Qty'] || row['quantity'] || row['quantityIssued'] || 0);
-                    const cost = Number(row['Unit Cost'] || row['Unit Value'] || row['unitCost'] || row['unit_cost'] || 0);
-                    const amt = Number(row['Amount'] || row['Total Cost'] || row['amount'] || (qty * cost));
-                    const dt = String(row['Date'] || row['Date Issued'] || row['date'] || row['date_issued'] || '').trim();
-                    const recipient = String(row['Recipient'] || row['Requested By'] || row['Issued To'] || row['recipient'] || '').trim();
-                    const fundCluster = String(row['Fund Cluster'] || row['fund_cluster'] || 'General Fund').trim();
-                    const remarks = String(row['Remarks'] || row['remarks'] || '').trim();
+                    const ref = getRowVal(row, ['RIS No.', 'RIS No', 'RIS', 'Serial No.', 'Serial No', 'Reference', 'reference', 'risNo', 'ris_no', 'Doc No.', 'Doc No', 'topSerialNo']);
+                    const dept = getRowVal(row, ['Responsibility Center Code', 'Responsibility Center', 'RCC', 'Department', 'Office', 'department', 'responsibilityCenterCode', 'responsibility_center_code']);
+                    const stockNo = getRowVal(row, ['Stock No.', 'Stock No', 'SKU', 'stockNo', 'stock_no', 'Stock Number']);
+                    const itemName = getRowVal(row, ['Item', 'Item Description', 'Description', 'Article', 'item_name', 'itemDescription', 'Item Name']);
+                    const unit = getRowVal(row, ['Unit', 'Unit of Issue', 'unit']) || 'pc';
+                    const qty = Number(getRowVal(row, ['Quantity Issued', 'Qty Issued', 'Quantity', 'Qty', 'quantity', 'quantityIssued']) || 0);
+                    const cost = Number(getRowVal(row, ['Unit Cost', 'Unit Value', 'unitCost', 'unit_cost', 'Cost']) || 0);
+                    const amt = Number(getRowVal(row, ['Amount', 'Total Cost', 'amount', 'totalCost', 'total_cost']) || (qty * cost));
+                    const dt = getRowVal(row, ['Date', 'Date Issued', 'date', 'date_issued', 'topDate']);
+                    const recipient = getRowVal(row, ['Recipient', 'Requested By', 'Issued To', 'recipient', 'topRecipient']);
+                    const fundCluster = getRowVal(row, ['Fund Cluster', 'fund_cluster', 'General Fund']);
+                    const remarks = getRowVal(row, ['Remarks', 'remarks']);
+
+                    const fallbackItem = itemName || Object.values(row).find(v => typeof v === 'string' && v.trim().length > 1 && !v.includes('RIS') && !v.includes('Appendix') && !v.includes('REPORT')) || '';
 
                     return {
-                        reference: ref || (itemName ? `RSMI-HIST-${idx + 1}` : ''),
+                        reference: ref || (fallbackItem ? `RSMI-HIST-${idx + 1}` : ''),
                         date: dt,
-                        item_name: itemName,
+                        item_name: String(fallbackItem).trim(),
                         quantity: qty,
                         unit_cost: cost,
                         amount: amt,
@@ -339,26 +494,27 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 }
 
                 if (formType === 'RPCI') {
-                    // Table Headers: Article | Description | Stock Number | Unit of Measure | Unit Value | Balance Per Card | On Hand Per Count | Shortage/Overage Quantity | Shortage/Overage Value | Remarks
-                    const article = String(row['Article'] || row['article'] || '').trim();
-                    const description = String(row['Description'] || row['Item Description'] || row['item_name'] || row['description'] || '').trim();
-                    const itemName = description || article;
-                    const stockNo = String(row['Stock Number'] || row['Stock No.'] || row['Stock No'] || row['Property No.'] || row['Property No'] || row['Serial No.'] || row['Serial No'] || row['reference'] || row['property_no'] || row['stock_no'] || '').trim();
-                    const unit = String(row['Unit of Measure'] || row['Unit of Measurement'] || row['Unit'] || row['unit'] || 'pc').trim();
-                    const cost = Number(row['Unit Value'] || row['Unit Cost'] || row['unit_value'] || row['unit_cost'] || 0);
-                    const qty = Number(row['Balance Per Card'] || row['Balance per Card'] || row['Property Card Qty'] || row['Quantity'] || row['quantity'] || row['balance_per_card'] || 0);
-                    const onHand = Number(row['On Hand Per Count'] || row['On Hand Count'] || row['Physical Count'] || row['on_hand_count'] || qty);
-                    const shortageQty = row['Shortage/Overage Quantity'] !== undefined ? row['Shortage/Overage Quantity'] : (row['Shortage Qty'] !== undefined ? row['Shortage Qty'] : (row['shortage_qty'] ?? ''));
-                    const shortageVal = row['Shortage/Overage Value'] !== undefined ? row['Shortage/Overage Value'] : (row['Shortage Value'] !== undefined ? row['Shortage Value'] : (row['shortage_value'] ?? ''));
-                    const recipient = String(row['Accountable Officer'] || row['Recipient'] || row['accountable_officer'] || row['recipient'] || '').trim();
-                    const dept = String(row['Location'] || row['Department'] || row['Office'] || row['department'] || '').trim();
-                    const dt = String(row['As at Date'] || row['As at'] || row['Date'] || row['as_at_date'] || row['date'] || '').trim();
-                    const remarks = String(row['Remarks'] || row['State of Property'] || row['remarks'] || '').trim();
+                    const article = getRowVal(row, ['Article', 'article']);
+                    const description = getRowVal(row, ['Description', 'Item Description', 'item_name', 'description']);
+                    const itemName = description || article || getRowVal(row, ['Item', 'Item Name']);
+                    const stockNo = getRowVal(row, ['Stock Number', 'Stock No.', 'Stock No', 'Property No.', 'Property No', 'Serial No.', 'Serial No', 'reference', 'property_no', 'stock_no']);
+                    const unit = getRowVal(row, ['Unit of Measure', 'Unit of Measurement', 'Unit', 'unit']) || 'pc';
+                    const cost = Number(getRowVal(row, ['Unit Value', 'Unit Cost', 'unit_value', 'unit_cost']) || 0);
+                    const qty = Number(getRowVal(row, ['Balance Per Card', 'Balance per Card', 'Property Card Qty', 'Quantity', 'quantity', 'balance_per_card']) || 0);
+                    const onHand = Number(getRowVal(row, ['On Hand Per Count', 'On Hand Count', 'Physical Count', 'on_hand_count']) || qty);
+                    const shortageQty = getRowVal(row, ['Shortage/Overage Quantity', 'Shortage Qty', 'shortage_qty']);
+                    const shortageVal = getRowVal(row, ['Shortage/Overage Value', 'Shortage Value', 'shortage_value']);
+                    const recipient = getRowVal(row, ['Accountable Officer', 'Recipient', 'accountable_officer', 'recipient', 'topRecipient']);
+                    const dept = getRowVal(row, ['Location', 'Department', 'Office', 'department']);
+                    const dt = getRowVal(row, ['As at Date', 'As at', 'Date', 'as_at_date', 'date', 'topDate']);
+                    const remarks = getRowVal(row, ['Remarks', 'State of Property', 'remarks']);
+
+                    const fallbackItem = itemName || Object.values(row).find(v => typeof v === 'string' && v.trim().length > 1 && !v.includes('Appendix') && !v.includes('REPORT')) || '';
 
                     return {
-                        reference: stockNo || (itemName ? `RPCI-HIST-${idx + 1}` : ''),
+                        reference: stockNo || (fallbackItem ? `RPCI-HIST-${idx + 1}` : ''),
                         date: dt,
-                        item_name: itemName,
+                        item_name: String(fallbackItem).trim(),
                         quantity: qty,
                         unit_cost: cost,
                         unit: unit,
@@ -373,23 +529,24 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 }
 
                 if (formType === 'MR') {
-                    // Table Headers: Qty. | Unit | Description / Item Name | Property No. / Serial No. | Date Acquired | Unit Value / Cost
-                    const qty = Number(row['Qty.'] || row['Qty'] || row['Quantity'] || row['quantity'] || 1);
-                    const unit = String(row['Unit'] || row['unit'] || 'pc').trim();
-                    const itemName = String(row['Description / Item Name'] || row['Description'] || row['Item Name'] || row['Item'] || row['Item Description'] || row['item_name'] || row['description'] || '').trim();
-                    const ref = String(row['Property No. / Serial No.'] || row['Property No.'] || row['Property No'] || row['Serial No.'] || row['Serial No'] || row['MR No.'] || row['MR No'] || row['reference'] || row['propertyNo'] || row['property_no'] || row['serialNo'] || row['mrNo'] || '').trim();
-                    const dt = String(row['Date Acquired'] || row['Date'] || row['dateAcquired'] || row['date_acquired'] || row['date'] || '').trim();
-                    const cost = Number(row['Unit Value / Cost'] || row['Unit Value'] || row['Unit Cost'] || row['unitValue'] || row['unit_value'] || row['unit_cost'] || 0);
-                    const totalVal = Number(row['Total Value'] || row['Grand Total Value'] || row['Amount'] || row['totalValue'] || row['total_value'] || row['amount'] || (qty * cost));
-                    const recipient = String(row['Received By'] || row['Received by'] || row['End-User'] || row['End User'] || row['Recipient'] || row['receivedByName'] || row['recipient'] || '').trim();
-                    const dept = String(row['Office'] || row['Department'] || row['receivedByOffice'] || row['department'] || '').trim();
-                    const designation = String(row['Position'] || row['receivedByPosition'] || row['designation'] || '').trim();
-                    const remarks = String(row['Purpose'] || row['Remarks'] || row['remarks'] || '').trim();
+                    const qty = Number(getRowVal(row, ['Qty.', 'Qty', 'Quantity', 'quantity']) || 1);
+                    const unit = getRowVal(row, ['Unit', 'unit']) || 'pc';
+                    const itemName = getRowVal(row, ['Description / Item Name', 'Description', 'Item Name', 'Item', 'Item Description', 'item_name', 'description']);
+                    const ref = getRowVal(row, ['Property No. / Serial No.', 'Property No.', 'Property No', 'Serial No.', 'Serial No', 'MR No.', 'MR No', 'reference', 'propertyNo', 'property_no', 'serialNo', 'mrNo', 'topSerialNo']);
+                    const dt = getRowVal(row, ['Date Acquired', 'Date', 'dateAcquired', 'date_acquired', 'date', 'topDate']);
+                    const cost = Number(getRowVal(row, ['Unit Value / Cost', 'Unit Value', 'Unit Cost', 'unitValue', 'unit_cost']) || 0);
+                    const totalVal = Number(getRowVal(row, ['Total Value', 'Grand Total Value', 'Amount', 'totalValue', 'amount']) || (qty * cost));
+                    const recipient = getRowVal(row, ['Received By', 'Received by', 'End-User', 'End User', 'Recipient', 'receivedByName', 'recipient', 'topRecipient']);
+                    const dept = getRowVal(row, ['Office', 'Department', 'receivedByOffice', 'department']);
+                    const designation = getRowVal(row, ['Position', 'receivedByPosition', 'designation']);
+                    const remarks = getRowVal(row, ['Purpose', 'Remarks', 'remarks']);
+
+                    const fallbackItem = itemName || Object.values(row).find(v => typeof v === 'string' && v.trim().length > 1 && !v.includes('MEMORANDUM') && !v.includes('Appendix')) || '';
 
                     return {
-                        reference: ref || (itemName ? `MR-HIST-${idx + 1}` : ''),
+                        reference: ref || (fallbackItem ? `MR-HIST-${idx + 1}` : ''),
                         date: dt,
-                        item_name: itemName,
+                        item_name: String(fallbackItem).trim(),
                         quantity: qty,
                         unit_cost: cost,
                         amount: totalVal,
@@ -401,23 +558,25 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                     };
                 }
 
-                // STOCK_CARD: Table Headers: Date | Reference | Receipt Qty. | Issue Qty. | Issue Office | Balance Qty. | No. of Days to Consume
-                const itemName = String(row['Item'] || row['Description'] || row['Item Description'] || row['item_name'] || row['item'] || '').trim();
-                const stockNo = String(row['Stock No.'] || row['Stock No'] || row['SKU'] || row['stock_no'] || row['stockNo'] || '').trim();
-                const unit = String(row['Unit of Measurement'] || row['Unit of Measure'] || row['Unit'] || row['unit'] || 'Pieces').trim();
-                const reorderPoint = String(row['Re-order Point'] || row['Reorder Point'] || row['re_order_point'] || '-').trim();
-                const dt = String(row['Date'] || row['Transaction Date'] || row['date'] || '').trim();
-                const ref = String(row['Reference'] || row['RIS No.'] || row['RIS No'] || row['PO No.'] || row['PO No'] || row['IAR No.'] || row['IAR No'] || row['reference'] || '').trim();
-                const receiptQty = Number(row['Receipt Qty.'] || row['Receipt Qty'] || row['Receipts'] || row['receipt_qty'] || 0);
-                const issueQty = Number(row['Issue Qty.'] || row['Issue Qty'] || row['Issuance'] || row['Quantity'] || row['quantity'] || row['issue_qty'] || 0);
-                const balanceQty = Number(row['Balance Qty.'] || row['Balance Qty'] || row['Balance'] || row['balance_qty'] || 0);
-                const recipient = String(row['Issue Office'] || row['Office'] || row['Recipient'] || row['Department'] || row['recipient'] || row['issue_office'] || '').trim();
-                const remarks = String(row['No. of Days to Consume'] || row['Days to Consume'] || row['Remarks'] || row['remarks'] || '').trim();
+                // STOCK_CARD
+                const itemName = getRowVal(row, ['Item', 'Description', 'Item Description', 'item_name', 'item']);
+                const stockNo = getRowVal(row, ['Stock No.', 'Stock No', 'SKU', 'stock_no', 'stockNo']);
+                const unit = getRowVal(row, ['Unit of Measurement', 'Unit of Measure', 'Unit', 'unit']) || 'Pieces';
+                const reorderPoint = getRowVal(row, ['Re-order Point', 'Reorder Point', 're_order_point']) || '-';
+                const dt = getRowVal(row, ['Date', 'Transaction Date', 'date', 'topDate']);
+                const ref = getRowVal(row, ['Reference', 'RIS No.', 'RIS No', 'PO No.', 'PO No', 'IAR No.', 'IAR No', 'reference', 'topSerialNo']);
+                const receiptQty = Number(getRowVal(row, ['Receipt Qty.', 'Receipt Qty', 'Receipts', 'receipt_qty']) || 0);
+                const issueQty = Number(getRowVal(row, ['Issue Qty.', 'Issue Qty', 'Issuance', 'Quantity', 'quantity', 'issue_qty']) || 0);
+                const balanceQty = Number(getRowVal(row, ['Balance Qty.', 'Balance Qty', 'Balance', 'balance_qty']) || 0);
+                const recipient = getRowVal(row, ['Issue Office', 'Office', 'Recipient', 'Department', 'recipient', 'issue_office', 'topRecipient']);
+                const remarks = getRowVal(row, ['No. of Days to Consume', 'Days to Consume', 'Remarks', 'remarks']);
+
+                const fallbackItem = itemName || Object.values(row).find(v => typeof v === 'string' && v.trim().length > 1 && !v.includes('STOCK CARD') && !v.includes('Appendix')) || '';
 
                 return {
-                    reference: ref || (itemName ? `SC-HIST-${idx + 1}` : ''),
+                    reference: ref || (fallbackItem ? `SC-HIST-${idx + 1}` : ''),
                     date: dt,
-                    item_name: itemName,
+                    item_name: String(fallbackItem).trim(),
                     stock_no: stockNo,
                     unit: unit,
                     re_order_point: reorderPoint,
@@ -430,7 +589,6 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             });
         }
 
-        // Unparsed text parsing fallback
         const normalizedText = trimmed.replace(/\r/g, '').replace(/\t/g, ' ');
         const blocks = normalizedText.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
 
