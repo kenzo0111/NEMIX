@@ -454,188 +454,136 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         return '';
     };
 
+    const mapRowToItem = (row: any, idx: number, formType: string, groupMetadata: any, lastRefObj: { current: string }) => {
+        if (typeof row === 'string') {
+            return { reference: `${formType}-HIST-${idx + 1}`, item_name: row, quantity: 1, date: new Date().toISOString().split('T')[0], remarks: 'Parsed raw text row' };
+        }
+
+        if (formType === 'RSMI') {
+            let ref = getRowVal(row, ['RIS No.', 'RIS No', 'RIS', 'Serial No.', 'Serial No', 'Reference', 'reference', 'risNo', 'ris_no', 'Doc No.', 'Doc No', 'topSerialNo']);
+            if (!ref && groupMetadata?.topSerialNo) ref = groupMetadata.topSerialNo;
+            if (!ref && lastRefObj.current) ref = lastRefObj.current;
+            if (ref) lastRefObj.current = ref;
+
+            const dept = getRowVal(row, ['Responsibility Center Code', 'Responsibility Center', 'RCC', 'Department', 'Office', 'department', 'responsibilityCenterCode', 'responsibility_center_code']) || groupMetadata?.topOffice;
+            const stockNo = getRowVal(row, ['Stock No.', 'Stock No', 'SKU', 'stockNo', 'stock_no', 'Stock Number']);
+            const itemName = getRowVal(row, ['Item', 'Item Description', 'Description', 'Article', 'item_name', 'itemDescription', 'Item Name']);
+            const unit = getRowVal(row, ['Unit', 'Unit of Issue', 'unit']) || 'pc';
+            const qty = Number(getRowVal(row, ['Quantity Issued', 'Qty Issued', 'Quantity', 'Qty', 'quantity', 'quantityIssued']) || 0);
+            const cost = Number(getRowVal(row, ['Unit Cost', 'Unit Value', 'unitCost', 'unit_cost', 'Cost']) || 0);
+            const amt = Number(getRowVal(row, ['Amount', 'Total Cost', 'amount', 'totalCost', 'total_cost']) || (qty * cost));
+            let dt = getRowVal(row, ['Date', 'Date Issued', 'date', 'date_issued', 'topDate']);
+            if (!dt && groupMetadata?.topDate) dt = groupMetadata.topDate;
+            const recipient = getRowVal(row, ['Recipient', 'Requested By', 'Issued To', 'recipient', 'topRecipient']) || groupMetadata?.topRecipient;
+            const fundCluster = getRowVal(row, ['Fund Cluster', 'fund_cluster', 'General Fund']) || groupMetadata?.fundCluster;
+            const remarks = getRowVal(row, ['Remarks', 'remarks']);
+
+            const fallbackItem = itemName || Object.values(row).find((v: any) => typeof v === 'string' && v.trim().length > 1 && !v.includes('RIS') && !v.includes('Appendix') && !v.includes('REPORT')) || '';
+            return {
+                reference: ref || (fallbackItem ? `RSMI-HIST-${idx + 1}` : ''),
+                date: formatDateToIso(dt),
+                item_name: String(fallbackItem).trim(),
+                quantity: qty, unit_cost: cost, amount: amt, unit: unit, stock_no: stockNo, recipient: recipient, department: dept, fund_cluster: fundCluster, responsibility_center_code: dept, remarks: remarks,
+            };
+        }
+        if (formType === 'RPCI') {
+            let ref = getRowVal(row, ['Stock Number', 'Stock No.', 'Stock No', 'Property No.', 'Property No', 'Serial No.', 'Serial No', 'reference', 'property_no', 'stock_no']);
+            if (!ref && groupMetadata?.topSerialNo) ref = groupMetadata.topSerialNo;
+            if (!ref && lastRefObj.current) ref = lastRefObj.current;
+            if (ref) lastRefObj.current = ref;
+            const article = getRowVal(row, ['Article', 'article']);
+            const description = getRowVal(row, ['Description', 'Item Description', 'item_name', 'description']);
+            const itemName = description || article || getRowVal(row, ['Item', 'Item Name']);
+            const stockNo = ref;
+            const unit = getRowVal(row, ['Unit of Measure', 'Unit of Measurement', 'Unit', 'unit']) || 'pc';
+            const cost = Number(getRowVal(row, ['Unit Value', 'Unit Cost', 'unit_value', 'unit_cost']) || 0);
+            const qty = Number(getRowVal(row, ['Balance Per Card', 'Balance per Card', 'Property Card Qty', 'Quantity', 'quantity', 'balance_per_card']) || 0);
+            const onHand = Number(getRowVal(row, ['On Hand Per Count', 'On Hand Count', 'Physical Count', 'on_hand_count']) || qty);
+            const shortageQty = getRowVal(row, ['Shortage/Overage Quantity', 'Shortage Qty', 'shortage_qty']);
+            const shortageVal = getRowVal(row, ['Shortage/Overage Value', 'Shortage Value', 'shortage_value']);
+            const recipient = getRowVal(row, ['Accountable Officer', 'Recipient', 'accountable_officer', 'recipient', 'topRecipient']) || groupMetadata?.topRecipient;
+            const dept = getRowVal(row, ['Location', 'Department', 'Office', 'department']) || groupMetadata?.topOffice;
+            let dt = getRowVal(row, ['As at Date', 'As at', 'Date', 'as_at_date', 'date', 'topDate']);
+            if (!dt && groupMetadata?.topDate) dt = groupMetadata.topDate;
+            const remarks = getRowVal(row, ['Remarks', 'State of Property', 'remarks']);
+
+            const fallbackItem = itemName || Object.values(row).find((v: any) => typeof v === 'string' && v.trim().length > 1 && !v.includes('Appendix') && !v.includes('REPORT')) || '';
+            return { reference: stockNo || (fallbackItem ? `RPCI-HIST-${idx + 1}` : ''), date: formatDateToIso(dt), item_name: String(fallbackItem).trim(), quantity: qty, unit_cost: cost, unit: unit, stock_no: stockNo, on_hand_count: onHand, shortage_qty: shortageQty, shortage_value: shortageVal, recipient: recipient, department: dept, remarks: remarks };
+        }
+        if (formType === 'MR' || formType === 'MOR') {
+            let ref = getRowVal(row, ['Property No. / Serial No.', 'Property No.', 'Property No', 'Serial No.', 'Serial No', 'MR No.', 'MR No', 'reference', 'propertyNo', 'property_no', 'serialNo', 'mrNo', 'topSerialNo']);
+            if (!ref && groupMetadata?.topSerialNo) ref = groupMetadata.topSerialNo;
+            if (!ref && lastRefObj.current) ref = lastRefObj.current;
+            if (ref) lastRefObj.current = ref;
+            const qty = Number(getRowVal(row, ['Qty.', 'Qty', 'Quantity', 'quantity']) || 1);
+            const unit = getRowVal(row, ['Unit', 'unit']) || 'pc';
+            const itemName = getRowVal(row, ['Description / Item Name', 'Description', 'Item Name', 'Item', 'Item Description', 'item_name', 'description']);
+            let dt = getRowVal(row, ['Date Acquired', 'Date', 'dateAcquired', 'date_acquired', 'date', 'topDate']);
+            if (!dt && groupMetadata?.topDate) dt = groupMetadata.topDate;
+            const cost = Number(getRowVal(row, ['Unit Value / Cost', 'Unit Value', 'Unit Cost', 'unitValue', 'unit_cost']) || 0);
+            const totalVal = Number(getRowVal(row, ['Total Value', 'Grand Total Value', 'Amount', 'totalValue', 'amount']) || (qty * cost));
+            const recipient = getRowVal(row, ['Received By', 'Received by', 'End-User', 'End User', 'Recipient', 'receivedByName', 'recipient', 'topRecipient']) || groupMetadata?.topRecipient;
+            const dept = getRowVal(row, ['Office', 'Department', 'receivedByOffice', 'department']) || groupMetadata?.topOffice;
+            const designation = getRowVal(row, ['Position', 'receivedByPosition', 'designation']);
+            const remarks = getRowVal(row, ['Purpose', 'Remarks', 'remarks']);
+
+            const fallbackItem = itemName || Object.values(row).find((v: any) => typeof v === 'string' && v.trim().length > 1 && !v.includes('MEMORANDUM') && !v.includes('Appendix')) || '';
+            return { reference: ref || (fallbackItem ? `${formType}-HIST-${idx + 1}` : ''), date: formatDateToIso(dt), item_name: String(fallbackItem).trim(), quantity: qty, unit_cost: cost, amount: totalVal, unit: unit, recipient: recipient, department: dept, designation: designation, remarks: remarks };
+        }
+        
+        let ref = getRowVal(row, ['Reference', 'RIS No.', 'RIS No', 'PO No.', 'PO No', 'IAR No.', 'IAR No', 'reference', 'topSerialNo']);
+        if (!ref && groupMetadata?.topSerialNo) ref = groupMetadata.topSerialNo;
+        if (!ref && lastRefObj.current) ref = lastRefObj.current;
+        if (ref) lastRefObj.current = ref;
+        const itemName = getRowVal(row, ['Item', 'Description', 'Item Description', 'item_name', 'item']);
+        const stockNo = getRowVal(row, ['Stock No.', 'Stock No', 'SKU', 'stock_no', 'stockNo']);
+        const unit = getRowVal(row, ['Unit of Measurement', 'Unit of Measure', 'Unit', 'unit']) || 'Pieces';
+        const reorderPoint = getRowVal(row, ['Re-order Point', 'Reorder Point', 're_order_point']) || '-';
+        let dt = getRowVal(row, ['Date', 'Transaction Date', 'date', 'topDate']);
+        if (!dt && groupMetadata?.topDate) dt = groupMetadata.topDate;
+        const receiptQty = Number(getRowVal(row, ['Receipt Qty.', 'Receipt Qty', 'Receipts', 'receipt_qty']) || 0);
+        const issueQty = Number(getRowVal(row, ['Issue Qty.', 'Issue Qty', 'Issuance', 'Quantity', 'quantity', 'issue_qty']) || 0);
+        const balanceQty = Number(getRowVal(row, ['Balance Qty.', 'Balance Qty', 'Balance', 'balance_qty']) || 0);
+        const recipient = getRowVal(row, ['Issue Office', 'Office', 'Recipient', 'Department', 'recipient', 'issue_office', 'topRecipient']) || groupMetadata?.topOffice;
+        const remarks = getRowVal(row, ['No. of Days to Consume', 'Days to Consume', 'Remarks', 'remarks']);
+
+        const fallbackItem = itemName || Object.values(row).find((v: any) => typeof v === 'string' && v.trim().length > 1 && !v.includes('STOCK CARD') && !v.includes('Appendix')) || '';
+        return { reference: ref || (fallbackItem ? `SC-HIST-${idx + 1}` : ''), date: formatDateToIso(dt), item_name: String(fallbackItem).trim(), quantity: issueQty, stock_no: stockNo, unit: unit, receipt_qty: receiptQty, balance_qty: balanceQty, re_order_point: reorderPoint, recipient: recipient, remarks: remarks };
+    };
+
     const parseFormSpecificRows = (raw: string, formType: 'RSMI' | 'RPCI' | 'STOCK_CARD' | 'MR' | 'MOR') => {
         const trimmed = raw.trim();
         if (!trimmed) return [];
 
-        let rawRows: any[] = [];
         try {
             const parsed = JSON.parse(trimmed);
-            if (Array.isArray(parsed)) {
-                rawRows = parsed;
+            if (parsed && parsed.isGroups) {
+                return parsed.groups.map((group: any) => {
+                    const lastRefObj = { current: '' };
+                    const items = group.items.map((row: any, idx: number) => mapRowToItem(row, idx, formType, group.metadata, lastRefObj));
+                    return { ...group, items };
+                });
+            } else if (Array.isArray(parsed)) {
+                const lastRefObj = { current: '' };
+                const items = parsed.map((row: any, idx: number) => mapRowToItem(row, idx, formType, null, lastRefObj));
+                return [{ sheetName: 'Default', metadata: {}, items }];
             } else if (parsed && typeof parsed === 'object' && Array.isArray(parsed.records)) {
-                rawRows = parsed.records;
+                const lastRefObj = { current: '' };
+                const items = parsed.records.map((row: any, idx: number) => mapRowToItem(row, idx, formType, null, lastRefObj));
+                return [{ sheetName: 'Default', metadata: {}, items }];
             }
         } catch {
-            // Not JSON structure
+            // Not JSON
         }
-
-        if (rawRows.length > 0) {
-            return rawRows.map((row: any, idx: number) => {
-                if (typeof row === 'string') {
-                    return {
-                        reference: `${formType}-HIST-${idx + 1}`,
-                        item_name: row,
-                        quantity: 1,
-                        date: new Date().toISOString().split('T')[0],
-                        remarks: 'Parsed raw text row',
-                    };
-                }
-
-                if (formType === 'RSMI') {
-                    const ref = getRowVal(row, ['RIS No.', 'RIS No', 'RIS', 'Serial No.', 'Serial No', 'Reference', 'reference', 'risNo', 'ris_no', 'Doc No.', 'Doc No', 'topSerialNo']);
-                    const dept = getRowVal(row, ['Responsibility Center Code', 'Responsibility Center', 'RCC', 'Department', 'Office', 'department', 'responsibilityCenterCode', 'responsibility_center_code']);
-                    const stockNo = getRowVal(row, ['Stock No.', 'Stock No', 'SKU', 'stockNo', 'stock_no', 'Stock Number']);
-                    const itemName = getRowVal(row, ['Item', 'Item Description', 'Description', 'Article', 'item_name', 'itemDescription', 'Item Name']);
-                    const unit = getRowVal(row, ['Unit', 'Unit of Issue', 'unit']) || 'pc';
-                    const qty = Number(getRowVal(row, ['Quantity Issued', 'Qty Issued', 'Quantity', 'Qty', 'quantity', 'quantityIssued']) || 0);
-                    const cost = Number(getRowVal(row, ['Unit Cost', 'Unit Value', 'unitCost', 'unit_cost', 'Cost']) || 0);
-                    const amt = Number(getRowVal(row, ['Amount', 'Total Cost', 'amount', 'totalCost', 'total_cost']) || (qty * cost));
-                    const dt = getRowVal(row, ['Date', 'Date Issued', 'date', 'date_issued', 'topDate']);
-                    const recipient = getRowVal(row, ['Recipient', 'Requested By', 'Issued To', 'recipient', 'topRecipient']);
-                    const fundCluster = getRowVal(row, ['Fund Cluster', 'fund_cluster', 'General Fund']);
-                    const remarks = getRowVal(row, ['Remarks', 'remarks']);
-
-                    const fallbackItem = itemName || Object.values(row).find(v => typeof v === 'string' && v.trim().length > 1 && !v.includes('RIS') && !v.includes('Appendix') && !v.includes('REPORT')) || '';
-
-                    return {
-                        reference: ref || (fallbackItem ? `RSMI-HIST-${idx + 1}` : ''),
-                        date: formatDateToIso(dt),
-                        item_name: String(fallbackItem).trim(),
-                        quantity: qty,
-                        unit_cost: cost,
-                        amount: amt,
-                        unit: unit,
-                        stock_no: stockNo,
-                        recipient: recipient,
-                        department: dept,
-                        fund_cluster: fundCluster,
-                        responsibility_center_code: dept,
-                        remarks: remarks,
-                    };
-                }
-
-                if (formType === 'RPCI') {
-                    const article = getRowVal(row, ['Article', 'article']);
-                    const description = getRowVal(row, ['Description', 'Item Description', 'item_name', 'description']);
-                    const itemName = description || article || getRowVal(row, ['Item', 'Item Name']);
-                    const stockNo = getRowVal(row, ['Stock Number', 'Stock No.', 'Stock No', 'Property No.', 'Property No', 'Serial No.', 'Serial No', 'reference', 'property_no', 'stock_no']);
-                    const unit = getRowVal(row, ['Unit of Measure', 'Unit of Measurement', 'Unit', 'unit']) || 'pc';
-                    const cost = Number(getRowVal(row, ['Unit Value', 'Unit Cost', 'unit_value', 'unit_cost']) || 0);
-                    const qty = Number(getRowVal(row, ['Balance Per Card', 'Balance per Card', 'Property Card Qty', 'Quantity', 'quantity', 'balance_per_card']) || 0);
-                    const onHand = Number(getRowVal(row, ['On Hand Per Count', 'On Hand Count', 'Physical Count', 'on_hand_count']) || qty);
-                    const shortageQty = getRowVal(row, ['Shortage/Overage Quantity', 'Shortage Qty', 'shortage_qty']);
-                    const shortageVal = getRowVal(row, ['Shortage/Overage Value', 'Shortage Value', 'shortage_value']);
-                    const recipient = getRowVal(row, ['Accountable Officer', 'Recipient', 'accountable_officer', 'recipient', 'topRecipient']);
-                    const dept = getRowVal(row, ['Location', 'Department', 'Office', 'department']);
-                    const dt = getRowVal(row, ['As at Date', 'As at', 'Date', 'as_at_date', 'date', 'topDate']);
-                    const remarks = getRowVal(row, ['Remarks', 'State of Property', 'remarks']);
-
-                    const fallbackItem = itemName || Object.values(row).find(v => typeof v === 'string' && v.trim().length > 1 && !v.includes('Appendix') && !v.includes('REPORT')) || '';
-
-                    return {
-                        reference: stockNo || (fallbackItem ? `RPCI-HIST-${idx + 1}` : ''),
-                        date: formatDateToIso(dt),
-                        item_name: String(fallbackItem).trim(),
-                        quantity: qty,
-                        unit_cost: cost,
-                        unit: unit,
-                        stock_no: stockNo,
-                        on_hand_count: onHand,
-                        shortage_qty: shortageQty,
-                        shortage_value: shortageVal,
-                        recipient: recipient,
-                        department: dept,
-                        remarks: remarks,
-                    };
-                }
-
-                if (formType === 'MR') {
-                    const qty = Number(getRowVal(row, ['Qty.', 'Qty', 'Quantity', 'quantity']) || 1);
-                    const unit = getRowVal(row, ['Unit', 'unit']) || 'pc';
-                    const itemName = getRowVal(row, ['Description / Item Name', 'Description', 'Item Name', 'Item', 'Item Description', 'item_name', 'description']);
-                    const ref = getRowVal(row, ['Property No. / Serial No.', 'Property No.', 'Property No', 'Serial No.', 'Serial No', 'MR No.', 'MR No', 'reference', 'propertyNo', 'property_no', 'serialNo', 'mrNo', 'topSerialNo']);
-                    const dt = getRowVal(row, ['Date Acquired', 'Date', 'dateAcquired', 'date_acquired', 'date', 'topDate']);
-                    const cost = Number(getRowVal(row, ['Unit Value / Cost', 'Unit Value', 'Unit Cost', 'unitValue', 'unit_cost']) || 0);
-                    const totalVal = Number(getRowVal(row, ['Total Value', 'Grand Total Value', 'Amount', 'totalValue', 'amount']) || (qty * cost));
-                    const recipient = getRowVal(row, ['Received By', 'Received by', 'End-User', 'End User', 'Recipient', 'receivedByName', 'recipient', 'topRecipient']);
-                    const dept = getRowVal(row, ['Office', 'Department', 'receivedByOffice', 'department']);
-                    const designation = getRowVal(row, ['Position', 'receivedByPosition', 'designation']);
-                    const remarks = getRowVal(row, ['Purpose', 'Remarks', 'remarks']);
-
-                    const fallbackItem = itemName || Object.values(row).find(v => typeof v === 'string' && v.trim().length > 1 && !v.includes('MEMORANDUM') && !v.includes('Appendix')) || '';
-
-                    return {
-                        reference: ref || (fallbackItem ? `MR-HIST-${idx + 1}` : ''),
-                        date: formatDateToIso(dt),
-                        item_name: String(fallbackItem).trim(),
-                        quantity: qty,
-                        unit_cost: cost,
-                        amount: totalVal,
-                        unit: unit,
-                        recipient: recipient,
-                        department: dept,
-                        designation: designation,
-                        remarks: remarks,
-                    };
-                }
-
-                // STOCK_CARD
-                const itemName = getRowVal(row, ['Item', 'Description', 'Item Description', 'item_name', 'item']);
-                const stockNo = getRowVal(row, ['Stock No.', 'Stock No', 'SKU', 'stock_no', 'stockNo']);
-                const unit = getRowVal(row, ['Unit of Measurement', 'Unit of Measure', 'Unit', 'unit']) || 'Pieces';
-                const reorderPoint = getRowVal(row, ['Re-order Point', 'Reorder Point', 're_order_point']) || '-';
-                const dt = getRowVal(row, ['Date', 'Transaction Date', 'date', 'topDate']);
-                const ref = getRowVal(row, ['Reference', 'RIS No.', 'RIS No', 'PO No.', 'PO No', 'IAR No.', 'IAR No', 'reference', 'topSerialNo']);
-                const receiptQty = Number(getRowVal(row, ['Receipt Qty.', 'Receipt Qty', 'Receipts', 'receipt_qty']) || 0);
-                const issueQty = Number(getRowVal(row, ['Issue Qty.', 'Issue Qty', 'Issuance', 'Quantity', 'quantity', 'issue_qty']) || 0);
-                const balanceQty = Number(getRowVal(row, ['Balance Qty.', 'Balance Qty', 'Balance', 'balance_qty']) || 0);
-                const recipient = getRowVal(row, ['Issue Office', 'Office', 'Recipient', 'Department', 'recipient', 'issue_office', 'topRecipient']);
-                const remarks = getRowVal(row, ['No. of Days to Consume', 'Days to Consume', 'Remarks', 'remarks']);
-
-                const fallbackItem = itemName || Object.values(row).find(v => typeof v === 'string' && v.trim().length > 1 && !v.includes('STOCK CARD') && !v.includes('Appendix')) || '';
-
-                return {
-                    reference: ref || (fallbackItem ? `SC-HIST-${idx + 1}` : ''),
-                    date: formatDateToIso(dt),
-                    item_name: String(fallbackItem).trim(),
-                    stock_no: stockNo,
-                    unit: unit,
-                    re_order_point: reorderPoint,
-                    receipt_qty: receiptQty,
-                    quantity: issueQty,
-                    balance_qty: balanceQty,
-                    recipient: recipient,
-                    remarks: remarks,
-                };
-            });
+        
+        // Fallback for raw text lines (DOCX/PDF)
+        const lines = trimmed.split('\n').map(l => l.trim()).filter(l => l.length > 5);
+        if (lines.length > 0) {
+            const lastRefObj = { current: '' };
+            const items = lines.map((row: any, idx: number) => mapRowToItem(row, idx, formType, null, lastRefObj));
+            return [{ sheetName: 'Extracted Text', metadata: {}, items }];
         }
-
-        const normalizedText = trimmed.replace(/\r/g, '').replace(/\t/g, ' ');
-        const blocks = normalizedText.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
-
-        if (blocks.length === 0) return [];
-
-        return blocks.map((block, idx) => {
-            const lines = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
-
-            const refMatch = block.match(/(?:reference|ref|ris no|ris|serial no|serial|doc no|property no|mr no)[:#-]?\s*([A-Za-z0-9\-\/]+)/i)?.[1];
-            const itemMatch = block.match(/(?:item|article|description|description \/ item name)[:#-]?\s*(.+)$/im)?.[1];
-            const qtyMatch = block.match(/(?:quantity issued|quantity|qty|qty\.|balance per card|receipt qty|issue qty)[:#-]?\s*([0-9]+)/i)?.[1];
-            const dateMatch = block.match(/(?:date|date issued|as at date|date acquired|transaction date)[:#-]?\s*([0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{2}\/[0-9]{2}\/([0-9]{2,4}))/i)?.[1];
-            const recipientMatch = block.match(/(?:recipient|accountable officer|issued to|issue office|office|received by)[:#-]?\s*(.+)$/im)?.[1];
-            const costMatch = block.match(/(?:unit cost|unit value|unit value \/ cost)[:#-]?\s*₱?\s*([0-9,]+(?:\.[0-9]{1,2})?)/i)?.[1]?.replace(/,/g, '');
-
-            return {
-                reference: refMatch || `${formType}-LEGACY-${idx + 1}`,
-                date: dateMatch || '',
-                item_name: itemMatch ? itemMatch.trim() : (lines[0] || `Historical ${formType} Record`),
-                quantity: qtyMatch ? Number(qtyMatch) : 1,
-                unit_cost: costMatch ? Number(costMatch) : 0,
-                recipient: recipientMatch ? recipientMatch.trim() : '',
-                remarks: 'Parsed from imported document text',
-            };
-        });
+        return [];
     };
 
     const getFieldMappingMatrix = (formType: string, previewRows: any[]) => {
@@ -643,7 +591,6 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         if (formType === 'RSMI') {
             return [
                 { field: 'RIS No. (Reference)', type: 'String', sample: sample.reference || 'RIS-2024-001', dbField: 'reference' },
-                { field: 'Responsibility Center Code', type: 'String', sample: sample.department || sample.responsibility_center_code || '101-01', dbField: 'department / payload.responsibility_center_code' },
                 { field: 'Stock No.', type: 'String', sample: sample.stock_no || 'STK-001', dbField: 'payload.stock_no' },
                 { field: 'Item (Description)', type: 'String', sample: sample.item_name || 'A4 Bond Paper', dbField: 'item_name' },
                 { field: 'Unit', type: 'String', sample: sample.unit || 'rim', dbField: 'payload.unit' },
@@ -832,31 +779,36 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     };
 
     const handleConfirmMigration = () => {
-        const payloadRecords = migrationPreview
-            .filter((row: any) => row.errors.length === 0)
-            .map((row: any) => ({
-                reference: row.reference,
-                date: row.date,
-                item_name: row.item_name,
-                quantity: row.quantity,
-                recipient: row.recipient,
-                department: row.department,
-                designation: row.designation,
-                remarks: row.remarks,
-                unit_cost: row.unit_cost,
-                amount: row.amount,
-                unit: row.unit,
-                stock_no: row.stock_no,
-                receipt_qty: row.receipt_qty,
-                balance_qty: row.balance_qty,
-                on_hand_count: row.on_hand_count,
-                shortage_qty: row.shortage_qty,
-                shortage_value: row.shortage_value,
-                fund_cluster: row.fund_cluster,
-                responsibility_center_code: row.responsibility_center_code,
-                re_order_point: row.re_order_point,
-                data_source: 'historical_migration',
-            }));
+        const payloadRecords: any[] = [];
+        migrationPreview.forEach((group: any) => {
+            group.items.forEach((row: any) => {
+                if (row.errors.length === 0) {
+                    payloadRecords.push({
+                        reference: row.reference,
+                        date: row.date,
+                        item_name: row.item_name,
+                        quantity: row.quantity,
+                        recipient: row.recipient,
+                        department: row.department,
+                        designation: row.designation,
+                        remarks: row.remarks,
+                        unit_cost: row.unit_cost,
+                        amount: row.amount,
+                        unit: row.unit,
+                        stock_no: row.stock_no,
+                        receipt_qty: row.receipt_qty,
+                        balance_qty: row.balance_qty,
+                        re_order_point: row.re_order_point,
+                        on_hand_count: row.on_hand_count,
+                        shortage_qty: row.shortage_qty,
+                        shortage_value: row.shortage_value,
+                        fund_cluster: row.fund_cluster,
+                        responsibility_center_code: row.responsibility_center_code,
+                        source_sheet: group.sheetName,
+                    });
+                }
+            });
+        });
 
         if (!payloadRecords.length) {
             setActionDialog({
