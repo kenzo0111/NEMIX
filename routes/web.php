@@ -45,10 +45,21 @@ Route::get('/compliance/reports', function () {
                 'form_type' => 'RSMI',
                 'source' => $record->source_file ?? $record->source_sheet ?? 'historical_migration',
                 'reference' => $record->ris_no ?? $record->serial_no ?? ('RSMI-HIST-' . $record->id),
+                'ris_no' => $record->ris_no ?? $record->serial_no,
                 'item_name' => $record->item,
+                'item' => $record->item,
                 'quantity' => (int) ($record->quantity_issued ?? 0),
+                'quantity_issued' => (int) ($record->quantity_issued ?? 0),
                 'recipient' => $record->center_code ?? $record->entity_name,
-                'department' => $record->entity_name ?? $record->center_code,
+                'department' => $record->center_code ?? $record->entity_name,
+                'responsibility_center_code' => $record->center_code,
+                'center_code' => $record->center_code,
+                'entity_name' => $record->entity_name ?? 'University of Camarines Norte',
+                'stock_no' => $record->stock_no,
+                'unit' => $record->unit,
+                'unit_cost' => $record->unit_cost,
+                'amount' => $record->amount,
+                'fund_cluster' => $record->fund_cluster,
                 'designation' => null,
                 'remarks' => null,
                 'date' => optional($record->date)->toDateString(),
@@ -60,6 +71,11 @@ Route::get('/compliance/reports', function () {
                     'amount' => $record->amount,
                     'fund_cluster' => $record->fund_cluster,
                     'center_code' => $record->center_code,
+                    'responsibility_center_code' => $record->center_code,
+                    'entity_name' => $record->entity_name,
+                    'quantity_issued' => $record->quantity_issued,
+                    'item_name' => $record->item,
+                    'ris_no' => $record->ris_no ?? $record->serial_no,
                 ]),
             ];
         });
@@ -402,6 +418,14 @@ $processComplianceMigration = function (\Illuminate\Http\Request $request, ?stri
         }
 
         if ($normalizedFormType === 'RSMI') {
+            $rcc = isset($recordInput['responsibility_center_code']) && trim((string)$recordInput['responsibility_center_code']) !== ''
+                ? (string) $recordInput['responsibility_center_code']
+                : (isset($recordInput['center_code']) && trim((string)$recordInput['center_code']) !== '' ? (string) $recordInput['center_code'] : null);
+
+            $entityName = isset($recordInput['entity_name']) && trim((string)$recordInput['entity_name']) !== ''
+                ? (string) $recordInput['entity_name']
+                : (isset($recordInput['entity']) ? (string) $recordInput['entity'] : 'University of Camarines Norte');
+
             $insertData[] = [
                 'migration_id' => $migrationLog->id,
                 'migration_batch_id' => $batchId,
@@ -412,9 +436,9 @@ $processComplianceMigration = function (\Illuminate\Http\Request $request, ?stri
                 'serial_no' => $reference,
                 'ris_no' => isset($recordInput['ris_no']) ? (string) $recordInput['ris_no'] : $reference,
                 'date' => $date,
-                'entity_name' => isset($recordInput['department']) ? (string) $recordInput['department'] : (isset($recordInput['entity_name']) ? (string) $recordInput['entity_name'] : null),
+                'entity_name' => $entityName,
                 'fund_cluster' => isset($recordInput['fund_cluster']) ? (string) $recordInput['fund_cluster'] : null,
-                'center_code' => isset($recordInput['responsibility_center_code']) ? (string) $recordInput['responsibility_center_code'] : (isset($recordInput['center_code']) ? (string) $recordInput['center_code'] : null),
+                'center_code' => $rcc,
                 'stock_no' => isset($recordInput['stock_no']) ? (string) $recordInput['stock_no'] : null,
                 'item' => $itemName ?: null,
                 'unit' => isset($recordInput['unit']) ? (string) $recordInput['unit'] : null,

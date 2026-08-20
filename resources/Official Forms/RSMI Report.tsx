@@ -107,11 +107,14 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             width: 100%;
             border-collapse: collapse;
             border: 2px solid #000;
+            table-layout: fixed;
         }
         .main-table th, .main-table td {
             border: 1px solid #000;
             padding: 4px;
             font-size: 9.5pt;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         .main-table th {
             text-align: center;
@@ -255,41 +258,38 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
 
             {/* Lower Section: Recapitulation Headers */}
             <tr className="border-bottom-bold">
-              <td rowSpan={recapTargetCount + 2}></td> {/* C1 Empty column spanning down */}
-              <td colSpan={2} className="text-center font-bold">Recapitulation:</td> {/* C2 and C3 for left Recapitulation */}
-              <td rowSpan={recapTargetCount + 2}></td> {/* C4 Empty column spanning down */}
-              <td rowSpan={recapTargetCount + 2}></td> {/* C5 Empty column spanning down */}
-              <td colSpan={4} className="text-center font-bold">Recapitulation:</td> {/* C6 to C9 for right Recapitulation */}
+              <td colSpan={6} className="text-center font-bold">Recapitulation:</td>
+              <td colSpan={3} className="text-center font-bold">Recapitulation:</td>
             </tr>
             <tr>
-              <td className="text-center font-bold">Stock No.</td>
-              <td className="text-center font-bold">Quantity</td>
+              <td colSpan={3} className="text-center font-bold">Stock No.</td>
+              <td colSpan={3} className="text-center font-bold">Quantity</td>
               <td className="text-center font-bold">Unit Cost</td>
               <td className="text-center font-bold">Total Cost</td>
-              <td colSpan={2} className="text-center font-bold">UACS Object Code</td>
+              <td className="text-center font-bold">UACS Object Code</td>
             </tr>
 
             {/* Lower Section: Recapitulation Rows */}
             {paddedRecap.map((r, idx) => (
               <tr key={`recap-${idx}`}>
-                <td className="text-center">{r.stockNo}</td>
-                <td className="text-center">{r.quantity}</td>
+                <td colSpan={3} className="text-center">{r.stockNo}</td>
+                <td colSpan={3} className="text-center">{r.quantity}</td>
                 <td className="text-right">{r.unitCost}</td>
                 <td className="text-right">{r.totalCost}</td>
-                <td colSpan={2} className="text-center">{r.uacsObjectCode}</td>
+                <td className="text-center">{r.uacsObjectCode}</td>
               </tr>
             ))}
 
             {/* Footer / Signatures - Integrated as a table row to maintain perfect vertical alignment */}
             <tr>
-              <td colSpan={5} className="footer-cell">
+              <td colSpan={6} className="footer-cell">
                 <div className="certify-text">I hereby certify to the correctness of the above information.</div>
                 <div className="signature-area">
                   <div className="sig-line">{data.supplyCustodianName}</div>
                   <div className="sig-label">Signature over Printed Name of Supply and/or<br/>Property Custodian</div>
                 </div>
               </td>
-              <td colSpan={4} className="footer-cell" style={{ borderLeft: '2px solid #000' }}>
+              <td colSpan={3} className="footer-cell" style={{ borderLeft: '2px solid #000' }}>
                 <div className="posted-text">Posted by:</div>
                 <div className="accounting-sigs">
                   <div className="sig-main">

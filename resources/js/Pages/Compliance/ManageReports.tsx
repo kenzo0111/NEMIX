@@ -172,7 +172,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
         let targetKeywords: string[] = [];
         if (formType === 'RSMI') {
-            targetKeywords = ['ris', 'item', 'stock', 'quantity', 'qty', 'issued', 'unit cost', 'amount', 'responsibility'];
+            targetKeywords = ['ris', 'item', 'stock', 'quantity', 'qty', 'issued', 'unit cost', 'amount', 'responsibility', 'center code'];
         } else if (formType === 'RPCI') {
             targetKeywords = ['article', 'description', 'stock', 'property', 'unit', 'unit value', 'balance', 'hand', 'shortage', 'remarks'];
         } else if (formType === 'MR' || formType === 'MOR') {
@@ -206,12 +206,38 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                     for (let c = 0; c < row.length; c++) {
                         const cellStr = String(row[c] || '').trim();
                         if (!cellStr) continue;
-                        if (/entity\s*name/i.test(cellStr) && row[c + 1]) currentMetadata['entityName'] = String(row[c + 1]).trim();
-                        if (/fund\s*cluster/i.test(cellStr) && row[c + 1]) currentMetadata['fundCluster'] = String(row[c + 1]).trim();
-                        if (/(?:serial|mr|ris|doc|property)\s*no/i.test(cellStr) && row[c + 1]) currentMetadata['topSerialNo'] = String(row[c + 1]).trim();
-                        if (/(?:as\s*at\s*date|date\s*issued|date)/i.test(cellStr) && row[c + 1]) currentMetadata['topDate'] = String(row[c + 1]).trim();
-                        if (/(?:accountable|officer|custodian|received\s*by)/i.test(cellStr) && row[c + 1]) currentMetadata['topRecipient'] = String(row[c + 1]).trim();
-                        if (/(?:office|department)/i.test(cellStr) && row[c + 1]) currentMetadata['topOffice'] = String(row[c + 1]).trim();
+
+                        const extractLabelVal = (pattern: RegExp) => {
+                            if (pattern.test(cellStr)) {
+                                const clean = cellStr.replace(pattern, '').replace(/^[:\-\s]+/, '').trim();
+                                if (clean) return clean;
+                                for (let nc = c + 1; nc < Math.min(c + 5, row.length); nc++) {
+                                    const nextCell = String(row[nc] || '').trim();
+                                    if (nextCell && !/entity|fund|serial|date|officer|custodian|division/i.test(nextCell)) {
+                                        return nextCell;
+                                    }
+                                }
+                            }
+                            return '';
+                        };
+
+                        const entityVal = extractLabelVal(/entity\s*name/i);
+                        if (entityVal) currentMetadata['entityName'] = entityVal;
+
+                        const fundVal = extractLabelVal(/fund\s*cluster/i);
+                        if (fundVal) currentMetadata['fundCluster'] = fundVal;
+
+                        const serialVal = extractLabelVal(/(?:serial|mr|ris|doc|property)\s*no\.?/i);
+                        if (serialVal) currentMetadata['topSerialNo'] = serialVal;
+
+                        const dateVal = extractLabelVal(/(?:as\s*at\s*date|date\s*issued|date\s*:)/i);
+                        if (dateVal) currentMetadata['topDate'] = dateVal;
+
+                        const recipVal = extractLabelVal(/(?:accountable\s*officer|property\s*custodian|received\s*by)/i);
+                        if (recipVal) currentMetadata['topRecipient'] = recipVal;
+
+                        const officeVal = extractLabelVal(/(?:office|department)\s*[:\-]/i);
+                        if (officeVal) currentMetadata['topOffice'] = officeVal;
                     }
 
                     let matches = 0;
@@ -236,20 +262,24 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                 const headers: string[] = [];
                 rawHeaders.forEach((hCell, cIdx) => {
-                    let hName = String(hCell || '').trim();
-                    const subName = String(nextRow[cIdx] || '').trim();
-                    if (subName && (subName.startsWith('(') || /quantity|value|cost|office|amount/i.test(subName))) {
-                        hName = hName ? `${hName} ${subName}` : subName;
+                    let hName = String(hCell || '').replace(/\r?\n/g, ' ').trim();
+                    const subName = String(nextRow[cIdx] || '').replace(/\r?\n/g, ' ').trim();
+                    // Do not append footnote number indicators like (1), (2), (6) to the header name
+                    if (subName && !/^\s*\(\s*\d+\s*\)\s*$/.test(subName)) {
+                        if (/quantity|value|cost|office|amount|desc|article|unit/i.test(subName)) {
+                            hName = hName ? `${hName} ${subName}` : subName;
+                        }
                     }
                     headers[cIdx] = hName;
                 });
 
-                if (nextRow.some(cell => String(cell || '').trim().startsWith('('))) {
+                if (nextRow.some(cell => /^\s*\(\s*\d+\s*\)\s*$/.test(String(cell || '').trim()))) {
                     actualDataStart = headerRowIdx + 2;
                 }
 
                 r = actualDataStart;
                 const resultRows: any[] = [];
+                let hitRecapOrFooter = false;
                 
                 while (r < matrix.length) {
                     const row = matrix[r];
@@ -259,16 +289,19 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                     if (
                         fullRowStr.includes('recapitulation') ||
+                        fullRowStr.includes('recap') ||
+                        fullRowStr.includes('to be filled up by the accounting') ||
                         fullRowStr.includes('certified correct') ||
                         fullRowStr.includes('posted by') ||
                         fullRowStr.includes('approved by') ||
                         fullRowStr.includes('i hereby certify')
                     ) {
+                        hitRecapOrFooter = true;
                         r++;
                         break;
                     }
 
-                    if (fullRowStr.includes('report of supplies') || fullRowStr.includes('report of physical count') || fullRowStr.includes('stock card')) {
+                    if (fullRowStr.includes('report of supplies') || fullRowStr.includes('report of physical count') || fullRowStr.includes('stock card') || fullRowStr.includes('appendix 64') || fullRowStr.includes('appendix 66')) {
                         break;
                     }
 
@@ -281,7 +314,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         r++; continue;
                     }
 
-                    const rowObj: Record<string, any> = { ...currentMetadata };
+                    const rowObj: Record<string, any> = {};
                     let hasContent = false;
 
                     headers.forEach((hName, cIdx) => {
@@ -301,6 +334,34 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         metadata: { ...currentMetadata },
                         items: resultRows
                     });
+                }
+
+                // If we hit recapitulation or footers, skip scanning remaining sub-tables on this sheet
+                // unless an explicit new form title (e.g. Appendix / Report Of) appears later on the sheet
+                if (hitRecapOrFooter) {
+                    let foundNewForm = false;
+                    while (r < matrix.length) {
+                        const nextRow = matrix[r];
+                        if (Array.isArray(nextRow)) {
+                            const str = nextRow.map(c => String(c || '').toLowerCase().trim()).join(' ');
+                            if (
+                                str.includes('report of supplies and materials issued') ||
+                                str.includes('report on the physical count') ||
+                                str.includes('stock card') ||
+                                str.includes('memorandum receipt') ||
+                                str.includes('appendix 64') ||
+                                str.includes('appendix 66') ||
+                                str.includes('appendix 63')
+                            ) {
+                                foundNewForm = true;
+                                break;
+                            }
+                        }
+                        r++;
+                    }
+                    if (!foundNewForm) {
+                        break;
+                    }
                 }
             }
         });
@@ -431,11 +492,20 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             }
         }
 
+        const cleanKey = (k: string) => k.toLowerCase()
+            .replace(/\s*\(\s*\d+\s*\)\s*$/g, '')
+            .replace(/[^a-z0-9]/g, '');
+
         const rowKeys = Object.keys(row);
         for (const key of possibleKeys) {
-            const normKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const normKey = cleanKey(key);
             if (!normKey) continue;
-            const matchedRowKey = rowKeys.find(rk => rk.toLowerCase().replace(/[^a-z0-9]/g, '') === normKey);
+
+            const matchedRowKey = rowKeys.find(rk => {
+                const normRk = cleanKey(rk);
+                return normRk === normKey || normRk.replace(/\d+$/, '') === normKey.replace(/\d+$/, '');
+            });
+
             if (matchedRowKey && row[matchedRowKey] !== undefined && row[matchedRowKey] !== null && String(row[matchedRowKey]).trim() !== '') {
                 return String(row[matchedRowKey]).trim();
             }
@@ -467,25 +537,38 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             if (!ref && lastRefObj.current) ref = lastRefObj.current;
             if (ref) lastRefObj.current = ref;
 
-            const dept = getRowVal(row, ['Responsibility Center Code', 'Responsibility Center', 'RCC', 'Department', 'Office', 'department', 'responsibilityCenterCode', 'responsibility_center_code']) || groupMetadata?.topOffice;
-            const stockNo = getRowVal(row, ['Stock No.', 'Stock No', 'SKU', 'stockNo', 'stock_no', 'Stock Number']);
-            const itemName = getRowVal(row, ['Item', 'Item Description', 'Description', 'Article', 'item_name', 'itemDescription', 'Item Name']);
-            const unit = getRowVal(row, ['Unit', 'Unit of Issue', 'unit']) || 'pc';
-            const qty = Number(getRowVal(row, ['Quantity Issued', 'Qty Issued', 'Quantity', 'Qty', 'quantity', 'quantityIssued']) || 0);
-            const cost = Number(getRowVal(row, ['Unit Cost', 'Unit Value', 'unitCost', 'unit_cost', 'Cost']) || 0);
-            const amt = Number(getRowVal(row, ['Amount', 'Total Cost', 'amount', 'totalCost', 'total_cost']) || (qty * cost));
-            let dt = getRowVal(row, ['Date', 'Date Issued', 'date', 'date_issued', 'topDate']);
+            const rcc = getRowVal(row, ['Responsibility Center Code', 'Responsibility Center', 'Resp. Center Code', 'Resp Center Code', 'Center Code', 'RCC', 'responsibilityCenterCode', 'responsibility_center_code', 'center_code']);
+            const dept = getRowVal(row, ['Department', 'Office', 'Location', 'division', 'office', 'department']) || rcc || groupMetadata?.topOffice || '';
+            const stockNo = getRowVal(row, ['Stock No.', 'Stock No', 'Stock Number', 'SKU', 'stockNo', 'stock_no', 'Stock']);
+            const itemName = getRowVal(row, ['Item', 'Item Description', 'Description', 'Article', 'Item / Description', 'item_name', 'itemDescription', 'Item Name']);
+            const unit = getRowVal(row, ['Unit', 'Unit of Issue', 'Unit of Measurement', 'unit']) || 'pc';
+            const qty = Number(getRowVal(row, ['Quantity Issued', 'Qty Issued', 'Qty. Issued', 'Quantity', 'Qty', 'Qty.', 'quantity', 'quantityIssued', 'quantity_issued', 'issue_qty', 'Issued']) || 0);
+            const cost = Number(getRowVal(row, ['Unit Cost', 'Unit Value', 'Cost', 'unitCost', 'unit_cost', 'unit_value']) || 0);
+            const amt = Number(getRowVal(row, ['Amount', 'Total Cost', 'Total Amount', 'Total Value', 'amount', 'totalCost', 'total_cost']) || (qty * cost));
+            let dt = getRowVal(row, ['Date', 'Date Issued', 'Transaction Date', 'date', 'date_issued', 'topDate']);
             if (!dt && groupMetadata?.topDate) dt = groupMetadata.topDate;
-            const recipient = getRowVal(row, ['Recipient', 'Requested By', 'Issued To', 'recipient', 'topRecipient']) || groupMetadata?.topRecipient;
+            const recipient = getRowVal(row, ['Recipient', 'Requested By', 'Issued To', 'recipient', 'topRecipient']) || groupMetadata?.topRecipient || dept;
             const fundCluster = getRowVal(row, ['Fund Cluster', 'fund_cluster', 'General Fund']) || groupMetadata?.fundCluster;
+            const entityName = groupMetadata?.entityName || 'University of Camarines Norte';
             const remarks = getRowVal(row, ['Remarks', 'remarks']);
 
-            const fallbackItem = itemName || Object.values(row).find((v: any) => typeof v === 'string' && v.trim().length > 1 && !v.includes('RIS') && !v.includes('Appendix') && !v.includes('REPORT')) || '';
+            const fallbackItem = itemName || Object.values(row).find((v: any) => typeof v === 'string' && v.trim().length > 1 && !v.includes('RIS') && !v.includes('Appendix') && !v.includes('REPORT') && !v.includes('University') && !v.includes('Camarines')) || '';
             return {
                 reference: ref || (fallbackItem ? `RSMI-HIST-${idx + 1}` : ''),
                 date: formatDateToIso(dt),
                 item_name: String(fallbackItem).trim(),
-                quantity: qty, unit_cost: cost, amount: amt, unit: unit, stock_no: stockNo, recipient: recipient, department: dept, fund_cluster: fundCluster, responsibility_center_code: dept, remarks: remarks,
+                quantity: qty,
+                unit_cost: cost,
+                amount: amt,
+                unit: unit,
+                stock_no: stockNo,
+                recipient: recipient,
+                department: dept,
+                fund_cluster: fundCluster,
+                responsibility_center_code: rcc || dept,
+                center_code: rcc || dept,
+                entity_name: entityName,
+                remarks: remarks,
             };
         }
         if (formType === 'RPCI') {
@@ -794,6 +877,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                     date: row.date,
                     item_name: row.item_name,
                     quantity: row.quantity,
+                    quantity_issued: row.quantity,
                     recipient: row.recipient,
                     department: row.department,
                     designation: row.designation,
@@ -809,7 +893,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                     shortage_qty: row.shortage_qty,
                     shortage_value: row.shortage_value,
                     fund_cluster: row.fund_cluster,
-                    responsibility_center_code: row.responsibility_center_code,
+                    responsibility_center_code: row.responsibility_center_code || row.center_code || row.department,
+                    center_code: row.center_code || row.responsibility_center_code || row.department,
+                    entity_name: row.entity_name || group.metadata?.entityName || 'University of Camarines Norte',
                     source_sheet: group.sheetName,
                 });
             }
@@ -1455,17 +1541,39 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 const filteredIssuances = getFilteredIssuances();
 
                                 const issuedItems = filteredIssuances.map((issue: any) => {
-                                    const qty = issue.quantity || 0;
-                                    const cost = issue.item?.unit_cost || 0;
+                                    const isMigrated = issue._source === 'migration';
+                                    const qty = Number(issue.quantity ?? issue.quantity_issued ?? issue.payload?.quantity_issued ?? issue.payload?.quantity ?? 0);
+                                    const cost = isMigrated
+                                        ? Number(issue.unit_cost ?? issue.payload?.unit_cost ?? 0)
+                                        : Number(issue.item?.unit_cost || 0);
+                                    const amt = isMigrated
+                                        ? Number(issue.amount ?? issue.payload?.amount ?? (qty * cost))
+                                        : (qty * cost);
+                                    const stockNo = isMigrated
+                                        ? (issue.stock_no || issue.payload?.stock_no || '-')
+                                        : (issue.item?.sku || '-');
+                                    const itemName = isMigrated
+                                        ? (issue.item_name || issue.item || issue.payload?.item_name || issue.payload?.item || '-')
+                                        : (issue.item?.name || '-');
+                                    const unit = isMigrated
+                                        ? (issue.unit || issue.payload?.unit || 'pc')
+                                        : (issue.item?.unit_measure || 'pc');
+                                    const risNo = isMigrated
+                                        ? (issue.reference || issue.ris_no || issue.payload?.ris_no || '-')
+                                        : (issue.id ? issue.id.toString().padStart(4, '0') : '-');
+                                    const rcc = isMigrated
+                                        ? (issue.responsibility_center_code || issue.center_code || issue.payload?.center_code || issue.payload?.responsibility_center_code || issue.department || '-')
+                                        : (issue.department || '-');
+
                                     return {
-                                        risNo: issue.id.toString().padStart(4, '0'),
-                                        responsibilityCenterCode: issue.department || '-',
-                                        stockNo: issue.item?.sku || '-',
-                                        itemDescription: issue.item?.name || '-',
-                                        unit: issue.item?.unit_measure || 'pc',
+                                        risNo,
+                                        responsibilityCenterCode: rcc,
+                                        stockNo,
+                                        itemDescription: itemName,
+                                        unit,
                                         quantityIssued: qty,
-                                        unitCost: cost,
-                                        amount: qty * cost
+                                        unitCost: cost ? `₱${cost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '0.00',
+                                        amount: amt ? `₱${amt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '0.00'
                                     };
                                 });
 
@@ -1477,10 +1585,13 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     uacsObjectCode: ''
                                 }));
 
+                                const firstMigrated = filteredIssuances.find((i: any) => i._source === 'migration');
+                                const displayEntityName = firstMigrated?.entity_name || firstMigrated?.payload?.entity_name || 'University of Camarines Norte';
+
                                 return (
                                     <Suspense fallback={reportTemplateFallback}>
                                         <RSMIFormPaper data={{
-                                            entityName: 'University of Camarines Norte',
+                                            entityName: displayEntityName,
                                             serialNo: formData.reference,
                                             fundCluster: 'General Fund',
                                             date: generateDisplayDate(formData),
@@ -2103,7 +2214,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                         {group.items.map((row: any, index: number) => (
                                                             <tr key={`${row.reference || index}-${index}`} className={row.errors.length ? 'bg-red-50/40' : 'hover:bg-gray-50'}>
                                                                 <td className="px-3 py-2 font-semibold text-gray-900">{row.reference || '-'}</td>
-                                                                <td className="px-3 py-2 text-gray-600">{row.department || row.responsibility_center_code || '-'}</td>
+                                                                <td className="px-3 py-2 text-gray-600">{row.responsibility_center_code || row.center_code || row.department || '-'}</td>
                                                                 <td className="px-3 py-2 font-mono text-xs text-gray-700">{row.stock_no || '-'}</td>
                                                                 <td className="px-3 py-2 font-medium text-gray-800">{row.item_name || '-'}</td>
                                                                 <td className="px-3 py-2 text-center text-gray-600">{row.unit || 'pc'}</td>

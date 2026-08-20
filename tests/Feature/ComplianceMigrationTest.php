@@ -51,6 +51,8 @@ class ComplianceMigrationTest extends TestCase
         $this->assertSame('Ballpen', $record->item);
         $this->assertSame(10, $record->quantity_issued);
         $this->assertEquals(150.00, $record->unit_cost);
+        $this->assertSame('ACC-01', $record->center_code);
+        $this->assertSame('University of Camarines Norte', $record->entity_name);
     }
 
     public function test_rpci_records_are_migrated_to_dedicated_rpci_table(): void
