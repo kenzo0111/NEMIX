@@ -289,7 +289,7 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
             <tr>
               <td>Printed Name :</td>
               <td colSpan={2} className="text-center font-bold">{data.requested_by_name}</td>
-              <td colSpan={2} className="text-center font-bold">{data.approved_by_name}</td>
+              <td colSpan={2} className="text-center font-bold">{data.approved_by_name || 'ARSENIO GEM A. GARCILLANOSA'}</td>
               <td className="text-center font-bold">{data.issued_by_name}</td>
               <td colSpan={2} className="text-center font-bold">{data.received_by_name}</td>
             </tr>
@@ -298,7 +298,7 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
             <tr>
               <td>Designation :</td>
               <td colSpan={2} className="text-center">{data.requested_by_designation}</td>
-              <td colSpan={2} className="text-center">{data.approved_by_designation}</td>
+              <td colSpan={2} className="text-center">{data.approved_by_designation || 'SUPPLY OFFICER III/ADMIN OFFICER V'}</td>
               <td className="text-center">{data.issued_by_designation}</td>
               <td colSpan={2} className="text-center">{data.received_by_designation}</td>
             </tr>

@@ -28,8 +28,8 @@ class IssuanceDTO implements DTOInterface
         $dto->fund_cluster = $data['fund_cluster'] ?? null;
         $dto->recipient_designation = $data['recipient_designation'] ?? null;
         $dto->purpose = $data['purpose'] ?? null;
-        $dto->approved_by = $data['approved_by'] ?? null;
-        $dto->approved_by_designation = $data['approved_by_designation'] ?? null;
+        $dto->approved_by = !empty($data['approved_by']) ? $data['approved_by'] : 'ARSENIO GEM A. GARCILLANOSA';
+        $dto->approved_by_designation = !empty($data['approved_by_designation']) ? $data['approved_by_designation'] : 'SUPPLY OFFICER III/ADMIN OFFICER V';
         $dto->date_issued = $data['date_issued'];
         $dto->status = $data['status'] ?? 'Issued';
         return $dto;

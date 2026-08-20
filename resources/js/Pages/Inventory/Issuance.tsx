@@ -37,8 +37,8 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
     const [fundCluster, setFundCluster] = useState<any>(null);
     const [recipientDesignation, setRecipientDesignation] = useState('');
     const [purpose, setPurpose] = useState('');
-    const [approvedBy, setApprovedBy] = useState('');
-    const [approvedByDesignation, setApprovedByDesignation] = useState('');
+    const [approvedBy, setApprovedBy] = useState('ARSENIO GEM A. GARCILLANOSA');
+    const [approvedByDesignation, setApprovedByDesignation] = useState('SUPPLY OFFICER III/ADMIN OFFICER V');
     const [issuanceItems, setIssuanceItems] = useState<IssuanceItem[]>([{ item_id: '', quantity: '' }]);
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<any>({});
@@ -301,8 +301,8 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
         setFundCluster(null);
         setRecipientDesignation('');
         setPurpose('');
-        setApprovedBy('');
-        setApprovedByDesignation('');
+        setApprovedBy('ARSENIO GEM A. GARCILLANOSA');
+        setApprovedByDesignation('SUPPLY OFFICER III/ADMIN OFFICER V');
         setIssuanceItems([{ item_id: '', quantity: '' }]);
         setErrors({});
     };
@@ -826,7 +826,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                         className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
                                             focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200
                                             ${errors.approved_by ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-orange-500'}`}
-                                        placeholder="Enter approver name"
+                                        placeholder="ARSENIO GEM A. GARCILLANOSA"
                                     />
                                 </div>
                                 {errors.approved_by && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.approved_by}</p>}
@@ -844,7 +844,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                         className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
                                             focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all duration-200
                                             ${errors.approved_by_designation ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-orange-500'}`}
-                                        placeholder="Enter approver designation"
+                                        placeholder="SUPPLY OFFICER III/ADMIN OFFICER V"
                                     />
                                 </div>
                                 {errors.approved_by_designation && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.approved_by_designation}</p>}
@@ -1076,11 +1076,11 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                     requested_by_name: selectedIssuance.recipient,
                                     requested_by_designation: selectedIssuance.recipient_designation,
                                     requested_by_date: selectedIssuance.date,
-                                    approved_by_name: selectedIssuance.approved_by,
-                                    approved_by_designation: selectedIssuance.approved_by_designation,
+                                    approved_by_name: selectedIssuance.approved_by || 'ARSENIO GEM A. GARCILLANOSA',
+                                    approved_by_designation: selectedIssuance.approved_by_designation || 'SUPPLY OFFICER III/ADMIN OFFICER V',
                                     approved_by_date: selectedIssuance.date,
-                                    issued_by_name: selectedIssuance.issued_by,
-                                    issued_by_designation: "Supply Officer",
+                                    issued_by_name: selectedIssuance.issued_by || 'ARSENIO GEM A. GARCILLANOSA',
+                                    issued_by_designation: selectedIssuance.issued_by_designation || 'SUPPLY OFFICER III/ADMIN OFFICER V',
                                     issued_by_date: selectedIssuance.date,
                                     received_by_name: selectedIssuance.recipient,
                                     received_by_designation: selectedIssuance.recipient_designation,
