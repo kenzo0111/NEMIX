@@ -61,6 +61,36 @@ const formatDate = (dateString?: string) => {
   });
 };
 
+const getDynamicNameStyle = (name?: string): React.CSSProperties => {
+  if (!name) return { fontSize: '9pt', whiteSpace: 'nowrap' };
+  const len = name.trim().length;
+  if (len > 32) {
+    return { fontSize: '6.5pt', whiteSpace: 'nowrap', display: 'inline-block' };
+  }
+  if (len > 24) {
+    return { fontSize: '7.5pt', whiteSpace: 'nowrap', display: 'inline-block' };
+  }
+  if (len > 18) {
+    return { fontSize: '8pt', whiteSpace: 'nowrap', display: 'inline-block' };
+  }
+  return { fontSize: '9pt', whiteSpace: 'nowrap', display: 'inline-block' };
+};
+
+const getDynamicDesignationStyle = (designation?: string): React.CSSProperties => {
+  if (!designation) return { fontSize: '8pt', whiteSpace: 'nowrap' };
+  const len = designation.trim().length;
+  if (len > 32) {
+    return { fontSize: '6.5pt', whiteSpace: 'nowrap', display: 'inline-block', lineHeight: 1.1 };
+  }
+  if (len > 24) {
+    return { fontSize: '7pt', whiteSpace: 'nowrap', display: 'inline-block', lineHeight: 1.1 };
+  }
+  if (len > 16) {
+    return { fontSize: '7.5pt', whiteSpace: 'nowrap', display: 'inline-block', lineHeight: 1.1 };
+  }
+  return { fontSize: '8pt', whiteSpace: 'nowrap', display: 'inline-block', lineHeight: 1.1 };
+};
+
 export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data }) => {
   // Logic to pad empty rows to reach exactly 20 lines like the original PHP loop
   const items = data.items || [];
@@ -143,6 +173,30 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
         .sig-header {
             background-color: #ffffff !important;
             font-weight: bold;
+            text-align: center;
+        }
+        .sig-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin: 0;
+        }
+        .sig-table th, .sig-table td {
+            border: 1px solid #000;
+            padding: 4px 2px;
+            font-size: 9pt;
+            vertical-align: middle;
+            overflow: hidden;
+        }
+        .sig-table th.sig-header {
+            background-color: #ffffff !important;
+            font-weight: bold;
+            text-align: center;
+        }
+        .sig-cell {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: clip;
             text-align: center;
         }
         
@@ -267,49 +321,97 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
               </td>
             </tr>
 
-            {/* Signatories Header */}
+            {/* Signatories Section */}
             <tr>
-              <th className="sig-empty"></th>
-              <th colSpan={2} className="sig-header">Requested by:</th>
-              <th colSpan={2} className="sig-header">Approved by:</th>
-              <th className="sig-header">Issued by:</th>
-              <th colSpan={2} className="sig-header">Received by:</th>
-            </tr>
+              <td colSpan={8} style={{ padding: 0, border: 'none' }}>
+                <table className="sig-table" style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                  <colgroup>
+                    <col style={{ width: '12%' }} />
+                    <col style={{ width: '22%' }} />
+                    <col style={{ width: '22%' }} />
+                    <col style={{ width: '22%' }} />
+                    <col style={{ width: '22%' }} />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th style={{ borderLeft: 'none', borderTop: 'none' }}></th>
+                      <th className="sig-header" style={{ borderTop: 'none' }}>Requested by:</th>
+                      <th className="sig-header" style={{ borderTop: 'none' }}>Approved by:</th>
+                      <th className="sig-header" style={{ borderTop: 'none' }}>Issued by:</th>
+                      <th className="sig-header" style={{ borderRight: 'none', borderTop: 'none' }}>Received by:</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Signatures */}
+                    <tr>
+                      <td style={{ borderLeft: 'none' }}>Signature :</td>
+                      <td className="text-center">{data.requested_by_signature}</td>
+                      <td className="text-center">{data.approved_by_signature}</td>
+                      <td className="text-center">{data.issued_by_signature}</td>
+                      <td className="text-center" style={{ borderRight: 'none' }}>{data.received_by_signature}</td>
+                    </tr>
 
-            {/* Signatures */}
-            <tr>
-              <td>Signature :</td>
-              <td colSpan={2} className="text-center">{data.requested_by_signature}</td>
-              <td colSpan={2} className="text-center">{data.approved_by_signature}</td>
-              <td className="text-center">{data.issued_by_signature}</td>
-              <td colSpan={2} className="text-center">{data.received_by_signature}</td>
-            </tr>
+                    {/* Printed Names */}
+                    <tr>
+                      <td style={{ borderLeft: 'none' }}>Printed Name :</td>
+                      <td className="sig-cell">
+                        <span className="font-bold" style={getDynamicNameStyle(data.requested_by_name)}>
+                          {data.requested_by_name}
+                        </span>
+                      </td>
+                      <td className="sig-cell">
+                        <span className="font-bold" style={getDynamicNameStyle(data.approved_by_name || 'ARSENIO GEM A. GARCILLANOSA')}>
+                          {data.approved_by_name || 'ARSENIO GEM A. GARCILLANOSA'}
+                        </span>
+                      </td>
+                      <td className="sig-cell">
+                        <span className="font-bold" style={getDynamicNameStyle(data.issued_by_name)}>
+                          {data.issued_by_name}
+                        </span>
+                      </td>
+                      <td className="sig-cell" style={{ borderRight: 'none' }}>
+                        <span className="font-bold" style={getDynamicNameStyle(data.received_by_name)}>
+                          {data.received_by_name}
+                        </span>
+                      </td>
+                    </tr>
 
-            {/* Printed Names */}
-            <tr>
-              <td>Printed Name :</td>
-              <td colSpan={2} className="text-center font-bold">{data.requested_by_name}</td>
-              <td colSpan={2} className="text-center font-bold">{data.approved_by_name || 'ARSENIO GEM A. GARCILLANOSA'}</td>
-              <td className="text-center font-bold">{data.issued_by_name}</td>
-              <td colSpan={2} className="text-center font-bold">{data.received_by_name}</td>
-            </tr>
+                    {/* Designations */}
+                    <tr>
+                      <td style={{ borderLeft: 'none' }}>Designation :</td>
+                      <td className="sig-cell">
+                        <span style={getDynamicDesignationStyle(data.requested_by_designation)}>
+                          {data.requested_by_designation}
+                        </span>
+                      </td>
+                      <td className="sig-cell">
+                        <span style={getDynamicDesignationStyle(data.approved_by_designation || 'SUPPLY OFFICER III/ADMIN OFFICER V')}>
+                          {data.approved_by_designation || 'SUPPLY OFFICER III/ADMIN OFFICER V'}
+                        </span>
+                      </td>
+                      <td className="sig-cell">
+                        <span style={getDynamicDesignationStyle(data.issued_by_designation)}>
+                          {data.issued_by_designation}
+                        </span>
+                      </td>
+                      <td className="sig-cell" style={{ borderRight: 'none' }}>
+                        <span style={getDynamicDesignationStyle(data.received_by_designation)}>
+                          {data.received_by_designation}
+                        </span>
+                      </td>
+                    </tr>
 
-            {/* Designations */}
-            <tr>
-              <td>Designation :</td>
-              <td colSpan={2} className="text-center">{data.requested_by_designation}</td>
-              <td colSpan={2} className="text-center">{data.approved_by_designation || 'SUPPLY OFFICER III/ADMIN OFFICER V'}</td>
-              <td className="text-center">{data.issued_by_designation}</td>
-              <td colSpan={2} className="text-center">{data.received_by_designation}</td>
-            </tr>
-
-            {/* Dates */}
-            <tr>
-              <td>Date :</td>
-              <td colSpan={2} className="text-center">{formatDate(data.requested_by_date)}</td>
-              <td colSpan={2} className="text-center">{formatDate(data.approved_by_date)}</td>
-              <td className="text-center">{formatDate(data.issued_by_date)}</td>
-              <td colSpan={2} className="text-center">{formatDate(data.received_by_date)}</td>
+                    {/* Dates */}
+                    <tr>
+                      <td style={{ borderLeft: 'none', borderBottom: 'none' }}>Date :</td>
+                      <td className="text-center" style={{ borderBottom: 'none' }}>{formatDate(data.requested_by_date)}</td>
+                      <td className="text-center" style={{ borderBottom: 'none' }}>{formatDate(data.approved_by_date)}</td>
+                      <td className="text-center" style={{ borderBottom: 'none' }}>{formatDate(data.issued_by_date)}</td>
+                      <td className="text-center" style={{ borderRight: 'none', borderBottom: 'none' }}>{formatDate(data.received_by_date)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
             </tr>
           </tbody>
         </table>
