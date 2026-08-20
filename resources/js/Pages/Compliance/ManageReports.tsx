@@ -785,78 +785,86 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     };
 
     const handleConfirmMigration = () => {
-        const payloadRecords: any[] = [];
-        migrationPreview.forEach((group: any) => {
-            group.items.forEach((row: any) => {
-                if (row.errors.length === 0) {
-                    payloadRecords.push({
-                        reference: row.reference,
-                        date: row.date,
-                        item_name: row.item_name,
-                        quantity: row.quantity,
-                        recipient: row.recipient,
-                        department: row.department,
-                        designation: row.designation,
-                        remarks: row.remarks,
-                        unit_cost: row.unit_cost,
-                        amount: row.amount,
-                        unit: row.unit,
-                        stock_no: row.stock_no,
-                        receipt_qty: row.receipt_qty,
-                        balance_qty: row.balance_qty,
-                        re_order_point: row.re_order_point,
-                        on_hand_count: row.on_hand_count,
-                        shortage_qty: row.shortage_qty,
-                        shortage_value: row.shortage_value,
-                        fund_cluster: row.fund_cluster,
-                        responsibility_center_code: row.responsibility_center_code,
-                        source_sheet: group.sheetName,
-                    });
-                }
-            });
+    const payloadRecords: any[] = [];
+    migrationPreview.forEach((group: any) => {
+        group.items.forEach((row: any) => {
+            if (row.errors.length === 0) {
+                payloadRecords.push({
+                    reference: row.reference,
+                    date: row.date,
+                    item_name: row.item_name,
+                    quantity: row.quantity,
+                    recipient: row.recipient,
+                    department: row.department,
+                    designation: row.designation,
+                    remarks: row.remarks,
+                    unit_cost: row.unit_cost,
+                    amount: row.amount,
+                    unit: row.unit,
+                    stock_no: row.stock_no,
+                    receipt_qty: row.receipt_qty,
+                    balance_qty: row.balance_qty,
+                    re_order_point: row.re_order_point,
+                    on_hand_count: row.on_hand_count,
+                    shortage_qty: row.shortage_qty,
+                    shortage_value: row.shortage_value,
+                    fund_cluster: row.fund_cluster,
+                    responsibility_center_code: row.responsibility_center_code,
+                    source_sheet: group.sheetName,
+                });
+            }
         });
+    });
 
-        if (!payloadRecords.length) {
+    if (!payloadRecords.length) {
+        setActionDialog({
+            show: true,
+            type: 'error',
+            title: 'Nothing to Migrate',
+            message: 'Please provide at least one valid historical record without validation errors or duplicates before confirming.',
+        });
+        return;
+    }
+
+    // Determine correct endpoint based on selected form type
+    const endpoint =
+        migrationFormType === 'RSMI' || migrationFormType === 'RPCI'
+            ? route('compliance.migrations.store')
+            : migrationFormType === 'STOCK_CARD'
+            ? route('compliance.migrate.stock_card')
+            : route('compliance.migrate.memorandum_receipt');
+
+    setMigrationSubmitting(true);
+    router.post(endpoint, {
+        form_type: migrationFormType,
+        source: migrationSource || migrationFileName || 'historical_migration',
+        records: payloadRecords,
+    }, {
+        preserveScroll: true,
+        onStart: () => setMigrationSubmitting(true),
+        onFinish: () => setMigrationSubmitting(false),
+        onSuccess: () => {
+            setShowMigrationModal(false);
+            setMigrationInputText('');
+            setMigrationPreview([]);
+            setMigrationValidation({ validCount: 0, invalidCount: 0, duplicateCount: 0 });
+            setActionDialog({
+                show: true,
+                type: 'success',
+                title: 'Migration Successful',
+                message: `Historical ${migrationFormType} records were stored in the database and integrated into the report-generation data source.`,
+            });
+        },
+        onError: () => {
             setActionDialog({
                 show: true,
                 type: 'error',
-                title: 'Nothing to Migrate',
-                message: 'Please provide at least one valid historical record without validation errors or duplicates before confirming.',
+                title: 'Migration Failed',
+                message: 'Unable to complete historical data migration. Please verify field mappings and try again.',
             });
-            return;
-        }
-
-        setMigrationSubmitting(true);
-        router.post(route('compliance.migrations.store'), {
-            form_type: migrationFormType,
-            source: migrationSource || migrationFileName || 'historical_migration',
-            records: payloadRecords,
-        }, {
-            preserveScroll: true,
-            onStart: () => setMigrationSubmitting(true),
-            onFinish: () => setMigrationSubmitting(false),
-            onSuccess: () => {
-                setShowMigrationModal(false);
-                setMigrationInputText('');
-                setMigrationPreview([]);
-                setMigrationValidation({ validCount: 0, invalidCount: 0, duplicateCount: 0 });
-                setActionDialog({
-                    show: true,
-                    type: 'success',
-                    title: 'Migration Successful',
-                    message: `Historical ${migrationFormType} records were stored in the database and integrated into the report-generation data source.`,
-                });
-            },
-            onError: () => {
-                setActionDialog({
-                    show: true,
-                    type: 'error',
-                    title: 'Migration Failed',
-                    message: 'Unable to complete historical data migration. Please verify field mappings and try again.',
-                });
-            },
-        });
-    };
+        },
+    });
+};
 
     // Filter logic for Issuances Data
     const getFilteredIssuances = () => {

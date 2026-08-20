@@ -36,8 +36,118 @@ Route::get('/compliance/reports', function () {
         ? \Modules\Inventory\Models\Issuance::with(['item', 'issuer'])->latest()->get()
         : [];
 
-    $migratedRecords = \Illuminate\Support\Facades\Schema::hasTable('compliance_migrated_records')
-        ? \App\Models\ComplianceMigratedRecord::query()
+    $migratedRecords = collect();
+
+    if (\Illuminate\Support\Facades\Schema::hasTable('rsmi_migrated_records')) {
+        $rsmiRecords = \App\Models\Compliance\RsmiMigratedRecord::query()->latest()->get()->map(function ($record) {
+            return [
+                'id' => $record->id,
+                'form_type' => 'RSMI',
+                'source' => $record->source_file ?? $record->source_sheet ?? 'historical_migration',
+                'reference' => $record->ris_no ?? $record->serial_no ?? ('RSMI-HIST-' . $record->id),
+                'item_name' => $record->item,
+                'quantity' => (int) ($record->quantity_issued ?? 0),
+                'recipient' => $record->center_code ?? $record->entity_name,
+                'department' => $record->entity_name ?? $record->center_code,
+                'designation' => null,
+                'remarks' => null,
+                'date' => optional($record->date)->toDateString(),
+                'status' => 'historical_migration',
+                'payload' => array_merge($record->raw_data ?? [], [
+                    'stock_no' => $record->stock_no,
+                    'unit' => $record->unit,
+                    'unit_cost' => $record->unit_cost,
+                    'amount' => $record->amount,
+                    'fund_cluster' => $record->fund_cluster,
+                    'center_code' => $record->center_code,
+                ]),
+            ];
+        });
+        $migratedRecords = $migratedRecords->concat($rsmiRecords);
+    }
+
+    if (\Illuminate\Support\Facades\Schema::hasTable('rpci_migrated_records')) {
+        $rpciRecords = \App\Models\Compliance\RpcIMigratedRecord::query()->latest()->get()->map(function ($record) {
+            return [
+                'id' => $record->id,
+                'form_type' => 'RPCI',
+                'source' => $record->source_file ?? $record->source_sheet ?? 'historical_migration',
+                'reference' => $record->serial_no ?? $record->stock_no ?? ('RPCI-HIST-' . $record->id),
+                'item_name' => $record->item,
+                'quantity' => (int) ($record->quantity_per_books ?? $record->physical_count ?? 0),
+                'recipient' => data_get($record->raw_data, 'recipient'),
+                'department' => $record->location ?? $record->entity_name,
+                'designation' => data_get($record->raw_data, 'designation'),
+                'remarks' => $record->remarks,
+                'date' => optional($record->date)->toDateString(),
+                'status' => 'historical_migration',
+                'payload' => array_merge($record->raw_data ?? [], [
+                    'stock_no' => $record->stock_no,
+                    'unit' => $record->unit,
+                    'unit_cost' => $record->unit_cost,
+                    'total_value' => $record->total_value,
+                    'physical_count' => $record->physical_count,
+                    'variance' => $record->variance,
+                    'location' => $record->location,
+                    'condition' => $record->condition,
+                ]),
+            ];
+        });
+        $migratedRecords = $migratedRecords->concat($rpciRecords);
+    }
+
+    if (\Illuminate\Support\Facades\Schema::hasTable('stock_card_migrated_records')) {
+        $stockCardRecords = \App\Models\Compliance\StockCardMigratedRecord::query()->latest()->get()->map(function ($record) {
+            return [
+                'id' => $record->id,
+                'form_type' => 'STOCK_CARD',
+                'source' => $record->source_file ?? $record->source_sheet ?? 'historical_migration',
+                'reference' => $record->reference_no ?? ('SC-HIST-' . $record->id),
+                'item_name' => $record->item,
+                'quantity' => (int) ($record->issue_quantity ?? $record->receipt_quantity ?? $record->balance ?? 0),
+                'recipient' => $record->office_end_user,
+                'department' => $record->supplier_source,
+                'designation' => null,
+                'remarks' => $record->remarks,
+                'date' => optional($record->date)->toDateString(),
+                'status' => 'historical_migration',
+                'payload' => array_merge($record->raw_data ?? [], [
+                    'stock_no' => $record->stock_no,
+                    'unit' => $record->unit,
+                    'receipt_qty' => $record->receipt_quantity,
+                    'issue_qty' => $record->issue_quantity,
+                    'balance_qty' => $record->balance,
+                    'unit_cost' => $record->unit_cost,
+                    'total_cost' => $record->total_cost,
+                ]),
+            ];
+        });
+        $migratedRecords = $migratedRecords->concat($stockCardRecords);
+    }
+
+    if (\Illuminate\Support\Facades\Schema::hasTable('memorandum_receipt_migrated_records')) {
+        $mrRecords = \App\Models\Compliance\MemorandumReceiptMigratedRecord::query()->latest()->get()->map(function ($record) {
+            return [
+                'id' => $record->id,
+                'form_type' => 'MR',
+                'source' => $record->source_file ?? $record->source_sheet ?? 'historical_migration',
+                'reference' => $record->memorial_no ?? ('MR-HIST-' . $record->id),
+                'item_name' => data_get($record->raw_data, 'item_name') ?? data_get($record->raw_data, 'item') ?? $record->remarks ?? 'Property Item',
+                'quantity' => (int) (data_get($record->raw_data, 'quantity') ?? 1),
+                'recipient' => $record->received_by,
+                'department' => $record->received_from ?? $record->received_for,
+                'designation' => data_get($record->raw_data, 'designation'),
+                'remarks' => $record->remarks,
+                'date' => optional($record->date_received)->toDateString(),
+                'status' => 'historical_migration',
+                'payload' => $record->raw_data ?? [],
+            ];
+        });
+        $migratedRecords = $migratedRecords->concat($mrRecords);
+    }
+
+    if (\Illuminate\Support\Facades\Schema::hasTable('compliance_migrated_records')) {
+        $legacyRecords = \App\Models\ComplianceMigratedRecord::query()
             ->latest()
             ->get()
             ->map(function ($record) {
@@ -56,9 +166,9 @@ Route::get('/compliance/reports', function () {
                     'status' => $record->status,
                     'payload' => $record->payload ?? [],
                 ];
-            })
-            ->values()
-        : collect();
+            });
+        $migratedRecords = $migratedRecords->concat($legacyRecords);
+    }
 
     $reports = \Illuminate\Support\Facades\Schema::hasTable('compliance_reports')
         ? ResourceOwnershipPolicy::scopeQuery(\App\Models\ComplianceReport::query()->whereNull('archived_at'), request()->user(), 'created_by')
@@ -97,52 +207,134 @@ Route::get('/compliance/reports', function () {
         'reports' => $reports,
         'issuances' => $issuances,
         'suppliers' => $suppliers,
-        'migratedRecords' => $migratedRecords,
+        'migratedRecords' => $migratedRecords->values(),
     ]);
 })->middleware(['auth', 'verified'])->name('compliance.reports');
 
-Route::post('/compliance/migrations', function (\Illuminate\Http\Request $request) {
+$processComplianceMigration = function (\Illuminate\Http\Request $request, ?string $forcedFormType = null) {
     @set_time_limit(300);
     @ini_set('memory_limit', '512M');
 
     $validated = $request->validate([
-        'form_type' => ['required', 'in:RSMI,RPCI,STOCK_CARD,MR,MOR'],
+        'form_type' => [$forcedFormType ? 'nullable' : 'required', 'string', 'max:50'],
         'source' => ['nullable', 'string', 'max:100'],
         'records' => ['required', 'array', 'min:1'],
     ]);
 
-    $formType = $validated['form_type'];
+    $rawFormType = $forcedFormType ?: ($validated['form_type'] ?? 'RSMI');
+    $upperType = strtoupper(trim($rawFormType));
+
+    $normalizedFormType = match ($upperType) {
+        'RSMI' => 'RSMI',
+        'RPCI' => 'RPCI',
+        'STOCK_CARD', 'STOCKCARD', 'SC' => 'STOCK_CARD',
+        'MR', 'MOR', 'MEMORANDUM_RECEIPT', 'MEMORANDUM RECEIPT' => 'MR',
+        default => 'RSMI',
+    };
+
     $source = $validated['source'] ?? 'historical_migration';
     $userId = optional($request->user())->id;
+    $batchId = uniqid('batch_', true);
     $now = now();
-    $nowIso = $now->toIso8601String();
 
-    // 1. Bulk fetch existing references & item combinations to avoid N+1 queries
-    $existingRefSet = \App\Models\ComplianceMigratedRecord::query()
-        ->where('form_type', $formType)
-        ->pluck('reference')
-        ->map(fn ($r) => strtolower(trim((string) $r)))
-        ->filter()
-        ->flip()
-        ->toArray();
+    // Create central migration log
+    $migrationLog = \App\Models\ComplianceMigrationLog::create([
+        'form_type' => $normalizedFormType,
+        'source' => $source,
+        'records_count' => 0,
+        'status' => 'processing',
+        'message' => "Processing {$normalizedFormType} migration batch...",
+        'created_by' => $userId,
+    ]);
 
-    $existingComboSet = \App\Models\ComplianceMigratedRecord::query()
-        ->where('form_type', $formType)
-        ->select(['item_name', 'date', 'quantity'])
-        ->get()
-        ->map(function ($r) {
-            $item = strtolower(trim((string) ($r->item_name ?? '')));
-            $dt = optional($r->date)->toDateString() ?? '';
-            $qty = (int) ($r->quantity ?? 0);
-            return "{$item}||{$dt}||{$qty}";
-        })
-        ->filter()
-        ->flip()
-        ->toArray();
+    $existingRefSet = [];
+    $existingComboSet = [];
 
-    $insertData = [];
-    $saved = 0;
-    $skipped = 0;
+    // Pre-fetch references & combinations for duplicate detection based on form type
+    if ($normalizedFormType === 'RSMI' && \Illuminate\Support\Facades\Schema::hasTable('rsmi_migrated_records')) {
+        $existingRefSet = \App\Models\Compliance\RsmiMigratedRecord::query()
+            ->pluck('ris_no')
+            ->concat(\App\Models\Compliance\RsmiMigratedRecord::query()->pluck('serial_no'))
+            ->filter()
+            ->map(fn ($r) => strtolower(trim((string) $r)))
+            ->flip()
+            ->toArray();
+
+        $existingComboSet = \App\Models\Compliance\RsmiMigratedRecord::query()
+            ->select(['item', 'date', 'quantity_issued'])
+            ->get()
+            ->map(function ($r) {
+                $item = strtolower(trim((string) ($r->item ?? '')));
+                $dt = optional($r->date)->toDateString() ?? '';
+                $qty = (int) ($r->quantity_issued ?? 0);
+                return "{$item}||{$dt}||{$qty}";
+            })
+            ->filter()
+            ->flip()
+            ->toArray();
+    } elseif ($normalizedFormType === 'RPCI' && \Illuminate\Support\Facades\Schema::hasTable('rpci_migrated_records')) {
+        $existingRefSet = \App\Models\Compliance\RpcIMigratedRecord::query()
+            ->pluck('serial_no')
+            ->concat(\App\Models\Compliance\RpcIMigratedRecord::query()->pluck('stock_no'))
+            ->filter()
+            ->map(fn ($r) => strtolower(trim((string) $r)))
+            ->flip()
+            ->toArray();
+
+        $existingComboSet = \App\Models\Compliance\RpcIMigratedRecord::query()
+            ->select(['item', 'date', 'quantity_per_books'])
+            ->get()
+            ->map(function ($r) {
+                $item = strtolower(trim((string) ($r->item ?? '')));
+                $dt = optional($r->date)->toDateString() ?? '';
+                $qty = (int) ($r->quantity_per_books ?? 0);
+                return "{$item}||{$dt}||{$qty}";
+            })
+            ->filter()
+            ->flip()
+            ->toArray();
+    } elseif ($normalizedFormType === 'STOCK_CARD' && \Illuminate\Support\Facades\Schema::hasTable('stock_card_migrated_records')) {
+        $existingRefSet = \App\Models\Compliance\StockCardMigratedRecord::query()
+            ->pluck('reference_no')
+            ->concat(\App\Models\Compliance\StockCardMigratedRecord::query()->pluck('stock_no'))
+            ->filter()
+            ->map(fn ($r) => strtolower(trim((string) $r)))
+            ->flip()
+            ->toArray();
+
+        $existingComboSet = \App\Models\Compliance\StockCardMigratedRecord::query()
+            ->select(['item', 'date', 'issue_quantity', 'receipt_quantity'])
+            ->get()
+            ->map(function ($r) {
+                $item = strtolower(trim((string) ($r->item ?? '')));
+                $dt = optional($r->date)->toDateString() ?? '';
+                $qty = (int) ($r->issue_quantity ?? $r->receipt_quantity ?? 0);
+                return "{$item}||{$dt}||{$qty}";
+            })
+            ->filter()
+            ->flip()
+            ->toArray();
+    } elseif ($normalizedFormType === 'MR' && \Illuminate\Support\Facades\Schema::hasTable('memorandum_receipt_migrated_records')) {
+        $existingRefSet = \App\Models\Compliance\MemorandumReceiptMigratedRecord::query()
+            ->pluck('memorial_no')
+            ->filter()
+            ->map(fn ($r) => strtolower(trim((string) $r)))
+            ->flip()
+            ->toArray();
+
+        $existingComboSet = \App\Models\Compliance\MemorandumReceiptMigratedRecord::query()
+            ->select(['received_by', 'date_received', 'remarks'])
+            ->get()
+            ->map(function ($r) {
+                $user = strtolower(trim((string) ($r->received_by ?? '')));
+                $dt = optional($r->date_received)->toDateString() ?? '';
+                $rem = strtolower(trim((string) ($r->remarks ?? '')));
+                return "{$user}||{$dt}||{$rem}";
+            })
+            ->filter()
+            ->flip()
+            ->toArray();
+    }
 
     $parseValidDate = function ($dateInput) {
         if (empty($dateInput)) return null;
@@ -159,11 +351,15 @@ Route::post('/compliance/migrations', function (\Illuminate\Http\Request $reques
                 return $carbon->toDateString();
             }
         } catch (\Throwable $e) {
-            // Not a parseable date
+            // Not parseable
         }
 
         return null;
     };
+
+    $insertData = [];
+    $saved = 0;
+    $skipped = 0;
 
     foreach ($request->input('records', []) as $index => $recordInput) {
         if (!is_array($recordInput)) {
@@ -171,25 +367,25 @@ Route::post('/compliance/migrations', function (\Illuminate\Http\Request $reques
             continue;
         }
 
-        $reference = trim((string) ($recordInput['reference'] ?? '')) ?: 'MIGRATED-' . ($index + 1);
-        $itemName = trim((string) ($recordInput['item_name'] ?? ''));
-        $date = $parseValidDate($recordInput['date'] ?? null);
-        $qty = (int) ($recordInput['quantity'] ?? 0);
+        $reference = trim((string) ($recordInput['reference'] ?? '')) ?: "{$normalizedFormType}-HIST-" . ($index + 1);
+        $itemName = trim((string) ($recordInput['item_name'] ?? $recordInput['item'] ?? ''));
+        $date = $parseValidDate($recordInput['date'] ?? $recordInput['date_received'] ?? null);
+        $qty = (int) ($recordInput['quantity'] ?? $recordInput['issue_qty'] ?? $recordInput['quantity_issued'] ?? 0);
 
-        if (empty($reference) && empty($itemName)) {
+        if (empty($reference) && empty($itemName) && empty($recordInput['remarks'])) {
             $skipped++;
             continue;
         }
 
         $refLower = strtolower($reference);
-        $comboKey = strtolower($itemName) . "||" . ($date ?? '') . "||{$qty}";
-        $isAutoRef = (bool) preg_match('/^(?:RSMI|RPCI|MR|SC|MIGRATED)-HIST-\d+$/i', $reference);
+        $comboKey = strtolower($itemName ?: (string)($recordInput['recipient'] ?? '')) . "||" . ($date ?? '') . "||{$qty}";
+        $isAutoRef = (bool) preg_match('/^(?:RSMI|RPCI|MR|MOR|SC|STOCK_CARD|MIGRATED)-HIST-\d+$/i', $reference);
 
-        // Duplicate protection in memory
+        // Duplicate checks
         $isDuplicate = false;
         if (!$isAutoRef && isset($existingRefSet[$refLower])) {
             $isDuplicate = true;
-        } elseif ($itemName && isset($existingComboSet[$comboKey])) {
+        } elseif ($comboKey && isset($existingComboSet[$comboKey])) {
             $isDuplicate = true;
         }
 
@@ -198,59 +394,148 @@ Route::post('/compliance/migrations', function (\Illuminate\Http\Request $reques
             continue;
         }
 
-        // Add to existing sets to prevent internal batch duplicates
         if (!$isAutoRef) {
             $existingRefSet[$refLower] = true;
         }
-        if ($itemName) {
+        if ($comboKey) {
             $existingComboSet[$comboKey] = true;
         }
 
-        $payload = array_merge($recordInput, [
-            'data_source' => 'historical_migration',
-            'migrated_at' => $nowIso,
-        ]);
-
-        $insertData[] = [
-            'form_type' => $formType,
-            'source' => $source,
-            'reference' => $reference,
-            'item_name' => $itemName ?: null,
-            'quantity' => $qty,
-            'recipient' => isset($recordInput['recipient']) ? (string) $recordInput['recipient'] : null,
-            'department' => isset($recordInput['department']) ? (string) $recordInput['department'] : null,
-            'designation' => isset($recordInput['designation']) ? (string) $recordInput['designation'] : null,
-            'remarks' => isset($recordInput['remarks']) ? (string) $recordInput['remarks'] : null,
-            'date' => $date,
-            'status' => 'historical_migration',
-            'payload' => json_encode($payload),
-            'created_by' => $userId,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ];
+        if ($normalizedFormType === 'RSMI') {
+            $insertData[] = [
+                'migration_id' => $migrationLog->id,
+                'migration_batch_id' => $batchId,
+                'source_file' => $source,
+                'source_sheet' => isset($recordInput['source_sheet']) ? (string) $recordInput['source_sheet'] : null,
+                'source_row' => $index + 1,
+                'form_identifier' => 'RSMI',
+                'serial_no' => $reference,
+                'ris_no' => isset($recordInput['ris_no']) ? (string) $recordInput['ris_no'] : $reference,
+                'date' => $date,
+                'entity_name' => isset($recordInput['department']) ? (string) $recordInput['department'] : (isset($recordInput['entity_name']) ? (string) $recordInput['entity_name'] : null),
+                'fund_cluster' => isset($recordInput['fund_cluster']) ? (string) $recordInput['fund_cluster'] : null,
+                'center_code' => isset($recordInput['responsibility_center_code']) ? (string) $recordInput['responsibility_center_code'] : (isset($recordInput['center_code']) ? (string) $recordInput['center_code'] : null),
+                'stock_no' => isset($recordInput['stock_no']) ? (string) $recordInput['stock_no'] : null,
+                'item' => $itemName ?: null,
+                'unit' => isset($recordInput['unit']) ? (string) $recordInput['unit'] : null,
+                'quantity_issued' => $qty,
+                'unit_cost' => isset($recordInput['unit_cost']) ? (float) $recordInput['unit_cost'] : null,
+                'amount' => isset($recordInput['amount']) ? (float) $recordInput['amount'] : null,
+                'raw_data' => json_encode($recordInput),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        } elseif ($normalizedFormType === 'RPCI') {
+            $insertData[] = [
+                'migration_id' => $migrationLog->id,
+                'migration_batch_id' => $batchId,
+                'source_file' => $source,
+                'source_sheet' => isset($recordInput['source_sheet']) ? (string) $recordInput['source_sheet'] : null,
+                'source_row' => $index + 1,
+                'form_identifier' => 'RPCI',
+                'serial_no' => $reference,
+                'stock_no' => isset($recordInput['stock_no']) ? (string) $recordInput['stock_no'] : null,
+                'date' => $date,
+                'entity_name' => isset($recordInput['entity_name']) ? (string) $recordInput['entity_name'] : null,
+                'fund_cluster' => isset($recordInput['fund_cluster']) ? (string) $recordInput['fund_cluster'] : null,
+                'item' => $itemName ?: null,
+                'unit' => isset($recordInput['unit']) ? (string) $recordInput['unit'] : null,
+                'quantity_per_books' => $qty,
+                'physical_count' => isset($recordInput['on_hand_count']) ? (int) $recordInput['on_hand_count'] : $qty,
+                'variance' => isset($recordInput['shortage_qty']) ? (int) $recordInput['shortage_qty'] : null,
+                'unit_cost' => isset($recordInput['unit_cost']) ? (float) $recordInput['unit_cost'] : null,
+                'total_value' => isset($recordInput['amount']) ? (float) $recordInput['amount'] : (isset($recordInput['shortage_value']) ? (float) $recordInput['shortage_value'] : null),
+                'location' => isset($recordInput['department']) ? (string) $recordInput['department'] : null,
+                'condition' => isset($recordInput['condition']) ? (string) $recordInput['condition'] : null,
+                'remarks' => isset($recordInput['remarks']) ? (string) $recordInput['remarks'] : null,
+                'raw_data' => json_encode($recordInput),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        } elseif ($normalizedFormType === 'STOCK_CARD') {
+            $insertData[] = [
+                'migration_id' => $migrationLog->id,
+                'migration_batch_id' => $batchId,
+                'source_file' => $source,
+                'source_sheet' => isset($recordInput['source_sheet']) ? (string) $recordInput['source_sheet'] : null,
+                'source_row' => $index + 1,
+                'form_identifier' => 'STOCK_CARD',
+                'stock_no' => isset($recordInput['stock_no']) ? (string) $recordInput['stock_no'] : null,
+                'item' => $itemName ?: null,
+                'unit' => isset($recordInput['unit']) ? (string) $recordInput['unit'] : null,
+                'date' => $date,
+                'reference_no' => $reference,
+                'receipt_quantity' => isset($recordInput['receipt_qty']) ? (int) $recordInput['receipt_qty'] : 0,
+                'issue_quantity' => $qty,
+                'balance' => isset($recordInput['balance_qty']) ? (int) $recordInput['balance_qty'] : 0,
+                'unit_cost' => isset($recordInput['unit_cost']) ? (float) $recordInput['unit_cost'] : null,
+                'total_cost' => isset($recordInput['amount']) ? (float) $recordInput['amount'] : null,
+                'supplier_source' => isset($recordInput['department']) ? (string) $recordInput['department'] : null,
+                'office_end_user' => isset($recordInput['recipient']) ? (string) $recordInput['recipient'] : null,
+                'remarks' => isset($recordInput['remarks']) ? (string) $recordInput['remarks'] : null,
+                'raw_data' => json_encode($recordInput),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        } elseif ($normalizedFormType === 'MR') {
+            $insertData[] = [
+                'migration_id' => $migrationLog->id,
+                'migration_batch_id' => $batchId,
+                'source_file' => $source,
+                'source_sheet' => isset($recordInput['source_sheet']) ? (string) $recordInput['source_sheet'] : null,
+                'source_row' => $index + 1,
+                'form_identifier' => 'MR',
+                'memorial_no' => $reference,
+                'date_received' => $date,
+                'received_from' => isset($recordInput['department']) ? (string) $recordInput['department'] : null,
+                'received_by' => isset($recordInput['recipient']) ? (string) $recordInput['recipient'] : null,
+                'received_for' => isset($recordInput['designation']) ? (string) $recordInput['designation'] : null,
+                'remarks' => isset($recordInput['remarks']) ? (string) $recordInput['remarks'] : ($itemName ?: null),
+                'raw_data' => json_encode($recordInput),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
 
         $saved++;
     }
 
-    // 2. Perform high-speed batch insertion in chunks of 500 records
+    // High-speed chunked insertion into dedicated tables
     if (!empty($insertData)) {
         foreach (array_chunk($insertData, 500) as $chunk) {
-            \App\Models\ComplianceMigratedRecord::insert($chunk);
+            if ($normalizedFormType === 'RSMI') {
+                \App\Models\Compliance\RsmiMigratedRecord::insert($chunk);
+            } elseif ($normalizedFormType === 'RPCI') {
+                \App\Models\Compliance\RpcIMigratedRecord::insert($chunk);
+            } elseif ($normalizedFormType === 'STOCK_CARD') {
+                \App\Models\Compliance\StockCardMigratedRecord::insert($chunk);
+            } elseif ($normalizedFormType === 'MR') {
+                \App\Models\Compliance\MemorandumReceiptMigratedRecord::insert($chunk);
+            }
         }
     }
 
-    // 3. Log migration summary
-    \App\Models\ComplianceMigrationLog::create([
-        'form_type' => $formType,
-        'source' => $source,
+    // Update centralized migration log
+    $migrationLog->update([
         'records_count' => $saved,
         'status' => 'completed',
-        'message' => "Migrated {$saved} historical {$formType} records; skipped {$skipped} duplicates or invalid rows.",
-        'created_by' => $userId,
+        'message' => "Migrated {$saved} historical {$normalizedFormType} records to dedicated table; skipped {$skipped} duplicates or invalid rows.",
     ]);
 
     return redirect()->route('compliance.reports');
+};
+
+Route::post('/compliance/migrations', function (\Illuminate\Http\Request $request) use ($processComplianceMigration) {
+    return $processComplianceMigration($request);
 })->middleware(['auth', 'verified'])->name('compliance.migrations.store');
+
+Route::post('/compliance/migrate/stock-card', function (\Illuminate\Http\Request $request) use ($processComplianceMigration) {
+    return $processComplianceMigration($request, 'STOCK_CARD');
+})->middleware(['auth', 'verified'])->name('compliance.migrate.stock_card');
+
+Route::post('/compliance/migrate/memorandum-receipt', function (\Illuminate\Http\Request $request) use ($processComplianceMigration) {
+    return $processComplianceMigration($request, 'MR');
+})->middleware(['auth', 'verified'])->name('compliance.migrate.memorandum_receipt');
 
 Route::post('/compliance/reports', function (\Illuminate\Http\Request $request) {
     $validated = $request->validate([
