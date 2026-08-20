@@ -183,16 +183,26 @@ Route::post('/compliance/migrations', function (\Illuminate\Http\Request $reques
 
         $refLower = strtolower($reference);
         $comboKey = strtolower($itemName) . "||" . ($date ?? '') . "||{$qty}";
+        $isAutoRef = (bool) preg_match('/^(?:RSMI|RPCI|MR|SC|MIGRATED)-HIST-\d+$/i', $reference);
 
         // Duplicate protection in memory
-        if (isset($existingRefSet[$refLower]) || ($itemName && $date && isset($existingComboSet[$comboKey]))) {
+        $isDuplicate = false;
+        if (!$isAutoRef && isset($existingRefSet[$refLower])) {
+            $isDuplicate = true;
+        } elseif ($itemName && isset($existingComboSet[$comboKey])) {
+            $isDuplicate = true;
+        }
+
+        if ($isDuplicate) {
             $skipped++;
             continue;
         }
 
         // Add to existing sets to prevent internal batch duplicates
-        $existingRefSet[$refLower] = true;
-        if ($itemName && $date) {
+        if (!$isAutoRef) {
+            $existingRefSet[$refLower] = true;
+        }
+        if ($itemName) {
             $existingComboSet[$comboKey] = true;
         }
 

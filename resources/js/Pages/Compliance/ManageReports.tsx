@@ -191,6 +191,11 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             const row = matrix[r];
             if (!Array.isArray(row)) continue;
 
+            const rowStr = row.map(c => String(c || '').toLowerCase().trim()).join(' ');
+            if (rowStr.includes('to be filled up by') || rowStr.includes('recapitulation')) {
+                continue;
+            }
+
             let matches = 0;
             row.forEach(cell => {
                 if (isMatchKeyword(cell, targetKeywords)) {
@@ -261,6 +266,24 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 continue;
             }
 
+            const fullRowStr = row.map(c => String(c || '').toLowerCase().trim()).join(' ');
+
+            // Stop scanning data rows immediately when encountering section footers/recapitulations
+            if (
+                fullRowStr.includes('recapitulation') ||
+                fullRowStr.includes('certified correct') ||
+                fullRowStr.includes('posted by') ||
+                fullRowStr.includes('approved by') ||
+                fullRowStr.includes('i hereby certify')
+            ) {
+                break;
+            }
+
+            const firstCellStr = String(row[0] || '').toLowerCase().trim();
+            if (firstCellStr.includes('total') || firstCellStr === 'grand total') {
+                continue;
+            }
+
             const rowObj: Record<string, any> = { ...metadata };
             let hasContent = false;
 
@@ -273,19 +296,6 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 }
                 if (String(cellVal).trim()) hasContent = true;
             });
-
-            const firstCellStr = String(row[0] || '').toLowerCase().trim();
-            const secondCellStr = String(row[1] || '').toLowerCase().trim();
-            if (
-                firstCellStr.includes('total') ||
-                firstCellStr.includes('recapitulation') ||
-                firstCellStr.includes('certified correct') ||
-                firstCellStr.includes('posted by') ||
-                secondCellStr.includes('recapitulation') ||
-                secondCellStr.includes('total')
-            ) {
-                continue;
-            }
 
             if (hasContent) {
                 resultRows.push(rowObj);
