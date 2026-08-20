@@ -543,17 +543,22 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             const cost = Number(getRowVal(row, ['Unit Cost', 'Unit Value', 'Cost', 'unitCost', 'unit_cost', 'unit_value']) || 0);
             const amt = Number(getRowVal(row, ['Amount', 'Total Cost', 'Total Amount', 'Total Value', 'amount', 'totalCost', 'total_cost']) || (qty * cost));
 
-            // Check if this row is a section header like "Center Code: SPMO" or "Resp. Center Code: ..."
+            // 1. Check if this is a Section Header or RIS Slip Header row (e.g. "Center Code: SPMO" or "RIS: 2024-01-002, Resp: Budget")
             const firstCell = String(Object.values(row)[0] || '').trim();
-            const isCenterCodeHeader = /^(center\s*code|resp|responsibility)/i.test(rawRef) || (/^(center\s*code|resp|responsibility)/i.test(firstCell) && !stockNo && qty === 0);
-            if (isCenterCodeHeader) {
+            const isSectionHeader = /^(center\s*code|resp|responsibility)/i.test(rawRef) || (/^(center\s*code|resp|responsibility)/i.test(firstCell) && !stockNo && qty === 0);
+            const isRisHeaderRow = (rawRef || rccFromRow) && !rawItemName && !stockNo && qty === 0;
+
+            if (isSectionHeader || isRisHeaderRow) {
+                if (rawRef && !/^(center\s*code|resp|responsibility|entity|fund|date|page|sheet)/i.test(rawRef)) {
+                    lastRefObj.current = rawRef;
+                }
                 const detectedCode = (rccFromRow && !/center\s*code|resp/i.test(rccFromRow))
                     ? rccFromRow
                     : Object.values(row).find((v: any) => typeof v === 'string' && v.trim() && !/center\s*code|resp|appendix|report/i.test(v)) || '';
                 if (detectedCode) {
                     lastRefObj.centerCode = String(detectedCode).trim();
                 }
-                // Skip the section header row from being parsed as a dummy item
+                // Skip the header row from being added as an item
                 return null;
             }
 
@@ -584,17 +589,35 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             const entityName = groupMetadata?.entityName || 'University of Camarines Norte';
             const remarks = getRowVal(row, ['Remarks', 'remarks']);
 
-            const fallbackItem = rawItemName || Object.values(row).find((v: any) => typeof v === 'string' && v.trim().length > 1 && !v.includes('RIS') && !v.includes('Appendix') && !v.includes('REPORT') && !v.includes('University') && !v.includes('Camarines') && !/^(center\s*code|spmo|acc)/i.test(v)) || '';
+            // Item Name resolution: Never use center code or RIS reference as item description
+            let resolvedItem: string = rawItemName;
+            if (!resolvedItem && (stockNo || qty > 0)) {
+                const found = Object.values(row).find((v: any) => 
+                    typeof v === 'string' && 
+                    v.trim().length > 1 && 
+                    v.trim() !== activeCenterCode && 
+                    v.trim() !== rccFromRow && 
+                    v.trim() !== rawRef && 
+                    v.trim() !== ref && 
+                    !v.includes('RIS') && 
+                    !v.includes('Appendix') && 
+                    !v.includes('REPORT') && 
+                    !v.includes('University') && 
+                    !v.includes('Camarines') && 
+                    !/^(center\s*code|spmo|acc|pc|pcs|box|ream|bot|unit|kg|pack|meter|pad)/i.test(v)
+                );
+                resolvedItem = found ? String(found) : '';
+            }
 
             // If completely empty row (no description, no stock no, qty 0), skip
-            if (!String(fallbackItem).trim() && !stockNo && qty === 0) {
+            if (!String(resolvedItem).trim() && !stockNo && qty === 0) {
                 return null;
             }
 
             return {
                 reference: ref || `RSMI-HIST-${idx + 1}`,
                 date: formatDateToIso(dt),
-                item_name: String(fallbackItem).trim(),
+                item_name: String(resolvedItem).trim(),
                 quantity: qty,
                 unit_cost: cost,
                 amount: amt,
