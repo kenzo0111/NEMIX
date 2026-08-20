@@ -307,16 +307,17 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 }
 
                 if (formType === 'RSMI') {
-                    const ref = String(row['RIS No'] || row['RIS'] || row['Serial No'] || row['Reference'] || row['reference'] || row['risNo'] || row['ris_no'] || row['Doc No'] || '').trim();
+                    // Table Headers: RIS No. | Responsibility Center Code | Stock No. | Item | Unit | Quantity Issued | Unit Cost | Amount
+                    const ref = String(row['RIS No.'] || row['RIS No'] || row['RIS'] || row['Serial No.'] || row['Serial No'] || row['Reference'] || row['reference'] || row['risNo'] || row['ris_no'] || row['Doc No.'] || row['Doc No'] || '').trim();
+                    const dept = String(row['Responsibility Center Code'] || row['Responsibility Center'] || row['RCC'] || row['Department'] || row['Office'] || row['department'] || row['responsibilityCenterCode'] || row['responsibility_center_code'] || '').trim();
+                    const stockNo = String(row['Stock No.'] || row['Stock No'] || row['SKU'] || row['stockNo'] || row['stock_no'] || '').trim();
                     const itemName = String(row['Item'] || row['Item Description'] || row['Description'] || row['Article'] || row['item_name'] || row['itemDescription'] || '').trim();
-                    const qty = Number(row['Quantity'] || row['Qty Issued'] || row['Qty'] || row['quantity'] || row['quantityIssued'] || 0);
-                    const dt = String(row['Date'] || row['Date Issued'] || row['date'] || row['date_issued'] || '').trim();
+                    const unit = String(row['Unit'] || row['Unit of Issue'] || row['unit'] || 'pc').trim();
+                    const qty = Number(row['Quantity Issued'] || row['Qty Issued'] || row['Quantity'] || row['Qty'] || row['quantity'] || row['quantityIssued'] || 0);
                     const cost = Number(row['Unit Cost'] || row['Unit Value'] || row['unitCost'] || row['unit_cost'] || 0);
                     const amt = Number(row['Amount'] || row['Total Cost'] || row['amount'] || (qty * cost));
-                    const unit = String(row['Unit'] || row['Unit of Issue'] || row['unit'] || 'pc').trim();
-                    const stockNo = String(row['Stock No'] || row['SKU'] || row['stockNo'] || row['stock_no'] || '').trim();
+                    const dt = String(row['Date'] || row['Date Issued'] || row['date'] || row['date_issued'] || '').trim();
                     const recipient = String(row['Recipient'] || row['Requested By'] || row['Issued To'] || row['recipient'] || '').trim();
-                    const dept = String(row['Responsibility Center'] || row['Department'] || row['Office'] || row['department'] || '').trim();
                     const fundCluster = String(row['Fund Cluster'] || row['fund_cluster'] || 'General Fund').trim();
                     const remarks = String(row['Remarks'] || row['remarks'] || '').trim();
 
@@ -332,31 +333,36 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         recipient: recipient,
                         department: dept,
                         fund_cluster: fundCluster,
+                        responsibility_center_code: dept,
                         remarks: remarks,
                     };
                 }
 
                 if (formType === 'RPCI') {
-                    const itemName = String(row['Article'] || row['Description'] || row['Item Description'] || row['item_name'] || row['article'] || '').trim();
-                    const ref = String(row['Property No'] || row['Stock No'] || row['Serial No'] || row['reference'] || row['property_no'] || row['stock_no'] || '').trim();
-                    const unit = String(row['Unit'] || row['Unit of Measure'] || row['unit'] || 'pc').trim();
+                    // Table Headers: Article | Description | Stock Number | Unit of Measure | Unit Value | Balance Per Card | On Hand Per Count | Shortage/Overage Quantity | Shortage/Overage Value | Remarks
+                    const article = String(row['Article'] || row['article'] || '').trim();
+                    const description = String(row['Description'] || row['Item Description'] || row['item_name'] || row['description'] || '').trim();
+                    const itemName = description || article;
+                    const stockNo = String(row['Stock Number'] || row['Stock No.'] || row['Stock No'] || row['Property No.'] || row['Property No'] || row['Serial No.'] || row['Serial No'] || row['reference'] || row['property_no'] || row['stock_no'] || '').trim();
+                    const unit = String(row['Unit of Measure'] || row['Unit of Measurement'] || row['Unit'] || row['unit'] || 'pc').trim();
                     const cost = Number(row['Unit Value'] || row['Unit Cost'] || row['unit_value'] || row['unit_cost'] || 0);
-                    const qty = Number(row['Balance per Card'] || row['Property Card Qty'] || row['Quantity'] || row['quantity'] || row['balance_per_card'] || 0);
-                    const onHand = Number(row['On Hand Count'] || row['Physical Count'] || row['on_hand_count'] || qty);
-                    const shortageQty = row['Shortage Qty'] !== undefined ? row['Shortage Qty'] : (row['shortage_qty'] ?? '');
-                    const shortageVal = row['Shortage Value'] !== undefined ? row['Shortage Value'] : (row['shortage_value'] ?? '');
+                    const qty = Number(row['Balance Per Card'] || row['Balance per Card'] || row['Property Card Qty'] || row['Quantity'] || row['quantity'] || row['balance_per_card'] || 0);
+                    const onHand = Number(row['On Hand Per Count'] || row['On Hand Count'] || row['Physical Count'] || row['on_hand_count'] || qty);
+                    const shortageQty = row['Shortage/Overage Quantity'] !== undefined ? row['Shortage/Overage Quantity'] : (row['Shortage Qty'] !== undefined ? row['Shortage Qty'] : (row['shortage_qty'] ?? ''));
+                    const shortageVal = row['Shortage/Overage Value'] !== undefined ? row['Shortage/Overage Value'] : (row['Shortage Value'] !== undefined ? row['Shortage Value'] : (row['shortage_value'] ?? ''));
                     const recipient = String(row['Accountable Officer'] || row['Recipient'] || row['accountable_officer'] || row['recipient'] || '').trim();
                     const dept = String(row['Location'] || row['Department'] || row['Office'] || row['department'] || '').trim();
-                    const dt = String(row['As at Date'] || row['Date'] || row['as_at_date'] || row['date'] || '').trim();
+                    const dt = String(row['As at Date'] || row['As at'] || row['Date'] || row['as_at_date'] || row['date'] || '').trim();
                     const remarks = String(row['Remarks'] || row['State of Property'] || row['remarks'] || '').trim();
 
                     return {
-                        reference: ref || (itemName ? `RPCI-HIST-${idx + 1}` : ''),
+                        reference: stockNo || (itemName ? `RPCI-HIST-${idx + 1}` : ''),
                         date: dt,
                         item_name: itemName,
                         quantity: qty,
                         unit_cost: cost,
                         unit: unit,
+                        stock_no: stockNo,
                         on_hand_count: onHand,
                         shortage_qty: shortageQty,
                         shortage_value: shortageVal,
@@ -366,18 +372,47 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                     };
                 }
 
-                // STOCK_CARD
+                if (formType === 'MR') {
+                    // Table Headers: Qty. | Unit | Description / Item Name | Property No. / Serial No. | Date Acquired | Unit Value / Cost
+                    const qty = Number(row['Qty.'] || row['Qty'] || row['Quantity'] || row['quantity'] || 1);
+                    const unit = String(row['Unit'] || row['unit'] || 'pc').trim();
+                    const itemName = String(row['Description / Item Name'] || row['Description'] || row['Item Name'] || row['Item'] || row['Item Description'] || row['item_name'] || row['description'] || '').trim();
+                    const ref = String(row['Property No. / Serial No.'] || row['Property No.'] || row['Property No'] || row['Serial No.'] || row['Serial No'] || row['MR No.'] || row['MR No'] || row['reference'] || row['propertyNo'] || row['property_no'] || row['serialNo'] || row['mrNo'] || '').trim();
+                    const dt = String(row['Date Acquired'] || row['Date'] || row['dateAcquired'] || row['date_acquired'] || row['date'] || '').trim();
+                    const cost = Number(row['Unit Value / Cost'] || row['Unit Value'] || row['Unit Cost'] || row['unitValue'] || row['unit_value'] || row['unit_cost'] || 0);
+                    const totalVal = Number(row['Total Value'] || row['Grand Total Value'] || row['Amount'] || row['totalValue'] || row['total_value'] || row['amount'] || (qty * cost));
+                    const recipient = String(row['Received By'] || row['Received by'] || row['End-User'] || row['End User'] || row['Recipient'] || row['receivedByName'] || row['recipient'] || '').trim();
+                    const dept = String(row['Office'] || row['Department'] || row['receivedByOffice'] || row['department'] || '').trim();
+                    const designation = String(row['Position'] || row['receivedByPosition'] || row['designation'] || '').trim();
+                    const remarks = String(row['Purpose'] || row['Remarks'] || row['remarks'] || '').trim();
+
+                    return {
+                        reference: ref || (itemName ? `MR-HIST-${idx + 1}` : ''),
+                        date: dt,
+                        item_name: itemName,
+                        quantity: qty,
+                        unit_cost: cost,
+                        amount: totalVal,
+                        unit: unit,
+                        recipient: recipient,
+                        department: dept,
+                        designation: designation,
+                        remarks: remarks,
+                    };
+                }
+
+                // STOCK_CARD: Table Headers: Date | Reference | Receipt Qty. | Issue Qty. | Issue Office | Balance Qty. | No. of Days to Consume
                 const itemName = String(row['Item'] || row['Description'] || row['Item Description'] || row['item_name'] || row['item'] || '').trim();
-                const stockNo = String(row['Stock No'] || row['SKU'] || row['stock_no'] || row['stockNo'] || '').trim();
-                const unit = String(row['Unit'] || row['Unit of Measurement'] || row['unit'] || 'Pieces').trim();
+                const stockNo = String(row['Stock No.'] || row['Stock No'] || row['SKU'] || row['stock_no'] || row['stockNo'] || '').trim();
+                const unit = String(row['Unit of Measurement'] || row['Unit of Measure'] || row['Unit'] || row['unit'] || 'Pieces').trim();
                 const reorderPoint = String(row['Re-order Point'] || row['Reorder Point'] || row['re_order_point'] || '-').trim();
                 const dt = String(row['Date'] || row['Transaction Date'] || row['date'] || '').trim();
-                const ref = String(row['Reference'] || row['RIS No'] || row['PO No'] || row['IAR No'] || row['reference'] || '').trim();
-                const receiptQty = Number(row['Receipt Qty'] || row['Receipts'] || row['receipt_qty'] || 0);
-                const issueQty = Number(row['Issue Qty'] || row['Issuance'] || row['quantity'] || row['issue_qty'] || 0);
-                const balanceQty = Number(row['Balance Qty'] || row['Balance'] || row['balance_qty'] || 0);
-                const recipient = String(row['Office'] || row['Recipient'] || row['Department'] || row['recipient'] || row['issue_office'] || '').trim();
-                const remarks = String(row['Remarks'] || row['Days to Consume'] || row['remarks'] || '').trim();
+                const ref = String(row['Reference'] || row['RIS No.'] || row['RIS No'] || row['PO No.'] || row['PO No'] || row['IAR No.'] || row['IAR No'] || row['reference'] || '').trim();
+                const receiptQty = Number(row['Receipt Qty.'] || row['Receipt Qty'] || row['Receipts'] || row['receipt_qty'] || 0);
+                const issueQty = Number(row['Issue Qty.'] || row['Issue Qty'] || row['Issuance'] || row['Quantity'] || row['quantity'] || row['issue_qty'] || 0);
+                const balanceQty = Number(row['Balance Qty.'] || row['Balance Qty'] || row['Balance'] || row['balance_qty'] || 0);
+                const recipient = String(row['Issue Office'] || row['Office'] || row['Recipient'] || row['Department'] || row['recipient'] || row['issue_office'] || '').trim();
+                const remarks = String(row['No. of Days to Consume'] || row['Days to Consume'] || row['Remarks'] || row['remarks'] || '').trim();
 
                 return {
                     reference: ref || (itemName ? `SC-HIST-${idx + 1}` : ''),
@@ -404,17 +439,19 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         return blocks.map((block, idx) => {
             const lines = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
 
-            const refMatch = block.match(/(?:reference|ref|ris|serial|doc no|property no)[:#-]?\s*([A-Za-z0-9\-\/]+)/i)?.[1];
-            const itemMatch = block.match(/(?:item|article|description)[:#-]?\s*(.+)$/im)?.[1];
-            const qtyMatch = block.match(/(?:quantity|qty|balance)[:#-]?\s*([0-9]+)/i)?.[1];
-            const dateMatch = block.match(/(?:date)[:#-]?\s*([0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{2}\/[0-9]{2}\/([0-9]{2,4}))/i)?.[1];
-            const recipientMatch = block.match(/(?:recipient|officer|issued to|office)[:#-]?\s*(.+)$/im)?.[1];
+            const refMatch = block.match(/(?:reference|ref|ris no|ris|serial no|serial|doc no|property no|mr no)[:#-]?\s*([A-Za-z0-9\-\/]+)/i)?.[1];
+            const itemMatch = block.match(/(?:item|article|description|description \/ item name)[:#-]?\s*(.+)$/im)?.[1];
+            const qtyMatch = block.match(/(?:quantity issued|quantity|qty|qty\.|balance per card|receipt qty|issue qty)[:#-]?\s*([0-9]+)/i)?.[1];
+            const dateMatch = block.match(/(?:date|date issued|as at date|date acquired|transaction date)[:#-]?\s*([0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{2}\/[0-9]{2}\/([0-9]{2,4}))/i)?.[1];
+            const recipientMatch = block.match(/(?:recipient|accountable officer|issued to|issue office|office|received by)[:#-]?\s*(.+)$/im)?.[1];
+            const costMatch = block.match(/(?:unit cost|unit value|unit value \/ cost)[:#-]?\s*₱?\s*([0-9,]+(?:\.[0-9]{1,2})?)/i)?.[1]?.replace(/,/g, '');
 
             return {
                 reference: refMatch || `${formType}-LEGACY-${idx + 1}`,
                 date: dateMatch || '',
                 item_name: itemMatch ? itemMatch.trim() : (lines[0] || `Historical ${formType} Record`),
                 quantity: qtyMatch ? Number(qtyMatch) : 1,
+                unit_cost: costMatch ? Number(costMatch) : 0,
                 recipient: recipientMatch ? recipientMatch.trim() : '',
                 remarks: 'Parsed from imported document text',
             };
@@ -425,30 +462,41 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         const sample = previewRows[0] || {};
         if (formType === 'RSMI') {
             return [
-                { field: 'Reference / RIS No', type: 'String', sample: sample.reference || 'RIS-2024-001', dbField: 'reference' },
-                { field: 'Date Issued', type: 'Date', sample: sample.date || '2024-01-15', dbField: 'date' },
-                { field: 'Item Description', type: 'String', sample: sample.item_name || 'A4 Bond Paper', dbField: 'item_name' },
+                { field: 'RIS No. (Reference)', type: 'String', sample: sample.reference || 'RIS-2024-001', dbField: 'reference' },
+                { field: 'Responsibility Center Code', type: 'String', sample: sample.department || sample.responsibility_center_code || '101-01', dbField: 'department / payload.responsibility_center_code' },
+                { field: 'Stock No.', type: 'String', sample: sample.stock_no || 'STK-001', dbField: 'payload.stock_no' },
+                { field: 'Item (Description)', type: 'String', sample: sample.item_name || 'A4 Bond Paper', dbField: 'item_name' },
+                { field: 'Unit', type: 'String', sample: sample.unit || 'rim', dbField: 'payload.unit' },
                 { field: 'Quantity Issued', type: 'Number', sample: sample.quantity ?? 10, dbField: 'quantity' },
                 { field: 'Unit Cost & Amount', type: 'Number', sample: sample.unit_cost ? `₱${sample.unit_cost}` : '₱250.00', dbField: 'payload.unit_cost' },
-                { field: 'Recipient / Office', type: 'String', sample: sample.recipient || sample.department || 'Accounting Dept', dbField: 'recipient / department' },
             ];
         } else if (formType === 'RPCI') {
             return [
-                { field: 'Property No / Stock No', type: 'String', sample: sample.reference || 'PROP-2024-88', dbField: 'reference' },
-                { field: 'As At Date', type: 'Date', sample: sample.date || '2024-12-31', dbField: 'date' },
-                { field: 'Article / Description', type: 'String', sample: sample.item_name || 'Desktop Computer', dbField: 'item_name' },
-                { field: 'Balance per Card / On-Hand', type: 'Number', sample: sample.quantity ?? 5, dbField: 'quantity / on_hand_count' },
-                { field: 'Accountable Officer', type: 'String', sample: sample.recipient || 'Supply Custodian', dbField: 'recipient' },
-                { field: 'Location / Office', type: 'String', sample: sample.department || 'IT Laboratory', dbField: 'department' },
+                { field: 'Article & Description', type: 'String', sample: sample.item_name || 'Desktop Computer', dbField: 'item_name' },
+                { field: 'Stock Number / Property No.', type: 'String', sample: sample.reference || 'PROP-2024-88', dbField: 'reference' },
+                { field: 'Unit of Measure', type: 'String', sample: sample.unit || 'unit', dbField: 'payload.unit' },
+                { field: 'Unit Value', type: 'Number', sample: sample.unit_cost ? `₱${sample.unit_cost}` : '₱25,000.00', dbField: 'payload.unit_cost' },
+                { field: 'Balance Per Card / On Hand Per Count', type: 'Number', sample: sample.quantity ?? 5, dbField: 'quantity / payload.on_hand_count' },
+                { field: 'Shortage/Overage Quantity & Value', type: 'Number', sample: sample.shortage_qty ? `${sample.shortage_qty}` : '0', dbField: 'payload.shortage_qty / shortage_value' },
+                { field: 'Accountable Officer & Location', type: 'String', sample: sample.recipient || 'Supply Custodian', dbField: 'recipient / department' },
+            ];
+        } else if (formType === 'MR' || formType === 'MOR') {
+            return [
+                { field: 'Property No. / Serial No. (MR No.)', type: 'String', sample: sample.reference || 'MR-2024-001', dbField: 'reference' },
+                { field: 'Date Acquired', type: 'Date', sample: sample.date || '2024-01-15', dbField: 'date' },
+                { field: 'Description / Item Name', type: 'String', sample: sample.item_name || 'Executive Desk', dbField: 'item_name' },
+                { field: 'Qty. & Unit', type: 'Number / String', sample: `${sample.quantity ?? 1} ${sample.unit || 'unit'}`, dbField: 'quantity / payload.unit' },
+                { field: 'Unit Value / Cost', type: 'Number', sample: sample.unit_cost ? `₱${sample.unit_cost}` : '₱8,500.00', dbField: 'payload.unit_cost' },
+                { field: 'Received By / Office', type: 'String', sample: sample.recipient || sample.department || 'Administrative Office', dbField: 'recipient / department' },
             ];
         } else {
             return [
-                { field: 'Stock Card Item', type: 'String', sample: sample.item_name || 'Ballpen Black', dbField: 'item_name' },
-                { field: 'Reference / Doc No', type: 'String', sample: sample.reference || 'PO-2024-09', dbField: 'reference' },
+                { field: 'Item & Stock No.', type: 'String', sample: sample.item_name || 'Ballpen Black', dbField: 'item_name / payload.stock_no' },
+                { field: 'Reference (Doc No.)', type: 'String', sample: sample.reference || 'PO-2024-09', dbField: 'reference' },
                 { field: 'Transaction Date', type: 'Date', sample: sample.date || '2024-03-10', dbField: 'date' },
-                { field: 'Receipt / Issue Qty', type: 'Number', sample: sample.receipt_qty ? `+${sample.receipt_qty}` : `-${sample.quantity || 1}`, dbField: 'quantity / receipt_qty' },
-                { field: 'Balance Quantity', type: 'Number', sample: sample.balance_qty ?? 45, dbField: 'payload.balance_qty' },
-                { field: 'Office / Recipient', type: 'String', sample: sample.recipient || 'Admin Office', dbField: 'recipient' },
+                { field: 'Receipt Qty. / Issue Qty.', type: 'Number', sample: sample.receipt_qty ? `+${sample.receipt_qty}` : `-${sample.quantity || 1}`, dbField: 'quantity / payload.receipt_qty' },
+                { field: 'Issue Office (Recipient)', type: 'String', sample: sample.recipient || 'Admin Office', dbField: 'recipient' },
+                { field: 'Balance Qty. & Days to Consume', type: 'Number', sample: sample.balance_qty ?? 45, dbField: 'payload.balance_qty' },
             ];
         }
     };
