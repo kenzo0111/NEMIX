@@ -394,10 +394,10 @@ export default function Login({
 
                             {/* Top University Brand Badge */}
                             <div className="relative z-10 flex items-center justify-center gap-2 mb-2">
-                                <div className="p-1.5 rounded-lg bg-white/10 backdrop-blur-md border border-yellow-400/30">
-                                    <ApplicationLogo alt="UCN Seal" className="h-6 w-6 object-contain" />
+                                <div className="p-1.5 rounded-xl bg-white/95 shadow-md ring-1 ring-yellow-400/60 shrink-0 flex items-center justify-center backdrop-blur-md">
+                                    <ApplicationLogo alt="UCN Seal" className="h-7 w-7 object-contain" />
                                 </div>
-                                <span className="font-serif text-yellow-300 text-xs font-bold tracking-widest uppercase">
+                                <span className="font-serif text-yellow-300 text-xs sm:text-sm font-bold tracking-widest uppercase drop-shadow-sm">
                                     University of Camarines Norte
                                 </span>
                             </div>
@@ -408,15 +408,15 @@ export default function Login({
                         </div>
 
                         {/* Central Animated Dual-Spin Loader & Seal */}
-                        <div className="relative -mt-10 flex justify-center z-20">
+                        <div className="relative -mt-12 flex justify-center z-20">
                             <div className="relative">
                                 {/* Glowing Amber Pulse Halo */}
-                                <div className="absolute -inset-3 rounded-full bg-yellow-400/25 animate-pulse"></div>
+                                <div className="absolute -inset-3 rounded-full bg-yellow-400/30 animate-pulse"></div>
 
-                                {/* Outer Institutional Ring with Orbital Spinner */}
-                                <div className="relative h-20 w-20 rounded-full bg-gradient-to-tr from-red-950 via-red-900 to-red-950 shadow-xl shadow-red-950/40 ring-4 ring-yellow-400/80 flex items-center justify-center p-3">
-                                    <div className="absolute inset-1 rounded-full border-2 border-yellow-400 border-t-transparent animate-spin"></div>
-                                    <ApplicationLogo alt="UCN Seal" className="h-9 w-9 object-contain drop-shadow" />
+                                {/* Outer Institutional Ring with Orbital Spinner & White Seal Container */}
+                                <div className="relative h-24 w-24 rounded-full bg-white shadow-2xl shadow-black/50 ring-4 ring-yellow-400/90 flex items-center justify-center p-3">
+                                    <div className="absolute -inset-1 rounded-full border-2 border-yellow-400 border-t-transparent animate-spin"></div>
+                                    <ApplicationLogo alt="UCN Seal" className="h-16 w-16 object-contain drop-shadow" />
                                 </div>
                             </div>
                         </div>
@@ -470,10 +470,10 @@ export default function Login({
 
                             {/* Top University Brand Badge */}
                             <div className="relative z-10 flex items-center justify-center gap-2 mb-2">
-                                <div className="p-1.5 rounded-lg bg-white/10 backdrop-blur-md border border-yellow-400/30">
-                                    <ApplicationLogo alt="UCN Seal" className="h-6 w-6 object-contain" />
+                                <div className="p-1.5 rounded-xl bg-white/95 shadow-md ring-1 ring-yellow-400/60 shrink-0 flex items-center justify-center backdrop-blur-md">
+                                    <ApplicationLogo alt="UCN Seal" className="h-7 w-7 object-contain" />
                                 </div>
-                                <span className="font-serif text-yellow-300 text-xs font-bold tracking-widest uppercase">
+                                <span className="font-serif text-yellow-300 text-xs sm:text-sm font-bold tracking-widest uppercase drop-shadow-sm">
                                     University of Camarines Norte
                                 </span>
                             </div>
@@ -483,13 +483,20 @@ export default function Login({
                             </p>
                         </div>
 
-                        {/* Floating Success Check Icon with Login Maroon & Gold Palette */}
-                        <div className="relative -mt-10 flex justify-center z-20">
+                        {/* Floating Central Institutional Seal & Success Verification Badge */}
+                        <div className="relative -mt-12 flex justify-center z-20">
                             <div className="relative">
                                 {/* Outer Golden Glow Pulse */}
-                                <div className="absolute -inset-2.5 rounded-full bg-yellow-400/30 animate-ping"></div>
-                                <div className="relative h-20 w-20 rounded-full bg-gradient-to-tr from-red-950 via-red-900 to-red-800 text-yellow-300 shadow-xl shadow-red-950/40 ring-4 ring-yellow-400/80 flex items-center justify-center">
-                                    <CheckCircle2 className="h-10 w-10 text-yellow-300 stroke-[2.5] drop-shadow-md" />
+                                <div className="absolute -inset-3 rounded-full bg-yellow-400/30 animate-pulse"></div>
+
+                                {/* Main Institutional Seal Container with Official Logo */}
+                                <div className="relative h-24 w-24 rounded-full bg-white shadow-2xl shadow-black/50 ring-4 ring-yellow-400/90 flex items-center justify-center p-3">
+                                    <ApplicationLogo alt="UCN Seal" className="h-16 w-16 object-contain drop-shadow" />
+
+                                    {/* Floating Success Verification Check Badge */}
+                                    <div className="absolute -bottom-1 -right-1 bg-gradient-to-tr from-emerald-600 to-emerald-500 text-white rounded-full p-1.5 ring-2 ring-white shadow-lg flex items-center justify-center">
+                                        <CheckCircle2 className="w-5 h-5 text-white stroke-[2.5]" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
