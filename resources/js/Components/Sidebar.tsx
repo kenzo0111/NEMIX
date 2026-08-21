@@ -1,6 +1,7 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { ReactNode, useState, useEffect } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
+import Modal from '@/Components/Modal';
 
 export interface Submodule {
     title: string;
@@ -60,6 +61,18 @@ export default function Sidebar({
     )?.title;
 
     const [expandedModule, setExpandedModule] = useState<string | null>(activeModuleTitle || null);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const handleConfirmLogout = () => {
+        setIsLoggingOut(true);
+        router.post(route('logout'), {}, {
+            onFinish: () => {
+                setIsLoggingOut(false);
+                setShowLogoutModal(false);
+            },
+        });
+    };
 
 
     // Keep expanded module synced if active module changes
@@ -303,17 +316,16 @@ export default function Sidebar({
 
                 <div className={`pt-1.5 text-center border-t border-red-800/30 whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${collapsed ? 'max-h-0 opacity-0 pointer-events-none py-0 border-t-0' : 'max-h-10 opacity-100'}`}>
                     {currentUser ? (
-                        <Link
-                            href={route('logout')}
-                            method="post"
-                            as="button"
-                            className="w-full py-1 text-[10px] font-bold uppercase tracking-widest text-red-300/70 hover:text-yellow-400 transition-colors flex items-center justify-center gap-1.5"
+                        <button
+                            type="button"
+                            onClick={() => setShowLogoutModal(true)}
+                            className="w-full py-1 text-[10px] font-bold uppercase tracking-widest text-red-300/70 hover:text-yellow-400 transition-colors flex items-center justify-center gap-1.5 focus:outline-none"
                         >
                             <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                             </svg>
                             <span>Logout Session</span>
-                        </Link>
+                        </button>
                     ) : (
                         <Link
                             href={route('login')}
@@ -324,6 +336,91 @@ export default function Sidebar({
                     )}
                 </div>
             </div>
+
+            {/* CONFIRM LOGOUT MODAL */}
+            <Modal
+                show={showLogoutModal}
+                onClose={() => !isLoggingOut && setShowLogoutModal(false)}
+                maxWidth="sm"
+                closeable={!isLoggingOut}
+            >
+                <div className="relative bg-white rounded-2xl shadow-2xl w-full overflow-hidden border border-red-100 text-left">
+                    <div className="h-2 w-full bg-gradient-to-r from-red-800 via-red-900 to-amber-600"></div>
+                    <div className="p-6">
+                        <div className="flex items-start gap-4 mb-4">
+                            <div className="w-12 h-12 rounded-2xl bg-red-100/80 border border-red-200 flex items-center justify-center text-red-800 shrink-0 shadow-inner">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 font-serif tracking-tight">
+                                    Confirm Logout Session
+                                </h3>
+                                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                                    Are you sure you want to end your current authenticated session in SPMO SIMS?
+                                </p>
+                            </div>
+                        </div>
+
+                        {currentUser && (
+                            <div className="my-4 p-3.5 bg-gray-50 rounded-xl border border-gray-200 flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 border border-yellow-300/60 flex items-center justify-center text-red-950 font-extrabold text-sm shrink-0 shadow-sm">
+                                    {currentUser?.name?.charAt(0)?.toUpperCase() || 'U'}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-xs font-bold text-gray-900 truncate">{currentUser?.name}</p>
+                                    <p className="text-[11px] text-gray-500 font-mono truncate">{currentUser?.email}</p>
+                                    <span className="inline-block mt-0.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-800 border border-red-200">
+                                        {userRole}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
+                        <p className="text-[11px] text-gray-500 mb-6 flex items-center gap-1.5 bg-amber-50/70 border border-amber-200/60 rounded-lg p-2.5">
+                            <svg className="w-4 h-4 text-amber-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            <span>Your session activity and logout timestamp will be safely recorded in the Audit Ledger.</span>
+                        </p>
+
+                        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                            <button
+                                type="button"
+                                onClick={() => setShowLogoutModal(false)}
+                                disabled={isLoggingOut}
+                                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 focus:outline-none transition-all disabled:opacity-50 cursor-pointer"
+                            >
+                                Stay Signed In
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmLogout}
+                                disabled={isLoggingOut}
+                                className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-red-700 hover:bg-red-800 active:bg-red-900 shadow-md shadow-red-900/20 focus:outline-none transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                            >
+                                {isLoggingOut ? (
+                                    <>
+                                        <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                        </svg>
+                                        <span>Logging Out...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                        </svg>
+                                        <span>Yes, Log Out</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
         </aside>
     );
 }
