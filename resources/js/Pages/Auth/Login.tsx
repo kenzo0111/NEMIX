@@ -9,6 +9,7 @@ import axios from 'axios';
 import {
     ArrowRight,
     CheckCircle2,
+    Loader2,
     Lock,
     ShieldCheck,
     Sparkles,
@@ -37,15 +38,14 @@ export default function Login({
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-    // Success Modal state
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    // Authentication & Modal stages: 'idle' | 'lazy_loading' | 'success'
+    const [authStage, setAuthStage] = useState<'idle' | 'lazy_loading' | 'success'>('idle');
     const [userData, setUserData] = useState<AuthenticatedUserData | null>(null);
     const [destinationUrl, setDestinationUrl] = useState<string>('');
-    const [progressPercent, setProgressPercent] = useState(0);
 
     const submit: FormEventHandler = async (e) => {
         e.preventDefault();
-        if (processing || showSuccessModal) return;
+        if (processing || authStage !== 'idle') return;
 
         setProcessing(true);
         setErrors({});
@@ -66,11 +66,11 @@ export default function Login({
                 }
             );
 
-            // Authentication succeeded
+            // Authentication succeeded -> Trigger lazy loading phase
             const dest = response.data?.redirect || route('dashboard');
             setDestinationUrl(dest);
             setUserData(response.data?.user || { email, name: email.split('@')[0], role: 'Institutional Staff' });
-            setShowSuccessModal(true);
+            setAuthStage('lazy_loading');
         } catch (err: any) {
             setProcessing(false);
             setPassword('');
@@ -91,34 +91,24 @@ export default function Login({
         }
     };
 
-    // Auto-redirect and progress bar animation when success modal is open
+    // Transition from lazy_loading to success modal, and handle auto-redirect
     useEffect(() => {
-        if (!showSuccessModal) return;
+        if (authStage === 'lazy_loading') {
+            const loadingTimer = setTimeout(() => {
+                setAuthStage('success');
+            }, 1400); // 1.4 seconds lazy loading phase
 
-        const totalDuration = 2000; // 2 seconds
-        const stepInterval = 40; // update every 40ms
-        const increment = 100 / (totalDuration / stepInterval);
+            return () => clearTimeout(loadingTimer);
+        }
 
-        const progressTimer = setInterval(() => {
-            setProgressPercent((prev) => {
-                const next = prev + increment;
-                if (next >= 100) {
-                    clearInterval(progressTimer);
-                    return 100;
-                }
-                return next;
-            });
-        }, stepInterval);
+        if (authStage === 'success') {
+            const redirectTimer = setTimeout(() => {
+                window.location.href = destinationUrl || route('dashboard');
+            }, 2500); // 2.5 seconds display before auto-redirecting
 
-        const redirectTimer = setTimeout(() => {
-            window.location.href = destinationUrl || route('dashboard');
-        }, totalDuration);
-
-        return () => {
-            clearInterval(progressTimer);
-            clearTimeout(redirectTimer);
-        };
-    }, [showSuccessModal, destinationUrl]);
+            return () => clearTimeout(redirectTimer);
+        }
+    }, [authStage, destinationUrl]);
 
     const handleImmediateRedirect = () => {
         window.location.href = destinationUrl || route('dashboard');
@@ -266,7 +256,7 @@ export default function Login({
                                             type="email"
                                             name="email"
                                             value={email}
-                                            disabled={processing || showSuccessModal}
+                                            disabled={processing || authStage !== 'idle'}
                                             className="pl-11 block w-full rounded-lg border-gray-300 shadow-sm focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-all py-3 text-sm bg-gray-50/70 focus:bg-white disabled:opacity-60"
                                             autoComplete="username"
                                             isFocused={true}
@@ -291,7 +281,7 @@ export default function Login({
                                             type={showPassword ? 'text' : 'password'}
                                             name="password"
                                             value={password}
-                                            disabled={processing || showSuccessModal}
+                                            disabled={processing || authStage !== 'idle'}
                                             className="pl-11 pr-11 block w-full rounded-lg border-gray-300 shadow-sm focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-all py-3 text-sm bg-gray-50/70 focus:bg-white disabled:opacity-60"
                                             autoComplete="current-password"
                                             onChange={(e) => setPassword(e.target.value)}
@@ -299,7 +289,7 @@ export default function Login({
                                         />
                                         <button
                                             type="button"
-                                            disabled={processing || showSuccessModal}
+                                            disabled={processing || authStage !== 'idle'}
                                             onClick={() => setShowPassword(!showPassword)}
                                             className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
                                             title={showPassword ? 'Hide password' : 'Show password'}
@@ -325,7 +315,7 @@ export default function Login({
                                         <Checkbox
                                             name="remember"
                                             checked={remember}
-                                            disabled={processing || showSuccessModal}
+                                            disabled={processing || authStage !== 'idle'}
                                             onChange={(e) => setRemember(Boolean(e.target.checked))}
                                             className="rounded border-gray-300 text-red-900 focus:ring-red-900/30 w-4 h-4"
                                         />
@@ -348,7 +338,7 @@ export default function Login({
                                 <div className="pt-3">
                                     <PrimaryButton
                                         className="w-full justify-center bg-gradient-to-r from-red-950 via-red-900 to-red-800 hover:from-red-900 hover:to-red-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-red-950/25 border-b-4 border-red-950 active:border-b-0 active:translate-y-1 active:shadow-none transition-all text-sm tracking-wide flex items-center gap-2 group"
-                                        disabled={processing || showSuccessModal}
+                                        disabled={processing || authStage !== 'idle'}
                                     >
                                         {processing ? (
                                             <>
@@ -385,14 +375,14 @@ export default function Login({
                 </div>
             </div>
 
-            {/* === SUCCESS MODAL === */}
-            {showSuccessModal && (
+            {/* === 1. LAZY LOADING OVERLAY STATE === */}
+            {authStage === 'lazy_loading' && (
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md transition-all duration-300"
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md transition-all duration-300"
                     style={{ animation: 'loginModalFadeIn 0.3s ease-out' }}
                 >
                     <div
-                        className="w-full max-w-md bg-white rounded-3xl shadow-2xl shadow-black/60 border border-white/40 overflow-hidden text-center relative transition-all duration-300 transform"
+                        className="w-full max-w-md bg-white rounded-3xl shadow-2xl shadow-black/70 border border-white/40 overflow-hidden text-center relative transition-all duration-300 transform"
                         style={{ animation: 'loginModalScaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1)' }}
                     >
                         {/* Top Institutional Header Band */}
@@ -417,13 +407,89 @@ export default function Login({
                             </p>
                         </div>
 
-                        {/* Floating Success Check Icon */}
+                        {/* Central Animated Dual-Spin Loader & Seal */}
                         <div className="relative -mt-10 flex justify-center z-20">
                             <div className="relative">
-                                {/* Outer Pulse Ring */}
-                                <div className="absolute -inset-2 rounded-full bg-emerald-500/30 animate-ping"></div>
-                                <div className="relative h-20 w-20 rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 text-white shadow-xl shadow-emerald-900/30 ring-4 ring-white flex items-center justify-center">
-                                    <CheckCircle2 className="h-10 w-10 text-white stroke-[2.5]" />
+                                {/* Glowing Amber Pulse Halo */}
+                                <div className="absolute -inset-3 rounded-full bg-yellow-400/25 animate-pulse"></div>
+
+                                {/* Outer Institutional Ring with Orbital Spinner */}
+                                <div className="relative h-20 w-20 rounded-full bg-gradient-to-tr from-red-950 via-red-900 to-red-950 shadow-xl shadow-red-950/40 ring-4 ring-yellow-400/80 flex items-center justify-center p-3">
+                                    <div className="absolute inset-1 rounded-full border-2 border-yellow-400 border-t-transparent animate-spin"></div>
+                                    <ApplicationLogo alt="UCN Seal" className="h-9 w-9 object-contain drop-shadow" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Modal Body with Lazy Loading Status */}
+                        <div className="p-6 pt-4 space-y-4">
+                            <div>
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-400/40 text-yellow-950 text-xs font-bold mb-2">
+                                    <Loader2 className="w-3.5 h-3.5 text-yellow-600 animate-spin" />
+                                    <span>Establishing Secure Session</span>
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 font-serif tracking-tight">
+                                    Initializing Workspace...
+                                </h3>
+                                <p className="text-gray-500 text-xs mt-1 leading-relaxed">
+                                    Synchronizing institutional permissions and security tokens.
+                                </p>
+                            </div>
+
+                            {/* Animated Loading Dots in Institutional Palette */}
+                            <div className="flex items-center justify-center gap-2 py-3">
+                                <span className="w-2.5 h-2.5 rounded-full bg-red-950 animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                <span className="w-2.5 h-2.5 rounded-full bg-red-900 animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 animate-bounce" style={{ animationDelay: '450ms' }}></span>
+                            </div>
+                        </div>
+
+                        {/* Bottom Accent Bar */}
+                        <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-yellow-400 to-red-950"></div>
+                    </div>
+                </div>
+            )}
+
+            {/* === 2. LOGIN SUCCESS MODAL (LOGIN COLOR PALETTE, NO PROGRESS BAR) === */}
+            {authStage === 'success' && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md transition-all duration-300"
+                    style={{ animation: 'loginModalFadeIn 0.3s ease-out' }}
+                >
+                    <div
+                        className="w-full max-w-md bg-white rounded-3xl shadow-2xl shadow-black/70 border border-white/40 overflow-hidden text-center relative transition-all duration-300 transform"
+                        style={{ animation: 'loginModalScaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1)' }}
+                    >
+                        {/* Top Institutional Header Band */}
+                        <div className="relative bg-gradient-to-br from-red-950 via-red-900 to-red-950 text-white p-6 pb-12 overflow-hidden">
+                            {/* Decorative Background Rings */}
+                            <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full border border-yellow-400/20 pointer-events-none"></div>
+                            <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full border border-yellow-400/10 pointer-events-none"></div>
+                            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"></div>
+
+                            {/* Top University Brand Badge */}
+                            <div className="relative z-10 flex items-center justify-center gap-2 mb-2">
+                                <div className="p-1.5 rounded-lg bg-white/10 backdrop-blur-md border border-yellow-400/30">
+                                    <ApplicationLogo alt="UCN Seal" className="h-6 w-6 object-contain" />
+                                </div>
+                                <span className="font-serif text-yellow-300 text-xs font-bold tracking-widest uppercase">
+                                    University of Camarines Norte
+                                </span>
+                            </div>
+
+                            <p className="relative z-10 text-[10px] font-mono text-yellow-200/80 uppercase tracking-wider">
+                                SPMO Enterprise Security
+                            </p>
+                        </div>
+
+                        {/* Floating Success Check Icon with Login Maroon & Gold Palette */}
+                        <div className="relative -mt-10 flex justify-center z-20">
+                            <div className="relative">
+                                {/* Outer Golden Glow Pulse */}
+                                <div className="absolute -inset-2.5 rounded-full bg-yellow-400/30 animate-ping"></div>
+                                <div className="relative h-20 w-20 rounded-full bg-gradient-to-tr from-red-950 via-red-900 to-red-800 text-yellow-300 shadow-xl shadow-red-950/40 ring-4 ring-yellow-400/80 flex items-center justify-center">
+                                    <CheckCircle2 className="h-10 w-10 text-yellow-300 stroke-[2.5] drop-shadow-md" />
                                 </div>
                             </div>
                         </div>
@@ -432,8 +498,8 @@ export default function Login({
                         <div className="p-6 pt-4 space-y-4">
                             {/* Main Heading */}
                             <div>
-                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold mb-2">
-                                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-400/40 text-yellow-950 text-xs font-bold mb-2">
+                                    <Sparkles className="w-3.5 h-3.5 text-yellow-600" />
                                     <span>Authentication Successful</span>
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900 font-serif tracking-tight">
@@ -446,9 +512,9 @@ export default function Login({
 
                             {/* Authenticated User Card */}
                             {userData && (
-                                <div className="bg-gradient-to-r from-gray-50 via-red-50/30 to-gray-50 rounded-2xl p-3.5 border border-gray-200/80 shadow-xs flex items-center gap-3.5 text-left">
-                                    <div className="h-11 w-11 rounded-xl bg-gradient-to-tr from-red-950 to-red-800 text-white font-bold text-base flex items-center justify-center shadow-md shadow-red-950/20 shrink-0 ring-2 ring-yellow-400/40">
-                                        {userData.name ? userData.name.charAt(0).toUpperCase() : <UserIcon className="w-5 h-5" />}
+                                <div className="bg-gradient-to-r from-gray-50 via-amber-50/20 to-gray-50 rounded-2xl p-3.5 border border-gray-200/80 shadow-xs flex items-center gap-3.5 text-left">
+                                    <div className="h-11 w-11 rounded-xl bg-gradient-to-tr from-red-950 to-red-800 text-yellow-300 font-serif font-bold text-base flex items-center justify-center shadow-md shadow-red-950/20 shrink-0 ring-2 ring-yellow-400/50">
+                                        {userData.name ? userData.name.charAt(0).toUpperCase() : <UserIcon className="w-5 h-5 text-yellow-300" />}
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
@@ -460,12 +526,12 @@ export default function Login({
                                             {userData.email}
                                         </p>
                                         <div className="mt-1 flex items-center gap-1.5">
-                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100/90 text-amber-900 border border-amber-300/60">
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100/90 text-amber-950 border border-amber-300/60">
                                                 <ShieldCheck className="w-3 h-3 text-amber-700" />
                                                 {userData.role || 'Institutional Staff'}
                                             </span>
-                                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-mono text-emerald-700 bg-emerald-100/70">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-mono text-red-950 bg-red-900/10 border border-red-900/20">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                                                 Active Session
                                             </span>
                                         </div>
@@ -473,42 +539,32 @@ export default function Login({
                                 </div>
                             )}
 
-                            {/* Security Reference & Progress Status */}
-                            <div className="space-y-2 pt-1">
-                                <div className="flex items-center justify-between text-xs text-gray-500 font-medium">
-                                    <span className="flex items-center gap-1.5 text-gray-600">
-                                        <Lock className="w-3.5 h-3.5 text-red-900" />
-                                        Redirecting to SPMO Dashboard...
-                                    </span>
-                                    <span className="font-mono font-bold text-red-900">
-                                        {Math.round(progressPercent)}%
-                                    </span>
+                            {/* Security Reference Bar (Replacing Progress Bar) */}
+                            <div className="bg-gradient-to-r from-red-950/5 via-amber-50/50 to-red-950/5 rounded-xl p-2.5 border border-red-950/10 flex items-center justify-between text-xs">
+                                <div className="flex items-center gap-1.5 text-gray-700 font-medium">
+                                    <Lock className="w-3.5 h-3.5 text-red-900" />
+                                    <span>Ready for SPMO Dashboard</span>
                                 </div>
-
-                                {/* Animated Progress Track */}
-                                <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden p-0.5 border border-gray-200">
-                                    <div
-                                        className="h-full rounded-full bg-gradient-to-r from-red-900 via-amber-500 to-emerald-500 transition-all duration-75 ease-out shadow-xs"
-                                        style={{ width: `${progressPercent}%` }}
-                                    ></div>
-                                </div>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-yellow-400/20 text-yellow-950 font-mono text-[10px] font-bold border border-yellow-400/30">
+                                    SPMO-SECURE
+                                </span>
                             </div>
 
                             {/* Action Button for Immediate Navigation */}
-                            <div className="pt-2">
+                            <div className="pt-1">
                                 <button
                                     type="button"
                                     onClick={handleImmediateRedirect}
-                                    className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-950 via-red-900 to-red-800 hover:from-red-900 hover:to-red-700 text-white font-bold py-3 px-5 rounded-xl shadow-lg shadow-red-950/20 text-xs uppercase tracking-wider transition-all duration-200 hover:shadow-red-900/40 hover:-translate-y-0.5 active:translate-y-0"
+                                    className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-950 via-red-900 to-red-800 hover:from-red-900 hover:to-red-700 text-white font-bold py-3.5 px-5 rounded-xl shadow-lg shadow-red-950/20 text-xs uppercase tracking-wider transition-all duration-200 hover:shadow-red-900/40 hover:-translate-y-0.5 active:translate-y-0 border-b-4 border-red-950 active:border-b-0 group"
                                 >
                                     <span>Proceed to Dashboard Now</span>
-                                    <ArrowRight className="w-4 h-4" />
+                                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                                 </button>
                             </div>
                         </div>
 
                         {/* Bottom Accent Bar */}
-                        <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-amber-500 to-emerald-500"></div>
+                        <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-yellow-400 to-red-950"></div>
                     </div>
                 </div>
             )}
