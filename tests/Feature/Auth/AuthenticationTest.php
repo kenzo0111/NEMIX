@@ -4,6 +4,8 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Modules\AuditLogs\Models\LoginTrail;
+use Modules\AuditLogs\Models\TransactionTrail;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -28,6 +30,20 @@ class AuthenticationTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
+
+        // Verify LoginTrail
+        $this->assertDatabaseHas('login_trails', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'status' => 'Success',
+        ]);
+
+        // Verify TransactionTrail (Audit Ledger)
+        $this->assertDatabaseHas('transaction_trails', [
+            'user_id' => $user->id,
+            'action' => 'User Login',
+            'status' => 'Verified',
+        ]);
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
@@ -40,6 +56,18 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertGuest();
+
+        // Verify LoginTrail
+        $this->assertDatabaseHas('login_trails', [
+            'email' => $user->email,
+            'status' => 'Failed',
+        ]);
+
+        // Verify TransactionTrail (Audit Ledger)
+        $this->assertDatabaseHas('transaction_trails', [
+            'action' => 'Failed Login Attempt',
+            'status' => 'Flagged',
+        ]);
     }
 
     public function test_users_can_logout(): void
@@ -50,5 +78,19 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
         $response->assertRedirect('/');
+
+        // Verify LoginTrail
+        $this->assertDatabaseHas('login_trails', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'status' => 'Logged Out',
+        ]);
+
+        // Verify TransactionTrail (Audit Ledger)
+        $this->assertDatabaseHas('transaction_trails', [
+            'user_id' => $user->id,
+            'action' => 'User Logout',
+            'status' => 'Verified',
+        ]);
     }
 }

@@ -2,12 +2,12 @@
 
 namespace Modules\AuditLogs\Listeners;
 
-use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Http\Request;
 use Modules\AuditLogs\Models\LoginTrail;
 use Modules\AuditLogs\Models\TransactionTrail;
 
-class FailedLoginListener
+class LogoutListener
 {
     /**
      * Create the event listener.
@@ -17,36 +17,37 @@ class FailedLoginListener
     /**
      * Handle the event.
      */
-    public function handle(Failed $event): void
+    public function handle(Logout $event): void
     {
         $user = $event->user;
-        $email = $event->credentials['email'] ?? 'Unknown';
         $ip = $this->request->ip() ?: '127.0.0.1';
+        $userName = $user?->name ?? 'User';
+        $userEmail = $user?->email ?? '';
 
         try {
             LoginTrail::create([
                 'user_id' => $user?->id,
-                'name' => $user?->name ?? 'Unknown',
-                'email' => $email,
+                'name' => $userName,
+                'email' => $userEmail,
                 'ip_address' => $ip,
                 'user_agent' => $this->request->userAgent(),
-                'status' => 'Failed',
+                'status' => 'Logged Out',
             ]);
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to create failed login trail: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Failed to log logout trail: ' . $e->getMessage());
         }
 
         try {
             TransactionTrail::create([
                 'user_id' => $user?->id,
                 'module' => 'Audit Logs',
-                'action' => 'Failed Login Attempt',
-                'resource_ref' => 'AUTH-FAILED',
-                'details' => "Failed authentication attempt for email '{$email}' from IP {$ip}",
-                'status' => 'Flagged',
+                'action' => 'User Logout',
+                'resource_ref' => 'AUTH-' . ($user?->id ?? '0'),
+                'details' => "User '{$userName}'" . ($userEmail ? " ({$userEmail})" : '') . " logged out of the system from IP {$ip}",
+                'status' => 'Verified',
             ]);
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to create failed login transaction trail: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Failed to log logout transaction trail: ' . $e->getMessage());
         }
     }
 }

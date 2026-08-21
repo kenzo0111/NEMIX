@@ -4,9 +4,11 @@ namespace Modules\AuditLogs\Providers;
 
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Modules\AuditLogs\Listeners\FailedLoginListener;
 use Modules\AuditLogs\Listeners\LoginListener;
+use Modules\AuditLogs\Listeners\LogoutListener;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Auth;
 use Modules\AuditLogs\Models\TransactionTrail;
@@ -25,6 +27,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         Failed::class => [
             FailedLoginListener::class,
+        ],
+        Logout::class => [
+            LogoutListener::class,
         ],
     ];
 

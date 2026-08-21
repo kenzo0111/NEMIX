@@ -50,10 +50,17 @@ export default function ManageLoginTrails({ auth, loginData: serverLoginData = [
         return roles.map(r => ({ value: r, label: r }));
     }, [loginData]);
 
-    const statusOptions = [
-        { value: 'Success', label: 'Success' },
-        { value: 'Failed', label: 'Failed' },
-    ];
+    const statusOptions = useMemo(() => {
+        const statuses = Array.from(new Set(loginData.map(l => l.status).filter(Boolean)));
+        if (statuses.length === 0) {
+            return [
+                { value: 'Success', label: 'Success' },
+                { value: 'Logged Out', label: 'Logged Out' },
+                { value: 'Failed', label: 'Failed' },
+            ];
+        }
+        return statuses.map(s => ({ value: s, label: s }));
+    }, [loginData]);
 
     // --- FILTER LOGIC ---
     const filteredData = useMemo(() => {
@@ -349,9 +356,16 @@ export default function ManageLoginTrails({ auth, loginData: serverLoginData = [
                                                 <td className="px-6 py-4 text-center">
                                                     <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border ${log.status === 'Success'
                                                         ? 'bg-emerald-50 text-emerald-800 border-emerald-200/80'
+                                                        : log.status === 'Logged Out'
+                                                        ? 'bg-blue-50 text-blue-800 border-blue-200/80'
                                                         : 'bg-red-50 text-red-800 border-red-200/80'
                                                         }`}>
-                                                        <span className={`w-1.5 h-1.5 rounded-full ${log.status === 'Success' ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+                                                        <span className={`w-1.5 h-1.5 rounded-full ${log.status === 'Success'
+                                                            ? 'bg-emerald-500'
+                                                            : log.status === 'Logged Out'
+                                                            ? 'bg-blue-500'
+                                                            : 'bg-red-500'
+                                                            }`}></span>
                                                         {log.status}
                                                     </span>
                                                 </td>
