@@ -2,43 +2,50 @@
 
 namespace Modules\Suppliers\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Policies\ResourceOwnershipPolicy;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Inertia\Response;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\Issuance;
 use Modules\Suppliers\Models\Supplier;
 
-class SuppliersController extends \App\Http\Controllers\Controller
+class SuppliersController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): Response
     {
         $suppliersQuery = ResourceOwnershipPolicy::scopeQuery(Supplier::query(), auth()->user());
-        $suppliers = $suppliersQuery->get();
+        $suppliers = $suppliersQuery->latest()->get();
 
-        $items = class_exists(Item::class)
-            ? ResourceOwnershipPolicy::scopeQuery(Item::query(), auth()->user())->get(['id', 'supplier_id', 'stock', 'unit_cost', 'amount'])
-            : collect();
+        $itemsQuery = class_exists(Item::class)
+            ? ResourceOwnershipPolicy::scopeQuery(Item::query(), auth()->user())
+            : null;
 
         $supplierItemValues = [];
-        foreach ($items as $item) {
-            if ($item->supplier_id === null) {
-                continue;
-            }
-            $supplierId = (string) $item->supplier_id;
-            $supplierItemValues[$supplierId] = ($supplierItemValues[$supplierId] ?? 0) + (float) $item->stock * (float) $item->unit_cost;
+        if ($itemsQuery) {
+            $supplierItemValues = $itemsQuery
+                ->whereNotNull('supplier_id')
+                ->groupBy('supplier_id')
+                ->select('supplier_id', DB::raw('SUM(stock * COALESCE(unit_cost, 0)) as total_val'))
+                ->pluck('total_val', 'supplier_id')
+                ->toArray();
         }
 
+        $items = $itemsQuery ? $itemsQuery->get(['id', 'name', 'sku', 'supplier_id', 'stock', 'unit_cost', 'amount']) : collect();
+
         $issuances = class_exists(Issuance::class)
-            ? ResourceOwnershipPolicy::scopeQuery(Issuance::with('item'), auth()->user(), 'issued_by')->get()
+            ? ResourceOwnershipPolicy::scopeQuery(Issuance::with('item'), auth()->user(), 'issued_by')->latest()->get()
             : collect();
 
         $suppliers = $suppliers->map(function ($supplier) use ($supplierItemValues) {
             $supplierId = (string) $supplier->id;
-            $supplier->amount = $supplierItemValues[$supplierId] ?? 0;
+            $supplier->amount = (float) ($supplierItemValues[$supplierId] ?? $supplier->amount ?? 0);
             return $supplier;
         });
 
@@ -52,7 +59,7 @@ class SuppliersController extends \App\Http\Controllers\Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -79,9 +86,11 @@ class SuppliersController extends \App\Http\Controllers\Controller
         $supplier = Supplier::findOrFail($id);
         ResourceOwnershipPolicy::authorize(auth()->user(), $supplier, 'created_by');
 
-        return Inertia::render('Suppliers/ShowSupplier', [
-            'supplier' => $supplier,
-        ]);
+        if (request()->wantsJson()) {
+            return response()->json($supplier);
+        }
+
+        return redirect()->route('suppliers.index');
     }
 
     /**
@@ -92,15 +101,17 @@ class SuppliersController extends \App\Http\Controllers\Controller
         $supplier = Supplier::findOrFail($id);
         ResourceOwnershipPolicy::authorize(auth()->user(), $supplier, 'created_by');
 
-        return Inertia::render('Suppliers/EditSupplier', [
-            'supplier' => $supplier,
-        ]);
+        if (request()->wantsJson()) {
+            return response()->json($supplier);
+        }
+
+        return redirect()->route('suppliers.index');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): RedirectResponse
     {
         $supplier = Supplier::findOrFail($id);
         ResourceOwnershipPolicy::authorize(auth()->user(), $supplier, 'created_by');
@@ -123,7 +134,7 @@ class SuppliersController extends \App\Http\Controllers\Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy($id): RedirectResponse
     {
         $supplier = Supplier::findOrFail($id);
         ResourceOwnershipPolicy::authorize(auth()->user(), $supplier, 'created_by');

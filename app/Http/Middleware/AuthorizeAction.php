@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthorizeAction
 {
+    protected static array $verifiedPermissions = [];
+
     public function handle(Request $request, Closure $next): Response
     {
         if (in_array($request->method(), ['GET', 'HEAD'], true)) {
@@ -30,12 +32,13 @@ class AuthorizeAction
             return $next($request);
         }
 
-        $permissionName = $this->routePermissionName($routeName);
-        $this->ensurePermissionExists($permissionName);
-
+        // Fast-path: System Admin bypasses all checks without permission creation
         if ($user->hasRole('System Admin')) {
             return $next($request);
         }
+
+        $permissionName = $this->routePermissionName($routeName);
+        $this->ensurePermissionExists($permissionName);
 
         if ($user->hasPermissionTo($permissionName)) {
             return $next($request);
@@ -65,6 +68,10 @@ class AuthorizeAction
 
     private function ensurePermissionExists(string $permissionName): void
     {
+        if (isset(self::$verifiedPermissions[$permissionName])) {
+            return;
+        }
+
         $permission = Permission::firstOrCreate(['name' => $permissionName]);
 
         $systemAdmin = Role::where('name', 'System Admin')->first();
@@ -72,5 +79,7 @@ class AuthorizeAction
         if ($systemAdmin && ! $systemAdmin->hasPermissionTo($permissionName)) {
             $systemAdmin->givePermissionTo($permissionName);
         }
+
+        self::$verifiedPermissions[$permissionName] = true;
     }
 }

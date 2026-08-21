@@ -7,10 +7,11 @@ use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class DashboardController
 {
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $validated = $request->validate([
             'chart_filter' => ['nullable', 'string', 'in:monthly,yearly,custom'],
@@ -57,32 +58,9 @@ class DashboardController
             })
             : [];
 
-        $supplierItemValues = [];
-        if (class_exists(\Modules\Inventory\Models\Item::class)) {
-            \Modules\Inventory\Models\Item::all(['supplier_id', 'stock', 'unit_cost', 'amount'])->each(function ($item) use (&$supplierItemValues) {
-                if ($item->supplier_id === null) return;
-                $supplierId = (string) $item->supplier_id;
-                $itemAmount = $item->amount !== null ? (float) $item->amount : (float) $item->stock * (float) $item->unit_cost;
-                $supplierItemValues[$supplierId] = ($supplierItemValues[$supplierId] ?? 0) + $itemAmount;
-            });
-        }
-
-        $supplierIssuedTotals = [];
-        if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
-            \Modules\Inventory\Models\Issuance::with('item')->get()->each(function ($issuance) use (&$supplierIssuedTotals) {
-                if (! $issuance->item || $issuance->item->supplier_id === null) return;
-                $supplierId = (string) $issuance->item->supplier_id;
-                $supplierIssuedTotals[$supplierId] = ($supplierIssuedTotals[$supplierId] ?? 0) + (float) $issuance->quantity * (float) $issuance->item->unit_cost;
-            });
-        }
-
-        $totalInventoryValue = 0;
-        if (class_exists(\Modules\Suppliers\Models\Supplier::class)) {
-            \Modules\Suppliers\Models\Supplier::all()->each(function ($supplier) use (&$totalInventoryValue, $supplierItemValues) {
-                $supplierId = (string) $supplier->id;
-                $totalInventoryValue += $supplierItemValues[$supplierId] ?? 0;
-            });
-        }
+        $totalInventoryValue = class_exists(\Modules\Inventory\Models\Item::class)
+            ? (float) \Modules\Inventory\Models\Item::query()->sum(DB::raw('stock * COALESCE(unit_cost, 0)'))
+            : 0;
 
         $stats = [
             'totalInventoryValue' => '₱' . number_format($totalInventoryValue, 2),
@@ -140,7 +118,7 @@ class DashboardController
 
                 $chartData['monthly'][] = [
                     'label' => $date->format('M Y'),
-                    'starting' => $starting,
+                    'starting' => (int) $starting,
                     'stockIn' => (int) $stockIn,
                     'risIssued' => (int) $risIssued,
                 ];
@@ -151,66 +129,58 @@ class DashboardController
 
                 $stockIn = \Modules\Inventory\Models\Receiving::whereYear('date_received', $year)->sum('quantity');
                 $risIssued = \Modules\Inventory\Models\Issuance::whereYear('date_issued', $year)->sum('quantity');
-
                 $starting = max(0, (\Modules\Inventory\Models\Item::sum('stock') ?? 0) - ($stockIn - $risIssued));
 
                 $chartData['yearly'][] = [
                     'label' => (string) $year,
-                    'starting' => $starting,
+                    'starting' => (int) $starting,
                     'stockIn' => (int) $stockIn,
                     'risIssued' => (int) $risIssued,
                 ];
             }
 
-            if ($chartFilter === 'custom' && $startDate && $endDate) {
-                try {
-                    $rangeStart = Carbon::parse($startDate)->startOfDay();
-                    $rangeEnd = Carbon::parse($endDate)->endOfDay();
+            if ($startDate && $endDate) {
+                $start = Carbon::parse($startDate);
+                $end = Carbon::parse($endDate);
+                $period = CarbonPeriod::create($start, '1 month', $end);
 
-                    if ($rangeStart->gt($rangeEnd)) {
-                        [$rangeStart, $rangeEnd] = [$rangeEnd->copy()->startOfDay(), $rangeStart->copy()->endOfDay()];
-                    }
+                foreach ($period as $dt) {
+                    $stockIn = \Modules\Inventory\Models\Receiving::whereMonth('date_received', $dt->month)
+                        ->whereYear('date_received', $dt->year)
+                        ->sum('quantity');
 
-                    $period = CarbonPeriod::create(
-                        $rangeStart->copy()->startOfMonth(),
-                        '1 month',
-                        $rangeEnd->copy()->startOfMonth()
-                    );
+                    $risIssued = \Modules\Inventory\Models\Issuance::whereMonth('date_issued', $dt->month)
+                        ->whereYear('date_issued', $dt->year)
+                        ->sum('quantity');
 
-                    foreach ($period as $monthStart) {
-                        $monthEnd = $monthStart->copy()->endOfMonth();
+                    $starting = max(0, (\Modules\Inventory\Models\Item::sum('stock') ?? 0) - ($stockIn - $risIssued));
 
-                        $stockIn = \Modules\Inventory\Models\Receiving::whereBetween('date_received', [$monthStart, $monthEnd])
-                            ->sum('quantity');
-
-                        $risIssued = \Modules\Inventory\Models\Issuance::whereBetween('date_issued', [$monthStart, $monthEnd])
-                            ->sum('quantity');
-
-                        $starting = max(0, (\Modules\Inventory\Models\Item::sum('stock') ?? 0) - ($stockIn - $risIssued));
-
-                        $chartData['custom'][] = [
-                            'label' => $monthStart->format('M Y'),
-                            'starting' => $starting,
-                            'stockIn' => (int) $stockIn,
-                            'risIssued' => (int) $risIssued,
-                        ];
-                    }
-                } catch (\Throwable $e) {
-                    $chartData['custom'] = [];
+                    $chartData['custom'][] = [
+                        'label' => $dt->format('M Y'),
+                        'starting' => (int) $starting,
+                        'stockIn' => (int) $stockIn,
+                        'risIssued' => (int) $risIssued,
+                    ];
                 }
+            } else {
+                $chartData['custom'] = $chartData['monthly'];
             }
         }
 
+        $chartLabels = collect($chartData[$chartFilter] ?? [])->pluck('label')->all();
+        $stockInData = collect($chartData[$chartFilter] ?? [])->pluck('stockIn')->all();
+        $risIssuedData = collect($chartData[$chartFilter] ?? [])->pluck('risIssued')->all();
+
         return Inertia::render('Dashboard', [
-            'auditLogs' => $auditLogs,
             'stats' => $stats,
             'lowStockAlerts' => $lowStockAlerts,
-            'chartData' => $chartData,
-            'filters' => [
-                'chartFilter' => $chartFilter,
-                'customStartDate' => $startDate,
-                'customEndDate' => $endDate,
-            ],
+            'auditLogs' => $auditLogs,
+            'chartFilter' => $chartFilter,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'chartLabels' => $chartLabels,
+            'stockInData' => $stockInData,
+            'risIssuedData' => $risIssuedData,
         ]);
     }
 }
