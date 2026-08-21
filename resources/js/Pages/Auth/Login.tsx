@@ -4,8 +4,24 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import axios from 'axios';
+import {
+    ArrowRight,
+    CheckCircle2,
+    Lock,
+    ShieldCheck,
+    Sparkles,
+    User as UserIcon,
+} from 'lucide-react';
+import { FormEventHandler, useEffect, useState } from 'react';
+
+interface AuthenticatedUserData {
+    id?: number;
+    name?: string;
+    email?: string;
+    role?: string;
+}
 
 export default function Login({
     status,
@@ -15,18 +31,97 @@ export default function Login({
     canResetPassword: boolean;
 }) {
     const [showPassword, setShowPassword] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [remember, setRemember] = useState(false);
+    const [processing, setProcessing] = useState(false);
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-    const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
-        password: '',
-        remember: false as boolean,
-    });
+    // Success Modal state
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [userData, setUserData] = useState<AuthenticatedUserData | null>(null);
+    const [destinationUrl, setDestinationUrl] = useState<string>('');
+    const [progressPercent, setProgressPercent] = useState(0);
 
-    const submit: FormEventHandler = (e) => {
+    const submit: FormEventHandler = async (e) => {
         e.preventDefault();
-        post(route('login'), {
-            onFinish: () => reset('password'),
-        });
+        if (processing || showSuccessModal) return;
+
+        setProcessing(true);
+        setErrors({});
+
+        try {
+            const response = await axios.post(
+                route('login'),
+                {
+                    email,
+                    password,
+                    remember,
+                },
+                {
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                }
+            );
+
+            // Authentication succeeded
+            const dest = response.data?.redirect || route('dashboard');
+            setDestinationUrl(dest);
+            setUserData(response.data?.user || { email, name: email.split('@')[0], role: 'Institutional Staff' });
+            setShowSuccessModal(true);
+        } catch (err: any) {
+            setProcessing(false);
+            setPassword('');
+
+            if (err.response?.data?.errors) {
+                const responseErrors: { [key: string]: string } = {};
+                for (const key of Object.keys(err.response.data.errors)) {
+                    responseErrors[key] = Array.isArray(err.response.data.errors[key])
+                        ? err.response.data.errors[key][0]
+                        : err.response.data.errors[key];
+                }
+                setErrors(responseErrors);
+            } else if (err.response?.data?.message) {
+                setErrors({ email: err.response.data.message });
+            } else {
+                setErrors({ email: 'Failed to verify credentials. Please try again.' });
+            }
+        }
+    };
+
+    // Auto-redirect and progress bar animation when success modal is open
+    useEffect(() => {
+        if (!showSuccessModal) return;
+
+        const totalDuration = 2000; // 2 seconds
+        const stepInterval = 40; // update every 40ms
+        const increment = 100 / (totalDuration / stepInterval);
+
+        const progressTimer = setInterval(() => {
+            setProgressPercent((prev) => {
+                const next = prev + increment;
+                if (next >= 100) {
+                    clearInterval(progressTimer);
+                    return 100;
+                }
+                return next;
+            });
+        }, stepInterval);
+
+        const redirectTimer = setTimeout(() => {
+            window.location.href = destinationUrl || route('dashboard');
+        }, totalDuration);
+
+        return () => {
+            clearInterval(progressTimer);
+            clearTimeout(redirectTimer);
+        };
+    }, [showSuccessModal, destinationUrl]);
+
+    const handleImmediateRedirect = () => {
+        window.location.href = destinationUrl || route('dashboard');
     };
 
     return (
@@ -35,7 +130,6 @@ export default function Login({
 
             {/* MAIN CONTAINER */}
             <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden login-bg select-none">
-
                 {/* === ENHANCED OVERLAY SYSTEM === */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     {/* Layer 1: Deep Maroon Tint */}
@@ -54,14 +148,11 @@ export default function Login({
 
                 {/* CARD CONTAINER */}
                 <div className="relative z-10 w-full max-w-6xl bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/60 overflow-hidden flex flex-col lg:flex-row min-h-[640px] border border-white/30 transition-all duration-300">
-
                     {/* LEFT PANEL: Institutional Branding & Identity */}
                     <div className="lg:w-5/12 text-white p-8 lg:p-12 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-red-950 via-red-900 to-red-950">
-
                         {/* Background Decorative Rings */}
                         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full border border-yellow-500/10 pointer-events-none"></div>
                         <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full border border-yellow-500/10 pointer-events-none"></div>
-
 
                         {/* Top: Institution Hierarchy & Tagline */}
                         <div className="relative z-10 space-y-4">
@@ -174,11 +265,12 @@ export default function Login({
                                             id="email"
                                             type="email"
                                             name="email"
-                                            value={data.email}
-                                            className="pl-11 block w-full rounded-lg border-gray-300 shadow-sm focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-all py-3 text-sm bg-gray-50/70 focus:bg-white"
+                                            value={email}
+                                            disabled={processing || showSuccessModal}
+                                            className="pl-11 block w-full rounded-lg border-gray-300 shadow-sm focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-all py-3 text-sm bg-gray-50/70 focus:bg-white disabled:opacity-60"
                                             autoComplete="username"
                                             isFocused={true}
-                                            onChange={(e) => setData('email', e.target.value)}
+                                            onChange={(e) => setEmail(e.target.value)}
                                             placeholder="juandelacruz@ucn.edu.ph"
                                         />
                                     </div>
@@ -198,17 +290,19 @@ export default function Login({
                                             id="password"
                                             type={showPassword ? 'text' : 'password'}
                                             name="password"
-                                            value={data.password}
-                                            className="pl-11 pr-11 block w-full rounded-lg border-gray-300 shadow-sm focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-all py-3 text-sm bg-gray-50/70 focus:bg-white"
+                                            value={password}
+                                            disabled={processing || showSuccessModal}
+                                            className="pl-11 pr-11 block w-full rounded-lg border-gray-300 shadow-sm focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-all py-3 text-sm bg-gray-50/70 focus:bg-white disabled:opacity-60"
                                             autoComplete="current-password"
-                                            onChange={(e) => setData('password', e.target.value)}
+                                            onChange={(e) => setPassword(e.target.value)}
                                             placeholder="••••••••••••"
                                         />
                                         <button
                                             type="button"
+                                            disabled={processing || showSuccessModal}
                                             onClick={() => setShowPassword(!showPassword)}
                                             className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
-                                            title={showPassword ? "Hide password" : "Show password"}
+                                            title={showPassword ? 'Hide password' : 'Show password'}
                                         >
                                             {showPassword ? (
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,11 +324,14 @@ export default function Login({
                                     <label className="flex items-center cursor-pointer group">
                                         <Checkbox
                                             name="remember"
-                                            checked={data.remember}
-                                            onChange={(e) => setData('remember', (e.target.checked || false) as false)}
+                                            checked={remember}
+                                            disabled={processing || showSuccessModal}
+                                            onChange={(e) => setRemember(Boolean(e.target.checked))}
                                             className="rounded border-gray-300 text-red-900 focus:ring-red-900/30 w-4 h-4"
                                         />
-                                        <span className="ml-2 text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors">Remember credentials</span>
+                                        <span className="ml-2 text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
+                                            Remember credentials
+                                        </span>
                                     </label>
 
                                     {canResetPassword && (
@@ -251,7 +348,7 @@ export default function Login({
                                 <div className="pt-3">
                                     <PrimaryButton
                                         className="w-full justify-center bg-gradient-to-r from-red-950 via-red-900 to-red-800 hover:from-red-900 hover:to-red-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-red-950/25 border-b-4 border-red-950 active:border-b-0 active:translate-y-1 active:shadow-none transition-all text-sm tracking-wide flex items-center gap-2 group"
-                                        disabled={processing}
+                                        disabled={processing || showSuccessModal}
                                     >
                                         {processing ? (
                                             <>
@@ -287,6 +384,146 @@ export default function Login({
                     </div>
                 </div>
             </div>
+
+            {/* === SUCCESS MODAL === */}
+            {showSuccessModal && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md transition-all duration-300"
+                    style={{ animation: 'loginModalFadeIn 0.3s ease-out' }}
+                >
+                    <div
+                        className="w-full max-w-md bg-white rounded-3xl shadow-2xl shadow-black/60 border border-white/40 overflow-hidden text-center relative transition-all duration-300 transform"
+                        style={{ animation: 'loginModalScaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1)' }}
+                    >
+                        {/* Top Institutional Header Band */}
+                        <div className="relative bg-gradient-to-br from-red-950 via-red-900 to-red-950 text-white p-6 pb-12 overflow-hidden">
+                            {/* Decorative Background Rings */}
+                            <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full border border-yellow-400/20 pointer-events-none"></div>
+                            <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full border border-yellow-400/10 pointer-events-none"></div>
+                            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"></div>
+
+                            {/* Top University Brand Badge */}
+                            <div className="relative z-10 flex items-center justify-center gap-2 mb-2">
+                                <div className="p-1.5 rounded-lg bg-white/10 backdrop-blur-md border border-yellow-400/30">
+                                    <ApplicationLogo alt="UCN Seal" className="h-6 w-6 object-contain" />
+                                </div>
+                                <span className="font-serif text-yellow-300 text-xs font-bold tracking-widest uppercase">
+                                    University of Camarines Norte
+                                </span>
+                            </div>
+
+                            <p className="relative z-10 text-[10px] font-mono text-yellow-200/80 uppercase tracking-wider">
+                                SPMO Enterprise Security
+                            </p>
+                        </div>
+
+                        {/* Floating Success Check Icon */}
+                        <div className="relative -mt-10 flex justify-center z-20">
+                            <div className="relative">
+                                {/* Outer Pulse Ring */}
+                                <div className="absolute -inset-2 rounded-full bg-emerald-500/30 animate-ping"></div>
+                                <div className="relative h-20 w-20 rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 text-white shadow-xl shadow-emerald-900/30 ring-4 ring-white flex items-center justify-center">
+                                    <CheckCircle2 className="h-10 w-10 text-white stroke-[2.5]" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 pt-4 space-y-4">
+                            {/* Main Heading */}
+                            <div>
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold mb-2">
+                                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                                    <span>Authentication Successful</span>
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 font-serif tracking-tight">
+                                    Welcome Back!
+                                </h3>
+                                <p className="text-gray-500 text-xs mt-1">
+                                    Your institutional credentials have been verified.
+                                </p>
+                            </div>
+
+                            {/* Authenticated User Card */}
+                            {userData && (
+                                <div className="bg-gradient-to-r from-gray-50 via-red-50/30 to-gray-50 rounded-2xl p-3.5 border border-gray-200/80 shadow-xs flex items-center gap-3.5 text-left">
+                                    <div className="h-11 w-11 rounded-xl bg-gradient-to-tr from-red-950 to-red-800 text-white font-bold text-base flex items-center justify-center shadow-md shadow-red-950/20 shrink-0 ring-2 ring-yellow-400/40">
+                                        {userData.name ? userData.name.charAt(0).toUpperCase() : <UserIcon className="w-5 h-5" />}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-sm font-bold text-gray-900 truncate">
+                                                {userData.name || 'Authorized Personnel'}
+                                            </p>
+                                        </div>
+                                        <p className="text-xs text-gray-500 truncate font-mono">
+                                            {userData.email}
+                                        </p>
+                                        <div className="mt-1 flex items-center gap-1.5">
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100/90 text-amber-900 border border-amber-300/60">
+                                                <ShieldCheck className="w-3 h-3 text-amber-700" />
+                                                {userData.role || 'Institutional Staff'}
+                                            </span>
+                                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-mono text-emerald-700 bg-emerald-100/70">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                Active Session
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Security Reference & Progress Status */}
+                            <div className="space-y-2 pt-1">
+                                <div className="flex items-center justify-between text-xs text-gray-500 font-medium">
+                                    <span className="flex items-center gap-1.5 text-gray-600">
+                                        <Lock className="w-3.5 h-3.5 text-red-900" />
+                                        Redirecting to SPMO Dashboard...
+                                    </span>
+                                    <span className="font-mono font-bold text-red-900">
+                                        {Math.round(progressPercent)}%
+                                    </span>
+                                </div>
+
+                                {/* Animated Progress Track */}
+                                <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden p-0.5 border border-gray-200">
+                                    <div
+                                        className="h-full rounded-full bg-gradient-to-r from-red-900 via-amber-500 to-emerald-500 transition-all duration-75 ease-out shadow-xs"
+                                        style={{ width: `${progressPercent}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+
+                            {/* Action Button for Immediate Navigation */}
+                            <div className="pt-2">
+                                <button
+                                    type="button"
+                                    onClick={handleImmediateRedirect}
+                                    className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-950 via-red-900 to-red-800 hover:from-red-900 hover:to-red-700 text-white font-bold py-3 px-5 rounded-xl shadow-lg shadow-red-950/20 text-xs uppercase tracking-wider transition-all duration-200 hover:shadow-red-900/40 hover:-translate-y-0.5 active:translate-y-0"
+                                >
+                                    <span>Proceed to Dashboard Now</span>
+                                    <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Bottom Accent Bar */}
+                        <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-amber-500 to-emerald-500"></div>
+                    </div>
+                </div>
+            )}
+
+            {/* Custom Animations Style */}
+            <style>{`
+                @keyframes loginModalFadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes loginModalScaleUp {
+                    from { opacity: 0; transform: scale(0.92); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+            `}</style>
         </>
     );
 }
