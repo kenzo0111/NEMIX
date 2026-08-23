@@ -36,9 +36,20 @@ const parseAuditTimestamp = (timestamp?: string | null) => {
 };
 
 const formatAuditTimestamp = (timestamp: string | null | undefined) => {
+    if (!timestamp) {
+        return new Date().toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+        }).replace(',', ' •');
+    }
+
     const date = parseAuditTimestamp(timestamp);
     if (!date) {
-        return timestamp || 'Unknown time';
+        return timestamp;
     }
 
     return date.toLocaleString('en-US', {
@@ -47,7 +58,31 @@ const formatAuditTimestamp = (timestamp: string | null | undefined) => {
         year: 'numeric',
         hour: 'numeric',
         minute: '2-digit',
-    });
+        hour12: true,
+    }).replace(',', ' •');
+};
+
+const getDefaultTransactionLogs = () => {
+    const now = new Date();
+    const formatTime = (minutesAgo: number) => {
+        const d = new Date(now.getTime() - minutesAgo * 60 * 1000);
+        return d.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+        }).replace(',', ' •');
+    };
+
+    return [
+        { id: 'TRX-1001', user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', module: 'Inventory', details: 'Added 5 unserviceable desktop units to disposal list', status: 'Verified', time: formatTime(15) },
+        { id: 'TRX-1002', user: 'Maria Santos', role: 'Internal Auditor', action: 'Generated Compliance Report', module: 'Compliance', details: 'Generated Annual Physical Inventory & Inspection Report for FY 2025', status: 'Logged', time: formatTime(60) },
+        { id: 'TRX-1003', user: 'Juan Dela Cruz', role: 'Property Staff', action: 'Stock In Requisition', module: 'Inventory', details: 'Received 100 reams of A4 Copy Paper from Advance Paper Corp', status: 'Verified', time: formatTime(180) },
+        { id: 'TRX-1004', user: 'Staff Member', role: 'Property Staff', action: 'Issued Inventory Stock', module: 'Inventory', details: 'Issued 20 units of Ballpen Black to SPMO Administrative Office', status: 'Flagged', time: formatTime(300) },
+        { id: 'TRX-1005', user: 'System Admin', role: 'System Admin', action: 'Operating Mode Switched', module: 'System Configuration', details: 'Switched system operating mode from LIVE PRODUCTION to MAINTENANCE MODE', status: 'Verified', time: formatTime(1440) },
+    ];
 };
 
 export default function ManageTransaction({ auth, logs: serverLogs = [] }: { auth: any, logs?: any[] }) {
@@ -55,16 +90,9 @@ export default function ManageTransaction({ auth, logs: serverLogs = [] }: { aut
     const user = auth?.user || (props.auth as any)?.user;
     const [collapsed, setCollapsed] = useState(false);
 
-    // Fallback Data if server data is empty
-    const defaultTransactionLogs = [
-        { id: 'TRX-1001', user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', module: 'Inventory', details: 'Added 5 unserviceable desktop units to disposal list', status: 'Verified', time: '2026-08-15 08:30:12' },
-        { id: 'TRX-1002', user: 'Maria Santos', role: 'Internal Auditor', action: 'Generated Compliance Report', module: 'Compliance', details: 'Generated Annual Physical Inventory & Inspection Report for FY 2025', status: 'Logged', time: '2026-08-15 09:14:45' },
-        { id: 'TRX-1003', user: 'Juan Dela Cruz', role: 'Property Staff', action: 'Stock In Requisition', module: 'Inventory', details: 'Received 100 reams of A4 Copy Paper from Advance Paper Corp', status: 'Verified', time: '2026-08-15 10:05:30' },
-        { id: 'TRX-1004', user: 'Staff Member', role: 'Property Staff', action: 'Issued Inventory Stock', module: 'Inventory', details: 'Issued 20 units of Ballpen Black to SPMO Administrative Office', status: 'Flagged', time: '2026-08-15 11:20:18' },
-        { id: 'TRX-1005', user: 'System Admin', role: 'System Admin', action: 'Operating Mode Switched', module: 'System Configuration', details: 'Switched system operating mode from LIVE PRODUCTION to MAINTENANCE MODE', status: 'Verified', time: '2026-08-15 13:02:55' },
-    ];
-
-    const rawLogs = serverLogs && serverLogs.length > 0 ? serverLogs : defaultTransactionLogs;
+    const rawLogs = useMemo(() => {
+        return serverLogs && serverLogs.length > 0 ? serverLogs : getDefaultTransactionLogs();
+    }, [serverLogs]);
 
     // --- 1. State for Filters ---
     const [searchQuery, setSearchQuery] = useState('');

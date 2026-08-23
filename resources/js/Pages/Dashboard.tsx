@@ -155,13 +155,32 @@ export default function Dashboard({
         indicatorSeparator: () => ({ display: 'none' }),
     };
 
-    const auditTrailLogs = auditLogs && auditLogs.length > 0 ? auditLogs : [
-        { user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', details: 'Added 5 unserviceable desktop units to disposal list', id: 'TRX-1006', status: 'Verified', time: '15 mins ago', badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
-        { user: 'Maria Santos', role: 'Internal Auditor', action: 'Generated Compliance Report', details: 'Generated Annual Physical Inventory & Inspection Report for FY 2025', id: 'TRX-1007', status: 'Logged', time: '1 hour ago', badge: 'bg-blue-50 text-blue-800 border border-blue-200' },
-        { user: 'Juan Dela Cruz', role: 'Property Staff', action: 'Stock In Requisition', details: 'Received 100 reams of A4 Copy Paper from Advance Paper Corp', id: 'TRX-1008', status: 'Verified', time: '3 hours ago', badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
-        { user: 'Staff Member', role: 'Property Staff', action: 'Issued Inventory Stock', details: 'Issued 20 units of Ballpen Black to SPMO Administrative Office', id: 'TRX-1009', status: 'Flagged', time: '5 hours ago', badge: 'bg-amber-50 text-amber-800 border border-amber-200' },
-        { user: 'System Admin', role: 'System Admin', action: 'Operating Mode Switched', details: 'Switched system operating mode from LIVE PRODUCTION to MAINTENANCE MODE', id: 'TRX-1010', status: 'Verified', time: '1 day ago', badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
-    ];
+    const getInitialAuditLogs = () => {
+        const now = new Date();
+        const formatTime = (minutesAgo: number) => {
+            const d = new Date(now.getTime() - minutesAgo * 60 * 1000);
+            return d.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+            }).replace(',', ' •');
+        };
+
+        return [
+            { user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', details: 'Added 5 unserviceable desktop units to disposal list', id: 'TRX-1006', status: 'Verified', time: '15 mins ago', timestamp: formatTime(15), badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
+            { user: 'Maria Santos', role: 'Internal Auditor', action: 'Generated Compliance Report', details: 'Generated Annual Physical Inventory & Inspection Report for FY 2025', id: 'TRX-1007', status: 'Logged', time: '1 hour ago', timestamp: formatTime(60), badge: 'bg-blue-50 text-blue-800 border border-blue-200' },
+            { user: 'Juan Dela Cruz', role: 'Property Staff', action: 'Stock In Requisition', details: 'Received 100 reams of A4 Copy Paper from Advance Paper Corp', id: 'TRX-1008', status: 'Verified', time: '3 hours ago', timestamp: formatTime(180), badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
+            { user: 'Staff Member', role: 'Property Staff', action: 'Issued Inventory Stock', details: 'Issued 20 units of Ballpen Black to SPMO Administrative Office', id: 'TRX-1009', status: 'Flagged', time: '5 hours ago', timestamp: formatTime(300), badge: 'bg-amber-50 text-amber-800 border border-amber-200' },
+            { user: 'System Admin', role: 'System Admin', action: 'Operating Mode Switched', details: 'Switched system operating mode from LIVE PRODUCTION to MAINTENANCE MODE', id: 'TRX-1010', status: 'Verified', time: '1 day ago', timestamp: formatTime(1440), badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
+        ];
+    };
+
+    const auditTrailLogs = useMemo(() => {
+        return auditLogs && auditLogs.length > 0 ? auditLogs : getInitialAuditLogs();
+    }, [auditLogs]);
 
     const statusFilterOptions = useMemo(() => {
         const statuses = Array.from(new Set(auditTrailLogs.map((log) => log.status).filter(Boolean)));

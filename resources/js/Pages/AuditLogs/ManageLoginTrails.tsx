@@ -7,22 +7,76 @@ import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { Search, Shield, CheckCircle, AlertTriangle, Users, Key, RotateCcw } from 'lucide-react';
 
+const parseAuditTimestamp = (timestamp?: string | null) => {
+    if (!timestamp) {
+        return null;
+    }
+
+    const normalized = timestamp.replace('•', ' ').trim();
+    const parsed = new Date(normalized);
+
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const formatAuditTimestamp = (timestamp: string | null | undefined) => {
+    if (!timestamp) {
+        return new Date().toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+        }).replace(',', ' •');
+    }
+
+    const date = parseAuditTimestamp(timestamp);
+    if (!date) {
+        return timestamp;
+    }
+
+    return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+    }).replace(',', ' •');
+};
+
+const getDefaultLoginLogs = () => {
+    const now = new Date();
+    const formatTime = (minutesAgo: number) => {
+        const d = new Date(now.getTime() - minutesAgo * 60 * 1000);
+        return d.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+        }).replace(',', ' •');
+    };
+
+    return [
+        { id: 'LOG-1001', name: 'Vince Balce', email: 'vince.balce@ucn.edu.ph', role: 'Admin', time: formatTime(10), ip: '192.168.1.105', status: 'Success' },
+        { id: 'LOG-1002', name: 'Maria Santos', email: 'maria.santos@ucn.edu.ph', role: 'Auditor', time: formatTime(45), ip: '192.168.1.112', status: 'Success' },
+        { id: 'LOG-1003', name: 'Unknown User', email: 'guest.attempt@external.com', role: 'User', time: formatTime(75), ip: '110.54.221.89', status: 'Failed' },
+        { id: 'LOG-1004', name: 'Juan Dela Cruz', email: 'juan.delacruz@ucn.edu.ph', role: 'Manager', time: formatTime(120), ip: '192.168.1.140', status: 'Success' },
+        { id: 'LOG-1005', name: 'Property Staff', email: 'property.staff@ucn.edu.ph', role: 'User', time: formatTime(210), ip: '192.168.1.118', status: 'Success' },
+        { id: 'LOG-1006', name: 'Admin User', email: 'admin.sec@ucn.edu.ph', role: 'Admin', time: formatTime(320), ip: '192.168.1.101', status: 'Failed' },
+    ];
+};
+
 export default function ManageLoginTrails({ auth, loginData: serverLoginData = [] }: { auth: any, loginData?: any[] }) {
     const { props } = usePage();
     const user = auth?.user || (props.auth as any)?.user;
     const [collapsed, setCollapsed] = useState(false);
 
-    // Default Fallback Data if server data is empty
-    const defaultLoginLogs = [
-        { id: 'LOG-1001', name: 'Vince Balce', email: 'vince.balce@ucn.edu.ph', role: 'Admin', time: '2026-08-15 08:30:12', ip: '192.168.1.105', status: 'Success' },
-        { id: 'LOG-1002', name: 'Maria Santos', email: 'maria.santos@ucn.edu.ph', role: 'Auditor', time: '2026-08-15 09:14:45', ip: '192.168.1.112', status: 'Success' },
-        { id: 'LOG-1003', name: 'Unknown User', email: 'guest.attempt@external.com', role: 'User', time: '2026-08-15 09:42:01', ip: '110.54.221.89', status: 'Failed' },
-        { id: 'LOG-1004', name: 'Juan Dela Cruz', email: 'juan.delacruz@ucn.edu.ph', role: 'Manager', time: '2026-08-15 10:05:30', ip: '192.168.1.140', status: 'Success' },
-        { id: 'LOG-1005', name: 'Property Staff', email: 'property.staff@ucn.edu.ph', role: 'User', time: '2026-08-15 11:20:18', ip: '192.168.1.118', status: 'Success' },
-        { id: 'LOG-1006', name: 'Admin User', email: 'admin.sec@ucn.edu.ph', role: 'Admin', time: '2026-08-15 13:02:55', ip: '192.168.1.101', status: 'Failed' },
-    ];
-
-    const loginData = serverLoginData.length > 0 ? serverLoginData : defaultLoginLogs;
+    const loginData = useMemo(() => {
+        return serverLoginData && serverLoginData.length > 0 ? serverLoginData : getDefaultLoginLogs();
+    }, [serverLoginData]);
 
     // Filter States
     const [searchQuery, setSearchQuery] = useState('');
@@ -346,7 +400,7 @@ export default function ManageLoginTrails({ auth, loginData: serverLoginData = [
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 text-gray-600 font-mono font-semibold">
-                                                    {log.time}
+                                                    {formatAuditTimestamp(log.time)}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span className="font-mono text-xs text-gray-600 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded inline-block">

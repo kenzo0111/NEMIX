@@ -27,7 +27,7 @@ class AuditLogsController extends Controller
                     'name' => $trail->name,
                     'email' => $trail->email,
                     'role' => $trail->user ? ($trail->user->getRoleNames()->first() ?? 'User') : 'Unknown',
-                    'time' => $trail->created_at ? $trail->created_at->format('Y-m-d H:i:s') : '',
+                    'time' => $trail->created_at ? $trail->created_at->format('M d, Y • h:i A') : now()->format('M d, Y • h:i A'),
                     'ip' => $trail->ip_address,
                     'status' => $trail->status,
                 ];
@@ -56,7 +56,7 @@ class AuditLogsController extends Controller
                     'role' => $trail->user && method_exists($trail->user, 'getRoleNames') ? ($trail->user->getRoleNames()->first() ?? 'User') : 'Administrator',
                     'action' => $resolved['action'],
                     'details' => $resolved['details'],
-                    'time' => $trail->created_at ? $trail->created_at->format('M d, Y h:i A') : '',
+                    'time' => $trail->created_at ? $trail->created_at->format('M d, Y • h:i A') : now()->format('M d, Y • h:i A'),
                     'module' => $resolved['module'],
                     'status' => $resolved['status'],
                     'badge' => $this->getStatusBadge($resolved['status']),
