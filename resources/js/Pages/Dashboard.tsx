@@ -382,14 +382,33 @@ export default function Dashboard({
                 datasets: [
                     {
                         type: 'bar' as const,
-                        label: 'Inventory Flow',
+                        label: 'Inventory Level',
                         data: waterfallSteps.map((s) => s.range),
-                        backgroundColor: waterfallSteps.map((s) => s.color),
+                        backgroundColor: (context: any) => {
+                            const ctx = context.chart?.ctx;
+                            if (!ctx) return '#7f1d1d';
+                            const step = waterfallSteps[context.dataIndex];
+                            const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+                            if (step?.type === 'inflow') {
+                                gradient.addColorStop(0, '#10b981');
+                                gradient.addColorStop(1, '#047857');
+                            } else if (step?.type === 'outflow') {
+                                gradient.addColorStop(0, '#f43f5e');
+                                gradient.addColorStop(1, '#be123c');
+                            } else if (step?.type === 'start') {
+                                gradient.addColorStop(0, '#64748b');
+                                gradient.addColorStop(1, '#334155');
+                            } else {
+                                gradient.addColorStop(0, '#991b1b');
+                                gradient.addColorStop(1, '#7f1d1d');
+                            }
+                            return gradient;
+                        },
                         borderColor: waterfallSteps.map((s) => s.borderColor),
                         borderWidth: 1.5,
-                        borderRadius: 6,
+                        borderRadius: 8,
                         borderSkipped: false,
-                        maxBarThickness: 48,
+                        maxBarThickness: 52,
                     },
                 ],
             };
@@ -403,36 +422,61 @@ export default function Dashboard({
                     type: 'line' as const,
                     label: 'Stock on Hand (Balance)',
                     data: movementPoints.map((p) => p.starting + p.stockIn - p.risIssued),
-                    borderColor: '#7f1d1d',
-                    backgroundColor: 'rgba(127, 29, 29, 0.06)',
+                    borderColor: '#881337',
+                    backgroundColor: (context: any) => {
+                        const ctx = context.chart?.ctx;
+                        if (!ctx) return 'rgba(136, 19, 55, 0.12)';
+                        const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+                        gradient.addColorStop(0, 'rgba(136, 19, 55, 0.26)');
+                        gradient.addColorStop(0.7, 'rgba(136, 19, 55, 0.05)');
+                        gradient.addColorStop(1, 'rgba(136, 19, 55, 0.00)');
+                        return gradient;
+                    },
                     fill: true,
-                    tension: 0.35,
-                    borderWidth: 2.5,
-                    pointBackgroundColor: '#7f1d1d',
+                    tension: 0.38,
+                    borderWidth: 3.5,
+                    pointBackgroundColor: '#881337',
                     pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
+                    pointBorderWidth: 2.5,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#7f1d1d',
+                    pointHoverBorderColor: '#ffffff',
+                    pointHoverBorderWidth: 3,
                     order: 1,
                 },
                 {
                     type: 'bar' as const,
                     label: 'Stock Receipts (In)',
                     data: movementPoints.map((p) => p.stockIn),
-                    backgroundColor: '#059669',
-                    borderRadius: 4,
+                    backgroundColor: (context: any) => {
+                        const ctx = context.chart?.ctx;
+                        if (!ctx) return '#059669';
+                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                        gradient.addColorStop(0, '#10b981');
+                        gradient.addColorStop(1, '#047857');
+                        return gradient;
+                    },
+                    borderRadius: { topLeft: 6, topRight: 6, bottomLeft: 2, bottomRight: 2 },
                     borderSkipped: false,
-                    maxBarThickness: 22,
+                    maxBarThickness: 26,
                     order: 2,
                 },
                 {
                     type: 'bar' as const,
                     label: 'RIS Issued (Out)',
                     data: movementPoints.map((p) => p.risIssued),
-                    backgroundColor: '#e11d48',
-                    borderRadius: 4,
+                    backgroundColor: (context: any) => {
+                        const ctx = context.chart?.ctx;
+                        if (!ctx) return '#e11d48';
+                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                        gradient.addColorStop(0, '#f43f5e');
+                        gradient.addColorStop(1, '#be123c');
+                        return gradient;
+                    },
+                    borderRadius: { topLeft: 6, topRight: 6, bottomLeft: 2, bottomRight: 2 },
                     borderSkipped: false,
-                    maxBarThickness: 22,
+                    maxBarThickness: 26,
                     order: 3,
                 },
             ],
@@ -442,9 +486,13 @@ export default function Dashboard({
     const movementChartOptions = useMemo<ChartOptions<any>>(() => ({
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
         animation: {
-            duration: 500,
-            easing: 'easeOutCubic',
+            duration: 600,
+            easing: 'easeOutQuart',
         },
         plugins: {
             legend: {
@@ -452,10 +500,14 @@ export default function Dashboard({
             },
             tooltip: {
                 backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                cornerRadius: 8,
-                padding: 12,
-                titleFont: { size: 13, weight: 700 },
-                bodyFont: { size: 12, weight: 600 },
+                cornerRadius: 10,
+                padding: 14,
+                titleFont: { size: 13, weight: 700, family: 'Inter, system-ui, sans-serif' },
+                bodyFont: { size: 12, weight: 600, family: 'Inter, system-ui, sans-serif' },
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1,
+                boxPadding: 6,
+                usePointStyle: true,
                 callbacks: {
                     title: (items: any[]) => {
                         if (!items || items.length === 0) return '';
@@ -471,26 +523,26 @@ export default function Dashboard({
                             const step = waterfallSteps[idx];
                             if (!step) return '';
                             if (step.type === 'start') {
-                                return ` Beginning Inventory: ${step.amount} units`;
+                                return ` Beginning Inventory: ${step.amount.toLocaleString()} units`;
                             }
                             if (step.type === 'inflow') {
-                                return ` Total Deliveries Added: +${step.amount} units (Level: ${step.range[0]} → ${step.range[1]})`;
+                                return ` Total Deliveries Added: +${step.amount.toLocaleString()} units (Level: ${step.range[0].toLocaleString()} → ${step.range[1].toLocaleString()})`;
                             }
                             if (step.type === 'outflow') {
-                                return ` Total Dispatched via RIS: -${step.amount} units (Level: ${step.range[1]} → ${step.range[0]})`;
+                                return ` Total Dispatched via RIS: -${step.amount.toLocaleString()} units (Level: ${step.range[1].toLocaleString()} → ${step.range[0].toLocaleString()})`;
                             }
-                            return ` Final Stock on Hand: ${step.amount} units`;
+                            return ` Final Stock on Hand: ${step.amount.toLocaleString()} units`;
                         }
 
                         const dsLabel = context.dataset.label || '';
-                        const val = context.raw;
+                        const val = Number(context.raw) || 0;
                         if (dsLabel.includes('Receipts')) {
-                            return ` 📥 Items Received: +${val} units`;
+                            return ` 📥 Deliveries Received (In): +${val.toLocaleString()} units`;
                         }
                         if (dsLabel.includes('RIS')) {
-                            return ` 📤 Items Issued: -${val} units`;
+                            return ` 📤 Items Dispatched (RIS): -${val.toLocaleString()} units`;
                         }
-                        return ` 📦 Stock Remaining: ${val} units`;
+                        return ` 📦 Stock on Hand Remaining: ${val.toLocaleString()} units`;
                     },
                 },
             },
@@ -500,19 +552,30 @@ export default function Dashboard({
                 grid: { display: false },
                 ticks: {
                     color: '#64748b',
-                    font: { size: 11, weight: 600 },
+                    font: { size: 12, weight: 600, family: 'Inter, system-ui, sans-serif' },
+                    padding: 8,
+                },
+                border: {
+                    display: false,
                 },
             },
             y: {
                 beginAtZero: true,
                 suggestedMax: 10,
                 grid: {
-                    color: 'rgba(148, 163, 184, 0.18)',
+                    color: 'rgba(226, 232, 240, 0.75)',
+                    borderDash: [4, 4],
+                    drawBorder: false,
                 },
                 ticks: {
                     color: '#94a3b8',
-                    font: { size: 11, weight: 600 },
-                    precision: 0,
+                    font: { size: 11, weight: 500, family: 'Inter, system-ui, sans-serif' },
+                    padding: 10,
+                    callback: (value: any) => Number(value).toLocaleString(),
+                },
+                border: {
+                    dash: [4, 4],
+                    display: false,
                 },
             },
         },
@@ -752,31 +815,42 @@ export default function Dashboard({
                     </div>
 
                     {/* Movement Analytics Section */}
-                    <div className="bg-white rounded-lg shadow-xs border border-gray-200 flex flex-col overflow-hidden">
-                        {/* Header & Filter Controls */}
-                        <div className="px-6 py-4 border-b border-gray-200 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-100/90">
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <h3 className="text-sm font-bold text-gray-900 font-serif uppercase tracking-wider">Inventory Movement Analytics</h3>
-                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider font-mono bg-red-100 text-red-900 border border-red-200">
-                                        {chartMode === 'flow' ? 'Monthly Flow' : chartMode === 'waterfall' ? 'Balance Waterfall' : 'Ledger Table'}
-                                    </span>
+                    <div className="bg-white rounded-2xl shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] border border-slate-200/80 flex flex-col overflow-hidden">
+                        {/* Modern Top Header & Filter Controls */}
+                        <div className="px-6 py-5 border-b border-slate-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/40">
+                            <div className="flex items-center gap-3.5">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-950 via-red-900 to-red-800 flex items-center justify-center text-white shadow-xs ring-4 ring-red-50 shrink-0">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                    </svg>
                                 </div>
-                                <p className="text-xs font-medium text-gray-600 mt-0.5">Track items received from suppliers vs. items issued to university offices</p>
+                                <div>
+                                    <div className="flex items-center gap-2.5">
+                                        <h3 className="text-base font-bold text-slate-900 tracking-tight font-sans">
+                                            Inventory Movement & Flow Analytics
+                                        </h3>
+                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-900 border border-red-200/70 shadow-2xs">
+                                            {chartMode === 'flow' ? 'Timeline Flow' : chartMode === 'waterfall' ? 'Reconciliation Waterfall' : 'Data Ledger'}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-slate-500 font-medium mt-0.5">
+                                        Live reconciliation of supplier deliveries, university office RIS issuances, and balance on hand
+                                    </p>
+                                </div>
                             </div>
 
                             <div className="flex flex-wrap items-center gap-3">
-                                {/* Mode Selector Switcher */}
-                                <div className="inline-flex rounded-md bg-gray-200/80 p-1 border border-gray-300 text-xs">
+                                {/* Segmented Tab Switcher (Apple/Linear style) */}
+                                <div className="inline-flex rounded-xl bg-slate-100/90 p-1 border border-slate-200/70 shadow-2xs text-xs">
                                     <button
                                         type="button"
                                         onClick={() => setChartMode('flow')}
-                                        className={`px-3 py-1 text-xs font-bold rounded transition-all flex items-center gap-1.5 ${
+                                        className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
                                             chartMode === 'flow'
-                                                ? 'bg-white text-red-900 shadow-xs border border-gray-300 font-bold'
-                                                : 'text-gray-600 hover:text-gray-900'
+                                                ? 'bg-white text-slate-900 shadow-xs ring-1 ring-black/5 font-extrabold'
+                                                : 'text-slate-500 hover:text-slate-900 font-semibold'
                                         }`}
-                                        title="Monthly Stock In vs Stock Out comparison"
+                                        title="Timeline flow of stock receipts vs department issuances"
                                     >
                                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -786,12 +860,12 @@ export default function Dashboard({
                                     <button
                                         type="button"
                                         onClick={() => setChartMode('waterfall')}
-                                        className={`px-3 py-1 text-xs font-bold rounded transition-all flex items-center gap-1.5 ${
+                                        className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
                                             chartMode === 'waterfall'
-                                                ? 'bg-white text-red-900 shadow-xs border border-gray-300 font-bold'
-                                                : 'text-gray-600 hover:text-gray-900'
+                                                ? 'bg-white text-slate-900 shadow-xs ring-1 ring-black/5 font-extrabold'
+                                                : 'text-slate-500 hover:text-slate-900 font-semibold'
                                         }`}
-                                        title="Simple 4-Step Balance Waterfall (Start + In - Out = End)"
+                                        title="4-Step Inventory Equation Waterfall"
                                     >
                                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -801,12 +875,12 @@ export default function Dashboard({
                                     <button
                                         type="button"
                                         onClick={() => setChartMode('ledger')}
-                                        className={`px-3 py-1 text-xs font-bold rounded transition-all flex items-center gap-1.5 ${
+                                        className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
                                             chartMode === 'ledger'
-                                                ? 'bg-white text-red-900 shadow-xs border border-gray-300 font-bold'
-                                                : 'text-gray-600 hover:text-gray-900'
+                                                ? 'bg-white text-slate-900 shadow-xs ring-1 ring-black/5 font-extrabold'
+                                                : 'text-slate-500 hover:text-slate-900 font-semibold'
                                         }`}
-                                        title="View monthly movement numbers in a table"
+                                        title="Tabular ledger summary"
                                     >
                                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -815,7 +889,7 @@ export default function Dashboard({
                                     </button>
                                 </div>
 
-                                {/* Timeframe Filter */}
+                                {/* Timeframe Select */}
                                 <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto z-10">
                                     <Select
                                         aria-label="Movement analytics filter"
@@ -831,20 +905,20 @@ export default function Dashboard({
                                                 type="date"
                                                 value={customStartDate}
                                                 onChange={(e) => setCustomStartDate(e.target.value)}
-                                                className="w-full sm:w-auto rounded border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:border-red-800 focus:ring-1 focus:ring-red-800 focus:outline-none"
+                                                className="w-full sm:w-auto rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-red-900 focus:ring-1 focus:ring-red-900 focus:outline-none shadow-2xs"
                                                 aria-label="Custom range start date"
                                             />
                                             <input
                                                 type="date"
                                                 value={customEndDate}
                                                 onChange={(e) => setCustomEndDate(e.target.value)}
-                                                className="w-full sm:w-auto rounded border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:border-red-800 focus:ring-1 focus:ring-red-800 focus:outline-none"
+                                                className="w-full sm:w-auto rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-red-900 focus:ring-1 focus:ring-red-900 focus:outline-none shadow-2xs"
                                                 aria-label="Custom range end date"
                                             />
                                             <button
                                                 type="button"
                                                 onClick={handleApplyCustomRange}
-                                                className="rounded bg-red-900 px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-red-800 uppercase tracking-wider"
+                                                className="rounded-lg bg-red-900 px-4 py-1.5 text-xs font-bold text-white transition-all hover:bg-red-950 shadow-xs uppercase tracking-wider"
                                             >
                                                 Apply
                                             </button>
@@ -854,92 +928,157 @@ export default function Dashboard({
                             </div>
                         </div>
 
-                        {/* Explainer Tip Banner */}
-                        <div className="bg-amber-50/70 border-b border-amber-200/60 px-6 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900">
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm">💡</span>
-                                <span className="font-medium">
-                                    <strong>How to read:</strong> <span className="text-emerald-700 font-bold">🟢 Green</span> = items received from suppliers (+), <span className="text-rose-700 font-bold">🔴 Red</span> = items issued via RIS (-), and <span className="text-red-950 font-bold">🍷 Line</span> = balance remaining on hand.
+                        {/* Modern Guide & Formula Bar */}
+                        <div className="bg-slate-50/80 border-b border-slate-100 px-6 py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                            <div className="flex flex-wrap items-center gap-4 text-slate-600 font-medium">
+                                <span className="inline-flex items-center gap-1.5 font-semibold text-slate-800">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-emerald-100"></span>
+                                    <span>Deliveries Received (+)</span>
+                                </span>
+                                <span className="text-slate-300">•</span>
+                                <span className="inline-flex items-center gap-1.5 font-semibold text-slate-800">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-rose-100"></span>
+                                    <span>RIS Dispatched (-)</span>
+                                </span>
+                                <span className="text-slate-300">•</span>
+                                <span className="inline-flex items-center gap-1.5 font-semibold text-slate-800">
+                                    <span className="w-3.5 h-1.5 rounded-full bg-red-900"></span>
+                                    <span>Stock Balance Curve</span>
                                 </span>
                             </div>
-                            <span className="text-[11px] font-mono font-semibold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded border border-amber-200 self-start sm:self-auto">
-                                Start + In - Out = Current Stock
-                            </span>
-                        </div>
-
-                        {/* KPI Movement Summary Strip */}
-                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 p-4 bg-gray-50/70 border-b border-gray-200 text-xs">
-                            <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-2xs flex flex-col justify-between">
-                                <div className="flex items-center justify-between text-gray-500">
-                                    <span className="text-[10px] uppercase font-bold tracking-wider">Beginning Stock</span>
-                                    <span>📦</span>
-                                </div>
-                                <span className="text-lg font-bold text-slate-800 mt-1">{movementSummary.startingStock} <span className="text-[11px] font-normal text-gray-500">units</span></span>
-                                <span className="text-[10px] text-gray-500 mt-0.5">Stock at period start</span>
-                            </div>
-                            <div className="bg-white p-3 rounded-lg border border-emerald-200 bg-emerald-50/30 shadow-2xs flex flex-col justify-between">
-                                <div className="flex items-center justify-between text-emerald-700">
-                                    <span className="text-[10px] uppercase font-bold tracking-wider">(+) Total Stock In</span>
-                                    <span>📥</span>
-                                </div>
-                                <span className="text-lg font-bold text-emerald-800 mt-1">+{movementSummary.totalStockIn} <span className="text-[11px] font-normal text-emerald-600">units</span></span>
-                                <span className="text-[10px] text-emerald-700 mt-0.5">Received from suppliers</span>
-                            </div>
-                            <div className="bg-white p-3 rounded-lg border border-rose-200 bg-rose-50/30 shadow-2xs flex flex-col justify-between">
-                                <div className="flex items-center justify-between text-rose-700">
-                                    <span className="text-[10px] uppercase font-bold tracking-wider">(-) Total Stock Out</span>
-                                    <span>📤</span>
-                                </div>
-                                <span className="text-lg font-bold text-rose-800 mt-1">-{movementSummary.totalRisIssued} <span className="text-[11px] font-normal text-rose-600">units</span></span>
-                                <span className="text-[10px] text-rose-700 mt-0.5">Issued via RIS slips</span>
-                            </div>
-                            <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-2xs flex flex-col justify-between">
-                                <div className="flex items-center justify-between text-gray-500">
-                                    <span className="text-[10px] uppercase font-bold tracking-wider">Net Movement</span>
-                                    <span>⚖️</span>
-                                </div>
-                                <span className={`text-lg font-bold mt-1 ${movementSummary.netChange >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
-                                    {movementSummary.netChange >= 0 ? `+${movementSummary.netChange}` : movementSummary.netChange} <span className="text-[11px] font-normal text-gray-500">units</span>
-                                </span>
-                                <span className="text-[10px] text-gray-500 mt-0.5">{movementSummary.netChange >= 0 ? 'Net stock increase' : 'Net stock decrease'}</span>
-                            </div>
-                            <div className="bg-white p-3 rounded-lg border border-red-200 bg-red-50/30 shadow-2xs col-span-2 sm:col-span-1 flex flex-col justify-between">
-                                <div className="flex items-center justify-between text-red-900">
-                                    <span className="text-[10px] uppercase font-bold tracking-wider">(=) Available Stock</span>
-                                    <span>🎯</span>
-                                </div>
-                                <span className="text-lg font-bold text-red-950 mt-1">{movementSummary.endingStock} <span className="text-[11px] font-normal text-red-700">units</span></span>
-                                <span className="text-[10px] text-red-800 mt-0.5">Ready for issuance</span>
+                            <div className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold text-slate-600 bg-white px-3 py-1 rounded-lg border border-slate-200/90 shadow-2xs">
+                                <span className="text-slate-400">Reconciliation:</span>
+                                <span className="text-slate-700">{movementSummary.startingStock.toLocaleString()}</span>
+                                <span className="text-emerald-700 font-bold">+{movementSummary.totalStockIn.toLocaleString()}</span>
+                                <span className="text-rose-700 font-bold">-{movementSummary.totalRisIssued.toLocaleString()}</span>
+                                <span className="text-slate-400">=</span>
+                                <span className="text-red-950 font-extrabold">{movementSummary.endingStock.toLocaleString()} Available</span>
                             </div>
                         </div>
 
-                        {/* Main Content Area: Chart or Table */}
-                        <div className="p-6 flex-1 flex flex-col items-center justify-center min-h-[380px] bg-white">
+                        {/* Executive KPI Metric Strip */}
+                        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 p-5 bg-gradient-to-b from-slate-50/50 to-white border-b border-slate-100">
+                            {/* 1. Beginning Stock */}
+                            <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-all">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Beginning Stock</span>
+                                    <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 text-xs">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div className="mt-2">
+                                    <div className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                                        {movementSummary.startingStock.toLocaleString()} <span className="text-xs font-semibold text-slate-400">units</span>
+                                    </div>
+                                    <p className="text-[11px] text-slate-500 font-medium mt-0.5">Inventory level at start</p>
+                                </div>
+                            </div>
+
+                            {/* 2. Stock Receipts (In) */}
+                            <div className="bg-white p-4 rounded-xl border border-emerald-200/80 shadow-2xs flex flex-col justify-between bg-gradient-to-br from-white via-white to-emerald-50/30 hover:border-emerald-300 transition-all">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">(+) Stock Received</span>
+                                    <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-800 text-xs">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div className="mt-2">
+                                    <div className="text-2xl font-extrabold text-emerald-700 tracking-tight">
+                                        +{movementSummary.totalStockIn.toLocaleString()} <span className="text-xs font-semibold text-emerald-600/80">units</span>
+                                    </div>
+                                    <p className="text-[11px] text-emerald-700 font-medium mt-0.5">Total deliveries received</p>
+                                </div>
+                            </div>
+
+                            {/* 3. Total Stock Out */}
+                            <div className="bg-white p-4 rounded-xl border border-rose-200/80 shadow-2xs flex flex-col justify-between bg-gradient-to-br from-white via-white to-rose-50/30 hover:border-rose-300 transition-all">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-rose-800">(-) Total Dispatched</span>
+                                    <div className="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center text-rose-800 text-xs">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div className="mt-2">
+                                    <div className="text-2xl font-extrabold text-rose-700 tracking-tight">
+                                        -{movementSummary.totalRisIssued.toLocaleString()} <span className="text-xs font-semibold text-rose-600/80">units</span>
+                                    </div>
+                                    <p className="text-[11px] text-rose-700 font-medium mt-0.5">Issued via RIS to offices</p>
+                                </div>
+                            </div>
+
+                            {/* 4. Net Flow Delta */}
+                            <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-all">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Net Movement</span>
+                                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs ${movementSummary.netChange >= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div className="mt-2">
+                                    <div className={`text-2xl font-extrabold tracking-tight ${movementSummary.netChange >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                                        {movementSummary.netChange >= 0 ? `+${movementSummary.netChange.toLocaleString()}` : movementSummary.netChange.toLocaleString()} <span className="text-xs font-semibold text-slate-400">units</span>
+                                    </div>
+                                    <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                                        {movementSummary.netChange >= 0 ? 'Net stock increase' : 'Net stock decrease'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* 5. Available Stock Hero Tile (University Maroon Gradient) */}
+                            <div className="col-span-2 lg:col-span-1 bg-gradient-to-br from-red-900 via-red-950 to-slate-950 text-white p-4 rounded-xl shadow-md ring-1 ring-black/10 flex flex-col justify-between relative overflow-hidden">
+                                <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-red-600/20 rounded-full blur-xl pointer-events-none"></div>
+                                <div className="flex items-center justify-between relative z-10">
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-red-200">(=) Available Stock</span>
+                                    <div className="w-7 h-7 rounded-lg bg-white/15 backdrop-blur-xs flex items-center justify-center text-white text-xs">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div className="mt-2 relative z-10">
+                                    <div className="text-2xl font-black text-white tracking-tight">
+                                        {movementSummary.endingStock.toLocaleString()} <span className="text-xs font-medium text-red-200">units</span>
+                                    </div>
+                                    <p className="text-[11px] text-red-200/90 font-medium mt-0.5">Current on-hand inventory</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Main Content Area: High-End Canvas or Modern Table */}
+                        <div className="p-6 flex-1 flex flex-col items-center justify-center min-h-[400px] bg-white">
                             {customRangeError ? (
-                                <div className="mb-4 w-full max-w-6xl rounded border border-red-200 bg-red-50 px-4 py-2 text-xs font-semibold text-red-800">
+                                <div className="mb-4 w-full max-w-6xl rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs font-semibold text-rose-800 shadow-2xs">
                                     {customRangeError}
                                 </div>
                             ) : null}
 
                             {chartMode === 'ledger' ? (
-                                /* Scannable Monthly Ledger Table */
+                                /* Ultra-Modern Monthly Ledger Table */
                                 <div className="w-full max-w-6xl mx-auto overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg overflow-hidden text-xs">
-                                        <thead className="bg-gray-100">
+                                    <table className="min-w-full divide-y divide-slate-200 border border-slate-200/80 rounded-xl overflow-hidden text-xs shadow-2xs">
+                                        <thead className="bg-slate-50/90">
                                             <tr>
-                                                <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Period / Month</th>
-                                                <th className="px-4 py-3 text-right font-bold text-gray-700 uppercase tracking-wider">Starting Balance</th>
-                                                <th className="px-4 py-3 text-right font-bold text-emerald-800 uppercase tracking-wider">Stock Received (+)</th>
-                                                <th className="px-4 py-3 text-right font-bold text-rose-800 uppercase tracking-wider">RIS Issued (-)</th>
-                                                <th className="px-4 py-3 text-right font-bold text-gray-700 uppercase tracking-wider">Net Change</th>
-                                                <th className="px-4 py-3 text-right font-bold text-red-950 uppercase tracking-wider">Ending Balance</th>
-                                                <th className="px-4 py-3 text-center font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                                                <th className="px-5 py-3.5 text-left font-bold text-slate-700 uppercase tracking-wider">Period / Month</th>
+                                                <th className="px-5 py-3.5 text-right font-bold text-slate-700 uppercase tracking-wider">Starting Balance</th>
+                                                <th className="px-5 py-3.5 text-right font-bold text-emerald-800 uppercase tracking-wider">Stock Received (+)</th>
+                                                <th className="px-5 py-3.5 text-right font-bold text-rose-800 uppercase tracking-wider">RIS Issued (-)</th>
+                                                <th className="px-5 py-3.5 text-right font-bold text-slate-700 uppercase tracking-wider">Net Movement</th>
+                                                <th className="px-5 py-3.5 text-right font-bold text-red-950 uppercase tracking-wider">Ending Stock</th>
+                                                <th className="px-5 py-3.5 text-center font-bold text-slate-700 uppercase tracking-wider">Status</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="bg-white divide-y divide-gray-100">
+                                        <tbody className="bg-white divide-y divide-slate-100">
                                             {movementPoints.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                                                    <td colSpan={7} className="px-5 py-10 text-center text-slate-400 font-medium">
                                                         No movement records found for the selected period.
                                                     </td>
                                                 </tr>
@@ -948,29 +1087,31 @@ export default function Dashboard({
                                                     const net = p.stockIn - p.risIssued;
                                                     const endStock = p.starting + net;
                                                     return (
-                                                        <tr key={idx} className="hover:bg-gray-50/80 transition-colors">
-                                                            <td className="px-4 py-3 font-bold text-gray-900">{p.label}</td>
-                                                            <td className="px-4 py-3 text-right font-mono text-gray-600">{p.starting} pcs</td>
-                                                            <td className="px-4 py-3 text-right font-mono font-bold text-emerald-700">+{p.stockIn} pcs</td>
-                                                            <td className="px-4 py-3 text-right font-mono font-bold text-rose-700">-{p.risIssued} pcs</td>
-                                                            <td className="px-4 py-3 text-right font-mono font-bold">
-                                                                <span className={`px-2 py-0.5 rounded text-[11px] ${net >= 0 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
-                                                                    {net >= 0 ? `+${net}` : net}
+                                                        <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                                                            <td className="px-5 py-3.5 font-bold text-slate-900">{p.label}</td>
+                                                            <td className="px-5 py-3.5 text-right font-mono text-slate-600">{p.starting.toLocaleString()} pcs</td>
+                                                            <td className="px-5 py-3.5 text-right font-mono font-bold text-emerald-700">+{p.stockIn.toLocaleString()} pcs</td>
+                                                            <td className="px-5 py-3.5 text-right font-mono font-bold text-rose-700">-{p.risIssued.toLocaleString()} pcs</td>
+                                                            <td className="px-5 py-3.5 text-right font-mono font-bold">
+                                                                <span className={`px-2.5 py-0.5 rounded-md text-[11px] ${net >= 0 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
+                                                                    {net >= 0 ? `+${net.toLocaleString()}` : net.toLocaleString()}
                                                                 </span>
                                                             </td>
-                                                            <td className="px-4 py-3 text-right font-mono font-bold text-red-950">{endStock} pcs</td>
-                                                            <td className="px-4 py-3 text-center">
+                                                            <td className="px-5 py-3.5 text-right font-mono font-extrabold text-red-950">{endStock.toLocaleString()} pcs</td>
+                                                            <td className="px-5 py-3.5 text-center">
                                                                 {p.stockIn > p.risIssued ? (
-                                                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200">
-                                                                        Stock Added
+                                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                                                                        <span>Stock Added</span>
                                                                     </span>
                                                                 ) : p.risIssued > p.stockIn ? (
-                                                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
-                                                                        High Dispatches
+                                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200/80">
+                                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                                                                        <span>Dispatches</span>
                                                                     </span>
                                                                 ) : (
-                                                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-700 border border-gray-200">
-                                                                        Balanced
+                                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200/80">
+                                                                        <span>Balanced</span>
                                                                     </span>
                                                                 )}
                                                             </td>
@@ -984,28 +1125,49 @@ export default function Dashboard({
                             ) : (
                                 /* Interactive Chart Canvas */
                                 <>
-                                    <div className="w-full h-[320px] px-2 max-w-6xl mx-auto">
+                                    <div className="w-full h-[330px] px-2 max-w-6xl mx-auto">
                                         <Chart type="bar" data={movementChartData} options={movementChartOptions} />
                                     </div>
                                     {movementPoints.length === 0 ? (
-                                        <p className="mt-4 text-xs font-semibold text-gray-500">No movement data found for the selected view.</p>
+                                        <p className="mt-4 text-xs font-semibold text-slate-400">No movement data found for the selected view.</p>
                                     ) : null}
 
-                                    {/* Dynamic Bottom Legend */}
-                                    <div className="flex flex-wrap gap-6 mt-6 pt-4 border-t border-gray-200 w-full justify-center text-xs font-bold uppercase tracking-wider">
+                                    {/* Modern Dynamic Pill Legend */}
+                                    <div className="flex flex-wrap gap-4 mt-6 pt-4 border-t border-slate-100 w-full justify-center text-xs font-bold uppercase tracking-wider">
                                         {chartMode === 'waterfall' && (
                                             <>
-                                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-slate-500 border border-slate-600"></div><span className="text-gray-700">1. Starting Stock</span></div>
-                                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-emerald-600 border border-emerald-700"></div><span className="text-emerald-800">2. (+) Total Received (In)</span></div>
-                                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-rose-600 border border-rose-700"></div><span className="text-rose-800">3. (-) Total Issued (RIS Out)</span></div>
-                                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-red-900 border border-red-950"></div><span className="text-red-900">4. (=) Stock on Hand Balance</span></div>
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200/80 shadow-2xs">
+                                                    <div className="w-3 h-3 rounded-md bg-slate-500"></div>
+                                                    <span className="text-slate-700">1. Starting Stock: <span className="font-mono text-slate-900">{movementSummary.startingStock.toLocaleString()}</span></span>
+                                                </div>
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50/60 border border-emerald-200/80 shadow-2xs">
+                                                    <div className="w-3 h-3 rounded-md bg-emerald-500"></div>
+                                                    <span className="text-emerald-900">2. (+) Total Received: <span className="font-mono font-extrabold text-emerald-800">+{movementSummary.totalStockIn.toLocaleString()}</span></span>
+                                                </div>
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rose-50/60 border border-rose-200/80 shadow-2xs">
+                                                    <div className="w-3 h-3 rounded-md bg-rose-500"></div>
+                                                    <span className="text-rose-900">3. (-) Total Issued: <span className="font-mono font-extrabold text-rose-800">-{movementSummary.totalRisIssued.toLocaleString()}</span></span>
+                                                </div>
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-50/60 border border-red-200/80 shadow-2xs">
+                                                    <div className="w-3 h-3 rounded-md bg-red-900"></div>
+                                                    <span className="text-red-950">4. (=) Stock on Hand: <span className="font-mono font-extrabold text-red-950">{movementSummary.endingStock.toLocaleString()}</span></span>
+                                                </div>
                                             </>
                                         )}
                                         {chartMode === 'flow' && (
                                             <>
-                                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-emerald-600 border border-emerald-700"></div><span className="text-emerald-800">Stock Receipts (Items Received In)</span></div>
-                                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-rose-600 border border-rose-700"></div><span className="text-rose-800">RIS Issued (Items Dispatched Out)</span></div>
-                                                <div className="flex items-center gap-2"><div className="w-4 h-1 rounded-full bg-red-900"></div><span className="text-red-900">Stock on Hand (Balance Trend)</span></div>
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50/60 border border-emerald-200/80 shadow-2xs">
+                                                    <div className="w-3 h-3 rounded-md bg-emerald-500"></div>
+                                                    <span className="text-emerald-900">Deliveries (In): <span className="font-mono font-extrabold text-emerald-800">+{movementSummary.totalStockIn.toLocaleString()}</span></span>
+                                                </div>
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rose-50/60 border border-rose-200/80 shadow-2xs">
+                                                    <div className="w-3 h-3 rounded-md bg-rose-500"></div>
+                                                    <span className="text-rose-900">RIS Dispatched (Out): <span className="font-mono font-extrabold text-rose-800">-{movementSummary.totalRisIssued.toLocaleString()}</span></span>
+                                                </div>
+                                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-50/60 border border-red-200/80 shadow-2xs">
+                                                    <div className="w-4 h-1.5 rounded-full bg-red-900"></div>
+                                                    <span className="text-red-950">Current Stock Balance: <span className="font-mono font-extrabold text-red-950">{movementSummary.endingStock.toLocaleString()}</span></span>
+                                                </div>
                                             </>
                                         )}
                                     </div>
