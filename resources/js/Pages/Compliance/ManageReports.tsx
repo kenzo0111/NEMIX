@@ -130,6 +130,46 @@ const FormInput = ({ label, icon, error, ...props }: any) => (
     </div>
 );
 
+// Helper to auto-generate Serial / Ref No. in YYYY-MM-DD-SEQUEL format
+export const generateReportReference = (
+    targetDate?: string,
+    allReports: any[] = [],
+    allMigrations: any[] = []
+): string => {
+    let dateStr = targetDate;
+    if (!dateStr) {
+        dateStr = new Date().toISOString().split('T')[0];
+    } else {
+        dateStr = String(dateStr).split('T')[0].trim();
+    }
+
+    const dateMatch = dateStr.match(/^\d{4}-\d{2}-\d{2}$/);
+    const datePrefix = dateMatch ? dateStr : new Date().toISOString().split('T')[0];
+
+    const existingRefs: string[] = [
+        ...allReports.map((r: any) => r?.reference || ''),
+        ...allMigrations.map((m: any) => m?.reference || m?.serial_no || m?.ris_no || m?.reference_no || m?.memorial_no || '')
+    ].filter(Boolean);
+
+    let maxSeq = 0;
+    const prefixRegex = new RegExp(`^${datePrefix}-(\\d+)$`);
+
+    existingRefs.forEach((ref) => {
+        const trimmed = String(ref).trim();
+        const match = trimmed.match(prefixRegex);
+        if (match) {
+            const seq = parseInt(match[1], 10);
+            if (!isNaN(seq) && seq > maxSeq) {
+                maxSeq = seq;
+            }
+        }
+    });
+
+    const nextSeq = maxSeq + 1;
+    const sequel = String(nextSeq).padStart(4, '0');
+    return `${datePrefix}-${sequel}`;
+};
+
 // --- MAIN COMPONENT ---
 export default function ManageReports({ auth, items = [], reports: serverReports = [], issuances = [], suppliers = [], migratedRecords = [] }: { auth: any, items?: any[], reports?: any[], issuances?: any[], suppliers?: any[], migratedRecords?: any[] }) {
     const { props } = usePage();
@@ -1479,21 +1519,40 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
     const openCreateModal = () => {
         setModalMode('create');
-        resetForm();
-        setShowModal(true);
-    };
-
-    const resetForm = () => {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const autoRef = generateReportReference(todayStr, reports, migratedRecords);
         setFormData({
             title: '',
             type: '',
-            reference: '',
+            reference: autoRef,
             itemName: '',
             supplierId: '',
             supplierName: '',
             endUser: '',
             periodType: 'specific',
-            date: new Date().toISOString().split('T')[0],
+            date: todayStr,
+            startDate: '',
+            endDate: '',
+            selectedMonth: new Date().getMonth() + 1,
+            selectedYear: new Date().getFullYear(),
+        });
+        setSelectedId(null);
+        setShowModal(true);
+    };
+
+    const resetForm = () => {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const autoRef = generateReportReference(todayStr, reports, migratedRecords);
+        setFormData({
+            title: '',
+            type: '',
+            reference: autoRef,
+            itemName: '',
+            supplierId: '',
+            supplierName: '',
+            endUser: '',
+            periodType: 'specific',
+            date: todayStr,
             startDate: '',
             endDate: '',
             selectedMonth: new Date().getMonth() + 1,
@@ -1956,13 +2015,47 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     menuPosition="fixed"
                                 />
                             </div>
-                            <FormInput
-                                label="Serial / Ref No."
-                                value={formData.reference}
-                                onChange={(e: any) => setFormData({ ...formData, reference: e.target.value })}
-                                placeholder="e.g. 2026-03-001"
-                                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>}
-                            />
+                            <div className="group w-full">
+                                <div className="flex items-center justify-between mb-1 ml-1">
+                                    <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">Serial / Ref No.</label>
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-900 bg-amber-100/90 px-2 py-0.5 rounded-full border border-amber-300 font-mono shadow-2xs">
+                                        <svg className="w-2.5 h-2.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                        AUTOMATED (YYYY-MM-DD-SEQUEL)
+                                    </span>
+                                </div>
+                                <div className="relative flex items-center">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-red-600 transition-colors">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={formData.reference}
+                                        onChange={(e: any) => setFormData({ ...formData, reference: e.target.value })}
+                                        placeholder="e.g. 2026-08-24-0001"
+                                        className="w-full pl-10 pr-24 py-2.5 bg-white border border-gray-300 rounded-xl text-sm shadow-sm placeholder-gray-400 font-mono font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all duration-200"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const targetDate = formData.periodType === 'range' && formData.startDate
+                                                ? formData.startDate
+                                                : (formData.periodType === 'monthly'
+                                                    ? `${formData.selectedYear}-${String(formData.selectedMonth).padStart(2, '0')}-01`
+                                                    : (formData.periodType === 'yearly'
+                                                        ? `${formData.selectedYear}-01-01`
+                                                        : (formData.date || new Date().toISOString().split('T')[0])));
+                                            const autoRef = generateReportReference(targetDate, reports, migratedRecords);
+                                            setFormData(prev => ({ ...prev, reference: autoRef }));
+                                        }}
+                                        title="Auto-generate next sequential Serial / Ref No."
+                                        className="absolute right-1.5 px-2.5 py-1 text-xs font-bold text-red-900 bg-red-50 hover:bg-red-100 active:bg-red-200 border border-red-200 rounded-lg transition-colors flex items-center gap-1 shadow-2xs"
+                                    >
+                                        <svg className="w-3.5 h-3.5 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                        <span>Auto</span>
+                                    </button>
+                                </div>
+                                <p className="mt-1 text-[11px] text-gray-400 ml-1 font-mono">Format: YYYY-MM-DD-SEQUEL (e.g., 2026-08-24-0001)</p>
+                            </div>
                         </div>
 
                         <FormInput
@@ -2033,7 +2126,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                 ...formData,
                                                 endUser: selectedName,
                                                 title: formData.title || (selectedName ? `Memorandum Receipt - ${selectedName}` : ''),
-                                                reference: formData.reference || (selectedName ? `MR-${new Date().getFullYear()}-${selectedName.replace(/[^a-z0-9]+/gi, '-').toUpperCase()}` : ''),
+                                                reference: formData.reference || generateReportReference(formData.date, reports, migratedRecords),
                                             });
                                         }}
                                         onInputChange={(newValue: string, actionMeta: any) => {
@@ -2101,7 +2194,22 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     <Select
                                         options={periodOptions}
                                         value={periodOptions.find(opt => opt.value === formData.periodType)}
-                                        onChange={(opt: any) => setFormData({ ...formData, periodType: opt?.value || 'specific' })}
+                                        onChange={(opt: any) => {
+                                            const nextPeriod = opt?.value || 'specific';
+                                            let targetDate = formData.date || new Date().toISOString().split('T')[0];
+                                            if (nextPeriod === 'range' && formData.startDate) {
+                                                targetDate = formData.startDate;
+                                            } else if (nextPeriod === 'monthly') {
+                                                targetDate = `${formData.selectedYear}-${String(formData.selectedMonth).padStart(2, '0')}-01`;
+                                            } else if (nextPeriod === 'yearly') {
+                                                targetDate = `${formData.selectedYear}-01-01`;
+                                            }
+                                            const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
+                                            const nextRef = isAutoGenerated && modalMode === 'create'
+                                                ? generateReportReference(targetDate, reports, migratedRecords)
+                                                : formData.reference;
+                                            setFormData({ ...formData, periodType: nextPeriod, reference: nextRef });
+                                        }}
                                         styles={customSelectStyles}
                                         menuPortalTarget={typeof window !== "undefined" ? document.body : null}
                                         menuPosition="fixed"
@@ -2114,13 +2222,32 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         label="Specific Date"
                                         type="date"
                                         value={formData.date}
-                                        onChange={(e: any) => setFormData({ ...formData, date: e.target.value })}
+                                        onChange={(e: any) => {
+                                            const newDate = e.target.value;
+                                            const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
+                                            const nextRef = isAutoGenerated && modalMode === 'create' && newDate
+                                                ? generateReportReference(newDate, reports, migratedRecords)
+                                                : formData.reference;
+                                            setFormData({ ...formData, date: newDate, reference: nextRef });
+                                        }}
                                     />
                                 )}
 
                                 {formData.periodType === 'range' && (
                                     <div className="flex items-end gap-3 w-full">
-                                        <FormInput label="From Date" type="date" value={formData.startDate} onChange={(e: any) => setFormData({ ...formData, startDate: e.target.value })} />
+                                        <FormInput
+                                            label="From Date"
+                                            type="date"
+                                            value={formData.startDate}
+                                            onChange={(e: any) => {
+                                                const newStart = e.target.value;
+                                                const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
+                                                const nextRef = isAutoGenerated && modalMode === 'create' && newStart
+                                                    ? generateReportReference(newStart, reports, migratedRecords)
+                                                    : formData.reference;
+                                                setFormData({ ...formData, startDate: newStart, reference: nextRef });
+                                            }}
+                                        />
                                         <FormInput label="To Date" type="date" value={formData.endDate} onChange={(e: any) => setFormData({ ...formData, endDate: e.target.value })} />
                                     </div>
                                 )}
@@ -2132,20 +2259,58 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             <Select
                                                 options={monthOptions}
                                                 value={monthOptions.find(m => m.value === formData.selectedMonth)}
-                                                onChange={(opt: any) => setFormData({ ...formData, selectedMonth: opt.value })}
+                                                onChange={(opt: any) => {
+                                                    const newMonth = opt.value;
+                                                    const targetDate = `${formData.selectedYear}-${String(newMonth).padStart(2, '0')}-01`;
+                                                    const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
+                                                    const nextRef = isAutoGenerated && modalMode === 'create'
+                                                        ? generateReportReference(targetDate, reports, migratedRecords)
+                                                        : formData.reference;
+                                                    setFormData({ ...formData, selectedMonth: newMonth, reference: nextRef });
+                                                }}
                                                 styles={customSelectStyles}
                                                 menuPortalTarget={typeof window !== "undefined" ? document.body : null}
                                                 menuPosition="fixed"
                                             />
                                         </div>
                                         <div className="w-1/3">
-                                            <FormInput label="Year" type="number" min="2000" max="2100" value={formData.selectedYear} onChange={(e: any) => setFormData({ ...formData, selectedYear: e.target.value })} />
+                                            <FormInput
+                                                label="Year"
+                                                type="number"
+                                                min="2000"
+                                                max="2100"
+                                                value={formData.selectedYear}
+                                                onChange={(e: any) => {
+                                                    const newYear = e.target.value;
+                                                    const targetDate = `${newYear}-${String(formData.selectedMonth).padStart(2, '0')}-01`;
+                                                    const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
+                                                    const nextRef = isAutoGenerated && modalMode === 'create' && newYear
+                                                        ? generateReportReference(targetDate, reports, migratedRecords)
+                                                        : formData.reference;
+                                                    setFormData({ ...formData, selectedYear: newYear, reference: nextRef });
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                 )}
 
                                 {formData.periodType === 'yearly' && (
-                                    <FormInput label="Fiscal Year" type="number" min="2000" max="2100" value={formData.selectedYear} onChange={(e: any) => setFormData({ ...formData, selectedYear: e.target.value })} />
+                                    <FormInput
+                                        label="Fiscal Year"
+                                        type="number"
+                                        min="2000"
+                                        max="2100"
+                                        value={formData.selectedYear}
+                                        onChange={(e: any) => {
+                                            const newYear = e.target.value;
+                                            const targetDate = `${newYear}-01-01`;
+                                            const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
+                                            const nextRef = isAutoGenerated && modalMode === 'create' && newYear
+                                                ? generateReportReference(targetDate, reports, migratedRecords)
+                                                : formData.reference;
+                                            setFormData({ ...formData, selectedYear: newYear, reference: nextRef });
+                                        }}
+                                    />
                                 )}
                             </div>
                         </div>

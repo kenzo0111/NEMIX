@@ -335,12 +335,33 @@ class ComplianceReportController extends Controller
         ]);
     }
 
+    public static function generateReference(?string $dateStr = null): string
+    {
+        $datePrefix = $dateStr ? Carbon::parse($dateStr)->format('Y-m-d') : now()->format('Y-m-d');
+
+        $existing = ComplianceReport::query()
+            ->where('reference', 'LIKE', $datePrefix . '-%')
+            ->pluck('reference');
+
+        $maxSeq = 0;
+        foreach ($existing as $ref) {
+            if (preg_match('/^' . preg_quote($datePrefix, '/') . '-(\d+)$/', (string) $ref, $matches)) {
+                $seq = (int) $matches[1];
+                if ($seq > $maxSeq) {
+                    $maxSeq = $seq;
+                }
+            }
+        }
+
+        return sprintf('%s-%04d', $datePrefix, $maxSeq + 1);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'type' => ['required', 'string', 'max:50'],
-            'reference' => ['required', 'string', 'max:100'],
+            'reference' => ['nullable', 'string', 'max:100'],
             'itemName' => ['nullable', 'string', 'max:255'],
             'supplierId' => ['nullable', 'integer', 'exists:suppliers,id'],
             'supplierName' => ['nullable', 'string', 'max:255'],
@@ -368,10 +389,14 @@ class ComplianceReportController extends Controller
             }
         }
 
+        $reference = !empty($validated['reference'])
+            ? trim($validated['reference'])
+            : self::generateReference($validated['date'] ?? null);
+
         ComplianceReport::create([
             'title' => $validated['title'],
             'type' => $validated['type'],
-            'reference' => $validated['reference'],
+            'reference' => $reference,
             'item_name' => $validated['itemName'] ?? null,
             'period_type' => $validated['periodType'],
             'date' => $validated['date'] ?? null,
