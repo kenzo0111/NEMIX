@@ -39,7 +39,7 @@ type MovementInputPoint =
 export default function Dashboard({
     auth,
     stats = { totalInventoryValue: '₱0', totalRisIssued: 0, itemsIssuedMtd: 0, unserviceable: 0, criticalAlerts: 0, activeInventoryItems: 0 },
-    chartData = { monthly: [0, 0, 0, 0, 0, 0, 0, 0], yearly: [0, 0, 0, 0, 0, 0, 0, 0], custom: [] },
+    chartData = { monthly: [], yearly: [], custom: [] },
     lowStockAlerts = [],
     auditLogs = [],
     roles = [],
@@ -61,6 +61,18 @@ export default function Dashboard({
     const [customStartDate, setCustomStartDate] = useState(filters?.customStartDate || '');
     const [customEndDate, setCustomEndDate] = useState(filters?.customEndDate || '');
     const [customRangeError, setCustomRangeError] = useState('');
+
+    useEffect(() => {
+        if (filters?.chartFilter) {
+            setChartFilter(filters.chartFilter);
+        }
+        if (filters?.customStartDate !== undefined) {
+            setCustomStartDate(filters.customStartDate || '');
+        }
+        if (filters?.customEndDate !== undefined) {
+            setCustomEndDate(filters.customEndDate || '');
+        }
+    }, [filters]);
 
     // State for Audit Trail Filters
     const [selectedRoleFilter, setSelectedRoleFilter] = useState<any>(null);
@@ -337,12 +349,14 @@ export default function Dashboard({
             },
             y: {
                 beginAtZero: true,
+                suggestedMax: 10,
                 grid: {
                     color: 'rgba(148, 163, 184, 0.18)',
                 },
                 ticks: {
                     color: '#94a3b8',
                     font: { size: 11, weight: 600 },
+                    precision: 0,
                 },
             },
         },
@@ -635,8 +649,8 @@ export default function Dashboard({
                             <div className="w-full h-[300px] px-2 max-w-6xl mx-auto">
                                 <Bar data={movementChartData} options={movementChartOptions} />
                             </div>
-                            {chartFilter === 'custom' && movementPoints.length === 0 ? (
-                                <p className="mt-4 text-xs font-semibold text-gray-500">No movement data found for the selected custom date range.</p>
+                            {movementPoints.length === 0 ? (
+                                <p className="mt-4 text-xs font-semibold text-gray-500">No movement data found for the selected view.</p>
                             ) : null}
                             <div className="flex gap-8 mt-6 pt-4 border-t border-gray-200 w-full justify-center">
                                 <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-gray-300 border border-gray-400"></div><span className="text-xs text-gray-700 font-bold uppercase tracking-wider">Starting Stock</span></div>

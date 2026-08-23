@@ -103,64 +103,121 @@ class DashboardController
         ];
 
         if (class_exists(\Modules\Inventory\Models\Receiving::class) && class_exists(\Modules\Inventory\Models\Issuance::class)) {
+            $currentTotalStock = class_exists(\Modules\Inventory\Models\Item::class)
+                ? (int) \Modules\Inventory\Models\Item::sum('stock')
+                : 0;
+
+            // Monthly view: last 6 months
             for ($i = 5; $i >= 0; $i--) {
-                $date = now()->subMonths($i);
+                $monthDate = now()->subMonths($i);
+                $startOfMonth = $monthDate->copy()->startOfMonth();
+                $endOfMonth = $monthDate->copy()->endOfMonth();
 
-                $stockIn = \Modules\Inventory\Models\Receiving::whereMonth('date_received', $date->month)
-                    ->whereYear('date_received', $date->year)
-                    ->sum('quantity');
+                $stockIn = (int) \Modules\Inventory\Models\Receiving::whereBetween('date_received', [
+                    $startOfMonth->toDateString(),
+                    $endOfMonth->toDateString(),
+                ])->sum('quantity');
 
-                $risIssued = \Modules\Inventory\Models\Issuance::whereMonth('date_issued', $date->month)
-                    ->whereYear('date_issued', $date->year)
-                    ->sum('quantity');
+                $risIssued = (int) \Modules\Inventory\Models\Issuance::whereBetween('date_issued', [
+                    $startOfMonth->toDateString(),
+                    $endOfMonth->toDateString(),
+                ])->sum('quantity');
 
-                $starting = max(0, (\Modules\Inventory\Models\Item::sum('stock') ?? 0) - ($stockIn - $risIssued));
+                $receivingsSince = (int) \Modules\Inventory\Models\Receiving::where('date_received', '>=', $startOfMonth->toDateString())->sum('quantity');
+                $issuancesSince = (int) \Modules\Inventory\Models\Issuance::where('date_issued', '>=', $startOfMonth->toDateString())->sum('quantity');
+
+                $starting = max(0, $currentTotalStock - $receivingsSince + $issuancesSince);
 
                 $chartData['monthly'][] = [
-                    'label' => $date->format('M Y'),
-                    'starting' => (int) $starting,
-                    'stockIn' => (int) $stockIn,
-                    'risIssued' => (int) $risIssued,
+                    'label' => $monthDate->format('M Y'),
+                    'starting' => $starting,
+                    'stockIn' => $stockIn,
+                    'risIssued' => $risIssued,
                 ];
             }
 
+            // Yearly view: last 5 years
             for ($i = 4; $i >= 0; $i--) {
-                $year = now()->subYears($i)->year;
+                $yearDate = now()->subYears($i);
+                $year = $yearDate->year;
+                $startOfYear = $yearDate->copy()->startOfYear();
+                $endOfYear = $yearDate->copy()->endOfYear();
 
-                $stockIn = \Modules\Inventory\Models\Receiving::whereYear('date_received', $year)->sum('quantity');
-                $risIssued = \Modules\Inventory\Models\Issuance::whereYear('date_issued', $year)->sum('quantity');
-                $starting = max(0, (\Modules\Inventory\Models\Item::sum('stock') ?? 0) - ($stockIn - $risIssued));
+                $stockIn = (int) \Modules\Inventory\Models\Receiving::whereBetween('date_received', [
+                    $startOfYear->toDateString(),
+                    $endOfYear->toDateString(),
+                ])->sum('quantity');
+
+                $risIssued = (int) \Modules\Inventory\Models\Issuance::whereBetween('date_issued', [
+                    $startOfYear->toDateString(),
+                    $endOfYear->toDateString(),
+                ])->sum('quantity');
+
+                $receivingsSince = (int) \Modules\Inventory\Models\Receiving::where('date_received', '>=', $startOfYear->toDateString())->sum('quantity');
+                $issuancesSince = (int) \Modules\Inventory\Models\Issuance::where('date_issued', '>=', $startOfYear->toDateString())->sum('quantity');
+
+                $starting = max(0, $currentTotalStock - $receivingsSince + $issuancesSince);
 
                 $chartData['yearly'][] = [
                     'label' => (string) $year,
-                    'starting' => (int) $starting,
-                    'stockIn' => (int) $stockIn,
-                    'risIssued' => (int) $risIssued,
+                    'starting' => $starting,
+                    'stockIn' => $stockIn,
+                    'risIssued' => $risIssued,
                 ];
             }
 
+            // Custom date range view
             if ($startDate && $endDate) {
                 $start = Carbon::parse($startDate);
                 $end = Carbon::parse($endDate);
-                $period = CarbonPeriod::create($start, '1 month', $end);
+                $daysDiff = $start->diffInDays($end);
 
-                foreach ($period as $dt) {
-                    $stockIn = \Modules\Inventory\Models\Receiving::whereMonth('date_received', $dt->month)
-                        ->whereYear('date_received', $dt->year)
-                        ->sum('quantity');
+                if ($daysDiff <= 31) {
+                    $period = CarbonPeriod::create($start, '1 day', $end);
+                    foreach ($period as $dt) {
+                        $stockIn = (int) \Modules\Inventory\Models\Receiving::whereDate('date_received', $dt->toDateString())->sum('quantity');
+                        $risIssued = (int) \Modules\Inventory\Models\Issuance::whereDate('date_issued', $dt->toDateString())->sum('quantity');
 
-                    $risIssued = \Modules\Inventory\Models\Issuance::whereMonth('date_issued', $dt->month)
-                        ->whereYear('date_issued', $dt->year)
-                        ->sum('quantity');
+                        $receivingsSince = (int) \Modules\Inventory\Models\Receiving::where('date_received', '>=', $dt->toDateString())->sum('quantity');
+                        $issuancesSince = (int) \Modules\Inventory\Models\Issuance::where('date_issued', '>=', $dt->toDateString())->sum('quantity');
 
-                    $starting = max(0, (\Modules\Inventory\Models\Item::sum('stock') ?? 0) - ($stockIn - $risIssued));
+                        $starting = max(0, $currentTotalStock - $receivingsSince + $issuancesSince);
 
-                    $chartData['custom'][] = [
-                        'label' => $dt->format('M Y'),
-                        'starting' => (int) $starting,
-                        'stockIn' => (int) $stockIn,
-                        'risIssued' => (int) $risIssued,
-                    ];
+                        $chartData['custom'][] = [
+                            'label' => $dt->format('M d'),
+                            'starting' => $starting,
+                            'stockIn' => $stockIn,
+                            'risIssued' => $risIssued,
+                        ];
+                    }
+                } else {
+                    $period = CarbonPeriod::create($start->copy()->startOfMonth(), '1 month', $end->copy()->endOfMonth());
+                    foreach ($period as $dt) {
+                        $startOfMonth = $dt->copy()->startOfMonth();
+                        $endOfMonth = $dt->copy()->endOfMonth();
+
+                        $stockIn = (int) \Modules\Inventory\Models\Receiving::whereBetween('date_received', [
+                            $startOfMonth->toDateString(),
+                            $endOfMonth->toDateString(),
+                        ])->sum('quantity');
+
+                        $risIssued = (int) \Modules\Inventory\Models\Issuance::whereBetween('date_issued', [
+                            $startOfMonth->toDateString(),
+                            $endOfMonth->toDateString(),
+                        ])->sum('quantity');
+
+                        $receivingsSince = (int) \Modules\Inventory\Models\Receiving::where('date_received', '>=', $startOfMonth->toDateString())->sum('quantity');
+                        $issuancesSince = (int) \Modules\Inventory\Models\Issuance::where('date_issued', '>=', $startOfMonth->toDateString())->sum('quantity');
+
+                        $starting = max(0, $currentTotalStock - $receivingsSince + $issuancesSince);
+
+                        $chartData['custom'][] = [
+                            'label' => $dt->format('M Y'),
+                            'starting' => $starting,
+                            'stockIn' => $stockIn,
+                            'risIssued' => $risIssued,
+                        ];
+                    }
                 }
             } else {
                 $chartData['custom'] = $chartData['monthly'];
@@ -171,8 +228,19 @@ class DashboardController
         $stockInData = collect($chartData[$chartFilter] ?? [])->pluck('stockIn')->all();
         $risIssuedData = collect($chartData[$chartFilter] ?? [])->pluck('risIssued')->all();
 
+        $roles = class_exists(\Spatie\Permission\Models\Role::class)
+            ? \Spatie\Permission\Models\Role::pluck('name')->map(fn($r) => ['value' => $r, 'label' => $r])->all()
+            : [];
+
         return Inertia::render('Dashboard', [
             'stats' => $stats,
+            'chartData' => $chartData,
+            'filters' => [
+                'chartFilter' => $chartFilter,
+                'customStartDate' => $startDate,
+                'customEndDate' => $endDate,
+            ],
+            'roles' => $roles,
             'lowStockAlerts' => $lowStockAlerts,
             'auditLogs' => $auditLogs,
             'chartFilter' => $chartFilter,
