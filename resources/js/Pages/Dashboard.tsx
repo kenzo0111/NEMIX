@@ -70,7 +70,7 @@ export default function Dashboard({
 
     // State for the Movement Analytics Filter
     const [chartFilter, setChartFilter] = useState(filters?.chartFilter || 'monthly');
-    const [chartMode, setChartMode] = useState<'waterfall' | 'combo' | 'variance'>('waterfall');
+    const [chartMode, setChartMode] = useState<'flow' | 'waterfall' | 'ledger'>('flow');
     const [customStartDate, setCustomStartDate] = useState(filters?.customStartDate || '');
     const [customEndDate, setCustomEndDate] = useState(filters?.customEndDate || '');
     const [customRangeError, setCustomRangeError] = useState('');
@@ -330,6 +330,7 @@ export default function Dashboard({
 
     type WaterfallStep = {
         label: string;
+        stepNum: string;
         fullTitle: string;
         range: [number, number];
         amount: number;
@@ -341,68 +342,54 @@ export default function Dashboard({
     const waterfallSteps = useMemo<WaterfallStep[]>(() => {
         if (!movementPoints || movementPoints.length === 0) return [];
 
-        const steps: WaterfallStep[] = [];
-        let currentBalance = movementPoints[0].starting;
+        const start = movementSummary.startingStock;
+        const inTotal = movementSummary.totalStockIn;
+        const outTotal = movementSummary.totalRisIssued;
+        const end = movementSummary.endingStock;
 
-        // 1. Initial Beginning Stock
-        steps.push({
-            label: 'Initial Stock',
-            fullTitle: 'Beginning Inventory Level',
-            range: [0, currentBalance],
-            amount: currentBalance,
-            type: 'start',
-            color: '#64748b',
-            borderColor: '#475569',
-        });
-
-        // 2. Sequential Inflows and Outflows
-        movementPoints.forEach((p) => {
-            // Inflow (+)
-            if (p.stockIn > 0 || movementPoints.length <= 6) {
-                const startIn = currentBalance;
-                const endIn = currentBalance + p.stockIn;
-                currentBalance = endIn;
-                steps.push({
-                    label: `+ ${p.label} In`,
-                    fullTitle: `${p.label} Stock Receipts (Inflow)`,
-                    range: [startIn, endIn],
-                    amount: p.stockIn,
-                    type: 'inflow',
-                    color: '#059669',
-                    borderColor: '#047857',
-                });
-            }
-
-            // Outflow (-)
-            if (p.risIssued > 0 || movementPoints.length <= 6) {
-                const endOut = currentBalance;
-                const startOut = Math.max(0, currentBalance - p.risIssued);
-                currentBalance = startOut;
-                steps.push({
-                    label: `- ${p.label} RIS`,
-                    fullTitle: `${p.label} RIS Issuances (Outflow)`,
-                    range: [startOut, endOut],
-                    amount: p.risIssued,
-                    type: 'outflow',
-                    color: '#e11d48',
-                    borderColor: '#be123c',
-                });
-            }
-        });
-
-        // 3. Ending Balance on Hand
-        steps.push({
-            label: 'Ending Stock',
-            fullTitle: 'Current Stock Balance on Hand',
-            range: [0, currentBalance],
-            amount: currentBalance,
-            type: 'balance',
-            color: '#7f1d1d',
-            borderColor: '#450a0a',
-        });
-
-        return steps;
-    }, [movementPoints]);
+        return [
+            {
+                label: '1. Starting Stock',
+                stepNum: 'Step 1',
+                fullTitle: 'Beginning Inventory Balance',
+                range: [0, start],
+                amount: start,
+                type: 'start',
+                color: '#64748b',
+                borderColor: '#475569',
+            },
+            {
+                label: '2. (+) Total Receipts',
+                stepNum: 'Step 2',
+                fullTitle: 'Total Deliveries Received (+)',
+                range: [start, start + inTotal],
+                amount: inTotal,
+                type: 'inflow',
+                color: '#059669',
+                borderColor: '#047857',
+            },
+            {
+                label: '3. (-) Total Issued (RIS)',
+                stepNum: 'Step 3',
+                fullTitle: 'Total Items Issued Out (-)',
+                range: [Math.max(0, start + inTotal - outTotal), start + inTotal],
+                amount: outTotal,
+                type: 'outflow',
+                color: '#e11d48',
+                borderColor: '#be123c',
+            },
+            {
+                label: '4. (=) Stock on Hand',
+                stepNum: 'Step 4',
+                fullTitle: 'Current Available Stock Balance (=)',
+                range: [0, end],
+                amount: end,
+                type: 'balance',
+                color: '#7f1d1d',
+                borderColor: '#450a0a',
+            },
+        ];
+    }, [movementPoints, movementSummary]);
 
     const movementChartData = useMemo<ChartData<any>>(() => {
         if (chartMode === 'waterfall') {
@@ -411,77 +398,58 @@ export default function Dashboard({
                 datasets: [
                     {
                         type: 'bar' as const,
-                        label: 'Stock Flow',
+                        label: 'Inventory Flow',
                         data: waterfallSteps.map((s) => s.range),
                         backgroundColor: waterfallSteps.map((s) => s.color),
                         borderColor: waterfallSteps.map((s) => s.borderColor),
                         borderWidth: 1.5,
-                        borderRadius: 4,
+                        borderRadius: 6,
                         borderSkipped: false,
-                        maxBarThickness: 32,
+                        maxBarThickness: 48,
                     },
                 ],
             };
         }
 
-        if (chartMode === 'combo') {
-            return {
-                labels: movementPoints.map((p) => p.label),
-                datasets: [
-                    {
-                        type: 'line' as const,
-                        label: 'Stock on Hand (Balance)',
-                        data: movementPoints.map((p) => p.starting + p.stockIn - p.risIssued),
-                        borderColor: '#7f1d1d',
-                        backgroundColor: 'rgba(127, 29, 29, 0.08)',
-                        fill: true,
-                        tension: 0.35,
-                        borderWidth: 2.5,
-                        pointBackgroundColor: '#7f1d1d',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        order: 1,
-                    },
-                    {
-                        type: 'bar' as const,
-                        label: 'Stock Receipts (In)',
-                        data: movementPoints.map((p) => p.stockIn),
-                        backgroundColor: '#059669',
-                        borderRadius: 4,
-                        borderSkipped: false,
-                        maxBarThickness: 22,
-                        order: 2,
-                    },
-                    {
-                        type: 'bar' as const,
-                        label: 'RIS Issued (Out)',
-                        data: movementPoints.map((p) => p.risIssued),
-                        backgroundColor: '#e11d48',
-                        borderRadius: 4,
-                        borderSkipped: false,
-                        maxBarThickness: 22,
-                        order: 3,
-                    },
-                ],
-            };
-        }
-
-        // Net Variance Mode
+        // 'flow' mode (Monthly Inflow vs Outflow & Balance Line)
         return {
             labels: movementPoints.map((p) => p.label),
             datasets: [
                 {
+                    type: 'line' as const,
+                    label: 'Stock on Hand (Balance)',
+                    data: movementPoints.map((p) => p.starting + p.stockIn - p.risIssued),
+                    borderColor: '#7f1d1d',
+                    backgroundColor: 'rgba(127, 29, 29, 0.06)',
+                    fill: true,
+                    tension: 0.35,
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#7f1d1d',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    order: 1,
+                },
+                {
                     type: 'bar' as const,
-                    label: 'Net Movement (+/-)',
-                    data: movementPoints.map((p) => p.stockIn - p.risIssued),
-                    backgroundColor: movementPoints.map((p) => (p.stockIn >= p.risIssued ? '#059669' : '#e11d48')),
-                    borderColor: movementPoints.map((p) => (p.stockIn >= p.risIssued ? '#047857' : '#be123c')),
-                    borderWidth: 1,
+                    label: 'Stock Receipts (In)',
+                    data: movementPoints.map((p) => p.stockIn),
+                    backgroundColor: '#059669',
                     borderRadius: 4,
                     borderSkipped: false,
-                    maxBarThickness: 28,
+                    maxBarThickness: 22,
+                    order: 2,
+                },
+                {
+                    type: 'bar' as const,
+                    label: 'RIS Issued (Out)',
+                    data: movementPoints.map((p) => p.risIssued),
+                    backgroundColor: '#e11d48',
+                    borderRadius: 4,
+                    borderSkipped: false,
+                    maxBarThickness: 22,
+                    order: 3,
                 },
             ],
         };
@@ -491,7 +459,7 @@ export default function Dashboard({
         responsive: true,
         maintainAspectRatio: false,
         animation: {
-            duration: 550,
+            duration: 500,
             easing: 'easeOutCubic',
         },
         plugins: {
@@ -502,7 +470,7 @@ export default function Dashboard({
                 backgroundColor: 'rgba(15, 23, 42, 0.95)',
                 cornerRadius: 8,
                 padding: 12,
-                titleFont: { size: 12, weight: 700 },
+                titleFont: { size: 13, weight: 700 },
                 bodyFont: { size: 12, weight: 600 },
                 callbacks: {
                     title: (items: any[]) => {
@@ -511,7 +479,7 @@ export default function Dashboard({
                         if (chartMode === 'waterfall') {
                             return waterfallSteps[idx]?.fullTitle || items[0].label;
                         }
-                        return items[0].label;
+                        return `Period: ${items[0].label}`;
                     },
                     label: (context: any) => {
                         const idx = context.dataIndex;
@@ -519,26 +487,26 @@ export default function Dashboard({
                             const step = waterfallSteps[idx];
                             if (!step) return '';
                             if (step.type === 'start') {
-                                return ` Initial Baseline: ${step.amount} units`;
+                                return ` Beginning Inventory: ${step.amount} units`;
                             }
                             if (step.type === 'inflow') {
-                                return ` Receipts Inflow: +${step.amount} units (Balance: ${step.range[0]} → ${step.range[1]})`;
+                                return ` Total Deliveries Added: +${step.amount} units (Level: ${step.range[0]} → ${step.range[1]})`;
                             }
                             if (step.type === 'outflow') {
-                                return ` RIS Dispatched: -${step.amount} units (Balance: ${step.range[1]} → ${step.range[0]})`;
+                                return ` Total Dispatched via RIS: -${step.amount} units (Level: ${step.range[1]} → ${step.range[0]})`;
                             }
-                            return ` Ending Stock Balance: ${step.amount} units`;
-                        }
-
-                        if (chartMode === 'variance') {
-                            const point = movementPoints[idx];
-                            const net = point ? point.stockIn - point.risIssued : context.raw;
-                            return ` Net Change: ${net >= 0 ? '+' : ''}${net} units (Inflow: +${point?.stockIn ?? 0}, Outflow: -${point?.risIssued ?? 0})`;
+                            return ` Final Stock on Hand: ${step.amount} units`;
                         }
 
                         const dsLabel = context.dataset.label || '';
                         const val = context.raw;
-                        return ` ${dsLabel}: ${val} units`;
+                        if (dsLabel.includes('Receipts')) {
+                            return ` 📥 Items Received: +${val} units`;
+                        }
+                        if (dsLabel.includes('RIS')) {
+                            return ` 📤 Items Issued: -${val} units`;
+                        }
+                        return ` 📦 Stock Remaining: ${val} units`;
                     },
                 },
             },
@@ -549,12 +517,10 @@ export default function Dashboard({
                 ticks: {
                     color: '#64748b',
                     font: { size: 11, weight: 600 },
-                    maxRotation: chartMode === 'waterfall' && waterfallSteps.length > 8 ? 45 : 0,
-                    minRotation: chartMode === 'waterfall' && waterfallSteps.length > 8 ? 45 : 0,
                 },
             },
             y: {
-                beginAtZero: chartMode !== 'variance',
+                beginAtZero: true,
                 suggestedMax: 10,
                 grid: {
                     color: 'rgba(148, 163, 184, 0.18)',
@@ -803,20 +769,36 @@ export default function Dashboard({
 
                     {/* Movement Analytics Section */}
                     <div className="bg-white rounded-lg shadow-xs border border-gray-200 flex flex-col overflow-hidden">
+                        {/* Header & Filter Controls */}
                         <div className="px-6 py-4 border-b border-gray-200 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-100/90">
                             <div>
                                 <div className="flex items-center gap-2">
                                     <h3 className="text-sm font-bold text-gray-900 font-serif uppercase tracking-wider">Inventory Movement Analytics</h3>
                                     <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider font-mono bg-red-100 text-red-900 border border-red-200">
-                                        {chartMode === 'waterfall' ? 'Waterfall Flow' : chartMode === 'combo' ? 'Inflow vs Outflow' : 'Net Variance'}
+                                        {chartMode === 'flow' ? 'Monthly Flow' : chartMode === 'waterfall' ? 'Balance Waterfall' : 'Ledger Table'}
                                     </span>
                                 </div>
-                                <p className="text-xs font-medium text-gray-600 mt-0.5">Stock Receipts (Stock-In) vs. Requisition & Issuance Slip (RIS) Reconciliation</p>
+                                <p className="text-xs font-medium text-gray-600 mt-0.5">Track items received from suppliers vs. items issued to university offices</p>
                             </div>
 
                             <div className="flex flex-wrap items-center gap-3">
                                 {/* Mode Selector Switcher */}
-                                <div className="inline-flex rounded-md bg-gray-200/80 p-1 border border-gray-300">
+                                <div className="inline-flex rounded-md bg-gray-200/80 p-1 border border-gray-300 text-xs">
+                                    <button
+                                        type="button"
+                                        onClick={() => setChartMode('flow')}
+                                        className={`px-3 py-1 text-xs font-bold rounded transition-all flex items-center gap-1.5 ${
+                                            chartMode === 'flow'
+                                                ? 'bg-white text-red-900 shadow-xs border border-gray-300 font-bold'
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                        title="Monthly Stock In vs Stock Out comparison"
+                                    >
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                        </svg>
+                                        <span>Monthly Flow</span>
+                                    </button>
                                     <button
                                         type="button"
                                         onClick={() => setChartMode('waterfall')}
@@ -825,42 +807,31 @@ export default function Dashboard({
                                                 ? 'bg-white text-red-900 shadow-xs border border-gray-300 font-bold'
                                                 : 'text-gray-600 hover:text-gray-900'
                                         }`}
+                                        title="Simple 4-Step Balance Waterfall (Start + In - Out = End)"
                                     >
                                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                         </svg>
-                                        <span>Waterfall</span>
+                                        <span>Balance Waterfall</span>
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => setChartMode('combo')}
+                                        onClick={() => setChartMode('ledger')}
                                         className={`px-3 py-1 text-xs font-bold rounded transition-all flex items-center gap-1.5 ${
-                                            chartMode === 'combo'
+                                            chartMode === 'ledger'
                                                 ? 'bg-white text-red-900 shadow-xs border border-gray-300 font-bold'
                                                 : 'text-gray-600 hover:text-gray-900'
                                         }`}
+                                        title="View monthly movement numbers in a table"
                                     >
                                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                         </svg>
-                                        <span>Trends</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setChartMode('variance')}
-                                        className={`px-3 py-1 text-xs font-bold rounded transition-all flex items-center gap-1.5 ${
-                                            chartMode === 'variance'
-                                                ? 'bg-white text-red-900 shadow-xs border border-gray-300 font-bold'
-                                                : 'text-gray-600 hover:text-gray-900'
-                                        }`}
-                                    >
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                                        </svg>
-                                        <span>Variance</span>
+                                        <span>Ledger Table</span>
                                     </button>
                                 </div>
 
+                                {/* Timeframe Filter */}
                                 <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto z-10">
                                     <Select
                                         aria-label="Movement analytics filter"
@@ -899,69 +870,163 @@ export default function Dashboard({
                             </div>
                         </div>
 
-                        {/* KPI Movement Summary Strip */}
-                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 p-4 bg-gray-50/70 border-b border-gray-200 text-xs">
-                            <div className="bg-white p-2.5 rounded border border-gray-200 flex flex-col">
-                                <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Beginning Stock</span>
-                                <span className="text-base font-bold text-slate-800 mt-0.5">{movementSummary.startingStock} <span className="text-[10px] font-medium text-gray-500">units</span></span>
-                            </div>
-                            <div className="bg-white p-2.5 rounded border border-emerald-200/80 bg-emerald-50/20 flex flex-col">
-                                <span className="text-[10px] uppercase font-bold text-emerald-700 tracking-wider">(+) Receipts (In)</span>
-                                <span className="text-base font-bold text-emerald-800 mt-0.5">+{movementSummary.totalStockIn} <span className="text-[10px] font-medium text-emerald-600">units</span></span>
-                            </div>
-                            <div className="bg-white p-2.5 rounded border border-rose-200/80 bg-rose-50/20 flex flex-col">
-                                <span className="text-[10px] uppercase font-bold text-rose-700 tracking-wider">(-) RIS Dispatched</span>
-                                <span className="text-base font-bold text-rose-800 mt-0.5">-{movementSummary.totalRisIssued} <span className="text-[10px] font-medium text-rose-600">units</span></span>
-                            </div>
-                            <div className="bg-white p-2.5 rounded border border-gray-200 flex flex-col">
-                                <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Net Movement</span>
-                                <span className={`text-base font-bold mt-0.5 ${movementSummary.netChange >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
-                                    {movementSummary.netChange >= 0 ? `+${movementSummary.netChange}` : movementSummary.netChange} <span className="text-[10px] font-medium text-gray-500">units</span>
+                        {/* Explainer Tip Banner */}
+                        <div className="bg-amber-50/70 border-b border-amber-200/60 px-6 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm">💡</span>
+                                <span className="font-medium">
+                                    <strong>How to read:</strong> <span className="text-emerald-700 font-bold">🟢 Green</span> = items received from suppliers (+), <span className="text-rose-700 font-bold">🔴 Red</span> = items issued via RIS (-), and <span className="text-red-950 font-bold">🍷 Line</span> = balance remaining on hand.
                                 </span>
                             </div>
-                            <div className="bg-white p-2.5 rounded border border-red-200/80 bg-red-50/20 col-span-2 sm:col-span-1 flex flex-col">
-                                <span className="text-[10px] uppercase font-bold text-red-900 tracking-wider">(=) Ending Balance</span>
-                                <span className="text-base font-bold text-red-950 mt-0.5">{movementSummary.endingStock} <span className="text-[10px] font-medium text-red-700">units</span></span>
+                            <span className="text-[11px] font-mono font-semibold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded border border-amber-200 self-start sm:self-auto">
+                                Start + In - Out = Current Stock
+                            </span>
+                        </div>
+
+                        {/* KPI Movement Summary Strip */}
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 p-4 bg-gray-50/70 border-b border-gray-200 text-xs">
+                            <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-2xs flex flex-col justify-between">
+                                <div className="flex items-center justify-between text-gray-500">
+                                    <span className="text-[10px] uppercase font-bold tracking-wider">Beginning Stock</span>
+                                    <span>📦</span>
+                                </div>
+                                <span className="text-lg font-bold text-slate-800 mt-1">{movementSummary.startingStock} <span className="text-[11px] font-normal text-gray-500">units</span></span>
+                                <span className="text-[10px] text-gray-500 mt-0.5">Stock at period start</span>
+                            </div>
+                            <div className="bg-white p-3 rounded-lg border border-emerald-200 bg-emerald-50/30 shadow-2xs flex flex-col justify-between">
+                                <div className="flex items-center justify-between text-emerald-700">
+                                    <span className="text-[10px] uppercase font-bold tracking-wider">(+) Total Stock In</span>
+                                    <span>📥</span>
+                                </div>
+                                <span className="text-lg font-bold text-emerald-800 mt-1">+{movementSummary.totalStockIn} <span className="text-[11px] font-normal text-emerald-600">units</span></span>
+                                <span className="text-[10px] text-emerald-700 mt-0.5">Received from suppliers</span>
+                            </div>
+                            <div className="bg-white p-3 rounded-lg border border-rose-200 bg-rose-50/30 shadow-2xs flex flex-col justify-between">
+                                <div className="flex items-center justify-between text-rose-700">
+                                    <span className="text-[10px] uppercase font-bold tracking-wider">(-) Total Stock Out</span>
+                                    <span>📤</span>
+                                </div>
+                                <span className="text-lg font-bold text-rose-800 mt-1">-{movementSummary.totalRisIssued} <span className="text-[11px] font-normal text-rose-600">units</span></span>
+                                <span className="text-[10px] text-rose-700 mt-0.5">Issued via RIS slips</span>
+                            </div>
+                            <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-2xs flex flex-col justify-between">
+                                <div className="flex items-center justify-between text-gray-500">
+                                    <span className="text-[10px] uppercase font-bold tracking-wider">Net Movement</span>
+                                    <span>⚖️</span>
+                                </div>
+                                <span className={`text-lg font-bold mt-1 ${movementSummary.netChange >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                                    {movementSummary.netChange >= 0 ? `+${movementSummary.netChange}` : movementSummary.netChange} <span className="text-[11px] font-normal text-gray-500">units</span>
+                                </span>
+                                <span className="text-[10px] text-gray-500 mt-0.5">{movementSummary.netChange >= 0 ? 'Net stock increase' : 'Net stock decrease'}</span>
+                            </div>
+                            <div className="bg-white p-3 rounded-lg border border-red-200 bg-red-50/30 shadow-2xs col-span-2 sm:col-span-1 flex flex-col justify-between">
+                                <div className="flex items-center justify-between text-red-900">
+                                    <span className="text-[10px] uppercase font-bold tracking-wider">(=) Available Stock</span>
+                                    <span>🎯</span>
+                                </div>
+                                <span className="text-lg font-bold text-red-950 mt-1">{movementSummary.endingStock} <span className="text-[11px] font-normal text-red-700">units</span></span>
+                                <span className="text-[10px] text-red-800 mt-0.5">Ready for issuance</span>
                             </div>
                         </div>
 
+                        {/* Main Content Area: Chart or Table */}
                         <div className="p-6 flex-1 flex flex-col items-center justify-center min-h-[380px] bg-white">
                             {customRangeError ? (
                                 <div className="mb-4 w-full max-w-6xl rounded border border-red-200 bg-red-50 px-4 py-2 text-xs font-semibold text-red-800">
                                     {customRangeError}
                                 </div>
                             ) : null}
-                            <div className="w-full h-[320px] px-2 max-w-6xl mx-auto">
-                                <Chart type="bar" data={movementChartData} options={movementChartOptions} />
-                            </div>
-                            {movementPoints.length === 0 ? (
-                                <p className="mt-4 text-xs font-semibold text-gray-500">No movement data found for the selected view.</p>
-                            ) : null}
 
-                            {/* Dynamic Bottom Legend */}
-                            <div className="flex flex-wrap gap-6 mt-6 pt-4 border-t border-gray-200 w-full justify-center text-xs font-bold uppercase tracking-wider">
-                                {chartMode === 'waterfall' && (
-                                    <>
-                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-slate-500 border border-slate-600"></div><span className="text-gray-700">Initial Stock</span></div>
-                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-emerald-600 border border-emerald-700"></div><span className="text-emerald-800">(+) Stock Receipts (In)</span></div>
-                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-rose-600 border border-rose-700"></div><span className="text-rose-800">(-) RIS Dispatched (Out)</span></div>
-                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-red-900 border border-red-950"></div><span className="text-red-900">(=) Final Stock on Hand</span></div>
-                                    </>
-                                )}
-                                {chartMode === 'combo' && (
-                                    <>
-                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-emerald-600 border border-emerald-700"></div><span className="text-gray-700">Stock Receipts (In)</span></div>
-                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-rose-600 border border-rose-700"></div><span className="text-gray-700">RIS Issued (Out)</span></div>
-                                        <div className="flex items-center gap-2"><div className="w-4 h-1 rounded-full bg-red-900"></div><span className="text-red-900">Stock on Hand (Balance Trend)</span></div>
-                                    </>
-                                )}
-                                {chartMode === 'variance' && (
-                                    <>
-                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-emerald-600 border border-emerald-700"></div><span className="text-emerald-800">Net Stock Inflow (+)</span></div>
-                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-rose-600 border border-rose-700"></div><span className="text-rose-800">Net Stock Drawdown (-)</span></div>
-                                    </>
-                                )}
-                            </div>
+                            {chartMode === 'ledger' ? (
+                                /* Scannable Monthly Ledger Table */
+                                <div className="w-full max-w-6xl mx-auto overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg overflow-hidden text-xs">
+                                        <thead className="bg-gray-100">
+                                            <tr>
+                                                <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase tracking-wider">Period / Month</th>
+                                                <th className="px-4 py-3 text-right font-bold text-gray-700 uppercase tracking-wider">Starting Balance</th>
+                                                <th className="px-4 py-3 text-right font-bold text-emerald-800 uppercase tracking-wider">Stock Received (+)</th>
+                                                <th className="px-4 py-3 text-right font-bold text-rose-800 uppercase tracking-wider">RIS Issued (-)</th>
+                                                <th className="px-4 py-3 text-right font-bold text-gray-700 uppercase tracking-wider">Net Change</th>
+                                                <th className="px-4 py-3 text-right font-bold text-red-950 uppercase tracking-wider">Ending Balance</th>
+                                                <th className="px-4 py-3 text-center font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-100">
+                                            {movementPoints.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                                                        No movement records found for the selected period.
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                movementPoints.map((p, idx) => {
+                                                    const net = p.stockIn - p.risIssued;
+                                                    const endStock = p.starting + net;
+                                                    return (
+                                                        <tr key={idx} className="hover:bg-gray-50/80 transition-colors">
+                                                            <td className="px-4 py-3 font-bold text-gray-900">{p.label}</td>
+                                                            <td className="px-4 py-3 text-right font-mono text-gray-600">{p.starting} pcs</td>
+                                                            <td className="px-4 py-3 text-right font-mono font-bold text-emerald-700">+{p.stockIn} pcs</td>
+                                                            <td className="px-4 py-3 text-right font-mono font-bold text-rose-700">-{p.risIssued} pcs</td>
+                                                            <td className="px-4 py-3 text-right font-mono font-bold">
+                                                                <span className={`px-2 py-0.5 rounded text-[11px] ${net >= 0 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
+                                                                    {net >= 0 ? `+${net}` : net}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-4 py-3 text-right font-mono font-bold text-red-950">{endStock} pcs</td>
+                                                            <td className="px-4 py-3 text-center">
+                                                                {p.stockIn > p.risIssued ? (
+                                                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                                                        Stock Added
+                                                                    </span>
+                                                                ) : p.risIssued > p.stockIn ? (
+                                                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
+                                                                        High Dispatches
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-700 border border-gray-200">
+                                                                        Balanced
+                                                                    </span>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                /* Interactive Chart Canvas */
+                                <>
+                                    <div className="w-full h-[320px] px-2 max-w-6xl mx-auto">
+                                        <Chart type="bar" data={movementChartData} options={movementChartOptions} />
+                                    </div>
+                                    {movementPoints.length === 0 ? (
+                                        <p className="mt-4 text-xs font-semibold text-gray-500">No movement data found for the selected view.</p>
+                                    ) : null}
+
+                                    {/* Dynamic Bottom Legend */}
+                                    <div className="flex flex-wrap gap-6 mt-6 pt-4 border-t border-gray-200 w-full justify-center text-xs font-bold uppercase tracking-wider">
+                                        {chartMode === 'waterfall' && (
+                                            <>
+                                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-slate-500 border border-slate-600"></div><span className="text-gray-700">1. Starting Stock</span></div>
+                                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-emerald-600 border border-emerald-700"></div><span className="text-emerald-800">2. (+) Total Received (In)</span></div>
+                                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-rose-600 border border-rose-700"></div><span className="text-rose-800">3. (-) Total Issued (RIS Out)</span></div>
+                                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-red-900 border border-red-950"></div><span className="text-red-900">4. (=) Stock on Hand Balance</span></div>
+                                            </>
+                                        )}
+                                        {chartMode === 'flow' && (
+                                            <>
+                                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-emerald-600 border border-emerald-700"></div><span className="text-emerald-800">Stock Receipts (Items Received In)</span></div>
+                                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-rose-600 border border-rose-700"></div><span className="text-rose-800">RIS Issued (Items Dispatched Out)</span></div>
+                                                <div className="flex items-center gap-2"><div className="w-4 h-1 rounded-full bg-red-900"></div><span className="text-red-900">Stock on Hand (Balance Trend)</span></div>
+                                            </>
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 
