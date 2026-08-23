@@ -10,15 +10,27 @@ import {
     BarElement,
     CategoryScale,
     Chart as ChartJS,
+    Filler,
     Legend,
     LinearScale,
+    LineElement,
+    PointElement,
     Tooltip,
     type ChartData,
     type ChartOptions,
 } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
+import { Chart } from 'react-chartjs-2';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    LineElement,
+    PointElement,
+    Filler,
+    Tooltip,
+    Legend
+);
 
 type MovementPoint = {
     label: string;
@@ -58,6 +70,7 @@ export default function Dashboard({
 
     // State for the Movement Analytics Filter
     const [chartFilter, setChartFilter] = useState(filters?.chartFilter || 'monthly');
+    const [chartMode, setChartMode] = useState<'waterfall' | 'combo' | 'variance'>('waterfall');
     const [customStartDate, setCustomStartDate] = useState(filters?.customStartDate || '');
     const [customEndDate, setCustomEndDate] = useState(filters?.customEndDate || '');
     const [customRangeError, setCustomRangeError] = useState('');
@@ -290,41 +303,195 @@ export default function Dashboard({
         });
     }, [chartData, chartFilter]);
 
-    const movementChartData = useMemo<ChartData<'bar'>>(() => ({
-        labels: movementPoints.map((point) => point.label),
-        datasets: [
-            {
-                label: 'Starting Stock',
-                data: movementPoints.map((point) => point.starting),
-                backgroundColor: '#d1d5db',
-                borderRadius: 4,
-                borderSkipped: false,
-                maxBarThickness: 24,
-            },
-            {
-                label: 'Stock In',
-                data: movementPoints.map((point) => point.stockIn),
-                backgroundColor: '#7f1d1d',
-                borderRadius: 4,
-                borderSkipped: false,
-                maxBarThickness: 24,
-            },
-            {
-                label: 'RIS Issued',
-                data: movementPoints.map((point) => point.risIssued),
-                backgroundColor: '#facc15',
-                borderRadius: 4,
-                borderSkipped: false,
-                maxBarThickness: 24,
-            },
-        ],
-    }), [movementPoints]);
+    const movementSummary = useMemo(() => {
+        if (!movementPoints || movementPoints.length === 0) {
+            return {
+                startingStock: 0,
+                totalStockIn: 0,
+                totalRisIssued: 0,
+                netChange: 0,
+                endingStock: 0,
+            };
+        }
+        const startingStock = movementPoints[0].starting;
+        const totalStockIn = movementPoints.reduce((acc, p) => acc + p.stockIn, 0);
+        const totalRisIssued = movementPoints.reduce((acc, p) => acc + p.risIssued, 0);
+        const netChange = totalStockIn - totalRisIssued;
+        const endingStock = Math.max(0, startingStock + netChange);
 
-    const movementChartOptions = useMemo<ChartOptions<'bar'>>(() => ({
+        return {
+            startingStock,
+            totalStockIn,
+            totalRisIssued,
+            netChange,
+            endingStock,
+        };
+    }, [movementPoints]);
+
+    type WaterfallStep = {
+        label: string;
+        fullTitle: string;
+        range: [number, number];
+        amount: number;
+        type: 'start' | 'inflow' | 'outflow' | 'balance';
+        color: string;
+        borderColor: string;
+    };
+
+    const waterfallSteps = useMemo<WaterfallStep[]>(() => {
+        if (!movementPoints || movementPoints.length === 0) return [];
+
+        const steps: WaterfallStep[] = [];
+        let currentBalance = movementPoints[0].starting;
+
+        // 1. Initial Beginning Stock
+        steps.push({
+            label: 'Initial Stock',
+            fullTitle: 'Beginning Inventory Level',
+            range: [0, currentBalance],
+            amount: currentBalance,
+            type: 'start',
+            color: '#64748b',
+            borderColor: '#475569',
+        });
+
+        // 2. Sequential Inflows and Outflows
+        movementPoints.forEach((p) => {
+            // Inflow (+)
+            if (p.stockIn > 0 || movementPoints.length <= 6) {
+                const startIn = currentBalance;
+                const endIn = currentBalance + p.stockIn;
+                currentBalance = endIn;
+                steps.push({
+                    label: `+ ${p.label} In`,
+                    fullTitle: `${p.label} Stock Receipts (Inflow)`,
+                    range: [startIn, endIn],
+                    amount: p.stockIn,
+                    type: 'inflow',
+                    color: '#059669',
+                    borderColor: '#047857',
+                });
+            }
+
+            // Outflow (-)
+            if (p.risIssued > 0 || movementPoints.length <= 6) {
+                const endOut = currentBalance;
+                const startOut = Math.max(0, currentBalance - p.risIssued);
+                currentBalance = startOut;
+                steps.push({
+                    label: `- ${p.label} RIS`,
+                    fullTitle: `${p.label} RIS Issuances (Outflow)`,
+                    range: [startOut, endOut],
+                    amount: p.risIssued,
+                    type: 'outflow',
+                    color: '#e11d48',
+                    borderColor: '#be123c',
+                });
+            }
+        });
+
+        // 3. Ending Balance on Hand
+        steps.push({
+            label: 'Ending Stock',
+            fullTitle: 'Current Stock Balance on Hand',
+            range: [0, currentBalance],
+            amount: currentBalance,
+            type: 'balance',
+            color: '#7f1d1d',
+            borderColor: '#450a0a',
+        });
+
+        return steps;
+    }, [movementPoints]);
+
+    const movementChartData = useMemo<ChartData<any>>(() => {
+        if (chartMode === 'waterfall') {
+            return {
+                labels: waterfallSteps.map((s) => s.label),
+                datasets: [
+                    {
+                        type: 'bar' as const,
+                        label: 'Stock Flow',
+                        data: waterfallSteps.map((s) => s.range),
+                        backgroundColor: waterfallSteps.map((s) => s.color),
+                        borderColor: waterfallSteps.map((s) => s.borderColor),
+                        borderWidth: 1.5,
+                        borderRadius: 4,
+                        borderSkipped: false,
+                        maxBarThickness: 32,
+                    },
+                ],
+            };
+        }
+
+        if (chartMode === 'combo') {
+            return {
+                labels: movementPoints.map((p) => p.label),
+                datasets: [
+                    {
+                        type: 'line' as const,
+                        label: 'Stock on Hand (Balance)',
+                        data: movementPoints.map((p) => p.starting + p.stockIn - p.risIssued),
+                        borderColor: '#7f1d1d',
+                        backgroundColor: 'rgba(127, 29, 29, 0.08)',
+                        fill: true,
+                        tension: 0.35,
+                        borderWidth: 2.5,
+                        pointBackgroundColor: '#7f1d1d',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        order: 1,
+                    },
+                    {
+                        type: 'bar' as const,
+                        label: 'Stock Receipts (In)',
+                        data: movementPoints.map((p) => p.stockIn),
+                        backgroundColor: '#059669',
+                        borderRadius: 4,
+                        borderSkipped: false,
+                        maxBarThickness: 22,
+                        order: 2,
+                    },
+                    {
+                        type: 'bar' as const,
+                        label: 'RIS Issued (Out)',
+                        data: movementPoints.map((p) => p.risIssued),
+                        backgroundColor: '#e11d48',
+                        borderRadius: 4,
+                        borderSkipped: false,
+                        maxBarThickness: 22,
+                        order: 3,
+                    },
+                ],
+            };
+        }
+
+        // Net Variance Mode
+        return {
+            labels: movementPoints.map((p) => p.label),
+            datasets: [
+                {
+                    type: 'bar' as const,
+                    label: 'Net Movement (+/-)',
+                    data: movementPoints.map((p) => p.stockIn - p.risIssued),
+                    backgroundColor: movementPoints.map((p) => (p.stockIn >= p.risIssued ? '#059669' : '#e11d48')),
+                    borderColor: movementPoints.map((p) => (p.stockIn >= p.risIssued ? '#047857' : '#be123c')),
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    borderSkipped: false,
+                    maxBarThickness: 28,
+                },
+            ],
+        };
+    }, [chartMode, waterfallSteps, movementPoints]);
+
+    const movementChartOptions = useMemo<ChartOptions<any>>(() => ({
         responsive: true,
         maintainAspectRatio: false,
         animation: {
-            duration: 650,
+            duration: 550,
             easing: 'easeOutCubic',
         },
         plugins: {
@@ -332,11 +499,48 @@ export default function Dashboard({
                 display: false,
             },
             tooltip: {
-                backgroundColor: 'rgba(15, 23, 42, 0.94)',
+                backgroundColor: 'rgba(15, 23, 42, 0.95)',
                 cornerRadius: 8,
-                padding: 10,
+                padding: 12,
                 titleFont: { size: 12, weight: 700 },
                 bodyFont: { size: 12, weight: 600 },
+                callbacks: {
+                    title: (items: any[]) => {
+                        if (!items || items.length === 0) return '';
+                        const idx = items[0].dataIndex;
+                        if (chartMode === 'waterfall') {
+                            return waterfallSteps[idx]?.fullTitle || items[0].label;
+                        }
+                        return items[0].label;
+                    },
+                    label: (context: any) => {
+                        const idx = context.dataIndex;
+                        if (chartMode === 'waterfall') {
+                            const step = waterfallSteps[idx];
+                            if (!step) return '';
+                            if (step.type === 'start') {
+                                return ` Initial Baseline: ${step.amount} units`;
+                            }
+                            if (step.type === 'inflow') {
+                                return ` Receipts Inflow: +${step.amount} units (Balance: ${step.range[0]} → ${step.range[1]})`;
+                            }
+                            if (step.type === 'outflow') {
+                                return ` RIS Dispatched: -${step.amount} units (Balance: ${step.range[1]} → ${step.range[0]})`;
+                            }
+                            return ` Ending Stock Balance: ${step.amount} units`;
+                        }
+
+                        if (chartMode === 'variance') {
+                            const point = movementPoints[idx];
+                            const net = point ? point.stockIn - point.risIssued : context.raw;
+                            return ` Net Change: ${net >= 0 ? '+' : ''}${net} units (Inflow: +${point?.stockIn ?? 0}, Outflow: -${point?.risIssued ?? 0})`;
+                        }
+
+                        const dsLabel = context.dataset.label || '';
+                        const val = context.raw;
+                        return ` ${dsLabel}: ${val} units`;
+                    },
+                },
             },
         },
         scales: {
@@ -345,10 +549,12 @@ export default function Dashboard({
                 ticks: {
                     color: '#64748b',
                     font: { size: 11, weight: 600 },
+                    maxRotation: chartMode === 'waterfall' && waterfallSteps.length > 8 ? 45 : 0,
+                    minRotation: chartMode === 'waterfall' && waterfallSteps.length > 8 ? 45 : 0,
                 },
             },
             y: {
-                beginAtZero: true,
+                beginAtZero: chartMode !== 'variance',
                 suggestedMax: 10,
                 grid: {
                     color: 'rgba(148, 163, 184, 0.18)',
@@ -360,7 +566,7 @@ export default function Dashboard({
                 },
             },
         },
-    }), []);
+    }), [chartMode, waterfallSteps, movementPoints]);
 
     const getAuditStatusClass = (status: string) => {
         switch (status) {
@@ -597,46 +803,125 @@ export default function Dashboard({
 
                     {/* Movement Analytics Section */}
                     <div className="bg-white rounded-lg shadow-xs border border-gray-200 flex flex-col overflow-hidden">
-                        <div className="px-6 py-4 border-b border-gray-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-gray-100/90">
+                        <div className="px-6 py-4 border-b border-gray-200 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-100/90">
                             <div>
-                                <h3 className="text-sm font-bold text-gray-900 font-serif uppercase tracking-wider">Inventory Movement Analytics</h3>
-                                <p className="text-xs font-medium text-gray-600 mt-0.5">Stock Receipts (Stock-In) vs. Requisition & Issuance Slip (RIS) Summary</p>
+                                <div className="flex items-center gap-2">
+                                    <h3 className="text-sm font-bold text-gray-900 font-serif uppercase tracking-wider">Inventory Movement Analytics</h3>
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider font-mono bg-red-100 text-red-900 border border-red-200">
+                                        {chartMode === 'waterfall' ? 'Waterfall Flow' : chartMode === 'combo' ? 'Inflow vs Outflow' : 'Net Variance'}
+                                    </span>
+                                </div>
+                                <p className="text-xs font-medium text-gray-600 mt-0.5">Stock Receipts (Stock-In) vs. Requisition & Issuance Slip (RIS) Reconciliation</p>
                             </div>
 
-                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto z-10">
-                                <Select
-                                    aria-label="Movement analytics filter"
-                                    options={chartFilterOptions}
-                                    value={chartFilterOptions.find(opt => opt.value === chartFilter)}
-                                    onChange={handleChartFilterChange}
-                                    styles={selectStyles}
-                                    isSearchable={false}
-                                />
-                                {chartFilter === 'custom' ? (
-                                    <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-                                        <input
-                                            type="date"
-                                            value={customStartDate}
-                                            onChange={(e) => setCustomStartDate(e.target.value)}
-                                            className="w-full sm:w-auto rounded border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:border-red-800 focus:ring-1 focus:ring-red-800 focus:outline-none"
-                                            aria-label="Custom range start date"
-                                        />
-                                        <input
-                                            type="date"
-                                            value={customEndDate}
-                                            onChange={(e) => setCustomEndDate(e.target.value)}
-                                            className="w-full sm:w-auto rounded border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:border-red-800 focus:ring-1 focus:ring-red-800 focus:outline-none"
-                                            aria-label="Custom range end date"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={handleApplyCustomRange}
-                                            className="rounded bg-red-900 px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-red-800 uppercase tracking-wider"
-                                        >
-                                            Apply
-                                        </button>
-                                    </div>
-                                ) : null}
+                            <div className="flex flex-wrap items-center gap-3">
+                                {/* Mode Selector Switcher */}
+                                <div className="inline-flex rounded-md bg-gray-200/80 p-1 border border-gray-300">
+                                    <button
+                                        type="button"
+                                        onClick={() => setChartMode('waterfall')}
+                                        className={`px-3 py-1 text-xs font-bold rounded transition-all flex items-center gap-1.5 ${
+                                            chartMode === 'waterfall'
+                                                ? 'bg-white text-red-900 shadow-xs border border-gray-300 font-bold'
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                    >
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                        </svg>
+                                        <span>Waterfall</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setChartMode('combo')}
+                                        className={`px-3 py-1 text-xs font-bold rounded transition-all flex items-center gap-1.5 ${
+                                            chartMode === 'combo'
+                                                ? 'bg-white text-red-900 shadow-xs border border-gray-300 font-bold'
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                    >
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                        </svg>
+                                        <span>Trends</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setChartMode('variance')}
+                                        className={`px-3 py-1 text-xs font-bold rounded transition-all flex items-center gap-1.5 ${
+                                            chartMode === 'variance'
+                                                ? 'bg-white text-red-900 shadow-xs border border-gray-300 font-bold'
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                    >
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                        </svg>
+                                        <span>Variance</span>
+                                    </button>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto z-10">
+                                    <Select
+                                        aria-label="Movement analytics filter"
+                                        options={chartFilterOptions}
+                                        value={chartFilterOptions.find(opt => opt.value === chartFilter)}
+                                        onChange={handleChartFilterChange}
+                                        styles={selectStyles}
+                                        isSearchable={false}
+                                    />
+                                    {chartFilter === 'custom' ? (
+                                        <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                                            <input
+                                                type="date"
+                                                value={customStartDate}
+                                                onChange={(e) => setCustomStartDate(e.target.value)}
+                                                className="w-full sm:w-auto rounded border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:border-red-800 focus:ring-1 focus:ring-red-800 focus:outline-none"
+                                                aria-label="Custom range start date"
+                                            />
+                                            <input
+                                                type="date"
+                                                value={customEndDate}
+                                                onChange={(e) => setCustomEndDate(e.target.value)}
+                                                className="w-full sm:w-auto rounded border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:border-red-800 focus:ring-1 focus:ring-red-800 focus:outline-none"
+                                                aria-label="Custom range end date"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={handleApplyCustomRange}
+                                                className="rounded bg-red-900 px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-red-800 uppercase tracking-wider"
+                                            >
+                                                Apply
+                                            </button>
+                                        </div>
+                                    ) : null}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* KPI Movement Summary Strip */}
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 p-4 bg-gray-50/70 border-b border-gray-200 text-xs">
+                            <div className="bg-white p-2.5 rounded border border-gray-200 flex flex-col">
+                                <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Beginning Stock</span>
+                                <span className="text-base font-bold text-slate-800 mt-0.5">{movementSummary.startingStock} <span className="text-[10px] font-medium text-gray-500">units</span></span>
+                            </div>
+                            <div className="bg-white p-2.5 rounded border border-emerald-200/80 bg-emerald-50/20 flex flex-col">
+                                <span className="text-[10px] uppercase font-bold text-emerald-700 tracking-wider">(+) Receipts (In)</span>
+                                <span className="text-base font-bold text-emerald-800 mt-0.5">+{movementSummary.totalStockIn} <span className="text-[10px] font-medium text-emerald-600">units</span></span>
+                            </div>
+                            <div className="bg-white p-2.5 rounded border border-rose-200/80 bg-rose-50/20 flex flex-col">
+                                <span className="text-[10px] uppercase font-bold text-rose-700 tracking-wider">(-) RIS Dispatched</span>
+                                <span className="text-base font-bold text-rose-800 mt-0.5">-{movementSummary.totalRisIssued} <span className="text-[10px] font-medium text-rose-600">units</span></span>
+                            </div>
+                            <div className="bg-white p-2.5 rounded border border-gray-200 flex flex-col">
+                                <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Net Movement</span>
+                                <span className={`text-base font-bold mt-0.5 ${movementSummary.netChange >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                                    {movementSummary.netChange >= 0 ? `+${movementSummary.netChange}` : movementSummary.netChange} <span className="text-[10px] font-medium text-gray-500">units</span>
+                                </span>
+                            </div>
+                            <div className="bg-white p-2.5 rounded border border-red-200/80 bg-red-50/20 col-span-2 sm:col-span-1 flex flex-col">
+                                <span className="text-[10px] uppercase font-bold text-red-900 tracking-wider">(=) Ending Balance</span>
+                                <span className="text-base font-bold text-red-950 mt-0.5">{movementSummary.endingStock} <span className="text-[10px] font-medium text-red-700">units</span></span>
                             </div>
                         </div>
 
@@ -646,16 +931,36 @@ export default function Dashboard({
                                     {customRangeError}
                                 </div>
                             ) : null}
-                            <div className="w-full h-[300px] px-2 max-w-6xl mx-auto">
-                                <Bar data={movementChartData} options={movementChartOptions} />
+                            <div className="w-full h-[320px] px-2 max-w-6xl mx-auto">
+                                <Chart type="bar" data={movementChartData} options={movementChartOptions} />
                             </div>
                             {movementPoints.length === 0 ? (
                                 <p className="mt-4 text-xs font-semibold text-gray-500">No movement data found for the selected view.</p>
                             ) : null}
-                            <div className="flex gap-8 mt-6 pt-4 border-t border-gray-200 w-full justify-center">
-                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-gray-300 border border-gray-400"></div><span className="text-xs text-gray-700 font-bold uppercase tracking-wider">Starting Stock</span></div>
-                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-red-900 border border-red-950"></div><span className="text-xs text-gray-700 font-bold uppercase tracking-wider">Stock Receipts (In)</span></div>
-                                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-amber-400 border border-amber-500"></div><span className="text-xs text-gray-700 font-bold uppercase tracking-wider">RIS Issuances</span></div>
+
+                            {/* Dynamic Bottom Legend */}
+                            <div className="flex flex-wrap gap-6 mt-6 pt-4 border-t border-gray-200 w-full justify-center text-xs font-bold uppercase tracking-wider">
+                                {chartMode === 'waterfall' && (
+                                    <>
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-slate-500 border border-slate-600"></div><span className="text-gray-700">Initial Stock</span></div>
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-emerald-600 border border-emerald-700"></div><span className="text-emerald-800">(+) Stock Receipts (In)</span></div>
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-rose-600 border border-rose-700"></div><span className="text-rose-800">(-) RIS Dispatched (Out)</span></div>
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-red-900 border border-red-950"></div><span className="text-red-900">(=) Final Stock on Hand</span></div>
+                                    </>
+                                )}
+                                {chartMode === 'combo' && (
+                                    <>
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-emerald-600 border border-emerald-700"></div><span className="text-gray-700">Stock Receipts (In)</span></div>
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-rose-600 border border-rose-700"></div><span className="text-gray-700">RIS Issued (Out)</span></div>
+                                        <div className="flex items-center gap-2"><div className="w-4 h-1 rounded-full bg-red-900"></div><span className="text-red-900">Stock on Hand (Balance Trend)</span></div>
+                                    </>
+                                )}
+                                {chartMode === 'variance' && (
+                                    <>
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-emerald-600 border border-emerald-700"></div><span className="text-emerald-800">Net Stock Inflow (+)</span></div>
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-rose-600 border border-rose-700"></div><span className="text-rose-800">Net Stock Drawdown (-)</span></div>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>
