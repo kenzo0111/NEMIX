@@ -39,7 +39,7 @@ class TransactionTrailController extends Controller
                 'details' => $resolved['details'],
                 'status' => $resolved['status'],
                 'badge' => $badge,
-                'time' => $trail->created_at ? $trail->created_at->format('M d, Y • h:i A') : now()->format('M d, Y • h:i A'),
+                'time' => $trail->created_at ? $trail->created_at->timezone('Asia/Manila')->format('M d, Y • h:i A') : now('Asia/Manila')->format('M d, Y • h:i A'),
             ];
         });
 

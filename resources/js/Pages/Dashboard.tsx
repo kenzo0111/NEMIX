@@ -159,14 +159,9 @@ export default function Dashboard({
         const now = new Date();
         const formatTime = (minutesAgo: number) => {
             const d = new Date(now.getTime() - minutesAgo * 60 * 1000);
-            return d.toLocaleString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true,
-            }).replace(',', ' •');
+            const datePart = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            return `${datePart} • ${timePart}`;
         };
 
         return [

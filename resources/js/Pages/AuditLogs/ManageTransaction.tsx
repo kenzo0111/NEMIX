@@ -37,14 +37,14 @@ const parseAuditTimestamp = (timestamp?: string | null) => {
 
 const formatAuditTimestamp = (timestamp: string | null | undefined) => {
     if (!timestamp) {
-        return new Date().toLocaleString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
-        }).replace(',', ' •');
+        const now = new Date();
+        const datePart = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const timePart = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        return `${datePart} • ${timePart}`;
+    }
+
+    if (typeof timestamp === 'string' && /^[A-Za-z]{3}\s+\d{1,2},\s+\d{4}\s+•\s+\d{1,2}:\d{2}\s+(AM|PM)$/i.test(timestamp.trim())) {
+        return timestamp.trim();
     }
 
     const date = parseAuditTimestamp(timestamp);
@@ -52,28 +52,18 @@ const formatAuditTimestamp = (timestamp: string | null | undefined) => {
         return timestamp;
     }
 
-    return date.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-    }).replace(',', ' •');
+    const datePart = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const timePart = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return `${datePart} • ${timePart}`;
 };
 
 const getDefaultTransactionLogs = () => {
     const now = new Date();
     const formatTime = (minutesAgo: number) => {
         const d = new Date(now.getTime() - minutesAgo * 60 * 1000);
-        return d.toLocaleString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
-        }).replace(',', ' •');
+        const datePart = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        return `${datePart} • ${timePart}`;
     };
 
     return [
