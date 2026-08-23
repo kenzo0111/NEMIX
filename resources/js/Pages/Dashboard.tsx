@@ -7,30 +7,14 @@ import { useState, useMemo, useEffect } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
 import {
-    BarElement,
-    CategoryScale,
     Chart as ChartJS,
-    Filler,
-    Legend,
-    LinearScale,
-    LineElement,
-    PointElement,
-    Tooltip,
+    registerables,
     type ChartData,
     type ChartOptions,
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    LineElement,
-    PointElement,
-    Filler,
-    Tooltip,
-    Legend
-);
+ChartJS.register(...registerables);
 
 type MovementPoint = {
     label: string;
