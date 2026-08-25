@@ -143,7 +143,7 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
                 Entity Name:
               </td>
               <td style={{ borderBottom: '1px solid #000000', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 6px 3px 6px', lineHeight: 1.2 }}>
-                {data.entity_name || '\u00A0'}
+                {data.entity_name ? data.entity_name.replace(/Camarines Norte State College/gi, 'University of Camarines Norte') : 'University of Camarines Norte'}
               </td>
               <td>&nbsp;</td>
               <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 0' }}>
