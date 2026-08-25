@@ -165,24 +165,24 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
           </tbody>
         </table>
 
-        {/* Accountability statement with baseline-aligned underlines */}
-        <div style={{ marginBottom: '12px', fontSize: '9.5pt', lineHeight: 1.6, textAlign: 'left' }}>
-          <span>For which </span>
-          <span style={{ display: 'inline-block', borderBottom: '1px solid #000000', minWidth: '200px', textAlign: 'center', fontWeight: 'bold', padding: '0 8px 1px 8px' }}>
+        {/* Accountability statement on a single seamless flex line */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', width: '100%', marginBottom: '12px', fontSize: '9pt', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
+          <span>For which</span>
+          <div style={{ flex: '1 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 4px 2px 4px', marginLeft: '4px', minWidth: '100px' }}>
             {data.accountable_officer || 'Arsenio Gem A. Garcillanosa'}
-          </span>
-          <span>, </span>
-          <span style={{ display: 'inline-block', borderBottom: '1px solid #000000', minWidth: '160px', textAlign: 'center', fontWeight: 'bold', padding: '0 8px 1px 8px' }}>
+          </div>
+          <span>,</span>
+          <div style={{ flex: '1 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 4px 2px 4px', marginLeft: '4px', minWidth: '100px' }}>
             {data.designation || 'Supply Custodian'}
-          </span>
-          <span>, </span>
-          <span style={{ display: 'inline-block', borderBottom: '1px solid #000000', minWidth: '220px', textAlign: 'center', fontWeight: 'bold', padding: '0 8px 1px 8px' }}>
+          </div>
+          <span>,</span>
+          <div style={{ flex: '1 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 4px 2px 4px', marginLeft: '4px', minWidth: '120px' }}>
             {data.entity_name || 'University of Camarines Norte'}
-          </span>
-          <span> is accountable, having assumed such accountability on </span>
-          <span style={{ display: 'inline-block', borderBottom: '1px solid #000000', minWidth: '140px', textAlign: 'center', fontWeight: 'bold', padding: '0 8px 1px 8px' }}>
+          </div>
+          <span style={{ marginLeft: '4px' }}>is accountable, having assumed such accountability on</span>
+          <div style={{ flex: '0 0 120px', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 4px 2px 4px', marginLeft: '4px', minWidth: '90px' }}>
             {data.date_assumption || '\u00A0'}
-          </span>
+          </div>
           <span>.</span>
         </div>
 
