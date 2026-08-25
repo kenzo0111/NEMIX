@@ -146,15 +146,25 @@ export const PropertyAcknowledgmentReceipt: React.FC<PropertyAcknowledgmentRecei
           <tbody>
             <tr>
               <td className="meta-left">
-                <strong>Entity Name :</strong> {data.entityName || '____________________________________'}
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <strong style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>Entity Name :</strong>
+                  <span style={{ flexGrow: 1, borderBottom: '1px solid #000', minHeight: '18px', padding: '0 4px 1px 4px', lineHeight: 1.2 }}>{data.entityName || '\u00A0'}</span>
+                </div>
               </td>
+              <td className="meta-right"></td>
             </tr>
             <tr>
               <td className="meta-left">
-                <strong>Fund Cluster:</strong> {data.fundCluster || '____________________________________'}
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <strong style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>Fund Cluster:</strong>
+                  <span style={{ flexGrow: 1, borderBottom: '1px solid #000', minHeight: '18px', padding: '0 4px 1px 4px', lineHeight: 1.2 }}>{data.fundCluster || '\u00A0'}</span>
+                </div>
               </td>
               <td className="meta-right">
-                <strong>PAR No.:</strong> {data.parNo || '_______________'}
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <strong style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>PAR No.:</strong>
+                  <span style={{ flexGrow: 1, borderBottom: '1px solid #000', minHeight: '18px', padding: '0 4px 1px 4px', lineHeight: 1.2 }}>{data.parNo || '\u00A0'}</span>
+                </div>
               </td>
             </tr>
           </tbody>

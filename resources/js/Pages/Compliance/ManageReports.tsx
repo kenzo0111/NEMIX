@@ -1360,10 +1360,11 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             existingStyle.remove();
         }
 
+        const isLandscape = formData.type === 'RPCI';
         const style = document.createElement('style');
         style.id = dynamicPrintStyleId;
         style.setAttribute('media', 'print');
-        style.textContent = `@page { size: ${formData.type === 'RPCI' ? 'A4 landscape' : 'A4 portrait'}; margin: 5mm; }`;
+        style.textContent = `@page { size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'}; margin: 10mm; }`;
         document.head.appendChild(style);
 
         window.print();
@@ -1452,6 +1453,10 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             return;
         }
 
+        // Find the inner paper container (.sc-container, .rsmi-container, .rpci-container, .mr-container) if present
+        const paperElement = (reportElement.querySelector('.sc-container, .rsmi-container, .rpci-container, .mr-container') as HTMLElement) || reportElement;
+
+        const isLandscape = formData.type === 'RPCI';
         const payload = buildReportPayload();
         const safeName = [payload.type, payload.reference, payload.title]
             .filter(Boolean)
@@ -1465,29 +1470,42 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             import('html2canvas'),
         ]);
         const html2canvas = html2canvasModule.default;
-        const doc = new jsPDF({ orientation: formData.type === 'RPCI' ? 'l' : 'p', unit: 'pt', format: 'a4' });
-        const canvas = await html2canvas(reportElement, {
+        const doc = new jsPDF({
+            orientation: isLandscape ? 'landscape' : 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        // Exact A4 dimensions in mm: 210 x 297 (or 297 x 210)
+        const pageWidth = isLandscape ? 297 : 210;
+        const pageHeight = isLandscape ? 210 : 297;
+        const margin = 10;
+        const targetWidth = pageWidth - (margin * 2);
+        const targetHeight = pageHeight - (margin * 2);
+
+        const canvas = await html2canvas(paperElement, {
             scale: 2,
             backgroundColor: '#ffffff',
             useCORS: true,
             logging: false,
-            windowWidth: reportElement.scrollWidth,
-            windowHeight: reportElement.scrollHeight,
+            windowWidth: paperElement.scrollWidth,
+            windowHeight: paperElement.scrollHeight,
         });
 
         const imageData = canvas.toDataURL('image/png');
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const margin = 24;
-        const availableWidth = pageWidth - margin * 2;
-        const availableHeight = pageHeight - margin * 2;
-        const scale = Math.min(availableWidth / canvas.width, availableHeight / canvas.height);
-        const imageWidth = canvas.width * scale;
-        const imageHeight = canvas.height * scale;
-        const x = (pageWidth - imageWidth) / 2;
-        const y = (pageHeight - imageHeight) / 2;
+        const imgAspectRatio = canvas.width / canvas.height;
+        let finalWidth = targetWidth;
+        let finalHeight = targetWidth / imgAspectRatio;
 
-        doc.addImage(imageData, 'PNG', x, y, imageWidth, imageHeight, undefined, 'FAST');
+        if (finalHeight > targetHeight) {
+            finalHeight = targetHeight;
+            finalWidth = targetHeight * imgAspectRatio;
+        }
+
+        const posX = (pageWidth - finalWidth) / 2;
+        const posY = (pageHeight - finalHeight) / 2;
+
+        doc.addImage(imageData, 'PNG', posX, posY, finalWidth, finalHeight, undefined, 'FAST');
 
         doc.save(fileName);
     };
@@ -1636,12 +1654,13 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             <style>{`
                 @media print {
                     @page { 
-                        size: A4 portrait; 
-                        margin: 5mm; 
+                        size: ${formData.type === 'RPCI' ? 'A4 landscape' : 'A4 portrait'}; 
+                        margin: 10mm; 
                     }
                     body { 
                         -webkit-print-color-adjust: exact !important; 
                         print-color-adjust: exact !important; 
+                        background: #ffffff !important;
                     }
                     /* Force the container to render as a single un-broken page */
                     .print-single-page {
@@ -1650,10 +1669,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         page-break-before: avoid !important;
                         margin: 0 !important;
                         padding: 0 !important;
-                    }
-                    /* Shrink the form dynamically to ensure it fits one page */
-                    .print-zoom-fit {
-                        zoom: 0.75;
+                        background: transparent !important;
+                        border: none !important;
                     }
                     /* Disable scrollbars when printing */
                     ::-webkit-scrollbar {
@@ -1741,7 +1758,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                     </>
                 }
             >
-                <div className="flex flex-col gap-6 print:gap-0 print:overflow-hidden print-single-page print-zoom-fit">
+                <div className="flex flex-col gap-6 print:gap-0 print:overflow-hidden print-single-page">
                     {modalMode === 'view' && formData.type === 'RSMI' && (
                         <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 print:bg-white print:p-0 print:border-none print-single-page">
                             {(() => {

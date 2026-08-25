@@ -92,7 +92,7 @@ export const InspectionAcceptanceReport: React.FC<InspectionAcceptanceReportProp
         .info-table { margin-bottom: 12px; }
         .info-table td { padding: 2px 6px; font-size: 9.5pt; vertical-align: bottom; }
         .info-table .label { width: 14%; font-weight: normal; padding-right: 4px; }
-        .info-table .field { border-bottom: 1px solid #000; padding-bottom: 2px; }
+        .info-table .field { border-bottom: 1px solid #000; padding: 0 4px 2px 4px; line-height: 1.25; min-height: 18px; box-sizing: border-box; }
 
         /* Items Table */
         .items-table { margin: 8px 0 6px 0; table-layout: fixed; border: 1px solid #000; }

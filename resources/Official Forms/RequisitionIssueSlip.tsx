@@ -141,6 +141,9 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
             border-bottom: 1px solid #000;
             min-width: 200px;
             font-weight: bold;
+            padding: 0 4px 2px 4px;
+            line-height: 1.25;
+            box-sizing: border-box;
         }
         
         /* Main Grid Table */
