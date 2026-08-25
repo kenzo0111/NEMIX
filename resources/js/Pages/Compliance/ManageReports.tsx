@@ -1661,10 +1661,21 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         size: ${formData.type === 'RPCI' ? 'A4 landscape' : 'A4 portrait'}; 
                         margin: 10mm; 
                     }
-                    body { 
+                    html, body { 
                         -webkit-print-color-adjust: exact !important; 
                         print-color-adjust: exact !important; 
                         background: #ffffff !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                    /* Hide modal backdrop, dark overlays, and non-printable elements */
+                    #modal > div:first-child,
+                    .backdrop-blur-md,
+                    [class*="bg-slate-900"],
+                    [class*="backdrop-blur"] {
+                        display: none !important;
+                        visibility: hidden !important;
+                        opacity: 0 !important;
                     }
                     /* Force the container to render as a single un-broken page */
                     .print-single-page {
@@ -1673,8 +1684,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         page-break-before: avoid !important;
                         margin: 0 !important;
                         padding: 0 !important;
-                        background: transparent !important;
+                        background: #ffffff !important;
                         border: none !important;
+                        box-shadow: none !important;
                     }
                     /* Disable scrollbars when printing */
                     ::-webkit-scrollbar {
@@ -2829,72 +2841,12 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         return (
                                             <div key={report.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-all group flex flex-col relative h-full">
 
-                                                {/* Background Paper Preview Thumbnail */}
-                                                {report.type === 'RSMI' && (
-                                                    <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
-                                                        <Suspense fallback={reportTemplateFallback}>
-                                                            <RSMIFormPaper data={{
-                                                                entityName: 'University of Camarines Norte',
-                                                                serialNo: report.reference,
-                                                                fundCluster: 'GF',
-                                                                date: report.date || '',
-                                                                issuedItems: [
-                                                                    { risNo: '1', responsibilityCenterCode: '-', stockNo: '1', itemDescription: 'Sample', unit: 'pc', quantityIssued: 1, unitCost: 100, amount: 100 }
-                                                                ],
-                                                                recapitulationItems: [
-                                                                    { stockNo: '1', quantity: 1, unitCost: '', totalCost: '', uacsObjectCode: '' }
-                                                                ],
-                                                                supplyCustodianName: '', accountingStaffName: '', accountingDate: ''
-                                                            }} />
-                                                        </Suspense>
-                                                    </div>
-                                                )}
-
-                                                {report.type === 'RPCI' && (
-                                                    <div className="absolute top-0 right-0 w-44 h-32 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
-                                                        <Suspense fallback={reportTemplateFallback}>
-                                                            <RPCIFormPaper data={{
-                                                                entity_name: 'University of Camarines Norte',
-                                                                as_at_date: report.date || '',
-                                                                fund_cluster: 'GF',
-                                                                inventory_type: report.title,
-                                                                items: [
-                                                                    { article: 'Sample', description: '-', stock_no: '1', unit: 'pc', unit_value: 100, balance_per_card: 10, on_hand_count: 10, shortage_qty: '', shortage_value: '', remarks: '' }
-                                                                ]
-                                                            }} />
-                                                        </Suspense>
-                                                    </div>
-                                                )}
-
-                                                {report.type === 'STOCK_CARD' && (
-                                                    <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
-                                                        <Suspense fallback={reportTemplateFallback}>
-                                                            <StockCardFormPaper data={{
-                                                                entity_name: 'University of Camarines Norte',
-                                                                item: report.itemName || report.title,
-                                                                stock_no: items.find((item: any) => item.name === report.itemName)?.sku || report.reference,
-                                                                entries: []
-                                                            }} />
-                                                        </Suspense>
-                                                    </div>
-                                                )}
-
-                                                {(report.type === 'MR' || report.type === 'MOR') && (
-                                                    <div className="absolute top-0 right-0 w-32 h-40 opacity-10 pointer-events-none overflow-hidden scale-[0.2] origin-top-right transition-opacity group-hover:opacity-20 translate-x-2 -translate-y-2">
-                                                        <Suspense fallback={reportTemplateFallback}>
-                                                            <MRFormPaper data={{
-                                                                entityName: 'University of Camarines Norte',
-                                                                fundCluster: 'GF',
-                                                                mrNo: report.reference,
-                                                                date: report.date || '',
-                                                                items: [
-                                                                    { quantity: 1, unit: 'pc', description: 'Sample Property', propertyNo: 'PROP-001', dateAcquired: '', unitValue: 1000, totalValue: 1000 }
-                                                                ],
-                                                                receivedByName: '', issuedByName: ''
-                                                            }} />
-                                                        </Suspense>
-                                                    </div>
-                                                )}
+                                                {/* Clean watermark icon instead of rendering full heavy components with <style> tags */}
+                                                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none transition-opacity group-hover:opacity-10 print:hidden">
+                                                    <svg className="w-24 h-24 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                </div>
 
                                                 <div className="p-5 flex-1 relative z-10">
                                                     <div className="flex justify-between items-start mb-3 gap-3">
