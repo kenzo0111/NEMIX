@@ -1355,28 +1355,32 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
     const handlePrint = () => {
         const dynamicPrintStyleId = 'dynamic-print-orientation-style';
-        const existingStyle = document.getElementById(dynamicPrintStyleId);
-        if (existingStyle) {
-            existingStyle.remove();
+        let style = document.getElementById(dynamicPrintStyleId) as HTMLStyleElement | null;
+        if (!style) {
+            style = document.createElement('style');
+            style.id = dynamicPrintStyleId;
+            style.setAttribute('media', 'print');
+            document.head.appendChild(style);
         }
 
         const isLandscape = formData.type === 'RPCI';
-        const style = document.createElement('style');
-        style.id = dynamicPrintStyleId;
-        style.setAttribute('media', 'print');
         style.textContent = `@page { size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'}; margin: 10mm; }`;
-        document.head.appendChild(style);
 
         window.print();
-
-        // Keep the DOM clean after print dialog has been triggered.
-        setTimeout(() => {
-            const mountedStyle = document.getElementById(dynamicPrintStyleId);
-            if (mountedStyle) {
-                mountedStyle.remove();
-            }
-        }, 500);
     };
+
+    useEffect(() => {
+        const dynamicPrintStyleId = 'dynamic-print-orientation-style';
+        let style = document.getElementById(dynamicPrintStyleId) as HTMLStyleElement | null;
+        if (!style) {
+            style = document.createElement('style');
+            style.id = dynamicPrintStyleId;
+            style.setAttribute('media', 'print');
+            document.head.appendChild(style);
+        }
+        const isLandscape = showModal && modalMode === 'view' && formData.type === 'RPCI';
+        style.textContent = `@page { size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'}; margin: 10mm; }`;
+    }, [showModal, modalMode, formData.type]);
 
     useEffect(() => {
         setReports(serverReports.length > 0 ? serverReports : []);

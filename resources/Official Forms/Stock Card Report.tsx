@@ -55,7 +55,7 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
       <style>{`
         @page {
             size: A4 portrait;
-            margin: 12mm;
+            margin: 10mm;
         }
         .sc-container {
             font-family: 'Times New Roman', Times, serif;
