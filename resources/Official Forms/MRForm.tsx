@@ -217,36 +217,43 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         <div className="main-title">MEMORANDUM RECEIPT FOR PROPERTY</div>
         <div className="sub-title">(MEMORANDUM OF RECEIPT)</div>
 
-        {/* Top Info Grid (pure table for 100% reliable baseline rendering) */}
-        <table style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse' }}>
+        {/* Top Info Grid with explicit column widths to prevent collapse */}
+        <table style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '90px' }} />
+            <col style={{ width: '280px' }} />
+            <col style={{ width: '30px' }} />
+            <col style={{ width: '90px' }} />
+            <col style={{ width: '230px' }} />
+          </colgroup>
           <tbody>
             <tr>
-              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingBottom: '6px', verticalAlign: 'bottom' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '3px 0' }}>
                 Entity Name:
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt', width: '45%' }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '2px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
                 {data.entityName || '\u00A0'}
               </td>
-              <td style={{ width: '4%' }}>&nbsp;</td>
-              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingBottom: '6px', verticalAlign: 'bottom' }}>
+              <td>&nbsp;</td>
+              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '3px 0' }}>
                 MR No. :
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt', width: '35%' }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '2px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
                 {data.mrNo || '\u00A0'}
               </td>
             </tr>
             <tr>
-              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingTop: '4px', verticalAlign: 'bottom' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '6px 0 3px 0' }}>
                 Fund Cluster:
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '4px 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt' }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
                 {data.fundCluster || 'Regular Agency Fund'}
               </td>
               <td>&nbsp;</td>
-              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingTop: '4px', verticalAlign: 'bottom' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '6px 0 3px 0' }}>
                 Date :
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '4px 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt' }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
                 {data.date || formatDate(new Date().toISOString())}
               </td>
             </tr>
@@ -329,21 +336,25 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
                   </tbody>
                 </table>
 
-                <table style={{ width: '100%', marginTop: '6px', borderCollapse: 'collapse' }}>
+                <table style={{ width: '100%', marginTop: '8px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                  <colgroup>
+                    <col style={{ width: '65px' }} />
+                    <col style={{ width: '220px' }} />
+                  </colgroup>
                   <tbody>
                     <tr>
-                      <td style={{ border: 'none', width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '8.5pt', paddingRight: '6px', paddingBottom: '4px', verticalAlign: 'bottom' }}>
+                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '3px 0' }}>
                         Position:
                       </td>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 3px 4px', verticalAlign: 'bottom', fontSize: '8.5pt' }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '2px 4px 3px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.2 }}>
                         {data.issuedByPosition || 'SUPPLY OFFICER III / ADMIN OFFICER V'}
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ border: 'none', width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '8.5pt', paddingRight: '6px', paddingTop: '4px', verticalAlign: 'bottom' }}>
+                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '5px 0 3px 0' }}>
                         Date:
                       </td>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '4px 4px 3px 4px', verticalAlign: 'bottom', fontSize: '8.5pt' }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '5px 4px 3px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.2 }}>
                         {data.issuedByDate || '\u00A0'}
                       </td>
                     </tr>
@@ -369,29 +380,33 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
                   </tbody>
                 </table>
 
-                <table style={{ width: '100%', marginTop: '6px', borderCollapse: 'collapse' }}>
+                <table style={{ width: '100%', marginTop: '8px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                  <colgroup>
+                    <col style={{ width: '65px' }} />
+                    <col style={{ width: '220px' }} />
+                  </colgroup>
                   <tbody>
                     <tr>
-                      <td style={{ border: 'none', width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '8.5pt', paddingRight: '6px', paddingBottom: '4px', verticalAlign: 'bottom' }}>
+                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '3px 0' }}>
                         Position:
                       </td>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 3px 4px', verticalAlign: 'bottom', fontSize: '8.5pt' }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '2px 4px 3px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.2 }}>
                         {data.receivedByPosition || '\u00A0'}
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ border: 'none', width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '8.5pt', paddingRight: '6px', paddingTop: '3px', paddingBottom: '3px', verticalAlign: 'bottom' }}>
+                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '5px 0 3px 0' }}>
                         Office:
                       </td>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '3px 4px 3px 4px', verticalAlign: 'bottom', fontSize: '8.5pt' }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '5px 4px 3px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.2 }}>
                         {data.receivedByOffice || '\u00A0'}
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ border: 'none', width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '8.5pt', paddingRight: '6px', paddingTop: '3px', verticalAlign: 'bottom' }}>
+                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '5px 0 3px 0' }}>
                         Date:
                       </td>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '3px 4px 3px 4px', verticalAlign: 'bottom', fontSize: '8.5pt' }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '5px 4px 3px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.2 }}>
                         {data.receivedByDate || '\u00A0'}
                       </td>
                     </tr>

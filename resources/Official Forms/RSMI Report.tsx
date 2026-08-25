@@ -140,36 +140,43 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         <div className="header-appendix">Appendix 64</div>
         <div className="main-title">REPORT OF SUPPLIES AND MATERIALS ISSUED</div>
 
-        {/* Top Info (pure table layout for 100% reliable baseline underline rendering) */}
-        <table style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse' }}>
+        {/* Top Info with fixed pixel widths to prevent overlap */}
+        <table style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '90px' }} />
+            <col style={{ width: '280px' }} />
+            <col style={{ width: '30px' }} />
+            <col style={{ width: '90px' }} />
+            <col style={{ width: '230px' }} />
+          </colgroup>
           <tbody>
             <tr>
-              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingBottom: '6px', verticalAlign: 'bottom' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '3px 0' }}>
                 Entity Name:
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt', width: '45%' }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '2px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
                 {data.entityName || '\u00A0'}
               </td>
-              <td style={{ width: '4%' }}>&nbsp;</td>
-              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingBottom: '6px', verticalAlign: 'bottom' }}>
+              <td>&nbsp;</td>
+              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '3px 0' }}>
                 Serial No. :
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt', width: '35%' }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '2px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
                 {data.serialNo || '\u00A0'}
               </td>
             </tr>
             <tr>
-              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingTop: '4px', verticalAlign: 'bottom' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '6px 0 3px 0' }}>
                 Fund Cluster:
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '4px 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt' }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
                 {data.fundCluster || 'Regular Agency Fund'}
               </td>
               <td>&nbsp;</td>
-              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingTop: '4px', verticalAlign: 'bottom' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '6px 0 3px 0' }}>
                 Date :
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '4px 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt' }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
                 {data.date || '\u00A0'}
               </td>
             </tr>
@@ -244,7 +251,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
               </tr>
             ))}
 
-            {/* Footer / Signatures - Integrated as a table row to maintain perfect vertical alignment */}
+            {/* Footer / Signatures */}
             <tr>
               <td colSpan={6} className="footer-cell">
                 <div className="certify-text">I hereby certify to the correctness of the above information.</div>

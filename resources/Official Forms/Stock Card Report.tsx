@@ -128,21 +128,28 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
 
         <div className="main-title">STOCK CARD</div>
 
-        {/* Top Info Grid (pure table for 100% reliable baseline rendering) */}
-        <table style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse' }}>
+        {/* Top Info Grid with explicit column widths to prevent any layout collapse */}
+        <table style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '90px' }} />
+            <col style={{ width: '280px' }} />
+            <col style={{ width: '30px' }} />
+            <col style={{ width: '90px' }} />
+            <col style={{ width: '230px' }} />
+          </colgroup>
           <tbody>
             <tr>
-              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', verticalAlign: 'bottom' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 0' }}>
                 Entity Name:
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt', width: '45%' }}>
+              <td style={{ borderBottom: '1px solid #000000', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 6px 3px 6px', lineHeight: 1.2 }}>
                 {data.entity_name || '\u00A0'}
               </td>
-              <td style={{ width: '4%' }}>&nbsp;</td>
-              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', verticalAlign: 'bottom' }}>
+              <td>&nbsp;</td>
+              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 0' }}>
                 Fund Cluster:
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt', width: '35%' }}>
+              <td style={{ borderBottom: '1px solid #000000', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 6px 3px 6px', lineHeight: 1.2 }}>
                 {data.fund_cluster || '\u00A0'}
               </td>
             </tr>
@@ -150,42 +157,57 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
         </table>
 
         {/* Boxed Header Info */}
-        <table className="main-table" style={{ borderBottom: 'none' }}>
+        <table className="main-table" style={{ borderBottom: 'none', tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '14%' }} />
+            <col style={{ width: '38%' }} />
+            <col style={{ width: '16%' }} />
+            <col style={{ width: '32%' }} />
+          </colgroup>
           <tbody>
             <tr>
-              <td style={{ width: '14%', textAlign: 'center' }}>Item:</td>
-              <td style={{ width: '38%', textAlign: 'center', fontWeight: 'bold' }}>{data.item || '\u00A0'}</td>
-              <td style={{ width: '14%', textAlign: 'center' }}>Stock No.:</td>
-              <td style={{ width: '34%', textAlign: 'center', fontWeight: 'bold' }}>{data.stock_no || '\u00A0'}</td>
+              <td style={{ textAlign: 'center', fontWeight: 'normal', padding: '6px 4px' }}>Item:</td>
+              <td style={{ textAlign: 'center', fontWeight: 'bold', padding: '6px 6px' }}>{data.item || '\u00A0'}</td>
+              <td style={{ textAlign: 'center', fontWeight: 'normal', padding: '6px 4px' }}>Stock No.:</td>
+              <td style={{ textAlign: 'center', fontWeight: 'bold', padding: '6px 6px' }}>{data.stock_no || '\u00A0'}</td>
             </tr>
             <tr>
-              <td style={{ textAlign: 'center' }}>Description:</td>
-              <td style={{ textAlign: 'center' }}>{data.description || '\u00A0'}</td>
-              <td style={{ textAlign: 'center' }}>Re-order Point:</td>
-              <td style={{ textAlign: 'center' }}>{data.re_order_point || '\u00A0'}</td>
+              <td style={{ textAlign: 'center', padding: '6px 4px' }}>Description:</td>
+              <td style={{ textAlign: 'center', padding: '6px 6px' }}>{data.description || '\u00A0'}</td>
+              <td style={{ textAlign: 'center', padding: '6px 4px' }}>Re-order Point:</td>
+              <td style={{ textAlign: 'center', padding: '6px 6px' }}>{data.re_order_point || '\u00A0'}</td>
             </tr>
             <tr>
-              <td style={{ textAlign: 'center', lineHeight: 1.15 }}>Unit of<br />Measurement:</td>
-              <td style={{ textAlign: 'center' }}>{data.unit_of_measurement || '\u00A0'}</td>
-              <td colSpan={2} style={{ background: '#ffffff' }}>&nbsp;</td>
+              <td style={{ textAlign: 'center', lineHeight: 1.2, padding: '4px 4px' }}>Unit of<br />Measurement:</td>
+              <td style={{ textAlign: 'center', padding: '6px 6px' }}>{data.unit_of_measurement || '\u00A0'}</td>
+              <td colSpan={2} style={{ background: '#ffffff', padding: '6px 4px' }}>&nbsp;</td>
             </tr>
           </tbody>
         </table>
 
         {/* Main Content Table */}
-        <table className="main-table">
+        <table className="main-table" style={{ tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '11%' }} />
+            <col style={{ width: '15%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '26%' }} />
+            <col style={{ width: '11%' }} />
+            <col style={{ width: '17%' }} />
+          </colgroup>
           <thead>
             <tr>
-              <th rowSpan={2} style={{ width: '11%' }}>Date</th>
-              <th rowSpan={2} style={{ width: '15%' }}>Reference</th>
-              <th rowSpan={2} style={{ width: '10%' }}>Receipt<br/>Qty.</th>
-              <th colSpan={2} style={{ width: '36%' }}>Issue</th>
-              <th rowSpan={2} style={{ width: '11%' }}>Balance<br/>Qty.</th>
-              <th rowSpan={2} style={{ width: '17%' }}>No. of Days<br/>to Consume</th>
+              <th rowSpan={2}>Date</th>
+              <th rowSpan={2}>Reference</th>
+              <th rowSpan={2}>Receipt<br/>Qty.</th>
+              <th colSpan={2}>Issue</th>
+              <th rowSpan={2}>Balance<br/>Qty.</th>
+              <th rowSpan={2}>No. of Days<br/>to Consume</th>
             </tr>
             <tr>
-              <th style={{ width: '10%' }}>Qty.</th>
-              <th style={{ width: '26%' }}>Office</th>
+              <th>Qty.</th>
+              <th>Office</th>
             </tr>
           </thead>
           
