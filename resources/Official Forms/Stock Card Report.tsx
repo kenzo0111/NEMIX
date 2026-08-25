@@ -46,7 +46,7 @@ const formatDate = (dateString?: string) => {
 
 export const StockCard: React.FC<StockCardProps> = ({ data }) => {
   const entries = data.entries || [];
-  const targetRowCount = 20;
+  const targetRowCount = 10;
   const emptyRowsCount = Math.max(0, targetRowCount - entries.length);
   const emptyRows = Array.from({ length: emptyRowsCount });
 
@@ -55,31 +55,33 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
       <style>{`
         @page {
             size: A4 portrait;
-            margin: 10mm;
+            margin: 8mm;
         }
         .sc-container {
             font-family: 'Times New Roman', Times, serif;
-            font-size: 10pt;
+            font-size: 9.5pt;
             background: #ffffff;
             color: #000000;
             width: 100%;
             max-width: 190mm;
             margin: 0 auto;
             box-sizing: border-box;
-            line-height: 1.25;
+            line-height: 1.2;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
         .header-title {
             text-align: right;
             font-style: italic;
-            font-size: 11pt;
-            margin-bottom: 4px;
+            font-size: 10.5pt;
+            margin-bottom: 2px;
             font-weight: bold;
         }
         .main-title {
             text-align: center;
             font-weight: bold;
-            font-size: 13pt;
-            margin-bottom: 14px;
+            font-size: 12pt;
+            margin-bottom: 8px;
             letter-spacing: 0.5px;
         }
         table {
@@ -95,13 +97,13 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
         }
         .main-table th, .main-table td {
             border: 1px solid #000000;
-            padding: 4px 6px;
-            font-size: 9.5pt;
+            padding: 2.5px 4px;
+            font-size: 8.5pt;
             box-sizing: border-box;
             word-break: break-word;
             overflow-wrap: anywhere;
             vertical-align: middle;
-            line-height: 1.3;
+            line-height: 1.25;
         }
         .main-table th {
             background-color: #ffffff;
@@ -109,7 +111,7 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
             text-align: center;
         }
         .empty-row td {
-            height: 22px;
+            height: 17px;
         }
         
         .text-center { text-align: center; }
@@ -118,7 +120,7 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
         
         @media print {
             body { margin: 0; padding: 0; background: #fff; }
-            .sc-container { width: 100%; max-width: none; }
+            .sc-container { width: 100%; max-width: none; page-break-inside: avoid; break-inside: avoid; }
             .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
       `}</style>

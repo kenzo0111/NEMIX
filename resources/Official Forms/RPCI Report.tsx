@@ -38,7 +38,7 @@ interface ReportPhysicalCountProps {
 
 export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }) => {
   const items = data.items || [];
-  const targetRowCount = 12;
+  const targetRowCount = 6;
   const emptyRowsCount = Math.max(0, targetRowCount - items.length);
   const emptyRows = Array.from({ length: emptyRowsCount });
 
@@ -47,39 +47,41 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
       <style>{`
         @page {
             size: A4 landscape;
-            margin: 10mm;
+            margin: 8mm;
         }
         .rpci-container {
             font-family: 'Times New Roman', Times, serif;
-            font-size: 9.5pt;
+            font-size: 9pt;
             background: #ffffff;
             color: #000000;
             width: 100%;
             max-width: 277mm;
             margin: 0 auto;
             box-sizing: border-box;
-            line-height: 1.25;
+            line-height: 1.2;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
         .header-appendix {
             text-align: right;
             font-style: italic;
-            font-size: 11pt;
-            margin-bottom: 4px;
+            font-size: 10.5pt;
+            margin-bottom: 2px;
             font-weight: bold;
         }
         .main-title {
             text-align: center;
             font-weight: bold;
-            font-size: 13pt;
-            margin-bottom: 4px;
+            font-size: 12pt;
+            margin-bottom: 2px;
             letter-spacing: 0.5px;
             text-transform: uppercase;
         }
         .sub-title {
             text-align: center;
-            font-size: 9.5pt;
-            margin-bottom: 12px;
-            line-height: 1.35;
+            font-size: 9pt;
+            margin-bottom: 6px;
+            line-height: 1.25;
         }
         table {
             width: 100%;
@@ -91,39 +93,39 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
         }
         .main-table th, .main-table td {
             border: 1px solid #000000;
-            padding: 4px 5px;
+            padding: 2.5px 4px;
             word-break: break-word;
             overflow-wrap: anywhere;
             text-align: center;
-            font-size: 9pt;
+            font-size: 8.5pt;
             box-sizing: border-box;
             vertical-align: middle;
-            line-height: 1.3;
+            line-height: 1.2;
         }
         .main-table th {
             font-weight: bold;
             background-color: #ffffff;
         }
         .empty-row td {
-            height: 20px;
+            height: 16px;
         }
         .text-left { text-align: left !important; }
         .text-right { text-align: right !important; }
         .text-center { text-align: center !important; }
         
         .footer-table {
-            margin-top: 14px;
+            margin-top: 8px;
             width: 100%;
         }
         .footer-table td {
             width: 33.33%;
-            padding: 6px 12px;
+            padding: 3px 8px;
             vertical-align: top;
-            font-size: 8.5pt;
+            font-size: 8pt;
         }
         @media print {
             body { margin: 0; padding: 0; background: #fff; }
-            .rpci-container { width: 100%; max-width: none; }
+            .rpci-container { width: 100%; max-width: none; page-break-inside: avoid; break-inside: avoid; }
             .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
       `}</style>
@@ -235,7 +237,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
           <tbody>
             <tr>
               <td>
-                <div style={{ marginBottom: '28px' }}>Certified Correct by:</div>
+                <div style={{ marginBottom: '14px' }}>Certified Correct by:</div>
                 <table style={{ width: '90%', margin: '0 auto', borderCollapse: 'collapse' }}>
                   <tbody>
                     <tr>
@@ -252,7 +254,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                 </table>
               </td>
               <td>
-                <div style={{ marginBottom: '28px' }}>Approved by:</div>
+                <div style={{ marginBottom: '14px' }}>Approved by:</div>
                 <table style={{ width: '90%', margin: '0 auto', borderCollapse: 'collapse' }}>
                   <tbody>
                     <tr>
@@ -269,7 +271,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                 </table>
               </td>
               <td>
-                <div style={{ marginBottom: '28px' }}>Verified by:</div>
+                <div style={{ marginBottom: '14px' }}>Verified by:</div>
                 <table style={{ width: '90%', margin: '0 auto', borderCollapse: 'collapse' }}>
                   <tbody>
                     <tr>

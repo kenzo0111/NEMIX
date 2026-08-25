@@ -1659,7 +1659,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 @media print {
                     @page { 
                         size: ${formData.type === 'RPCI' ? 'A4 landscape' : 'A4 portrait'}; 
-                        margin: 10mm; 
+                        margin: 8mm; 
                     }
                     html, body { 
                         -webkit-print-color-adjust: exact !important; 
@@ -1667,6 +1667,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         background: #ffffff !important;
                         margin: 0 !important;
                         padding: 0 !important;
+                        width: 100% !important;
                     }
                     /* Hide modal backdrop, dark overlays, and non-printable elements */
                     #modal > div:first-child,
@@ -1682,7 +1683,10 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         page-break-inside: avoid !important;
                         page-break-after: avoid !important;
                         page-break-before: avoid !important;
-                        margin: 0 !important;
+                        break-inside: avoid !important;
+                        break-after: avoid !important;
+                        break-before: avoid !important;
+                        margin: 0 auto !important;
                         padding: 0 !important;
                         background: #ffffff !important;
                         border: none !important;
