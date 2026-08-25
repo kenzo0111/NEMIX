@@ -35,6 +35,19 @@ export interface RSMIFormProps {
   };
 }
 
+// --- Helper Functions ---
+const getDynamicNameStyle = (name?: string, defaultSize = '9pt'): React.CSSProperties => {
+  if (!name) return { fontSize: defaultSize, whiteSpace: 'nowrap' };
+  const len = name.trim().length;
+  if (len > 30) {
+    return { fontSize: '7pt', whiteSpace: 'nowrap' };
+  }
+  if (len > 22) {
+    return { fontSize: '8pt', whiteSpace: 'nowrap' };
+  }
+  return { fontSize: defaultSize, whiteSpace: 'nowrap' };
+};
+
 export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
   const items = data.issuedItems || [];
   const targetRowCount = 8;
@@ -255,43 +268,60 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
 
             {/* Footer / Signatures */}
             <tr>
-              <td colSpan={6} className="footer-cell">
-                <div className="certify-text">I hereby certify to the correctness of the above information.</div>
-                <table style={{ width: '85%', margin: '0 auto', borderCollapse: 'collapse' }}>
+              <td colSpan={9} style={{ padding: 0, border: 'none', borderTop: '1px solid #000000' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                  <colgroup>
+                    <col style={{ width: '50%' }} />
+                    <col style={{ width: '50%' }} />
+                  </colgroup>
                   <tbody>
                     <tr>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', fontSize: '9.5pt', lineHeight: 1.25 }}>
-                        {data.supplyCustodianName || '\u00A0'}
+                      <td className="footer-cell" style={{ border: 'none', borderRight: '1.5px solid #000000', verticalAlign: 'top', padding: '8px 12px' }}>
+                        <div className="certify-text">I hereby certify to the correctness of the above information.</div>
+                        <table style={{ width: '85%', margin: '0 auto', borderCollapse: 'collapse' }}>
+                          <tbody>
+                            <tr>
+                              <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', lineHeight: 1.25, ...getDynamicNameStyle(data.supplyCustodianName, '9.5pt') }}>
+                                {data.supplyCustodianName || '\u00A0'}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style={{ border: 'none', textAlign: 'center', fontSize: '8pt', paddingTop: '4px', lineHeight: 1.2 }}>
+                                Signature over Printed Name of Supply and/or<br/>Property Custodian
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </td>
-                    </tr>
-                    <tr>
-                      <td style={{ border: 'none', textAlign: 'center', fontSize: '8pt', paddingTop: '4px', lineHeight: 1.2 }}>
-                        Signature over Printed Name of Supply and/or<br/>Property Custodian
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
-              <td colSpan={3} className="footer-cell" style={{ borderLeft: '1.5px solid #000000' }}>
-                <div className="posted-text">Posted by:</div>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <tbody>
-                    <tr>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', fontSize: '9pt', lineHeight: 1.25, width: '65%' }}>
-                        {data.accountingStaffName || '\u00A0'}
-                      </td>
-                      <td style={{ border: 'none', width: '8%' }}>&nbsp;</td>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', textAlign: 'center', fontSize: '9pt', lineHeight: 1.25, width: '27%' }}>
-                        {data.accountingDate || '\u00A0'}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.15 }}>
-                        Signature over Printed Name of<br/>Designated Accounting Staff
-                      </td>
-                      <td style={{ border: 'none' }}>&nbsp;</td>
-                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.15 }}>
-                        Date
+                      <td className="footer-cell" style={{ border: 'none', verticalAlign: 'top', padding: '8px 12px' }}>
+                        <div className="posted-text">Posted by:</div>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                          <colgroup>
+                            <col style={{ width: '68%' }} />
+                            <col style={{ width: '4%' }} />
+                            <col style={{ width: '28%' }} />
+                          </colgroup>
+                          <tbody>
+                            <tr>
+                              <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', lineHeight: 1.25, ...getDynamicNameStyle(data.accountingStaffName, '9pt') }}>
+                                {data.accountingStaffName || '\u00A0'}
+                              </td>
+                              <td style={{ border: 'none' }}>&nbsp;</td>
+                              <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', textAlign: 'center', fontSize: '9pt', lineHeight: 1.25, whiteSpace: 'nowrap' }}>
+                                {data.accountingDate || '\u00A0'}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.15 }}>
+                                Signature over Printed Name of<br/>Designated Accounting Staff
+                              </td>
+                              <td style={{ border: 'none' }}>&nbsp;</td>
+                              <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.15, verticalAlign: 'top' }}>
+                                Date
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </td>
                     </tr>
                   </tbody>
