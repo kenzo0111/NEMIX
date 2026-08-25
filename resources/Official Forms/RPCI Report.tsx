@@ -38,7 +38,7 @@ interface ReportPhysicalCountProps {
 
 export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }) => {
   const items = data.items || [];
-  const targetRowCount = 14; // Target rows to fit cleanly on A4 landscape page
+  const targetRowCount = 12;
   const emptyRowsCount = Math.max(0, targetRowCount - items.length);
   const emptyRows = Array.from({ length: emptyRowsCount });
 
@@ -71,54 +71,39 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
             text-align: center;
             font-weight: bold;
             font-size: 12pt;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
             letter-spacing: 0.5px;
         }
         .sub-title {
             text-align: center;
             font-size: 9pt;
-            margin-bottom: 10px;
-            line-height: 1.3;
-        }
-        .underline-input {
-            border-bottom: 1px solid #000000;
-            display: inline-block;
-            padding: 0 4px 2px 4px;
-            font-weight: bold;
-            min-height: 17px;
-            line-height: 1.2;
-            box-sizing: border-box;
-            vertical-align: bottom;
+            margin-bottom: 12px;
+            line-height: 1.35;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
         }
-        .meta-table td {
-            padding: 3px 0;
-            vertical-align: bottom;
-            font-size: 9pt;
-        }
         .main-table {
             border: 1.5px solid #000000;
         }
         .main-table th, .main-table td {
             border: 1px solid #000000;
-            padding: 2px 4px;
+            padding: 4px 5px;
             word-break: break-word;
             overflow-wrap: anywhere;
             text-align: center;
             font-size: 9pt;
             box-sizing: border-box;
             vertical-align: middle;
-            line-height: 1.2;
+            line-height: 1.3;
         }
         .main-table th {
             font-weight: bold;
             background-color: #ffffff;
         }
-        .main-table td {
+        .empty-row td {
             height: 20px;
         }
         .text-left { text-align: left !important; }
@@ -126,7 +111,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
         .text-center { text-align: center !important; }
         
         .footer-table {
-            margin-top: 10px;
+            margin-top: 14px;
             width: 100%;
         }
         .footer-table td {
@@ -134,14 +119,6 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
             padding: 6px 12px;
             vertical-align: top;
             font-size: 8.5pt;
-        }
-        .sig-line {
-            border-top: 1px solid #000000;
-            margin-top: 32px;
-            text-align: center;
-            padding-top: 3px;
-            font-size: 8pt;
-            line-height: 1.2;
         }
         @media print {
             body { margin: 0; padding: 0; background: #fff; }
@@ -155,32 +132,55 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
 
         <div className="main-title">REPORT ON THE PHYSICAL COUNT OF INVENTORIES</div>
         <div className="sub-title">
-            <span className="underline-input" style={{ minWidth: '280px' }}>{data.inventory_type || '\u00A0'}</span><br/>
-            (Type of Inventory Item)<br/>
-            As at <span className="underline-input" style={{ minWidth: '180px' }}>{data.as_at_date || '\u00A0'}</span>
+          <div style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 8px 3px 8px', minWidth: '280px', fontWeight: 'bold', fontSize: '9.5pt' }}>
+            {data.inventory_type || '\u00A0'}
+          </div>
+          <div style={{ marginTop: '2px', fontSize: '8.5pt' }}>(Type of Inventory Item)</div>
+          <div style={{ marginTop: '6px' }}>
+            As at{' '}
+            <div style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 8px 3px 8px', minWidth: '180px', fontWeight: 'bold', fontSize: '9.5pt' }}>
+              {data.as_at_date || '\u00A0'}
+            </div>
+          </div>
         </div>
 
-        <table className="meta-table" style={{ marginBottom: '6px' }}>
+        {/* Meta Info (pure table structure for 100% reliable baseline underline rendering) */}
+        <table style={{ width: '100%', marginBottom: '8px', borderCollapse: 'collapse' }}>
           <tbody>
             <tr>
-              <td style={{ width: '50%' }}>
-                <strong>Fund Cluster :</strong> <span className="underline-input" style={{ minWidth: '200px' }}>{data.fund_cluster || 'Regular Agency Fund'}</span>
+              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '9.5pt', paddingRight: '8px', verticalAlign: 'bottom' }}>
+                Fund Cluster :
               </td>
-              <td style={{ width: '50%' }}></td>
+              <td style={{ borderBottom: '1px solid #000000', padding: '0 4px 3px 4px', verticalAlign: 'bottom', fontSize: '9.5pt', width: '35%' }}>
+                {data.fund_cluster || 'Regular Agency Fund'}
+              </td>
+              <td style={{ width: '55%' }}>&nbsp;</td>
             </tr>
+          </tbody>
+        </table>
+
+        {/* Accountability statement with pure table flow to guarantee zero line overlap */}
+        <table style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse' }}>
+          <tbody>
             <tr>
-              <td colSpan={2}>
-                <div style={{ display: 'flex', width: '100%', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                  <span style={{ marginRight: '4px' }}><strong>For which</strong></span>
-                  <span className="underline-input text-center" style={{ flex: '1 1 180px', minWidth: '120px' }}>{data.accountable_officer || 'Arsenio Gem A. Garcillanosa'}</span>
-                  <span style={{ margin: '0 4px' }}>,</span>
-                  <span className="underline-input text-center" style={{ flex: '1 1 140px', minWidth: '100px' }}>{data.designation || '\u00A0'}</span>
-                  <span style={{ margin: '0 4px' }}>,</span>
-                  <span className="underline-input text-center" style={{ flex: '1 1 200px', minWidth: '150px' }}>{data.entity_name || '\u00A0'}</span>
-                  <span style={{ margin: '0 6px', whiteSpace: 'nowrap' }}><strong>is accountable, having assumed such accountability on</strong></span>
-                  <span className="underline-input text-center" style={{ flex: '0 1 120px', minWidth: '80px' }}>{data.date_assumption || '\u00A0'}</span>
-                  <span>.</span>
-                </div>
+              <td style={{ fontSize: '9pt', lineHeight: 1.6, verticalAlign: 'bottom' }}>
+                For which{' '}
+                <span style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 6px 2px 6px', fontWeight: 'bold', minWidth: '160px', textAlign: 'center' }}>
+                  {data.accountable_officer || 'Arsenio Gem A. Garcillanosa'}
+                </span>
+                ,{' '}
+                <span style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 6px 2px 6px', fontWeight: 'bold', minWidth: '140px', textAlign: 'center' }}>
+                  {data.designation || 'Supply Custodian'}
+                </span>
+                ,{' '}
+                <span style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 6px 2px 6px', fontWeight: 'bold', minWidth: '200px', textAlign: 'center' }}>
+                  {data.entity_name || 'University of Camarines Norte'}
+                </span>
+                {' '}is accountable, having assumed such accountability on{' '}
+                <span style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 6px 2px 6px', fontWeight: 'bold', minWidth: '90px', textAlign: 'center' }}>
+                  {data.date_assumption || '\u00A0'}
+                </span>
+                .
               </td>
             </tr>
           </tbody>
@@ -190,14 +190,14 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
           <thead>
             <tr>
               <th rowSpan={2} style={{ width: '8%' }}>Article</th>
-              <th rowSpan={2} style={{ width: '19%' }}>Description</th>
-              <th rowSpan={2} style={{ width: '9%' }}>Stock Number</th>
+              <th rowSpan={2} style={{ width: '20%' }}>Description</th>
+              <th rowSpan={2} style={{ width: '12%' }}>Stock Number</th>
               <th rowSpan={2} style={{ width: '6%' }}>Unit of Measure</th>
               <th rowSpan={2} style={{ width: '8%' }}>Unit Value</th>
               <th style={{ width: '8%' }}>Balance Per Card</th>
               <th style={{ width: '8%' }}>On Hand Per Count</th>
               <th colSpan={2} style={{ width: '14%' }}>Shortage/Overage</th>
-              <th rowSpan={2} style={{ width: '20%' }}>Remarks</th>
+              <th rowSpan={2} style={{ width: '16%' }}>Remarks</th>
             </tr>
             <tr>
               <th>(Quantity)</th>
@@ -222,7 +222,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
               </tr>
             ))}
             {emptyRows.map((_, idx) => (
-              <tr key={`empty-${idx}`}>
+              <tr key={`empty-${idx}`} className="empty-row">
                 <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
                 <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
               </tr>
@@ -230,29 +230,60 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
           </tbody>
         </table>
 
+        {/* Footer Signatures (clean 2-row signature block to prevent line overlaps) */}
         <table className="footer-table">
           <tbody>
             <tr>
               <td>
-                Certified Correct by:
-                <div className="sig-line">
-                  <strong>{data.committee_chair_name || '\u00A0'}</strong><br/>
-                  Signature over Printed Name of Inventory Committee Chair and Members
-                </div>
+                <div style={{ marginBottom: '28px' }}>Certified Correct by:</div>
+                <table style={{ width: '90%', margin: '0 auto', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', fontSize: '8.5pt', minHeight: '20px' }}>
+                        {data.committee_chair_name || '\u00A0'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.2 }}>
+                        Signature over Printed Name of Inventory Committee Chair and Members
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </td>
               <td>
-                Approved by:
-                <div className="sig-line">
-                  <strong>{data.head_of_agency_name || '\u00A0'}</strong><br/>
-                  Signature over Printed Name of Head of Agency/Entity or Authorized Representative
-                </div>
+                <div style={{ marginBottom: '28px' }}>Approved by:</div>
+                <table style={{ width: '90%', margin: '0 auto', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', fontSize: '8.5pt', minHeight: '20px' }}>
+                        {data.head_of_agency_name || '\u00A0'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.2 }}>
+                        Signature over Printed Name of Head of Agency/Entity or Authorized Representative
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </td>
               <td>
-                Verified by:
-                <div className="sig-line">
-                  <strong>{data.coa_representative_name || '\u00A0'}</strong><br/>
-                  Signature over Printed Name of COA Representative
-                </div>
+                <div style={{ marginBottom: '28px' }}>Verified by:</div>
+                <table style={{ width: '90%', margin: '0 auto', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', fontSize: '8.5pt', minHeight: '20px' }}>
+                        {data.coa_representative_name || '\u00A0'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.2 }}>
+                        Signature over Printed Name of COA Representative
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </td>
             </tr>
           </tbody>

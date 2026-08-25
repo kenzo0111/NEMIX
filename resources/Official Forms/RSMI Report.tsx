@@ -36,14 +36,12 @@ export interface RSMIFormProps {
 }
 
 export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
-  // Pad main table to 18 rows so it fits on one A4 portrait page
   const items = data.issuedItems || [];
-  const targetRowCount = 18;
+  const targetRowCount = 16;
   const paddedItems = [...items, ...Array(Math.max(0, targetRowCount - items.length)).fill({})];
 
-  // Pad recapitulation table to 6 rows
   const recap = data.recapitulationItems || [];
-  const recapTargetCount = 6;
+  const recapTargetCount = 5;
   const paddedRecap = [...recap, ...Array(Math.max(0, recapTargetCount - recap.length)).fill({})];
 
   return (
@@ -75,38 +73,8 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             text-align: center;
             font-weight: bold;
             font-size: 12pt;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             letter-spacing: 0.5px;
-        }
-        
-        /* Top Info Grid */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            column-gap: 30px;
-            margin-bottom: 8px;
-        }
-        .info-row {
-            display: flex;
-            align-items: flex-end;
-            margin-bottom: 6px;
-        }
-        .info-label {
-            font-weight: bold;
-            white-space: nowrap;
-            margin-right: 6px;
-            font-size: 10pt;
-        }
-        .info-value {
-            flex-grow: 1;
-            border-bottom: 1px solid #000000;
-            min-height: 18px;
-            padding: 0 4px 2px 4px;
-            font-weight: normal;
-            font-size: 10pt;
-            line-height: 1.25;
-            word-break: break-word;
-            box-sizing: border-box;
         }
 
         /* Main Table Grid */
@@ -118,21 +86,21 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         }
         .main-table th, .main-table td {
             border: 1px solid #000000;
-            padding: 3px 4px;
+            padding: 4px 5px;
             font-size: 9pt;
             word-break: break-word;
             overflow-wrap: anywhere;
             box-sizing: border-box;
             vertical-align: middle;
-            line-height: 1.2;
+            line-height: 1.3;
         }
         .main-table th {
             text-align: center;
             font-weight: bold;
             background-color: #ffffff;
         }
-        .main-table td {
-            height: 20px;
+        .empty-row td {
+            height: 22px;
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
@@ -141,55 +109,21 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         .header-italic {
             font-style: italic;
             font-weight: normal !important;
+            padding: 4px 6px !important;
         }
 
         /* Footer / Signatures */
         .footer-cell {
             vertical-align: top !important;
-            padding: 8px !important;
-            height: 105px;
+            padding: 8px 10px !important;
         }
         .certify-text {
             margin-bottom: 24px;
             font-size: 9pt;
         }
-        .signature-area {
-            text-align: center;
-            width: 85%;
-            margin: 0 auto;
-        }
         .posted-text {
-            margin-bottom: 16px;
+            margin-bottom: 18px;
             font-size: 9pt;
-        }
-        .accounting-sigs {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            text-align: center;
-            padding: 0 4px;
-            margin-top: 10px;
-        }
-        .sig-main {
-            flex-grow: 1;
-            margin-right: 12px;
-        }
-        .sig-date {
-            width: 100px;
-        }
-        .sig-line {
-            border-bottom: 1px solid #000000;
-            min-height: 18px;
-            padding-bottom: 2px;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 9pt;
-            line-height: 1.2;
-        }
-        .sig-label {
-            font-size: 8pt;
-            margin-top: 3px;
-            line-height: 1.2;
         }
 
         /* Ensure borders match precisely */
@@ -206,42 +140,54 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         <div className="header-appendix">Appendix 64</div>
         <div className="main-title">REPORT OF SUPPLIES AND MATERIALS ISSUED</div>
 
-        {/* Top Info */}
-        <div className="info-grid">
-            <div>
-                <div className="info-row">
-                    <span className="info-label">Entity Name:</span>
-                    <div className="info-value">{data.entityName || '\u00A0'}</div>
-                </div>
-                <div className="info-row">
-                    <span className="info-label">Fund Cluster:</span>
-                    <div className="info-value">{data.fundCluster || 'Regular Agency Fund'}</div>
-                </div>
-            </div>
-            <div>
-                <div className="info-row">
-                    <span className="info-label">Serial No. :</span>
-                    <div className="info-value">{data.serialNo || '\u00A0'}</div>
-                </div>
-                <div className="info-row">
-                    <span className="info-label">Date :</span>
-                    <div className="info-value">{data.date || '\u00A0'}</div>
-                </div>
-            </div>
-        </div>
+        {/* Top Info (pure table layout for 100% reliable baseline underline rendering) */}
+        <table style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse' }}>
+          <tbody>
+            <tr>
+              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingBottom: '6px', verticalAlign: 'bottom' }}>
+                Entity Name:
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt', width: '45%' }}>
+                {data.entityName || '\u00A0'}
+              </td>
+              <td style={{ width: '4%' }}>&nbsp;</td>
+              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingBottom: '6px', verticalAlign: 'bottom' }}>
+                Serial No. :
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt', width: '35%' }}>
+                {data.serialNo || '\u00A0'}
+              </td>
+            </tr>
+            <tr>
+              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingTop: '4px', verticalAlign: 'bottom' }}>
+                Fund Cluster:
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', padding: '4px 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt' }}>
+                {data.fundCluster || 'Regular Agency Fund'}
+              </td>
+              <td>&nbsp;</td>
+              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingTop: '4px', verticalAlign: 'bottom' }}>
+                Date :
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', padding: '4px 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt' }}>
+                {data.date || '\u00A0'}
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         {/* Main 9-Column Grid Table */}
         <table className="main-table">
           <colgroup>
-             <col style={{width: '8%'}} />  {/* C1: RIS No. */}
-             <col style={{width: '13%'}} /> {/* C2: RCC */}
-             <col style={{width: '10%'}} /> {/* C3: Stock No. */}
-             <col style={{width: '26%'}} /> {/* C4: Item */}
-             <col style={{width: '7%'}} />  {/* C5: Unit */}
-             <col style={{width: '9%'}} />  {/* C6: Qty Issued */}
-             <col style={{width: '10%'}} /> {/* C7: Unit Cost */}
-             <col style={{width: '9%'}} />  {/* C8: Amount / Total Cost */}
-             <col style={{width: '8%'}} />  {/* C9: Amount / UACS */}
+             <col style={{width: '7%'}} />  {/* C1: RIS No. */}
+             <col style={{width: '18%'}} /> {/* C2: RCC */}
+             <col style={{width: '12%'}} /> {/* C3: Stock No. */}
+             <col style={{width: '23%'}} /> {/* C4: Item */}
+             <col style={{width: '6%'}} />  {/* C5: Unit */}
+             <col style={{width: '8%'}} />  {/* C6: Qty Issued */}
+             <col style={{width: '11%'}} /> {/* C7: Unit Cost */}
+             <col style={{width: '8%'}} />  {/* C8: Amount */}
+             <col style={{width: '7%'}} />  {/* C9: UACS */}
           </colgroup>
           <thead>
             <tr>
@@ -262,7 +208,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
           <tbody>
             {/* Upper Section: Main Items */}
             {paddedItems.map((item, idx) => (
-              <tr key={`item-${idx}`}>
+              <tr key={`item-${idx}`} className={!item.risNo && !item.itemDescription ? 'empty-row' : ''}>
                 <td className="text-center">{item.risNo || '\u00A0'}</td>
                 <td className="text-center">{item.responsibilityCenterCode || '\u00A0'}</td>
                 <td className="text-center">{item.stockNo || '\u00A0'}</td>
@@ -289,7 +235,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
 
             {/* Lower Section: Recapitulation Rows */}
             {paddedRecap.map((r, idx) => (
-              <tr key={`recap-${idx}`}>
+              <tr key={`recap-${idx}`} className={!r.stockNo && !r.quantity ? 'empty-row' : ''}>
                 <td colSpan={3} className="text-center">{r.stockNo || '\u00A0'}</td>
                 <td colSpan={3} className="text-center">{r.quantity !== undefined && r.quantity !== null && r.quantity !== '' ? r.quantity : '\u00A0'}</td>
                 <td className="text-right">{r.unitCost || '\u00A0'}</td>
@@ -302,23 +248,45 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             <tr>
               <td colSpan={6} className="footer-cell">
                 <div className="certify-text">I hereby certify to the correctness of the above information.</div>
-                <div className="signature-area">
-                  <div className="sig-line">{data.supplyCustodianName || '\u00A0'}</div>
-                  <div className="sig-label">Signature over Printed Name of Supply and/or<br/>Property Custodian</div>
-                </div>
+                <table style={{ width: '85%', margin: '0 auto', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', fontSize: '9.5pt', lineHeight: 1.25 }}>
+                        {data.supplyCustodianName || '\u00A0'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: 'none', textAlign: 'center', fontSize: '8pt', paddingTop: '4px', lineHeight: 1.2 }}>
+                        Signature over Printed Name of Supply and/or<br/>Property Custodian
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </td>
               <td colSpan={3} className="footer-cell" style={{ borderLeft: '1.5px solid #000000' }}>
                 <div className="posted-text">Posted by:</div>
-                <div className="accounting-sigs">
-                  <div className="sig-main">
-                    <div className="sig-line">{data.accountingStaffName || '\u00A0'}</div>
-                    <div className="sig-label">Signature over Printed Name of<br/>Designated Accounting Staff</div>
-                  </div>
-                  <div className="sig-date">
-                    <div className="sig-line">{data.accountingDate || '\u00A0'}</div>
-                    <div className="sig-label">Date</div>
-                  </div>
-                </div>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', fontSize: '9pt', lineHeight: 1.25, width: '65%' }}>
+                        {data.accountingStaffName || '\u00A0'}
+                      </td>
+                      <td style={{ border: 'none', width: '8%' }}>&nbsp;</td>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', textAlign: 'center', fontSize: '9pt', lineHeight: 1.25, width: '27%' }}>
+                        {data.accountingDate || '\u00A0'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.15 }}>
+                        Signature over Printed Name of<br/>Designated Accounting Staff
+                      </td>
+                      <td style={{ border: 'none' }}>&nbsp;</td>
+                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.15 }}>
+                        Date
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </td>
             </tr>
           </tbody>

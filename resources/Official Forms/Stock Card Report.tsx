@@ -45,9 +45,8 @@ const formatDate = (dateString?: string) => {
 };
 
 export const StockCard: React.FC<StockCardProps> = ({ data }) => {
-  // Logic to pad empty rows to fill up the page cleanly without splitting to 2nd page
   const entries = data.entries || [];
-  const targetRowCount = 22;
+  const targetRowCount = 20;
   const emptyRowsCount = Math.max(0, targetRowCount - entries.length);
   const emptyRows = Array.from({ length: emptyRowsCount });
 
@@ -96,20 +95,20 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
         }
         .main-table th, .main-table td {
             border: 1px solid #000000;
-            padding: 3px 5px;
+            padding: 4px 6px;
             font-size: 9.5pt;
             box-sizing: border-box;
             word-break: break-word;
             overflow-wrap: anywhere;
             vertical-align: middle;
-            line-height: 1.2;
+            line-height: 1.3;
         }
         .main-table th {
             background-color: #ffffff;
             font-weight: bold;
             text-align: center;
         }
-        .main-table td {
+        .empty-row td {
             height: 22px;
         }
         
@@ -129,50 +128,35 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
 
         <div className="main-title">STOCK CARD</div>
 
-        {/* Top Info Grid */}
-        <div style={{ display: 'flex', width: '100%', marginBottom: '10px', alignItems: 'flex-end', justifyContent: 'space-between', gap: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', flex: '1 1 56%' }}>
-            <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap', marginRight: '6px', fontSize: '10pt' }}>Entity Name:</span>
-            <div style={{
-              flexGrow: 1,
-              borderBottom: '1px solid #000',
-              minHeight: '18px',
-              padding: '0 4px 2px 4px',
-              fontSize: '10pt',
-              fontWeight: 'normal',
-              lineHeight: 1.25,
-              wordBreak: 'break-word',
-              boxSizing: 'border-box'
-            }}>
-              {data.entity_name || '\u00A0'}
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', flex: '1 1 44%' }}>
-            <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap', marginRight: '6px', fontSize: '10pt' }}>Fund Cluster:</span>
-            <div style={{
-              flexGrow: 1,
-              borderBottom: '1px solid #000',
-              minHeight: '18px',
-              padding: '0 4px 2px 4px',
-              fontSize: '10pt',
-              fontWeight: 'normal',
-              lineHeight: 1.25,
-              wordBreak: 'break-word',
-              boxSizing: 'border-box'
-            }}>
-              {data.fund_cluster || '\u00A0'}
-            </div>
-          </div>
-        </div>
+        {/* Top Info Grid (pure table for 100% reliable baseline rendering) */}
+        <table style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse' }}>
+          <tbody>
+            <tr>
+              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', verticalAlign: 'bottom' }}>
+                Entity Name:
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt', width: '45%' }}>
+                {data.entity_name || '\u00A0'}
+              </td>
+              <td style={{ width: '4%' }}>&nbsp;</td>
+              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', verticalAlign: 'bottom' }}>
+                Fund Cluster:
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt', width: '35%' }}>
+                {data.fund_cluster || '\u00A0'}
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         {/* Boxed Header Info */}
         <table className="main-table" style={{ borderBottom: 'none' }}>
           <tbody>
             <tr>
-              <td style={{ width: '15%', textAlign: 'center' }}>Item:</td>
-              <td style={{ width: '41%', textAlign: 'center', fontWeight: 'bold' }}>{data.item || '\u00A0'}</td>
-              <td style={{ width: '15%', textAlign: 'center' }}>Stock No.:</td>
-              <td style={{ width: '29%', textAlign: 'center', fontWeight: 'bold' }}>{data.stock_no || '\u00A0'}</td>
+              <td style={{ width: '14%', textAlign: 'center' }}>Item:</td>
+              <td style={{ width: '38%', textAlign: 'center', fontWeight: 'bold' }}>{data.item || '\u00A0'}</td>
+              <td style={{ width: '14%', textAlign: 'center' }}>Stock No.:</td>
+              <td style={{ width: '34%', textAlign: 'center', fontWeight: 'bold' }}>{data.stock_no || '\u00A0'}</td>
             </tr>
             <tr>
               <td style={{ textAlign: 'center' }}>Description:</td>
@@ -183,7 +167,7 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
             <tr>
               <td style={{ textAlign: 'center', lineHeight: 1.15 }}>Unit of<br />Measurement:</td>
               <td style={{ textAlign: 'center' }}>{data.unit_of_measurement || '\u00A0'}</td>
-              <td colSpan={2} style={{ background: '#fff' }}>&nbsp;</td>
+              <td colSpan={2} style={{ background: '#ffffff' }}>&nbsp;</td>
             </tr>
           </tbody>
         </table>
@@ -193,15 +177,15 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
           <thead>
             <tr>
               <th rowSpan={2} style={{ width: '11%' }}>Date</th>
-              <th rowSpan={2} style={{ width: '16%' }}>Reference</th>
+              <th rowSpan={2} style={{ width: '15%' }}>Reference</th>
               <th rowSpan={2} style={{ width: '10%' }}>Receipt<br/>Qty.</th>
-              <th colSpan={2} style={{ width: '33%' }}>Issue</th>
-              <th rowSpan={2} style={{ width: '12%' }}>Balance<br/>Qty.</th>
-              <th rowSpan={2} style={{ width: '18%' }}>No. of Days<br/>to Consume</th>
+              <th colSpan={2} style={{ width: '36%' }}>Issue</th>
+              <th rowSpan={2} style={{ width: '11%' }}>Balance<br/>Qty.</th>
+              <th rowSpan={2} style={{ width: '17%' }}>No. of Days<br/>to Consume</th>
             </tr>
             <tr>
-              <th style={{ width: '11%' }}>Qty.</th>
-              <th style={{ width: '22%' }}>Office</th>
+              <th style={{ width: '10%' }}>Qty.</th>
+              <th style={{ width: '26%' }}>Office</th>
             </tr>
           </thead>
           
@@ -211,17 +195,17 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
               <tr key={index}>
                 <td className="text-center">{formatDate(entry.date) || entry.date || '\u00A0'}</td>
                 <td className="text-center">{entry.reference || '\u00A0'}</td>
-                <td className="text-center">{entry.receipt_qty ?? '\u00A0'}</td>
-                <td className="text-center">{entry.issue_qty ?? '\u00A0'}</td>
+                <td className="text-center">{entry.receipt_qty !== undefined && entry.receipt_qty !== null && entry.receipt_qty !== '' ? entry.receipt_qty : '\u00A0'}</td>
+                <td className="text-center">{entry.issue_qty !== undefined && entry.issue_qty !== null && entry.issue_qty !== '' ? entry.issue_qty : '\u00A0'}</td>
                 <td className="text-center">{entry.issue_office || '\u00A0'}</td>
-                <td className="text-center">{entry.balance_qty ?? '\u00A0'}</td>
+                <td className="text-center">{entry.balance_qty !== undefined && entry.balance_qty !== null && entry.balance_qty !== '' ? entry.balance_qty : '\u00A0'}</td>
                 <td className="text-center">{entry.days_to_consume || '\u00A0'}</td>
               </tr>
             ))}
 
             {/* Empty Padding Rows to maintain table height */}
             {emptyRows.map((_, index) => (
-              <tr key={`empty-${index}`}>
+              <tr key={`empty-${index}`} className="empty-row">
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>

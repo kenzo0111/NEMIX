@@ -80,12 +80,9 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
   targetRows = 14 
 }) => {
   const items = data.items || [];
-  
-  // Calculate empty rows needed to fill page cleanly without spilling
   const emptyRowsCount = Math.max(0, targetRows - items.length);
   const emptyRows = Array.from({ length: emptyRowsCount });
 
-  // Calculate grand total if not provided
   const computedTotal = items.reduce((sum, item) => {
     const val = item.totalValue ?? (Number(item.quantity || 0) * Number(item.unitValue || 0));
     const num = typeof val === 'string' ? parseFloat(val) : val;
@@ -136,37 +133,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
           margin-bottom: 12px;
         }
 
-        /* Top Meta Grid */
-        .info-grid {
-          display: grid;
-          grid-template-columns: 1.2fr 0.8fr;
-          column-gap: 24px;
-          margin-bottom: 8px;
-        }
-        .info-row {
-          display: flex;
-          align-items: flex-end;
-          margin-bottom: 6px;
-        }
-        .info-label {
-          font-weight: bold;
-          white-space: nowrap;
-          margin-right: 6px;
-          font-size: 10pt;
-        }
-        .info-value {
-          flex-grow: 1;
-          border-bottom: 1px solid #000000;
-          min-height: 18px;
-          padding: 0 4px 2px 4px;
-          font-weight: normal;
-          font-size: 10pt;
-          line-height: 1.25;
-          word-break: break-word;
-          box-sizing: border-box;
-        }
-
-        /* Purpose / Intro statement */
+        /* Purpose statement */
         .purpose-statement {
           margin-bottom: 10px;
           line-height: 1.35;
@@ -183,20 +150,20 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         }
         .main-table th, .main-table td {
           border: 1px solid #000000;
-          padding: 3px 5px;
+          padding: 4px 6px;
           font-size: 9pt;
           box-sizing: border-box;
           word-break: break-word;
           overflow-wrap: anywhere;
           vertical-align: middle;
-          line-height: 1.2;
+          line-height: 1.3;
         }
         .main-table th {
           text-align: center;
           font-weight: bold;
           background-color: #ffffff;
         }
-        .main-table td {
+        .empty-row td {
           height: 22px;
         }
         .text-center { text-align: center; }
@@ -205,12 +172,12 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         .font-bold { font-weight: bold; }
 
         /* Column widths */
-        .col-qty { width: 8%; }
-        .col-unit { width: 8%; }
+        .col-qty { width: 6%; }
+        .col-unit { width: 7%; }
         .col-desc { width: 36%; }
-        .col-prop-no { width: 18%; }
-        .col-date { width: 12%; }
-        .col-val { width: 18%; }
+        .col-prop-no { width: 21%; }
+        .col-date { width: 14%; }
+        .col-val { width: 16%; }
 
         /* Signatures Section */
         .signatures-table {
@@ -231,50 +198,8 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         }
         .sig-header {
           font-weight: bold;
-          margin-bottom: 24px;
+          margin-bottom: 20px;
           font-size: 9.5pt;
-        }
-        .sig-line {
-          border-bottom: 1px solid #000000;
-          width: 90%;
-          margin: 0 auto 3px auto;
-          text-align: center;
-          font-weight: bold;
-          text-transform: uppercase;
-          min-height: 18px;
-          padding-bottom: 2px;
-          font-size: 9pt;
-          line-height: 1.2;
-        }
-        .sig-label {
-          text-align: center;
-          font-size: 8pt;
-          line-height: 1.25;
-          margin-bottom: 8px;
-        }
-        .sig-subinfo {
-          margin-top: 8px;
-          font-size: 9pt;
-        }
-        .sig-subrow {
-          display: flex;
-          align-items: flex-end;
-          margin-top: 4px;
-        }
-        .sig-subrow .sub-label {
-          width: 65px;
-          font-weight: bold;
-          font-size: 8.5pt;
-          white-space: nowrap;
-        }
-        .sig-subrow .sub-val {
-          flex-grow: 1;
-          border-bottom: 1px solid #000000;
-          min-height: 16px;
-          padding: 0 4px 1px 4px;
-          font-size: 8.5pt;
-          line-height: 1.2;
-          box-sizing: border-box;
         }
 
         @media print {
@@ -292,29 +217,41 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         <div className="main-title">MEMORANDUM RECEIPT FOR PROPERTY</div>
         <div className="sub-title">(MEMORANDUM OF RECEIPT)</div>
 
-        {/* Top Info Grid */}
-        <div className="info-grid">
-          <div>
-            <div className="info-row">
-              <span className="info-label">Entity Name:</span>
-              <div className="info-value">{data.entityName || '\u00A0'}</div>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Fund Cluster:</span>
-              <div className="info-value">{data.fundCluster || 'Regular Agency Fund'}</div>
-            </div>
-          </div>
-          <div>
-            <div className="info-row">
-              <span className="info-label">MR No. :</span>
-              <div className="info-value">{data.mrNo || '\u00A0'}</div>
-            </div>
-            <div className="info-row">
-              <span className="info-label">Date :</span>
-              <div className="info-value">{data.date || formatDate(new Date().toISOString())}</div>
-            </div>
-          </div>
-        </div>
+        {/* Top Info Grid (pure table for 100% reliable baseline rendering) */}
+        <table style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse' }}>
+          <tbody>
+            <tr>
+              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingBottom: '6px', verticalAlign: 'bottom' }}>
+                Entity Name:
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt', width: '45%' }}>
+                {data.entityName || '\u00A0'}
+              </td>
+              <td style={{ width: '4%' }}>&nbsp;</td>
+              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingBottom: '6px', verticalAlign: 'bottom' }}>
+                MR No. :
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt', width: '35%' }}>
+                {data.mrNo || '\u00A0'}
+              </td>
+            </tr>
+            <tr>
+              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingTop: '4px', verticalAlign: 'bottom' }}>
+                Fund Cluster:
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', padding: '4px 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt' }}>
+                {data.fundCluster || 'Regular Agency Fund'}
+              </td>
+              <td>&nbsp;</td>
+              <td style={{ width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '10pt', paddingRight: '8px', paddingTop: '4px', verticalAlign: 'bottom' }}>
+                Date :
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', padding: '4px 4px 4px 4px', verticalAlign: 'bottom', fontSize: '10pt' }}>
+                {data.date || formatDate(new Date().toISOString())}
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         {/* Purpose Statement */}
         <div className="purpose-statement">
@@ -348,7 +285,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
 
             {/* Empty Padding Rows */}
             {emptyRows.map((_, index) => (
-              <tr key={`empty-${index}`}>
+              <tr key={`empty-${index}`} className="empty-row">
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
@@ -370,54 +307,96 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
           </tbody>
         </table>
 
-        {/* Signatures Section */}
+        {/* Signatures Section with structured table rows */}
         <table className="signatures-table">
           <tbody>
             <tr>
               {/* Issued By (Property Custodian) */}
               <td className="sig-cell">
                 <div className="sig-header">Issued / Released by:</div>
-                <div className="sig-line">
-                  {data.issuedByName || 'ARSENIO GEM A. GARCILLANOSA'}
-                </div>
-                <div className="sig-label">
-                  Signature over Printed Name of Supply and/or<br />Property Custodian
-                </div>
-                <div className="sig-subinfo">
-                  <div className="sig-subrow">
-                    <span className="sub-label">Position:</span>
-                    <span className="sub-val">{data.issuedByPosition || 'SUPPLY OFFICER III / ADMIN OFFICER V'}</span>
-                  </div>
-                  <div className="sig-subrow">
-                    <span className="sub-label">Date:</span>
-                    <span className="sub-val">{data.issuedByDate || '\u00A0'}</span>
-                  </div>
-                </div>
+                <table style={{ width: '85%', margin: '0 auto 12px auto', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', fontSize: '9.5pt', lineHeight: 1.25 }}>
+                        {data.issuedByName || 'ARSENIO GEM A. GARCILLANOSA'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: 'none', textAlign: 'center', fontSize: '8pt', paddingTop: '4px', lineHeight: 1.2 }}>
+                        Signature over Printed Name of Supply and/or<br />Property Custodian
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <table style={{ width: '100%', marginTop: '6px', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: 'none', width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '8.5pt', paddingRight: '6px', paddingBottom: '4px', verticalAlign: 'bottom' }}>
+                        Position:
+                      </td>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 3px 4px', verticalAlign: 'bottom', fontSize: '8.5pt' }}>
+                        {data.issuedByPosition || 'SUPPLY OFFICER III / ADMIN OFFICER V'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: 'none', width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '8.5pt', paddingRight: '6px', paddingTop: '4px', verticalAlign: 'bottom' }}>
+                        Date:
+                      </td>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '4px 4px 3px 4px', verticalAlign: 'bottom', fontSize: '8.5pt' }}>
+                        {data.issuedByDate || '\u00A0'}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </td>
 
               {/* Received By (End User) */}
               <td className="sig-cell">
                 <div className="sig-header">Received by:</div>
-                <div className="sig-line">
-                  {data.receivedByName || '\u00A0'}
-                </div>
-                <div className="sig-label">
-                  Signature over Printed Name of End-User /<br />Accountable Officer
-                </div>
-                <div className="sig-subinfo">
-                  <div className="sig-subrow">
-                    <span className="sub-label">Position:</span>
-                    <span className="sub-val">{data.receivedByPosition || '\u00A0'}</span>
-                  </div>
-                  <div className="sig-subrow">
-                    <span className="sub-label">Office:</span>
-                    <span className="sub-val">{data.receivedByOffice || '\u00A0'}</span>
-                  </div>
-                  <div className="sig-subrow">
-                    <span className="sub-label">Date:</span>
-                    <span className="sub-val">{data.receivedByDate || '\u00A0'}</span>
-                  </div>
-                </div>
+                <table style={{ width: '85%', margin: '0 auto 12px auto', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', fontSize: '9.5pt', lineHeight: 1.25 }}>
+                        {data.receivedByName || '\u00A0'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: 'none', textAlign: 'center', fontSize: '8pt', paddingTop: '4px', lineHeight: 1.2 }}>
+                        Signature over Printed Name of End-User /<br />Accountable Officer
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <table style={{ width: '100%', marginTop: '6px', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: 'none', width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '8.5pt', paddingRight: '6px', paddingBottom: '4px', verticalAlign: 'bottom' }}>
+                        Position:
+                      </td>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 3px 4px', verticalAlign: 'bottom', fontSize: '8.5pt' }}>
+                        {data.receivedByPosition || '\u00A0'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: 'none', width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '8.5pt', paddingRight: '6px', paddingTop: '3px', paddingBottom: '3px', verticalAlign: 'bottom' }}>
+                        Office:
+                      </td>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '3px 4px 3px 4px', verticalAlign: 'bottom', fontSize: '8.5pt' }}>
+                        {data.receivedByOffice || '\u00A0'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: 'none', width: '1%', whiteSpace: 'nowrap', fontWeight: 'bold', fontSize: '8.5pt', paddingRight: '6px', paddingTop: '3px', verticalAlign: 'bottom' }}>
+                        Date:
+                      </td>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '3px 4px 3px 4px', verticalAlign: 'bottom', fontSize: '8.5pt' }}>
+                        {data.receivedByDate || '\u00A0'}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </td>
             </tr>
           </tbody>
