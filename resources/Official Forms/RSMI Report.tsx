@@ -140,48 +140,35 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         <div className="header-appendix">Appendix 64</div>
         <div className="main-title">REPORT OF SUPPLIES AND MATERIALS ISSUED</div>
 
-        {/* Top Info with fixed pixel widths to prevent overlap */}
-        <table style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
-          <colgroup>
-            <col style={{ width: '90px' }} />
-            <col style={{ width: '280px' }} />
-            <col style={{ width: '30px' }} />
-            <col style={{ width: '90px' }} />
-            <col style={{ width: '230px' }} />
-          </colgroup>
-          <tbody>
-            <tr>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '3px 0' }}>
-                Entity Name:
-              </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '2px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
-                {data.entityName || '\u00A0'}
-              </td>
-              <td>&nbsp;</td>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '3px 0' }}>
-                Serial No. :
-              </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '2px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
-                {data.serialNo || '\u00A0'}
-              </td>
-            </tr>
-            <tr>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '6px 0 3px 0' }}>
-                Fund Cluster:
-              </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
-                {data.fundCluster || 'Regular Agency Fund'}
-              </td>
-              <td>&nbsp;</td>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '6px 0 3px 0' }}>
-                Date :
-              </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
-                {data.date || '\u00A0'}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        {/* Top Info Header with snug underlines and baseline alignment */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px', fontSize: '10pt', color: '#000000' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline' }}>
+            <strong style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>Entity Name:</strong>
+            <span style={{ borderBottom: '1px solid #000000', padding: '0 4px 1px 4px', fontWeight: 'bold' }}>
+              {data.entityName || 'University of Camarines Norte'}
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline' }}>
+            <strong style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>Serial No. :</strong>
+            <span style={{ borderBottom: '1px solid #000000', padding: '0 4px 1px 4px', fontWeight: 'bold' }}>
+              {data.serialNo || '\u00A0'}
+            </span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px', fontSize: '10pt', color: '#000000' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline' }}>
+            <strong style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>Fund Cluster:</strong>
+            <span style={{ borderBottom: '1px solid #000000', padding: '0 4px 1px 4px', fontWeight: 'bold' }}>
+              {data.fundCluster || 'General Fund'}
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline' }}>
+            <strong style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>Date :</strong>
+            <span style={{ borderBottom: '1px solid #000000', padding: '0 4px 1px 4px', fontWeight: 'bold' }}>
+              {data.date || '\u00A0'}
+            </span>
+          </div>
+        </div>
 
         {/* Main 9-Column Grid Table */}
         <table className="main-table">
