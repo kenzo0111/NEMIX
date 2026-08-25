@@ -1361,10 +1361,12 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             style.id = dynamicPrintStyleId;
             style.setAttribute('media', 'print');
             document.head.appendChild(style);
+        } else {
+            document.head.appendChild(style);
         }
 
         const isLandscape = formData.type === 'RPCI';
-        style.textContent = `@page { size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'}; margin: 10mm; }`;
+        style.textContent = `@page { size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'}; margin: 8mm; }`;
 
         window.print();
     };
@@ -1377,9 +1379,11 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             style.id = dynamicPrintStyleId;
             style.setAttribute('media', 'print');
             document.head.appendChild(style);
+        } else {
+            document.head.appendChild(style);
         }
         const isLandscape = showModal && modalMode === 'view' && formData.type === 'RPCI';
-        style.textContent = `@page { size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'}; margin: 10mm; }`;
+        style.textContent = `@page { size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'}; margin: 8mm; }`;
     }, [showModal, modalMode, formData.type]);
 
     useEffect(() => {
@@ -1668,30 +1672,113 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         margin: 0 !important;
                         padding: 0 !important;
                         width: 100% !important;
+                        height: auto !important;
+                        overflow: visible !important;
                     }
-                    /* Hide modal backdrop, dark overlays, and non-printable elements */
+                    
+                    /* Completely remove background Inertia page from the print flow */
+                    #app,
+                    #app aside,
+                    #app main,
+                    #app > div {
+                        display: none !important;
+                        visibility: hidden !important;
+                        height: 0 !important;
+                        min-height: 0 !important;
+                        max-height: 0 !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        overflow: hidden !important;
+                    }
+
+                    /* Reset Headless UI Dialog Container so it starts on Page 1 */
+                    #headlessui-portal-root,
+                    #headlessui-portal-root > div,
+                    #modal,
+                    [role="dialog"] {
+                        position: static !important;
+                        display: block !important;
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        height: auto !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        transform: none !important;
+                        background: transparent !important;
+                        overflow: visible !important;
+                    }
+
+                    /* Hide modal backdrop, dark overlays, headers, and buttons */
                     #modal > div:first-child,
                     .backdrop-blur-md,
                     [class*="bg-slate-900"],
-                    [class*="backdrop-blur"] {
+                    [class*="backdrop-blur"],
+                    .print\\:hidden,
+                    button {
                         display: none !important;
                         visibility: hidden !important;
                         opacity: 0 !important;
                     }
+
+                    /* Reset DialogPanel */
+                    [role="dialog"] > div,
+                    #modal [class*="DialogPanel"],
+                    #modal .bg-white {
+                        box-shadow: none !important;
+                        border: none !important;
+                        border-radius: 0 !important;
+                        max-height: none !important;
+                        max-width: 100% !important;
+                        width: 100% !important;
+                        transform: none !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        background: #ffffff !important;
+                    }
+
+                    /* Form containers strictly sized and single-page constrained */
+                    .rsmi-container,
+                    .sc-container,
+                    .mr-container {
+                        width: 190mm !important;
+                        max-width: 190mm !important;
+                        margin: 0 auto !important;
+                        page-break-inside: avoid !important;
+                        break-inside: avoid !important;
+                        page-break-after: avoid !important;
+                        break-after: avoid !important;
+                        page-break-before: avoid !important;
+                        break-before: avoid !important;
+                    }
+
+                    .rpci-container {
+                        width: 277mm !important;
+                        max-width: 277mm !important;
+                        margin: 0 auto !important;
+                        page-break-inside: avoid !important;
+                        break-inside: avoid !important;
+                        page-break-after: avoid !important;
+                        break-after: avoid !important;
+                        page-break-before: avoid !important;
+                        break-before: avoid !important;
+                    }
+
                     /* Force the container to render as a single un-broken page */
                     .print-single-page {
                         page-break-inside: avoid !important;
-                        page-break-after: avoid !important;
-                        page-break-before: avoid !important;
                         break-inside: avoid !important;
+                        page-break-after: avoid !important;
                         break-after: avoid !important;
+                        page-break-before: avoid !important;
                         break-before: avoid !important;
                         margin: 0 auto !important;
                         padding: 0 !important;
                         background: #ffffff !important;
                         border: none !important;
                         box-shadow: none !important;
+                        width: 100% !important;
                     }
+
                     /* Disable scrollbars when printing */
                     ::-webkit-scrollbar {
                         display: none;
