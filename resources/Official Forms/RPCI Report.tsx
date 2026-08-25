@@ -132,46 +132,75 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
 
         <div className="main-title">REPORT ON THE PHYSICAL COUNT OF INVENTORIES</div>
         <div className="sub-title">
-          <div style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 8px 1px 8px', fontWeight: 'bold', fontSize: '9.5pt' }}>
-            {data.inventory_type || '\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0'}
+          <div style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 8px 3px 8px', minWidth: '280px', fontWeight: 'bold', fontSize: '9.5pt' }}>
+            {data.inventory_type || '\u00A0'}
           </div>
-          <div style={{ marginTop: '1px', fontSize: '8.5pt', fontStyle: 'italic' }}>(Type of Inventory Item)</div>
-          <div style={{ marginTop: '4px', fontSize: '9pt', display: 'flex', alignItems: 'baseline', justifyContent: 'center' }}>
-            <span style={{ fontStyle: 'italic', marginRight: '6px' }}>As at</span>
-            <span style={{ borderBottom: '1px solid #000000', padding: '0 8px 1px 8px', fontWeight: 'bold', fontSize: '9.5pt' }}>
-              {data.as_at_date || '\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0'}
-            </span>
+          <div style={{ marginTop: '2px', fontSize: '8.5pt' }}>(Type of Inventory Item)</div>
+          <div style={{ marginTop: '6px' }}>
+            As at{' '}
+            <div style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 8px 3px 8px', minWidth: '180px', fontWeight: 'bold', fontSize: '9.5pt' }}>
+              {data.as_at_date || '\u00A0'}
+            </div>
           </div>
         </div>
 
-        {/* Fund Cluster: tight underline wrapping the text */}
-        <div style={{ marginBottom: '6px', fontSize: '9.5pt', display: 'flex', alignItems: 'baseline' }}>
-          <strong style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>Fund Cluster :</strong>
-          <span style={{ borderBottom: '1px solid #000000', padding: '0 4px 1px 4px', fontWeight: 'bold' }}>
-            {data.fund_cluster || 'General Fund'}
-          </span>
-        </div>
+        {/* Meta Info with explicit column widths to prevent collapse */}
+        <table style={{ width: '100%', marginBottom: '8px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '100px' }} />
+            <col style={{ width: '280px' }} />
+            <col style={{ width: '400px' }} />
+          </colgroup>
+          <tbody>
+            <tr>
+              <td style={{ fontWeight: 'bold', fontSize: '9.5pt', verticalAlign: 'middle', padding: '2px 0' }}>
+                Fund Cluster :
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', padding: '2px 6px 3px 6px', verticalAlign: 'middle', fontSize: '9.5pt', lineHeight: 1.2 }}>
+                {data.fund_cluster || 'Regular Agency Fund'}
+              </td>
+              <td>&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
 
-        {/* Accountability statement: natural inline typography with tight underlines and snug commas */}
-        <div style={{ marginBottom: '10px', fontSize: '9pt', lineHeight: 1.5, color: '#000000' }}>
-          <strong>For which</strong>{' '}
-          <span style={{ borderBottom: '1px solid #000000', padding: '0 3px 1px 3px', fontWeight: 'bold' }}>
-            {data.accountable_officer || 'System Administrator'}
-          </span>
-          ,{' '}
-          <span style={{ borderBottom: '1px solid #000000', padding: '0 3px 1px 3px', fontWeight: 'bold' }}>
-            {data.designation || 'Supply Custodian'}
-          </span>
-          ,{' '}
-          <span style={{ borderBottom: '1px solid #000000', padding: '0 3px 1px 3px', fontWeight: 'bold' }}>
-            {data.entity_name || 'University of Camarines Norte'}
-          </span>{' '}
-          <strong>is accountable, having assumed such accountability on</strong>{' '}
-          <span style={{ borderBottom: '1px solid #000000', padding: '0 6px 1px 6px', fontWeight: 'bold', display: 'inline-block', minWidth: '80px', textAlign: 'center' }}>
-            {data.date_assumption || '\u00A0'}
-          </span>
-          .
-        </div>
+        {/* Accountability statement with fixed width column table to guarantee zero overlap */}
+        <table style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '68px' }} />
+            <col style={{ width: '180px' }} />
+            <col style={{ width: '12px' }} />
+            <col style={{ width: '160px' }} />
+            <col style={{ width: '12px' }} />
+            <col style={{ width: '220px' }} />
+            <col style={{ width: '310px' }} />
+            <col style={{ width: '100px' }} />
+            <col style={{ width: '10px' }} />
+          </colgroup>
+          <tbody>
+            <tr>
+              <td style={{ fontWeight: 'bold', fontSize: '9pt', verticalAlign: 'middle', padding: '2px 0' }}>For which</td>
+              <td style={{ borderBottom: '1px solid #000000', fontWeight: 'bold', fontSize: '9pt', textAlign: 'center', verticalAlign: 'middle', padding: '2px 4px 3px 4px', lineHeight: 1.2 }}>
+                {data.accountable_officer || 'Arsenio Gem A. Garcillanosa'}
+              </td>
+              <td style={{ fontSize: '9pt', verticalAlign: 'middle', textAlign: 'center' }}>,</td>
+              <td style={{ borderBottom: '1px solid #000000', fontWeight: 'bold', fontSize: '9pt', textAlign: 'center', verticalAlign: 'middle', padding: '2px 4px 3px 4px', lineHeight: 1.2 }}>
+                {data.designation || 'Supply Custodian'}
+              </td>
+              <td style={{ fontSize: '9pt', verticalAlign: 'middle', textAlign: 'center' }}>,</td>
+              <td style={{ borderBottom: '1px solid #000000', fontWeight: 'bold', fontSize: '9pt', textAlign: 'center', verticalAlign: 'middle', padding: '2px 4px 3px 4px', lineHeight: 1.2 }}>
+                {data.entity_name || 'University of Camarines Norte'}
+              </td>
+              <td style={{ fontWeight: 'bold', fontSize: '9pt', verticalAlign: 'middle', padding: '2px 0 2px 6px', whiteSpace: 'nowrap' }}>
+                is accountable, having assumed such accountability on
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', fontWeight: 'bold', fontSize: '9pt', textAlign: 'center', verticalAlign: 'middle', padding: '2px 4px 3px 4px', lineHeight: 1.2 }}>
+                {data.date_assumption || '\u00A0'}
+              </td>
+              <td style={{ fontSize: '9pt', verticalAlign: 'middle' }}>.</td>
+            </tr>
+          </tbody>
+        </table>
 
         <table className="main-table">
           <thead>

@@ -128,21 +128,33 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
 
         <div className="main-title">STOCK CARD</div>
 
-        {/* Top Info Header with snug underlines and baseline alignment */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px', fontSize: '10pt', color: '#000000' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline' }}>
-            <strong style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>Entity Name:</strong>
-            <span style={{ borderBottom: '1px solid #000000', padding: '0 4px 1px 4px', fontWeight: 'bold' }}>
-              {data.entity_name || 'University of Camarines Norte'}
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'baseline' }}>
-            <strong style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>Fund Cluster:</strong>
-            <span style={{ borderBottom: '1px solid #000000', padding: '0 4px 1px 4px', fontWeight: 'bold' }}>
-              {data.fund_cluster || 'General Fund'}
-            </span>
-          </div>
-        </div>
+        {/* Top Info Grid with explicit column widths to prevent any layout collapse */}
+        <table style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '90px' }} />
+            <col style={{ width: '280px' }} />
+            <col style={{ width: '30px' }} />
+            <col style={{ width: '90px' }} />
+            <col style={{ width: '230px' }} />
+          </colgroup>
+          <tbody>
+            <tr>
+              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 0' }}>
+                Entity Name:
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 6px 3px 6px', lineHeight: 1.2 }}>
+                {data.entity_name || '\u00A0'}
+              </td>
+              <td>&nbsp;</td>
+              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 0' }}>
+                Fund Cluster:
+              </td>
+              <td style={{ borderBottom: '1px solid #000000', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 6px 3px 6px', lineHeight: 1.2 }}>
+                {data.fund_cluster || '\u00A0'}
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         {/* Boxed Header Info */}
         <table className="main-table" style={{ borderBottom: 'none', tableLayout: 'fixed' }}>
