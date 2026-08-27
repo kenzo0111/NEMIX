@@ -110,25 +110,31 @@ const ReportModal = ({ show, onClose, title, children, footer, isSubmitting, isL
     );
 };
 
-const FormInput = ({ label, icon, error, ...props }: any) => (
-    <div className="group w-full">
-        {label && <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">{label}</label>}
-        <div className="relative">
-            {icon && (
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-red-600 transition-colors">
-                    {icon}
-                </div>
-            )}
-            <input
-                {...props}
-                className={`w-full ${icon ? 'pl-10' : 'pl-4'} pr-4 py-2.5 bg-white border rounded-xl text-sm shadow-sm placeholder-gray-400
-                focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all duration-200
-                ${error ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-red-500'}`}
-            />
+const FormInput = ({ label, icon, error, ...props }: any) => {
+    const isLocked = props.readOnly || props.disabled;
+    return (
+        <div className="group w-full">
+            {label && <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">{label}</label>}
+            <div className="relative">
+                {icon && (
+                    <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors ${isLocked ? 'text-gray-400' : 'text-gray-400 group-focus-within:text-red-600'}`}>
+                        {icon}
+                    </div>
+                )}
+                <input
+                    {...props}
+                    className={`w-full ${icon ? 'pl-10' : 'pl-4'} pr-4 py-2.5 border rounded-xl text-sm shadow-sm placeholder-gray-400 transition-all duration-200
+                    ${isLocked
+                        ? 'bg-gray-100 text-gray-700 cursor-not-allowed border-gray-200 focus:outline-none focus:ring-0 focus:border-gray-200 select-none font-medium'
+                        : 'bg-white text-gray-900 border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500'
+                    }
+                    ${error ? 'border-red-300 focus:border-red-500' : ''}`}
+                />
+            </div>
+            {error && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{error}</p>}
         </div>
-        {error && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{error}</p>}
-    </div>
-);
+    );
+};
 
 // Helper to auto-generate Serial / Ref No. in YYYY-MM-DD-SEQUEL format
 export const generateReportReference = (
@@ -1598,15 +1604,18 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         control: (provided: any, state: any) => ({
             ...provided,
             borderRadius: '0.375rem',
-            borderColor: state.isFocused ? '#7f1d1d' : '#d1d5db',
+            borderColor: state.isDisabled ? '#e5e7eb' : (state.isFocused ? '#7f1d1d' : '#d1d5db'),
             borderWidth: '1px',
             padding: '1px 2px',
             minWidth: '150px',
-            boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
+            boxShadow: state.isFocused && !state.isDisabled ? '0 0 0 1px #7f1d1d' : 'none',
             fontSize: '0.8125rem',
             fontWeight: '600',
-            backgroundColor: '#ffffff',
-            '&:hover': { borderColor: '#7f1d1d' },
+            backgroundColor: state.isDisabled ? '#f3f4f6' : '#ffffff',
+            color: state.isDisabled ? '#4b5563' : '#111827',
+            cursor: state.isDisabled ? 'not-allowed' : 'default',
+            opacity: state.isDisabled ? 0.9 : 1,
+            '&:hover': { borderColor: state.isDisabled ? '#e5e7eb' : '#7f1d1d' },
         }),
         option: (provided: any, state: any) => ({
             ...provided,
@@ -1617,7 +1626,11 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             fontWeight: '600',
             cursor: 'pointer',
         }),
-        singleValue: (provided: any) => ({ ...provided, color: '#111827' }),
+        singleValue: (provided: any, state: any) => ({
+            ...provided,
+            color: state.isDisabled ? '#374151' : '#111827',
+            fontWeight: '600',
+        }),
         menu: (provided: any) => ({
             ...provided,
             borderRadius: '0.375rem',
@@ -1827,13 +1840,13 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             <ReportModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
-                title={modalMode === 'create' ? "Generate COA Form" : "Review Compliance Document"}
+                title={modalMode === 'create' ? "Generate COA Form" : "Inspect Compliance Document (Archived)"}
                 isSubmitting={isSubmitting}
                 isLandscape={modalMode === 'view' && formData.type === 'RPCI'}
                 collapsed={collapsed}
                 footer={
                     <>
-                        <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">Cancel</button>
+                        <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">{modalMode === 'view' ? 'Close' : 'Cancel'}</button>
 
                         {modalMode === 'view' && (
                             <button
@@ -2132,6 +2145,20 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                     )}
 
                     <div className="print:hidden space-y-6">
+                        {modalMode === 'view' && (
+                            <div className="flex items-center gap-3 px-4 py-3 bg-amber-50/90 border border-amber-200 rounded-xl text-xs text-amber-900 font-medium shadow-2xs">
+                                <div className="p-1.5 bg-amber-100 rounded-lg text-amber-800 flex-shrink-0">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p className="font-bold text-amber-950">Archived Compliance Document (Read-Only)</p>
+                                    <p className="text-[11px] text-amber-800/90">This report has already been generated and recorded in the official audit registry. All configuration fields are locked to preserve audit trail integrity.</p>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Basic Info Section */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
@@ -2139,7 +2166,11 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 <Select
                                     options={typeOptions}
                                     value={typeOptions.find(opt => opt.value === formData.type)}
-                                    onChange={(opt: any) => setFormData({ ...formData, type: opt?.value || '' })}
+                                    onChange={(opt: any) => {
+                                        if (modalMode === 'view') return;
+                                        setFormData({ ...formData, type: opt?.value || '' });
+                                    }}
+                                    isDisabled={modalMode === 'view'}
                                     placeholder="Select Form Type..."
                                     styles={customSelectStyles}
                                     menuPortalTarget={typeof window !== "undefined" ? document.body : null}
@@ -2155,35 +2186,42 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     </span>
                                 </div>
                                 <div className="relative flex items-center">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-red-600 transition-colors">
+                                    <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors ${modalMode === 'view' ? 'text-gray-400' : 'text-gray-400 group-focus-within:text-red-600'}`}>
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>
                                     </div>
                                     <input
                                         type="text"
                                         value={formData.reference}
-                                        onChange={(e: any) => setFormData({ ...formData, reference: e.target.value })}
-                                        placeholder="e.g. 2026-08-24-0001"
-                                        className="w-full pl-10 pr-24 py-2.5 bg-white border border-gray-300 rounded-xl text-sm shadow-sm placeholder-gray-400 font-mono font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all duration-200"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            const targetDate = formData.periodType === 'range' && formData.startDate
-                                                ? formData.startDate
-                                                : (formData.periodType === 'monthly'
-                                                    ? `${formData.selectedYear}-${String(formData.selectedMonth).padStart(2, '0')}-01`
-                                                    : (formData.periodType === 'yearly'
-                                                        ? `${formData.selectedYear}-01-01`
-                                                        : (formData.date || new Date().toISOString().split('T')[0])));
-                                            const autoRef = generateReportReference(targetDate, reports, migratedRecords);
-                                            setFormData(prev => ({ ...prev, reference: autoRef }));
+                                        readOnly={modalMode === 'view'}
+                                        disabled={modalMode === 'view'}
+                                        onChange={(e: any) => {
+                                            if (modalMode === 'view') return;
+                                            setFormData({ ...formData, reference: e.target.value });
                                         }}
-                                        title="Auto-generate next sequential Serial / Ref No."
-                                        className="absolute right-1.5 px-2.5 py-1 text-xs font-bold text-red-900 bg-red-50 hover:bg-red-100 active:bg-red-200 border border-red-200 rounded-lg transition-colors flex items-center gap-1 shadow-2xs"
-                                    >
-                                        <svg className="w-3.5 h-3.5 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                                        <span>Auto</span>
-                                    </button>
+                                        placeholder="e.g. 2026-08-24-0001"
+                                        className={`w-full pl-10 ${modalMode === 'view' ? 'pr-4' : 'pr-24'} py-2.5 border rounded-xl text-sm shadow-sm placeholder-gray-400 font-mono font-semibold transition-all duration-200 ${modalMode === 'view' ? 'bg-gray-100 text-gray-700 cursor-not-allowed border-gray-200 select-none' : 'bg-white text-gray-900 border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500'}`}
+                                    />
+                                    {modalMode !== 'view' && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const targetDate = formData.periodType === 'range' && formData.startDate
+                                                    ? formData.startDate
+                                                    : (formData.periodType === 'monthly'
+                                                        ? `${formData.selectedYear}-${String(formData.selectedMonth).padStart(2, '0')}-01`
+                                                        : (formData.periodType === 'yearly'
+                                                            ? `${formData.selectedYear}-01-01`
+                                                            : (formData.date || new Date().toISOString().split('T')[0])));
+                                                const autoRef = generateReportReference(targetDate, reports, migratedRecords);
+                                                setFormData(prev => ({ ...prev, reference: autoRef }));
+                                            }}
+                                            title="Auto-generate next sequential Serial / Ref No."
+                                            className="absolute right-1.5 px-2.5 py-1 text-xs font-bold text-red-900 bg-red-50 hover:bg-red-100 active:bg-red-200 border border-red-200 rounded-lg transition-colors flex items-center gap-1 shadow-2xs"
+                                        >
+                                            <svg className="w-3.5 h-3.5 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                            <span>Auto</span>
+                                        </button>
+                                    )}
                                 </div>
                                 <p className="mt-1 text-[11px] text-gray-400 ml-1 font-mono">Format: YYYY-MM-DD-SEQUEL (e.g., 2026-08-24-0001)</p>
                             </div>
@@ -2192,7 +2230,12 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         <FormInput
                             label="Document Title"
                             value={formData.title}
-                            onChange={(e: any) => setFormData({ ...formData, title: e.target.value })}
+                            readOnly={modalMode === 'view'}
+                            disabled={modalMode === 'view'}
+                            onChange={(e: any) => {
+                                if (modalMode === 'view') return;
+                                setFormData({ ...formData, title: e.target.value });
+                            }}
                             placeholder="e.g. Monthly Supplies Issuance - March"
                             icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>}
                         />
@@ -2203,13 +2246,17 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 <Select
                                     options={supplierOptions}
                                     value={supplierOptions.find((opt: any) => String(opt.value) === String(formData.supplierId)) || null}
-                                    onChange={(opt: any) => setFormData({
-                                        ...formData,
-                                        supplierId: opt ? opt.value : '',
-                                        supplierName: opt ? opt.label : '',
-                                    })}
+                                    onChange={(opt: any) => {
+                                        if (modalMode === 'view') return;
+                                        setFormData({
+                                            ...formData,
+                                            supplierId: opt ? opt.value : '',
+                                            supplierName: opt ? opt.label : '',
+                                        });
+                                    }}
+                                    isDisabled={modalMode === 'view'}
                                     styles={customSelectStyles}
-                                    isClearable
+                                    isClearable={modalMode !== 'view'}
                                     placeholder="Select supplier..."
                                     menuPortalTarget={typeof window !== "undefined" ? document.body : null}
                                     menuPosition="fixed"
@@ -2223,9 +2270,13 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 <Select
                                     options={stockCardItemOptions}
                                     value={formData.itemName ? (stockCardItemOptions.find((opt: any) => opt.value === formData.itemName) || { value: formData.itemName, label: formData.itemName }) : null}
-                                    onChange={(opt: any) => setFormData({ ...formData, itemName: opt ? opt.value : '' })}
+                                    onChange={(opt: any) => {
+                                        if (modalMode === 'view') return;
+                                        setFormData({ ...formData, itemName: opt ? opt.value : '' });
+                                    }}
+                                    isDisabled={modalMode === 'view'}
                                     styles={customSelectStyles}
-                                    isClearable
+                                    isClearable={modalMode !== 'view'}
                                     placeholder="Select an item (Inventory or Historical)..."
                                     menuPortalTarget={typeof window !== "undefined" ? document.body : null}
                                     menuPosition="fixed"
@@ -2242,14 +2293,20 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     </svg>
                                     <h4 className="text-sm font-bold uppercase tracking-wider">End User Search & RIS Data Retrieval</h4>
                                 </div>
-                                <p className="text-xs text-gray-500 mb-4">Select or enter an End User to search the RIS database and auto-populate issued items into the Memorandum Receipt.</p>
+                                <p className="text-xs text-gray-500 mb-4">
+                                    {modalMode === 'view'
+                                        ? 'End User and associated issued items retrieved for this Memorandum Receipt.'
+                                        : 'Select or enter an End User to search the RIS database and auto-populate issued items into the Memorandum Receipt.'}
+                                </p>
 
                                 <div className="group w-full mb-3">
                                     <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">End User / Recipient Name</label>
                                     <Select
                                         options={endUserOptions}
                                         value={formData.endUser ? { value: formData.endUser, label: formData.endUser } : null}
+                                        isDisabled={modalMode === 'view'}
                                         onChange={(opt: any) => {
+                                            if (modalMode === 'view') return;
                                             const selectedName = opt ? opt.value : '';
                                             const matched = getEndUserIssuances(selectedName);
                                             const firstMatch = matched[0];
@@ -2261,12 +2318,13 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             });
                                         }}
                                         onInputChange={(newValue: string, actionMeta: any) => {
+                                            if (modalMode === 'view') return;
                                             if (actionMeta.action === 'input-change' && newValue) {
                                                 setFormData((prev) => ({ ...prev, endUser: newValue }));
                                             }
                                         }}
                                         styles={customSelectStyles}
-                                        isClearable
+                                        isClearable={modalMode !== 'view'}
                                         placeholder="Select or enter End User name..."
                                         menuPortalTarget={typeof window !== "undefined" ? document.body : null}
                                         menuPosition="fixed"
@@ -2325,7 +2383,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     <Select
                                         options={periodOptions}
                                         value={periodOptions.find(opt => opt.value === formData.periodType)}
+                                        isDisabled={modalMode === 'view'}
                                         onChange={(opt: any) => {
+                                            if (modalMode === 'view') return;
                                             const nextPeriod = opt?.value || 'specific';
                                             let targetDate = formData.date || new Date().toISOString().split('T')[0];
                                             if (nextPeriod === 'range' && formData.startDate) {
@@ -2353,7 +2413,10 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         label="Specific Date"
                                         type="date"
                                         value={formData.date}
+                                        readOnly={modalMode === 'view'}
+                                        disabled={modalMode === 'view'}
                                         onChange={(e: any) => {
+                                            if (modalMode === 'view') return;
                                             const newDate = e.target.value;
                                             const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
                                             const nextRef = isAutoGenerated && modalMode === 'create' && newDate
@@ -2370,7 +2433,10 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             label="From Date"
                                             type="date"
                                             value={formData.startDate}
+                                            readOnly={modalMode === 'view'}
+                                            disabled={modalMode === 'view'}
                                             onChange={(e: any) => {
+                                                if (modalMode === 'view') return;
                                                 const newStart = e.target.value;
                                                 const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
                                                 const nextRef = isAutoGenerated && modalMode === 'create' && newStart
@@ -2379,7 +2445,17 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                 setFormData({ ...formData, startDate: newStart, reference: nextRef });
                                             }}
                                         />
-                                        <FormInput label="To Date" type="date" value={formData.endDate} onChange={(e: any) => setFormData({ ...formData, endDate: e.target.value })} />
+                                        <FormInput
+                                            label="To Date"
+                                            type="date"
+                                            value={formData.endDate}
+                                            readOnly={modalMode === 'view'}
+                                            disabled={modalMode === 'view'}
+                                            onChange={(e: any) => {
+                                                if (modalMode === 'view') return;
+                                                setFormData({ ...formData, endDate: e.target.value });
+                                            }}
+                                        />
                                     </div>
                                 )}
 
@@ -2390,7 +2466,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             <Select
                                                 options={monthOptions}
                                                 value={monthOptions.find(m => m.value === formData.selectedMonth)}
+                                                isDisabled={modalMode === 'view'}
                                                 onChange={(opt: any) => {
+                                                    if (modalMode === 'view') return;
                                                     const newMonth = opt.value;
                                                     const targetDate = `${formData.selectedYear}-${String(newMonth).padStart(2, '0')}-01`;
                                                     const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
@@ -2411,7 +2489,10 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                 min="2000"
                                                 max="2100"
                                                 value={formData.selectedYear}
+                                                readOnly={modalMode === 'view'}
+                                                disabled={modalMode === 'view'}
                                                 onChange={(e: any) => {
+                                                    if (modalMode === 'view') return;
                                                     const newYear = e.target.value;
                                                     const targetDate = `${newYear}-${String(formData.selectedMonth).padStart(2, '0')}-01`;
                                                     const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
@@ -2432,7 +2513,10 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         min="2000"
                                         max="2100"
                                         value={formData.selectedYear}
+                                        readOnly={modalMode === 'view'}
+                                        disabled={modalMode === 'view'}
                                         onChange={(e: any) => {
+                                            if (modalMode === 'view') return;
                                             const newYear = e.target.value;
                                             const targetDate = `${newYear}-01-01`;
                                             const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
