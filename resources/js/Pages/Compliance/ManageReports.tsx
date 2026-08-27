@@ -170,6 +170,13 @@ export const generateReportReference = (
     return `${datePrefix}-${sequel}`;
 };
 
+export const formatFundClusterDisplay = (val?: string | null): string => {
+    if (!val || val === 'General Fund' || val === 'Regular Agency Fund' || val === '01') {
+        return '01 - Regular Agency Fund';
+    }
+    return val;
+};
+
 // --- MAIN COMPONENT ---
 export default function ManageReports({ auth, items = [], reports: serverReports = [], issuances = [], suppliers = [], migratedRecords = [] }: { auth: any, items?: any[], reports?: any[], issuances?: any[], suppliers?: any[], migratedRecords?: any[] }) {
     const { props } = usePage();
@@ -1918,7 +1925,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                                 const firstMigrated: any = filteredIssuances.find((i: any) => i._source === 'migration');
                                 const displayEntityName = firstMigrated?.entity_name || firstMigrated?.payload?.entity_name || 'University of Camarines Norte';
-                                const displayFundCluster = firstMigrated?.fund_cluster || firstMigrated?.payload?.fund_cluster || 'General Fund';
+                                const displayFundCluster = formatFundClusterDisplay(firstMigrated?.fund_cluster || firstMigrated?.payload?.fund_cluster);
 
                                 return (
                                     <Suspense fallback={reportTemplateFallback}>
@@ -2007,7 +2014,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                                     const rawHistoricalRpci: any = (migratedRecords || []).find((r: any) => String(r.form_type) === 'RPCI');
                                     const displayEntity = rawHistoricalRpci?.entity_name || rawHistoricalRpci?.payload?.entity_name || 'University of Camarines Norte';
-                                    const displayFund = rawHistoricalRpci?.fund_cluster || rawHistoricalRpci?.payload?.fund_cluster || 'General Fund';
+                                    const displayFund = formatFundClusterDisplay(rawHistoricalRpci?.fund_cluster || rawHistoricalRpci?.payload?.fund_cluster);
                                     const displayOfficer = rawHistoricalRpci?.recipient || rawHistoricalRpci?.accountable_officer || rawHistoricalRpci?.payload?.accountable_officer || user?.name || 'Supply Officer';
                                     const displayDesig = rawHistoricalRpci?.designation || rawHistoricalRpci?.payload?.designation || 'Supply Custodian';
 
@@ -2035,7 +2042,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     <Suspense fallback={reportTemplateFallback}>
                                         <StockCardFormPaper data={{
                                             entity_name: matchingStockCardMigrated?.entity_name || matchingStockCardMigrated?.payload?.entity_name || 'University of Camarines Norte',
-                                            fund_cluster: matchingStockCardMigrated?.fund_cluster || matchingStockCardMigrated?.payload?.fund_cluster || 'General Fund',
+                                            fund_cluster: formatFundClusterDisplay(matchingStockCardMigrated?.fund_cluster || matchingStockCardMigrated?.payload?.fund_cluster),
                                             item: formData.itemName || formData.title,
                                             stock_no: selectedStockCardItem?.sku || matchingStockCardMigrated?.stock_no || matchingStockCardMigrated?.payload?.stock_no || formData.reference || '-',
                                             description: selectedStockCardItem?.description || selectedStockCardItem?.name || matchingStockCardMigrated?.item_name || matchingStockCardMigrated?.item || formData.itemName || formData.title,
@@ -2098,7 +2105,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 const endUserPos = firstRecord?.recipient_designation || firstRecord?.designation || firstRecord?.position || firstRecord?.payload?.recipient_designation || firstRecord?.payload?.designation || 'Accountable Officer';
                                 const endUserOffice = firstRecord?.department || firstRecord?.office || firstRecord?.payload?.department || firstRecord?.payload?.office || 'Official Business';
                                 const displayEntity = firstRecord?.entity_name || firstRecord?.payload?.entity_name || 'University of Camarines Norte';
-                                const displayFund = firstRecord?.fund_cluster || firstRecord?.payload?.fund_cluster || 'General Fund';
+                                const displayFund = formatFundClusterDisplay(firstRecord?.fund_cluster || firstRecord?.payload?.fund_cluster);
 
                                 return (
                                     <Suspense fallback={reportTemplateFallback}>

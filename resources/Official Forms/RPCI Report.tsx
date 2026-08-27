@@ -160,7 +160,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                 Fund Cluster:
               </td>
               <td style={{ borderBottom: '1px solid #000000', padding: '2px 6px 3px 6px', verticalAlign: 'middle', fontSize: '9.5pt', lineHeight: 1.2 }}>
-                {data.fund_cluster || 'Regular Agency Fund'}
+                {data.fund_cluster || '01 - Regular Agency Fund'}
               </td>
               <td>&nbsp;</td>
             </tr>

@@ -152,7 +152,7 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
                 Fund Cluster:
               </td>
               <td style={{ borderBottom: '1px solid #000000', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 6px 3px 6px', lineHeight: 1.2 }}>
-                {data.fund_cluster || '\u00A0'}
+                {data.fund_cluster || '01 - Regular Agency Fund'}
               </td>
             </tr>
           </tbody>

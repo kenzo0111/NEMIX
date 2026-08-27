@@ -249,7 +249,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
                 Fund Cluster:
               </td>
               <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
-                {data.fundCluster || 'Regular Agency Fund'}
+                {data.fundCluster || '01 - Regular Agency Fund'}
               </td>
               <td>&nbsp;</td>
               <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '6px 0 3px 0' }}>
