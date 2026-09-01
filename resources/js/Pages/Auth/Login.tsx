@@ -180,7 +180,7 @@ export default function Login({
                             <div className="border-l-4 border-yellow-400 pl-5 py-3 bg-gradient-to-r from-black/30 via-red-950/20 to-transparent rounded-r-xl backdrop-blur-xs">
                                 <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-yellow-400/90 font-bold mb-1">
                                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    Institutional Enterprise Portal
+                                    Supply &amp; Property Management Portal
                                 </span>
                                 <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight mb-2 text-white drop-shadow-sm leading-snug">
                                     Smart Supply and Inventory Management
