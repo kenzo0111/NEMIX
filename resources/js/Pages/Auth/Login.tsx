@@ -180,7 +180,7 @@ export default function Login({
                             <div className="border-l-4 border-yellow-400 pl-5 py-3 bg-gradient-to-r from-black/30 via-red-950/20 to-transparent rounded-r-xl backdrop-blur-xs">
                                 <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-yellow-400/90 font-bold mb-1">
                                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    Supply &amp; Property Management Portal
+                                    SPMO Enterprise Access
                                 </span>
                                 <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight mb-2 text-white drop-shadow-sm leading-snug">
                                     Smart Supply and Inventory Management
@@ -188,8 +188,13 @@ export default function Login({
                                 <p className="text-yellow-100/90 font-medium text-base mb-3 leading-relaxed">
                                     RFID Integration Tracking &amp; Automated Reporting System
                                 </p>
-                                <div className="inline-block bg-white/10 backdrop-blur-md border border-yellow-400/30 px-3 py-1.5 rounded-lg text-xs tracking-wide text-yellow-200 font-semibold shadow-sm">
-                                    Enhanced Inventory Control &amp; Asset Management
+                                <div className="flex flex-wrap gap-2">
+                                    <div className="bg-white/10 backdrop-blur-md border border-yellow-400/30 px-3 py-1 rounded text-xs text-yellow-200 font-semibold shadow-sm">
+                                        RFID Tag Tracking
+                                    </div>
+                                    <div className="bg-white/10 backdrop-blur-md border border-yellow-400/30 px-3 py-1 rounded text-xs text-yellow-200 font-semibold shadow-sm">
+                                        Automated Auditing
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -226,7 +231,7 @@ export default function Login({
                                     </div>
                                     <div>
                                         <h3 className="text-2xl font-bold text-gray-900 font-serif tracking-tight">Administrative Login</h3>
-                                        <p className="text-gray-500 text-xs mt-0.5">University Account Portal</p>
+                                        <p className="text-gray-500 text-xs mt-0.5">SPMO Authentication</p>
                                     </div>
                                 </div>
                                 <p className="text-gray-600 text-sm leading-relaxed mt-2">
@@ -309,28 +314,30 @@ export default function Login({
                                 </div>
 
                                 {/* Form Options */}
-                                <div className="flex items-center justify-between pt-1">
-                                    <label className="flex items-center cursor-pointer group">
-                                        <Checkbox
-                                            name="remember"
-                                            checked={remember}
-                                            disabled={processing || authStage !== 'idle'}
-                                            onChange={(e) => setRemember(Boolean(e.target.checked))}
-                                            className="rounded border-gray-300 text-red-900 focus:ring-red-900/30 w-4 h-4"
-                                        />
-                                        <span className="ml-2 text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
-                                            Remember credentials
-                                        </span>
-                                    </label>
+                                <div>
+                                    <div className="flex items-center justify-between pt-1">
+                                        <label className="flex items-center cursor-pointer group">
+                                            <Checkbox
+                                                name="remember"
+                                                checked={remember}
+                                                disabled={processing || authStage !== 'idle'}
+                                                onChange={(e) => setRemember(Boolean(e.target.checked))}
+                                                className="rounded border-gray-300 text-red-900 focus:ring-red-900/30 w-4 h-4"
+                                            />
+                                            <span className="ml-2 text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
+                                                Remember credentials
+                                            </span>
+                                        </label>
 
-                                    {canResetPassword && (
-                                        <Link
-                                            href={route('password.request')}
-                                            className="text-xs text-red-800 hover:text-red-950 font-semibold hover:underline transition-colors"
-                                        >
-                                            Forgot password?
-                                        </Link>
-                                    )}
+                                        {canResetPassword && (
+                                            <Link
+                                                href={route('password.request')}
+                                                className="text-xs text-red-800 hover:text-red-950 font-semibold hover:underline transition-colors"
+                                            >
+                                                Forgot password?
+                                            </Link>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Submit Button */}
@@ -349,7 +356,7 @@ export default function Login({
                                             </>
                                         ) : (
                                             <>
-                                                <span>Access System Portal</span>
+                                                <span>Sign In to System</span>
                                                 <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                                 </svg>
@@ -360,10 +367,7 @@ export default function Login({
                             </form>
 
                             {/* Footer */}
-                            <div className="mt-8 pt-5 border-t border-gray-100 text-center space-y-2">
-                                <p className="text-[11px] font-semibold text-gray-500 font-serif tracking-wider uppercase">
-                                    Innovate &bull; Lead &bull; Transform
-                                </p>
+                            <div className="mt-8 pt-5 border-t border-gray-100 text-center space-y-1.5">
                                 <p className="text-[11px] text-gray-400 leading-tight">
                                     &copy; 2026 University of Camarines Norte. All rights reserved.<br />
                                     Authorized Personnel &amp; Institutional Use Only.
@@ -374,8 +378,8 @@ export default function Login({
                 </div>
             </div>
 
-            {/* === 1. LAZY LOADING OVERLAY STATE === */}
-            {authStage === 'lazy_loading' && (
+            {/* === UNIFIED AUTHENTICATION OVERLAY (LAZY LOADING & SUCCESS STAGES) === */}
+            {authStage !== 'idle' && (
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md transition-all duration-300"
                     style={{ animation: 'loginModalFadeIn 0.3s ease-out' }}
@@ -391,12 +395,9 @@ export default function Login({
                             <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full border border-yellow-400/10 pointer-events-none"></div>
                             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"></div>
 
-                            {/* Top University Brand Badge */}
-                            <div className="relative z-10 flex items-center justify-center gap-2 mb-2">
-                                <div className="p-1.5 rounded-xl bg-white/95 shadow-md ring-1 ring-yellow-400/60 shrink-0 flex items-center justify-center backdrop-blur-md">
-                                    <ApplicationLogo alt="UCN Seal" className="h-7 w-7 object-contain" />
-                                </div>
-                                <span className="font-serif text-yellow-300 text-xs sm:text-sm font-bold tracking-widest uppercase drop-shadow-sm">
+                            {/* Top University Brand Title */}
+                            <div className="relative z-10 text-center mb-1">
+                                <span className="font-serif text-yellow-300 text-sm font-bold tracking-widest uppercase drop-shadow-sm">
                                     University of Camarines Norte
                                 </span>
                             </div>
@@ -406,168 +407,121 @@ export default function Login({
                             </p>
                         </div>
 
-                        {/* Central Animated Dual-Spin Loader & Seal */}
+                        {/* Central Floating Institutional Seal Emblem */}
                         <div className="relative -mt-12 flex justify-center z-20">
                             <div className="relative">
                                 {/* Glowing Amber Pulse Halo */}
                                 <div className="absolute -inset-3 rounded-full bg-yellow-400/30 animate-pulse"></div>
 
-                                {/* Outer Institutional Ring with Orbital Spinner & White Seal Container */}
+                                {/* Main Institutional Seal Container */}
                                 <div className="relative h-24 w-24 rounded-full bg-white shadow-2xl shadow-black/50 ring-4 ring-yellow-400/90 flex items-center justify-center p-3">
-                                    <div className="absolute -inset-1 rounded-full border-2 border-yellow-400 border-t-transparent animate-spin"></div>
+                                    {authStage === 'lazy_loading' ? (
+                                        <div className="absolute -inset-1 rounded-full border-2 border-yellow-400 border-t-transparent animate-spin"></div>
+                                    ) : (
+                                        <div className="absolute -bottom-1 -right-1 bg-gradient-to-tr from-emerald-600 to-emerald-500 text-white rounded-full p-1.5 ring-2 ring-white shadow-lg flex items-center justify-center">
+                                            <CheckCircle2 className="w-5 h-5 text-white stroke-[2.5]" />
+                                        </div>
+                                    )}
                                     <ApplicationLogo alt="UCN Seal" className="h-16 w-16 object-contain drop-shadow" />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Modal Body with Lazy Loading Status */}
-                        <div className="p-6 pt-4 space-y-4">
-                            <div>
-                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-400/40 text-yellow-950 text-xs font-bold mb-2">
-                                    <Loader2 className="w-3.5 h-3.5 text-yellow-600 animate-spin" />
-                                    <span>Establishing Secure Session</span>
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 font-serif tracking-tight">
-                                    Initializing Workspace...
-                                </h3>
-                                <p className="text-gray-500 text-xs mt-1 leading-relaxed">
-                                    Synchronizing institutional permissions and security tokens.
-                                </p>
-                            </div>
-
-                            {/* Animated Loading Dots in Institutional Palette */}
-                            <div className="flex items-center justify-center gap-2 py-3">
-                                <span className="w-2.5 h-2.5 rounded-full bg-red-950 animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                <span className="w-2.5 h-2.5 rounded-full bg-red-900 animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                                <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 animate-bounce" style={{ animationDelay: '450ms' }}></span>
-                            </div>
-                        </div>
-
-                        {/* Bottom Accent Bar */}
-                        <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-yellow-400 to-red-950"></div>
-                    </div>
-                </div>
-            )}
-
-            {/* === 2. LOGIN SUCCESS MODAL (LOGIN COLOR PALETTE, NO PROGRESS BAR) === */}
-            {authStage === 'success' && (
-                <div
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md transition-all duration-300"
-                    style={{ animation: 'loginModalFadeIn 0.3s ease-out' }}
-                >
-                    <div
-                        className="w-full max-w-md bg-white rounded-3xl shadow-2xl shadow-black/70 border border-white/40 overflow-hidden text-center relative transition-all duration-300 transform"
-                        style={{ animation: 'loginModalScaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1)' }}
-                    >
-                        {/* Top Institutional Header Band */}
-                        <div className="relative bg-gradient-to-br from-red-950 via-red-900 to-red-950 text-white p-6 pb-12 overflow-hidden">
-                            {/* Decorative Background Rings */}
-                            <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full border border-yellow-400/20 pointer-events-none"></div>
-                            <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full border border-yellow-400/10 pointer-events-none"></div>
-                            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"></div>
-
-                            {/* Top University Brand Badge */}
-                            <div className="relative z-10 flex items-center justify-center gap-2 mb-2">
-                                <div className="p-1.5 rounded-xl bg-white/95 shadow-md ring-1 ring-yellow-400/60 shrink-0 flex items-center justify-center backdrop-blur-md">
-                                    <ApplicationLogo alt="UCN Seal" className="h-7 w-7 object-contain" />
-                                </div>
-                                <span className="font-serif text-yellow-300 text-xs sm:text-sm font-bold tracking-widest uppercase drop-shadow-sm">
-                                    University of Camarines Norte
-                                </span>
-                            </div>
-
-                            <p className="relative z-10 text-[10px] font-mono text-yellow-200/80 uppercase tracking-wider">
-                                SPMO Enterprise Security
-                            </p>
-                        </div>
-
-                        {/* Floating Central Institutional Seal & Success Verification Badge */}
-                        <div className="relative -mt-12 flex justify-center z-20">
-                            <div className="relative">
-                                {/* Outer Golden Glow Pulse */}
-                                <div className="absolute -inset-3 rounded-full bg-yellow-400/30 animate-pulse"></div>
-
-                                {/* Main Institutional Seal Container with Official Logo */}
-                                <div className="relative h-24 w-24 rounded-full bg-white shadow-2xl shadow-black/50 ring-4 ring-yellow-400/90 flex items-center justify-center p-3">
-                                    <ApplicationLogo alt="UCN Seal" className="h-16 w-16 object-contain drop-shadow" />
-
-                                    {/* Floating Success Verification Check Badge */}
-                                    <div className="absolute -bottom-1 -right-1 bg-gradient-to-tr from-emerald-600 to-emerald-500 text-white rounded-full p-1.5 ring-2 ring-white shadow-lg flex items-center justify-center">
-                                        <CheckCircle2 className="w-5 h-5 text-white stroke-[2.5]" />
+                        {/* Stage 1: Lazy Loading Content */}
+                        {authStage === 'lazy_loading' && (
+                            <div className="p-6 pt-4 space-y-4">
+                                <div>
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-400/40 text-yellow-950 text-xs font-bold mb-2">
+                                        <Loader2 className="w-3.5 h-3.5 text-yellow-600 animate-spin" />
+                                        <span>Establishing Secure Session</span>
                                     </div>
+                                    <h3 className="text-xl font-bold text-gray-900 font-serif tracking-tight">
+                                        Initializing Workspace...
+                                    </h3>
+                                    <p className="text-gray-500 text-xs mt-1 leading-relaxed">
+                                        Synchronizing institutional permissions and security tokens.
+                                    </p>
+                                </div>
+
+                                {/* Animated Loading Dots in Institutional Palette */}
+                                <div className="flex items-center justify-center gap-2 py-3">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-red-950 animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                    <span className="w-2.5 h-2.5 rounded-full bg-red-900 animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 animate-bounce" style={{ animationDelay: '450ms' }}></span>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
-                        {/* Modal Body */}
-                        <div className="p-6 pt-4 space-y-4">
-                            {/* Main Heading */}
-                            <div>
-                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-400/40 text-yellow-950 text-xs font-bold mb-2">
-                                    <Sparkles className="w-3.5 h-3.5 text-yellow-600" />
-                                    <span>Authentication Successful</span>
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 font-serif tracking-tight">
-                                    Welcome Back!
-                                </h3>
-                                <p className="text-gray-500 text-xs mt-1">
-                                    Your institutional credentials have been verified.
-                                </p>
-                            </div>
-
-                            {/* Authenticated User Card */}
-                            {userData && (
-                                <div className="bg-gradient-to-r from-gray-50 via-amber-50/20 to-gray-50 rounded-2xl p-3.5 border border-gray-200/80 shadow-xs flex items-center gap-3.5 text-left">
-                                    <div className="h-11 w-11 rounded-xl bg-gradient-to-tr from-red-950 to-red-800 text-yellow-300 font-serif font-bold text-base flex items-center justify-center shadow-md shadow-red-950/20 shrink-0 ring-2 ring-yellow-400/50">
-                                        {userData.name ? userData.name.charAt(0).toUpperCase() : <UserIcon className="w-5 h-5 text-yellow-300" />}
+                        {/* Stage 2: Success Modal Content */}
+                        {authStage === 'success' && (
+                            <div className="p-6 pt-4 space-y-4">
+                                <div>
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-400/40 text-yellow-950 text-xs font-bold mb-2">
+                                        <Sparkles className="w-3.5 h-3.5 text-yellow-600" />
+                                        <span>Authentication Successful</span>
                                     </div>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex items-center gap-2">
-                                            <p className="text-sm font-bold text-gray-900 truncate">
-                                                {userData.name || 'Authorized Personnel'}
+                                    <h3 className="text-xl font-bold text-gray-900 font-serif tracking-tight">
+                                        Welcome Back!
+                                    </h3>
+                                    <p className="text-gray-500 text-xs mt-1">
+                                        Your institutional credentials have been verified.
+                                    </p>
+                                </div>
+
+                                {/* Authenticated User Card */}
+                                {userData && (
+                                    <div className="bg-gradient-to-r from-gray-50 via-amber-50/20 to-gray-50 rounded-2xl p-3.5 border border-gray-200/80 shadow-xs flex items-center gap-3.5 text-left">
+                                        <div className="h-11 w-11 rounded-xl bg-gradient-to-tr from-red-950 to-red-800 text-yellow-300 font-serif font-bold text-base flex items-center justify-center shadow-md shadow-red-950/20 shrink-0 ring-2 ring-yellow-400/50">
+                                            {userData.name ? userData.name.charAt(0).toUpperCase() : <UserIcon className="w-5 h-5 text-yellow-300" />}
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-sm font-bold text-gray-900 truncate">
+                                                    {userData.name || 'Authorized Personnel'}
+                                                </p>
+                                            </div>
+                                            <p className="text-xs text-gray-500 truncate font-mono">
+                                                {userData.email}
                                             </p>
-                                        </div>
-                                        <p className="text-xs text-gray-500 truncate font-mono">
-                                            {userData.email}
-                                        </p>
-                                        <div className="mt-1 flex items-center gap-1.5">
-                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100/90 text-amber-950 border border-amber-300/60">
-                                                <ShieldCheck className="w-3 h-3 text-amber-700" />
-                                                {userData.role || 'Institutional Staff'}
-                                            </span>
-                                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-mono text-red-950 bg-red-900/10 border border-red-900/20">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                                Active Session
-                                            </span>
+                                            <div className="mt-1 flex items-center gap-1.5">
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100/90 text-amber-950 border border-amber-300/60">
+                                                    <ShieldCheck className="w-3 h-3 text-amber-700" />
+                                                    {userData.role || 'Institutional Staff'}
+                                                </span>
+                                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-mono text-red-950 bg-red-900/10 border border-red-900/20">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                                    Active Session
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
 
-                            {/* Security Reference Bar (Replacing Progress Bar) */}
-                            <div className="bg-gradient-to-r from-red-950/5 via-amber-50/50 to-red-950/5 rounded-xl p-2.5 border border-red-950/10 flex items-center justify-between text-xs">
-                                <div className="flex items-center gap-1.5 text-gray-700 font-medium">
-                                    <Lock className="w-3.5 h-3.5 text-red-900" />
-                                    <span>Ready for SPMO Dashboard</span>
+                                {/* Security Reference Bar */}
+                                <div className="bg-gradient-to-r from-red-950/5 via-amber-50/50 to-red-950/5 rounded-xl p-2.5 border border-red-950/10 flex items-center justify-between text-xs">
+                                    <div className="flex items-center gap-1.5 text-gray-700 font-medium">
+                                        <Lock className="w-3.5 h-3.5 text-red-900" />
+                                        <span>Ready for SPMO Dashboard</span>
+                                    </div>
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-yellow-400/20 text-yellow-950 font-mono text-[10px] font-bold border border-yellow-400/30">
+                                        SPMO-SECURE
+                                    </span>
                                 </div>
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-yellow-400/20 text-yellow-950 font-mono text-[10px] font-bold border border-yellow-400/30">
-                                    SPMO-SECURE
-                                </span>
-                            </div>
 
-                            {/* Action Button for Immediate Navigation */}
-                            <div className="pt-1">
-                                <button
-                                    type="button"
-                                    onClick={handleImmediateRedirect}
-                                    className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-950 via-red-900 to-red-800 hover:from-red-900 hover:to-red-700 text-white font-bold py-3.5 px-5 rounded-xl shadow-lg shadow-red-950/20 text-xs uppercase tracking-wider transition-all duration-200 hover:shadow-red-900/40 hover:-translate-y-0.5 active:translate-y-0 border-b-4 border-red-950 active:border-b-0 group"
-                                >
-                                    <span>Proceed to Dashboard Now</span>
-                                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                                </button>
+                                {/* Action Button for Immediate Navigation */}
+                                <div className="pt-1">
+                                    <button
+                                        type="button"
+                                        onClick={handleImmediateRedirect}
+                                        className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-950 via-red-900 to-red-800 hover:from-red-900 hover:to-red-700 text-white font-bold py-3.5 px-5 rounded-xl shadow-lg shadow-red-950/20 text-xs uppercase tracking-wider transition-all duration-200 hover:shadow-red-900/40 hover:-translate-y-0.5 active:translate-y-0 border-b-4 border-red-950 active:border-b-0 group"
+                                    >
+                                        <span>Proceed to Dashboard Now</span>
+                                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Bottom Accent Bar */}
                         <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-yellow-400 to-red-950"></div>
