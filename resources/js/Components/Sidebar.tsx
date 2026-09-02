@@ -55,6 +55,11 @@ export default function Sidebar({
             : null) ||
         'Supply Officer';
 
+    const isAccountSettingsActive = Boolean(
+        typeof route === 'function' &&
+        (route().current('profile.edit') || route().current('account.settings'))
+    );
+
     // Find active module to auto-expand accordion
     const activeModuleTitle = modules.find(
         (m) => m.active || (m.submodules && m.submodules.some((s) => s.active))
@@ -284,20 +289,73 @@ export default function Sidebar({
 
             {/* Institutional User Profile Footer & Collapse Controls */}
             <div className="p-3 border-t border-red-800/60 bg-red-950/60 relative z-10 space-y-2 overflow-hidden">
-                <div className="flex items-center gap-3 px-1">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 border border-yellow-300/60 flex items-center justify-center text-red-950 font-extrabold text-base shrink-0 shadow-md shadow-yellow-500/20">
-                        {currentUser?.name?.charAt(0)?.toUpperCase() || 'U'}
-                    </div>
-                    <div className={`whitespace-nowrap flex-1 min-w-0 overflow-hidden transition-all duration-300 ease-in-out ${collapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-[170px] opacity-100'}`}>
-                        <div className="flex items-center gap-1.5">
-                            <p className="text-xs font-bold text-white truncate leading-tight">{currentUser?.name || 'SPMO Administrator'}</p>
+                {/* Clickable User Profile Section -> Dedicated Account Settings */}
+                <Link
+                    href={route('profile.edit')}
+                    className={`
+                        w-full flex items-center gap-3 p-2 rounded-xl transition-all duration-200 group relative select-none cursor-pointer
+                        focus:outline-none focus:ring-2 focus:ring-yellow-400/50
+                        ${isAccountSettingsActive
+                            ? 'bg-red-800/90 text-white shadow-lg border border-yellow-500/50 ring-1 ring-yellow-400/40'
+                            : 'text-red-100/90 hover:bg-white/10 hover:text-white border border-transparent'
+                        }
+                    `}
+                    title={collapsed ? `${currentUser?.name || 'User'} — Account Settings` : 'Click to open Account Settings'}
+                >
+                    {/* Active Indicator Strip */}
+                    {isAccountSettingsActive && (
+                        <span className="absolute left-0 top-2 bottom-2 w-1 bg-yellow-400 rounded-r-full shadow-sm shadow-yellow-400/80"></span>
+                    )}
+
+                    <div className="relative shrink-0">
+                        <div
+                            className={`
+                                w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 border border-yellow-300/60
+                                flex items-center justify-center text-red-950 font-extrabold text-base shadow-md shadow-yellow-500/20
+                                transition-all duration-200 group-hover:scale-105 group-hover:shadow-yellow-400/30
+                                ${isAccountSettingsActive ? 'ring-2 ring-yellow-300 ring-offset-1 ring-offset-red-950' : ''}
+                            `}
+                        >
+                            {currentUser?.name?.charAt(0)?.toUpperCase() || 'U'}
                         </div>
-                        <p className="text-[10px] text-red-300/80 truncate">{currentUser?.email || 'admin@ucn.edu.ph'}</p>
-                        <span className="inline-block mt-0.5 text-[9px] text-yellow-300/90 font-medium tracking-wide">
-                            {userRole}
-                        </span>
+                        {/* Subtle Online Dot */}
+                        <span
+                            className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-red-950 shadow-xs"
+                            title="Online & Active"
+                        ></span>
                     </div>
-                </div>
+
+                    <div
+                        className={`whitespace-nowrap flex-1 min-w-0 overflow-hidden transition-all duration-300 ease-in-out ${
+                            collapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-[170px] opacity-100'
+                        }`}
+                    >
+                        <div className="flex items-center justify-between gap-1">
+                            <p className="text-xs font-bold text-white truncate leading-tight group-hover:text-yellow-300 transition-colors">
+                                {currentUser?.name || 'SPMO Administrator'}
+                            </p>
+                            {isAccountSettingsActive && (
+                                <span className="text-[8px] px-1.5 py-0.2 rounded bg-yellow-400/20 text-yellow-300 border border-yellow-400/40 font-bold uppercase tracking-wider shrink-0">
+                                    Active
+                                </span>
+                            )}
+                        </div>
+                        <p className="text-[10px] text-red-300/80 truncate group-hover:text-red-200 transition-colors">
+                            {currentUser?.email || 'admin@ucn.edu.ph'}
+                        </p>
+                        <div className="flex items-center justify-between mt-0.5">
+                            <span className="text-[9px] text-yellow-300/90 font-medium tracking-wide">
+                                {userRole}
+                            </span>
+                            <span className="text-[9px] text-red-300/60 group-hover:text-yellow-300 transition-colors flex items-center gap-0.5 font-medium">
+                                Settings
+                                <svg className="w-2.5 h-2.5 inline-block group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </Link>
 
                 <div className="flex items-center gap-2">
                     <button

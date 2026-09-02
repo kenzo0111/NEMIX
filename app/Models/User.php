@@ -50,6 +50,27 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var list<string>
+     */
+    protected $appends = [
+        'username',
+    ];
+
+    /**
+     * Get the user's system username handle.
+     */
+    public function getUsernameAttribute(): string
+    {
+        if (isset($this->attributes['username']) && !empty($this->attributes['username'])) {
+            return $this->attributes['username'];
+        }
+
+        return \Illuminate\Support\Str::before($this->email ?? 'user', '@');
+    }
+
+    /**
      * Send the email verification notification.
      *
      * @return void

@@ -1,11 +1,55 @@
 export interface User {
     id: number;
     name: string;
+    username?: string;
     email: string;
     email_verified_at?: string | null;
     is_active?: boolean;
     role?: string;
     roles?: string[];
+    created_at?: string;
+    created_at_formatted?: string;
+}
+
+export interface UserLastLogin {
+    time_ago: string;
+    timestamp: string;
+    ip_address: string;
+    user_agent: string;
+}
+
+export interface UserLoginHistoryItem {
+    id: number;
+    status: string;
+    ip_address: string;
+    user_agent: string;
+    time_ago: string;
+    timestamp: string;
+}
+
+export interface UserActiveSession {
+    id: string;
+    ip_address: string;
+    user_agent: string;
+    is_current: boolean;
+    last_active: string;
+}
+
+export interface UserProfileDetails {
+    id: number;
+    name: string;
+    username: string;
+    email: string;
+    email_verified_at?: string | null;
+    role: string;
+    roles: string[];
+    is_active: boolean;
+    account_status: string;
+    created_at_formatted: string;
+    created_at_diff?: string | null;
+    last_login?: UserLastLogin | null;
+    login_history?: UserLoginHistoryItem[];
+    active_sessions?: UserActiveSession[];
 }
 
 export interface Supplier {

@@ -35,11 +35,14 @@ class HandleInertiaRequests extends Middleware
             $userArray = [
                 'id' => $user->id,
                 'name' => $user->name,
+                'username' => $user->username ?? \Illuminate\Support\Str::before($user->email, '@'),
                 'email' => $user->email,
                 'email_verified_at' => $user->email_verified_at,
                 'is_active' => (bool) $user->is_active,
                 'role' => $user->roles->first()?->name ?? 'Supply Officer',
                 'roles' => $user->getRoleNames()->toArray(),
+                'created_at' => $user->created_at?->toIso8601String(),
+                'created_at_formatted' => $user->created_at?->format('F d, Y'),
             ];
         } else {
             $userArray = null;
