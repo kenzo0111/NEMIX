@@ -245,12 +245,23 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
     };
 
     const handleDisableClick = (staff: Staff) => {
+        if (staff.id === user?.id) {
+            setErrorMessage('You cannot disable your own account.');
+            return;
+        }
         setSelectedStaff(staff);
         setIsDisableModalOpen(true);
     };
 
     const handleDisableConfirm = () => {
         if (!selectedStaff) return;
+
+        if (selectedStaff.id === user?.id) {
+            setErrorMessage('You cannot disable your own account.');
+            setIsDisableModalOpen(false);
+            setSelectedStaff(null);
+            return;
+        }
 
         router.patch(route('access-control.staffs.toggle-status', selectedStaff.id), {}, {
             preserveScroll: true,
@@ -569,9 +580,14 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                                                         </button>
                                                         <button
                                                             onClick={() => handleDisableClick(staff)}
-                                                            className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors inline-flex items-center gap-1.5 ${staff.status === 'Active'
-                                                                ? 'text-red-700 bg-red-50 hover:bg-red-100 border-red-200'
-                                                                : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border-emerald-200'
+                                                            disabled={staff.id === user?.id}
+                                                            title={staff.id === user?.id ? "You cannot disable your own account." : undefined}
+                                                            className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors inline-flex items-center gap-1.5 ${
+                                                                staff.id === user?.id
+                                                                    ? 'opacity-50 cursor-not-allowed text-gray-400 bg-gray-50 border-gray-200'
+                                                                    : staff.status === 'Active'
+                                                                        ? 'text-red-700 bg-red-50 hover:bg-red-100 border-red-200'
+                                                                        : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border-emerald-200'
                                                                 }`}
                                                         >
                                                             {staff.status === 'Active' ? (

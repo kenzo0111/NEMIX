@@ -140,7 +140,7 @@ class ManageStaffController extends Controller
         }
 
         if ($user->id === $request->user()->id) {
-            return back()->with('error', 'You cannot deactivate your own logged-in account.');
+            return back()->with('error', 'You cannot disable your own account.');
         }
 
         $user->update([
