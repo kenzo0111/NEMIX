@@ -376,7 +376,7 @@ export default function Edit({
 
                         {/* SECTION 2: CHANGE PASSWORD */}
                         <div id="section-password" className="scroll-mt-36">
-                            <UpdatePasswordCard />
+                            <UpdatePasswordCard userEmail={resolvedProfile.email} />
                         </div>
 
                         {/* SECTION 3: ACCOUNT SECURITY & AUDIT */}

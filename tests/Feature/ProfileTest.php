@@ -160,7 +160,7 @@ class ProfileTest extends TestCase
         $this->assertTrue($user->fresh()->is_active);
     }
 
-    public function test_password_can_be_updated_with_correct_current_password(): void
+    public function test_password_cannot_be_updated_without_email_otp(): void
     {
         $user = User::factory()->create([
             'password' => bcrypt('old-password-123'),
@@ -174,8 +174,35 @@ class ProfileTest extends TestCase
                 'password_confirmation' => 'new-secure-password-456',
             ]);
 
+        $response->assertSessionHasErrors('current_password');
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('old-password-123', $user->fresh()->password));
+    }
+
+    public function test_password_can_be_updated_with_verified_email_otp(): void
+    {
+        $user = User::factory()->create([
+            'password' => bcrypt('old-password-123'),
+        ]);
+
+        $record = \App\Models\PasswordChangeRequest::create([
+            'user_id' => $user->id,
+            'token' => 'profile-test-otp-token',
+            'otp_hash' => \Illuminate\Support\Facades\Hash::make('654321'),
+            'pending_password' => \Illuminate\Support\Facades\Crypt::encryptString('new-secure-password-456'),
+            'expires_at' => now()->addMinutes(10),
+            'is_used' => false,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->put('/password', [
+                'token' => 'profile-test-otp-token',
+                'otp' => '654321',
+            ]);
+
         $response->assertSessionHasNoErrors();
         $this->assertTrue(\Illuminate\Support\Facades\Hash::check('new-secure-password-456', $user->fresh()->password));
+        $this->assertTrue($record->fresh()->is_used);
     }
 
     public function test_password_cannot_be_updated_with_incorrect_current_password(): void

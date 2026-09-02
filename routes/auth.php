@@ -68,6 +68,19 @@ Route::middleware('auth')->group(function () {
         ->middleware('throttle:6,1')
         ->name('password.update');
 
+    // Password Change OTP Verification
+    Route::post('password/change/request-otp', [\App\Http\Controllers\Auth\PasswordChangeOtpController::class, 'requestOtp'])
+        ->middleware('throttle:6,1')
+        ->name('password.otp.request');
+
+    Route::post('password/change/verify-otp', [\App\Http\Controllers\Auth\PasswordChangeOtpController::class, 'verifyOtp'])
+        ->middleware('throttle:6,1')
+        ->name('password.otp.verify');
+
+    Route::post('password/change/resend-otp', [\App\Http\Controllers\Auth\PasswordChangeOtpController::class, 'resendOtp'])
+        ->middleware('throttle:6,1')
+        ->name('password.otp.resend');
+
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });
