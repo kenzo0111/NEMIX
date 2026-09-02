@@ -54,8 +54,12 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
     // Timers & Counts
     const [resendCooldown, setResendCooldown] = useState<number>(0);
     const [expiresAt, setExpiresAt] = useState<Date | null>(null);
-    const [timeRemaining, setTimeRemaining] = useState<string>('10:00');
+    const [timeRemaining, setTimeRemaining] = useState<string>('05:00');
     const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
+    const [isExpired, setIsExpired] = useState<boolean>(false);
+    const [isMaxAttemptsExceeded, setIsMaxAttemptsExceeded] = useState<boolean>(false);
+    const [isVerifyingSuccess, setIsVerifyingSuccess] = useState<boolean>(false);
+    const [isRateLimited, setIsRateLimited] = useState<boolean>(false);
 
     // General UI State
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,12 +69,19 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
     const currentPasswordInputRef = useRef<HTMLInputElement>(null);
     const newPasswordInputRef = useRef<HTMLInputElement>(null);
 
+    // Helper to format cooldown seconds into mm:ss (e.g. 00:45)
+    const formatCooldown = (seconds: number): string => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    };
+
     // Password Validation Rules
     const hasMinLength = newPassword.length >= 8;
     const passwordsMatch = newPassword.length > 0 && newPassword === confirmPassword;
     const isStep1Valid = Boolean(currentPassword && hasMinLength && passwordsMatch);
 
-    // Countdown Timer for Resend Button Cooldown
+    // Countdown Timer for Resend Button Cooldown (60 seconds)
     useEffect(() => {
         if (resendCooldown <= 0) return;
         const timer = setInterval(() => {
@@ -79,7 +90,7 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
         return () => clearInterval(timer);
     }, [resendCooldown]);
 
-    // Countdown Timer for OTP Expiration
+    // Countdown Timer for OTP Expiration (5 minutes)
     useEffect(() => {
         if (!expiresAt || step !== 'otp') return;
 
@@ -89,13 +100,11 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
 
             if (distance <= 0) {
                 setTimeRemaining('00:00');
-                setErrors((prev) => ({
-                    ...prev,
-                    otp: 'The verification code has expired. Please click "Resend OTP" to receive a new code.',
-                }));
+                setIsExpired(true);
                 return;
             }
 
+            setIsExpired(false);
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
             setTimeRemaining(
@@ -110,12 +119,12 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
 
     // Auto-focus first OTP input upon entering Step 2
     useEffect(() => {
-        if (step === 'otp') {
+        if (step === 'otp' && !isExpired && !isMaxAttemptsExceeded) {
             setTimeout(() => {
                 otpInputRefs.current[0]?.focus();
             }, 100);
         }
-    }, [step]);
+    }, [step, isExpired, isMaxAttemptsExceeded]);
 
     // Handle Step 1 Submission: Validate & Request OTP
     const handleRequestOtp: FormEventHandler = async (e) => {
@@ -155,11 +164,15 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                 if (response.data.expires_at) {
                     setExpiresAt(new Date(response.data.expires_at));
                 } else {
-                    setExpiresAt(new Date(Date.now() + 10 * 60 * 1000));
+                    setExpiresAt(new Date(Date.now() + 5 * 60 * 1000));
                 }
                 setResendCooldown(response.data.resend_available_in || 60);
                 setOtpDigits(['', '', '', '', '', '']);
                 setRemainingAttempts(5);
+                setIsExpired(false);
+                setIsMaxAttemptsExceeded(false);
+                setIsVerifyingSuccess(false);
+                setIsRateLimited(false);
                 setStep('otp');
             }
         } catch (err: any) {
@@ -258,6 +271,16 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
         e.preventDefault();
         setErrors({});
 
+        if (isExpired) {
+            setErrors({ otp: 'This code has expired. Please request a new code.' });
+            return;
+        }
+
+        if (isMaxAttemptsExceeded) {
+            setErrors({ otp: 'Too many incorrect attempts. This code has been invalidated. Please request a new code.' });
+            return;
+        }
+
         if (!isOtpComplete) {
             setErrors({ otp: 'Please enter all 6 digits of the verification code.' });
             return;
@@ -272,18 +295,30 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
             });
 
             if (response.data?.success) {
-                // Clear sensitive password data from local memory
-                setCurrentPassword('');
-                setNewPassword('');
-                setConfirmPassword('');
-                setOtpDigits(['', '', '', '', '', '']);
-                setStep('success');
+                setIsVerifyingSuccess(true);
+                setTimeout(() => {
+                    // Clear sensitive password data from local memory
+                    setCurrentPassword('');
+                    setNewPassword('');
+                    setConfirmPassword('');
+                    setOtpDigits(['', '', '', '', '', '']);
+                    setIsVerifyingSuccess(false);
+                    setStep('success');
+                }, 800);
             }
         } catch (err: any) {
             const resData = err.response?.data;
             const status = err.response?.status;
 
-            if (typeof resData?.remaining_attempts === 'number') {
+            if (resData?.expired) {
+                setIsExpired(true);
+                setTimeRemaining('00:00');
+            }
+
+            if (resData?.max_attempts_exceeded || resData?.remaining_attempts === 0) {
+                setIsMaxAttemptsExceeded(true);
+                setRemainingAttempts(0);
+            } else if (typeof resData?.remaining_attempts === 'number') {
                 setRemainingAttempts(resData.remaining_attempts);
             }
 
@@ -298,9 +333,11 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                 setErrors({ otp: 'Failed to verify code. Please verify your internet connection and try again.' });
             }
 
-            // Clear digits and focus first cell on error
+            // Clear digits and focus first cell on error if not locked out
             setOtpDigits(['', '', '', '', '', '']);
-            otpInputRefs.current[0]?.focus();
+            if (!resData?.max_attempts_exceeded && !resData?.expired) {
+                otpInputRefs.current[0]?.focus();
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -323,14 +360,25 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                 if (response.data.expires_at) {
                     setExpiresAt(new Date(response.data.expires_at));
                 } else {
-                    setExpiresAt(new Date(Date.now() + 10 * 60 * 1000));
+                    setExpiresAt(new Date(Date.now() + 5 * 60 * 1000));
                 }
                 setOtpDigits(['', '', '', '', '', '']);
                 setRemainingAttempts(5);
-                otpInputRefs.current[0]?.focus();
+                setIsExpired(false);
+                setIsMaxAttemptsExceeded(false);
+                setIsRateLimited(false);
+                setTimeout(() => {
+                    otpInputRefs.current[0]?.focus();
+                }, 100);
             }
         } catch (err: any) {
             const resData = err.response?.data;
+            if (resData?.rate_limited) {
+                setIsRateLimited(true);
+            }
+            if (resData?.resend_available_in) {
+                setResendCooldown(resData.resend_available_in);
+            }
             if (resData?.errors?.otp) {
                 const msg = Array.isArray(resData.errors.otp) ? resData.errors.otp[0] : resData.errors.otp;
                 setErrors({ otp: msg });
@@ -356,6 +404,10 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
         setRemainingAttempts(null);
         setExpiresAt(null);
         setResendCooldown(0);
+        setIsExpired(false);
+        setIsMaxAttemptsExceeded(false);
+        setIsVerifyingSuccess(false);
+        setIsRateLimited(false);
     };
 
     return (
@@ -676,14 +728,78 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                                 Email Verification Code
                             </h4>
                             <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-                                We sent a 6-digit verification code to your registered email:
+                                Enter the 6-digit verification code sent to your email:
                                 <br />
                                 <strong className="text-slate-900 font-mono font-bold">{maskedEmail}</strong>
                             </p>
                         </div>
 
-                        {/* OTP Error Banner */}
-                        {errors.otp && (
+                        {/* State: Successfully Verified Transition Notice */}
+                        {isVerifyingSuccess && (
+                            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 flex items-center justify-center gap-3 text-xs sm:text-sm font-bold animate-pulse shadow-2xs">
+                                <svg className="animate-spin w-4 h-4 text-emerald-700" viewBox="0 0 24 24" fill="none">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                </svg>
+                                <span>OTP verified successfully. Updating your password...</span>
+                            </div>
+                        )}
+
+                        {/* State: Expired OTP */}
+                        {(isExpired || timeRemaining === '00:00') && !isVerifyingSuccess && (
+                            <div className="p-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs animate-in fade-in duration-200 shadow-2xs">
+                                <div className="flex items-start gap-2.5">
+                                    <Clock className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="font-bold text-amber-900 text-sm">This verification code has expired.</p>
+                                        <p className="text-amber-800 mt-0.5 font-medium">Please request a new code.</p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleResendOtp}
+                                    disabled={resendCooldown > 0 || isResending}
+                                    className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-xs shadow-xs transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+                                >
+                                    {resendCooldown > 0 ? `Resend code in ${formatCooldown(resendCooldown)}` : 'Resend OTP'}
+                                </button>
+                            </div>
+                        )}
+
+                        {/* State: Too Many Attempts */}
+                        {(isMaxAttemptsExceeded || remainingAttempts === 0) && !isVerifyingSuccess && (
+                            <div className="p-4 rounded-xl bg-rose-50 border border-rose-300 text-rose-950 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs animate-in fade-in duration-200 shadow-2xs">
+                                <div className="flex items-start gap-2.5">
+                                    <ShieldAlert className="w-5 h-5 text-rose-700 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="font-bold text-rose-900 text-sm">Too many incorrect attempts.</p>
+                                        <p className="text-rose-800 mt-0.5 font-medium">This code has been invalidated. Please request a new code.</p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleResendOtp}
+                                    disabled={resendCooldown > 0 || isResending}
+                                    className="px-4 py-2 bg-red-900 hover:bg-red-950 text-white rounded-lg font-bold text-xs shadow-xs transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+                                >
+                                    {resendCooldown > 0 ? `Resend code in ${formatCooldown(resendCooldown)}` : 'Resend OTP'}
+                                </button>
+                            </div>
+                        )}
+
+                        {/* State: Rate Limited Notice */}
+                        {isRateLimited && !isVerifyingSuccess && (
+                            <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-900 flex items-start gap-2.5 text-xs animate-in fade-in duration-200">
+                                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="font-bold">Request Limit Reached</p>
+                                    <p className="text-red-700 mt-0.5">You have requested too many verification codes. Please wait before trying again.</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* General OTP Error Banner */}
+                        {errors.otp && !isExpired && timeRemaining !== '00:00' && !isMaxAttemptsExceeded && remainingAttempts !== 0 && !isRateLimited && (
                             <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 flex items-start gap-2.5 text-xs font-medium animate-in fade-in duration-200">
                                 <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                                 <div className="flex-1">
@@ -709,11 +825,13 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                                         value={digit}
                                         onChange={(e) => handleOtpChange(idx, e.target.value)}
                                         onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || isExpired || timeRemaining === '00:00' || isMaxAttemptsExceeded || remainingAttempts === 0 || isVerifyingSuccess}
                                         aria-label={`Digit ${idx + 1}`}
                                         className={`w-11 h-13 sm:w-13 sm:h-15 text-center text-xl sm:text-2xl font-bold font-mono rounded-xl border bg-slate-50/70 text-slate-900 shadow-2xs focus:bg-white focus:outline-none focus:ring-2 transition-all select-none ${
                                             digit
                                                 ? 'border-red-900/60 ring-1 ring-red-900/20 bg-white'
+                                                : isExpired || timeRemaining === '00:00' || isMaxAttemptsExceeded || remainingAttempts === 0
+                                                ? 'border-slate-200 opacity-60 bg-slate-100 cursor-not-allowed'
                                                 : errors.otp
                                                 ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-400/30'
                                                 : 'border-slate-300 focus:border-red-900 focus:ring-red-900/30'
@@ -724,7 +842,7 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                         </div>
 
                         {/* Timer & Security Status Information */}
-                        <div className="flex items-center justify-between text-xs text-slate-500 px-2 py-1">
+                        <div className="flex items-center justify-between text-xs text-slate-500 px-3 py-2 bg-slate-50/70 rounded-lg border border-slate-200/60">
                             <div className="flex items-center gap-1.5 font-mono">
                                 <Clock className="w-3.5 h-3.5 text-slate-400" />
                                 <span>Code expires in:</span>
@@ -733,18 +851,30 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                                 </strong>
                             </div>
 
-                            {remainingAttempts !== null && remainingAttempts < 5 && (
-                                <div className="text-[11px] font-bold text-amber-800 font-mono">
-                                    {remainingAttempts} attempt(s) remaining
-                                </div>
-                            )}
+                            <div className="flex items-center gap-2 font-mono">
+                                {resendCooldown > 0 ? (
+                                    <span className="text-slate-500 text-[11px] font-medium">
+                                        Resend code in <strong className="font-bold text-slate-700">{formatCooldown(resendCooldown)}</strong>
+                                    </span>
+                                ) : (
+                                    <span className="text-emerald-700 text-[11px] font-bold">
+                                        Resend ready
+                                    </span>
+                                )}
+
+                                {remainingAttempts !== null && remainingAttempts > 0 && remainingAttempts < 5 && (
+                                    <span className="text-[11px] font-bold text-amber-800 ml-1 border-l pl-2 border-slate-300">
+                                        {remainingAttempts} attempt(s) left
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         {/* Step 2 Actions */}
                         <div className="space-y-3 pt-2">
                             <button
                                 type="submit"
-                                disabled={!isOtpComplete || isSubmitting}
+                                disabled={!isOtpComplete || isSubmitting || isExpired || timeRemaining === '00:00' || isMaxAttemptsExceeded || remainingAttempts === 0 || isVerifyingSuccess}
                                 className="w-full py-2.5 bg-red-900 hover:bg-red-950 text-white rounded-lg text-xs font-bold uppercase tracking-wider shadow-xs transition-colors border border-red-900 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 {isSubmitting ? (
@@ -780,12 +910,12 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                                 <button
                                     type="button"
                                     onClick={handleResendOtp}
-                                    disabled={resendCooldown > 0 || isResending || isSubmitting}
-                                    className="text-xs font-bold text-red-900 hover:text-red-950 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer transition-colors"
+                                    disabled={resendCooldown > 0 || isResending || isSubmitting || isVerifyingSuccess}
+                                    className="text-xs font-bold text-red-900 hover:text-red-950 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer transition-colors"
                                 >
                                     <RefreshCw className={`w-3.5 h-3.5 ${isResending ? 'animate-spin' : ''}`} />
                                     <span>
-                                        {resendCooldown > 0 ? `Resend OTP (${resendCooldown}s)` : 'Resend OTP'}
+                                        {resendCooldown > 0 ? `Resend code in ${formatCooldown(resendCooldown)}` : 'Resend OTP'}
                                     </span>
                                 </button>
                             </div>

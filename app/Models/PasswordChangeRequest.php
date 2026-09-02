@@ -95,11 +95,7 @@ class PasswordChangeRequest extends Model
      */
     public function canResend(): bool
     {
-        if ($this->is_used) {
-            return false;
-        }
-
-        if ($this->resend_count >= 3) {
+        if ($this->is_used || empty($this->pending_password)) {
             return false;
         }
 

@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
@@ -29,6 +30,21 @@ class PasswordChangeOtpController extends Controller
             ], 401);
         }
 
+        // Check abuse prevention limit: Maximum 5 OTP requests within 15 minutes
+        $rateLimitKey = 'password-otp-request:' . $user->id;
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
+            $seconds = RateLimiter::availableIn($rateLimitKey);
+            return response()->json([
+                'rate_limited' => true,
+                'retry_after' => $seconds,
+                'message' => 'You have requested too many verification codes. Please wait before trying again.',
+                'errors' => [
+                    'general' => ['You have requested too many verification codes. Please wait before trying again.'],
+                    'otp' => ['You have requested too many verification codes. Please wait before trying again.'],
+                ],
+            ], 429);
+        }
+
         // Validate current password and new password rules
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
@@ -43,7 +59,7 @@ class PasswordChangeOtpController extends Controller
         // Generate cryptographically secure 6-digit OTP and request token
         $otp = sprintf('%06d', random_int(100000, 999999));
         $token = Str::random(40);
-        $expiresAt = now()->addMinutes(10);
+        $expiresAt = now()->addMinutes(5);
         $resendAvailableAt = now()->addSeconds(60);
 
         // Store encrypted pending password (never plaintext) and hashed OTP
@@ -62,9 +78,12 @@ class PasswordChangeOtpController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
+        // Record request attempt in 15-minute rate limiter
+        RateLimiter::hit($rateLimitKey, 15 * 60);
+
         // Dispatch OTP notification with delivery failure handling
         try {
-            $user->notify(new PasswordChangeOtpNotification($otp, 10));
+            $user->notify(new PasswordChangeOtpNotification($otp, 5));
         } catch (\Throwable $e) {
             Log::error('Failed to send password change OTP: ' . $e->getMessage(), [
                 'user_id' => $user->id,
@@ -72,7 +91,7 @@ class PasswordChangeOtpController extends Controller
                 'exception' => $e,
             ]);
 
-            // Clean up request so invalid state is not persisted
+            // Clean up request and revert rate limiter hit so invalid state is not persisted
             $changeRequest->delete();
 
             return response()->json([
@@ -118,7 +137,7 @@ class PasswordChangeOtpController extends Controller
             ->where('token', $request->token)
             ->first();
 
-        if (! $changeRequest || $changeRequest->is_used) {
+        if (! $changeRequest || $changeRequest->is_used || empty($changeRequest->pending_password)) {
             return response()->json([
                 'message' => 'Verification request not found or has already been used. Please start over.',
                 'errors' => [
@@ -127,44 +146,41 @@ class PasswordChangeOtpController extends Controller
             ], 422);
         }
 
+        // Authoritative backend expiration check: expired OTP must never be accepted
         if ($changeRequest->isExpired()) {
             return response()->json([
-                'message' => 'The verification code has expired. Please request a new code.',
+                'expired' => true,
+                'message' => 'This code has expired. Please request a new code.',
                 'errors' => [
-                    'otp' => ['The verification code has expired. Please request a new code.'],
+                    'otp' => ['This code has expired. Please request a new code.'],
                 ],
             ], 422);
         }
 
+        // Authoritative backend attempt limit check
         if ($changeRequest->isMaxAttemptsExceeded()) {
-            $changeRequest->update([
-                'is_used' => true,
-                'pending_password' => null,
-            ]);
-
             return response()->json([
-                'message' => 'Too many invalid OTP attempts. For security reasons, this request has been cancelled. Please start a new password change request.',
+                'max_attempts_exceeded' => true,
+                'remaining_attempts' => 0,
+                'message' => 'Too many incorrect attempts. This code has been invalidated. Please request a new code.',
                 'errors' => [
-                    'otp' => ['Too many invalid OTP attempts. Request has been cancelled.'],
+                    'otp' => ['Too many incorrect attempts. This code has been invalidated. Please request a new code.'],
                 ],
             ], 422);
         }
 
-        // Verify the OTP against the stored hash
+        // Verify the OTP against the stored hash without revealing partial correctness
         if (! Hash::check($request->otp, $changeRequest->otp_hash)) {
             $changeRequest->increment('attempts');
             $remaining = max(0, $changeRequest->max_attempts - $changeRequest->attempts);
 
             if ($remaining === 0) {
-                $changeRequest->update([
-                    'is_used' => true,
-                    'pending_password' => null,
-                ]);
-
                 return response()->json([
-                    'message' => 'Too many invalid OTP attempts. For security reasons, this request has been cancelled. Please start a new password change request.',
+                    'max_attempts_exceeded' => true,
+                    'remaining_attempts' => 0,
+                    'message' => 'Too many incorrect attempts. This code has been invalidated. Please request a new code.',
                     'errors' => [
-                        'otp' => ['Too many invalid OTP attempts. Request has been cancelled.'],
+                        'otp' => ['Too many incorrect attempts. This code has been invalidated. Please request a new code.'],
                     ],
                 ], 422);
             }
@@ -173,7 +189,7 @@ class PasswordChangeOtpController extends Controller
                 'message' => "The verification code entered is incorrect. You have {$remaining} attempt(s) remaining.",
                 'remaining_attempts' => $remaining,
                 'errors' => [
-                    'otp' => ["Invalid verification code. You have {$remaining} attempt(s) remaining."],
+                    'otp' => ["The verification code entered is incorrect. You have {$remaining} attempt(s) remaining."],
                 ],
             ], 422);
         }
@@ -192,6 +208,9 @@ class PasswordChangeOtpController extends Controller
             'pending_password' => null,
         ]);
 
+        // Clear rate limiter upon successful password change
+        RateLimiter::clear('password-otp-request:' . $user->id);
+
         // Send security notification alert
         try {
             $user->notify(new PasswordChangedSecurityNotification($request->ip()));
@@ -201,7 +220,7 @@ class PasswordChangeOtpController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Your password has been changed successfully.',
+            'message' => 'OTP verified successfully. Updating your password...',
         ]);
     }
 
@@ -228,7 +247,7 @@ class PasswordChangeOtpController extends Controller
             ->where('is_used', false)
             ->first();
 
-        if (! $changeRequest) {
+        if (! $changeRequest || empty($changeRequest->pending_password)) {
             return response()->json([
                 'message' => 'Active verification request not found. Please initiate a new password change.',
                 'errors' => [
@@ -237,24 +256,7 @@ class PasswordChangeOtpController extends Controller
             ], 422);
         }
 
-        if ($changeRequest->isExpired()) {
-            return response()->json([
-                'message' => 'The verification request has expired. Please initiate a new password change.',
-                'errors' => [
-                    'otp' => ['The verification request has expired.'],
-                ],
-            ], 422);
-        }
-
-        if ($changeRequest->resend_count >= 3) {
-            return response()->json([
-                'message' => 'OTP resend limit reached. For security purposes, please start a new password change request.',
-                'errors' => [
-                    'otp' => ['OTP resend limit reached. Please start a new request.'],
-                ],
-            ], 422);
-        }
-
+        // Enforce 60-second cooldown between resend requests
         if ($changeRequest->resend_available_at && $changeRequest->resend_available_at->isFuture()) {
             $seconds = (int) now()->diffInSeconds($changeRequest->resend_available_at, false);
             return response()->json([
@@ -266,9 +268,24 @@ class PasswordChangeOtpController extends Controller
             ], 429);
         }
 
-        // Generate fresh OTP, invalidate previous OTP, reset attempt counter
+        // Check abuse prevention limit: Maximum 5 OTP requests within 15 minutes
+        $rateLimitKey = 'password-otp-request:' . $user->id;
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
+            $seconds = RateLimiter::availableIn($rateLimitKey);
+            return response()->json([
+                'rate_limited' => true,
+                'retry_after' => $seconds,
+                'message' => 'You have requested too many verification codes. Please wait before trying again.',
+                'errors' => [
+                    'otp' => ['You have requested too many verification codes. Please wait before trying again.'],
+                ],
+            ], 429);
+        }
+
+        // Generate fresh OTP, immediately invalidate previous OTP, reset attempt counter to 0,
+        // reset OTP expiration timer to 5 minutes, and reset resend cooldown to 60 seconds.
         $newOtp = sprintf('%06d', random_int(100000, 999999));
-        $newExpiresAt = now()->addMinutes(10);
+        $newExpiresAt = now()->addMinutes(5);
         $newResendAvailableAt = now()->addSeconds(60);
 
         $changeRequest->update([
@@ -279,8 +296,10 @@ class PasswordChangeOtpController extends Controller
             'resend_available_at' => $newResendAvailableAt,
         ]);
 
+        RateLimiter::hit($rateLimitKey, 15 * 60);
+
         try {
-            $user->notify(new PasswordChangeOtpNotification($newOtp, 10));
+            $user->notify(new PasswordChangeOtpNotification($newOtp, 5));
         } catch (\Throwable $e) {
             Log::error('Failed to resend password change OTP: ' . $e->getMessage(), [
                 'user_id' => $user->id,

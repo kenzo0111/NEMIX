@@ -12,7 +12,7 @@ class PasswordChangeOtpNotification extends Notification
 
     public function __construct(
         public readonly string $otp,
-        public readonly int $expiresInMinutes = 10
+        public readonly int $expiresInMinutes = 5
     ) {
     }
 
