@@ -33,15 +33,19 @@ class AuthorizeAction
         }
 
         // Fast-path: System Admin bypasses all checks without permission creation
-        if ($user->hasRole('System Admin')) {
+        if (method_exists($user, 'isSystemAdmin') ? $user->isSystemAdmin() : $user->hasRole('System Admin')) {
             return $next($request);
         }
 
         $permissionName = $this->routePermissionName($routeName);
         $this->ensurePermissionExists($permissionName);
 
-        if ($user->hasPermissionTo($permissionName)) {
-            return $next($request);
+        try {
+            if ($user->hasPermissionTo($permissionName)) {
+                return $next($request);
+            }
+        } catch (\Spatie\Permission\Exceptions\PermissionDoesNotExist $e) {
+            abort(403);
         }
 
         abort(403);
@@ -68,11 +72,11 @@ class AuthorizeAction
 
     private function ensurePermissionExists(string $permissionName): void
     {
-        if (isset(self::$verifiedPermissions[$permissionName])) {
+        if (isset(self::$verifiedPermissions[$permissionName]) && ! app()->environment('testing')) {
             return;
         }
 
-        $permission = Permission::firstOrCreate(['name' => $permissionName]);
+        $permission = Permission::firstOrCreate(['name' => $permissionName, 'guard_name' => 'web']);
 
         $systemAdmin = Role::where('name', 'System Admin')->first();
 

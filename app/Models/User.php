@@ -79,4 +79,27 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new \App\Notifications\VerifyEmailNotification());
     }
+
+    /**
+     * Determine if the user has System Administrator privileges.
+     */
+    public function isSystemAdmin(): bool
+    {
+        if (method_exists($this, 'hasRole')) {
+            if ($this->hasRole('System Admin') || $this->hasRole('System Administrator')) {
+                return true;
+            }
+        }
+
+        $roleAttr = $this->getAttribute('role');
+        if (is_string($roleAttr) && in_array($roleAttr, ['System Admin', 'System Administrator'], true)) {
+            return true;
+        }
+
+        if ($this->relationLoaded('roles')) {
+            return $this->roles->contains(fn ($r) => in_array($r->name, ['System Admin', 'System Administrator'], true));
+        }
+
+        return false;
+    }
 }

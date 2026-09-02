@@ -16,8 +16,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
 
-use App\Policies\ResourceOwnershipPolicy;
-
 class ManageStaffController extends Controller
 {
     public function index(): Response
@@ -48,7 +46,7 @@ class ManageStaffController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        if (! $request->user()?->hasRole('System Admin')) {
+        if (! $request->user()?->isSystemAdmin()) {
             abort(403, 'Unauthorized action. System Admin access required.');
         }
 
@@ -89,9 +87,11 @@ class ManageStaffController extends Controller
         return back()->with('success', 'Staff invitation sent to '.$user->email.'.');
     }
 
-    public function resendInvitation(User $user): RedirectResponse
+    public function resendInvitation(Request $request, User $user): RedirectResponse
     {
-        ResourceOwnershipPolicy::authorize(auth()->user(), $user, 'id');
+        if (! $request->user()?->isSystemAdmin()) {
+            abort(403, 'Unauthorized action. System Admin access required.');
+        }
 
         try {
             /** @var PasswordBroker $passwordBroker */
@@ -113,7 +113,9 @@ class ManageStaffController extends Controller
 
     public function update(Request $request, User $user): RedirectResponse
     {
-        ResourceOwnershipPolicy::authorize($request->user(), $user, 'id');
+        if (! $request->user()?->isSystemAdmin()) {
+            abort(403, 'Unauthorized action. System Admin access required.');
+        }
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -126,16 +128,14 @@ class ManageStaffController extends Controller
             'email' => $validated['email'],
         ]);
 
-        if ($request->user()?->hasRole('System Admin')) {
-            $user->syncRoles([$validated['role']]);
-        }
+        $user->syncRoles([$validated['role']]);
 
-        return back();
+        return back()->with('success', 'Staff account updated successfully.');
     }
 
     public function toggleStatus(Request $request, User $user): RedirectResponse
     {
-        if (! $request->user()?->hasRole('System Admin')) {
+        if (! $request->user()?->isSystemAdmin()) {
             abort(403, 'Unauthorized action. System Admin access required.');
         }
 
@@ -147,6 +147,7 @@ class ManageStaffController extends Controller
             'is_active' => ! $user->is_active,
         ]);
 
-        return back()->with('success', 'User account status updated.');
+        $action = $user->is_active ? 'enabled' : 'disabled';
+        return back()->with('success', "User account {$action} successfully.");
     }
 }

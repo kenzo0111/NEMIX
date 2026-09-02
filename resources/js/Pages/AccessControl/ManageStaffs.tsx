@@ -111,6 +111,27 @@ const modalRoleSelectStyles = {
 export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: any; staffs?: Staff[]; roles?: string[] }) {
     const user = auth?.user;
     const { flash } = usePage().props as any;
+
+    const isSystemAdmin = Boolean(
+        auth?.is_system_admin ||
+        auth?.user?.role === 'System Admin' ||
+        auth?.user?.role === 'System Administrator' ||
+        (Array.isArray(auth?.user?.roles) && (
+            auth.user.roles.includes('System Admin') ||
+            auth.user.roles.includes('System Administrator') ||
+            auth.user.roles.some((r: any) =>
+                typeof r === 'string'
+                    ? r === 'System Admin' || r === 'System Administrator'
+                    : r?.name === 'System Admin' || r?.name === 'System Administrator'
+            )
+        ))
+    );
+
+    const canAddStaff = isSystemAdmin;
+    const canEditStaff = isSystemAdmin;
+    const canToggleStaff = isSystemAdmin;
+    const canResendInvite = isSystemAdmin;
+
     const [collapsed, setCollapsed] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [warningMessage, setWarningMessage] = useState('');
@@ -160,6 +181,11 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
     }, [flash]);
 
     const handleResendInvitation = (staff: Staff) => {
+        if (!canResendInvite) {
+            setErrorMessage('Unauthorized action. System Administrator privileges are required to resend invitations.');
+            return;
+        }
+
         router.post(route('access-control.staffs.resend-invitation', staff.id), {}, {
             preserveScroll: true,
             onStart: () => setResendingStaffId(staff.id),
@@ -198,6 +224,11 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
 
     const handleCreateStaff = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!canAddStaff) {
+            setErrorMessage('Unauthorized action. System Administrator privileges are required to add staff.');
+            setIsCreateModalOpen(false);
+            return;
+        }
         if (!newStaffName.trim() || !newStaffEmail.trim()) return;
 
         router.post(route('access-control.staffs.store'), {
@@ -218,6 +249,10 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
     };
 
     const handleEditClick = (staff: Staff) => {
+        if (!canEditStaff) {
+            setErrorMessage('Unauthorized action. System Administrator privileges are required to edit staff.');
+            return;
+        }
         setSelectedStaff(staff);
         setEditStaffName(staff.name);
         setEditStaffEmail(staff.email);
@@ -227,6 +262,12 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
 
     const handleEditSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!canEditStaff) {
+            setErrorMessage('Unauthorized action. System Administrator privileges are required to edit staff.');
+            setIsEditModalOpen(false);
+            setSelectedStaff(null);
+            return;
+        }
         if (!editStaffName.trim() || !editStaffEmail.trim() || !selectedStaff) return;
 
         router.put(route('access-control.staffs.update', selectedStaff.id), {
@@ -245,6 +286,10 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
     };
 
     const handleDisableClick = (staff: Staff) => {
+        if (!canToggleStaff) {
+            setErrorMessage('Unauthorized action. System Administrator privileges are required to change account status.');
+            return;
+        }
         if (staff.id === user?.id) {
             setErrorMessage('You cannot disable your own account.');
             return;
@@ -255,6 +300,13 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
 
     const handleDisableConfirm = () => {
         if (!selectedStaff) return;
+
+        if (!canToggleStaff) {
+            setErrorMessage('Unauthorized action. System Administrator privileges are required to change account status.');
+            setIsDisableModalOpen(false);
+            setSelectedStaff(null);
+            return;
+        }
 
         if (selectedStaff.id === user?.id) {
             setErrorMessage('You cannot disable your own account.');
@@ -378,6 +430,21 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                             >
                                 <X className="w-4 h-4" />
                             </button>
+                        </div>
+                    )}
+
+                    {/* Non-Admin Read-Only Notice Banner */}
+                    {!isSystemAdmin && (
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 flex items-center gap-3 shadow-xs">
+                            <div className="p-2 bg-slate-200 rounded-lg text-slate-800 shrink-0">
+                                <Shield className="w-5 h-5 text-slate-700" />
+                            </div>
+                            <div className="text-xs text-slate-800 flex-1">
+                                <strong className="font-bold uppercase tracking-wider block text-[11px] mb-0.5 text-slate-900">
+                                    Directory View Mode (Standard Privileges):
+                                </strong>
+                                You have read-only access to the staff roster. Adding new staff members, editing accounts, and modifying user access statuses are restricted strictly to System Administrators.
+                            </div>
                         </div>
                     )}
 
@@ -507,13 +574,23 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                                 )}
 
                                 {/* Add New Staff Button */}
-                                <button
-                                    onClick={() => setIsCreateModalOpen(true)}
-                                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-900 hover:bg-red-800 border border-red-950 rounded font-bold text-xs text-white uppercase tracking-wider shadow-xs transition-colors"
-                                >
-                                    <UserPlus className="w-3.5 h-3.5" />
-                                    <span>Add New Staff</span>
-                                </button>
+                                {canAddStaff ? (
+                                    <button
+                                        onClick={() => setIsCreateModalOpen(true)}
+                                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-900 hover:bg-red-800 border border-red-950 rounded font-bold text-xs text-white uppercase tracking-wider shadow-xs transition-colors"
+                                    >
+                                        <UserPlus className="w-3.5 h-3.5" />
+                                        <span>Add New Staff</span>
+                                    </button>
+                                ) : (
+                                    <div
+                                        className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gray-100 border border-gray-300 rounded font-bold text-xs text-gray-400 uppercase tracking-wider select-none cursor-not-allowed"
+                                        title="System Administrator privileges required to register staff"
+                                    >
+                                        <Shield className="w-3.5 h-3.5 text-gray-400" />
+                                        <span>Add Staff (Restricted)</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -560,48 +637,58 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex items-center justify-end gap-2">
-                                                        {staff.status !== 'Active' && (
-                                                            <button
-                                                                onClick={() => handleResendInvitation(staff)}
-                                                                disabled={resendingStaffId === staff.id}
-                                                                className="px-3 py-1.5 text-xs font-bold rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
-                                                                title="Resend invitation email"
-                                                            >
-                                                                <Mail className="w-3.5 h-3.5" />
-                                                                <span>{resendingStaffId === staff.id ? 'Sending...' : 'Resend Invite'}</span>
-                                                            </button>
+                                                        {isSystemAdmin ? (
+                                                            <>
+                                                                {staff.status !== 'Active' && (
+                                                                    <button
+                                                                        onClick={() => handleResendInvitation(staff)}
+                                                                        disabled={resendingStaffId === staff.id}
+                                                                        className="px-3 py-1.5 text-xs font-bold rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
+                                                                        title="Resend invitation email"
+                                                                    >
+                                                                        <Mail className="w-3.5 h-3.5" />
+                                                                        <span>{resendingStaffId === staff.id ? 'Sending...' : 'Resend Invite'}</span>
+                                                                    </button>
+                                                                )}
+                                                                <button
+                                                                    onClick={() => handleEditClick(staff)}
+                                                                    className="px-3 py-1.5 text-xs font-bold rounded-lg text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors inline-flex items-center gap-1.5"
+                                                                    title="Edit staff details and role"
+                                                                >
+                                                                    <Edit2 className="w-3.5 h-3.5" />
+                                                                    <span>Edit</span>
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDisableClick(staff)}
+                                                                    disabled={staff.id === user?.id}
+                                                                    title={staff.id === user?.id ? "You cannot disable your own account." : staff.status === 'Active' ? 'Disable staff account' : 'Enable staff account'}
+                                                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors inline-flex items-center gap-1.5 ${
+                                                                        staff.id === user?.id
+                                                                            ? 'opacity-50 cursor-not-allowed text-gray-400 bg-gray-50 border-gray-200'
+                                                                            : staff.status === 'Active'
+                                                                                ? 'text-red-700 bg-red-50 hover:bg-red-100 border-red-200'
+                                                                                : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border-emerald-200'
+                                                                        }`}
+                                                                >
+                                                                    {staff.status === 'Active' ? (
+                                                                        <>
+                                                                            <UserX className="w-3.5 h-3.5" />
+                                                                            <span>Disable</span>
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <UserCheck className="w-3.5 h-3.5" />
+                                                                            <span>Enable</span>
+                                                                        </>
+                                                                    )}
+                                                                </button>
+                                                            </>
+                                                        ) : (
+                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold text-gray-500 bg-gray-100 border border-gray-200 select-none" title="System Administrator privileges required to manage staff accounts">
+                                                                <Shield className="w-3 h-3 text-gray-400" />
+                                                                <span>Read Only</span>
+                                                            </span>
                                                         )}
-                                                        <button
-                                                            onClick={() => handleEditClick(staff)}
-                                                            className="px-3 py-1.5 text-xs font-bold rounded-lg text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors inline-flex items-center gap-1.5"
-                                                        >
-                                                            <Edit2 className="w-3.5 h-3.5" />
-                                                            <span>Edit</span>
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDisableClick(staff)}
-                                                            disabled={staff.id === user?.id}
-                                                            title={staff.id === user?.id ? "You cannot disable your own account." : undefined}
-                                                            className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors inline-flex items-center gap-1.5 ${
-                                                                staff.id === user?.id
-                                                                    ? 'opacity-50 cursor-not-allowed text-gray-400 bg-gray-50 border-gray-200'
-                                                                    : staff.status === 'Active'
-                                                                        ? 'text-red-700 bg-red-50 hover:bg-red-100 border-red-200'
-                                                                        : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border-emerald-200'
-                                                                }`}
-                                                        >
-                                                            {staff.status === 'Active' ? (
-                                                                <>
-                                                                    <UserX className="w-3.5 h-3.5" />
-                                                                    <span>Disable</span>
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <UserCheck className="w-3.5 h-3.5" />
-                                                                    <span>Enable</span>
-                                                                </>
-                                                            )}
-                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>

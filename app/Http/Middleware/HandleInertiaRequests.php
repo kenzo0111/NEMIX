@@ -48,12 +48,7 @@ class HandleInertiaRequests extends Middleware
             $userArray = null;
         }
 
-        $isSystemAdmin = $user && (
-            $user->hasRole('System Admin') ||
-            $user->hasRole('System Administrator') ||
-            ($user->role ?? null) === 'System Admin' ||
-            ($user->role ?? null) === 'System Administrator'
-        );
+        $isSystemAdmin = (bool) ($user && method_exists($user, 'isSystemAdmin') ? $user->isSystemAdmin() : false);
 
         $sysConfig = \App\Models\SystemConfiguration::current();
         $sysConfig->loadMissing('changedBy');
