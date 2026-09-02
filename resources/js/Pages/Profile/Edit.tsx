@@ -151,7 +151,6 @@ export default function Edit({
                             <div className="mb-1">
                                 <Breadcrumbs
                                     items={[
-                                        { name: 'System Settings', href: route('dashboard') },
                                         { name: 'Account Settings' },
                                     ]}
                                 />
