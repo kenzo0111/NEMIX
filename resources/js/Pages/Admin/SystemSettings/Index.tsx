@@ -260,25 +260,28 @@ export default function Index({ auth, system, groupedSettings = {}, telemetry }:
                         </div>
                     </div>
 
-                    {/* Page Sub-Header */}
-                    <div className="px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div className="flex items-center gap-3.5">
-                            <div className="w-10 h-10 rounded-xl bg-red-900 text-amber-300 flex items-center justify-center border border-red-800 shadow-xs">
-                                <Sliders className="w-5 h-5" />
+                    {/* Main Header Content */}
+                    <div className="bg-white border-b border-slate-200 px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                            <div className="mb-1">
+                                <Breadcrumbs
+                                    items={[
+                                        { name: 'Administration & Governance' },
+                                        { name: 'System Settings' },
+                                    ]}
+                                />
                             </div>
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-                                        System Settings & Policies
-                                    </h1>
-                                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
-                                        Consumables Engine
-                                    </span>
-                                </div>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    Manage institutional branding, document signatories, stock reorder thresholds, and document numbering.
-                                </p>
+                            <div className="flex items-center gap-2">
+                                <h1 className="text-2xl font-bold text-slate-900 font-serif tracking-tight">
+                                    System Settings & Policies
+                                </h1>
+                                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
+                                    Consumables Engine
+                                </span>
                             </div>
+                            <p className="text-xs text-slate-500 font-medium mt-0.5">
+                                Manage institutional branding, document signatories, stock reorder thresholds, and document numbering.
+                            </p>
                         </div>
 
                         {/* Actions */}
@@ -314,14 +317,6 @@ export default function Index({ auth, system, groupedSettings = {}, telemetry }:
 
                 {/* Main Content Body */}
                 <div className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
-                    {/* Breadcrumbs */}
-                    <Breadcrumbs
-                        items={[
-                            { name: 'Administration & Governance' },
-                            { name: 'System Settings' },
-                        ]}
-                    />
-
                     {/* Navigation Tabs Bar */}
                     <div className="bg-white rounded-xl p-1.5 border border-slate-200 shadow-xs flex flex-wrap gap-1.5">
                         {tabs.map((tab) => {
