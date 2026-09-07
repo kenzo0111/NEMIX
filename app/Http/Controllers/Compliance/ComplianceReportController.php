@@ -305,6 +305,9 @@ class ComplianceReportController extends Controller
                 ->get()
                 ->map(function ($report) {
                     $supplierName = data_get($report->payload, 'supplierName');
+                    $generatedDate = data_get($report->payload, 'generatedDate')
+                        ?? ($report->created_at ? $report->created_at->format('Y-m-d') : null);
+
                     return [
                         'id' => $report->id,
                         'title' => $report->title,
@@ -322,6 +325,9 @@ class ComplianceReportController extends Controller
                         'endDate' => optional($report->end_date)->toDateString(),
                         'selectedMonth' => $report->selected_month,
                         'selectedYear' => $report->selected_year,
+                        'generatedDate' => $generatedDate,
+                        'createdAt' => optional($report->created_at)->toIso8601String(),
+                        'created_at' => optional($report->created_at)->toIso8601String(),
                     ];
                 })
                 ->values()
@@ -377,6 +383,7 @@ class ComplianceReportController extends Controller
             'selectedMonth' => ['nullable', 'integer', 'between:1,12'],
             'selectedYear' => ['nullable', 'integer', 'between:2000,2100'],
             'coverageLabel' => ['nullable', 'string', 'max:255'],
+            'generatedDate' => ['nullable', 'date'],
             'payload' => ['nullable', 'array'],
         ]);
 
@@ -394,9 +401,14 @@ class ComplianceReportController extends Controller
             }
         }
 
+        $generatedDate = $validated['generatedDate'] ?? now()->format('Y-m-d');
+
         $reference = !empty($validated['reference'])
             ? trim($validated['reference'])
-            : self::generateReference($validated['date'] ?? null);
+            : self::generateReference($generatedDate);
+
+        $payload = $validated['payload'] ?? [];
+        $payload['generatedDate'] = $generatedDate;
 
         ComplianceReport::create([
             'title' => $validated['title'],
@@ -410,7 +422,7 @@ class ComplianceReportController extends Controller
             'selected_month' => $validated['selectedMonth'] ?? null,
             'selected_year' => $validated['selectedYear'] ?? null,
             'coverage_label' => $coverageLabel,
-            'payload' => $validated['payload'] ?? null,
+            'payload' => $payload,
             'created_by' => optional($request->user())->id,
         ]);
 
@@ -435,6 +447,7 @@ class ComplianceReportController extends Controller
             'selectedMonth' => ['nullable', 'integer', 'between:1,12'],
             'selectedYear' => ['nullable', 'integer', 'between:2000,2100'],
             'coverageLabel' => ['nullable', 'string', 'max:255'],
+            'generatedDate' => ['nullable', 'date'],
             'payload' => ['nullable', 'array'],
         ]);
 
@@ -452,6 +465,11 @@ class ComplianceReportController extends Controller
             }
         }
 
+        $payload = $validated['payload'] ?? [];
+        if (!empty($validated['generatedDate'])) {
+            $payload['generatedDate'] = $validated['generatedDate'];
+        }
+
         $report->update([
             'title' => $validated['title'],
             'type' => $validated['type'],
@@ -464,7 +482,7 @@ class ComplianceReportController extends Controller
             'selected_month' => $validated['selectedMonth'] ?? null,
             'selected_year' => $validated['selectedYear'] ?? null,
             'coverage_label' => $coverageLabel,
-            'payload' => $validated['payload'] ?? null,
+            'payload' => $payload,
         ]);
 
         return redirect()->route('compliance.reports')->with('success', 'Compliance report updated successfully.');

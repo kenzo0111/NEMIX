@@ -851,6 +851,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         const itemName = String(row.item_name || row.item || row.article || row.description || '').trim();
         const title = String(row.title || row.designation || row.department || row.remarks || row.recipient || '').trim();
 
+        const todayStr = new Date().toISOString().split('T')[0];
         setFormData({
             title: title || itemName || '',
             type: migrationFormType,
@@ -859,6 +860,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             supplierId: '',
             supplierName: '',
             endUser: row.recipient || '',
+            generatedDate: todayStr,
             periodType: 'specific',
             date: safeDate.toISOString().split('T')[0],
             startDate: '',
@@ -1142,6 +1144,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         supplierId: '',
         supplierName: '',
         endUser: '',
+        generatedDate: new Date().toISOString().split('T')[0],
         periodType: 'specific',
         date: new Date().toISOString().split('T')[0],
         startDate: '',
@@ -1410,6 +1413,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             delete payload.supplierName;
         }
 
+        const genDate = formData.generatedDate || new Date().toISOString().split('T')[0];
+
         return {
             title: formData.title,
             type: formData.type || 'General Report',
@@ -1424,7 +1429,11 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             selectedMonth: formData.periodType === 'monthly' ? Number(formData.selectedMonth) : null,
             selectedYear: formData.periodType === 'monthly' || formData.periodType === 'yearly' ? Number(formData.selectedYear) : null,
             coverageLabel: generateDisplayDate(formData),
-            payload,
+            generatedDate: genDate,
+            payload: {
+                ...payload,
+                generatedDate: genDate,
+            },
         };
     };
 
@@ -1535,6 +1544,12 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         const supplier = suppliers.find((supplier: any) => String(supplier.id) === String(report.supplierId))
             || suppliers.find((supplier: any) => (supplier.name || supplier.company_name) === report.supplierName);
 
+        const genDate = report.generatedDate
+            || (report.createdAt ? String(report.createdAt).split('T')[0] : null)
+            || report.payload?.generatedDate
+            || (report.created_at ? String(report.created_at).split('T')[0] : null)
+            || new Date().toISOString().split('T')[0];
+
         setModalMode('view');
         setSelectedId(report.id);
         setFormData({
@@ -1546,6 +1561,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             supplierId: supplier?.id || report.supplierId || '',
             supplierName: supplier ? supplier.name || supplier.company_name : (report.supplierName || ''),
             endUser: report.endUser || report.payload?.endUser || '',
+            generatedDate: genDate,
             periodType: report.periodType || 'specific',
             date: report.dateValue || new Date().toISOString().split('T')[0],
             startDate: report.startDate || '',
@@ -1568,6 +1584,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             supplierId: '',
             supplierName: '',
             endUser: '',
+            generatedDate: todayStr,
             periodType: 'specific',
             date: todayStr,
             startDate: '',
@@ -1590,6 +1607,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             supplierId: '',
             supplierName: '',
             endUser: '',
+            generatedDate: todayStr,
             periodType: 'specific',
             date: todayStr,
             startDate: '',
@@ -1946,12 +1964,12 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             entityName: displayEntityName,
                                             serialNo: formData.reference,
                                             fundCluster: displayFundCluster,
-                                            date: generateDisplayDate(formData),
+                                            date: formData.generatedDate,
                                             issuedItems: issuedItems,
                                             recapitulationItems: recaps,
                                             supplyCustodianName: user?.name || 'Supply Officer',
                                             accountingStaffName: 'Accounting Staff',
-                                            accountingDate: generateDisplayDate(formData),
+                                            accountingDate: formData.generatedDate,
                                         }} />
                                     </Suspense>
                                 );
@@ -2035,7 +2053,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         <Suspense fallback={reportTemplateFallback}>
                                             <RPCIFormPaper data={{
                                                 entity_name: displayEntity,
-                                                as_at_date: generateDisplayDate(formData),
+                                                as_at_date: formData.generatedDate,
                                                 fund_cluster: displayFund,
                                                 inventory_type: formData.title || 'Physical Count of Inventories',
                                                 accountable_officer: displayOfficer,
@@ -2126,17 +2144,17 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             entityName: displayEntity,
                                             fundCluster: displayFund,
                                             mrNo: formData.reference,
-                                            date: generateDisplayDate(formData),
+                                            date: formData.generatedDate,
                                             purpose: endUserOffice,
                                             items: mrItems,
                                             receivedByName: resolvedEndUser,
                                             receivedByPosition: endUserPos,
                                             receivedByOffice: endUserOffice,
-                                            receivedByDate: generateDisplayDate(formData),
+                                            receivedByDate: formData.generatedDate,
                                             issuedByName: user?.name || 'ARSENIO GEM A. GARCILLANOSA',
                                             issuedByPosition: 'SUPPLY OFFICER III / PROPERTY CUSTODIAN',
                                             issuedByOffice: 'Supply & Property Division',
-                                            issuedByDate: generateDisplayDate(formData),
+                                            issuedByDate: formData.generatedDate,
                                         }} />
                                     </Suspense>
                                 );
@@ -2205,14 +2223,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         <button
                                             type="button"
                                             onClick={() => {
-                                                const targetDate = formData.periodType === 'range' && formData.startDate
-                                                    ? formData.startDate
-                                                    : (formData.periodType === 'monthly'
-                                                        ? `${formData.selectedYear}-${String(formData.selectedMonth).padStart(2, '0')}-01`
-                                                        : (formData.periodType === 'yearly'
-                                                            ? `${formData.selectedYear}-01-01`
-                                                            : (formData.date || new Date().toISOString().split('T')[0])));
-                                                const autoRef = generateReportReference(targetDate, reports, migratedRecords);
+                                                const genDate = formData.generatedDate || new Date().toISOString().split('T')[0];
+                                                const autoRef = generateReportReference(genDate, reports, migratedRecords);
                                                 setFormData(prev => ({ ...prev, reference: autoRef }));
                                             }}
                                             title="Auto-generate next sequential Serial / Ref No."
@@ -2227,18 +2239,38 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                             </div>
                         </div>
 
-                        <FormInput
-                            label="Document Title"
-                            value={formData.title}
-                            readOnly={modalMode === 'view'}
-                            disabled={modalMode === 'view'}
-                            onChange={(e: any) => {
-                                if (modalMode === 'view') return;
-                                setFormData({ ...formData, title: e.target.value });
-                            }}
-                            placeholder="e.g. Monthly Supplies Issuance - March"
-                            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>}
-                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <FormInput
+                                label="Document Title"
+                                value={formData.title}
+                                readOnly={modalMode === 'view'}
+                                disabled={modalMode === 'view'}
+                                onChange={(e: any) => {
+                                    if (modalMode === 'view') return;
+                                    setFormData({ ...formData, title: e.target.value });
+                                }}
+                                placeholder="e.g. Monthly Supplies Issuance - March"
+                                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>}
+                            />
+
+                            <FormInput
+                                label="Date Generated (Official Report Date)"
+                                type="date"
+                                value={formData.generatedDate}
+                                readOnly={modalMode === 'view'}
+                                disabled={modalMode === 'view'}
+                                onChange={(e: any) => {
+                                    if (modalMode === 'view') return;
+                                    const newGenDate = e.target.value;
+                                    const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
+                                    const nextRef = isAutoGenerated && modalMode === 'create' && newGenDate
+                                        ? generateReportReference(newGenDate, reports, migratedRecords)
+                                        : formData.reference;
+                                    setFormData({ ...formData, generatedDate: newGenDate, reference: nextRef });
+                                }}
+                                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>}
+                            />
+                        </div>
 
                         {formData.type === 'RPCI' && (
                             <div className="group w-full">
@@ -2314,7 +2346,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                 ...formData,
                                                 endUser: selectedName,
                                                 title: formData.title || (selectedName ? `Memorandum Receipt - ${selectedName}` : ''),
-                                                reference: formData.reference || generateReportReference(formData.date, reports, migratedRecords),
+                                                reference: formData.reference || generateReportReference(formData.generatedDate, reports, migratedRecords),
                                             });
                                         }}
                                         onInputChange={(newValue: string, actionMeta: any) => {
@@ -2372,10 +2404,13 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         {/* COVERAGE PERIOD SECTION */}
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-5 relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-1 h-full bg-red-800"></div>
-                            <div className="flex items-center gap-2 mb-4 text-gray-800">
+                            <div className="flex items-center gap-2 mb-2 text-gray-800">
                                 <svg className="w-5 h-5 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                 <h4 className="text-sm font-bold uppercase tracking-wider">Coverage Period</h4>
                             </div>
+                            <p className="text-xs text-gray-500 mb-4">
+                                Filter the transaction records included in this report. This period filter determines report data and does not overwrite the report's generation date.
+                            </p>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-end">
                                 <div>
@@ -2386,20 +2421,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         isDisabled={modalMode === 'view'}
                                         onChange={(opt: any) => {
                                             if (modalMode === 'view') return;
-                                            const nextPeriod = opt?.value || 'specific';
-                                            let targetDate = formData.date || new Date().toISOString().split('T')[0];
-                                            if (nextPeriod === 'range' && formData.startDate) {
-                                                targetDate = formData.startDate;
-                                            } else if (nextPeriod === 'monthly') {
-                                                targetDate = `${formData.selectedYear}-${String(formData.selectedMonth).padStart(2, '0')}-01`;
-                                            } else if (nextPeriod === 'yearly') {
-                                                targetDate = `${formData.selectedYear}-01-01`;
-                                            }
-                                            const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
-                                            const nextRef = isAutoGenerated && modalMode === 'create'
-                                                ? generateReportReference(targetDate, reports, migratedRecords)
-                                                : formData.reference;
-                                            setFormData({ ...formData, periodType: nextPeriod, reference: nextRef });
+                                            setFormData({ ...formData, periodType: opt?.value || 'specific' });
                                         }}
                                         styles={customSelectStyles}
                                         menuPortalTarget={typeof window !== "undefined" ? document.body : null}
@@ -2417,12 +2439,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         disabled={modalMode === 'view'}
                                         onChange={(e: any) => {
                                             if (modalMode === 'view') return;
-                                            const newDate = e.target.value;
-                                            const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
-                                            const nextRef = isAutoGenerated && modalMode === 'create' && newDate
-                                                ? generateReportReference(newDate, reports, migratedRecords)
-                                                : formData.reference;
-                                            setFormData({ ...formData, date: newDate, reference: nextRef });
+                                            setFormData({ ...formData, date: e.target.value });
                                         }}
                                     />
                                 )}
@@ -2437,12 +2454,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             disabled={modalMode === 'view'}
                                             onChange={(e: any) => {
                                                 if (modalMode === 'view') return;
-                                                const newStart = e.target.value;
-                                                const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
-                                                const nextRef = isAutoGenerated && modalMode === 'create' && newStart
-                                                    ? generateReportReference(newStart, reports, migratedRecords)
-                                                    : formData.reference;
-                                                setFormData({ ...formData, startDate: newStart, reference: nextRef });
+                                                setFormData({ ...formData, startDate: e.target.value });
                                             }}
                                         />
                                         <FormInput
@@ -2469,13 +2481,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                 isDisabled={modalMode === 'view'}
                                                 onChange={(opt: any) => {
                                                     if (modalMode === 'view') return;
-                                                    const newMonth = opt.value;
-                                                    const targetDate = `${formData.selectedYear}-${String(newMonth).padStart(2, '0')}-01`;
-                                                    const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
-                                                    const nextRef = isAutoGenerated && modalMode === 'create'
-                                                        ? generateReportReference(targetDate, reports, migratedRecords)
-                                                        : formData.reference;
-                                                    setFormData({ ...formData, selectedMonth: newMonth, reference: nextRef });
+                                                    setFormData({ ...formData, selectedMonth: opt.value });
                                                 }}
                                                 styles={customSelectStyles}
                                                 menuPortalTarget={typeof window !== "undefined" ? document.body : null}
@@ -2493,13 +2499,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                 disabled={modalMode === 'view'}
                                                 onChange={(e: any) => {
                                                     if (modalMode === 'view') return;
-                                                    const newYear = e.target.value;
-                                                    const targetDate = `${newYear}-${String(formData.selectedMonth).padStart(2, '0')}-01`;
-                                                    const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
-                                                    const nextRef = isAutoGenerated && modalMode === 'create' && newYear
-                                                        ? generateReportReference(targetDate, reports, migratedRecords)
-                                                        : formData.reference;
-                                                    setFormData({ ...formData, selectedYear: newYear, reference: nextRef });
+                                                    setFormData({ ...formData, selectedYear: e.target.value });
                                                 }}
                                             />
                                         </div>
@@ -2517,13 +2517,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         disabled={modalMode === 'view'}
                                         onChange={(e: any) => {
                                             if (modalMode === 'view') return;
-                                            const newYear = e.target.value;
-                                            const targetDate = `${newYear}-01-01`;
-                                            const isAutoGenerated = !formData.reference || /^\d{4}-\d{2}-\d{2}-\d+$/.test(formData.reference);
-                                            const nextRef = isAutoGenerated && modalMode === 'create' && newYear
-                                                ? generateReportReference(targetDate, reports, migratedRecords)
-                                                : formData.reference;
-                                            setFormData({ ...formData, selectedYear: newYear, reference: nextRef });
+                                            setFormData({ ...formData, selectedYear: e.target.value });
                                         }}
                                     />
                                 )}
@@ -3046,9 +3040,15 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                 </div>
 
                                                 <div className="px-5 py-3.5 bg-gray-50/80 border-t border-gray-100 flex items-center justify-between mt-auto">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider font-mono">Coverage</span>
-                                                        <span className="text-xs font-semibold text-gray-700">{report.date}</span>
+                                                    <div className="flex gap-4">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider font-mono">Coverage</span>
+                                                            <span className="text-xs font-semibold text-gray-700">{report.date}</span>
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider font-mono">Generated</span>
+                                                            <span className="text-xs font-semibold text-gray-700">{report.generatedDate || (report.createdAt ? String(report.createdAt).split('T')[0] : report.date)}</span>
+                                                        </div>
                                                     </div>
                                                     <div className="flex gap-2">
                                                         <button
