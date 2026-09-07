@@ -61,7 +61,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/system-settings', [SystemSettingController::class, 'index'])->name('system.settings.index');
     Route::post('/admin/system-settings', [SystemSettingController::class, 'update'])->name('system.settings.update');
     Route::post('/admin/system-settings/test-email', [SystemSettingController::class, 'testEmail'])->name('system.settings.test-email');
-    Route::post('/admin/system-settings/export-backup', [SystemSettingController::class, 'exportBackup'])->name('system.settings.backup');
+    Route::match(['get', 'post'], '/admin/system-settings/export-backup', [SystemSettingController::class, 'exportBackup'])->name('system.settings.backup');
 });
 
 Route::middleware('auth')->group(function () {

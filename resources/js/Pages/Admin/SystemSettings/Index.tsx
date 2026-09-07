@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import SystemModeBadge from '@/Components/SystemModeBadge';
 import Breadcrumbs from '@/Components/Breadcrumbs';
+import Modal from '@/Components/Modal';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import {
     Building2,
@@ -94,6 +95,30 @@ export default function Index({ auth, system, groupedSettings = {}, telemetry }:
         settings: initialSettingsState,
     });
 
+    // Global Modal States for Success & Error Notifications
+    const [showFormSuccessModal, setShowFormSuccessModal] = useState(false);
+    const [formSuccessMessage, setFormSuccessMessage] = useState('');
+    const [modalSuccessTitle, setModalSuccessTitle] = useState('Settings Saved Successfully');
+
+    const [showFormErrorModal, setShowFormErrorModal] = useState(false);
+    const [formErrorMessage, setFormErrorMessage] = useState('');
+    const [modalErrorTitle, setModalErrorTitle] = useState('Operation Failed');
+
+    // Synchronize with Inertia flash messages
+    const pageProps = usePage().props as any;
+    const flash = pageProps.flash;
+    useEffect(() => {
+        if (flash?.success) {
+            setModalSuccessTitle('Success!');
+            setFormSuccessMessage(flash.success);
+            setShowFormSuccessModal(true);
+        } else if (flash?.error) {
+            setModalErrorTitle('Operation Failed');
+            setFormErrorMessage(flash.error);
+            setShowFormErrorModal(true);
+        }
+    }, [flash?.success, flash?.error]);
+
     // Test email form
     const testEmailForm = useForm({
         recipient: '',
@@ -110,10 +135,24 @@ export default function Index({ auth, system, groupedSettings = {}, telemetry }:
         });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         post(route('system.settings.update'), {
             preserveScroll: true,
+            onSuccess: (page: any) => {
+                setModalSuccessTitle('Settings Saved Successfully');
+                setFormSuccessMessage(
+                    page?.props?.flash?.success ||
+                    'Consumable system policies, signatories, and inventory thresholds have been updated and cached successfully.'
+                );
+                setShowFormSuccessModal(true);
+            },
+            onError: (errors: any) => {
+                setModalErrorTitle('Settings Update Failed');
+                const errorMessages = Object.values(errors).flat().join('\n');
+                setFormErrorMessage(errorMessages || 'Unable to update system settings. Please check the fields and try again.');
+                setShowFormErrorModal(true);
+            },
         });
     };
 
@@ -121,6 +160,27 @@ export default function Index({ auth, system, groupedSettings = {}, telemetry }:
         e.preventDefault();
         testEmailForm.post(route('system.settings.test-email'), {
             preserveScroll: true,
+            onSuccess: (page: any) => {
+                if (page?.props?.flash?.error) {
+                    setModalErrorTitle('Email Test Failed');
+                    setFormErrorMessage(page.props.flash.error);
+                    setShowFormErrorModal(true);
+                } else {
+                    setModalSuccessTitle('Test Email Dispatched');
+                    setFormSuccessMessage(
+                        page?.props?.flash?.success ||
+                        `A diagnostic test email was successfully dispatched to ${testEmailForm.data.recipient || user?.email || 'the configured recipient'}.`
+                    );
+                    setShowFormSuccessModal(true);
+                    testEmailForm.reset();
+                }
+            },
+            onError: (errors: any) => {
+                setModalErrorTitle('Email Test Failed');
+                const errorMessages = Object.values(errors).flat().join('\n');
+                setFormErrorMessage(errorMessages || 'Failed to dispatch test email. Please check your mail settings.');
+                setShowFormErrorModal(true);
+            },
         });
     };
 
@@ -1152,6 +1212,89 @@ export default function Index({ auth, system, groupedSettings = {}, telemetry }:
                     </form>
                 </div>
             </main>
+
+            {/* STICKY BOTTOM SAVE BAR WHEN DIRTY */}
+            {isDirty && (
+                <aside aria-label="Unsaved changes alert" className="fixed bottom-6 right-8 z-50 bg-gradient-to-r from-red-950 to-slate-900 text-white backdrop-blur-md px-6 py-4 rounded-2xl shadow-2xl border border-amber-500/30 flex items-center gap-6 animate-in fade-in slide-in-from-bottom-5">
+                    <div className="flex items-center gap-3">
+                        <span className="relative flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-400"></span>
+                        </span>
+                        <div>
+                            <p className="text-xs font-bold text-amber-300">Unsaved Policy Changes</p>
+                            <p className="text-[11px] text-slate-300">You have modified system settings. Save your changes to apply them live.</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => reset()}
+                            disabled={processing}
+                            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                        >
+                            Discard
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleSubmit()}
+                            disabled={processing}
+                            className="px-5 py-2 rounded-xl text-xs font-bold text-red-950 bg-gradient-to-r from-yellow-400 via-amber-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 active:scale-95 shadow-lg shadow-amber-950/20 flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+                        >
+                            <Save className="w-4 h-4" />
+                            <span>{processing ? 'Saving...' : 'Save All Settings'}</span>
+                        </button>
+                    </div>
+                </aside>
+            )}
+
+            {/* GLOBAL SUCCESS MODAL */}
+            <Modal show={showFormSuccessModal} onClose={() => setShowFormSuccessModal(false)} maxWidth="sm">
+                <div className="relative bg-white rounded-2xl shadow-2xl w-full overflow-hidden border border-green-100 text-center">
+                    <div className="h-2 w-full bg-gradient-to-r from-green-500 via-emerald-500 to-green-600"></div>
+                    <div className="p-8">
+                        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+                            <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">{modalSuccessTitle}</h3>
+                        <p className="text-sm text-gray-500 mb-8 whitespace-pre-line leading-relaxed">{formSuccessMessage}</p>
+                        <button
+                            type="button"
+                            onClick={() => setShowFormSuccessModal(false)}
+                            className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 active:bg-green-800 shadow-md focus:outline-none transition-all cursor-pointer"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* GLOBAL ERROR MODAL */}
+            <Modal show={showFormErrorModal} onClose={() => setShowFormErrorModal(false)} maxWidth="sm">
+                <div className="relative bg-white rounded-2xl shadow-2xl w-full overflow-hidden border border-red-100 text-center">
+                    <div className="h-2 w-full bg-gradient-to-r from-red-500 via-rose-500 to-red-600"></div>
+                    <div className="p-8">
+                        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+                            <svg className="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">{modalErrorTitle}</h3>
+                        <p className="text-sm text-gray-500 mb-8 whitespace-pre-line leading-relaxed">
+                            {formErrorMessage || 'Please check the form for completeness or errors and try again.'}
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => setShowFormErrorModal(false)}
+                            className="w-full px-5 py-3 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 active:bg-red-800 shadow-md focus:outline-none transition-all cursor-pointer"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }
