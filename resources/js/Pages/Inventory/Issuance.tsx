@@ -37,8 +37,13 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
     const [fundCluster, setFundCluster] = useState<any>(null);
     const [recipientDesignation, setRecipientDesignation] = useState('');
     const [purpose, setPurpose] = useState('');
-    const [approvedBy, setApprovedBy] = useState('ARSENIO GEM A. GARCILLANOSA');
-    const [approvedByDesignation, setApprovedByDesignation] = useState('SUPPLY OFFICER III/ADMIN OFFICER V');
+    const pageProps = usePage().props as any;
+    const publicSettings = pageProps.system?.settings || {};
+    const defaultApprovedBy = (publicSettings['signatories_ris_oic_active'] ? (publicSettings['signatories_ris_oic_prefix'] || 'OIC, ') : '') + (publicSettings['signatories_ris_approved_by_name'] || 'ARSENIO GEM A. GARCILLANOSA');
+    const defaultApprovedByDesignation = publicSettings['signatories_ris_approved_by_designation'] || 'SUPPLY OFFICER III/ADMIN OFFICER V';
+
+    const [approvedBy, setApprovedBy] = useState(defaultApprovedBy);
+    const [approvedByDesignation, setApprovedByDesignation] = useState(defaultApprovedByDesignation);
     const [issuanceItems, setIssuanceItems] = useState<IssuanceItem[]>([{ item_id: '', quantity: '' }]);
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<any>({});
@@ -311,8 +316,8 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
         setFundCluster(null);
         setRecipientDesignation('');
         setPurpose('');
-        setApprovedBy('ARSENIO GEM A. GARCILLANOSA');
-        setApprovedByDesignation('SUPPLY OFFICER III/ADMIN OFFICER V');
+        setApprovedBy(defaultApprovedBy);
+        setApprovedByDesignation(defaultApprovedByDesignation);
         setIssuanceItems([{ item_id: '', quantity: '' }]);
         setErrors({});
     };
@@ -1063,10 +1068,10 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                         <div className="p-8 overflow-y-auto w-full bg-gray-100 flex justify-center print:p-0 print:bg-white print:overflow-hidden">
                             <div className="issuance-print-area border border-gray-300 rounded shadow-sm bg-white overflow-x-auto w-full max-w-[210mm] p-4 print:border-none print:rounded-none print:shadow-none print:bg-white print:p-0 print:max-w-full print-single-page">
                                 <RequisitionIssueSlip data={{
-                                    entity_name: "University of Camarines Norte",
+                                    entity_name: publicSettings['institution_name'] || "University of Camarines Norte",
                                     fund_cluster: getFundClusterDisplay(selectedIssuance.fund_cluster),
                                     division: selectedIssuance.department || "",
-                                    responsibility_center_code: "",
+                                    responsibility_center_code: publicSettings['institution_responsibility_center_code'] || "",
                                     office: selectedIssuance.department || "",
                                     ris_no: getFormattedId(selectedIssuance),
                                     purpose: selectedIssuance.purpose || "",
@@ -1082,11 +1087,11 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                     requested_by_name: selectedIssuance.recipient,
                                     requested_by_designation: selectedIssuance.recipient_designation,
                                     requested_by_date: selectedIssuance.date,
-                                    approved_by_name: selectedIssuance.approved_by || 'ARSENIO GEM A. GARCILLANOSA',
-                                    approved_by_designation: selectedIssuance.approved_by_designation || 'SUPPLY OFFICER III/ADMIN OFFICER V',
+                                    approved_by_name: selectedIssuance.approved_by || defaultApprovedBy,
+                                    approved_by_designation: selectedIssuance.approved_by_designation || defaultApprovedByDesignation,
                                     approved_by_date: selectedIssuance.date,
-                                    issued_by_name: selectedIssuance.issued_by || 'ARSENIO GEM A. GARCILLANOSA',
-                                    issued_by_designation: selectedIssuance.issued_by_designation || 'SUPPLY OFFICER III/ADMIN OFFICER V',
+                                    issued_by_name: selectedIssuance.issued_by || publicSettings['signatories_ris_issued_by_name'] || 'Supply Custodian / Storekeeper',
+                                    issued_by_designation: selectedIssuance.issued_by_designation || publicSettings['signatories_ris_issued_by_designation'] || 'Administrative Aide VI',
                                     issued_by_date: selectedIssuance.date,
                                     received_by_name: selectedIssuance.recipient,
                                     received_by_designation: selectedIssuance.recipient_designation,

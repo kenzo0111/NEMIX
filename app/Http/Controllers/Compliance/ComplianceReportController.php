@@ -401,7 +401,7 @@ class ComplianceReportController extends Controller
             }
         }
 
-        $generatedDate = $validated['generatedDate'] ?? now()->format('Y-m-d');
+        $generatedDate = $validated['generatedDate'] ?? $validated['date'] ?? now()->format('Y-m-d');
 
         $reference = !empty($validated['reference'])
             ? trim($validated['reference'])

@@ -187,6 +187,7 @@ export const formatFundClusterDisplay = (val?: string | null): string => {
 export default function ManageReports({ auth, items = [], reports: serverReports = [], issuances = [], suppliers = [], migratedRecords = [] }: { auth: any, items?: any[], reports?: any[], issuances?: any[], suppliers?: any[], migratedRecords?: any[] }) {
     const { props } = usePage();
     const user = auth?.user || (props.auth as any)?.user;
+    const publicSettings = (props as any)?.system?.settings || {};
     const [collapsed, setCollapsed] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [showMigrationModal, setShowMigrationModal] = useState(false);
@@ -1955,7 +1956,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 }));
 
                                 const firstMigrated: any = filteredIssuances.find((i: any) => i._source === 'migration');
-                                const displayEntityName = firstMigrated?.entity_name || firstMigrated?.payload?.entity_name || 'University of Camarines Norte';
+                                const displayEntityName = firstMigrated?.entity_name || firstMigrated?.payload?.entity_name || publicSettings['institution_name'] || 'University of Camarines Norte';
                                 const displayFundCluster = formatFundClusterDisplay(firstMigrated?.fund_cluster || firstMigrated?.payload?.fund_cluster);
 
                                 return (
@@ -1967,8 +1968,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                             date: formData.generatedDate,
                                             issuedItems: issuedItems,
                                             recapitulationItems: recaps,
-                                            supplyCustodianName: user?.name || 'Supply Officer',
-                                            accountingStaffName: 'Accounting Staff',
+                                            supplyCustodianName: publicSettings['signatories_rsmi_certified_by_name'] || user?.name || 'ARSENIO GEM A. GARCILLANOSA',
+                                            accountingStaffName: publicSettings['signatories_rsmi_posted_by_name'] || 'Accounting Staff',
                                             accountingDate: formData.generatedDate,
                                         }} />
                                     </Suspense>
@@ -2044,10 +2045,10 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     }
 
                                     const rawHistoricalRpci: any = (migratedRecords || []).find((r: any) => String(r.form_type) === 'RPCI');
-                                    const displayEntity = rawHistoricalRpci?.entity_name || rawHistoricalRpci?.payload?.entity_name || 'University of Camarines Norte';
+                                    const displayEntity = rawHistoricalRpci?.entity_name || rawHistoricalRpci?.payload?.entity_name || publicSettings['institution_name'] || 'University of Camarines Norte';
                                     const displayFund = formatFundClusterDisplay(rawHistoricalRpci?.fund_cluster || rawHistoricalRpci?.payload?.fund_cluster);
-                                    const displayOfficer = rawHistoricalRpci?.recipient || rawHistoricalRpci?.accountable_officer || rawHistoricalRpci?.payload?.accountable_officer || user?.name || 'Supply Officer';
-                                    const displayDesig = rawHistoricalRpci?.designation || rawHistoricalRpci?.payload?.designation || 'Supply Custodian';
+                                    const displayOfficer = rawHistoricalRpci?.recipient || rawHistoricalRpci?.accountable_officer || rawHistoricalRpci?.payload?.accountable_officer || publicSettings['signatories_rpci_accountable_officer_name'] || user?.name || 'Arsenio Gem A. Garcillanosa';
+                                    const displayDesig = rawHistoricalRpci?.designation || rawHistoricalRpci?.payload?.designation || publicSettings['signatories_rpci_accountable_officer_designation'] || 'Supply Custodian';
 
                                     return (
                                         <Suspense fallback={reportTemplateFallback}>
@@ -2072,7 +2073,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 {formData.itemName ? (
                                     <Suspense fallback={reportTemplateFallback}>
                                         <StockCardFormPaper data={{
-                                            entity_name: matchingStockCardMigrated?.entity_name || matchingStockCardMigrated?.payload?.entity_name || 'University of Camarines Norte',
+                                            entity_name: matchingStockCardMigrated?.entity_name || matchingStockCardMigrated?.payload?.entity_name || publicSettings['institution_name'] || 'University of Camarines Norte',
                                             fund_cluster: formatFundClusterDisplay(matchingStockCardMigrated?.fund_cluster || matchingStockCardMigrated?.payload?.fund_cluster),
                                             item: formData.itemName || formData.title,
                                             stock_no: selectedStockCardItem?.sku || matchingStockCardMigrated?.stock_no || matchingStockCardMigrated?.payload?.stock_no || formData.reference || '-',

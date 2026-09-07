@@ -53,6 +53,15 @@ class HandleInertiaRequests extends Middleware
         $sysConfig = \App\Models\SystemConfiguration::current();
         $sysConfig->loadMissing('changedBy');
 
+        $publicSettings = [];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('system_settings')) {
+                $publicSettings = \App\Models\SystemSetting::getPublicSettings();
+            }
+        } catch (\Throwable $e) {
+            // Fallback gracefully if table not yet migrated
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -73,6 +82,7 @@ class HandleInertiaRequests extends Middleware
                 'changed_at_iso' => $sysConfig->changed_at ? $sysConfig->changed_at->toIso8601String() : null,
                 'change_reason' => $sysConfig->change_reason,
                 'version' => 'v2.4.0-Enterprise',
+                'settings' => $publicSettings,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

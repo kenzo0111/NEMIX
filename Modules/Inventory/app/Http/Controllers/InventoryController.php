@@ -140,8 +140,11 @@ class InventoryController extends Controller
 
     private function refreshItemTotals(Item $item): void
     {
+        $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
+            ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
+            : 10;
         $item->amount = (float) $item->stock * (float) ($item->unit_cost ?? 0);
-        $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= 10 ? 'Low Stock' : 'Available');
+        $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= $lowStockThreshold ? 'Low Stock' : 'Available');
         $item->save();
     }
 
@@ -236,8 +239,8 @@ class InventoryController extends Controller
                     'fund_cluster' => $issuance->fund_cluster,
                     'recipient_designation' => $issuance->recipient_designation,
                     'purpose' => $issuance->purpose,
-                    'approved_by' => $issuance->approved_by ?: 'ARSENIO GEM A. GARCILLANOSA',
-                    'approved_by_designation' => $issuance->approved_by_designation ?: 'SUPPLY OFFICER III/ADMIN OFFICER V',
+                    'approved_by' => $issuance->approved_by ?: (class_exists(\App\Models\SystemSetting::class) ? \App\Models\SystemSetting::get('signatories.ris_approved_by_name', 'ARSENIO GEM A. GARCILLANOSA') : 'ARSENIO GEM A. GARCILLANOSA'),
+                    'approved_by_designation' => $issuance->approved_by_designation ?: (class_exists(\App\Models\SystemSetting::class) ? \App\Models\SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V') : 'SUPPLY OFFICER III/ADMIN OFFICER V'),
                     'date' => $issuance->date_issued ? $issuance->date_issued->format('Y-m-d') : '',
                     'status' => $issuance->status,
                     'issued_by' => $issuance->issuer ? $issuance->issuer->name : 'Unknown',
@@ -283,8 +286,8 @@ class InventoryController extends Controller
                     'fund_cluster' => $request->fund_cluster,
                     'recipient_designation' => $request->recipient_designation,
                     'purpose' => $request->purpose,
-                    'approved_by' => $request->approved_by ?: 'ARSENIO GEM A. GARCILLANOSA',
-                    'approved_by_designation' => $request->approved_by_designation ?: 'SUPPLY OFFICER III/ADMIN OFFICER V',
+                    'approved_by' => $request->approved_by ?: (class_exists(\App\Models\SystemSetting::class) ? \App\Models\SystemSetting::get('signatories.ris_approved_by_name', 'ARSENIO GEM A. GARCILLANOSA') : 'ARSENIO GEM A. GARCILLANOSA'),
+                    'approved_by_designation' => $request->approved_by_designation ?: (class_exists(\App\Models\SystemSetting::class) ? \App\Models\SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V') : 'SUPPLY OFFICER III/ADMIN OFFICER V'),
                     'date_issued' => $request->date_issued,
                     'status' => 'Issued',
                     'issued_by' => auth()->id(),
