@@ -3,7 +3,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import Sidebar from '@/Components/Sidebar';
 import Modal from '@/Components/Modal';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState, useMemo, useRef, useEffect } from 'react'; // Added useMemo
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
@@ -641,11 +641,10 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                                 </td>
                                                 <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-mono">{issuance.date}</td>
                                                 <td className="hidden sm:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                                                        issuance.status === 'Issued' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/80' :
-                                                        issuance.status === 'Pending' ? 'bg-amber-50 text-amber-800 border border-amber-200/80' : 
-                                                        'bg-red-50 text-red-800 border border-red-200/80'
-                                                    }`}>
+                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${issuance.status === 'Issued' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/80' :
+                                                            issuance.status === 'Pending' ? 'bg-amber-50 text-amber-800 border border-amber-200/80' :
+                                                                'bg-red-50 text-red-800 border border-red-200/80'
+                                                        }`}>
                                                         {issuance.status}
                                                     </span>
                                                 </td>
