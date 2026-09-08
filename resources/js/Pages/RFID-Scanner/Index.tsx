@@ -1,6 +1,7 @@
 import SystemModeBadge from '@/Components/SystemModeBadge';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import Sidebar from '@/Components/Sidebar';
+import Modal from '@/Components/Modal';
 import { Head, router } from '@inertiajs/react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -25,9 +26,15 @@ interface PageProps {
     items: Item[];
     selectedItemId?: string | number | null;
     errors?: Record<string, string>;
+    flash?: {
+        success?: string | null;
+        error?: string | null;
+        warning?: string | null;
+        status?: string | null;
+    };
 }
 
-export default function Index({ auth, items = [], selectedItemId = null }: PageProps) {
+export default function Index({ auth, items = [], selectedItemId = null, flash }: PageProps) {
     const user = auth.user;
     const [collapsed, setCollapsed] = useState(false);
 
@@ -40,6 +47,15 @@ export default function Index({ auth, items = [], selectedItemId = null }: PageP
         return items.length > 0 ? items[0] : null;
     });
 
+    // Modal states for feedback
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [modalSuccessTitle, setModalSuccessTitle] = useState('');
+    const [modalSuccessMessage, setModalSuccessMessage] = useState('');
+
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [modalErrorTitle, setModalErrorTitle] = useState('');
+    const [modalErrorMessage, setModalErrorMessage] = useState('');
+
     // Scanner state
     const [isScannerActive, setIsScannerActive] = useState(true);
     const [scannedRfid, setScannedRfid] = useState<string>('');
@@ -49,6 +65,39 @@ export default function Index({ auth, items = [], selectedItemId = null }: PageP
 
     const inputRef = useRef<HTMLInputElement>(null);
     const modules = getSidebarModules('RFID Scanner');
+
+    // Helper to refresh / clear scanner inputs and reset surface
+    const resetScanner = () => {
+        setScannedRfid('');
+        setManualInput('');
+        setLastScanTime(null);
+        if (inputRef.current) {
+            inputRef.current.value = '';
+            if (isScannerActive) {
+                inputRef.current.focus();
+            }
+        }
+    };
+
+    // Synchronize selected item when items list updates from backend
+    useEffect(() => {
+        if (selectedItem) {
+            const updated = items.find(i => i.id === selectedItem.id);
+            if (updated) {
+                setSelectedItem(updated);
+            }
+        }
+    }, [items]);
+
+    // Synchronize selected item if selectedItemId prop changes
+    useEffect(() => {
+        if (selectedItemId) {
+            const found = items.find(i => String(i.id) === String(selectedItemId));
+            if (found) {
+                setSelectedItem(found);
+            }
+        }
+    }, [selectedItemId, items]);
 
     // Keep hidden input focused when scanner is active
     useEffect(() => {
@@ -147,41 +196,92 @@ export default function Index({ auth, items = [], selectedItemId = null }: PageP
     const [processing, setProcessing] = useState(false);
 
     const handleAssignRfid = () => {
-        if (!selectedItem || !scannedRfid || conflictItem) return;
+        if (!selectedItem || !scannedRfid || conflictItem || processing) return;
+
+        const targetItem = selectedItem;
+        const assignedTag = scannedRfid;
 
         router.post(
             route('rfid-scanner.assign'),
             {
-                item_id: selectedItem.id,
-                rfid_tag: scannedRfid,
+                item_id: targetItem.id,
+                rfid_tag: assignedTag,
             },
             {
                 preserveScroll: true,
                 onStart: () => setProcessing(true),
                 onFinish: () => setProcessing(false),
-                onSuccess: () => {
+                onSuccess: (page: any) => {
                     // Update local selected item status
-                    setSelectedItem(prev => (prev ? { ...prev, rfid_tag: scannedRfid } : null));
+                    setSelectedItem(prev => (prev && prev.id === targetItem.id ? { ...prev, rfid_tag: assignedTag } : prev));
+
+                    // REFRESH & CLEAR: The tag will NOT stay in the scanner box, it resets cleanly
+                    resetScanner();
+
+                    if (page?.props?.flash?.error) {
+                        setModalErrorTitle('RFID Assignment Failed');
+                        setModalErrorMessage(page.props.flash.error);
+                        setShowErrorModal(true);
+                    } else {
+                        setModalSuccessTitle('RFID Tag Assigned Successfully');
+                        setModalSuccessMessage(
+                            page?.props?.flash?.success ||
+                            `RFID tag "${assignedTag}" has been successfully assigned to "${targetItem.name}" (${targetItem.sku || 'No Property No'}).`
+                        );
+                        setShowSuccessModal(true);
+                    }
+                },
+                onError: (errors: any) => {
+                    setModalErrorTitle('RFID Assignment Failed');
+                    const errorMessages = Object.values(errors).flat().join('\n');
+                    setModalErrorMessage(
+                        errorMessages || 'Failed to assign RFID tag. Please verify that the tag is valid and not already in use.'
+                    );
+                    setShowErrorModal(true);
                 },
             }
         );
     };
 
     const handleUnassignRfid = () => {
-        if (!selectedItem || !selectedItem.rfid_tag) return;
+        if (!selectedItem || !selectedItem.rfid_tag || processing) return;
+
+        const targetItem = selectedItem;
+        const unassignedTag = selectedItem.rfid_tag;
 
         router.post(
             route('rfid-scanner.unassign'),
             {
-                item_id: selectedItem.id,
+                item_id: targetItem.id,
             },
             {
                 preserveScroll: true,
-                onSuccess: () => {
-                    setSelectedItem(prev => (prev ? { ...prev, rfid_tag: null } : null));
-                    if (scannedRfid === selectedItem.rfid_tag) {
-                        setScannedRfid('');
+                onStart: () => setProcessing(true),
+                onFinish: () => setProcessing(false),
+                onSuccess: (page: any) => {
+                    setSelectedItem(prev => (prev && prev.id === targetItem.id ? { ...prev, rfid_tag: null } : prev));
+                    if (scannedRfid === unassignedTag) {
+                        resetScanner();
                     }
+
+                    if (page?.props?.flash?.error) {
+                        setModalErrorTitle('Unassign Failed');
+                        setModalErrorMessage(page.props.flash.error);
+                        setShowErrorModal(true);
+                    } else {
+                        setModalSuccessTitle('RFID Tag Unassigned');
+                        setModalSuccessMessage(
+                            page?.props?.flash?.success ||
+                            `RFID tag "${unassignedTag}" has been unassigned from "${targetItem.name}".`
+                        );
+                        setShowSuccessModal(true);
+                    }
+                },
+                onError: (errors: any) => {
+                    setModalErrorTitle('Unassign Failed');
+                    const errorMessages = Object.values(errors).flat().join('\n');
+                    setModalErrorMessage(errorMessages || 'Failed to unassign RFID tag.');
+                    setShowErrorModal(true);
                 },
             }
         );
@@ -490,6 +590,18 @@ export default function Index({ auth, items = [], selectedItemId = null }: PageP
                                             {lastScanTime && (
                                                 <p className="text-[10px] text-gray-400 font-mono">Scanned at {lastScanTime}</p>
                                             )}
+                                            <div className="pt-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={resetScanner}
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-mono font-medium text-gray-500 hover:text-red-700 hover:bg-red-50/80 transition-colors border border-gray-200 cursor-pointer"
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                    </svg>
+                                                    Clear / Scan Another Tag
+                                                </button>
+                                            </div>
                                         </div>
                                     ) : (
                                         <div className="space-y-3">
@@ -650,6 +762,54 @@ export default function Index({ auth, items = [], selectedItemId = null }: PageP
                     </div>
                 </div>
             </main>
+
+            {/* GLOBAL SUCCESS MODAL */}
+            <Modal show={showSuccessModal} onClose={() => setShowSuccessModal(false)} maxWidth="sm">
+                <div className="relative bg-white rounded-2xl shadow-xl w-full overflow-hidden border border-slate-200 text-center">
+                    <div className="h-1.5 w-full bg-emerald-600"></div>
+                    <div className="p-6 sm:p-7">
+                        <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-emerald-50 text-emerald-600 mb-4 border border-emerald-100">
+                            <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2 font-serif">{modalSuccessTitle}</h3>
+                        <p className="text-xs text-gray-600 mb-6 whitespace-pre-line leading-relaxed">{modalSuccessMessage}</p>
+                        <button
+                            type="button"
+                            onClick={() => setShowSuccessModal(false)}
+                            className="w-full px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 shadow-xs transition-colors cursor-pointer font-mono uppercase tracking-wider"
+                        >
+                            Continue
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* GLOBAL ERROR MODAL */}
+            <Modal show={showErrorModal} onClose={() => setShowErrorModal(false)} maxWidth="sm">
+                <div className="relative bg-white rounded-2xl shadow-xl w-full overflow-hidden border border-slate-200 text-center">
+                    <div className="h-1.5 w-full bg-red-600"></div>
+                    <div className="p-6 sm:p-7">
+                        <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-red-50 text-red-600 mb-4 border border-red-100">
+                            <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2 font-serif">{modalErrorTitle}</h3>
+                        <p className="text-xs text-gray-600 mb-6 whitespace-pre-line leading-relaxed">
+                            {modalErrorMessage || 'An unexpected error occurred while processing the RFID action.'}
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => setShowErrorModal(false)}
+                            className="w-full px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-red-800 hover:bg-red-700 active:bg-red-900 shadow-xs transition-colors cursor-pointer font-mono uppercase tracking-wider"
+                        >
+                            Dismiss
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }
