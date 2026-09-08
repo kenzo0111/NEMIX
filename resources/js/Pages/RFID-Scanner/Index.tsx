@@ -38,14 +38,34 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
     const user = auth.user;
     const [collapsed, setCollapsed] = useState(false);
 
-    // Selected item state
+    // Selected item state: prioritize first untagged item
     const [selectedItem, setSelectedItem] = useState<Item | null>(() => {
         if (selectedItemId) {
             const found = items.find(i => String(i.id) === String(selectedItemId));
             if (found) return found;
         }
-        return items.length > 0 ? items[0] : null;
+        const untagged = items.find(i => !i.rfid_tag);
+        return untagged || (items.length > 0 ? items[0] : null);
     });
+
+    const hasUntaggedItems = useMemo(() => items.some(i => !i.rfid_tag), [items]);
+
+    const selectNextUntaggedItem = () => {
+        const next = items.find(i => !i.rfid_tag && i.id !== selectedItem?.id);
+        if (next) {
+            setSelectedItem(next);
+            resetScanner();
+        }
+    };
+
+    // Table filter state
+    const [tableFilter, setTableFilter] = useState<'all' | 'untagged' | 'tagged'>('all');
+
+    const filteredItems = useMemo(() => {
+        if (tableFilter === 'untagged') return items.filter(i => !i.rfid_tag);
+        if (tableFilter === 'tagged') return items.filter(i => i.rfid_tag);
+        return items;
+    }, [items, tableFilter]);
 
     // Modal states for feedback
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -166,11 +186,17 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
         }
     };
 
-    // React-Select Options for items
+    // React-Select Options for items (Untagged first)
     const itemOptions = useMemo(() => {
-        return items.map(item => ({
+        const sorted = [...items].sort((a, b) => {
+            if (!a.rfid_tag && b.rfid_tag) return -1;
+            if (a.rfid_tag && !b.rfid_tag) return 1;
+            return a.name.localeCompare(b.name);
+        });
+
+        return sorted.map(item => ({
             value: item.id,
-            label: `${item.name} (${item.sku || 'No Property No'}) ${item.rfid_tag ? `[RFID: ${item.rfid_tag}]` : '[Not Tagged]'}`,
+            label: `${!item.rfid_tag ? '⚠️ [Untagged] ' : '🏷️ [Tagged] '} ${item.name} (${item.sku || 'No Property No'}) ${item.rfid_tag ? `[RFID: ${item.rfid_tag}]` : ''}`,
             item: item,
         }));
     }, [items]);
@@ -179,7 +205,7 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
         if (!selectedItem) return null;
         return {
             value: selectedItem.id,
-            label: `${selectedItem.name} (${selectedItem.sku || 'No Property No'}) ${selectedItem.rfid_tag ? `[RFID: ${selectedItem.rfid_tag}]` : '[Not Tagged]'}`,
+            label: `${!selectedItem.rfid_tag ? '⚠️ [Untagged] ' : '🏷️ [Tagged] '} ${selectedItem.name} (${selectedItem.sku || 'No Property No'}) ${selectedItem.rfid_tag ? `[RFID: ${selectedItem.rfid_tag}]` : ''}`,
             item: selectedItem,
         };
     }, [selectedItem]);
@@ -201,6 +227,9 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
         const targetItem = selectedItem;
         const assignedTag = scannedRfid;
 
+        // Find next untagged item before sending request
+        const nextUntagged = items.find(i => i.id !== targetItem.id && !i.rfid_tag);
+
         router.post(
             route('rfid-scanner.assign'),
             {
@@ -212,11 +241,15 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
                 onStart: () => setProcessing(true),
                 onFinish: () => setProcessing(false),
                 onSuccess: (page: any) => {
-                    // Update local selected item status
-                    setSelectedItem(prev => (prev && prev.id === targetItem.id ? { ...prev, rfid_tag: assignedTag } : prev));
-
-                    // REFRESH & CLEAR: The tag will NOT stay in the scanner box, it resets cleanly
+                    // 1. REFRESH & CLEAR: The tag will NOT stay in the scanner box, it resets cleanly
                     resetScanner();
+
+                    // 2. SELECT ANOTHER TAG / ITEM: Switch to the next untagged item!
+                    if (nextUntagged) {
+                        setSelectedItem(nextUntagged);
+                    } else {
+                        setSelectedItem(prev => (prev && prev.id === targetItem.id ? { ...prev, rfid_tag: assignedTag } : prev));
+                    }
 
                     if (page?.props?.flash?.error) {
                         setModalErrorTitle('RFID Assignment Failed');
@@ -225,8 +258,10 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
                     } else {
                         setModalSuccessTitle('RFID Tag Assigned Successfully');
                         setModalSuccessMessage(
-                            page?.props?.flash?.success ||
-                            `RFID tag "${assignedTag}" has been successfully assigned to "${targetItem.name}" (${targetItem.sku || 'No Property No'}).`
+                            `RFID tag "${assignedTag}" was successfully assigned to "${targetItem.name}".\n\n` +
+                            (nextUntagged
+                                ? `Ready to tag next item: "${nextUntagged.name}".`
+                                : `All inventory items are now tagged!`)
                         );
                         setShowSuccessModal(true);
                     }
@@ -515,13 +550,30 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
                                                 {selectedItem.rfid_tag && (
                                                     <button
                                                         onClick={handleUnassignRfid}
-                                                        className="px-3 py-1 bg-white border border-red-200 text-red-700 hover:bg-red-50 text-xs font-bold rounded transition-colors shadow-xs font-mono uppercase"
+                                                        className="px-3 py-1 bg-white border border-red-200 text-red-700 hover:bg-red-50 text-xs font-bold rounded transition-colors shadow-xs font-mono uppercase cursor-pointer"
                                                     >
                                                         Unassign Tag
                                                     </button>
                                                 )}
                                             </div>
                                         </div>
+
+                                        {/* Next Untagged Item Action if current item already tagged */}
+                                        {selectedItem.rfid_tag && hasUntaggedItems && (
+                                            <div className="p-3 bg-amber-50/90 border border-amber-200/80 rounded-lg flex items-center justify-between gap-3 text-xs text-amber-900 animate-in fade-in">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm">🏷️</span>
+                                                    <span className="font-medium">Item is already tagged. Select next untagged item?</span>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={selectNextUntaggedItem}
+                                                    className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 active:bg-amber-900 text-white rounded font-mono text-[11px] font-bold tracking-wider uppercase transition-colors shrink-0 cursor-pointer shadow-2xs"
+                                                >
+                                                    Next Untagged →
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="p-8 text-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
@@ -644,18 +696,60 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
                                     <svg className="w-5 h-5 text-red-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                     </svg>
-                                    <div className="text-xs text-red-900">
-                                        <p className="font-bold text-xs mb-1 text-red-800 font-mono uppercase">⚠️ Tag Already Assigned (Conflict Warning)</p>
+                                    <div className="text-xs text-red-900 flex-1">
+                                        <p className="font-bold text-xs mb-1 text-red-800 font-mono uppercase">⚠️ Tag Already Assigned</p>
                                         <p>
-                                            RFID Tag <span className="font-mono font-bold">{scannedRfid}</span> is currently assigned to another item:
+                                            RFID Tag <span className="font-mono font-bold">{scannedRfid}</span> is already assigned to:
                                         </p>
-                                        <div className="mt-2 p-2.5 bg-white rounded border border-red-200 font-medium">
-                                            <p className="font-bold text-gray-900">{conflictItem.name}</p>
-                                            <p className="text-[11px] text-gray-500 font-mono">Property No: {conflictItem.sku || 'N/A'}</p>
+                                        <div className="mt-2 p-2.5 bg-white rounded border border-red-200 font-medium flex items-center justify-between">
+                                            <div>
+                                                <p className="font-bold text-gray-900">{conflictItem.name}</p>
+                                                <p className="text-[11px] text-gray-500 font-mono">Property No: {conflictItem.sku || 'N/A'}</p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setSelectedItem(conflictItem)}
+                                                className="px-2.5 py-1 bg-red-900 hover:bg-red-950 text-white text-[10px] font-mono font-bold rounded transition-colors uppercase cursor-pointer"
+                                            >
+                                                Select This Item
+                                            </button>
                                         </div>
-                                        <p className="mt-2 text-[11px] text-red-800 italic">
-                                            Each RFID tag must be unique and can only be paired with one item. Unassign it from that item first to re-use.
+                                        <div className="mt-2.5 flex items-center gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={resetScanner}
+                                                className="px-3 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded font-mono text-[11px] font-bold uppercase transition-colors cursor-pointer"
+                                            >
+                                                Scan Another Tag
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ALREADY PAIRED WITH CURRENT SELECTED ITEM */}
+                            {selectedItem?.rfid_tag && scannedRfid && selectedItem.rfid_tag.toUpperCase() === scannedRfid.toUpperCase() && (
+                                <div className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex items-start gap-3 animate-in fade-in">
+                                    <svg className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div className="text-xs text-emerald-900 flex-1">
+                                        <p className="font-bold text-xs mb-1 text-emerald-800 font-mono uppercase">Verified Match</p>
+                                        <p>
+                                            Tag <span className="font-mono font-bold">{scannedRfid}</span> is already paired with <strong>{selectedItem.name}</strong>.
                                         </p>
+                                        {hasUntaggedItems && (
+                                            <div className="mt-2.5">
+                                                <button
+                                                    type="button"
+                                                    onClick={selectNextUntaggedItem}
+                                                    className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded font-mono text-[11px] font-bold tracking-wider uppercase transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                                >
+                                                    <span>Select Next Untagged Item</span>
+                                                    <span>→</span>
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -684,16 +778,55 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
                         <div className="px-6 lg:px-8 py-5 border-b border-gray-200/80 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50">
                             <div>
                                 <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">Tagged Inventory Items & History</h3>
-                                <p className="text-xs text-gray-500 font-medium mt-0.5">Items with saved RFID relationships ready for Receiving</p>
+                                <p className="text-xs text-gray-500 font-medium mt-0.5">Filter items and select any item to quickly assign an RFID tag</p>
                             </div>
 
-                            <button
-                                onClick={() => router.visit(route('inventory.receiving'))}
-                                className="bg-red-950 hover:bg-red-900 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-all text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider"
-                            >
-                                <span>Go to Receiving Page</span>
-                                <span>→</span>
-                            </button>
+                            <div className="flex items-center gap-3">
+                                {/* Quick Filter Tabs */}
+                                <div className="inline-flex rounded-lg border border-gray-200 p-1 bg-gray-100/80 text-xs font-mono">
+                                    <button
+                                        type="button"
+                                        onClick={() => setTableFilter('all')}
+                                        className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                                            tableFilter === 'all'
+                                                ? 'bg-white text-gray-900 shadow-2xs'
+                                                : 'text-gray-500 hover:text-gray-900'
+                                        }`}
+                                    >
+                                        All ({items.length})
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setTableFilter('untagged')}
+                                        className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                                            tableFilter === 'untagged'
+                                                ? 'bg-amber-100 text-amber-900 shadow-2xs font-bold'
+                                                : 'text-amber-700 hover:text-amber-900'
+                                        }`}
+                                    >
+                                        ⚠️ Untagged ({items.length - taggedItemsCount})
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setTableFilter('tagged')}
+                                        className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                                            tableFilter === 'tagged'
+                                                ? 'bg-emerald-100 text-emerald-900 shadow-2xs font-bold'
+                                                : 'text-emerald-700 hover:text-emerald-900'
+                                        }`}
+                                    >
+                                        🏷️ Tagged ({taggedItemsCount})
+                                    </button>
+                                </div>
+
+                                <button
+                                    onClick={() => router.visit(route('inventory.receiving'))}
+                                    className="bg-red-950 hover:bg-red-900 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-all text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer"
+                                >
+                                    <span>Go to Receiving</span>
+                                    <span>→</span>
+                                </button>
+                            </div>
                         </div>
 
                         <div className="overflow-x-auto">
@@ -709,14 +842,14 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-100">
-                                    {items.length === 0 ? (
+                                    {filteredItems.length === 0 ? (
                                         <tr>
                                             <td colSpan={6} className="py-8 text-center text-gray-500 italic">
-                                                No items in inventory database yet.
+                                                No items match the selected filter.
                                             </td>
                                         </tr>
                                     ) : (
-                                        items.map(item => (
+                                        filteredItems.map(item => (
                                             <tr key={item.id} className="hover:bg-red-50/30 transition-colors border-b border-gray-100 last:border-0">
                                                 <td className="py-4 px-6 font-bold text-gray-900 text-sm">{item.name}</td>
                                                 <td className="py-4 px-6 font-mono text-gray-600">{item.sku || 'N/A'}</td>
@@ -726,7 +859,7 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
                                                             🏷️ {item.rfid_tag}
                                                         </span>
                                                     ) : (
-                                                        <span className="text-gray-400 font-normal italic">None</span>
+                                                        <span className="text-amber-600 font-medium italic">⚠️ Untagged</span>
                                                     )}
                                                 </td>
                                                 <td className="py-4 px-6 text-gray-600 font-medium">{item.supplier_name || 'N/A'}</td>
@@ -737,7 +870,7 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
                                                             Tagged
                                                         </span>
                                                     ) : (
-                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500 border border-gray-200">
+                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
                                                             Not Tagged
                                                         </span>
                                                     )}
@@ -746,9 +879,10 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
                                                     <button
                                                         onClick={() => {
                                                             setSelectedItem(item);
+                                                            resetScanner();
                                                             window.scrollTo({ top: 0, behavior: 'smooth' });
                                                         }}
-                                                        className="px-3 py-1.5 bg-gray-100 hover:bg-red-950 hover:text-white text-gray-700 text-xs font-mono font-semibold rounded transition-colors"
+                                                        className="px-3 py-1.5 bg-gray-100 hover:bg-red-950 hover:text-white text-gray-700 text-xs font-mono font-semibold rounded transition-colors cursor-pointer"
                                                     >
                                                         Select to Tag
                                                     </button>

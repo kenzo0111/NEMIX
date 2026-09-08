@@ -75,7 +75,14 @@ class RfidScannerController extends Controller
 
         $item->update(['rfid_tag' => $rfidTag]);
 
-        return redirect()->route('rfid-scanner.index', ['item_id' => $itemId])->with('success', "RFID Tag {$rfidTag} successfully assigned to {$item->name}.");
+        // Find the next untagged item so the user can continuously tag without getting stuck on the same item
+        $nextUntagged = Item::whereNull('rfid_tag')
+            ->where('id', '!=', $itemId)
+            ->first();
+
+        $redirectParams = $nextUntagged ? ['item_id' => $nextUntagged->id] : [];
+
+        return redirect()->route('rfid-scanner.index', $redirectParams)->with('success', "RFID Tag {$rfidTag} successfully assigned to {$item->name}.");
     }
 
     public function unassign(Request $request): RedirectResponse
