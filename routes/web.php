@@ -55,14 +55,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/rfid-scanner', [RfidScannerController::class, 'index'])->name('rfid-scanner.index');
     Route::post('/rfid-scanner/assign', [RfidScannerController::class, 'assign'])->name('rfid-scanner.assign');
     Route::post('/rfid-scanner/unassign', [RfidScannerController::class, 'unassign'])->name('rfid-scanner.unassign');
-    Route::get('/rfid-scanner/lookup/{tag}', [RfidScannerController::class, 'lookup'])->name('rfid-scanner.lookup');
-
     // Consumables System Settings
     Route::get('/admin/system-settings', [SystemSettingController::class, 'index'])->name('system.settings.index');
     Route::post('/admin/system-settings', [SystemSettingController::class, 'update'])->name('system.settings.update');
     Route::post('/admin/system-settings/test-email', [SystemSettingController::class, 'testEmail'])->name('system.settings.test-email');
     Route::match(['get', 'post'], '/admin/system-settings/export-backup', [SystemSettingController::class, 'exportBackup'])->name('system.settings.backup');
 });
+
+// RFID Hardware Scanner API (Accessible by ESP32)
+Route::get('/rfid-scanner/lookup/{tag}', [RfidScannerController::class, 'lookup'])->name('rfid-scanner.lookup');
 
 Route::middleware('auth')->group(function () {
     Route::get('/account-settings', [ProfileController::class, 'edit'])->name('account.settings');
