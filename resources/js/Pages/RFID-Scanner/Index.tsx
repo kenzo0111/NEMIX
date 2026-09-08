@@ -119,6 +119,61 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
         }
     }, [selectedItemId, items]);
 
+    const lastHardwareScanTimestamp = useRef<number>(0);
+    const [cloudSyncActive, setCloudSyncActive] = useState<boolean>(true);
+
+    // Audio chime upon successful scan
+    const playScanChime = () => {
+        try {
+            const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+            if (!AudioCtx) return;
+            const ctx = new AudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.12, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.15);
+        } catch (e) {
+            // Audio context not allowed until user gesture
+        }
+    };
+
+    // Live Cloud Feed: Poll for wireless scans from the ESP32 handheld reader
+    useEffect(() => {
+        if (!isScannerActive) return;
+
+        const checkLiveFeed = async () => {
+            try {
+                const response = await fetch('/rfid-scanner/live-feed');
+                if (!response.ok) return;
+                const data = await response.json();
+                setCloudSyncActive(true);
+
+                if (data?.scan?.timestamp) {
+                    // On initial connect, set the baseline timestamp so old scans don't trigger
+                    if (lastHardwareScanTimestamp.current === 0) {
+                        lastHardwareScanTimestamp.current = data.scan.timestamp;
+                    } else if (data.scan.timestamp > lastHardwareScanTimestamp.current) {
+                        lastHardwareScanTimestamp.current = data.scan.timestamp;
+                        playScanChime();
+                        processScanResult(data.scan.tag);
+                    }
+                }
+            } catch (e) {
+                // Ignore transient network errors
+            }
+        };
+
+        checkLiveFeed();
+        const interval = setInterval(checkLiveFeed, 1200);
+        return () => clearInterval(interval);
+    }, [isScannerActive, selectedItem]);
+
     // Keep hidden input focused when scanner is active
     useEffect(() => {
         if (!isScannerActive) return;
@@ -595,17 +650,30 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
                                         </div>
                                     </div>
 
-                                    {/* Connection Toggle */}
-                                    <button
-                                        onClick={() => setIsScannerActive(!isScannerActive)}
-                                        className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all ${isScannerActive
-                                                ? 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100'
-                                                : 'bg-gray-100 border-gray-300 text-gray-600 hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        <span className={`w-2 h-2 rounded-full ${isScannerActive ? 'bg-emerald-500 animate-ping' : 'bg-gray-400'}`}></span>
-                                        {isScannerActive ? 'Scanner Active' : 'Scanner Standby'}
-                                    </button>
+                                    {/* Connection Toggle & Cloud Status */}
+                                    <div className="flex items-center gap-2">
+                                        <div className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold border shadow-2xs ${
+                                            cloudSyncActive
+                                                ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                                : 'bg-gray-100 text-gray-500 border-gray-200'
+                                        }`}>
+                                            <span className="relative flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                            </span>
+                                            <span>Cloud Wi-Fi Sync Active</span>
+                                        </div>
+                                        <button
+                                            onClick={() => setIsScannerActive(!isScannerActive)}
+                                            className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer ${isScannerActive
+                                                    ? 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100'
+                                                    : 'bg-gray-100 border-gray-300 text-gray-600 hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            <span className={`w-2 h-2 rounded-full ${isScannerActive ? 'bg-emerald-500 animate-ping' : 'bg-gray-400'}`}></span>
+                                            {isScannerActive ? 'Scanner Active' : 'Scanner Standby'}
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* Hidden input to catch scanner keystrokes */}
@@ -666,7 +734,7 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
                                                 {isScannerActive ? 'Ready to Scan RFID Tag...' : 'Scanner Paused'}
                                             </p>
                                             <p className="text-xs text-gray-400 max-w-xs mx-auto font-medium">
-                                                Hold RFID tag near reader. The unique identifier will be captured automatically.
+                                                Aim your wireless ESP32 scanner at an item and pull the trigger, or enter tag ID manually.
                                             </p>
                                         </div>
                                     )}

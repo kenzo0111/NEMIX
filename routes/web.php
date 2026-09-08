@@ -62,8 +62,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::match(['get', 'post'], '/admin/system-settings/export-backup', [SystemSettingController::class, 'exportBackup'])->name('system.settings.backup');
 });
 
-// RFID Hardware Scanner API (Accessible by ESP32)
+// RFID Hardware Scanner API (Accessible by ESP32 & Web Live Sync)
 Route::get('/rfid-scanner/lookup/{tag}', [RfidScannerController::class, 'lookup'])->name('rfid-scanner.lookup');
+Route::get('/rfid-scanner/live-feed', [RfidScannerController::class, 'liveFeed'])->name('rfid-scanner.live-feed');
 
 Route::middleware('auth')->group(function () {
     Route::get('/account-settings', [ProfileController::class, 'edit'])->name('account.settings');

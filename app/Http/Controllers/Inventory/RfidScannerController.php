@@ -7,6 +7,7 @@ use App\Policies\ResourceOwnershipPolicy;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -118,6 +119,21 @@ class RfidScannerController extends Controller
             ->with('supplier')
             ->first();
 
+        // Broadcast to live feed cache for real-time web portal sync
+        Cache::put('latest_rfid_hardware_scan', [
+            'tag' => $sanitizedTag,
+            'found' => (bool) $item,
+            'item' => $item ? [
+                'id' => $item->id,
+                'name' => $item->name,
+                'sku' => $item->sku,
+                'stock' => $item->stock,
+                'unit_of_issue' => $item->unit_of_issue,
+            ] : null,
+            'timestamp' => microtime(true),
+            'scanned_at' => now()->format('h:i:s A'),
+        ], 60);
+
         if (!$item) {
             return response()->json([
                 'found' => false,
@@ -138,6 +154,16 @@ class RfidScannerController extends Controller
                 'stock' => $item->stock,
                 'unit_of_issue' => $item->unit_of_issue,
             ],
+        ]);
+    }
+
+    public function liveFeed(): JsonResponse
+    {
+        $scan = Cache::get('latest_rfid_hardware_scan');
+
+        return response()->json([
+            'status' => 'online',
+            'scan' => $scan,
         ]);
     }
 }
