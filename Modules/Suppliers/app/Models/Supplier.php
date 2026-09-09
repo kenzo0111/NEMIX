@@ -20,6 +20,38 @@ class Supplier extends Model
         'created_by',
     ];
 
+    protected $appends = [
+        'contract_supplies_value',
+    ];
+
+    public function items()
+    {
+        return $this->hasMany(\Modules\Inventory\Models\Item::class, 'supplier_id');
+    }
+
+    public function getContractSuppliesValueAttribute(): float
+    {
+        if (array_key_exists('contract_supplies_value', $this->attributes)) {
+            return (float) $this->attributes['contract_supplies_value'];
+        }
+
+        if ($this->relationLoaded('items')) {
+            return (float) $this->items
+                ->where('stock', '>', 0)
+                ->sum(fn ($item) => (float) $item->stock * (float) ($item->unit_cost ?? 0));
+        }
+
+        if (! class_exists(\Modules\Inventory\Models\Item::class)) {
+            return 0.00;
+        }
+
+        return (float) ($this->items()
+            ->where('stock', '>', 0)
+            ->where('unit_cost', '>', 0)
+            ->selectRaw('COALESCE(SUM(stock * unit_cost), 0) as total_val')
+            ->value('total_val') ?? 0.00);
+    }
+
     public function creator()
     {
         return $this->belongsTo(\App\Models\User::class, 'created_by');

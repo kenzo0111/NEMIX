@@ -23,19 +23,24 @@ class SuppliersController extends Controller
         $suppliersQuery = ResourceOwnershipPolicy::scopeQuery(Supplier::query(), auth()->user());
         $suppliers = $suppliersQuery->latest()->get();
 
-        $itemsQuery = class_exists(Item::class)
-            ? ResourceOwnershipPolicy::scopeQuery(Item::query(), auth()->user())
-            : null;
+        $supplierIds = $suppliers->pluck('id')->filter()->all();
 
         $supplierItemValues = [];
-        if ($itemsQuery) {
-            $supplierItemValues = $itemsQuery
-                ->whereNotNull('supplier_id')
+        if (!empty($supplierIds) && class_exists(Item::class)) {
+            $supplierItemValues = Item::query()
+                ->whereIn('supplier_id', $supplierIds)
+                ->where('stock', '>', 0)
+                ->whereNotNull('unit_cost')
+                ->where('unit_cost', '>', 0)
                 ->groupBy('supplier_id')
-                ->select('supplier_id', DB::raw('SUM(stock * COALESCE(unit_cost, 0)) as total_val'))
+                ->select('supplier_id', DB::raw('SUM(stock * unit_cost) as total_val'))
                 ->pluck('total_val', 'supplier_id')
                 ->toArray();
         }
+
+        $itemsQuery = class_exists(Item::class)
+            ? ResourceOwnershipPolicy::scopeQuery(Item::query(), auth()->user())
+            : null;
 
         $items = $itemsQuery ? $itemsQuery->get(['id', 'name', 'sku', 'supplier_id', 'stock', 'unit_cost', 'amount']) : collect();
 
@@ -45,7 +50,9 @@ class SuppliersController extends Controller
 
         $suppliers = $suppliers->map(function ($supplier) use ($supplierItemValues) {
             $supplierId = (string) $supplier->id;
-            $supplier->amount = (float) ($supplierItemValues[$supplierId] ?? $supplier->amount ?? 0);
+            $calculatedValue = round((float) ($supplierItemValues[$supplierId] ?? 0), 2);
+            $supplier->contract_supplies_value = $calculatedValue;
+            $supplier->amount = $calculatedValue;
             return $supplier;
         });
 
@@ -68,7 +75,6 @@ class SuppliersController extends Controller
             'reg_number' => ['required', 'string', 'max:100', 'unique:suppliers,reg_number'],
             'category' => ['required', 'string', 'max:100'],
             'status' => ['required', 'in:active,pending,blacklisted'],
-            'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
         ]);
 
         $validated['created_by'] = auth()->id();
@@ -123,7 +129,6 @@ class SuppliersController extends Controller
             'reg_number' => ['required', 'string', 'max:100', 'unique:suppliers,reg_number,' . $supplier->id],
             'category' => ['required', 'string', 'max:100'],
             'status' => ['required', 'in:active,pending,blacklisted'],
-            'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
         ]);
 
         $supplier->update($validated);

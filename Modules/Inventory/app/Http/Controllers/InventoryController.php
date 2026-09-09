@@ -163,6 +163,9 @@ class InventoryController extends Controller
             Receiving::create($data);
 
             $item = Item::findOrFail($request->item_id);
+            if (! $item->supplier_id && $request->supplier_id) {
+                $item->supplier_id = $request->supplier_id;
+            }
             $item->stock += $request->quantity;
             $this->refreshItemTotals($item);
         });
@@ -190,6 +193,9 @@ class InventoryController extends Controller
             if ($oldItem->id == $request->item_id) {
                 // Revert old quantity, apply new quantity
                 $oldItem->stock = $oldItem->stock - $oldQuantity + $request->quantity;
+                if (! $oldItem->supplier_id && $request->supplier_id) {
+                    $oldItem->supplier_id = $request->supplier_id;
+                }
                 $this->refreshItemTotals($oldItem);
             } else {
                 // Item changed. Revert old item stock, update new item stock
@@ -197,6 +203,9 @@ class InventoryController extends Controller
                 $this->refreshItemTotals($oldItem);
 
                 $newItem = Item::findOrFail($request->item_id);
+                if (! $newItem->supplier_id && $request->supplier_id) {
+                    $newItem->supplier_id = $request->supplier_id;
+                }
                 $newItem->stock += $request->quantity;
                 $this->refreshItemTotals($newItem);
             }

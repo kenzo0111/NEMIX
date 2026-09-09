@@ -78,6 +78,9 @@ class InventoryService implements ServiceInterface
                 'date_received' => $dto->date_received,
             ]);
             $item = Item::findOrFail($dto->item_id);
+            if (! $item->supplier_id && $dto->supplier_id) {
+                $item->supplier_id = $dto->supplier_id;
+            }
             $item->stock += $dto->quantity;
             // Recalculate amount and status (replicating controller logic)
             $item->amount = (float) $item->stock * (float) ($item->unit_cost ?? 0);

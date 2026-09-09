@@ -107,10 +107,9 @@ class InputValidationAndSanitizationTest extends TestCase
             'reg_number' => 'REG-100',
             'category' => 'Hardware',
             'status' => 'invalid_status_type', // Invalid status enum
-            'amount' => -100, // Invalid negative amount
         ]);
 
-        $response->assertSessionHasErrors(['status', 'amount']);
+        $response->assertSessionHasErrors(['status']);
     }
 
     public function test_inventory_creation_rejects_negative_stock(): void

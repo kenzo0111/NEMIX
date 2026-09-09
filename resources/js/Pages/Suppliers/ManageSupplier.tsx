@@ -106,36 +106,16 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
         reg_number: '',
         category: '',
         status: 'active',
-        amount: '',
     });
 
     // Sidebar Modules
     const modules = getSidebarModules('Suppliers', 'Manage Supplier');
     const user = auth.user;
 
-    const supplierItemValues = useMemo(() => {
-        const totals: Record<string, number> = {};
-        (items || []).forEach((item: any) => {
-            if (item?.supplier_id == null) return;
-            const supplierId = String(item.supplier_id);
-            const amount = Number(item.amount ?? NaN);
-            if (!Number.isNaN(amount) && amount !== 0) {
-                totals[supplierId] = (totals[supplierId] || 0) + amount;
-                return;
-            }
-
-            const stock = Number(item.stock || 0);
-            const unitCost = Number(item.unit_cost || 0);
-            totals[supplierId] = (totals[supplierId] || 0) + stock * unitCost;
-        });
-        return totals;
-    }, [items]);
-
-    const formatCurrency = (value: number) => `₱${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const formatCurrency = (value: number) => `₱${(Number(value) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
     const getSupplierAmount = (supplier: any) => {
-        const supplierId = String(supplier.id);
-        return supplierItemValues[supplierId] || 0;
+        return Number(supplier?.contract_supplies_value ?? supplier?.amount ?? 0);
     };
 
     const capitalize = (s: string) => {
@@ -202,7 +182,6 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
             reg_number: supplier.reg_number,
             category: 'goods',
             status: supplier.status.toLowerCase(),
-            amount: supplier.amount || '',
         });
     };
 
@@ -216,7 +195,6 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
             reg_number: supplier.reg_number,
             category: 'goods',
             status: supplier.status.toLowerCase(),
-            amount: supplier.amount || '',
         });
     };
 
@@ -427,7 +405,7 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
                                             <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Registration No.</th>
                                             <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Address</th>
                                             <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Supply Focus</th>
-                                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Amount</th>
+                                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Contract Supplies Value</th>
                                             <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Status</th>
                                             <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono">Actions</th>
                                         </tr>
@@ -674,21 +652,6 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
                                     </div>
                                     {errors.category && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.category}</p>}
                                 </div>
-                            </div>
-                            <div className="mt-5">
-                                <FormInput
-                                    label="Amount (₱)"
-                                    type="number"
-                                    step="0.01"
-                                    value={data.amount}
-                                    onChange={(e: any) => setData('amount', e.target.value)}
-                                    error={errors.amount}
-                                    placeholder="0.00"
-                                    disabled={modalMode === 'view'}
-                                    icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>}
-                                />
                             </div>
                         </div>
 
