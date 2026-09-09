@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDisplayDate } from '@/utils/dateUtils';
 
 // --- Types ---
 
@@ -39,11 +40,7 @@ interface PurchaseOrderProps {
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '';
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  return formatDisplayDate(dateString, 'long');
 };
 
 const formatNumber = (num?: number) => {

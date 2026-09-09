@@ -163,10 +163,15 @@ class ComplianceMigrationController extends Controller
                 return $str;
             }
 
+            if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $str, $m)) {
+                return sprintf('%s-%02d-%02d', $m[3], (int)$m[1], (int)$m[2]);
+            }
+
             try {
-                $carbon = Carbon::parse($str);
+                $tz = config('app.timezone', 'Asia/Manila');
+                $carbon = Carbon::parse($str)->timezone($tz);
                 if ($carbon->year >= 1970 && $carbon->year <= 2100) {
-                    return $carbon->toDateString();
+                    return $carbon->format('Y-m-d');
                 }
             } catch (\Throwable $e) {
                 // Not parseable

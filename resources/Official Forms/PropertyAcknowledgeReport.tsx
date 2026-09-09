@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDisplayDate } from '@/utils/dateUtils';
 
 // --- Interfaces ---
 
@@ -37,12 +38,8 @@ interface PropertyAcknowledgmentReceiptProps {
 // --- Helper Functions ---
 
 const formatDate = (dateString?: string) => {
-  if (!dateString) return '\u00A0'; // Return &nbsp;
-  try {
-    return new Date(dateString).toLocaleDateString('en-CA'); // en-CA gives YYYY-MM-DD format
-  } catch (e) {
-    return dateString;
-  }
+  if (!dateString) return '\u00A0';
+  return formatDisplayDate(dateString, 'YYYY-MM-DD') || '\u00A0';
 };
 
 const formatCurrency = (amount?: number) => {

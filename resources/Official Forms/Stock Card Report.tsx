@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDisplayDate } from '@/utils/dateUtils';
 
 // --- Interfaces ---
 
@@ -33,15 +34,7 @@ interface StockCardProps {
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '';
-  try {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      year: 'numeric',
-    });
-  } catch {
-    return dateString;
-  }
+  return formatDisplayDate(dateString, 'MM/DD/YYYY');
 };
 
 export const StockCard: React.FC<StockCardProps> = ({ data }) => {

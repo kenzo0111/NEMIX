@@ -4,8 +4,9 @@ import Breadcrumbs from '@/Components/Breadcrumbs';
 import Modal from '@/Components/Modal';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Suspense, lazy, useEffect, useRef, useState, type ChangeEvent } from 'react';
-import Select from 'react-select';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { formatDisplayDate, getLocalDateString } from '@/utils/dateUtils';
+import Select from 'react-select';
 
 let xlsxModule: typeof import('xlsx') | null = null;
 let mammothModule: typeof import('mammoth') | null = null;
@@ -142,15 +143,7 @@ export const generateReportReference = (
     allReports: any[] = [],
     allMigrations: any[] = []
 ): string => {
-    let dateStr = targetDate;
-    if (!dateStr) {
-        dateStr = new Date().toISOString().split('T')[0];
-    } else {
-        dateStr = String(dateStr).split('T')[0].trim();
-    }
-
-    const dateMatch = dateStr.match(/^\d{4}-\d{2}-\d{2}$/);
-    const datePrefix = dateMatch ? dateStr : new Date().toISOString().split('T')[0];
+    const datePrefix = getLocalDateString(targetDate) || getLocalDateString();
 
     const existingRefs: string[] = [
         ...allReports.map((r: any) => r?.reference || ''),
@@ -571,20 +564,12 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     };
 
     const formatDateToIso = (rawDate: any) => {
-        if (!rawDate) return '';
-        const str = String(rawDate).trim();
-        if (!str || str === '-' || str === 'N/A') return '';
-        if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-        const d = new Date(str);
-        if (!Number.isNaN(d.getTime()) && d.getFullYear() >= 1970 && d.getFullYear() <= 2100) {
-            return d.toISOString().split('T')[0];
-        }
-        return '';
+        return getLocalDateString(rawDate);
     };
 
     const mapRowToItem = (row: any, idx: number, formType: string, groupMetadata: any, lastRefObj: { current: string; centerCode?: string }) => {
         if (typeof row === 'string') {
-            return { reference: `${formType}-HIST-${idx + 1}`, item_name: row, quantity: 1, date: new Date().toISOString().split('T')[0], remarks: 'Parsed raw text row' };
+            return { reference: `${formType}-HIST-${idx + 1}`, item_name: row, quantity: 1, date: getLocalDateString(), remarks: 'Parsed raw text row' };
         }
 
         if (formType === 'RSMI') {
@@ -846,13 +831,14 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
     const populateFormFromMigrationRow = (row: any) => {
         const rawDate = String(row.date || row.date_issued || row.issued_date || '').trim();
-        const parsedDate = rawDate ? new Date(rawDate) : new Date();
-        const safeDate = Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+        const dateStr = getLocalDateString(rawDate);
+        const todayStr = getLocalDateString();
+        const refDate = dateStr || todayStr;
+        const [y, m] = refDate.split('-').map(Number);
         const reference = String(row.reference || row.ref || row.serial || row.doc_no || '').trim();
         const itemName = String(row.item_name || row.item || row.article || row.description || '').trim();
         const title = String(row.title || row.designation || row.department || row.remarks || row.recipient || '').trim();
 
-        const todayStr = new Date().toISOString().split('T')[0];
         setFormData({
             title: title || itemName || '',
             type: migrationFormType,
@@ -863,11 +849,11 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             endUser: row.recipient || '',
             generatedDate: todayStr,
             periodType: 'specific',
-            date: safeDate.toISOString().split('T')[0],
+            date: dateStr || todayStr,
             startDate: '',
             endDate: '',
-            selectedMonth: safeDate.getMonth() + 1,
-            selectedYear: safeDate.getFullYear(),
+            selectedMonth: m || (new Date().getMonth() + 1),
+            selectedYear: y || new Date().getFullYear(),
         });
         setSelectedId(null);
     };
@@ -1094,9 +1080,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         supplierId: '',
         supplierName: '',
         endUser: '',
-        generatedDate: new Date().toISOString().split('T')[0],
+        generatedDate: getLocalDateString(),
         periodType: 'all',
-        date: new Date().toISOString().split('T')[0],
+        date: getLocalDateString(),
         startDate: '',
         endDate: '',
         selectedMonth: new Date().getMonth() + 1,
@@ -1114,20 +1100,15 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         if (!formData.periodType || formData.periodType === 'all') return true;
         if (!dateStr) return true;
 
-        let cleanDateStr = '';
-        if (dateStr instanceof Date) {
-            cleanDateStr = dateStr.toISOString().split('T')[0];
-        } else {
-            cleanDateStr = String(dateStr).split('T')[0].split(' ')[0].trim().replace(/\//g, '-');
-        }
+        const cleanDateStr = getLocalDateString(dateStr);
         if (!cleanDateStr) return true;
 
         if (formData.periodType === 'specific') {
-            const targetDate = (formData.date || '').split('T')[0].trim();
+            const targetDate = getLocalDateString(formData.date);
             return !targetDate || cleanDateStr === targetDate;
         } else if (formData.periodType === 'range') {
-            const start = (formData.startDate || '').split('T')[0].trim();
-            const end = (formData.endDate || '').split('T')[0].trim();
+            const start = getLocalDateString(formData.startDate);
+            const end = getLocalDateString(formData.endDate);
             if (start && end) return cleanDateStr >= start && cleanDateStr <= end;
             if (start) return cleanDateStr >= start;
             if (end) return cleanDateStr <= end;
@@ -1139,20 +1120,12 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 const month = parseInt(parts[1], 10);
                 return month === Number(formData.selectedMonth) && year === Number(formData.selectedYear);
             }
-            const d = new Date(cleanDateStr);
-            if (!isNaN(d.getTime())) {
-                return (d.getMonth() + 1) === Number(formData.selectedMonth) && d.getFullYear() === Number(formData.selectedYear);
-            }
             return true;
         } else if (formData.periodType === 'yearly') {
             const parts = cleanDateStr.split('-');
             if (parts.length >= 1) {
                 const year = parseInt(parts[0], 10);
                 return year === Number(formData.selectedYear);
-            }
-            const d = new Date(cleanDateStr);
-            if (!isNaN(d.getTime())) {
-                return d.getFullYear() === Number(formData.selectedYear);
             }
             return true;
         }
@@ -1399,9 +1372,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 };
             })
             .sort((a: any, b: any) => {
-                const dateA = a.date ? new Date(a.date).getTime() : 0;
-                const dateB = b.date ? new Date(b.date).getTime() : 0;
-                return dateA - dateB || String(a.reference).localeCompare(String(b.reference));
+                const dateA = getLocalDateString(a.date) || '';
+                const dateB = getLocalDateString(b.date) || '';
+                return dateA.localeCompare(dateB) || String(a.reference).localeCompare(String(b.reference));
             });
 
         const totalIssued = preparedEntries.reduce((sum: number, entry: any) => sum + Number(entry.issue_qty || 0), 0);
@@ -1444,9 +1417,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         } else if (data.periodType === 'yearly') {
             return `Year ${data.selectedYear}`;
         } else if (data.periodType === 'range') {
-            return `${data.startDate} to ${data.endDate}`;
+            return `${formatDisplayDate(data.startDate, 'MM/DD/YYYY')} to ${formatDisplayDate(data.endDate, 'MM/DD/YYYY')}`;
         }
-        return data.date;
+        return formatDisplayDate(data.date, 'MM/DD/YYYY') || data.date;
     };
 
     const handlePrint = () => {
@@ -1493,7 +1466,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             delete payload.supplierName;
         }
 
-        const genDate = formData.generatedDate || new Date().toISOString().split('T')[0];
+        const genDate = getLocalDateString(formData.generatedDate) || getLocalDateString();
         const defaultTitle = formData.title || (
             formData.type === 'STOCK_CARD' ? `Stock Card - ${formData.itemName || 'Inventory'}` :
             formData.type === 'RSMI' ? 'RSMI - Supplies and Materials Issued' :
@@ -1633,11 +1606,12 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         const supplier = suppliers.find((supplier: any) => String(supplier.id) === String(report.supplierId))
             || suppliers.find((supplier: any) => (supplier.name || supplier.company_name) === report.supplierName);
 
-        const genDate = report.generatedDate
+        const genDate = getLocalDateString(
+            report.generatedDate
             || (report.createdAt ? String(report.createdAt).split('T')[0] : null)
             || report.payload?.generatedDate
             || (report.created_at ? String(report.created_at).split('T')[0] : null)
-            || new Date().toISOString().split('T')[0];
+        ) || getLocalDateString();
 
         setModalMode('view');
         setSelectedId(report.id);
@@ -1652,9 +1626,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             endUser: report.endUser || report.payload?.endUser || '',
             generatedDate: genDate,
             periodType: report.periodType || 'all',
-            date: report.dateValue || new Date().toISOString().split('T')[0],
-            startDate: report.startDate || '',
-            endDate: report.endDate || '',
+            date: getLocalDateString(report.dateValue || report.date) || getLocalDateString(),
+            startDate: getLocalDateString(report.startDate),
+            endDate: getLocalDateString(report.endDate),
             selectedMonth: report.selectedMonth || new Date().getMonth() + 1,
             selectedYear: report.selectedYear || new Date().getFullYear(),
         });
@@ -1663,7 +1637,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
     const openCreateModal = () => {
         setModalMode('create');
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getLocalDateString();
         const autoRef = generateReportReference(todayStr, reports, migratedRecords);
         setFormData({
             title: '',
@@ -1686,7 +1660,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     };
 
     const resetForm = () => {
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getLocalDateString();
         const autoRef = generateReportReference(todayStr, reports, migratedRecords);
         setFormData({
             title: '',
@@ -2341,7 +2315,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         <button
                                             type="button"
                                             onClick={() => {
-                                                const genDate = formData.generatedDate || new Date().toISOString().split('T')[0];
+                                                const genDate = getLocalDateString(formData.generatedDate) || getLocalDateString();
                                                 const autoRef = generateReportReference(genDate, reports, migratedRecords);
                                                 setFormData(prev => ({ ...prev, reference: autoRef }));
                                             }}
@@ -3192,11 +3166,11 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                                     <div className="flex gap-4">
                                                         <div className="flex flex-col">
                                                             <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider font-mono">Coverage</span>
-                                                            <span className="text-xs font-semibold text-gray-700">{report.date}</span>
+                                                            <span className="text-xs font-semibold text-gray-700">{report.date ? (report.date.includes('/') || report.date.includes(' ') || report.date.includes('to') ? report.date : formatDisplayDate(report.date, 'MM/DD/YYYY')) : '—'}</span>
                                                         </div>
                                                         <div className="flex flex-col">
                                                             <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider font-mono">Generated</span>
-                                                            <span className="text-xs font-semibold text-gray-700">{report.generatedDate || (report.createdAt ? String(report.createdAt).split('T')[0] : report.date)}</span>
+                                                            <span className="text-xs font-semibold text-gray-700">{formatDisplayDate(report.generatedDate || report.createdAt || report.created_at || report.date, 'MM/DD/YYYY')}</span>
                                                         </div>
                                                     </div>
                                                     <div className="flex gap-2">

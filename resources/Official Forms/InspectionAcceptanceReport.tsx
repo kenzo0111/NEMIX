@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDisplayDate } from '@/utils/dateUtils';
 
 // --- Interfaces ---
 
@@ -48,11 +49,7 @@ interface InspectionAcceptanceReportProps {
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '';
-  try {
-    return new Date(dateString).toLocaleDateString('en-US');
-  } catch {
-    return dateString;
-  }
+  return formatDisplayDate(dateString, 'MM/DD/YYYY');
 };
 
 export const InspectionAcceptanceReport: React.FC<InspectionAcceptanceReportProps> = ({ 

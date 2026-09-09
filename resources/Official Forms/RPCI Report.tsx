@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDisplayDate } from '@/utils/dateUtils';
 
 // --- Interfaces ---
 
@@ -142,7 +143,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
           <div style={{ marginTop: '6px' }}>
             As at{' '}
             <div style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 8px 2px 8px', minWidth: '180px', fontWeight: 'bold', fontSize: '9.5pt', textAlign: 'center' }}>
-              {data.as_at_date || '\u00A0'}
+              {formatDisplayDate(data.as_at_date, 'long') || data.as_at_date || '\u00A0'}
             </div>
           </div>
         </div>
@@ -183,7 +184,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
           </div>
           <span style={{ marginLeft: '4px' }}>is accountable, having assumed such accountability on</span>
           <div style={{ flex: '0 0 120px', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 4px 2px 4px', marginLeft: '4px', minWidth: '90px' }}>
-            {data.date_assumption || '\u00A0'}
+            {formatDisplayDate(data.date_assumption, 'MM/DD/YYYY') || data.date_assumption || '\u00A0'}
           </div>
           <span>.</span>
         </div>

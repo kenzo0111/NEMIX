@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDisplayDate } from '@/utils/dateUtils';
 
 // --- Interfaces ---
 
@@ -192,7 +193,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
                 Date :
               </td>
               <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
-                {data.date || '\u00A0'}
+                {formatDisplayDate(data.date, 'MM/DD/YYYY') || data.date || '\u00A0'}
               </td>
             </tr>
           </tbody>
@@ -308,7 +309,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
                               </td>
                               <td style={{ border: 'none' }}>&nbsp;</td>
                               <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', textAlign: 'center', fontSize: '9pt', lineHeight: 1.25, whiteSpace: 'nowrap' }}>
-                                {data.accountingDate || '\u00A0'}
+                                {formatDisplayDate(data.accountingDate, 'MM/DD/YYYY') || data.accountingDate || '\u00A0'}
                               </td>
                             </tr>
                             <tr>

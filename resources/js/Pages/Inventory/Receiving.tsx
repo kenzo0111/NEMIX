@@ -5,8 +5,9 @@ import Sidebar from '@/Components/Sidebar';
 import Modal from '@/Components/Modal';
 import { Head, router, useForm } from '@inertiajs/react';
 import { useState, useEffect, useMemo } from 'react';
-import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
+import { getSidebarModules } from '@/utils/sidebarConfig';
+import { formatDisplayDate, getLocalDateString } from '@/utils/dateUtils';
 
 export default function Receiving({ auth, receivings, items, suppliers }: { auth: any, receivings: any[], items: any[], suppliers: any[] }) {
     const user = auth.user;
@@ -27,7 +28,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
         item_id: '',
         supplier_id: '',
         quantity: '',
-        date_received: new Date().toISOString().split('T')[0], // Today's date
+        date_received: getLocalDateString(), // Today's date
     });
 
     // --- EDIT FORM STATE ---
@@ -76,7 +77,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
             item_id: scannedItemMatch.id,
             supplier_id: matchingSupplierId,
             quantity: '1',
-            date_received: new Date().toISOString().split('T')[0],
+            date_received: getLocalDateString(),
         });
 
         setIsRfidModalOpen(false);
@@ -132,7 +133,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
             item_id: receiving.item_id || '',
             supplier_id: receiving.supplier_id || '',
             quantity: receiving.quantity || '',
-            date_received: receiving.date_received || '',
+            date_received: getLocalDateString(receiving.date_received || receiving.date) || getLocalDateString(),
         });
         setIsDetailsModalOpen(true);
         setIsEditMode(true);
@@ -396,7 +397,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                                         <span className="font-medium">{receiving.supplier}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-mono">{receiving.date}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-mono">{formatDisplayDate(receiving.date, 'MM/DD/YYYY') || receiving.date}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button
                                                         onClick={() => openDetailsModal(receiving)}
@@ -849,7 +850,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                         <div className="p-4 bg-gray-50/70 rounded-xl border border-gray-100 space-y-3">
                                             <div>
                                                 <p className="text-xs text-gray-500 font-medium">Date Received</p>
-                                                <p className="font-semibold text-gray-900">{selectedReceiving.date}</p>
+                                                <p className="font-semibold text-gray-900">{formatDisplayDate(selectedReceiving.date, 'MM/DD/YYYY') || selectedReceiving.date}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -857,7 +858,7 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                     <div className="pt-4 border-t border-gray-100">
                                         <div className="flex items-center justify-between">
                                             <div className="text-xs text-gray-500">
-                                                Created: {new Date().toLocaleDateString()} • ID: #{selectedReceiving.id}
+                                                Date: {formatDisplayDate(selectedReceiving.date, 'MM/DD/YYYY') || selectedReceiving.date} • ID: #{selectedReceiving.id}
                                             </div>
                                             <div className="flex gap-3">
                                                 <button

@@ -5,8 +5,9 @@ import Sidebar from '@/Components/Sidebar';
 import Modal from '@/Components/Modal';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState, useMemo, useRef, useEffect } from 'react'; // Added useMemo
-import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
+import { getSidebarModules } from '@/utils/sidebarConfig';
+import { formatDisplayDate, getLocalDateString } from '@/utils/dateUtils';
 import RequisitionIssueSlip from '../../../Official Forms/RequisitionIssueSlip';
 
 type IssuanceItem = {
@@ -32,7 +33,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
 
     // --- FORM STATE ---
     const [recipient, setRecipient] = useState('');
-    const [dateIssued, setDateIssued] = useState(new Date().toISOString().split('T')[0]);
+    const [dateIssued, setDateIssued] = useState(getLocalDateString());
     const [department, setDepartment] = useState('');
     const [fundCluster, setFundCluster] = useState<any>(null);
     const [recipientDesignation, setRecipientDesignation] = useState('');
@@ -52,9 +53,8 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
 
     const getFormattedId = (issuance: any) => {
         if (!issuance) return '';
-        const date = new Date(issuance.date || new Date());
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const dateStr = getLocalDateString(issuance.date) || getLocalDateString();
+        const [year, month] = dateStr.split('-');
         const num = String(issuance.display_id || issuance.original_id || issuance.id).padStart(4, '0');
         return `${year}-${month}-${num}`;
     };
@@ -311,7 +311,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
     const closeModal = () => {
         setIsModalOpen(false);
         setRecipient('');
-        setDateIssued(new Date().toISOString().split('T')[0]);
+        setDateIssued(getLocalDateString());
         setDepartment('');
         setFundCluster(null);
         setRecipientDesignation('');
@@ -639,7 +639,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                                         <span className="break-words font-medium">{issuance.recipient}</span>
                                                     </div>
                                                 </td>
-                                                <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-mono">{issuance.date}</td>
+                                                <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-mono">{formatDisplayDate(issuance.date, 'MM/DD/YYYY') || issuance.date}</td>
                                                 <td className="hidden sm:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${issuance.status === 'Issued' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/80' :
                                                             issuance.status === 'Pending' ? 'bg-amber-50 text-amber-800 border border-amber-200/80' :
@@ -1014,7 +1014,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">Date Issued</label>
-                                    <p className="text-sm text-gray-900 font-medium">{selectedIssuance.date}</p>
+                                    <p className="text-sm text-gray-900 font-medium">{formatDisplayDate(selectedIssuance.date, 'MM/DD/YYYY') || selectedIssuance.date}</p>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDisplayDate } from '@/utils/dateUtils';
 
 // --- Interfaces ---
 
@@ -54,11 +55,7 @@ interface RequisitionIssueSlipProps {
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '';
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric',
-  });
+  return formatDisplayDate(dateString, 'MM/DD/YYYY');
 };
 
 const getDynamicNameStyle = (name?: string): React.CSSProperties => {

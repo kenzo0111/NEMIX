@@ -308,9 +308,10 @@ class ComplianceReportController extends Controller
                 ->latest()
                 ->get()
                 ->map(function ($report) {
+                    $tz = config('app.timezone', 'Asia/Manila');
                     $supplierName = data_get($report->payload, 'supplierName');
                     $generatedDate = data_get($report->payload, 'generatedDate')
-                        ?? ($report->created_at ? $report->created_at->format('Y-m-d') : null);
+                        ?? ($report->created_at ? $report->created_at->timezone($tz)->format('Y-m-d') : null);
 
                     return [
                         'id' => $report->id,
@@ -324,14 +325,14 @@ class ComplianceReportController extends Controller
                         'payload' => $report->payload ?? [],
                         'date' => $report->coverage_label,
                         'periodType' => $report->period_type,
-                        'dateValue' => optional($report->date)->toDateString(),
-                        'startDate' => optional($report->start_date)->toDateString(),
-                        'endDate' => optional($report->end_date)->toDateString(),
+                        'dateValue' => optional($report->date)->format('Y-m-d'),
+                        'startDate' => optional($report->start_date)->format('Y-m-d'),
+                        'endDate' => optional($report->end_date)->format('Y-m-d'),
                         'selectedMonth' => $report->selected_month,
                         'selectedYear' => $report->selected_year,
                         'generatedDate' => $generatedDate,
-                        'createdAt' => optional($report->created_at)->toIso8601String(),
-                        'created_at' => optional($report->created_at)->toIso8601String(),
+                        'createdAt' => optional($report->created_at)->timezone($tz)->toIso8601String(),
+                        'created_at' => optional($report->created_at)->timezone($tz)->toIso8601String(),
                     ];
                 })
                 ->values()
@@ -353,7 +354,8 @@ class ComplianceReportController extends Controller
 
     public static function generateReference(?string $dateStr = null): string
     {
-        $datePrefix = $dateStr ? Carbon::parse($dateStr)->format('Y-m-d') : now()->format('Y-m-d');
+        $tz = config('app.timezone', 'Asia/Manila');
+        $datePrefix = $dateStr ? Carbon::parse($dateStr)->timezone($tz)->format('Y-m-d') : now($tz)->format('Y-m-d');
 
         $existing = ComplianceReport::query()
             ->where('reference', 'LIKE', $datePrefix . '-%')
@@ -392,6 +394,21 @@ class ComplianceReportController extends Controller
             'payload' => ['nullable', 'array'],
         ]);
 
+        $tz = config('app.timezone', 'Asia/Manila');
+        $normalizeDate = function ($val) use ($tz) {
+            if (empty($val)) return null;
+            try {
+                return Carbon::parse($val)->timezone($tz)->format('Y-m-d');
+            } catch (\Throwable $e) {
+                return $val;
+            }
+        };
+
+        $cleanDate = $normalizeDate($validated['date'] ?? null);
+        $cleanStartDate = $normalizeDate($validated['startDate'] ?? null);
+        $cleanEndDate = $normalizeDate($validated['endDate'] ?? null);
+        $generatedDate = $normalizeDate($validated['generatedDate'] ?? null) ?? $cleanDate ?? now($tz)->format('Y-m-d');
+
         $coverageLabel = $validated['coverageLabel'] ?? null;
 
         if (!$coverageLabel) {
@@ -401,14 +418,12 @@ class ComplianceReportController extends Controller
                 $coverageLabel = Carbon::createFromDate((int) $validated['selectedYear'], (int) $validated['selectedMonth'], 1)->format('F Y');
             } elseif (($validated['periodType'] ?? null) === 'yearly' && !empty($validated['selectedYear'])) {
                 $coverageLabel = 'Year ' . $validated['selectedYear'];
-            } elseif (($validated['periodType'] ?? null) === 'range' && !empty($validated['startDate']) && !empty($validated['endDate'])) {
-                $coverageLabel = $validated['startDate'] . ' to ' . $validated['endDate'];
+            } elseif (($validated['periodType'] ?? null) === 'range' && !empty($cleanStartDate) && !empty($cleanEndDate)) {
+                $coverageLabel = $cleanStartDate . ' to ' . $cleanEndDate;
             } else {
-                $coverageLabel = $validated['date'] ?? null;
+                $coverageLabel = $cleanDate ?? null;
             }
         }
-
-        $generatedDate = $validated['generatedDate'] ?? $validated['date'] ?? now()->format('Y-m-d');
 
         $reference = !empty($validated['reference'])
             ? trim($validated['reference'])
@@ -423,11 +438,11 @@ class ComplianceReportController extends Controller
             'reference' => $reference,
             'item_name' => $validated['itemName'] ?? null,
             'period_type' => $validated['periodType'],
-            'date' => $validated['date'] ?? null,
-            'start_date' => $validated['startDate'] ?? null,
-            'end_date' => $validated['endDate'] ?? null,
+            'date' => $cleanDate,
+            'start_date' => $cleanStartDate,
+            'end_date' => $cleanEndDate,
             'selected_month' => $validated['selectedMonth'] ?? null,
-            'selected_year' => $validated['selectedYear'] ?? null,
+            'selectedYear' => $validated['selectedYear'] ?? null,
             'coverage_label' => $coverageLabel,
             'payload' => $payload,
             'created_by' => optional($request->user())->id,
@@ -458,6 +473,21 @@ class ComplianceReportController extends Controller
             'payload' => ['nullable', 'array'],
         ]);
 
+        $tz = config('app.timezone', 'Asia/Manila');
+        $normalizeDate = function ($val) use ($tz) {
+            if (empty($val)) return null;
+            try {
+                return Carbon::parse($val)->timezone($tz)->format('Y-m-d');
+            } catch (\Throwable $e) {
+                return $val;
+            }
+        };
+
+        $cleanDate = $normalizeDate($validated['date'] ?? null);
+        $cleanStartDate = $normalizeDate($validated['startDate'] ?? null);
+        $cleanEndDate = $normalizeDate($validated['endDate'] ?? null);
+        $cleanGeneratedDate = $normalizeDate($validated['generatedDate'] ?? null);
+
         $coverageLabel = $validated['coverageLabel'] ?? null;
 
         if (!$coverageLabel) {
@@ -467,16 +497,16 @@ class ComplianceReportController extends Controller
                 $coverageLabel = Carbon::createFromDate((int) $validated['selectedYear'], (int) $validated['selectedMonth'], 1)->format('F Y');
             } elseif (($validated['periodType'] ?? null) === 'yearly' && !empty($validated['selectedYear'])) {
                 $coverageLabel = 'Year ' . $validated['selectedYear'];
-            } elseif (($validated['periodType'] ?? null) === 'range' && !empty($validated['startDate']) && !empty($validated['endDate'])) {
-                $coverageLabel = $validated['startDate'] . ' to ' . $validated['endDate'];
+            } elseif (($validated['periodType'] ?? null) === 'range' && !empty($cleanStartDate) && !empty($cleanEndDate)) {
+                $coverageLabel = $cleanStartDate . ' to ' . $cleanEndDate;
             } else {
-                $coverageLabel = $validated['date'] ?? null;
+                $coverageLabel = $cleanDate ?? null;
             }
         }
 
         $payload = $validated['payload'] ?? [];
-        if (!empty($validated['generatedDate'])) {
-            $payload['generatedDate'] = $validated['generatedDate'];
+        if (!empty($cleanGeneratedDate)) {
+            $payload['generatedDate'] = $cleanGeneratedDate;
         }
 
         $report->update([
@@ -485,9 +515,9 @@ class ComplianceReportController extends Controller
             'reference' => $validated['reference'],
             'item_name' => $validated['itemName'] ?? null,
             'period_type' => $validated['periodType'],
-            'date' => $validated['date'] ?? null,
-            'start_date' => $validated['startDate'] ?? null,
-            'end_date' => $validated['endDate'] ?? null,
+            'date' => $cleanDate,
+            'start_date' => $cleanStartDate,
+            'end_date' => $cleanEndDate,
             'selected_month' => $validated['selectedMonth'] ?? null,
             'selected_year' => $validated['selectedYear'] ?? null,
             'coverage_label' => $coverageLabel,

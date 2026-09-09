@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDisplayDate, getLocalDateString } from '@/utils/dateUtils';
 
 // --- Interfaces ---
 
@@ -44,15 +45,7 @@ export interface MRFormProps {
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '\u00A0';
-  try {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-  } catch {
-    return dateString;
-  }
+  return formatDisplayDate(dateString, 'MM/DD/YYYY') || '\u00A0';
 };
 
 const formatCurrency = (amount?: number | string) => {
@@ -256,7 +249,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
                 Date :
               </td>
               <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
-                {data.date || formatDate(new Date().toISOString())}
+                {formatDisplayDate(data.date || getLocalDateString(), 'MM/DD/YYYY')}
               </td>
             </tr>
           </tbody>

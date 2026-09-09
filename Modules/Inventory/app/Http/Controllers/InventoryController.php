@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Modules\Inventory\Services\InventoryService;
 use Modules\Inventory\DTOs\InventoryItemDTO;
+use Carbon\Carbon;
 
 use App\Policies\ResourceOwnershipPolicy;
 
@@ -148,6 +149,23 @@ class InventoryController extends Controller
         $item->save();
     }
 
+    private function normalizeDate(?string $date): ?string
+    {
+        if (empty($date)) {
+            return null;
+        }
+
+        try {
+            $tz = config('app.timezone', 'Asia/Manila');
+            if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', trim($date), $matches)) {
+                return sprintf('%04d-%02d-%02d', $matches[3], $matches[1], $matches[2]);
+            }
+            return Carbon::parse($date)->timezone($tz)->format('Y-m-d');
+        } catch (\Exception $e) {
+            return $date;
+        }
+    }
+
     public function storeReceiving(Request $request)
     {
         $validated = $request->validate([
@@ -157,8 +175,11 @@ class InventoryController extends Controller
             'date_received' => ['required', 'date'],
         ]);
 
-        \DB::transaction(function () use ($request) {
-            $data = $request->only(['item_id', 'supplier_id', 'quantity', 'date_received']);
+        $normalizedDate = $this->normalizeDate($request->date_received);
+
+        \DB::transaction(function () use ($request, $normalizedDate) {
+            $data = $request->only(['item_id', 'supplier_id', 'quantity']);
+            $data['date_received'] = $normalizedDate;
             $data['created_by'] = auth()->id();
             Receiving::create($data);
 
@@ -184,11 +205,15 @@ class InventoryController extends Controller
             'date_received' => ['required', 'date'],
         ]);
 
-        \DB::transaction(function () use ($request, $receiving) {
+        $normalizedDate = $this->normalizeDate($request->date_received);
+
+        \DB::transaction(function () use ($request, $receiving, $normalizedDate) {
             $oldItem = Item::findOrFail($receiving->item_id);
             $oldQuantity = $receiving->quantity;
 
-            $receiving->update($request->only(['item_id', 'supplier_id', 'quantity', 'date_received']));
+            $updateData = $request->only(['item_id', 'supplier_id', 'quantity']);
+            $updateData['date_received'] = $normalizedDate;
+            $receiving->update($updateData);
             
             if ($oldItem->id == $request->item_id) {
                 // Revert old quantity, apply new quantity
@@ -276,8 +301,10 @@ class InventoryController extends Controller
             'date_issued' => ['required', 'date'],
         ]);
 
+        $normalizedDate = $this->normalizeDate($request->date_issued);
+
         // Use database transaction for bulk insert
-        \DB::transaction(function () use ($request) {
+        \DB::transaction(function () use ($request, $normalizedDate) {
             foreach ($request->issuances as $issuanceData) {
                 $item = Item::findOrFail($issuanceData['item_id']);
                 
@@ -297,7 +324,7 @@ class InventoryController extends Controller
                     'purpose' => $request->purpose,
                     'approved_by' => $request->approved_by ?: (class_exists(\App\Models\SystemSetting::class) ? \App\Models\SystemSetting::get('signatories.ris_approved_by_name', 'ARSENIO GEM A. GARCILLANOSA') : 'ARSENIO GEM A. GARCILLANOSA'),
                     'approved_by_designation' => $request->approved_by_designation ?: (class_exists(\App\Models\SystemSetting::class) ? \App\Models\SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V') : 'SUPPLY OFFICER III/ADMIN OFFICER V'),
-                    'date_issued' => $request->date_issued,
+                    'date_issued' => $normalizedDate,
                     'status' => 'Issued',
                     'issued_by' => auth()->id(),
                 ]);
@@ -328,16 +355,20 @@ class InventoryController extends Controller
             'status' => ['required', 'string', 'in:Pending,Issued,Cancelled'],
         ]);
 
-        \DB::transaction(function () use ($request, $issuance) {
+        $normalizedDate = $this->normalizeDate($request->date_issued);
+
+        \DB::transaction(function () use ($request, $issuance, $normalizedDate) {
             $oldItem = Item::findOrFail($issuance->item_id);
             $oldQuantity = $issuance->quantity;
             $oldStatus = $issuance->status;
             
-            $issuance->update($request->only([
+            $updateData = $request->only([
                 'item_id', 'quantity', 'recipient', 'department', 'fund_cluster',
                 'recipient_designation', 'purpose', 'approved_by', 'approved_by_designation',
-                'date_issued', 'status'
-            ]));
+                'status'
+            ]);
+            $updateData['date_issued'] = $normalizedDate;
+            $issuance->update($updateData);
             
             // Revert previous stock if the issuance was 'Issued'
             if ($oldStatus === 'Issued') {
