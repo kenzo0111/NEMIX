@@ -20,6 +20,10 @@ class Supplier extends Model
         'created_by',
     ];
 
+    protected $casts = [
+        'amount' => 'decimal:2',
+    ];
+
     public function creator()
     {
         return $this->belongsTo(\App\Models\User::class, 'created_by');

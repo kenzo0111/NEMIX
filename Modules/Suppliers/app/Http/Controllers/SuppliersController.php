@@ -23,21 +23,26 @@ class SuppliersController extends Controller
         $suppliersQuery = ResourceOwnershipPolicy::scopeQuery(Supplier::query(), auth()->user());
         $suppliers = $suppliersQuery->latest()->get();
 
-        $itemsQuery = class_exists(Item::class)
+        $baseItemsQuery = class_exists(Item::class)
             ? ResourceOwnershipPolicy::scopeQuery(Item::query(), auth()->user())
             : null;
 
         $supplierItemValues = [];
-        if ($itemsQuery) {
-            $supplierItemValues = $itemsQuery
+        if ($baseItemsQuery) {
+            $supplierItemValues = (clone $baseItemsQuery)
                 ->whereNotNull('supplier_id')
                 ->groupBy('supplier_id')
-                ->select('supplier_id', DB::raw('SUM(stock * COALESCE(unit_cost, 0)) as total_val'))
+                ->select('supplier_id', DB::raw('SUM(CASE 
+                    WHEN amount IS NOT NULL AND amount > 0 THEN amount 
+                    WHEN stock > 0 AND unit_cost IS NOT NULL AND unit_cost > 0 THEN stock * unit_cost 
+                    WHEN unit_cost IS NOT NULL AND unit_cost > 0 THEN unit_cost 
+                    ELSE 0 
+                END) as total_val'))
                 ->pluck('total_val', 'supplier_id')
                 ->toArray();
         }
 
-        $items = $itemsQuery ? $itemsQuery->get(['id', 'name', 'sku', 'supplier_id', 'stock', 'unit_cost', 'amount']) : collect();
+        $items = $baseItemsQuery ? (clone $baseItemsQuery)->get(['id', 'name', 'sku', 'supplier_id', 'stock', 'unit_cost', 'amount']) : collect();
 
         $issuances = class_exists(Issuance::class)
             ? ResourceOwnershipPolicy::scopeQuery(Issuance::with('item'), auth()->user(), 'issued_by')->latest()->get()
@@ -45,7 +50,11 @@ class SuppliersController extends Controller
 
         $suppliers = $suppliers->map(function ($supplier) use ($supplierItemValues) {
             $supplierId = (string) $supplier->id;
-            $supplier->amount = (float) ($supplierItemValues[$supplierId] ?? $supplier->amount ?? 0);
+            $itemTotal = (float) ($supplierItemValues[$supplierId] ?? 0);
+
+            $supplier->items_total = $itemTotal;
+            $supplier->amount = $itemTotal;
+
             return $supplier;
         });
 

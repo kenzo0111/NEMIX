@@ -75,9 +75,7 @@ export default function ReportRegistry({
 
     const statusOptions = [
         { value: '', label: 'All Statuses' },
-        { value: 'approved', label: 'Approved / Official' },
-        { value: 'submitted', label: 'Submitted' },
-        { value: 'draft', label: 'Draft' },
+        { value: 'generated', label: 'Generated' },
         { value: 'historical_migration', label: 'Historical Migration' },
     ];
 
@@ -93,7 +91,16 @@ export default function ReportRegistry({
                 String(r.department || '').toLowerCase().includes(searchLower);
 
             const matchesType = !selectedType?.value || String(r.type) === selectedType.value;
-            const matchesStatus = !selectedStatus?.value || String(r.status).toLowerCase() === selectedStatus.value.toLowerCase();
+            const matchesStatus =
+                !selectedStatus?.value ||
+                String(r.status).toLowerCase() === selectedStatus.value.toLowerCase() ||
+                (selectedStatus.value === 'historical_migration' &&
+                    (String(r.status).toLowerCase() === 'historical migration' ||
+                        String(r.status).toLowerCase() === 'historical_migration')) ||
+                (selectedStatus.value === 'generated' &&
+                    (String(r.status).toLowerCase() === 'generated' ||
+                        String(r.status).toLowerCase() === 'submitted' ||
+                        String(r.status).toLowerCase() === 'approved'));
 
             return matchesSearch && matchesType && matchesStatus;
         });
@@ -274,7 +281,13 @@ export default function ReportRegistry({
                                             {report.date || '—'}
                                         </td>
                                         <td className="px-6 py-3.5 whitespace-nowrap text-center">
-                                            <StatusBadge status={report.status || 'Submitted'} />
+                                            <StatusBadge
+                                                status={
+                                                    String(report.status || '').toLowerCase().includes('historical')
+                                                        ? 'Historical Migration'
+                                                        : 'Generated'
+                                                }
+                                            />
                                         </td>
                                         <td className="px-6 py-3.5 whitespace-nowrap text-right text-xs">
                                             <div className="inline-flex items-center gap-1">

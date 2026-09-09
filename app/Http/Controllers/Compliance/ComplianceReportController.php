@@ -16,12 +16,94 @@ class ComplianceReportController extends Controller
     public function index(): Response
     {
         $items = class_exists(\Modules\Inventory\Models\Item::class)
-            ? \Modules\Inventory\Models\Item::all()
-            : [];
+            ? \Modules\Inventory\Models\Item::with('supplier')->latest()->get()->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'item_name' => $item->name,
+                    'sku' => $item->sku ?? 'No SKU',
+                    'stock' => (int) $item->stock,
+                    'unit_cost' => (float) ($item->unit_cost ?? 0),
+                    'unitCost' => (float) ($item->unit_cost ?? 0),
+                    'amount' => (float) ($item->amount ?? ((float)$item->stock * (float)($item->unit_cost ?? 0))),
+                    'status' => $item->status ?? 'Available',
+                    'unit_of_issue' => $item->unit_of_issue ?? 'pc',
+                    'unitOfIssue' => $item->unit_of_issue ?? 'pc',
+                    'description' => $item->description ?? $item->name,
+                    'supplier_id' => $item->supplier_id,
+                    'supplier_name' => optional($item->supplier)->name,
+                ];
+            })->values()
+            : collect();
 
         $issuances = class_exists(\Modules\Inventory\Models\Issuance::class)
-            ? \Modules\Inventory\Models\Issuance::with(['item', 'issuer'])->latest()->get()
-            : [];
+            ? \Modules\Inventory\Models\Issuance::with(['item', 'issuer'])->latest()->get()->map(function ($issuance) {
+                $item = $issuance->item;
+                $itemName = $item ? $item->name : 'Consumable Supply';
+                $sku = $item ? ($item->sku ?? '') : '';
+                $unitCost = (float) ($item->unit_cost ?? 0);
+                $qty = (int) ($issuance->quantity ?? 1);
+                $amount = $qty * $unitCost;
+                $dateStr = $issuance->date_issued instanceof \DateTimeInterface
+                    ? $issuance->date_issued->format('Y-m-d')
+                    : ($issuance->date_issued ? (string) $issuance->date_issued : ($issuance->created_at ? $issuance->created_at->format('Y-m-d') : ''));
+
+                return [
+                    'id' => $issuance->id,
+                    'item_id' => $issuance->item_id,
+                    'item' => $itemName,
+                    'item_name' => $itemName,
+                    'itemName' => $itemName,
+                    'sku' => $sku,
+                    'stock_no' => $sku,
+                    'quantity' => $qty,
+                    'quantity_issued' => $qty,
+                    'unit_cost' => $unitCost,
+                    'unitCost' => $unitCost,
+                    'amount' => $amount,
+                    'total_cost' => $amount,
+                    'recipient' => $issuance->recipient ?? '',
+                    'department' => $issuance->department ?? 'SPMO Central',
+                    'fund_cluster' => $issuance->fund_cluster ?? '01 - Regular Agency Fund',
+                    'recipient_designation' => $issuance->recipient_designation ?? '',
+                    'purpose' => $issuance->purpose ?? '',
+                    'approved_by' => $issuance->approved_by ?? '',
+                    'approved_by_designation' => $issuance->approved_by_designation ?? '',
+                    'date' => $dateStr,
+                    'date_issued' => $dateStr,
+                    'status' => $issuance->status ?? 'Issued',
+                    'issued_by' => optional($issuance->issuer)->name ?? 'Supply Officer',
+                ];
+            })->values()
+            : collect();
+
+        $receivings = class_exists(\Modules\Inventory\Models\Receiving::class)
+            ? \Modules\Inventory\Models\Receiving::with(['item', 'supplier'])->latest()->get()->map(function ($rec) {
+                $item = $rec->item;
+                $itemName = $item ? $item->name : 'Consumable Supply';
+                $sku = $item ? ($item->sku ?? '') : '';
+                $unitCost = (float) ($item->unit_cost ?? 0);
+                $qty = (int) ($rec->quantity ?? 1);
+                $dateStr = $rec->date_received instanceof \DateTimeInterface
+                    ? $rec->date_received->format('Y-m-d')
+                    : ($rec->date_received ? (string) $rec->date_received : ($rec->created_at ? $rec->created_at->format('Y-m-d') : ''));
+
+                return [
+                    'id' => $rec->id,
+                    'item_id' => $rec->item_id,
+                    'item' => $itemName,
+                    'item_name' => $itemName,
+                    'itemName' => $itemName,
+                    'sku' => $sku,
+                    'stock_no' => $sku,
+                    'quantity' => $qty,
+                    'unit_cost' => $unitCost,
+                    'supplier_name' => optional($rec->supplier)->name ?? 'Institutional Supplier',
+                    'date' => $dateStr,
+                    'date_received' => $dateStr,
+                ];
+            })->values()
+            : collect();
 
         $migratedRecords = collect();
 
@@ -318,6 +400,7 @@ class ComplianceReportController extends Controller
                         'supplierName' => is_string($supplierName) && trim($supplierName) ? trim($supplierName) : null,
                         'endUser' => data_get($report->payload, 'endUser') ?? null,
                         'payload' => $report->payload ?? [],
+                        'status' => data_get($report->payload, 'status') ?? 'generated',
                         'date' => $report->coverage_label,
                         'periodType' => $report->period_type,
                         'dateValue' => optional($report->date)->toDateString(),
@@ -341,6 +424,7 @@ class ComplianceReportController extends Controller
             'items' => $items,
             'reports' => $reports,
             'issuances' => $issuances,
+            'receivings' => $receivings,
             'suppliers' => $suppliers,
             'migratedRecords' => $migratedRecords->values(),
         ]);

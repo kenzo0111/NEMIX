@@ -108,7 +108,6 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
         reg_number: '',
         category: '',
         status: 'active',
-        amount: '',
     });
 
     // Sidebar Modules
@@ -117,19 +116,26 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
 
     const supplierItemValues = useMemo(() => {
         const totals: Record<string, number> = {};
+
         (items || []).forEach((item: any) => {
             if (item?.supplier_id == null) return;
             const supplierId = String(item.supplier_id);
             const amount = Number(item.amount ?? NaN);
-            if (!Number.isNaN(amount) && amount !== 0) {
-                totals[supplierId] = (totals[supplierId] || 0) + amount;
-                return;
-            }
-
             const stock = Number(item.stock || 0);
             const unitCost = Number(item.unit_cost || 0);
-            totals[supplierId] = (totals[supplierId] || 0) + stock * unitCost;
+
+            let itemVal = 0;
+            if (!Number.isNaN(amount) && amount > 0) {
+                itemVal = amount;
+            } else if (stock > 0 && unitCost > 0) {
+                itemVal = stock * unitCost;
+            } else if (unitCost > 0) {
+                itemVal = unitCost;
+            }
+
+            totals[supplierId] = (totals[supplierId] || 0) + itemVal;
         });
+
         return totals;
     }, [items]);
 
@@ -137,7 +143,8 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
 
     const getSupplierAmount = (supplier: any) => {
         const supplierId = String(supplier.id);
-        return supplierItemValues[supplierId] || 0;
+        const itemTotal = supplierItemValues[supplierId] ?? (Number(supplier.items_total ?? supplier.amount) || 0);
+        return itemTotal || 0;
     };
 
     const capitalize = (s: string) => {
@@ -198,7 +205,6 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
             reg_number: supplier.reg_number,
             category: 'goods',
             status: supplier.status.toLowerCase(),
-            amount: supplier.amount || '',
         });
     };
 
@@ -212,7 +218,6 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
             reg_number: supplier.reg_number,
             category: 'goods',
             status: supplier.status.toLowerCase(),
-            amount: supplier.amount || '',
         });
     };
 
@@ -226,8 +231,10 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
 
     const isConsumableCategory = (category: string) => {
         const normalizedCategory = (category || '').toLowerCase();
-        return normalizedCategory.includes('consumable')
-            || normalizedCategory.includes('office supplies')
+        return !normalizedCategory
+            || normalizedCategory.includes('consumable')
+            || normalizedCategory.includes('office')
+            || normalizedCategory.includes('supplies')
             || normalizedCategory.includes('stationery')
             || normalizedCategory.includes('goods');
     };
@@ -602,21 +609,6 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
                                     </div>
                                     {errors.category && <p className="mt-1 text-xs text-red-600 ml-1 font-medium">{errors.category}</p>}
                                 </div>
-                            </div>
-                            <div className="mt-5">
-                                <FormInput
-                                    label="Contract / Supplies Value (₱)"
-                                    type="number"
-                                    step="0.01"
-                                    value={data.amount}
-                                    onChange={(e: any) => setData('amount', e.target.value)}
-                                    error={errors.amount}
-                                    placeholder="0.00"
-                                    disabled={modalMode === 'view'}
-                                    icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>}
-                                />
                             </div>
                         </div>
 

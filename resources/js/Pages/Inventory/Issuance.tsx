@@ -9,8 +9,11 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { useState, useMemo } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
+import { divisionOptions, findDivisionOption } from '@/constants/offices';
 import RequisitionIssueSlip from '../../../Official Forms/RequisitionIssueSlip';
 import { Plus, Eye, FileText, Search, Printer } from 'lucide-react';
+
+export { divisionOptions, findDivisionOption };
 
 export default function Issuance({ auth, issuances, items }: { auth: any, issuances: any[], items: any[] }) {
     const user = auth.user;
@@ -38,6 +41,7 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
     // --- FILTERS STATE ---
     const [searchTerm, setSearchTerm] = useState('');
     const [filterRecipient, setFilterRecipient] = useState<any>(null);
+    const [filterDepartment, setFilterDepartment] = useState<any>(null);
 
     // --- PAGINATION STATE ---
     const [currentPage, setCurrentPage] = useState(1);
@@ -111,13 +115,15 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
             const lowerTerm = searchTerm.toLowerCase();
             const matchesSearch =
                 issuance.item_names.some((name: string) => name.toLowerCase().includes(lowerTerm)) ||
-                issuance.recipient.toLowerCase().includes(lowerTerm);
+                issuance.recipient.toLowerCase().includes(lowerTerm) ||
+                (issuance.department && issuance.department.toLowerCase().includes(lowerTerm));
 
             const matchesRecipient = filterRecipient ? issuance.recipient === filterRecipient.value : true;
+            const matchesDepartment = filterDepartment ? issuance.department === filterDepartment.value : true;
 
-            return matchesSearch && matchesRecipient;
+            return matchesSearch && matchesRecipient && matchesDepartment;
         });
-    }, [groupedIssuances, searchTerm, filterRecipient]);
+    }, [groupedIssuances, searchTerm, filterRecipient, filterDepartment]);
 
     const totalPages = Math.max(1, Math.ceil(filteredIssuances.length / itemsPerPage));
     const paginatedIssuances = filteredIssuances.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -146,12 +152,27 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
             cursor: 'pointer',
         }),
         singleValue: (provided: any) => ({ ...provided, color: '#111827' }),
+        groupHeading: (provided: any) => ({
+            ...provided,
+            fontSize: '0.7rem',
+            fontWeight: '700',
+            textTransform: 'uppercase',
+            color: '#7f1d1d',
+            backgroundColor: '#fef2f2',
+            padding: '4px 10px',
+            letterSpacing: '0.05em',
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+        }),
         menu: (provided: any) => ({
             ...provided,
             borderRadius: '0.375rem',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             border: '1px solid #e5e7eb',
             zIndex: 50,
+        }),
+        menuList: (provided: any) => ({
+            ...provided,
+            maxHeight: '260px',
         }),
         indicatorSeparator: () => ({ display: 'none' }),
     };
@@ -233,12 +254,25 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                 </div>
 
                                 {/* Recipient Filter */}
-                                <div className="w-full sm:w-48">
+                                <div className="w-full sm:w-44">
                                     <Select
                                         value={filterRecipient}
                                         onChange={setFilterRecipient}
                                         options={recipientOptions}
                                         placeholder="Recipient"
+                                        isClearable
+                                        styles={customSelectStyles}
+                                        classNamePrefix="react-select"
+                                    />
+                                </div>
+
+                                {/* Office / College Filter */}
+                                <div className="w-full sm:w-56">
+                                    <Select
+                                        value={filterDepartment}
+                                        onChange={setFilterDepartment}
+                                        options={divisionOptions}
+                                        placeholder="Office / College"
                                         isClearable
                                         styles={customSelectStyles}
                                         classNamePrefix="react-select"
@@ -277,10 +311,10 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                             <td colSpan={8} className="px-4 lg:px-8 py-12 text-center text-gray-500">
                                                 <EmptyState
                                                     title="No issuance records found"
-                                                    description={searchTerm || filterRecipient ? "Try adjusting your search terms or filter criteria." : "No issuance transactions have been recorded yet."}
-                                                    isSearch={Boolean(searchTerm || filterRecipient)}
+                                                    description={searchTerm || filterRecipient || filterDepartment ? "Try adjusting your search terms or filter criteria." : "No issuance transactions have been recorded yet."}
+                                                    isSearch={Boolean(searchTerm || filterRecipient || filterDepartment)}
                                                     action={
-                                                        !searchTerm && !filterRecipient ? (
+                                                        !searchTerm && !filterRecipient && !filterDepartment ? (
                                                             <Link
                                                                 href={route('inventory.issuance.create')}
                                                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-950 text-white rounded text-xs font-semibold hover:bg-red-900"
@@ -307,11 +341,18 @@ export default function Issuance({ auth, issuances, items }: { auth: any, issuan
                                                     ₱{Number(issuance.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </td>
                                                 <td className="px-4 lg:px-6 py-4 text-sm text-gray-700">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-full bg-red-950/10 text-red-950 border border-red-950/20 flex items-center justify-center text-xs font-bold font-mono">
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="w-7 h-7 rounded-full bg-red-950/10 text-red-950 border border-red-950/20 flex items-center justify-center text-xs font-bold font-mono shrink-0">
                                                             {issuance.recipient.charAt(0)}
                                                         </div>
-                                                        <span className="break-words font-medium">{issuance.recipient}</span>
+                                                        <div className="min-w-0">
+                                                            <span className="break-words font-medium text-gray-900 block">{issuance.recipient}</span>
+                                                            {issuance.department && (
+                                                                <span className="text-[11px] text-gray-500 font-mono block truncate max-w-[200px]" title={issuance.department}>
+                                                                    {issuance.department}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-mono">{issuance.date}</td>

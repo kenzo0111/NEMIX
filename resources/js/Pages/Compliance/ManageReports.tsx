@@ -16,6 +16,7 @@ interface ManageReportsProps {
     items?: any[];
     reports?: any[];
     issuances?: any[];
+    receivings?: any[];
     suppliers?: any[];
     migratedRecords?: any[];
 }
@@ -25,6 +26,7 @@ export default function ManageReports({
     items = [],
     reports: serverReports = [],
     issuances = [],
+    receivings = [],
     suppliers = [],
     migratedRecords = [],
 }: ManageReportsProps) {
@@ -74,7 +76,7 @@ export default function ManageReports({
             quantity: r.quantity || r.payload?.quantity,
             recipient: r.endUser || r.recipient || r.payload?.endUser || '',
             department: r.department || r.payload?.department || 'SPMO Central',
-            status: r.status || 'submitted',
+            status: String(r.status || '').toLowerCase().includes('historical') ? 'historical_migration' : 'generated',
             date: r.date || r.generatedDate || (r.created_at ? String(r.created_at).split('T')[0] : ''),
             payload: r.payload || {},
             source: 'official',
@@ -168,6 +170,7 @@ export default function ManageReports({
                 reports={combinedReports}
                 items={items}
                 issuances={issuances}
+                receivings={receivings}
                 suppliers={suppliers}
                 migratedRecords={migratedRecords}
                 onClose={() => setShowGenerator(false)}
@@ -191,6 +194,7 @@ export default function ManageReports({
                 report={viewingReport}
                 items={items}
                 issuances={issuances}
+                receivings={receivings}
                 suppliers={suppliers}
                 onClose={() => setViewingReport(null)}
             />

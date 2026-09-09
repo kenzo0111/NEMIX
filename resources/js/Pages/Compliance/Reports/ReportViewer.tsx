@@ -32,6 +32,7 @@ interface ReportViewerProps {
     report: any | null;
     items?: any[];
     issuances?: any[];
+    receivings?: any[];
     suppliers?: any[];
     onClose: () => void;
 }
@@ -41,6 +42,7 @@ export default function ReportViewer({
     report,
     items = [],
     issuances = [],
+    receivings = [],
     suppliers = [],
     onClose,
 }: ReportViewerProps) {

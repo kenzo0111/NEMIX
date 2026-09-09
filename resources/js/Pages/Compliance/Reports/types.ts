@@ -81,7 +81,7 @@ export interface ReportFormData {
     postedByDesignation: string;
     receivedFrom: string;
     receivedFromDesignation: string;
-    status: 'draft' | 'submitted' | 'approved' | 'archived';
+    status: 'draft' | 'submitted' | 'approved' | 'archived' | 'generated' | 'historical_migration';
     itemsData?: any[];
     [key: string]: any;
 }

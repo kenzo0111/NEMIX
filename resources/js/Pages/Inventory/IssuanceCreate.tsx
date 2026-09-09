@@ -5,6 +5,7 @@ import PageHeader from '@/Components/Common/PageHeader';
 import Toast, { useToast } from '@/Components/Common/Toast';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
+import { divisionOptions, findDivisionOption } from '@/constants/offices';
 import {
     ArrowLeft,
     ArrowRight,
@@ -57,7 +58,22 @@ const selectStyles = {
         cursor: 'pointer',
         fontSize: '0.875rem',
     }),
+    groupHeading: (provided: any) => ({
+        ...provided,
+        fontSize: '0.7rem',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        color: '#7f1d1d',
+        backgroundColor: '#fef2f2',
+        padding: '6px 12px',
+        letterSpacing: '0.05em',
+        fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+    }),
     menu: (provided: any) => ({ ...provided, zIndex: 60 }),
+    menuList: (provided: any) => ({
+        ...provided,
+        maxHeight: '260px',
+    }),
 };
 
 export default function IssuanceCreate({ auth, items = [] }: IssuanceCreateProps) {
@@ -121,26 +137,9 @@ export default function IssuanceCreate({ auth, items = [] }: IssuanceCreateProps
         { value: '07', label: '07 - Trust Receipts' },
     ];
 
-    const divisionOptions = [
-        { value: 'Admission Office', label: 'Admission Office' },
-        { value: 'Alumni Affairs Office', label: 'Alumni Affairs Office' },
-        { value: 'Auxiliary Services Division (ASD)', label: 'Auxiliary Services Division (ASD)' },
-        { value: 'Center for Equity, Inclusivity and Diversity (CEID)', label: 'Center for Equity, Inclusivity and Diversity (CEID)' },
-        { value: 'Culture and Performing Arts Unit (CPAU)', label: 'Culture and Performing Arts Unit (CPAU)' },
-        { value: 'Extension Services Division (ESD)', label: 'Extension Services Division (ESD)' },
-        { value: 'General Services Office (GSO)', label: 'General Services Office (GSO)' },
-        { value: 'Guidance and Counseling Office', label: 'Guidance and Counseling Office' },
-        { value: 'Information Technology Services Office (ITSO)', label: 'Information Technology Services Office (ITSO)' },
-        { value: 'Library', label: 'Library' },
-        { value: 'Medical and Dental Services', label: 'Medical and Dental Services' },
-        { value: 'Office of Student Services and Development (OSSD)', label: 'Office of Student Services and Development (OSSD)' },
-        { value: 'Office of the President (OP)', label: 'Office of the President (OP)' },
-        { value: 'Office of the Vice President for Academic Affairs (OVPAA)', label: 'Office of the Vice President for Academic Affairs (OVPAA)' },
-        { value: 'Office of the Vice President for Administration and Finance', label: 'Office of the Vice President for Administration and Finance' },
-        { value: 'Planning and Development Office', label: 'Planning and Development Office' },
-        { value: 'Public Information and Community Relations Office (PICRO)', label: 'Public Information and Community Relations Office (PICRO)' },
-        { value: 'Supply & Property Management Office (SPMO)', label: 'Supply & Property Management Office (SPMO)' },
-    ];
+    const selectedDivisionOption = useMemo(() => {
+        return findDivisionOption(department);
+    }, [department]);
 
     const availableItemsMap = useMemo(() => {
         const map = new Map<number, ItemOption>();
@@ -434,8 +433,8 @@ export default function IssuanceCreate({ auth, items = [] }: IssuanceCreateProps
                                             <Select
                                                 styles={selectStyles}
                                                 options={divisionOptions}
-                                                value={divisionOptions.find((d) => d.value === department) || (department ? { value: department, label: department } : null)}
-                                                onChange={(opt) => {
+                                                value={selectedDivisionOption}
+                                                onChange={(opt: any) => {
                                                     setDepartment(opt ? opt.value : '');
                                                     if (stepErrors.department) {
                                                         setStepErrors((prev) => {
@@ -445,7 +444,9 @@ export default function IssuanceCreate({ auth, items = [] }: IssuanceCreateProps
                                                         });
                                                     }
                                                 }}
-                                                placeholder="Search university offices..."
+                                                placeholder="Select or search requesting office or college..."
+                                                isSearchable
+                                                isClearable
                                             />
                                             {stepErrors.department && (
                                                 <p className="text-xs text-red-600 mt-1 font-medium flex items-center gap-1">

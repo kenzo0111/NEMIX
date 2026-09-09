@@ -10,6 +10,7 @@ interface ReportGeneratorProps {
     reports?: any[];
     items?: any[];
     issuances?: any[];
+    receivings?: any[];
     suppliers?: any[];
     migratedRecords?: any[];
     onClose: () => void;
@@ -43,6 +44,7 @@ export default function ReportGenerator({
     reports = [],
     items = [],
     issuances = [],
+    receivings = [],
     suppliers = [],
     migratedRecords = [],
     onClose,
@@ -113,103 +115,305 @@ export default function ReportGenerator({
         { value: 12, label: 'December' },
     ];
 
+    // Build comprehensive item list from all database tables
     const itemOptions = useMemo(() => {
         const unique = new Map<string, string>();
+
+        // 1. Database inventory items
         items.forEach((item: any) => {
-            if (item.name) unique.set(item.name, `${item.name} (${item.sku || 'No SKU'})`);
+            if (item.name) {
+                const stockLabel = item.stock !== undefined ? ` — Stock: ${item.stock}` : '';
+                unique.set(item.name, `${item.name} (${item.sku || 'No SKU'})${stockLabel}`);
+            }
         });
+
+        // 2. Database issuances
+        issuances.forEach((iss: any) => {
+            const name = typeof iss.item === 'string'
+                ? iss.item
+                : (iss.item?.name || iss.item_name || iss.itemName);
+            if (name && !unique.has(name)) {
+                unique.set(name, `${name} (${iss.sku || 'Issued Item'})`);
+            }
+        });
+
+        // 3. Database receivings
+        receivings.forEach((rec: any) => {
+            const name = typeof rec.item === 'string'
+                ? rec.item
+                : (rec.item?.name || rec.item_name || rec.itemName);
+            if (name && !unique.has(name)) {
+                unique.set(name, `${name} (${rec.sku || 'Received Item'})`);
+            }
+        });
+
+        // 4. Migrated historical records
+        migratedRecords.forEach((m: any) => {
+            const name = m.item_name || m.item || m.article;
+            if (name && !unique.has(name)) {
+                unique.set(name, `${name} (${m.stock_no || m.reference || 'Historical Record'})`);
+            }
+        });
+
         return Array.from(unique.entries()).map(([name, label]) => ({
             value: name,
             label,
         }));
-    }, [items]);
+    }, [items, issuances, receivings, migratedRecords]);
+
+    // Default to first item from database if available
+    useEffect(() => {
+        if (!selectedItemName && itemOptions.length > 0) {
+            setSelectedItemName(itemOptions[0].value);
+        }
+    }, [itemOptions, selectedItemName]);
 
     const buildGeneratedPayload = () => {
         let itemsData: any[] = [];
 
         if (formType === 'RSMI') {
-            // Filter issuances by selected month/year
-            const monthIssuances = issuances.filter((issue: any) => {
-                if (!issue.date) return false;
-                const d = new Date(issue.date);
-                return d.getMonth() + 1 === Number(selectedMonth) && d.getFullYear() === Number(selectedYear);
+            // 1. Filter issuances by selected month/year
+            let matchedIssuances = issuances.filter((issue: any) => {
+                const dateVal = issue.date || issue.date_issued || issue.created_at;
+                if (!dateVal) return false;
+                const d = new Date(dateVal);
+                return (
+                    d.getMonth() + 1 === Number(selectedMonth) &&
+                    d.getFullYear() === Number(selectedYear)
+                );
             });
 
-            itemsData = monthIssuances.map((iss: any) => ({
-                risNo: iss.sku || reference,
-                responsibilityCenterCode: iss.department || 'SPMO',
-                stockNo: iss.sku || '',
-                item: iss.item || 'Consumable Supply',
-                unit: 'pc',
-                quantityIssued: iss.quantity || 1,
-                unitCost: iss.unit_cost || 0,
-                amount: iss.amount || 0,
-            }));
+            // 2. Check migrated RSMI matching month/year if no live issuances found
+            if (matchedIssuances.length === 0) {
+                matchedIssuances = migratedRecords.filter((m: any) => {
+                    if (m.form_type !== 'RSMI' && m.type !== 'RSMI') return false;
+                    const dateVal = m.date || m.created_at;
+                    if (!dateVal) return false;
+                    const d = new Date(dateVal);
+                    return (
+                        d.getMonth() + 1 === Number(selectedMonth) &&
+                        d.getFullYear() === Number(selectedYear)
+                    );
+                });
+            }
 
-            if (itemsData.length === 0) {
-                // Add fallback item row if month has no issuances
+            // 3. If still none for the exact month, pull all available issuances or migrated RSMI records
+            if (matchedIssuances.length === 0) {
+                if (issuances.length > 0) {
+                    matchedIssuances = issuances;
+                } else {
+                    const rsmiMigrated = migratedRecords.filter((m: any) => m.form_type === 'RSMI' || m.type === 'RSMI');
+                    if (rsmiMigrated.length > 0) {
+                        matchedIssuances = rsmiMigrated;
+                    }
+                }
+            }
+
+            // 4. Map into RSMI items from database
+            if (matchedIssuances.length > 0) {
+                itemsData = matchedIssuances.map((iss: any) => {
+                    const itemName = typeof iss.item === 'string'
+                        ? iss.item
+                        : (iss.item?.name || iss.item_name || iss.itemName || 'Consumable Supply');
+                    const sku = iss.sku || iss.item?.sku || iss.stock_no || iss.stockNo || '';
+                    const unitCost = Number(iss.unit_cost || iss.unitCost || iss.item?.unit_cost || 0);
+                    const qty = Number(iss.quantity || iss.quantity_issued || 1);
+                    const amount = Number(iss.amount || (qty * unitCost) || 0);
+
+                    return {
+                        risNo: iss.ris_no || iss.reference || sku || reference,
+                        responsibilityCenterCode: iss.department || iss.center_code || iss.responsibility_center_code || 'SPMO Central',
+                        stockNo: sku,
+                        item: itemName,
+                        itemDescription: itemName,
+                        unit: iss.unit || iss.item?.unit_of_issue || 'pc',
+                        quantityIssued: qty,
+                        unitCost: unitCost,
+                        amount: amount,
+                    };
+                });
+            } else if (items.length > 0) {
+                // If no issuances exist yet, populate RSMI directly from active inventory items
+                itemsData = items.map((it: any) => {
+                    const unitCost = Number(it.unit_cost || it.unitCost || 0);
+                    const qty = Number(it.stock > 0 ? it.stock : 1);
+                    return {
+                        risNo: it.sku || reference,
+                        responsibilityCenterCode: 'SPMO Central',
+                        stockNo: it.sku || '',
+                        item: it.name,
+                        itemDescription: it.name,
+                        unit: it.unit_of_issue || it.unitOfIssue || 'pc',
+                        quantityIssued: qty,
+                        unitCost: unitCost,
+                        amount: qty * unitCost,
+                    };
+                });
+            }
+        } else if (formType === 'RPCI') {
+            let rpciSource = items;
+            if (rpciSource.length === 0) {
+                rpciSource = migratedRecords.filter((m: any) => m.form_type === 'RPCI' || m.type === 'RPCI');
+            }
+            if (rpciSource.length === 0) {
+                rpciSource = migratedRecords;
+            }
+
+            itemsData = rpciSource.map((item: any) => {
+                const article = item.name || item.item_name || item.item || item.article || 'Consumable Property';
+                const description = item.description || item.name || item.item_name || item.item || '';
+                const stockNo = item.sku || item.stock_no || item.reference || '';
+                const unit = item.unit_of_issue || item.unitOfIssue || item.unit || 'pc';
+                const unitCost = Number(item.unit_cost || item.unitCost || item.unit_value || 0);
+                const stockQty = Number(item.stock ?? item.quantity ?? item.quantity_per_books ?? 0);
+
+                return {
+                    article,
+                    description,
+                    stockNo,
+                    unit,
+                    unitCost,
+                    quantityPerBooks: stockQty,
+                    physicalCount: Number(item.physical_count ?? stockQty),
+                    shortageQty: item.shortage_qty || item.variance || '',
+                    shortageValue: item.shortage_value || '',
+                    remarks: item.status || item.remarks || 'Available',
+                };
+            });
+        } else if (formType === 'STOCK_CARD') {
+            const targetItem = items.find((i) => (i.name || '').toLowerCase() === (selectedItemName || '').toLowerCase())
+                || items.find((i) => String(i.id) === String(selectedItemName))
+                || items[0];
+
+            const activeItemName = targetItem?.name || selectedItemName || '';
+
+            // Match issuances from database
+            const matchedIssuances = issuances.filter((i: any) => {
+                const name = typeof i.item === 'string' ? i.item : (i.item?.name || i.item_name || i.itemName || '');
+                return !activeItemName || name.toLowerCase() === activeItemName.toLowerCase();
+            });
+
+            // Match receivings from database
+            const matchedReceivings = (receivings || []).filter((r: any) => {
+                const name = typeof r.item === 'string' ? r.item : (r.item?.name || r.item_name || r.itemName || '');
+                return !activeItemName || name.toLowerCase() === activeItemName.toLowerCase();
+            });
+
+            // Match migrated stock card records
+            const matchedMigrated = migratedRecords.filter((m: any) => {
+                if (m.form_type !== 'STOCK_CARD' && m.type !== 'STOCK_CARD') return false;
+                const name = m.item_name || m.item || m.article || '';
+                return !activeItemName || name.toLowerCase() === activeItemName.toLowerCase();
+            });
+
+            const combinedMovements: any[] = [];
+
+            matchedReceivings.forEach((rec: any) => {
+                combinedMovements.push({
+                    date: rec.date || rec.date_received || reportDate,
+                    reference: rec.sku || rec.reference || `REC-${rec.id}`,
+                    receiptQty: Number(rec.quantity || 0),
+                    issueQty: 0,
+                    issueOffice: rec.supplier_name || 'Delivery / Supplier',
+                    remarks: 'Stock In / Received',
+                });
+            });
+
+            matchedIssuances.forEach((iss: any) => {
+                combinedMovements.push({
+                    date: iss.date || iss.date_issued || reportDate,
+                    reference: iss.sku || iss.reference || `ISS-${iss.id}`,
+                    receiptQty: 0,
+                    issueQty: Number(iss.quantity || iss.quantity_issued || 0),
+                    issueOffice: iss.recipient || iss.department || 'Office Requisition',
+                    remarks: iss.purpose || 'Stock Out / Issued',
+                });
+            });
+
+            matchedMigrated.forEach((m: any) => {
+                combinedMovements.push({
+                    date: m.date || reportDate,
+                    reference: m.reference || m.stock_no || `MIG-${m.id}`,
+                    receiptQty: Number(m.receipt_qty ?? (m.quantity && !m.quantity_issued ? m.quantity : 0)),
+                    issueQty: Number(m.issue_qty ?? m.quantity_issued ?? 0),
+                    issueOffice: m.department || m.recipient || m.source || 'Historical Movement',
+                    remarks: m.remarks || 'Migrated Ledger Entry',
+                });
+            });
+
+            if (combinedMovements.length > 0) {
+                combinedMovements.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                let runningBalance = 0;
+                itemsData = combinedMovements.map((mov) => {
+                    runningBalance += (mov.receiptQty - mov.issueQty);
+                    return {
+                        ...mov,
+                        balanceQty: runningBalance >= 0 ? runningBalance : (targetItem?.stock || 0),
+                    };
+                });
+            } else if (targetItem) {
                 itemsData = [
                     {
-                        risNo: reference,
-                        responsibilityCenterCode: 'SPMO',
-                        stockNo: 'STK-001',
-                        item: 'Consumable Office Supplies',
-                        unit: 'pc',
-                        quantityIssued: 1,
-                        unitCost: 0,
-                        amount: 0,
+                        date: reportDate,
+                        reference: targetItem.sku || reference,
+                        receiptQty: Number(targetItem.stock || 0),
+                        issueQty: 0,
+                        issueOffice: 'SPMO Central Inventory',
+                        balanceQty: Number(targetItem.stock || 0),
+                        remarks: 'Beginning Inventory Balance',
                     },
                 ];
             }
-        } else if (formType === 'RPCI') {
-            itemsData = items.map((item: any) => ({
-                article: item.name,
-                description: item.description || item.name,
-                stockNo: item.sku || '',
-                unit: item.unit_of_issue || 'pc',
-                unitCost: item.unit_cost || 0,
-                quantityPerBooks: item.stock || 0,
-                physicalCount: item.stock || 0,
-                shortageQty: '',
-                shortageValue: '',
-                remarks: item.status || 'Available',
-            }));
-        } else if (formType === 'STOCK_CARD') {
-            const targetItem = items.find((i) => i.name === selectedItemName) || items[0];
-            const itemIssuances = issuances.filter((i) => i.item === selectedItemName);
-
-            itemsData = itemIssuances.map((iss: any) => ({
-                date: iss.date || reportDate,
-                reference: iss.sku || reference,
-                receiptQty: 0,
-                issueQty: iss.quantity || 0,
-                issueOffice: iss.recipient || iss.department || '',
-                balanceQty: targetItem?.stock || 0,
-                remarks: iss.purpose || '',
-            }));
         } else {
-            // MR
-            itemsData = [
-                {
-                    quantity: 1,
-                    unit: 'unit',
-                    description: selectedItemName || 'Consumable / Property Item',
-                    propertyNo: reference,
-                    dateAcquired: reportDate,
-                    amount: 0,
-                },
-            ];
+            // MR (Memorandum Receipt - Appendix 63)
+            const targetItem = items.find((i) => (i.name || '').toLowerCase() === (selectedItemName || '').toLowerCase())
+                || items.find((i) => String(i.id) === String(selectedItemName));
+
+            if (targetItem) {
+                itemsData = [
+                    {
+                        quantity: 1,
+                        unit: targetItem.unit_of_issue || targetItem.unitOfIssue || 'unit',
+                        description: targetItem.description || targetItem.name,
+                        propertyNo: targetItem.sku || reference,
+                        dateAcquired: reportDate,
+                        amount: Number(targetItem.unit_cost || targetItem.unitCost || targetItem.amount || 0),
+                    },
+                ];
+            } else {
+                const mrRecords = migratedRecords.filter((m: any) => m.form_type === 'MR' || m.type === 'MR');
+                if (mrRecords.length > 0) {
+                    itemsData = mrRecords.map((m: any) => ({
+                        quantity: Number(m.quantity || m.quantity_issued || 1),
+                        unit: m.unit || 'unit',
+                        description: m.item_name || m.item || m.description || 'Property Item',
+                        propertyNo: m.property_no || m.stock_no || m.reference || reference,
+                        dateAcquired: m.date || reportDate,
+                        amount: Number(m.amount || m.unit_cost || 0),
+                    }));
+                } else if (items.length > 0) {
+                    itemsData = items.slice(0, 10).map((it: any) => ({
+                        quantity: 1,
+                        unit: it.unit_of_issue || it.unitOfIssue || 'unit',
+                        description: it.description || it.name,
+                        propertyNo: it.sku || reference,
+                        dateAcquired: reportDate,
+                        amount: Number(it.unit_cost || it.unitCost || 0),
+                    }));
+                }
+            }
         }
 
         return {
             type: formType,
             reference,
             title: `${formType} - ${reference}`,
-            status: 'approved',
+            status: 'generated',
             date: reportDate,
-            itemName: selectedItemName || (itemsData[0]?.item || itemsData[0]?.article || ''),
+            itemName: selectedItemName || (itemsData[0]?.item || itemsData[0]?.article || itemsData[0]?.description || ''),
             recipient: accountableOfficer,
             department: 'SPMO Central',
+            quantity: itemsData.reduce((acc, curr) => acc + Number(curr.quantity || curr.quantityIssued || curr.issueQty || curr.receiptQty || 1), 0),
             itemsData,
             payload: {
                 entityName,
@@ -243,7 +447,7 @@ export default function ReportGenerator({
             return;
         }
 
-        if (formType === 'STOCK_CARD' && !selectedItemName) {
+        if (formType === 'STOCK_CARD' && !selectedItemName && itemOptions.length > 0) {
             setErrors({ item: 'Please select an inventory item for the Stock Card.' });
             return;
         }
@@ -259,14 +463,14 @@ export default function ReportGenerator({
                 title: payload.title,
                 status: payload.status,
                 itemName: payload.itemName,
-                supplierId: '',
+                supplierId: null,
                 supplierName: '',
                 endUser: accountableOfficer,
                 generatedDate: todayStr,
                 periodType: 'specific',
                 date: reportDate,
-                startDate: '',
-                endDate: '',
+                startDate: null,
+                endDate: null,
                 selectedMonth,
                 selectedYear,
                 payload: payload.payload,
@@ -394,20 +598,26 @@ export default function ReportGenerator({
                         </div>
                     )}
 
-                    {formType === 'STOCK_CARD' && (
+                    {(formType === 'STOCK_CARD' || formType === 'MR') && (
                         <div className="p-4 rounded-lg bg-amber-50/50 border border-amber-100 space-y-3">
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider font-mono mb-1">
-                                    Select Inventory Item <span className="text-red-600">*</span>
+                                    Select Inventory / Property Item {formType === 'STOCK_CARD' && <span className="text-red-600">*</span>}
                                 </label>
                                 <Select
                                     styles={selectStyles}
                                     options={itemOptions}
-                                    value={itemOptions.find((i) => i.value === selectedItemName)}
+                                    value={itemOptions.find((i) => i.value === selectedItemName) || null}
                                     onChange={(opt) => opt && setSelectedItemName(opt.value)}
-                                    placeholder="Select consumable item..."
+                                    placeholder={formType === 'STOCK_CARD' ? 'Select inventory item from database...' : 'Select property item (or leave blank to compile all property)...'}
+                                    isClearable={formType === 'MR'}
                                 />
                                 {errors.item && <p className="text-xs text-red-600 mt-1">{errors.item}</p>}
+                                <p className="text-[11px] text-gray-500 font-medium mt-1">
+                                    {formType === 'STOCK_CARD'
+                                        ? 'Select the inventory supply item to compile continuous ledger cards from receipts and issuances.'
+                                        : 'Select an inventory property/equipment item for individual Memorandum Receipt, or leave blank to compile institutional property records.'}
+                                </p>
                             </div>
                         </div>
                     )}

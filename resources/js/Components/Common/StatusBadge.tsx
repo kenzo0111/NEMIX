@@ -30,7 +30,8 @@ export default function StatusBadge({
             normalized === 'active' ||
             normalized === 'success' ||
             normalized === 'verified' ||
-            normalized === 'compliant'
+            normalized === 'compliant' ||
+            normalized === 'generated'
         ) {
             return 'success';
         }
@@ -60,7 +61,9 @@ export default function StatusBadge({
         if (
             normalized === 'updated' ||
             normalized === 'modified' ||
-            normalized === 'processing'
+            normalized === 'processing' ||
+            normalized === 'historical migration' ||
+            normalized === 'historical_migration'
         ) {
             return 'info';
         }
@@ -92,13 +95,14 @@ export default function StatusBadge({
     };
 
     const style = variantStyles[resolvedVariant];
+    const displayStatus = (status || '').replace(/_/g, ' ');
 
     return (
         <span
             className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold border tracking-wide uppercase font-mono ${style.container} ${className}`}
         >
             {dot && <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />}
-            {status}
+            {displayStatus}
         </span>
     );
 }
