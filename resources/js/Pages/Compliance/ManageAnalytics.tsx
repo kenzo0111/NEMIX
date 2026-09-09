@@ -521,28 +521,43 @@ export default function ManageAnalytics({ auth }: { auth: any }) {
 
                     {/* Quick Statistics Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4">
-                        {overviewCards.map((stat, i) => (
-                            <button
-                                key={i}
-                                type="button"
-                                onClick={stat.clickable ? () => setShowAllItems(true) : undefined}
-                                className={`bg-white rounded-lg p-4 shadow-xs border border-gray-200 border-t-2 border-t-red-900 flex flex-col justify-between text-left transition-all ${stat.clickable ? 'cursor-pointer hover:shadow-md hover:border-gray-300 focus:outline-none focus:ring-1 focus:ring-red-900' : ''}`}
-                            >
-                                <div className="flex justify-between items-start mb-2.5">
-                                    <div className={`p-2 rounded ${stat.bg} border border-gray-200`}>
-                                        {stat.icon}
+                        {overviewCards.map((stat, i) => {
+                            const CardContent = (
+                                <>
+                                    <div className="flex justify-between items-start mb-2.5">
+                                        <div className={`p-2 rounded ${stat.bg} border border-gray-200`}>
+                                            {stat.icon}
+                                        </div>
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider font-mono ${stat.trendUp ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+                                            {stat.trend}
+                                        </span>
                                     </div>
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider font-mono ${stat.trendUp ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
-                                        {stat.trend}
-                                    </span>
+                                    <div>
+                                        <h3 className="text-xl lg:text-2xl font-bold text-gray-900 tracking-tight font-sans truncate">{stat.value}</h3>
+                                        <p className="text-xs font-bold text-gray-700 truncate uppercase tracking-wider mt-1">{stat.label}</p>
+                                        <p className="text-[11px] font-medium text-gray-500 mt-0.5">{stat.sub}</p>
+                                    </div>
+                                </>
+                            );
+
+                            return stat.clickable ? (
+                                <button
+                                    key={i}
+                                    type="button"
+                                    onClick={() => setShowAllItems(true)}
+                                    className="bg-white rounded-lg p-4 shadow-xs border border-gray-200 border-t-2 border-t-red-900 flex flex-col justify-between text-left transition-all cursor-pointer hover:shadow-md hover:border-gray-300 focus:outline-none focus:ring-1 focus:ring-red-900"
+                                >
+                                    {CardContent}
+                                </button>
+                            ) : (
+                                <div
+                                    key={i}
+                                    className="bg-white rounded-lg p-4 shadow-xs border border-gray-200 border-t-2 border-t-red-900 flex flex-col justify-between text-left"
+                                >
+                                    {CardContent}
                                 </div>
-                                <div>
-                                    <h3 className="text-xl lg:text-2xl font-bold text-gray-900 tracking-tight font-sans truncate">{stat.value}</h3>
-                                    <p className="text-xs font-bold text-gray-700 truncate uppercase tracking-wider mt-1">{stat.label}</p>
-                                    <p className="text-[11px] font-medium text-gray-500 mt-0.5">{stat.sub}</p>
-                                </div>
-                            </button>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     {/* Analytics Charts Grid */}

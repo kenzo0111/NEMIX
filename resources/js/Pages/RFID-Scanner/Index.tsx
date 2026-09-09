@@ -123,6 +123,7 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
         if (!isScannerActive) return;
 
         const checkLiveFeed = async () => {
+            if (typeof document !== 'undefined' && document.hidden) return;
             try {
                 const response = await fetch('/rfid-scanner/live-feed');
                 if (!response.ok) return;

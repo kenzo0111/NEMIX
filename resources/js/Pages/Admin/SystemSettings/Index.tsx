@@ -345,6 +345,14 @@ export default function Index({ auth, system, groupedSettings = {}, telemetry }:
                             </div>
 
                             <div className="flex items-center gap-2.5 pl-2 border-l border-gray-200">
+                                <a
+                                    href={route('system.settings.backup')}
+                                    className="px-3.5 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                                    title="Export JSON Configuration Snapshot"
+                                >
+                                    <Download className="w-3.5 h-3.5 text-gray-500" />
+                                    <span className="hidden sm:inline">Export Snapshot</span>
+                                </a>
                                 {isDirty && (
                                     <button
                                         type="button"
@@ -376,107 +384,7 @@ export default function Index({ auth, system, groupedSettings = {}, telemetry }:
 
                 {/* Main Content Body */}
                 <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16">
-                    {/* Welcome / System Overview Banner (Dashboard Signature Maroon & Gold Banner) */}
-                    <div className="bg-red-950 text-white rounded-lg border border-red-900 border-l-4 border-l-amber-400 p-6 lg:p-7 shadow-xs relative overflow-hidden">
-                        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-96 h-96 bg-red-800/20 rounded-full blur-3xl pointer-events-none"></div>
-                        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
-                            <div className="max-w-3xl space-y-2.5">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-red-900/90 border border-red-800 text-[11px] font-bold text-amber-300 uppercase tracking-wider font-mono">
-                                    <span className="relative flex h-2 w-2">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                                    </span>
-                                    Official System Configuration: Active & Enforced
-                                </div>
-                                <h1 className="text-2xl lg:text-3xl font-bold font-serif leading-tight text-white tracking-tight">
-                                    University Supply & Inventory Policy Engine
-                                </h1>
-                                <p className="text-red-100/90 text-sm font-normal leading-relaxed">
-                                    Authorized configuration console for <strong className="text-white">{user?.name}</strong>. Manage institutional letterheads, authorized document signatories, consumable safety reorder thresholds, barcode/RFID debounce delays, and terminal security.
-                                </p>
-                            </div>
-
-                            <div className="shrink-0 w-full lg:w-auto flex flex-wrap gap-2.5">
-                                <a
-                                    href={route('system.settings.backup')}
-                                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-400 text-red-950 rounded font-bold text-xs uppercase tracking-wider hover:bg-amber-300 transition-colors shadow-xs border border-amber-300"
-                                >
-                                    <Download className="w-4 h-4 text-red-950" />
-                                    <span>Export Policy Snapshot</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Executive KPI Stat Cards Grid (Dashboard Signature 5-Card Row) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-4">
-                        {[
-                            {
-                                label: 'Policy Domains',
-                                value: `${tabs.length} Modules`,
-                                sub: 'Branding, Stocks, Security',
-                                trend: 'Active',
-                                trendUp: true,
-                                icon: <Sliders className="w-4 h-4 text-red-900" />,
-                            },
-                            {
-                                label: 'Low-Stock Reorder Point',
-                                value: `${data.settings['inventory.low_stock_threshold'] ?? 10} Units`,
-                                sub: 'Global Safety Threshold',
-                                trend: 'Enforced',
-                                trendUp: true,
-                                icon: <PackageSearch className="w-4 h-4 text-red-900" />,
-                            },
-                            {
-                                label: 'Critical Alert Point',
-                                value: `${data.settings['inventory.critical_stock_threshold'] ?? 3} Units`,
-                                sub: 'Emergency Replenishment',
-                                trend: 'Urgent',
-                                trendUp: false,
-                                icon: <AlertCircle className="w-4 h-4 text-amber-800" />,
-                            },
-                            {
-                                label: 'Official Signatories',
-                                value: '8 Accountable',
-                                sub: 'RIS, RSMI, RPCI, Cards',
-                                trend: Boolean(data.settings['signatories.ris_oic_active']) ? 'OIC On' : 'Standard',
-                                trendUp: true,
-                                icon: <PenTool className="w-4 h-4 text-red-900" />,
-                            },
-                            {
-                                label: 'Session Auto-Logout',
-                                value: `${data.settings['security.session_timeout_minutes'] ?? 30} Mins`,
-                                sub: 'Terminal Inactivity Lock',
-                                trend: 'Secured',
-                                trendUp: true,
-                                icon: <ShieldCheck className="w-4 h-4 text-emerald-800" />,
-                            },
-                        ].map((stat, i) => (
-                            <div key={i} className="bg-white rounded-lg p-4 shadow-xs border border-gray-200 border-t-2 border-t-red-900 flex flex-col justify-between hover:shadow-xs transition-shadow">
-                                <div className="flex justify-between items-start mb-2.5">
-                                    <div className="p-2 rounded bg-red-50 border border-gray-200">
-                                        {stat.icon}
-                                    </div>
-                                    <span
-                                        className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider font-mono ${
-                                            stat.trendUp
-                                                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                                                : 'bg-amber-50 text-amber-800 border border-amber-200'
-                                        }`}
-                                    >
-                                        {stat.trend}
-                                    </span>
-                                </div>
-                                <div>
-                                    <h3 className="text-2xl font-bold text-gray-900 tracking-tight font-sans">{stat.value}</h3>
-                                    <p className="text-xs font-bold text-gray-700 truncate uppercase tracking-wider mt-1">{stat.label}</p>
-                                    <p className="text-[11px] font-medium text-gray-500 mt-0.5">{stat.sub}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Main Settings Section Card (built like Dashboard's Movement & Audit container) */}
+                    {/* Main Settings Section Card */}
                     <div className="bg-white rounded-2xl shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] border border-slate-200/80 flex flex-col overflow-hidden">
                         {/* Modern Top Header & Segmented Tab Switcher (Apple/Linear style from Dashboard) */}
                         <div className="px-6 py-5 border-b border-slate-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/40">

@@ -247,7 +247,16 @@ class InventoryController extends Controller
                     'created_at' => $issuance->created_at ? $issuance->created_at->format('Y-m-d H:i:s') : '',
                 ];
             }),
-            'items' => $itemsQuery->get(['id', 'name', 'sku']),
+            'items' => $itemsQuery->get(['id', 'name', 'sku', 'stock', 'unit_cost', 'unit_of_issue']),
+        ]);
+    }
+
+    public function createIssuance()
+    {
+        $itemsQuery = ResourceOwnershipPolicy::scopeQuery(Item::query(), auth()->user());
+
+        return Inertia::render('Inventory/IssuanceCreate', [
+            'items' => $itemsQuery->where('stock', '>', 0)->get(['id', 'name', 'sku', 'stock', 'unit_cost', 'unit_of_issue']),
         ]);
     }
 

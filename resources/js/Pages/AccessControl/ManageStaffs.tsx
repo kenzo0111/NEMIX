@@ -22,6 +22,9 @@ import {
     Check,
     Shield
 } from 'lucide-react';
+import TablePagination from '@/Components/Common/TablePagination';
+import EmptyState from '@/Components/Common/EmptyState';
+import StatusBadge from '@/Components/Common/StatusBadge';
 
 interface Staff {
     id: number;
@@ -155,12 +158,22 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
     // Search and Filter States
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedStatusFilter, setSelectedStatusFilter] = useState<{ value: string; label: string } | null>(null);
+    const [selectedRoleFilter, setSelectedRoleFilter] = useState<{ value: string; label: string } | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     const roleOptions = useMemo(() => {
         return roles.length > 0
             ? roles.map((role) => ({ value: role, label: role }))
             : defaultRoleOptions;
     }, [roles]);
+
+    const roleFilterOptions = useMemo(() => {
+        return [
+            { value: '', label: 'All Roles' },
+            ...roleOptions,
+        ];
+    }, [roleOptions]);
 
     useEffect(() => {
         if (flash?.success) {
@@ -201,6 +214,9 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
             if (selectedStatusFilter?.value && staff.status !== selectedStatusFilter.value) {
                 return false;
             }
+            if (selectedRoleFilter?.value && staff.role !== selectedRoleFilter.value) {
+                return false;
+            }
             if (searchQuery.trim() !== '') {
                 const q = searchQuery.toLowerCase();
                 const nameMatch = staff.name.toLowerCase().includes(q);
@@ -211,7 +227,14 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
             }
             return true;
         });
-    }, [staffs, searchQuery, selectedStatusFilter]);
+    }, [staffs, searchQuery, selectedStatusFilter, selectedRoleFilter]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredStaffs.length / itemsPerPage));
+    const paginatedStaffs = filteredStaffs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, selectedStatusFilter, selectedRoleFilter]);
 
     // Statistics calculations
     const stats = useMemo(() => {
@@ -549,6 +572,16 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                                     )}
                                 </div>
 
+                                {/* Role Filter */}
+                                <Select
+                                    options={roleFilterOptions}
+                                    value={selectedRoleFilter}
+                                    onChange={(opt: any) => setSelectedRoleFilter(opt?.value ? opt : null)}
+                                    styles={selectStyles}
+                                    placeholder="Filter by Role"
+                                    isClearable
+                                />
+
                                 {/* Status Filter */}
                                 <Select
                                     options={statusFilterOptions}
@@ -560,10 +593,11 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                                 />
 
                                 {/* Reset Filter Button */}
-                                {(selectedStatusFilter || searchQuery) && (
+                                {(selectedStatusFilter || selectedRoleFilter || searchQuery) && (
                                     <button
                                         onClick={() => {
                                             setSelectedStatusFilter(null);
+                                            setSelectedRoleFilter(null);
                                             setSearchQuery('');
                                         }}
                                         className="px-2.5 py-1.5 text-xs font-bold text-red-900 hover:text-red-950 bg-red-50 hover:bg-red-100 border border-red-200 rounded transition-colors"
@@ -606,8 +640,8 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 text-xs">
-                                    {filteredStaffs.length > 0 ? (
-                                        filteredStaffs.map((staff) => (
+                                    {paginatedStaffs.length > 0 ? (
+                                        paginatedStaffs.map((staff) => (
                                             <tr key={staff.id} className="hover:bg-red-50/30 transition-colors group">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
@@ -627,13 +661,7 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border ${staff.status === 'Active'
-                                                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200/80'
-                                                        : 'bg-gray-100 text-gray-700 border-gray-300'
-                                                        }`}>
-                                                        <span className={`w-1.5 h-1.5 rounded-full ${staff.status === 'Active' ? 'bg-emerald-600' : 'bg-gray-400'}`}></span>
-                                                        {staff.status}
-                                                    </span>
+                                                    <StatusBadge status={staff.status} />
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex items-center justify-end gap-2">
@@ -695,22 +723,12 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
-                                                <div className="flex flex-col items-center gap-2">
-                                                    <Search className="w-8 h-8 text-gray-300" />
-                                                    <p className="font-medium text-gray-600">No staff accounts match your search criteria.</p>
-                                                    {(searchQuery || selectedStatusFilter) && (
-                                                        <button
-                                                            onClick={() => {
-                                                                setSearchQuery('');
-                                                                setSelectedStatusFilter(null);
-                                                            }}
-                                                            className="text-xs font-bold text-red-900 hover:underline"
-                                                        >
-                                                            Clear filters and search query
-                                                        </button>
-                                                    )}
-                                                </div>
+                                            <td colSpan={4} className="p-0">
+                                                <EmptyState
+                                                    title="No Staff Accounts Found"
+                                                    description={searchQuery || selectedStatusFilter || selectedRoleFilter ? "No staff accounts match your active search or filter criteria." : "No staff accounts have been registered yet."}
+                                                    isSearch={!!(searchQuery || selectedStatusFilter || selectedRoleFilter)}
+                                                />
                                             </td>
                                         </tr>
                                     )}
@@ -718,12 +736,15 @@ export default function ManageStaffs({ auth, staffs = [], roles = [] }: { auth: 
                             </table>
                         </div>
 
-                        {/* Table Footer */}
-                        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3">
-                            <span className="text-xs text-gray-500 font-medium">
-                                Showing <span className="font-bold text-gray-700">{filteredStaffs.length}</span> of <span className="font-bold text-gray-700">{staffs.length}</span> staff accounts
-                            </span>
-                        </div>
+                        {/* Standardized Pagination */}
+                        <TablePagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalItems={filteredStaffs.length}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={setCurrentPage}
+                            itemLabel="staff accounts"
+                        />
                     </div>
 
                     {/* Security System Advisory Banner */}

@@ -5,6 +5,8 @@ import { useState, useMemo, useEffect } from 'react';
 import Select from 'react-select';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import TablePagination from '@/Components/Common/TablePagination';
+import EmptyState from '@/Components/Common/EmptyState';
 import { Search, Shield, CheckCircle, AlertTriangle, Users, Key, RotateCcw } from 'lucide-react';
 
 const parseAuditTimestamp = (timestamp?: string | null) => {
@@ -40,32 +42,13 @@ const formatAuditTimestamp = (timestamp: string | null | undefined) => {
     return `${datePart} • ${timePart}`;
 };
 
-const getDefaultLoginLogs = () => {
-    const now = new Date();
-    const formatTime = (minutesAgo: number) => {
-        const d = new Date(now.getTime() - minutesAgo * 60 * 1000);
-        const datePart = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-        return `${datePart} • ${timePart}`;
-    };
-
-    return [
-        { id: 'LOG-1001', name: 'Vince Balce', email: 'vince.balce@ucn.edu.ph', role: 'Admin', time: formatTime(10), ip: '192.168.1.105', status: 'Success' },
-        { id: 'LOG-1002', name: 'Maria Santos', email: 'maria.santos@ucn.edu.ph', role: 'Auditor', time: formatTime(45), ip: '192.168.1.112', status: 'Success' },
-        { id: 'LOG-1003', name: 'Unknown User', email: 'guest.attempt@external.com', role: 'User', time: formatTime(75), ip: '110.54.221.89', status: 'Failed' },
-        { id: 'LOG-1004', name: 'Juan Dela Cruz', email: 'juan.delacruz@ucn.edu.ph', role: 'Manager', time: formatTime(120), ip: '192.168.1.140', status: 'Success' },
-        { id: 'LOG-1005', name: 'Property Staff', email: 'property.staff@ucn.edu.ph', role: 'User', time: formatTime(210), ip: '192.168.1.118', status: 'Success' },
-        { id: 'LOG-1006', name: 'Admin User', email: 'admin.sec@ucn.edu.ph', role: 'Admin', time: formatTime(320), ip: '192.168.1.101', status: 'Failed' },
-    ];
-};
-
 export default function ManageLoginTrails({ auth, loginData: serverLoginData = [] }: { auth: any, loginData?: any[] }) {
     const { props } = usePage();
     const user = auth?.user || (props.auth as any)?.user;
     const [collapsed, setCollapsed] = useState(false);
 
     const loginData = useMemo(() => {
-        return serverLoginData && serverLoginData.length > 0 ? serverLoginData : getDefaultLoginLogs();
+        return Array.isArray(serverLoginData) ? serverLoginData : [];
     }, [serverLoginData]);
 
     // Filter States
@@ -370,32 +353,45 @@ export default function ManageLoginTrails({ auth, loginData: serverLoginData = [
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 text-xs">
-                                    {paginatedData.length > 0 ? (
+                                    {paginatedData.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                                <EmptyState
+                                                    title={searchQuery || selectedRole || selectedStatus ? "No matching login records found" : "No login trails recorded"}
+                                                    description={searchQuery || selectedRole || selectedStatus ? "Try adjusting your search criteria or role/status filters." : "Personnel login activity will be ledgered here automatically."}
+                                                    isSearch={Boolean(searchQuery || selectedRole || selectedStatus)}
+                                                    action={
+                                                        (searchQuery || selectedRole || selectedStatus) ? (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => { setSearchQuery(''); setSelectedRole(null); setSelectedStatus(null); }}
+                                                                className="text-xs font-bold text-red-900 hover:underline"
+                                                            >
+                                                                Reset all filters
+                                                            </button>
+                                                        ) : undefined
+                                                    }
+                                                />
+                                            </td>
+                                        </tr>
+                                    ) : (
                                         paginatedData.map((log, index) => (
-                                            <tr key={log.id || index} className="hover:bg-red-50/30 transition-colors group">
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="h-8 w-8 rounded-full bg-red-900/10 text-red-950 font-bold flex items-center justify-center text-xs shrink-0 border border-red-900/20">
-                                                            {(log.name || 'U').charAt(0).toUpperCase()}
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <span className="font-bold text-gray-900 group-hover:text-red-900 transition-colors">{log.name}</span>
-                                                            <span className="text-[11px] text-gray-500 font-mono">{log.email}</span>
-                                                        </div>
-                                                    </div>
+                                            <tr key={log.id || index} className="hover:bg-red-50/20 transition-colors">
+                                                <td className="px-6 py-4 font-mono text-xs font-bold text-gray-700">
+                                                    {log.id}
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200 font-mono">
+                                                    <div className="font-bold text-gray-900 text-sm">{log.name}</div>
+                                                    <div className="text-xs text-gray-500 font-mono">{log.email}</div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold font-mono uppercase bg-gray-100 text-gray-700 border border-gray-200">
                                                         {log.role}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 text-gray-600 font-mono font-semibold">
-                                                    {formatAuditTimestamp(log.time)}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <span className="font-mono text-xs text-gray-600 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded inline-block">
-                                                        {log.ip}
-                                                    </span>
+                                                <td className="px-6 py-4 text-xs font-mono text-gray-600">
+                                                    <div>{formatAuditTimestamp(log.time)}</div>
+                                                    <div className="text-[11px] text-gray-400 mt-0.5">{log.ip}</div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border ${log.status === 'Success'
@@ -415,56 +411,22 @@ export default function ManageLoginTrails({ auth, loginData: serverLoginData = [
                                                 </td>
                                             </tr>
                                         ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                                                <div className="flex flex-col items-center gap-2">
-                                                    <Shield className="w-8 h-8 text-gray-300" />
-                                                    <p className="font-medium text-gray-600">No login trails match your filter criteria.</p>
-                                                    <button
-                                                        onClick={() => { setSearchQuery(''); setSelectedRole(null); setSelectedStatus(null); }}
-                                                        className="text-xs font-bold text-red-900 hover:underline"
-                                                    >
-                                                        Reset all filters
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
                                     )}
                                 </tbody>
                             </table>
                         </div>
 
-                        {/* Pagination & Summary Footer */}
-                        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3">
-                            <span className="text-xs text-gray-500 font-medium">
-                                Showing <span className="font-bold text-gray-700">{paginatedData.length}</span> of <span className="font-bold text-gray-700">{filteredData.length}</span> login records
-                            </span>
-
-                            {totalPages > 1 && (
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                                        disabled={currentPage === 1}
-                                        className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-600 hover:bg-white disabled:opacity-50 transition-colors"
-                                    >
-                                        Previous
-                                    </button>
-                                    <span className="text-xs text-gray-600 font-medium px-2">
-                                        Page {currentPage} of {totalPages}
-                                    </span>
-                                    <button
-                                        type="button"
-                                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                                        disabled={currentPage === totalPages}
-                                        className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-600 hover:bg-white disabled:opacity-50 transition-colors"
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                        {/* Standardized Table Pagination */}
+                        {filteredData.length > 0 && (
+                            <TablePagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                totalItems={filteredData.length}
+                                itemsPerPage={itemsPerPage}
+                                onPageChange={setCurrentPage}
+                                itemLabel="login records"
+                            />
+                        )}
                     </div>
                 </div>
             </main>

@@ -3,10 +3,14 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import Sidebar from '@/Components/Sidebar';
 import Modal from '@/Components/Modal';
+import TablePagination from '@/Components/Common/TablePagination';
+import EmptyState from '@/Components/Common/EmptyState';
+import StatusBadge from '@/Components/Common/StatusBadge';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { useState, useEffect, useMemo } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
+import { Tag, Edit2, Trash2, Plus, Search } from 'lucide-react';
 
 // --- REUSABLE UI COMPONENTS (Internal) ---
 const InventoryModal = ({ show, onClose, title, children, footer, isSubmitting }: any) => {
@@ -397,128 +401,141 @@ export default function AllItems({ auth, items, suppliers = [] }: { auth: any, i
                             </div>
                         </div>
 
-                        {/* Table */}
+                        {/* Streamlined Table */}
                         <div className="w-full overflow-hidden">
-                            <table className="w-full table-auto divide-y divide-gray-200">
+                            <table className="w-full table-fixed divide-y divide-gray-200">
                                 <thead className="bg-gray-50/80 border-b border-gray-200">
                                     <tr>
-                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Item Name</th>
-                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Supplier</th>
-                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Unit of Issue</th>
-                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Description</th>
-                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Stock Level</th>
-                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Unit Cost</th>
-                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Amount</th>
-                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Status</th>
-                                        <th className="px-4 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono">Actions</th>
+                                        <th className="px-5 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono w-[30%]">Item & Identification</th>
+                                        <th className="px-5 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono w-[22%]">Supplier & Issue Unit</th>
+                                        <th className="px-5 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono w-[18%]">Stock & Status</th>
+                                        <th className="px-5 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono w-[15%]">Valuation</th>
+                                        <th className="px-5 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono w-[15%]">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-100">
                                     {filteredItems.length === 0 ? (
                                         <tr>
-                                            <td colSpan={9} className="px-8 py-12 text-center text-gray-500">
-                                                <div className="flex flex-col items-center justify-center">
-                                                    <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
-                                                    <p className="font-medium text-sm">No items found.</p>
-                                                    {(searchTerm || filterStatus || filterSupplier) && (
-                                                        <p className="text-xs text-gray-400 mt-1">Try adjusting your filters.</p>
-                                                    )}
-                                                </div>
+                                            <td colSpan={5} className="px-8 py-12 text-center text-gray-500">
+                                                <EmptyState
+                                                    title="No inventory items found"
+                                                    description={
+                                                        searchTerm || filterStatus || filterSupplier
+                                                            ? "Try adjusting your search query or filter selections."
+                                                            : "Get started by adding your first consumable supply item to the inventory master registry."
+                                                    }
+                                                    isSearch={Boolean(searchTerm || filterStatus || filterSupplier)}
+                                                    action={
+                                                        !searchTerm && !filterStatus && !filterSupplier ? (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setIsEditing(false);
+                                                                    setSelectedItem(null);
+                                                                    reset();
+                                                                    setData('sku', '');
+                                                                    setShowModal(true);
+                                                                }}
+                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-950 text-white rounded text-xs font-semibold hover:bg-red-900 cursor-pointer"
+                                                            >
+                                                                <Plus className="w-3.5 h-3.5 text-amber-300" />
+                                                                Add First Item
+                                                            </button>
+                                                        ) : undefined
+                                                    }
+                                                />
                                             </td>
                                         </tr>
                                     ) : (
                                         paginatedItems.map((item, index) => (
                                             <tr key={index} className="hover:bg-red-50/30 transition-colors border-b border-gray-100 last:border-0 group">
-                                                <td className="px-4 py-4 align-top max-w-[12rem] break-words">
-                                                    <div className="text-sm font-bold text-gray-900">{item.name}</div>
-                                                    <div className="text-xs text-gray-500 font-mono">SKU: {item.sku || 'N/A'}</div>
-                                                    {item.rfid_tag ? (
-                                                        <div className="mt-1">
-                                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950/10 text-red-950 border border-red-950/20">
+                                                <td className="px-5 py-3.5 align-top">
+                                                    <div className="text-sm font-bold text-gray-900 tracking-tight">{item.name}</div>
+                                                    <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500 font-mono">
+                                                        <span>SKU: {item.sku || 'N/A'}</span>
+                                                        {item.rfid_tag ? (
+                                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950/10 text-red-950 border border-red-950/20">
                                                                 🏷️ {item.rfid_tag}
                                                             </span>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="mt-1">
-                                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-500">
-                                                                Not Tagged
-                                                            </span>
-                                                        </div>
+                                                        ) : (
+                                                            <span className="text-[10px] text-gray-400">Untagged</span>
+                                                        )}
+                                                    </div>
+                                                    {item.description && (
+                                                        <p className="text-[11px] text-gray-500 mt-1 line-clamp-1 truncate" title={item.description}>
+                                                            {item.description}
+                                                        </p>
                                                     )}
                                                 </td>
-                                                <td className="px-4 py-4 align-top text-sm text-gray-600 break-words font-medium">
-                                                    {item.supplier ? item.supplier.name : 'No Supplier'}
-                                                </td>
-                                                <td className="px-4 py-4 align-top text-sm text-gray-600">
-                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-800 font-mono uppercase">
-                                                        {item.unit_of_issue || '-'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-4 align-top text-sm text-gray-600 max-w-[12rem] break-words">
-                                                    <div title={item.description}>
-                                                        {item.description || '-'}
+                                                <td className="px-5 py-3.5 align-top">
+                                                    <div className="text-xs font-semibold text-gray-800 break-words">
+                                                        {item.supplier ? item.supplier.name : 'No Supplier Assigned'}
+                                                    </div>
+                                                    <div className="mt-1">
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700 font-mono uppercase">
+                                                            Unit: {item.unit_of_issue || 'PCS'}
+                                                        </span>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-4 align-top text-sm text-gray-700 font-bold font-mono">
-                                                    {Number(item.stock || 0).toLocaleString('en-US')} <span className="text-gray-400 text-xs font-normal font-sans">units</span>
+                                                <td className="px-5 py-3.5 align-top">
+                                                    <div className="text-sm font-bold font-mono text-gray-900">
+                                                        {Number(item.stock || 0).toLocaleString('en-US')} <span className="text-gray-400 text-xs font-normal font-sans">units</span>
+                                                    </div>
+                                                    <div className="mt-1">
+                                                        <StatusBadge status={item.status} />
+                                                    </div>
                                                 </td>
-                                                <td className="px-4 py-4 align-top text-sm text-gray-700 font-medium font-mono">
-                                                    ₱{Number(item.unit_cost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                <td className="px-5 py-3.5 align-top">
+                                                    <div className="text-xs text-gray-500 font-mono">
+                                                        Unit: ₱{Number(item.unit_cost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </div>
+                                                    <div className="text-xs font-bold text-gray-900 font-mono mt-0.5">
+                                                        Total: ₱{Number(item.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </div>
                                                 </td>
-                                                <td className="px-4 py-4 align-top text-sm text-gray-700 font-medium font-mono">
-                                                    ₱{Number(item.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                </td>
-                                                <td className="px-4 py-4 align-top">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                                                        item.status === 'Available' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/80' :
-                                                        item.status === 'Low Stock' ? 'bg-amber-50 text-amber-800 border border-amber-200/80' : 
-                                                        'bg-red-50 text-red-800 border border-red-200/80'
-                                                    }`}>
-                                                        <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                                                            item.status === 'Available' ? 'bg-emerald-500' :
-                                                            item.status === 'Low Stock' ? 'bg-amber-500' : 
-                                                            'bg-red-500'
-                                                        }`}></span>
-                                                        {item.status}
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-4 align-top text-right text-sm font-medium">
-                                                    <Link
-                                                        href={route('rfid-scanner.index', { item_id: item.id })}
-                                                        className="text-red-900 hover:text-red-950 mr-3 transition-colors font-bold text-xs uppercase tracking-wide inline-flex items-center gap-1 bg-red-950/5 px-2 py-1 rounded border border-red-900/10 hover:bg-red-950/10 font-mono"
-                                                    >
-                                                        🏷️ Tag RFID
-                                                    </Link>
-                                                    <button
-                                                        onClick={() => {
-                                                            setIsEditing(true);
-                                                            setSelectedItem(item);
-                                                            setData({
-                                                                name: item.name,
-                                                                supplier_id: item.supplier_id || '',
-                                                                sku: item.sku || '',
-                                                                stock: item.stock,
-                                                                unit_cost: item.unit_cost || '',
-                                                                amount: item.amount || '',
-                                                                status: item.status,
-                                                                description: item.description || '',
-                                                                unit_of_issue: item.unit_of_issue || '',
-                                                            });
-                                                            setShowModal(true);
-                                                        }}
-                                                        className="text-blue-700 hover:text-blue-900 mr-3 transition-colors font-semibold text-xs uppercase tracking-wide"
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            setItemToDelete(item);
-                                                            setShowDeleteModal(true);
-                                                        }}
-                                                        className="text-red-700 hover:text-red-900 transition-colors font-semibold text-xs uppercase tracking-wide"
-                                                    >
-                                                        Delete
-                                                    </button>
+                                                <td className="px-5 py-3.5 align-top text-right">
+                                                    <div className="flex flex-wrap items-center justify-end gap-2">
+                                                        <Link
+                                                            href={route('rfid-scanner.index', { item_id: item.id })}
+                                                            className="text-red-950 hover:text-red-900 transition-colors font-bold text-[11px] uppercase tracking-wide inline-flex items-center gap-1 bg-red-950/5 px-2 py-1 rounded border border-red-900/10 hover:bg-red-950/10 font-mono"
+                                                            title="Tag RFID"
+                                                        >
+                                                            <Tag className="w-3 h-3 text-red-950" />
+                                                            <span>RFID</span>
+                                                        </Link>
+                                                        <button
+                                                            onClick={() => {
+                                                                setIsEditing(true);
+                                                                setSelectedItem(item);
+                                                                setData({
+                                                                    name: item.name,
+                                                                    supplier_id: item.supplier_id || '',
+                                                                    sku: item.sku || '',
+                                                                    stock: item.stock,
+                                                                    unit_cost: item.unit_cost || '',
+                                                                    amount: item.amount || '',
+                                                                    status: item.status,
+                                                                    description: item.description || '',
+                                                                    unit_of_issue: item.unit_of_issue || '',
+                                                                });
+                                                                setShowModal(true);
+                                                            }}
+                                                            className="text-blue-700 hover:text-blue-900 transition-colors font-semibold text-xs uppercase tracking-wide p-1"
+                                                            title="Edit Item"
+                                                        >
+                                                            <Edit2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setItemToDelete(item);
+                                                                setShowDeleteModal(true);
+                                                            }}
+                                                            className="text-red-700 hover:text-red-900 transition-colors font-semibold text-xs uppercase tracking-wide p-1"
+                                                            title="Delete Item"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))
@@ -527,29 +544,17 @@ export default function AllItems({ auth, items, suppliers = [] }: { auth: any, i
                             </table>
                         </div>
 
-                        {/* Pagination */}
-                        <div className="px-6 lg:px-8 py-4 border-t border-gray-200/80 bg-gray-50/50 flex flex-col sm:flex-row items-center sm:justify-between gap-3">
-                            <span className="text-xs text-gray-500 font-medium">
-                                Showing <span className="font-bold text-gray-800">{paginatedItems.length}</span> of <span className="font-bold text-gray-800">{filteredItems.length}</span> filtered records
-                            </span>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                                    disabled={currentPage === 1}
-                                    className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-50 transition-colors"
-                                >
-                                    Previous
-                                </button>
-                                <span className="text-xs text-gray-500 font-medium">Page {currentPage} of {totalPages}</span>
-                                <button
-                                    onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                                    disabled={currentPage === totalPages}
-                                    className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-50 transition-colors"
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        </div>
+                        {/* Standardized Table Pagination */}
+                        {filteredItems.length > 0 && (
+                            <TablePagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                totalItems={filteredItems.length}
+                                itemsPerPage={rowsPerPage}
+                                onPageChange={setCurrentPage}
+                                itemLabel="inventory items"
+                            />
+                        )}
 
                     </div>
                 </div>

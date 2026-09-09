@@ -1,0 +1,151 @@
+/* ==========================================================================
+   NEMIX SIMS — Official Forms & Compliance Reports Print Stylesheet
+   Governing RSMI (Appendix 64), RPCI (Appendix 66), Stock Card (Appendix 58),
+   MR (Appendix 63), and Requisition & Issue Slip (RIS).
+   ========================================================================== */
+
+@media print {
+    @page {
+        margin: 8mm;
+        size: auto;
+    }
+
+    @page landscape {
+        size: A4 landscape;
+        margin: 8mm;
+    }
+
+    @page portrait {
+        size: A4 portrait;
+        margin: 8mm;
+    }
+
+    html, body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Completely suppress non-printable application elements */
+    #app,
+    #app aside,
+    #app header,
+    #app nav,
+    #app > div,
+    .print\:hidden,
+    button,
+    input,
+    select,
+    textarea,
+    .no-print {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* Reset Headless UI Modal Containers for Clean Full-Page Output */
+    #headlessui-portal-root,
+    #headlessui-portal-root > div,
+    #modal,
+    [role="dialog"] {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        transform: none !important;
+        background: transparent !important;
+        overflow: visible !important;
+    }
+
+    /* Hide backdrops and dark overlays */
+    #modal > div:first-child,
+    .backdrop-blur-md,
+    [class*="bg-slate-900"],
+    [class*="backdrop-blur"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+
+    /* Reset DialogPanel */
+    [role="dialog"] > div,
+    #modal [class*="DialogPanel"],
+    #modal .bg-white {
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        max-height: none !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        transform: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+    }
+
+    /* Printable form containers */
+    .printable-form-area {
+        display: block !important;
+        visibility: visible !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+    }
+
+    /* Standard A4 Portrait Form Containers */
+    .rsmi-container,
+    .sc-container,
+    .mr-container,
+    .ris-container {
+        width: 190mm !important;
+        max-width: 190mm !important;
+        margin: 0 auto !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+        page-break-before: avoid !important;
+        break-before: avoid !important;
+    }
+
+    /* Standard A4 Landscape Form Containers (e.g. RPCI) */
+    .rpci-container {
+        width: 277mm !important;
+        max-width: 277mm !important;
+        margin: 0 auto !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+        page-break-before: avoid !important;
+        break-before: avoid !important;
+    }
+
+    /* Avoid page-breaks inside table rows */
+    tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    thead {
+        display: table-header-group !important;
+    }
+
+    tfoot {
+        display: table-footer-group !important;
+    }
+}

@@ -1,6 +1,6 @@
 import SystemModeBadge from '@/Components/SystemModeBadge';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Plus, Edit2, Trash2, Shield, Check, X, Search, Key, Users, ShieldCheck, Info } from 'lucide-react';
+import { Plus, Edit2, Trash2, Shield, Check, X, Search, Key, Users, ShieldCheck, Info, ChevronDown, ChevronRight, Filter } from 'lucide-react';
 import Sidebar from '@/Components/Sidebar';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import Modal from '@/Components/Modal';
@@ -48,6 +48,9 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
     const [successModal, setSuccessModal] = useState<{ isOpen: boolean; message: string }>({ isOpen: false, message: '' });
     const [unauthorizedModal, setUnauthorizedModal] = useState<{ isOpen: boolean; message: string }>({ isOpen: false, message: '' });
     const [roleSearchQuery, setRoleSearchQuery] = useState('');
+    const [permissionSearchQuery, setPermissionSearchQuery] = useState('');
+    const [selectedModuleFilter, setSelectedModuleFilter] = useState('ALL');
+    const [collapsedModules, setCollapsedModules] = useState<Record<string, boolean>>({});
 
     const modules = getSidebarModules('Access', 'Manage Role Permission');
 
@@ -207,8 +210,58 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
 
     const handleEditClick = (role: Role) => {
         setEditingRole({ ...role });
+        setPermissionSearchQuery('');
+        setSelectedModuleFilter('ALL');
+        setCollapsedModules({});
         setIsEditModalOpen(true);
     };
+
+    const toggleModuleCollapse = (moduleName: string) => {
+        setCollapsedModules((prev) => ({
+            ...prev,
+            [moduleName]: !prev[moduleName],
+        }));
+    };
+
+    const handleSelectAllGlobal = (selectAll: boolean) => {
+        if (!editingRole) return;
+        if (selectAll) {
+            const allIds = effectivePermissions.map((p) => p.id);
+            setEditingRole({
+                ...editingRole,
+                permissions: Array.from(new Set([...editingRole.permissions, ...allIds])),
+            });
+        } else {
+            setEditingRole({
+                ...editingRole,
+                permissions: [],
+            });
+        }
+    };
+
+    const filteredPermissionsByModule = useMemo(() => {
+        const query = permissionSearchQuery.toLowerCase().trim();
+        const result: Record<string, PermissionItem[]> = {};
+
+        Object.entries(permissionsByModule).forEach(([mod, items]) => {
+            if (selectedModuleFilter !== 'ALL' && mod !== selectedModuleFilter) return;
+
+            const matchingItems = items.filter((item) => {
+                if (!query) return true;
+                return (
+                    item.displayName.toLowerCase().includes(query) ||
+                    item.name.toLowerCase().includes(query) ||
+                    mod.toLowerCase().includes(query)
+                );
+            });
+
+            if (matchingItems.length > 0) {
+                result[mod] = matchingItems;
+            }
+        });
+
+        return result;
+    }, [permissionsByModule, permissionSearchQuery, selectedModuleFilter]);
 
     const handleCreateClick = () => {
         if (canCreateRole) {
@@ -704,65 +757,170 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                     </div>
                                 </div>
 
-                                <div className="border-t border-gray-200 pt-6">
-                                    <h4 className="text-base font-bold text-gray-900 font-serif mb-1">Assign Permissions</h4>
-                                    <p className="text-xs text-gray-500 mb-4">Select the permissions this role will have across the system modules.</p>
+                                <div className="border-t border-gray-200 pt-5">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="text-base font-bold text-gray-900 font-serif">Module Access Capabilities</h4>
+                                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                                    {editingRole?.permissions?.length || 0} / {effectivePermissions.length} Granted
+                                                </span>
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-0.5">Filter and assign specific capabilities per system module.</p>
+                                        </div>
 
-                                    <div className="space-y-6">
-                                        {Object.entries(permissionsByModule).map(([moduleName, permissions]) => {
-                                            const modulePermIds = permissions.flatMap((p) => p.ids);
-                                            const isAllSelected = modulePermIds.every((id) => editingRole?.permissions.includes(id));
-                                            const isPartiallySelected = !isAllSelected && modulePermIds.some((id) => editingRole?.permissions.includes(id));
+                                        {/* Global Quick Actions */}
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleSelectAllGlobal(true)}
+                                                className="px-2.5 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded transition-colors"
+                                            >
+                                                Grant All
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleSelectAllGlobal(false)}
+                                                className="px-2.5 py-1 text-[11px] font-semibold text-gray-600 bg-white hover:bg-gray-100 border border-gray-200 rounded transition-colors"
+                                            >
+                                                Revoke All
+                                            </button>
+                                        </div>
+                                    </div>
 
-                                            return (
-                                                <div key={moduleName} className="bg-gray-50/80 rounded-xl p-4 border border-gray-200">
-                                                    <div className="flex items-center justify-between mb-3 border-b border-gray-200/80 pb-3">
-                                                        <h5 className="font-bold text-gray-900 text-sm font-serif">{moduleName}</h5>
-                                                        <label className="flex items-center space-x-2 cursor-pointer relative">
-                                                            <div className="flex items-center h-5">
+                                    {/* In-Modal Filter & Search Toolbar */}
+                                    <div className="flex flex-col sm:flex-row items-center gap-2.5 mb-4 p-2.5 bg-gray-50 rounded-lg border border-gray-200">
+                                        <div className="relative flex-1 w-full">
+                                            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-gray-400">
+                                                <Search className="w-3.5 h-3.5" />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                value={permissionSearchQuery}
+                                                onChange={(e) => setPermissionSearchQuery(e.target.value)}
+                                                placeholder="Search permissions by keyword (e.g. create, update, issuance)..."
+                                                className="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-300 rounded text-xs focus:ring-1 focus:ring-red-900 focus:border-red-900"
+                                            />
+                                            {permissionSearchQuery && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setPermissionSearchQuery('')}
+                                                    className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-400 hover:text-gray-600"
+                                                >
+                                                    <X className="w-3 h-3" />
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                                            <Filter className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                            <select
+                                                value={selectedModuleFilter}
+                                                onChange={(e) => setSelectedModuleFilter(e.target.value)}
+                                                className="text-xs bg-white border border-gray-300 rounded px-2.5 py-1.5 font-medium focus:ring-1 focus:ring-red-900 focus:border-red-900 w-full sm:w-auto"
+                                            >
+                                                <option value="ALL">All Modules ({Object.keys(permissionsByModule).length})</option>
+                                                {Object.keys(permissionsByModule).map((mod) => (
+                                                    <option key={mod} value={mod}>{mod}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Accordion List */}
+                                    <div className="space-y-3">
+                                        {Object.keys(filteredPermissionsByModule).length === 0 ? (
+                                            <div className="py-8 text-center text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                                                <Search className="w-6 h-6 text-gray-300 mx-auto mb-2" />
+                                                <p className="text-xs font-semibold text-gray-600">No capabilities match "{permissionSearchQuery}"</p>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => { setPermissionSearchQuery(''); setSelectedModuleFilter('ALL'); }}
+                                                    className="mt-2 text-xs text-red-900 font-bold hover:underline"
+                                                >
+                                                    Clear filters
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            Object.entries(filteredPermissionsByModule).map(([moduleName, permissions]) => {
+                                                const modulePermIds = permissions.flatMap((p) => p.ids);
+                                                const isAllSelected = modulePermIds.every((id) => editingRole?.permissions.includes(id));
+                                                const isPartiallySelected = !isAllSelected && modulePermIds.some((id) => editingRole?.permissions.includes(id));
+                                                const grantedInModule = modulePermIds.filter((id) => editingRole?.permissions.includes(id)).length;
+                                                const isCollapsed = Boolean(collapsedModules[moduleName]) && !permissionSearchQuery;
+
+                                                return (
+                                                    <div key={moduleName} className="bg-white rounded-lg border border-gray-200 shadow-2xs overflow-hidden">
+                                                        <div className="flex items-center justify-between px-4 py-2.5 bg-gray-50/80 border-b border-gray-200">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => toggleModuleCollapse(moduleName)}
+                                                                className="flex items-center gap-2 text-left cursor-pointer flex-1"
+                                                            >
+                                                                {isCollapsed ? (
+                                                                    <ChevronRight className="w-4 h-4 text-gray-500" />
+                                                                ) : (
+                                                                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                                                                )}
+                                                                <span className="font-bold text-gray-900 text-xs font-serif uppercase tracking-wide">
+                                                                    {moduleName}
+                                                                </span>
+                                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono ${
+                                                                    grantedInModule === modulePermIds.length && modulePermIds.length > 0
+                                                                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                                                                        : grantedInModule > 0
+                                                                        ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                                                                        : 'bg-gray-100 text-gray-500'
+                                                                }`}>
+                                                                    {grantedInModule}/{modulePermIds.length} granted
+                                                                </span>
+                                                            </button>
+
+                                                            <label className="flex items-center gap-1.5 cursor-pointer select-none">
                                                                 <input
                                                                     type="checkbox"
                                                                     checked={isAllSelected}
-                                                                    ref={input => {
+                                                                    ref={(input) => {
                                                                         if (input) input.indeterminate = isPartiallySelected;
                                                                     }}
                                                                     onChange={(e) => handleSelectAllModule(moduleName, e.target.checked)}
-                                                                    className="w-4 h-4 text-red-900 bg-white border-gray-300 rounded focus:ring-red-900 focus:ring-2"
+                                                                    className="w-3.5 h-3.5 text-red-900 bg-white border-gray-300 rounded focus:ring-red-900 focus:ring-1 cursor-pointer"
                                                                 />
+                                                                <span className="text-[11px] font-semibold text-gray-600">Select Module</span>
+                                                            </label>
+                                                        </div>
+
+                                                        {!isCollapsed && (
+                                                            <div className="p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 bg-white">
+                                                                {permissions.map((perm) => {
+                                                                    const isChecked = perm.ids.some((id) => editingRole?.permissions.includes(id));
+                                                                    return (
+                                                                        <label
+                                                                            key={perm.id}
+                                                                            className={`flex items-center gap-2.5 p-2 rounded border cursor-pointer transition-colors ${
+                                                                                isChecked
+                                                                                    ? 'bg-red-50/70 border-red-200 text-red-950 font-semibold'
+                                                                                    : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
+                                                                            }`}
+                                                                        >
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                checked={isChecked}
+                                                                                onChange={() => handlePermissionToggle(perm)}
+                                                                                className="w-3.5 h-3.5 text-red-900 bg-white border-gray-300 rounded focus:ring-red-900 focus:ring-1 cursor-pointer"
+                                                                            />
+                                                                            <span className="text-xs truncate" title={perm.displayName}>
+                                                                                {perm.displayName}
+                                                                            </span>
+                                                                        </label>
+                                                                    );
+                                                                })}
                                                             </div>
-                                                            <span className="text-xs font-semibold text-gray-600">Select All in Module</span>
-                                                        </label>
+                                                        )}
                                                     </div>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
-                                                        {permissions.map((perm) => {
-                                                            const isChecked = perm.ids.some((id) => editingRole?.permissions.includes(id));
-                                                            return (
-                                                                <label
-                                                                    key={perm.id}
-                                                                    className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg border transition-all ${isChecked
-                                                                            ? 'bg-red-50/80 border-red-200 shadow-xs'
-                                                                            : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                                                                        }`}
-                                                                >
-                                                                    <div className="flex items-center justify-center">
-                                                                        <input
-                                                                            type="checkbox"
-                                                                            checked={isChecked}
-                                                                            onChange={() => handlePermissionToggle(perm)}
-                                                                            className="w-4 h-4 text-red-900 bg-white border-gray-300 rounded focus:ring-red-900 focus:ring-2 transition-colors cursor-pointer"
-                                                                        />
-                                                                    </div>
-                                                                    <span className={`text-xs font-medium capitalize truncate ${isChecked ? 'text-red-950 font-semibold' : 'text-gray-700'
-                                                                        }`}>
-                                                                        {perm.displayName}
-                                                                    </span>
-                                                                </label>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
+                                                );
+                                            })
+                                        )}
                                     </div>
                                 </div>
                             </form>

@@ -62,7 +62,29 @@ class RfidScannerTest extends TestCase
             'rfid_tag' => 'RFID-TAG-998877',
         ]);
 
-        $response->assertRedirect(route('rfid-scanner.index', ['item_id' => $this->item->id]));
+        $response->assertRedirect(route('rfid-scanner.index'));
+
+        $this->item->refresh();
+        $this->assertEquals('RFID-TAG-998877', $this->item->rfid_tag);
+    }
+
+    public function test_rfid_tag_assignment_auto_advances_to_next_untagged_item(): void
+    {
+        $secondUntaggedItem = Item::create([
+            'name' => 'Laser Printer Pro',
+            'supplier_id' => $this->supplier->id,
+            'sku' => 'PRN-LSR-002',
+            'stock' => 2,
+            'status' => 'Available',
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        $response = $this->actingAs($this->adminUser)->post(route('rfid-scanner.assign'), [
+            'item_id' => $this->item->id,
+            'rfid_tag' => 'RFID-TAG-998877',
+        ]);
+
+        $response->assertRedirect(route('rfid-scanner.index', ['item_id' => $secondUntaggedItem->id]));
 
         $this->item->refresh();
         $this->assertEquals('RFID-TAG-998877', $this->item->rfid_tag);

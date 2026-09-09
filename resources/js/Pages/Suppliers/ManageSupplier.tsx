@@ -6,6 +6,9 @@ import { useState, useEffect, useMemo } from 'react';
 import Select from 'react-select';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import TablePagination from '@/Components/Common/TablePagination';
+import EmptyState from '@/Components/Common/EmptyState';
+import StatusBadge from '@/Components/Common/StatusBadge';
 
 // --- REUSABLE UI COMPONENTS (Internal) ---
 
@@ -89,7 +92,6 @@ const FormInput = ({ label, icon, error, disabled, ...props }: any) => {
 
 export default function ManageSupplier({ auth, suppliers, items = [], issuances = [] }: { auth: any, suppliers: any[], items?: any[], issuances?: any[] }) {
     // State for filters
-    const [selectedClassification, setSelectedClassification] = useState<{ value: string; label: string } | null>(null);
     const [selectedStatus, setSelectedStatus] = useState<{ value: string; label: string } | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [collapsed, setCollapsed] = useState(false);
@@ -142,12 +144,6 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
         if (!s) return '';
         return s.charAt(0).toUpperCase() + s.slice(1);
     };
-
-    // Options for React Select
-    const classificationOptions = [
-        { value: '', label: 'All Classifications' },
-        { value: 'goods', label: 'Consumable Office Supplies' },
-    ];
 
     const statusOptions = [
         { value: '', label: 'All Statuses' },
@@ -247,19 +243,16 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
     const consumableSuppliers = suppliersData.filter((supplier) => isConsumableCategory(String(supplier.category || '')));
 
     const filteredSuppliers = consumableSuppliers.filter((supplier) => {
-        const normalizedCategory = String(supplier.category || '').toLowerCase();
         const supplierStatus = normalizeStatus(String(supplier.status || ''));
         const query = searchTerm.trim().toLowerCase();
         const searchableText = [supplier.name, supplier.tin, supplier.reg_number, supplier.address, supplier.category]
             .join(' ')
             .toLowerCase();
 
-        const matchesClassification = !selectedClassification?.value
-            || (selectedClassification.value === 'goods' && isConsumableCategory(normalizedCategory));
         const matchesStatus = !selectedStatus?.value || supplierStatus === selectedStatus.value;
         const matchesSearch = !query || searchableText.includes(query);
 
-        return matchesClassification && matchesStatus && matchesSearch;
+        return matchesStatus && matchesSearch;
     });
 
     const totalPages = Math.max(1, Math.ceil(filteredSuppliers.length / itemsPerPage));
@@ -267,7 +260,7 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, selectedClassification, selectedStatus, suppliersData]);
+    }, [searchTerm, selectedStatus, suppliersData]);
 
     useEffect(() => {
         if (currentPage > totalPages) {
@@ -381,7 +374,7 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
 
                             {/* Search and Filter Section */}
                             <div className="px-6 lg:px-8 py-4 bg-gray-50/30 border-b border-gray-200/80 flex flex-wrap items-center gap-3">
-                                <div className="relative flex-grow sm:w-64">
+                                <div className="relative flex-grow sm:w-72">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                     </div>
@@ -389,22 +382,11 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
                                         type="text"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        placeholder="Search supplier, TIN, or Reg No..."
+                                        placeholder="Search supplier name, TIN, or Reg No..."
                                         className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-md text-xs font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-xs"
                                     />
                                 </div>
-                                <div className="w-full sm:w-56">
-                                    <Select
-                                        options={classificationOptions}
-                                        value={selectedClassification}
-                                        onChange={setSelectedClassification}
-                                        placeholder="All Classifications"
-                                        isClearable
-                                        classNamePrefix="react-select"
-                                        styles={customSelectStyles}
-                                    />
-                                </div>
-                                <div className="w-full sm:w-48">
+                                <div className="w-full sm:w-52">
                                     <Select
                                         options={statusOptions}
                                         value={selectedStatus}
@@ -427,7 +409,7 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
                                             <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Registration No.</th>
                                             <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Address</th>
                                             <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Supply Focus</th>
-                                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Amount</th>
+                                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Contract / Supplies Value (₱)</th>
                                             <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">Status</th>
                                             <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono">Actions</th>
                                         </tr>
@@ -454,20 +436,7 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
                                                     {formatCurrency(getSupplierAmount(supplier))}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    {(() => {
-                                                        const supplierStatus = normalizeStatus(String(supplier.status || ''));
-                                                        const statusClass = supplierStatus === 'active'
-                                                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/80'
-                                                            : supplierStatus === 'blacklisted'
-                                                                ? 'bg-red-50 text-red-800 border border-red-200/80'
-                                                                : 'bg-amber-50 text-amber-800 border border-amber-200/80';
-
-                                                        return (
-                                                            <span className={`px-2.5 py-0.5 inline-flex text-xs font-semibold rounded-full ${statusClass}`}>
-                                                                {capitalize(supplierStatus)}
-                                                            </span>
-                                                        );
-                                                    })()}
+                                                    <StatusBadge status={capitalize(normalizeStatus(String(supplier.status || '')))} />
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium font-mono">
                                                     <button onClick={() => openViewModal(supplier)} className="text-red-900 hover:text-red-950 mr-4 font-bold uppercase tracking-wide">View</button>
@@ -477,8 +446,12 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
                                         ))}
                                         {filteredSuppliers.length === 0 && (
                                             <tr>
-                                                <td colSpan={8} className="px-6 py-12 text-center text-sm text-gray-500 font-medium">
-                                                    No consumable office supplies suppliers found for the selected filters.
+                                                <td colSpan={8} className="p-0">
+                                                    <EmptyState
+                                                        title="No Suppliers Found"
+                                                        description={searchTerm || selectedStatus ? "No suppliers match your active search term or status filter." : "No consumable office supplies suppliers found in registry."}
+                                                        isSearch={!!searchTerm || !!selectedStatus}
+                                                    />
                                                 </td>
                                             </tr>
                                         )}
@@ -486,29 +459,15 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
                                 </table>
                             </div>
 
-                            {/* Pagination */}
-                            <div className="px-6 lg:px-8 py-4 border-t border-gray-200/80 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3">
-                                <span className="text-xs text-gray-500 font-medium">Showing <span className="font-bold text-gray-800">{paginatedSuppliers.length}</span> of <span className="font-bold text-gray-800">{filteredSuppliers.length}</span> filtered records</span>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                                        disabled={currentPage === 1}
-                                        className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-50 transition-colors"
-                                    >
-                                        Previous
-                                    </button>
-                                    <span className="text-xs text-gray-500 font-medium">Page {currentPage} of {totalPages}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                                        disabled={currentPage === totalPages}
-                                        className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-50 transition-colors"
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            </div>
+                            {/* Standardized Pagination */}
+                            <TablePagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                totalItems={filteredSuppliers.length}
+                                itemsPerPage={itemsPerPage}
+                                onPageChange={setCurrentPage}
+                                itemLabel="suppliers"
+                            />
                         </div>
                     </div>
                 </main>
@@ -677,7 +636,7 @@ export default function ManageSupplier({ auth, suppliers, items = [], issuances 
                             </div>
                             <div className="mt-5">
                                 <FormInput
-                                    label="Amount (₱)"
+                                    label="Contract / Supplies Value (₱)"
                                     type="number"
                                     step="0.01"
                                     value={data.amount}

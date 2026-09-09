@@ -5,6 +5,8 @@ import { useState, useMemo, useEffect } from 'react';
 import Select from 'react-select';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import TablePagination from '@/Components/Common/TablePagination';
+import EmptyState from '@/Components/Common/EmptyState';
 import { Search, FileText, CheckCircle2, AlertTriangle, Layers, RotateCcw } from 'lucide-react';
 
 const toTitleCase = (value?: string | null) => {
@@ -57,31 +59,13 @@ const formatAuditTimestamp = (timestamp: string | null | undefined) => {
     return `${datePart} • ${timePart}`;
 };
 
-const getDefaultTransactionLogs = () => {
-    const now = new Date();
-    const formatTime = (minutesAgo: number) => {
-        const d = new Date(now.getTime() - minutesAgo * 60 * 1000);
-        const datePart = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-        return `${datePart} • ${timePart}`;
-    };
-
-    return [
-        { id: 'TRX-1001', user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', module: 'Inventory', details: 'Added 5 unserviceable desktop units to disposal list', status: 'Verified', time: formatTime(15) },
-        { id: 'TRX-1002', user: 'Maria Santos', role: 'Internal Auditor', action: 'Generated Compliance Report', module: 'Compliance', details: 'Generated Annual Physical Inventory & Inspection Report for FY 2025', status: 'Logged', time: formatTime(60) },
-        { id: 'TRX-1003', user: 'Juan Dela Cruz', role: 'Property Staff', action: 'Stock In Requisition', module: 'Inventory', details: 'Received 100 reams of A4 Copy Paper from Advance Paper Corp', status: 'Verified', time: formatTime(180) },
-        { id: 'TRX-1004', user: 'Staff Member', role: 'Property Staff', action: 'Issued Inventory Stock', module: 'Inventory', details: 'Issued 20 units of Ballpen Black to SPMO Administrative Office', status: 'Flagged', time: formatTime(300) },
-        { id: 'TRX-1005', user: 'System Admin', role: 'System Admin', action: 'Operating Mode Switched', module: 'System Configuration', details: 'Switched system operating mode from LIVE PRODUCTION to MAINTENANCE MODE', status: 'Verified', time: formatTime(1440) },
-    ];
-};
-
 export default function ManageTransaction({ auth, logs: serverLogs = [] }: { auth: any, logs?: any[] }) {
     const { props } = usePage();
     const user = auth?.user || (props.auth as any)?.user;
     const [collapsed, setCollapsed] = useState(false);
 
     const rawLogs = useMemo(() => {
-        return serverLogs && serverLogs.length > 0 ? serverLogs : getDefaultTransactionLogs();
+        return Array.isArray(serverLogs) ? serverLogs : [];
     }, [serverLogs]);
 
     // --- 1. State for Filters ---
@@ -406,25 +390,37 @@ export default function ManageTransaction({ auth, logs: serverLogs = [] }: { aut
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 text-xs">
-                                    {paginatedLogs.length > 0 ? (
+                                    {paginatedLogs.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                                <EmptyState
+                                                    title={searchQuery || selectedModule || selectedAction ? "No matching transaction records found" : "No transaction logs recorded"}
+                                                    description={searchQuery || selectedModule || selectedAction ? "Try adjusting your search query or module/action filters." : "System transactions and inventory mutations will be ledgered here automatically."}
+                                                    isSearch={Boolean(searchQuery || selectedModule || selectedAction)}
+                                                    action={
+                                                        (searchQuery || selectedModule || selectedAction) ? (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => { setSearchQuery(''); setSelectedModule(null); setSelectedAction(null); }}
+                                                                className="text-xs font-bold text-red-900 hover:underline cursor-pointer"
+                                                            >
+                                                                Reset all filters
+                                                            </button>
+                                                        ) : undefined
+                                                    }
+                                                />
+                                            </td>
+                                        </tr>
+                                    ) : (
                                         paginatedLogs.map((trx, index) => (
-                                            <tr key={trx.id || index} className="hover:bg-red-50/30 transition-colors group">
+                                            <tr key={trx.id || index} className="hover:bg-red-50/20 transition-colors">
                                                 <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="h-8 w-8 rounded-full bg-red-900/10 text-red-950 font-bold flex items-center justify-center text-xs shrink-0 border border-red-900/20">
-                                                            {(trx.user || 'U').charAt(0).toUpperCase()}
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <span className="font-bold text-gray-900 group-hover:text-red-900 transition-colors">{trx.user}</span>
-                                                            <span className="text-[11px] text-gray-500 font-mono uppercase tracking-wider">{trx.role || 'User'}</span>
-                                                        </div>
-                                                    </div>
+                                                    <div className="font-bold text-gray-900 text-sm">{trx.action}</div>
+                                                    <div className="text-xs text-gray-500 mt-0.5 max-w-sm truncate" title={trx.details}>{trx.details}</div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="font-bold text-gray-900 text-xs tracking-tight">{toTitleCase(trx.action) || 'System Operation'}</div>
-                                                    {trx.details && (
-                                                        <div className="text-[11px] text-gray-600 mt-0.5 leading-snug">{trx.details}</div>
-                                                    )}
+                                                    <div className="font-bold text-gray-800 text-xs">{trx.user}</div>
+                                                    <div className="text-[11px] text-gray-500">{trx.role}</div>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200 font-mono">
@@ -442,56 +438,22 @@ export default function ManageTransaction({ auth, logs: serverLogs = [] }: { aut
                                                 </td>
                                             </tr>
                                         ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                                                <div className="flex flex-col items-center gap-2">
-                                                    <Search className="w-8 h-8 text-gray-300" />
-                                                    <p className="font-medium text-gray-600">No transactions match your filter criteria.</p>
-                                                    <button
-                                                        onClick={() => { setSearchQuery(''); setSelectedModule(null); setSelectedAction(null); }}
-                                                        className="text-xs font-bold text-red-900 hover:underline"
-                                                    >
-                                                        Reset all filters
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
                                     )}
                                 </tbody>
                             </table>
                         </div>
 
-                        {/* Pagination & Summary Footer */}
-                        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3">
-                            <span className="text-xs text-gray-500 font-medium">
-                                Showing <span className="font-bold text-gray-700">{paginatedLogs.length}</span> of <span className="font-bold text-gray-700">{filteredLogs.length}</span> filtered transaction records
-                            </span>
-
-                            {totalPages > 1 && (
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                                        disabled={currentPage === 1}
-                                        className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-600 hover:bg-white disabled:opacity-50 transition-colors"
-                                    >
-                                        Previous
-                                    </button>
-                                    <span className="text-xs text-gray-600 font-medium px-2">
-                                        Page {currentPage} of {totalPages}
-                                    </span>
-                                    <button
-                                        type="button"
-                                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                                        disabled={currentPage === totalPages}
-                                        className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-600 hover:bg-white disabled:opacity-50 transition-colors"
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                        {/* Standardized Table Pagination */}
+                        {filteredLogs.length > 0 && (
+                            <TablePagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                totalItems={filteredLogs.length}
+                                itemsPerPage={itemsPerPage}
+                                onPageChange={setCurrentPage}
+                                itemLabel="transaction records"
+                            />
+                        )}
                     </div>
                 </div>
             </main>

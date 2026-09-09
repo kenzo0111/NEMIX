@@ -7,6 +7,8 @@ import { Head, router, useForm } from '@inertiajs/react';
 import { useState, useEffect, useMemo } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import Select from 'react-select';
+import TablePagination from '@/Components/Common/TablePagination';
+import EmptyState from '@/Components/Common/EmptyState';
 
 export default function Receiving({ auth, receivings, items, suppliers }: { auth: any, receivings: any[], items: any[], suppliers: any[] }) {
     const user = auth.user;
@@ -366,14 +368,12 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                                 <tbody className="bg-white divide-y divide-gray-100">
                                     {filteredReceivings.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="px-8 py-12 text-center text-gray-500">
-                                                <div className="flex flex-col items-center justify-center">
-                                                    <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
-                                                    <p className="font-medium text-sm">No receiving records found.</p>
-                                                    {(searchTerm || filterSupplier) && (
-                                                        <p className="text-xs text-gray-400 mt-1">Try adjusting your filters.</p>
-                                                    )}
-                                                </div>
+                                            <td colSpan={5} className="p-0">
+                                                <EmptyState
+                                                    title="No Receiving Records Found"
+                                                    description={searchTerm || filterSupplier ? "No receiving records match your current filter or search criteria." : "No incoming stock receiving records recorded yet."}
+                                                    isSearch={!!(searchTerm || filterSupplier)}
+                                                />
                                             </td>
                                         </tr>
                                     ) : (
@@ -418,29 +418,15 @@ export default function Receiving({ auth, receivings, items, suppliers }: { auth
                             </table>
                         </div>
 
-                        {/* Pagination */}
-                        <div className="px-6 lg:px-8 py-4 border-t border-gray-200/80 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3">
-                            <span className="text-xs text-gray-500 font-medium">Showing <span className="font-bold text-gray-800">{paginatedReceivings.length}</span> of <span className="font-bold text-gray-800">{filteredReceivings.length}</span> filtered records</span>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                                    disabled={currentPage === 1}
-                                    className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-50 transition-colors"
-                                >
-                                    Previous
-                                </button>
-                                <span className="text-xs text-gray-500 font-medium">Page {currentPage} of {totalPages}</span>
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                                    disabled={currentPage === totalPages}
-                                    className="px-3 py-1 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-white disabled:opacity-50 transition-colors"
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        </div>
+                        {/* Standardized Pagination */}
+                        <TablePagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalItems={filteredReceivings.length}
+                            itemsPerPage={rowsPerPage}
+                            onPageChange={setCurrentPage}
+                            itemLabel="receiving records"
+                        />
 
                     </div>
                 </div>
