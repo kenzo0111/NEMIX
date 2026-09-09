@@ -167,7 +167,7 @@ export default function ReportRegistry({
                                 setSearchTerm(e.target.value);
                                 setCurrentPage(1);
                             }}
-                            placeholder="Search by reference, item, recipient..."
+                            placeholder="Search by reference, recipient, department..."
                             className="w-full pl-9 pr-4 py-2 text-xs font-medium border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900"
                         />
                     </div>
@@ -221,9 +221,6 @@ export default function ReportRegistry({
                                     Reference No. & Form
                                 </th>
                                 <th className="px-6 py-3 text-[11px] font-bold text-gray-700 uppercase tracking-wider font-mono">
-                                    Item Description
-                                </th>
-                                <th className="px-6 py-3 text-[11px] font-bold text-gray-700 uppercase tracking-wider font-mono">
                                     Accountable / Recipient
                                 </th>
                                 <th className="px-6 py-3 text-[11px] font-bold text-gray-700 uppercase tracking-wider font-mono">
@@ -256,16 +253,6 @@ export default function ReportRegistry({
                                                     ? 'MR (Appendix 63)'
                                                     : String(report.type)}
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-3.5 max-w-xs">
-                                            <div className="text-xs font-medium text-gray-900 truncate">
-                                                {report.itemName || report.item_name || report.title || 'General Consumables'}
-                                            </div>
-                                            {report.quantity && (
-                                                <div className="text-[11px] text-gray-500 font-mono">
-                                                    Qty: {report.quantity}
-                                                </div>
-                                            )}
                                         </td>
                                         <td className="px-6 py-3.5 whitespace-nowrap">
                                             <div className="text-xs font-medium text-gray-800">
@@ -331,7 +318,7 @@ export default function ReportRegistry({
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={6} className="py-8">
+                                    <td colSpan={5} className="py-8">
                                         <EmptyState
                                             isSearch={Boolean(searchTerm || selectedType || selectedStatus)}
                                             title={
