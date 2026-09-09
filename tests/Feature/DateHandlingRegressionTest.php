@@ -168,4 +168,55 @@ class DateHandlingRegressionTest extends TestCase
         $this->assertNotNull($issuance);
         $this->assertSame($selectedDate, $issuance->date_issued->format('Y-m-d'));
     }
+
+    public function test_compliance_report_index_returns_normalized_issuance_dates(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $supplier = Supplier::create([
+            'name' => 'RSMI Test Supplier',
+            'tin' => '111-222-333-000',
+            'reg_number' => 'REG-RSMI-01',
+            'category' => 'Supplies',
+            'contact_person' => 'Bob Smith',
+            'email' => 'rsmi@example.com',
+            'phone' => '0912345678',
+            'address' => 'City',
+            'status' => 'Active',
+            'created_by' => $user->id,
+        ]);
+
+        $item = Item::create([
+            'name' => 'Paper Clips',
+            'sku' => 'CLIP-001',
+            'stock' => 100,
+            'unit_cost' => 2.50,
+            'amount' => 250.00,
+            'status' => 'Available',
+            'supplier_id' => $supplier->id,
+            'created_by' => $user->id,
+        ]);
+
+        $issuance = Issuance::create([
+            'item_id' => $item->id,
+            'quantity' => 10,
+            'recipient' => 'Maria Clara',
+            'department' => 'Finance',
+            'date_issued' => '2026-09-10',
+            'status' => 'Issued',
+            'issued_by' => $user->id,
+        ]);
+
+        $response = $this->get(route('compliance.reports'));
+        $response->assertOk();
+
+        $pageProps = $response->inertiaPage()['props'];
+        $this->assertNotEmpty($pageProps['issuances']);
+
+        $firstIssuance = collect($pageProps['issuances'])->firstWhere('id', $issuance->id);
+        $this->assertNotNull($firstIssuance);
+        $this->assertSame('2026-09-10', $firstIssuance['date_issued']);
+        $this->assertSame('2026-09-10', $firstIssuance['date']);
+    }
 }

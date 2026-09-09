@@ -19,13 +19,35 @@ class ComplianceReportController extends Controller
             ? \Modules\Inventory\Models\Item::all()
             : [];
 
+        $tz = config('app.timezone', 'Asia/Manila');
+
         $issuances = class_exists(\Modules\Inventory\Models\Issuance::class)
-            ? \Modules\Inventory\Models\Issuance::with(['item', 'issuer'])->latest()->get()
-            : [];
+            ? \Modules\Inventory\Models\Issuance::with(['item', 'issuer'])->latest()->get()->map(function ($issuance) use ($tz) {
+                $rawDate = $issuance->date_issued ?? $issuance->created_at;
+                $formattedDate = $rawDate instanceof \DateTimeInterface
+                    ? $rawDate->timezone($tz)->format('Y-m-d')
+                    : ($rawDate ? Carbon::parse($rawDate)->timezone($tz)->format('Y-m-d') : null);
+
+                $data = $issuance->toArray();
+                $data['date_issued'] = $formattedDate;
+                $data['date'] = $formattedDate;
+                return $data;
+            })->values()
+            : collect();
 
         $receivings = class_exists(\Modules\Inventory\Models\Receiving::class)
-            ? \Modules\Inventory\Models\Receiving::with(['item', 'supplier'])->latest()->get()
-            : [];
+            ? \Modules\Inventory\Models\Receiving::with(['item', 'supplier'])->latest()->get()->map(function ($receiving) use ($tz) {
+                $rawDate = $receiving->date_received ?? $receiving->created_at;
+                $formattedDate = $rawDate instanceof \DateTimeInterface
+                    ? $rawDate->timezone($tz)->format('Y-m-d')
+                    : ($rawDate ? Carbon::parse($rawDate)->timezone($tz)->format('Y-m-d') : null);
+
+                $data = $receiving->toArray();
+                $data['date_received'] = $formattedDate;
+                $data['date'] = $formattedDate;
+                return $data;
+            })->values()
+            : collect();
 
         $migratedRecords = collect();
 

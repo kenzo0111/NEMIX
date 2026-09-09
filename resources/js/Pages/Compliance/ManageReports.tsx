@@ -1132,6 +1132,20 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         return true;
     };
 
+    // Helper to get latest issuance transaction date
+    const getLatestIssuanceDate = () => {
+        const combined = [
+            ...issuances,
+            ...(migratedRecords || []).filter((r: any) => !formData.type || String(r.form_type) === String(formData.type)),
+        ];
+        const dates = combined
+            .map((entry: any) => getLocalDateString(entry.date_issued || entry.date || entry.created_at))
+            .filter(Boolean);
+        if (dates.length === 0) return getLocalDateString();
+        dates.sort().reverse();
+        return dates[0];
+    };
+
     // Filter logic for Issuances & Historical Data
     const getFilteredIssuances = () => {
         const combinedEntries = [
@@ -1142,8 +1156,11 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         ];
 
         return combinedEntries.filter((entry: any) => {
-            const dt = entry.date_issued || entry.date || entry.date_received || entry.created_at;
-            return isDateInPeriod(dt);
+            const dtIssued = entry.date_issued || entry.date || entry.date_received;
+            const dtCreated = entry.created_at;
+            if (dtIssued && isDateInPeriod(dtIssued)) return true;
+            if (dtCreated && isDateInPeriod(dtCreated)) return true;
+            return false;
         });
     };
 
@@ -2520,7 +2537,13 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         isDisabled={modalMode === 'view'}
                                         onChange={(opt: any) => {
                                             if (modalMode === 'view') return;
-                                            setFormData({ ...formData, periodType: opt?.value || 'all' });
+                                            const newPeriod = opt?.value || 'all';
+                                            const defaultDate = getLatestIssuanceDate();
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                periodType: newPeriod,
+                                                date: newPeriod === 'specific' ? (prev.date || defaultDate) : prev.date,
+                                            }));
                                         }}
                                         styles={customSelectStyles}
                                         menuPortalTarget={typeof window !== "undefined" ? document.body : null}
