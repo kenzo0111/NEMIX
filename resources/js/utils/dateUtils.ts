@@ -40,8 +40,8 @@ export const getLocalDateString = (input?: Date | string | number | null): strin
     const trimmed = String(input).trim();
     if (!trimmed || trimmed === '-' || trimmed === 'N/A') return '';
 
-    // 1. Direct YYYY-MM-DD match (preserves pure calendar date strictly without time/timezone)
-    const ymdMatch = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    // 1. Direct YYYY-MM-DD match (preserves calendar date strictly from any YYYY-MM-DD... string)
+    const ymdMatch = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
     if (ymdMatch) {
         const y = ymdMatch[1];
         const m = ymdMatch[2].padStart(2, '0');
