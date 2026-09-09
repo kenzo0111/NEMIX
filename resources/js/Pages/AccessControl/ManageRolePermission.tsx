@@ -1,8 +1,7 @@
-import SystemModeBadge from '@/Components/SystemModeBadge';
+import PageHeader from '@/Components/PageHeader';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Plus, Edit2, Trash2, Shield, Check, X, Search, Key, Users, ShieldCheck, Info } from 'lucide-react';
 import Sidebar from '@/Components/Sidebar';
-import Breadcrumbs from '@/Components/Breadcrumbs';
 import Modal from '@/Components/Modal';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useState, useEffect, useMemo } from 'react';
@@ -321,43 +320,11 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
 
             <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
 
-                {/* Sticky Institutional Header */}
-                <header className="sticky top-0 z-40 shadow-xs">
-                    {/* Top Institutional Bar */}
-                    <div className="bg-red-950 text-red-100 text-[11px] px-6 lg:px-8 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide">
-                        <div className="flex items-center gap-3">
-                            <span className="font-bold tracking-wider uppercase text-amber-300">Supply & Property Management Office (SPMO)</span>
-                            <span className="hidden md:inline text-red-400">|</span>
-                            <span className="hidden md:inline text-red-200/80">Supply and Inventory Management System (SIMS)</span>
-                        </div>
-                        <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
-                            <SystemModeBadge />
-                            <span>•</span>
-                            <span>ACCESS LEVEL: AUTHORIZED PERSONNEL</span>
-                        </div>
-                    </div>
-
-                    {/* Main Header Content */}
-                    <div className="bg-white border-b border-gray-200 px-6 lg:px-8 py-4 flex items-center justify-between">
-                        <div>
-                            <div className="mb-1">
-                                <Breadcrumbs items={[{ name: 'Access Control' }, { name: 'Manage Role Permission' }]} />
-                            </div>
-                            <h2 className="text-2xl font-bold text-gray-900 font-serif tracking-tight">Manage Roles & Permissions</h2>
-                            <p className="text-xs text-gray-500 font-medium">Define access levels, system security privileges, and module capability rules</p>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right hidden sm:block border-l border-gray-200 pl-6">
-                                <span className="block text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
-                                    {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
-                                </span>
-                                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold block mt-0.5">
-                                    {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </header>
+                <PageHeader
+                    title="Role & Permission Management"
+                    description="Define access levels, system security privileges, and module capability rules"
+                    breadcrumbs={[{ name: 'Access Control' }, { name: 'Manage Role Permission' }]}
+                />
 
                 <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16">
 

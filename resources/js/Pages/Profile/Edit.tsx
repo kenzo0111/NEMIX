@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import Sidebar from '@/Components/Sidebar';
-import SystemModeBadge from '@/Components/SystemModeBadge';
-import Breadcrumbs from '@/Components/Breadcrumbs';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { PageProps, UserProfileDetails } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import UpdateProfileInformationCard from './Partials/UpdateProfileInformationCard';
 import UpdatePasswordCard from './Partials/UpdatePasswordCard';
 import AccountSecurityCard from './Partials/AccountSecurityCard';
+import PageHeader from '@/Components/PageHeader';
 import {
     User,
     KeyRound,
@@ -99,81 +98,12 @@ export default function Edit({
 
             {/* Main Application Area (Matches Dashboard Layout) */}
             <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
-                {/* Merged Sticky Institutional Header */}
-                <header className="sticky top-0 z-40 shadow-xs">
-                    {/* Non-Production Mode Alert Banner */}
-                    {systemMode !== 'LIVE PRODUCTION' && (
-                        <div
-                            className={`px-6 py-2 text-xs font-mono font-bold text-center flex items-center justify-center gap-2 shadow-xs border-b ${
-                                systemMode === 'MAINTENANCE MODE'
-                                    ? 'bg-amber-950 text-amber-300 border-amber-800'
-                                    : systemMode === 'STAGING SANDBOX'
-                                    ? 'bg-sky-950 text-sky-300 border-sky-800'
-                                    : 'bg-purple-950 text-purple-300 border-purple-800'
-                            }`}
-                        >
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
-                            </span>
-                            <span>
-                                {systemMode === 'MAINTENANCE MODE' &&
-                                    'SYSTEM MAINTENANCE MODE ACTIVE — Data mutations restricted to System Administrators.'}
-                                {systemMode === 'STAGING SANDBOX' &&
-                                    'STAGING SANDBOX ENVIRONMENT — Operating with isolated test database records.'}
-                                {systemMode === 'TRAINING SIMULATION' &&
-                                    'TRAINING SIMULATION MODE — Operating with synthetic demo data.'}
-                            </span>
-                        </div>
-                    )}
-
-                    {/* Top Institutional Bar (Identical to Dashboard) */}
-                    <div className="bg-red-950 text-red-100 text-[11px] px-6 lg:px-8 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide">
-                        <div className="flex items-center gap-3">
-                            <span className="font-bold tracking-wider uppercase text-amber-300">
-                                Supply & Property Management Office (SPMO)
-                            </span>
-                            <span className="hidden md:inline text-red-400">|</span>
-                            <span className="hidden md:inline text-red-200/80">
-                                Supply and Inventory Management System (SIMS)
-                            </span>
-                        </div>
-                        <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
-                            <SystemModeBadge />
-                            <span>•</span>
-                            <span>ACCESS LEVEL: AUTHORIZED PERSONNEL</span>
-                        </div>
-                    </div>
-
-                    {/* Main Header Content (Identical to Dashboard) */}
-                    <div className="bg-white border-b border-gray-200 px-6 lg:px-8 py-4 flex items-center justify-between">
-                        <div>
-                            <div className="mb-1">
-                                <Breadcrumbs
-                                    items={[
-                                        { name: 'Account Settings' },
-                                    ]}
-                                />
-                            </div>
-                            <h2 className="text-2xl font-bold text-gray-900 font-serif tracking-tight">
-                                Account Settings
-                            </h2>
-                            <p className="text-xs text-gray-500 font-medium">
-                                Personal Identity Details, Security Credentials & Institutional Audit Records
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right hidden sm:block border-l border-gray-200 pl-6">
-                                <span className="block text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
-                                    {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
-                                </span>
-                                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold block mt-0.5">
-                                    {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </header>
+                {/* Unified Header */}
+                <PageHeader
+                    title="Account Settings"
+                    description="Personal Identity Details, Security Credentials & Institutional Audit Records"
+                    breadcrumbs={[{ name: 'Account Settings' }]}
+                />
 
                 {/* Main Content Area (Matches Dashboard Max-Width & Spacing) */}
                 <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16">

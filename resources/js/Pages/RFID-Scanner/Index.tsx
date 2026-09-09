@@ -4,12 +4,12 @@ import Modal from '@/Components/Modal';
 import { Head, router } from '@inertiajs/react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import RFIDHeader from './Components/RFIDHeader';
+
 import ItemSelector, { Item } from './Components/ItemSelector';
 import SelectedItemCard from './Components/SelectedItemCard';
 import RFIDScannerPanel, { AssignedSuccessData, UnassignedSuccessData } from './Components/RFIDScannerPanel';
 import RFIDInventoryTable from './Components/RFIDInventoryTable';
-
+import PageHeader from '@/Components/PageHeader';
 interface PageProps {
     auth: { user: any };
     items: Item[];
@@ -326,29 +326,7 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
             />
 
             <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
-                {/* Institutional Top Bar */}
-                <div className="bg-red-950 text-red-100 text-[11px] px-6 lg:px-8 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide">
-                    <div className="flex items-center gap-3">
-                        <span className="font-bold tracking-wider uppercase text-amber-300">
-                            Supply & Property Management Office (SPMO)
-                        </span>
-                        <span className="hidden md:inline text-red-400">|</span>
-                        <span className="hidden md:inline text-red-200/80">
-                            Supply and Inventory Management System (SIMS)
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
-                        <SystemModeBadge />
-                        <span>•</span>
-                        <span>OPERATOR WORKSTATION</span>
-                    </div>
-                </div>
-
-                {/* Streamlined Header */}
-                <RFIDHeader
-                    totalItems={items.length}
-                    taggedCount={taggedItemsCount}
-                />
+                <PageHeader title="RFID Scanner" description="Assign RFID tags to inventory items before receiving." breadcrumbs={[{ name: 'RFID Scanner', href: '#' }]} />
 
                 <div className="p-6 lg:p-8 space-y-6 max-w-[1500px] mx-auto pb-16">
                     {/* ── STATE M: ALL ITEMS TAGGED (COMPLETION STATE) ── */}
