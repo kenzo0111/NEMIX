@@ -23,6 +23,10 @@ class ComplianceReportController extends Controller
             ? \Modules\Inventory\Models\Issuance::with(['item', 'issuer'])->latest()->get()
             : [];
 
+        $receivings = class_exists(\Modules\Inventory\Models\Receiving::class)
+            ? \Modules\Inventory\Models\Receiving::with(['item', 'supplier'])->latest()->get()
+            : [];
+
         $migratedRecords = collect();
 
         if (\Illuminate\Support\Facades\Schema::hasTable('rsmi_migrated_records')) {
@@ -341,6 +345,7 @@ class ComplianceReportController extends Controller
             'items' => $items,
             'reports' => $reports,
             'issuances' => $issuances,
+            'receivings' => $receivings,
             'suppliers' => $suppliers,
             'migratedRecords' => $migratedRecords->values(),
         ]);
@@ -376,7 +381,7 @@ class ComplianceReportController extends Controller
             'itemName' => ['nullable', 'string', 'max:255'],
             'supplierId' => ['nullable', 'integer', 'exists:suppliers,id'],
             'supplierName' => ['nullable', 'string', 'max:255'],
-            'periodType' => ['required', 'in:specific,range,monthly,yearly'],
+            'periodType' => ['required', 'in:all,specific,range,monthly,yearly'],
             'date' => ['nullable', 'date'],
             'startDate' => ['nullable', 'date'],
             'endDate' => ['nullable', 'date'],
@@ -390,7 +395,9 @@ class ComplianceReportController extends Controller
         $coverageLabel = $validated['coverageLabel'] ?? null;
 
         if (!$coverageLabel) {
-            if (($validated['periodType'] ?? null) === 'monthly' && !empty($validated['selectedMonth']) && !empty($validated['selectedYear'])) {
+            if (($validated['periodType'] ?? null) === 'all') {
+                $coverageLabel = 'All Records / Full Ledger';
+            } elseif (($validated['periodType'] ?? null) === 'monthly' && !empty($validated['selectedMonth']) && !empty($validated['selectedYear'])) {
                 $coverageLabel = Carbon::createFromDate((int) $validated['selectedYear'], (int) $validated['selectedMonth'], 1)->format('F Y');
             } elseif (($validated['periodType'] ?? null) === 'yearly' && !empty($validated['selectedYear'])) {
                 $coverageLabel = 'Year ' . $validated['selectedYear'];
@@ -440,7 +447,7 @@ class ComplianceReportController extends Controller
             'itemName' => ['nullable', 'string', 'max:255'],
             'supplierId' => ['nullable', 'integer', 'exists:suppliers,id'],
             'supplierName' => ['nullable', 'string', 'max:255'],
-            'periodType' => ['required', 'in:specific,range,monthly,yearly'],
+            'periodType' => ['required', 'in:all,specific,range,monthly,yearly'],
             'date' => ['nullable', 'date'],
             'startDate' => ['nullable', 'date'],
             'endDate' => ['nullable', 'date'],
@@ -454,7 +461,9 @@ class ComplianceReportController extends Controller
         $coverageLabel = $validated['coverageLabel'] ?? null;
 
         if (!$coverageLabel) {
-            if (($validated['periodType'] ?? null) === 'monthly' && !empty($validated['selectedMonth']) && !empty($validated['selectedYear'])) {
+            if (($validated['periodType'] ?? null) === 'all') {
+                $coverageLabel = 'All Records / Full Ledger';
+            } elseif (($validated['periodType'] ?? null) === 'monthly' && !empty($validated['selectedMonth']) && !empty($validated['selectedYear'])) {
                 $coverageLabel = Carbon::createFromDate((int) $validated['selectedYear'], (int) $validated['selectedMonth'], 1)->format('F Y');
             } elseif (($validated['periodType'] ?? null) === 'yearly' && !empty($validated['selectedYear'])) {
                 $coverageLabel = 'Year ' . $validated['selectedYear'];

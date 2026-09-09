@@ -184,7 +184,7 @@ export const formatFundClusterDisplay = (val?: string | null): string => {
 };
 
 // --- MAIN COMPONENT ---
-export default function ManageReports({ auth, items = [], reports: serverReports = [], issuances = [], suppliers = [], migratedRecords = [] }: { auth: any, items?: any[], reports?: any[], issuances?: any[], suppliers?: any[], migratedRecords?: any[] }) {
+export default function ManageReports({ auth, items = [], reports: serverReports = [], issuances = [], receivings = [], suppliers = [], migratedRecords = [] }: { auth: any, items?: any[], reports?: any[], issuances?: any[], receivings?: any[], suppliers?: any[], migratedRecords?: any[] }) {
     const { props } = usePage();
     const user = auth?.user || (props.auth as any)?.user;
     const publicSettings = (props as any)?.system?.settings || {};
@@ -1085,58 +1085,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         });
     };
 
-    // Safe period check helper
-    const isDateInPeriod = (dateStr: any) => {
-        if (!dateStr) return true;
-        const cleanDateStr = String(dateStr).split('T')[0].trim();
-        if (!cleanDateStr) return true;
-
-        if (formData.periodType === 'specific') {
-            return cleanDateStr === (formData.date || '').split('T')[0];
-        } else if (formData.periodType === 'range') {
-            const start = (formData.startDate || '').split('T')[0];
-            const end = (formData.endDate || '').split('T')[0];
-            if (start && end) return cleanDateStr >= start && cleanDateStr <= end;
-            if (start) return cleanDateStr >= start;
-            if (end) return cleanDateStr <= end;
-            return true;
-        } else if (formData.periodType === 'monthly') {
-            const parts = cleanDateStr.split('-');
-            if (parts.length >= 2) {
-                const year = parseInt(parts[0], 10);
-                const month = parseInt(parts[1], 10);
-                return month === Number(formData.selectedMonth) && year === Number(formData.selectedYear);
-            }
-            const d = new Date(cleanDateStr);
-            return (d.getMonth() + 1) === Number(formData.selectedMonth) && d.getFullYear() === Number(formData.selectedYear);
-        } else if (formData.periodType === 'yearly') {
-            const parts = cleanDateStr.split('-');
-            if (parts.length >= 1) {
-                const year = parseInt(parts[0], 10);
-                return year === Number(formData.selectedYear);
-            }
-            const d = new Date(cleanDateStr);
-            return d.getFullYear() === Number(formData.selectedYear);
-        }
-        return true;
-    };
-
-    // Filter logic for Issuances & Historical Data
-    const getFilteredIssuances = () => {
-        const combinedEntries = [
-            ...issuances.map((issue: any) => ({ ...issue, _source: 'issuance' })),
-            ...(migratedRecords || [])
-                .filter((record: any) => String(record.form_type) === String(formData.type))
-                .map((record: any) => ({ ...record, _source: 'migration' })),
-        ];
-
-        return combinedEntries.filter((entry: any) => {
-            const dt = entry.date_issued || entry.date || entry.date_received || entry.created_at;
-            return isDateInPeriod(dt);
-        });
-    };
-
-    // Enhanced Form State for COA Periods (Status removed)
+    // Enhanced Form State for COA Periods
     const [formData, setFormData] = useState({
         title: '',
         type: '',
@@ -1146,7 +1095,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         supplierName: '',
         endUser: '',
         generatedDate: new Date().toISOString().split('T')[0],
-        periodType: 'specific',
+        periodType: 'all',
         date: new Date().toISOString().split('T')[0],
         startDate: '',
         endDate: '',
@@ -1160,6 +1109,71 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
     const modules = getSidebarModules('Compliance', 'Manage Reports');
 
+    // Safe period check helper
+    const isDateInPeriod = (dateStr: any) => {
+        if (!formData.periodType || formData.periodType === 'all') return true;
+        if (!dateStr) return true;
+
+        let cleanDateStr = '';
+        if (dateStr instanceof Date) {
+            cleanDateStr = dateStr.toISOString().split('T')[0];
+        } else {
+            cleanDateStr = String(dateStr).split('T')[0].split(' ')[0].trim().replace(/\//g, '-');
+        }
+        if (!cleanDateStr) return true;
+
+        if (formData.periodType === 'specific') {
+            const targetDate = (formData.date || '').split('T')[0].trim();
+            return !targetDate || cleanDateStr === targetDate;
+        } else if (formData.periodType === 'range') {
+            const start = (formData.startDate || '').split('T')[0].trim();
+            const end = (formData.endDate || '').split('T')[0].trim();
+            if (start && end) return cleanDateStr >= start && cleanDateStr <= end;
+            if (start) return cleanDateStr >= start;
+            if (end) return cleanDateStr <= end;
+            return true;
+        } else if (formData.periodType === 'monthly') {
+            const parts = cleanDateStr.split('-');
+            if (parts.length >= 2) {
+                const year = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10);
+                return month === Number(formData.selectedMonth) && year === Number(formData.selectedYear);
+            }
+            const d = new Date(cleanDateStr);
+            if (!isNaN(d.getTime())) {
+                return (d.getMonth() + 1) === Number(formData.selectedMonth) && d.getFullYear() === Number(formData.selectedYear);
+            }
+            return true;
+        } else if (formData.periodType === 'yearly') {
+            const parts = cleanDateStr.split('-');
+            if (parts.length >= 1) {
+                const year = parseInt(parts[0], 10);
+                return year === Number(formData.selectedYear);
+            }
+            const d = new Date(cleanDateStr);
+            if (!isNaN(d.getTime())) {
+                return d.getFullYear() === Number(formData.selectedYear);
+            }
+            return true;
+        }
+        return true;
+    };
+
+    // Filter logic for Issuances & Historical Data
+    const getFilteredIssuances = () => {
+        const combinedEntries = [
+            ...issuances.map((issue: any) => ({ ...issue, _source: 'issuance' })),
+            ...(migratedRecords || [])
+                .filter((record: any) => !formData.type || String(record.form_type) === String(formData.type))
+                .map((record: any) => ({ ...record, _source: 'migration' })),
+        ];
+
+        return combinedEntries.filter((entry: any) => {
+            const dt = entry.date_issued || entry.date || entry.date_received || entry.created_at;
+            return isDateInPeriod(dt);
+        });
+    };
+
     // Options Arrays
     const typeOptions = [
         { value: 'RSMI', label: 'RSMI - Supplies and Materials Issued' },
@@ -1169,6 +1183,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     ];
 
     const periodOptions = [
+        { value: 'all', label: 'All Records / Full Ledger' },
         { value: 'specific', label: 'Specific Date' },
         { value: 'range', label: 'Date Range' },
         { value: 'monthly', label: 'Monthly' },
@@ -1223,7 +1238,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         return [...matchedIssuances, ...matchedMigrations];
     };
 
-    // Merged Target Item options for Stock Card (Active Inventory + Migrated Historical Items)
+    // Merged Target Item options for Stock Card (Active Inventory + Receivings + Issuances + Migrated Historical Items)
     const stockCardItemOptions = (() => {
         const map = new Map<string, { value: string; label: string }>();
         items.forEach((item: any) => {
@@ -1231,6 +1246,24 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 map.set(item.name.toLowerCase().trim(), {
                     value: item.name,
                     label: `${item.name}${item.sku ? ` (${item.sku})` : ''}`,
+                });
+            }
+        });
+        (receivings || []).forEach((r: any) => {
+            const name = r.item?.name || r.item_name;
+            if (name && !map.has(String(name).toLowerCase().trim())) {
+                map.set(String(name).toLowerCase().trim(), {
+                    value: name,
+                    label: `${name}${r.item?.sku ? ` (${r.item.sku})` : ''}`,
+                });
+            }
+        });
+        (issuances || []).forEach((i: any) => {
+            const name = i.item?.name || (typeof i.item === 'string' ? i.item : null) || i.item_name;
+            if (name && !map.has(String(name).toLowerCase().trim())) {
+                map.set(String(name).toLowerCase().trim(), {
+                    value: name,
+                    label: `${name}${i.item?.sku ? ` (${i.item.sku})` : ''}`,
                 });
             }
         });
@@ -1254,55 +1287,95 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     // Format display date based on period selection
     const [reports, setReports] = useState<any[]>(serverReports.length > 0 ? serverReports : []);
 
-    const selectedStockCardItem = items.find((item: any) => item.name === formData.itemName);
-    const matchingStockCardMigrated = (migratedRecords || []).find((m: any) =>
-        String(m.item_name || m.item || m.payload?.item_name || '').trim().toLowerCase() === String(formData.itemName || '').trim().toLowerCase()
+    const targetStockCardName = String(formData.itemName || '').trim().toLowerCase();
+    const selectedStockCardItem = items.find((item: any) =>
+        String(item.name || '').trim().toLowerCase() === targetStockCardName ||
+        (item.sku && String(item.sku).trim().toLowerCase() === targetStockCardName)
     );
+    const matchingStockCardMigrated = (migratedRecords || []).find((m: any) => {
+        const mName = String(m.item_name || m.item || m.payload?.item_name || m.payload?.item || '').trim().toLowerCase();
+        const mStock = String(m.stock_no || m.payload?.stock_no || m.reference || '').trim().toLowerCase();
+        return mName === targetStockCardName || (selectedStockCardItem?.sku && mStock === String(selectedStockCardItem.sku).trim().toLowerCase());
+    });
 
     const getSelectedStockCardIssuances = () => {
         if (!formData.itemName) return [];
         const targetNameLower = String(formData.itemName).trim().toLowerCase();
 
-        // 1. Active inventory issuances
+        // 1. Inventory receivings (Deliveries/Suppliers)
+        const matchedReceivings = (receivings || []).filter((rec: any) => {
+            if (selectedStockCardItem?.id && rec.item_id && String(rec.item_id) === String(selectedStockCardItem.id)) return true;
+            if (rec.item?.name && String(rec.item.name).trim().toLowerCase() === targetNameLower) return true;
+            if (rec.item_name && String(rec.item_name).trim().toLowerCase() === targetNameLower) return true;
+            return false;
+        }).filter((rec: any) => {
+            const dt = rec.date_received || rec.created_at;
+            return isDateInPeriod(dt);
+        }).map((rec: any) => ({
+            ...rec,
+            _source: 'receiving',
+        }));
+
+        // 2. Active inventory issuances (RIS)
         const matchedActive = issuances.filter((issue: any) => {
-            if (issue.item_id && selectedStockCardItem?.id && String(issue.item_id) === String(selectedStockCardItem.id)) return true;
+            if (selectedStockCardItem?.id && issue.item_id && String(issue.item_id) === String(selectedStockCardItem.id)) return true;
             if (issue.item && typeof issue.item === 'string' && issue.item.trim().toLowerCase() === targetNameLower) return true;
             if (issue.item?.name && issue.item.name.trim().toLowerCase() === targetNameLower) return true;
+            if (issue.item_name && String(issue.item_name).trim().toLowerCase() === targetNameLower) return true;
             return false;
         }).filter((issue: any) => {
             const dt = issue.date_issued || issue.date || issue.created_at;
             return isDateInPeriod(dt);
         }).map((issue: any) => ({ ...issue, _source: 'issuance' }));
 
-        // 2. Historical records (from STOCK_CARD, RSMI, or any migration matching this item)
+        // 3. Historical records (from STOCK_CARD, RSMI, or any migration matching this item)
         const matchedMigrated = (migratedRecords || []).filter((record: any) => {
-            const recItem = String(record.item_name || record.item || record.payload?.item_name || '').trim().toLowerCase();
-            return recItem === targetNameLower;
+            const recItem = String(record.item_name || record.item || record.payload?.item_name || record.payload?.item || '').trim().toLowerCase();
+            const recStock = String(record.stock_no || record.payload?.stock_no || '').trim().toLowerCase();
+            if (recItem === targetNameLower) return true;
+            if (selectedStockCardItem?.sku && recStock && recStock === String(selectedStockCardItem.sku).trim().toLowerCase()) return true;
+            return false;
         }).filter((record: any) => {
-            const dt = record.date || record.date_received || record.created_at;
+            const dt = record.date || record.date_received || record.date_issued || record.created_at;
             return isDateInPeriod(dt);
         }).map((record: any) => ({ ...record, _source: 'migration' }));
 
-        return [...matchedActive, ...matchedMigrated];
+        return [...matchedReceivings, ...matchedActive, ...matchedMigrated];
     };
 
     const stockCardEntries = (() => {
-        const selectedIssuances = getSelectedStockCardIssuances();
+        const selectedTransactions = getSelectedStockCardIssuances();
         const currentStock = Number(selectedStockCardItem?.stock || 0);
 
-        const preparedEntries = selectedIssuances
-            .map((issue: any) => {
-                if (issue._source === 'migration') {
-                    const payload = issue.payload || {};
-                    const receiptQty = Number(issue.receipt_qty ?? payload.receipt_qty ?? issue.receipt_quantity ?? payload.receipt_quantity ?? 0);
-                    const issueQty = Number(issue.issue_qty ?? payload.issue_qty ?? issue.issue_quantity ?? payload.issue_quantity ?? (issue.form_type === 'RSMI' ? (issue.quantity || issue.quantity_issued || 0) : (issue.quantity || 0)));
-                    const balQty = issue.balance_qty ?? payload.balance_qty ?? issue.balance ?? payload.balance;
-                    const ref = issue.reference || issue.reference_no || payload.reference_no || issue.ris_no || payload.ris_no || `SC-HIST-${issue.id}`;
-                    const office = issue.recipient || issue.office_end_user || issue.department || issue.supplier_source || payload.office_end_user || payload.supplier_source || payload.issue_office || '';
-                    const days = issue.remarks || payload.remarks || 'Historical Migration';
+        const preparedEntries = selectedTransactions
+            .map((trans: any) => {
+                if (trans._source === 'receiving') {
+                    const qty = Number(trans.quantity || trans.qty || 0);
+                    const ref = trans.reference || trans.invoice_no || trans.po_no || (trans.id ? `RR-${trans.id}` : 'RR');
+                    const office = trans.supplier?.name || trans.supplier?.company_name || 'Delivery / Supplier';
+                    return {
+                        date: trans.date_received || trans.date || trans.created_at || '',
+                        reference: ref,
+                        receipt_qty: qty > 0 ? qty : '',
+                        issue_qty: '',
+                        issue_office: office,
+                        balance_qty: undefined,
+                        days_to_consume: '',
+                        _source: 'receiving',
+                    };
+                }
+
+                if (trans._source === 'migration') {
+                    const payload = trans.payload || {};
+                    const receiptQty = Number(trans.receipt_qty ?? payload.receipt_qty ?? trans.receipt_quantity ?? payload.receipt_quantity ?? 0);
+                    const issueQty = Number(trans.issue_qty ?? payload.issue_qty ?? trans.issue_quantity ?? payload.issue_quantity ?? (trans.form_type === 'RSMI' ? (trans.quantity || trans.quantity_issued || 0) : (trans.quantity || 0)));
+                    const balQty = trans.balance_qty ?? payload.balance_qty ?? trans.balance ?? payload.balance;
+                    const ref = trans.reference || trans.reference_no || payload.reference_no || trans.ris_no || payload.ris_no || `SC-HIST-${trans.id}`;
+                    const office = trans.recipient || trans.office_end_user || trans.department || trans.supplier_source || payload.office_end_user || payload.supplier_source || payload.issue_office || '';
+                    const days = trans.remarks || payload.remarks || 'Historical Migration';
 
                     return {
-                        date: issue.date || issue.created_at || '',
+                        date: trans.date || trans.date_received || trans.created_at || '',
                         reference: ref,
                         receipt_qty: receiptQty > 0 ? receiptQty : '',
                         issue_qty: issueQty > 0 ? issueQty : '',
@@ -1312,14 +1385,16 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         _source: 'migration',
                     };
                 }
-                const issueQty = Number(issue.quantity || issue.qty || 0);
+
+                // trans._source === 'issuance'
+                const issueQty = Number(trans.quantity || trans.qty || 0);
                 return {
-                    date: issue.date_issued || issue.date || issue.created_at || '',
-                    reference: issue.reference || issue.display_id || (issue.id ? `RIS-${issue.id}` : 'RIS'),
+                    date: trans.date_issued || trans.date || trans.created_at || '',
+                    reference: trans.reference || trans.display_id || (trans.id ? `RIS-${trans.id}` : 'RIS'),
                     receipt_qty: '',
                     issue_qty: issueQty === 0 ? '' : issueQty,
-                    issue_office: issue.department || issue.recipient || issue.office || '',
-                    days_to_consume: '',
+                    issue_office: trans.department || trans.recipient || trans.office || '',
+                    days_to_consume: trans.remarks || '',
                     _source: 'issuance',
                 };
             })
@@ -1333,19 +1408,21 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         const totalReceived = preparedEntries.reduce((sum: number, entry: any) => sum + Number(entry.receipt_qty || 0), 0);
         const startingBalance = Math.max(0, currentStock + totalIssued - totalReceived);
 
-        const entries: any[] = [
-            {
+        const entries: any[] = [];
+        let runningBalance = startingBalance;
+
+        if (startingBalance > 0 || preparedEntries.length === 0) {
+            entries.push({
                 date: '',
-                reference: 'Balance / Opening Historical',
+                reference: 'Balance / Opening',
                 receipt_qty: '',
                 issue_qty: '',
                 issue_office: '',
-                balance_qty: startingBalance,
+                balance_qty: startingBalance > 0 ? startingBalance : (currentStock > 0 ? currentStock : ''),
                 days_to_consume: '',
-            }
-        ];
+            });
+        }
 
-        let runningBalance = startingBalance;
         preparedEntries.forEach((entry: any) => {
             if (entry.receipt_qty) runningBalance += Number(entry.receipt_qty);
             if (entry.issue_qty) runningBalance -= Number(entry.issue_qty);
@@ -1359,7 +1436,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
     })();
 
     const generateDisplayDate = (data: any) => {
-        if (data.periodType === 'monthly') {
+        if (data.periodType === 'all') {
+            return 'All Records / Full Ledger';
+        } else if (data.periodType === 'monthly') {
             const monthName = monthOptions.find(m => m.value === data.selectedMonth)?.label;
             return `${monthName} ${data.selectedYear}`;
         } else if (data.periodType === 'yearly') {
@@ -1399,9 +1478,9 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         } else {
             document.head.appendChild(style);
         }
-        const isLandscape = showModal && modalMode === 'view' && formData.type === 'RPCI';
+        const isLandscape = showModal && formData.type === 'RPCI';
         style.textContent = `@page { size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'}; margin: 8mm; }`;
-    }, [showModal, modalMode, formData.type]);
+    }, [showModal, formData.type]);
 
     useEffect(() => {
         setReports(serverReports.length > 0 ? serverReports : []);
@@ -1415,15 +1494,22 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         }
 
         const genDate = formData.generatedDate || new Date().toISOString().split('T')[0];
+        const defaultTitle = formData.title || (
+            formData.type === 'STOCK_CARD' ? `Stock Card - ${formData.itemName || 'Inventory'}` :
+            formData.type === 'RSMI' ? 'RSMI - Supplies and Materials Issued' :
+            formData.type === 'RPCI' ? 'RPCI - Physical Count of Inventories' :
+            formData.type === 'MR' ? (formData.endUser ? `Memorandum Receipt - ${formData.endUser}` : 'Memorandum Receipt for Property') :
+            'Compliance Report'
+        );
 
         return {
-            title: formData.title,
+            title: defaultTitle,
             type: formData.type || 'General Report',
             reference: formData.reference,
             itemName: formData.itemName || null,
             ...(formData.supplierId ? { supplierId: formData.supplierId, supplierName: formData.supplierName } : {}),
             ...(formData.endUser ? { endUser: formData.endUser } : {}),
-            periodType: formData.periodType,
+            periodType: formData.periodType || 'all',
             date: formData.date || null,
             startDate: formData.startDate || null,
             endDate: formData.endDate || null,
@@ -1433,6 +1519,8 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             generatedDate: genDate,
             payload: {
                 ...payload,
+                title: defaultTitle,
+                periodType: formData.periodType || 'all',
                 generatedDate: genDate,
             },
         };
@@ -1563,7 +1651,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             supplierName: supplier ? supplier.name || supplier.company_name : (report.supplierName || ''),
             endUser: report.endUser || report.payload?.endUser || '',
             generatedDate: genDate,
-            periodType: report.periodType || 'specific',
+            periodType: report.periodType || 'all',
             date: report.dateValue || new Date().toISOString().split('T')[0],
             startDate: report.startDate || '',
             endDate: report.endDate || '',
@@ -1586,7 +1674,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             supplierName: '',
             endUser: '',
             generatedDate: todayStr,
-            periodType: 'specific',
+            periodType: 'all',
             date: todayStr,
             startDate: '',
             endDate: '',
@@ -1609,7 +1697,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
             supplierName: '',
             endUser: '',
             generatedDate: todayStr,
-            periodType: 'specific',
+            periodType: 'all',
             date: todayStr,
             startDate: '',
             endDate: '',
@@ -1694,6 +1782,277 @@ export default function ManageReports({ auth, items = [], reports: serverReports
         const matchesRef = selectedReference ? String(r.reference) === String(selectedReference.value) : true;
         return matchesSearch && matchesType && matchesRef;
     });
+
+    const renderFormPaper = () => {
+        if (!formData.type) {
+            return (
+                <div className="py-16 text-center text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
+                    <svg className="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p className="text-base font-bold text-gray-800">Select a COA Report Type Above</p>
+                    <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+                        Choose from RSMI, RPCI, Stock Card, or Memorandum Receipt to fetch and preview the official compliance document.
+                    </p>
+                </div>
+            );
+        }
+
+        if (formData.type === 'RSMI') {
+            const filteredIssuances = getFilteredIssuances();
+
+            const issuedItems = filteredIssuances.map((issue: any) => {
+                const isMigrated = issue._source === 'migration';
+                const qty = Number(issue.quantity ?? issue.quantity_issued ?? issue.payload?.quantity_issued ?? issue.payload?.quantity ?? 0);
+                const cost = isMigrated
+                    ? Number(issue.unit_cost ?? issue.payload?.unit_cost ?? 0)
+                    : Number(issue.item?.unit_cost || 0);
+                const amt = isMigrated
+                    ? Number(issue.amount ?? issue.payload?.amount ?? (qty * cost))
+                    : (qty * cost);
+                const stockNo = isMigrated
+                    ? (issue.stock_no || issue.payload?.stock_no || '-')
+                    : (issue.item?.sku || '-');
+                const itemName = isMigrated
+                    ? (issue.item_name || issue.item || issue.payload?.item_name || issue.payload?.item || '-')
+                    : (issue.item?.name || '-');
+                const unit = isMigrated
+                    ? (issue.unit || issue.payload?.unit || 'pc')
+                    : (issue.item?.unit_of_issue || issue.item?.unit_measure || 'pc');
+                const risNo = isMigrated
+                    ? (issue.reference || issue.ris_no || issue.payload?.ris_no || '-')
+                    : (issue.id ? issue.id.toString().padStart(4, '0') : '-');
+                const rcc = isMigrated
+                    ? (issue.responsibility_center_code || issue.center_code || issue.payload?.center_code || issue.payload?.responsibility_center_code || issue.department || '-')
+                    : (issue.department || '-');
+
+                return {
+                    risNo,
+                    responsibilityCenterCode: rcc,
+                    stockNo,
+                    itemDescription: itemName,
+                    unit,
+                    quantityIssued: qty,
+                    unitCost: cost ? `₱${cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00',
+                    amount: amt ? `₱${amt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00',
+                };
+            });
+
+            const recaps = issuedItems.map(item => ({
+                stockNo: item.stockNo,
+                quantity: item.quantityIssued,
+                unitCost: item.unitCost || '',
+                totalCost: item.amount || '',
+                uacsObjectCode: '',
+            }));
+
+            const firstMigrated: any = filteredIssuances.find((i: any) => i._source === 'migration');
+            const displayEntityName = firstMigrated?.entity_name || firstMigrated?.payload?.entity_name || publicSettings['institution_name'] || 'University of Camarines Norte';
+            const displayFundCluster = formatFundClusterDisplay(firstMigrated?.fund_cluster || firstMigrated?.payload?.fund_cluster);
+
+            return (
+                <Suspense fallback={reportTemplateFallback}>
+                    <RSMIFormPaper data={{
+                        entityName: displayEntityName,
+                        serialNo: formData.reference,
+                        fundCluster: displayFundCluster,
+                        date: formData.generatedDate,
+                        issuedItems: issuedItems,
+                        recapitulationItems: recaps,
+                        supplyCustodianName: publicSettings['signatories_rsmi_certified_by_name'] || user?.name || 'ARSENIO GEM A. GARCILLANOSA',
+                        accountingStaffName: publicSettings['signatories_rsmi_posted_by_name'] || 'Accounting Staff',
+                        accountingDate: formData.generatedDate,
+                    }} />
+                </Suspense>
+            );
+        }
+
+        if (formData.type === 'RPCI') {
+            const activeRpciItems = filteredSupplierItems.map((item: any) => ({
+                article: item.name || '-',
+                description: item.description || item.name || '-',
+                stock_no: item.sku || '-',
+                unit: item.unit_of_issue || item.unit_measure || 'pc',
+                unit_value: item.unit_cost || 0,
+                balance_per_card: item.stock || 0,
+                on_hand_count: item.stock || 0,
+                shortage_qty: '',
+                shortage_value: '',
+                remarks: item.remarks || '',
+                _source: 'inventory',
+            }));
+
+            const historicalRpciRecords = (migratedRecords || [])
+                .filter((r: any) => String(r.form_type) === 'RPCI')
+                .filter((r: any) => {
+                    if (formData.supplierId && r.payload?.supplier_id && String(r.payload.supplier_id) !== String(formData.supplierId)) {
+                        return false;
+                    }
+                    if (formData.periodType && r.date) {
+                        return isDateInPeriod(r.date);
+                    }
+                    return true;
+                })
+                .map((r: any) => {
+                    const payload = r.payload || {};
+                    const stockNo = r.stock_no || r.reference || payload.stock_no || payload.property_no || '-';
+                    const itemName = r.item_name || r.item || payload.item_name || payload.article || '-';
+                    const unit = r.unit || payload.unit || 'pc';
+                    const cost = Number(r.unit_cost ?? payload.unit_cost ?? payload.unit_value ?? 0);
+                    const bal = Number(r.quantity ?? payload.balance_per_card ?? payload.quantity_per_books ?? payload.physical_count ?? 0);
+                    const onHand = Number(r.physical_count ?? r.on_hand_count ?? payload.physical_count ?? payload.on_hand_count ?? bal);
+                    const shortageQty = r.shortage_qty ?? r.variance ?? payload.shortage_qty ?? payload.variance ?? (bal !== onHand ? (bal - onHand) : '');
+                    const shortageVal = r.shortage_value ?? payload.shortage_value ?? (shortageQty ? (Number(shortageQty) * cost) : '');
+                    const remarks = r.remarks || payload.remarks || payload.condition || (r.department ? `Loc: ${r.department}` : '');
+
+                    return {
+                        article: itemName,
+                        description: payload.description || itemName,
+                        stock_no: stockNo,
+                        unit: unit,
+                        unit_value: cost,
+                        balance_per_card: bal,
+                        on_hand_count: onHand,
+                        shortage_qty: shortageQty !== null && shortageQty !== undefined && shortageQty !== '' ? String(shortageQty) : '',
+                        shortage_value: shortageVal !== null && shortageVal !== undefined && shortageVal !== '' ? String(shortageVal) : '',
+                        remarks: remarks,
+                        _source: 'migration',
+                    };
+                });
+
+            const combinedRpciItems = [...activeRpciItems, ...historicalRpciRecords];
+
+            if (combinedRpciItems.length === 0) {
+                return (
+                    <div className="py-20 text-center text-gray-600 bg-white rounded-xl">
+                        <p className="text-lg font-semibold text-gray-800">No items found for the selected supplier/period.</p>
+                        <p className="text-sm text-gray-500 mt-2">Please choose another supplier, adjust the date filter, or migrate historical RPCI records.</p>
+                    </div>
+                );
+            }
+
+            const rawHistoricalRpci: any = (migratedRecords || []).find((r: any) => String(r.form_type) === 'RPCI');
+            const displayEntity = rawHistoricalRpci?.entity_name || rawHistoricalRpci?.payload?.entity_name || publicSettings['institution_name'] || 'University of Camarines Norte';
+            const displayFund = formatFundClusterDisplay(rawHistoricalRpci?.fund_cluster || rawHistoricalRpci?.payload?.fund_cluster);
+            const displayOfficer = rawHistoricalRpci?.recipient || rawHistoricalRpci?.accountable_officer || rawHistoricalRpci?.payload?.accountable_officer || publicSettings['signatories_rpci_accountable_officer_name'] || user?.name || 'Arsenio Gem A. Garcillanosa';
+            const displayDesig = rawHistoricalRpci?.designation || rawHistoricalRpci?.payload?.designation || publicSettings['signatories_rpci_accountable_officer_designation'] || 'Supply Custodian';
+
+            return (
+                <div className="min-w-[1100px] mx-auto print:min-w-[1100px]">
+                    <Suspense fallback={reportTemplateFallback}>
+                        <RPCIFormPaper data={{
+                            entity_name: displayEntity,
+                            as_at_date: formData.generatedDate,
+                            fund_cluster: displayFund,
+                            inventory_type: formData.title || 'Physical Count of Inventories',
+                            accountable_officer: displayOfficer,
+                            designation: displayDesig,
+                            items: combinedRpciItems,
+                        }} />
+                    </Suspense>
+                </div>
+            );
+        }
+
+        if (formData.type === 'STOCK_CARD') {
+            if (!formData.itemName) {
+                return (
+                    <div className="py-20 text-center text-gray-600 bg-white rounded-xl border border-dashed border-gray-300">
+                        <div className="w-12 h-12 mx-auto bg-amber-50 text-amber-800 rounded-full flex items-center justify-center mb-3">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                        </div>
+                        <p className="text-lg font-bold text-gray-800">Select a Target Item to Generate Stock Card</p>
+                        <p className="text-sm text-gray-500 mt-2 max-w-md mx-auto">
+                            Choose an item from the Target Item dropdown above. The Stock Card will automatically load receipts, issuances, and compute running stock balances.
+                        </p>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-w-[800px] mx-auto print:min-w-full">
+                    <Suspense fallback={reportTemplateFallback}>
+                        <StockCardFormPaper data={{
+                            entity_name: matchingStockCardMigrated?.entity_name || matchingStockCardMigrated?.payload?.entity_name || publicSettings['institution_name'] || 'University of Camarines Norte',
+                            fund_cluster: formatFundClusterDisplay(matchingStockCardMigrated?.fund_cluster || matchingStockCardMigrated?.payload?.fund_cluster),
+                            item: formData.itemName || formData.title,
+                            stock_no: selectedStockCardItem?.sku || matchingStockCardMigrated?.stock_no || matchingStockCardMigrated?.payload?.stock_no || formData.reference || '-',
+                            description: selectedStockCardItem?.description || selectedStockCardItem?.name || matchingStockCardMigrated?.item_name || matchingStockCardMigrated?.item || formData.itemName || formData.title,
+                            re_order_point: selectedStockCardItem?.reorder_point || matchingStockCardMigrated?.payload?.re_order_point || '-',
+                            unit_of_measurement: selectedStockCardItem?.unit_of_issue || selectedStockCardItem?.unit_measure || matchingStockCardMigrated?.unit || matchingStockCardMigrated?.payload?.unit || 'Pieces',
+                            entries: stockCardEntries,
+                        }} />
+                    </Suspense>
+                </div>
+            );
+        }
+
+        if (formData.type === 'MR' || formData.type === 'MOR') {
+            const endUserName = formData.endUser || '';
+            const endUserRecords = endUserName
+                ? getEndUserIssuances(endUserName)
+                : [
+                    ...issuances.map((issue: any) => ({ ...issue, _source: 'issuance' })),
+                    ...(migratedRecords || [])
+                        .filter((record: any) => record.form_type === 'MR' || record.form_type === 'MOR' || !record.form_type)
+                        .map((record: any) => ({ ...record, _source: 'migration' }))
+                  ].filter((entry: any) => {
+                      const dt = entry.date_issued || entry.date || entry.date_received || entry.created_at;
+                      if (!dt) return true;
+                      return isDateInPeriod(dt);
+                  });
+
+            const mrItems = endUserRecords.map((issue: any) => {
+                const qty = Number(issue.quantity || issue.qty || issue.payload?.quantity || 1);
+                const cost = Number(issue.item?.unit_cost || issue.unit_cost || issue.payload?.unit_cost || issue.payload?.unit_value || 0);
+                const totalVal = Number(issue.amount || issue.payload?.amount || issue.payload?.total_value || (qty * cost));
+                const desc = issue.item?.name || issue.item_name || issue.payload?.item_name || issue.payload?.description || issue.description || issue.remarks || '-';
+                const propNo = issue.item?.sku || issue.stock_no || issue.property_no || issue.payload?.stock_no || issue.payload?.property_no || issue.reference || issue.payload?.reference || '-';
+                const unit = issue.item?.unit_of_issue || issue.item?.unit_measure || issue.unit || issue.payload?.unit || 'pc';
+                const dtAcquired = issue.date_issued || issue.date || issue.date_received || issue.created_at || '';
+
+                return {
+                    quantity: qty,
+                    unit: unit,
+                    description: desc,
+                    propertyNo: propNo,
+                    dateAcquired: dtAcquired,
+                    unitValue: cost,
+                    totalValue: totalVal,
+                };
+            });
+
+            const firstRecord: any = endUserRecords[0];
+            const resolvedEndUser = endUserName || firstRecord?.recipient || firstRecord?.received_by || firstRecord?.issued_to || 'End User';
+            const endUserPos = firstRecord?.recipient_designation || firstRecord?.designation || firstRecord?.position || firstRecord?.payload?.recipient_designation || firstRecord?.payload?.designation || 'Accountable Officer';
+            const endUserOffice = firstRecord?.department || firstRecord?.office || firstRecord?.payload?.department || firstRecord?.payload?.office || 'Official Business';
+            const displayEntity = firstRecord?.entity_name || firstRecord?.payload?.entity_name || 'University of Camarines Norte';
+            const displayFund = formatFundClusterDisplay(firstRecord?.fund_cluster || firstRecord?.payload?.fund_cluster);
+
+            return (
+                <Suspense fallback={reportTemplateFallback}>
+                    <MRFormPaper data={{
+                        entityName: displayEntity,
+                        fundCluster: displayFund,
+                        mrNo: formData.reference,
+                        date: formData.generatedDate,
+                        purpose: endUserOffice,
+                        items: mrItems,
+                        receivedByName: resolvedEndUser,
+                        receivedByPosition: endUserPos,
+                        receivedByOffice: endUserOffice,
+                        receivedByDate: formData.generatedDate,
+                        issuedByName: user?.name || 'ARSENIO GEM A. GARCILLANOSA',
+                        issuedByPosition: 'SUPPLY OFFICER III / PROPERTY CUSTODIAN',
+                        issuedByOffice: 'Supply & Property Division',
+                        issuedByDate: formData.generatedDate,
+                    }} />
+                </Suspense>
+            );
+        }
+
+        return null;
+    };
 
     return (
         <div className="min-h-screen bg-gray-100/80 flex font-sans text-gray-900 selection:bg-red-900 selection:text-white print:bg-white">
@@ -1861,13 +2220,13 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 onClose={() => setShowModal(false)}
                 title={modalMode === 'create' ? "Generate COA Form" : "Inspect Compliance Document (Archived)"}
                 isSubmitting={isSubmitting}
-                isLandscape={modalMode === 'view' && formData.type === 'RPCI'}
+                isLandscape={formData.type === 'RPCI'}
                 collapsed={collapsed}
                 footer={
                     <>
                         <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">{modalMode === 'view' ? 'Close' : 'Cancel'}</button>
 
-                        {modalMode === 'view' && (
+                        {(modalMode === 'view' || formData.type) && (
                             <button
                                 onClick={handlePrint}
                                 type="button"
@@ -1881,7 +2240,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                         {modalMode === 'create' ? (
                             <button
                                 onClick={handleCreateReport}
-                                disabled={isSubmitting || !formData.title || !formData.type || !formData.reference}
+                                disabled={isSubmitting || !formData.type || !formData.reference || (formData.type === 'STOCK_CARD' && !formData.itemName)}
                                 className="px-6 py-2 bg-gradient-to-r from-red-800 to-red-900 text-white font-bold rounded-lg hover:from-red-900 hover:to-red-950 transition-all shadow-lg disabled:opacity-70 flex items-center"
                             >
                                 {isSubmitting ? (
@@ -1905,264 +2264,14 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                 }
             >
                 <div className="flex flex-col gap-6 print:gap-0 print:overflow-hidden print-single-page">
-                    {modalMode === 'view' && formData.type === 'RSMI' && (
-                        <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 print:bg-white print:p-0 print:border-none print-single-page">
-                            {(() => {
-                                const filteredIssuances = getFilteredIssuances();
-
-                                const issuedItems = filteredIssuances.map((issue: any) => {
-                                    const isMigrated = issue._source === 'migration';
-                                    const qty = Number(issue.quantity ?? issue.quantity_issued ?? issue.payload?.quantity_issued ?? issue.payload?.quantity ?? 0);
-                                    const cost = isMigrated
-                                        ? Number(issue.unit_cost ?? issue.payload?.unit_cost ?? 0)
-                                        : Number(issue.item?.unit_cost || 0);
-                                    const amt = isMigrated
-                                        ? Number(issue.amount ?? issue.payload?.amount ?? (qty * cost))
-                                        : (qty * cost);
-                                    const stockNo = isMigrated
-                                        ? (issue.stock_no || issue.payload?.stock_no || '-')
-                                        : (issue.item?.sku || '-');
-                                    const itemName = isMigrated
-                                        ? (issue.item_name || issue.item || issue.payload?.item_name || issue.payload?.item || '-')
-                                        : (issue.item?.name || '-');
-                                    const unit = isMigrated
-                                        ? (issue.unit || issue.payload?.unit || 'pc')
-                                        : (issue.item?.unit_measure || 'pc');
-                                    const risNo = isMigrated
-                                        ? (issue.reference || issue.ris_no || issue.payload?.ris_no || '-')
-                                        : (issue.id ? issue.id.toString().padStart(4, '0') : '-');
-                                    const rcc = isMigrated
-                                        ? (issue.responsibility_center_code || issue.center_code || issue.payload?.center_code || issue.payload?.responsibility_center_code || issue.department || '-')
-                                        : (issue.department || '-');
-
-                                    return {
-                                        risNo,
-                                        responsibilityCenterCode: rcc,
-                                        stockNo,
-                                        itemDescription: itemName,
-                                        unit,
-                                        quantityIssued: qty,
-                                        unitCost: cost ? `₱${cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00',
-                                        amount: amt ? `₱${amt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00'
-                                    };
-                                });
-
-                                const recaps = issuedItems.map(item => ({
-                                    stockNo: item.stockNo,
-                                    quantity: item.quantityIssued,
-                                    unitCost: item.unitCost || '',
-                                    totalCost: item.amount || '',
-                                    uacsObjectCode: ''
-                                }));
-
-                                const firstMigrated: any = filteredIssuances.find((i: any) => i._source === 'migration');
-                                const displayEntityName = firstMigrated?.entity_name || firstMigrated?.payload?.entity_name || publicSettings['institution_name'] || 'University of Camarines Norte';
-                                const displayFundCluster = formatFundClusterDisplay(firstMigrated?.fund_cluster || firstMigrated?.payload?.fund_cluster);
-
-                                return (
-                                    <Suspense fallback={reportTemplateFallback}>
-                                        <RSMIFormPaper data={{
-                                            entityName: displayEntityName,
-                                            serialNo: formData.reference,
-                                            fundCluster: displayFundCluster,
-                                            date: formData.generatedDate,
-                                            issuedItems: issuedItems,
-                                            recapitulationItems: recaps,
-                                            supplyCustodianName: publicSettings['signatories_rsmi_certified_by_name'] || user?.name || 'ARSENIO GEM A. GARCILLANOSA',
-                                            accountingStaffName: publicSettings['signatories_rsmi_posted_by_name'] || 'Accounting Staff',
-                                            accountingDate: formData.generatedDate,
-                                        }} />
-                                    </Suspense>
-                                );
-                            })()}
-                        </div>
-                    )}
-                    {modalMode === 'view' && formData.type === 'RPCI' && (
+                    {/* In VIEW mode: Document paper on top */}
+                    {modalMode === 'view' && (
                         <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
-                            <div className="min-w-[1100px] mx-auto print:min-w-[1100px]">
-                                {(() => {
-                                    const activeRpciItems = filteredSupplierItems.map((item: any) => ({
-                                        article: item.name || '-',
-                                        description: item.description || item.name || '-',
-                                        stock_no: item.sku || '-',
-                                        unit: item.unit_of_issue || item.unit_measure || 'pc',
-                                        unit_value: item.unit_cost || 0,
-                                        balance_per_card: item.stock || 0,
-                                        on_hand_count: item.stock || 0,
-                                        shortage_qty: '',  // To be filled manually
-                                        shortage_value: '',// To be filled manually
-                                        remarks: item.remarks || '',
-                                        _source: 'inventory',
-                                    }));
-
-                                    const historicalRpciRecords = (migratedRecords || [])
-                                        .filter((r: any) => String(r.form_type) === 'RPCI')
-                                        .filter((r: any) => {
-                                            if (formData.supplierId && r.payload?.supplier_id && String(r.payload.supplier_id) !== String(formData.supplierId)) {
-                                                return false;
-                                            }
-                                            if (formData.periodType && r.date) {
-                                                return isDateInPeriod(r.date);
-                                            }
-                                            return true;
-                                        })
-                                        .map((r: any) => {
-                                            const payload = r.payload || {};
-                                            const stockNo = r.stock_no || r.reference || payload.stock_no || payload.property_no || '-';
-                                            const itemName = r.item_name || r.item || payload.item_name || payload.article || '-';
-                                            const unit = r.unit || payload.unit || 'pc';
-                                            const cost = Number(r.unit_cost ?? payload.unit_cost ?? payload.unit_value ?? 0);
-                                            const bal = Number(r.quantity ?? payload.balance_per_card ?? payload.quantity_per_books ?? payload.physical_count ?? 0);
-                                            const onHand = Number(r.physical_count ?? r.on_hand_count ?? payload.physical_count ?? payload.on_hand_count ?? bal);
-                                            const shortageQty = r.shortage_qty ?? r.variance ?? payload.shortage_qty ?? payload.variance ?? (bal !== onHand ? (bal - onHand) : '');
-                                            const shortageVal = r.shortage_value ?? payload.shortage_value ?? (shortageQty ? (Number(shortageQty) * cost) : '');
-                                            const remarks = r.remarks || payload.remarks || payload.condition || (r.department ? `Loc: ${r.department}` : '');
-
-                                            return {
-                                                article: itemName,
-                                                description: payload.description || itemName,
-                                                stock_no: stockNo,
-                                                unit: unit,
-                                                unit_value: cost,
-                                                balance_per_card: bal,
-                                                on_hand_count: onHand,
-                                                shortage_qty: shortageQty !== null && shortageQty !== undefined && shortageQty !== '' ? String(shortageQty) : '',
-                                                shortage_value: shortageVal !== null && shortageVal !== undefined && shortageVal !== '' ? String(shortageVal) : '',
-                                                remarks: remarks,
-                                                _source: 'migration',
-                                            };
-                                        });
-
-                                    const combinedRpciItems = [...activeRpciItems, ...historicalRpciRecords];
-
-                                    if (combinedRpciItems.length === 0) {
-                                        return (
-                                            <div className="py-20 text-center text-gray-600">
-                                                <p className="text-lg font-semibold text-gray-800">No items found for the selected supplier/period.</p>
-                                                <p className="text-sm text-gray-500 mt-2">Please choose another supplier, adjust the date filter, or migrate historical RPCI records.</p>
-                                            </div>
-                                        );
-                                    }
-
-                                    const rawHistoricalRpci: any = (migratedRecords || []).find((r: any) => String(r.form_type) === 'RPCI');
-                                    const displayEntity = rawHistoricalRpci?.entity_name || rawHistoricalRpci?.payload?.entity_name || publicSettings['institution_name'] || 'University of Camarines Norte';
-                                    const displayFund = formatFundClusterDisplay(rawHistoricalRpci?.fund_cluster || rawHistoricalRpci?.payload?.fund_cluster);
-                                    const displayOfficer = rawHistoricalRpci?.recipient || rawHistoricalRpci?.accountable_officer || rawHistoricalRpci?.payload?.accountable_officer || publicSettings['signatories_rpci_accountable_officer_name'] || user?.name || 'Arsenio Gem A. Garcillanosa';
-                                    const displayDesig = rawHistoricalRpci?.designation || rawHistoricalRpci?.payload?.designation || publicSettings['signatories_rpci_accountable_officer_designation'] || 'Supply Custodian';
-
-                                    return (
-                                        <Suspense fallback={reportTemplateFallback}>
-                                            <RPCIFormPaper data={{
-                                                entity_name: displayEntity,
-                                                as_at_date: formData.generatedDate,
-                                                fund_cluster: displayFund,
-                                                inventory_type: formData.title || 'Physical Count of Inventories',
-                                                accountable_officer: displayOfficer,
-                                                designation: displayDesig,
-                                                items: combinedRpciItems,
-                                            }} />
-                                        </Suspense>
-                                    );
-                                })()}
-                            </div>
-                        </div>
-                    )}
-                    {modalMode === 'view' && formData.type === 'STOCK_CARD' && (
-                        <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
-                            <div className="min-w-[800px] mx-auto print:min-w-full">
-                                {formData.itemName ? (
-                                    <Suspense fallback={reportTemplateFallback}>
-                                        <StockCardFormPaper data={{
-                                            entity_name: matchingStockCardMigrated?.entity_name || matchingStockCardMigrated?.payload?.entity_name || publicSettings['institution_name'] || 'University of Camarines Norte',
-                                            fund_cluster: formatFundClusterDisplay(matchingStockCardMigrated?.fund_cluster || matchingStockCardMigrated?.payload?.fund_cluster),
-                                            item: formData.itemName || formData.title,
-                                            stock_no: selectedStockCardItem?.sku || matchingStockCardMigrated?.stock_no || matchingStockCardMigrated?.payload?.stock_no || formData.reference || '-',
-                                            description: selectedStockCardItem?.description || selectedStockCardItem?.name || matchingStockCardMigrated?.item_name || matchingStockCardMigrated?.item || formData.itemName || formData.title,
-                                            re_order_point: selectedStockCardItem?.reorder_point || matchingStockCardMigrated?.payload?.re_order_point || '-',
-                                            unit_of_measurement: selectedStockCardItem?.unit_of_issue || selectedStockCardItem?.unit_measure || matchingStockCardMigrated?.unit || matchingStockCardMigrated?.payload?.unit || 'Pieces',
-                                            entries: stockCardEntries
-                                        }} />
-                                    </Suspense>
-                                ) : (
-                                    <div className="py-20 text-center text-gray-600">
-                                        <p className="text-lg font-semibold text-gray-800">Select an item to preview a live stock card.</p>
-                                        <p className="text-sm text-gray-500 mt-2">The stock card will generate entries from issued item records and imported historical ledger data once an item is chosen.</p>
-                                    </div>
-                                )}
-                            </div>
+                            {renderFormPaper()}
                         </div>
                     )}
 
-                    {modalMode === 'view' && (formData.type === 'MR' || formData.type === 'MOR') && (
-                        <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 print:bg-white print:p-0 print:border-none print-single-page">
-                            {(() => {
-                                const endUserName = formData.endUser || '';
-                                const endUserRecords = endUserName
-                                    ? getEndUserIssuances(endUserName)
-                                    : (formData.type === 'MR' || formData.type === 'MOR'
-                                        ? [
-                                            ...issuances.map((issue: any) => ({ ...issue, _source: 'issuance' })),
-                                            ...(migratedRecords || [])
-                                                .filter((record: any) => record.form_type === 'MR' || record.form_type === 'MOR' || !record.form_type)
-                                                .map((record: any) => ({ ...record, _source: 'migration' }))
-                                          ].filter((entry: any) => {
-                                              const dt = entry.date_issued || entry.date || entry.date_received || entry.created_at;
-                                              if (!dt) return true;
-                                              return isDateInPeriod(dt);
-                                          })
-                                        : getFilteredIssuances());
-
-                                const mrItems = endUserRecords.map((issue: any) => {
-                                    const qty = Number(issue.quantity || issue.qty || issue.payload?.quantity || 1);
-                                    const cost = Number(issue.item?.unit_cost || issue.unit_cost || issue.payload?.unit_cost || issue.payload?.unit_value || 0);
-                                    const totalVal = Number(issue.amount || issue.payload?.amount || issue.payload?.total_value || (qty * cost));
-                                    const desc = issue.item?.name || issue.item_name || issue.payload?.item_name || issue.payload?.description || issue.description || issue.remarks || '-';
-                                    const propNo = issue.item?.sku || issue.stock_no || issue.property_no || issue.payload?.stock_no || issue.payload?.property_no || issue.reference || issue.payload?.reference || '-';
-                                    const unit = issue.item?.unit_measure || issue.item?.unit_of_issue || issue.unit || issue.payload?.unit || 'pc';
-                                    const dtAcquired = issue.date_issued || issue.date || issue.date_received || issue.created_at || '';
-
-                                    return {
-                                        quantity: qty,
-                                        unit: unit,
-                                        description: desc,
-                                        propertyNo: propNo,
-                                        dateAcquired: dtAcquired,
-                                        unitValue: cost,
-                                        totalValue: totalVal,
-                                    };
-                                });
-
-                                const firstRecord: any = endUserRecords[0];
-                                const resolvedEndUser = endUserName || firstRecord?.recipient || firstRecord?.received_by || firstRecord?.issued_to || 'End User';
-                                const endUserPos = firstRecord?.recipient_designation || firstRecord?.designation || firstRecord?.position || firstRecord?.payload?.recipient_designation || firstRecord?.payload?.designation || 'Accountable Officer';
-                                const endUserOffice = firstRecord?.department || firstRecord?.office || firstRecord?.payload?.department || firstRecord?.payload?.office || 'Official Business';
-                                const displayEntity = firstRecord?.entity_name || firstRecord?.payload?.entity_name || 'University of Camarines Norte';
-                                const displayFund = formatFundClusterDisplay(firstRecord?.fund_cluster || firstRecord?.payload?.fund_cluster);
-
-                                return (
-                                    <Suspense fallback={reportTemplateFallback}>
-                                        <MRFormPaper data={{
-                                            entityName: displayEntity,
-                                            fundCluster: displayFund,
-                                            mrNo: formData.reference,
-                                            date: formData.generatedDate,
-                                            purpose: endUserOffice,
-                                            items: mrItems,
-                                            receivedByName: resolvedEndUser,
-                                            receivedByPosition: endUserPos,
-                                            receivedByOffice: endUserOffice,
-                                            receivedByDate: formData.generatedDate,
-                                            issuedByName: user?.name || 'ARSENIO GEM A. GARCILLANOSA',
-                                            issuedByPosition: 'SUPPLY OFFICER III / PROPERTY CUSTODIAN',
-                                            issuedByOffice: 'Supply & Property Division',
-                                            issuedByDate: formData.generatedDate,
-                                        }} />
-                                    </Suspense>
-                                );
-                            })()}
-                        </div>
-                    )}
-
+                    {/* Configuration form controls */}
                     <div className="print:hidden space-y-6">
                         {modalMode === 'view' && (
                             <div className="flex items-center gap-3 px-4 py-3 bg-amber-50/90 border border-amber-200 rounded-xl text-xs text-amber-900 font-medium shadow-2xs">
@@ -2187,7 +2296,15 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     value={typeOptions.find(opt => opt.value === formData.type)}
                                     onChange={(opt: any) => {
                                         if (modalMode === 'view') return;
-                                        setFormData({ ...formData, type: opt?.value || '' });
+                                        const newType = opt?.value || '';
+                                        let newTitle = formData.title;
+                                        if (!newTitle || newTitle.startsWith('RSMI') || newTitle.startsWith('RPCI') || newTitle.startsWith('Stock Card') || newTitle.startsWith('Memorandum Receipt')) {
+                                            if (newType === 'RSMI') newTitle = 'RSMI - Supplies and Materials Issued';
+                                            else if (newType === 'RPCI') newTitle = 'RPCI - Physical Count of Inventories';
+                                            else if (newType === 'STOCK_CARD') newTitle = formData.itemName ? `Stock Card - ${formData.itemName}` : 'Stock Card';
+                                            else if (newType === 'MR') newTitle = formData.endUser ? `Memorandum Receipt - ${formData.endUser}` : 'Memorandum Receipt for Property';
+                                        }
+                                        setFormData({ ...formData, type: newType, title: newTitle });
                                     }}
                                     isDisabled={modalMode === 'view'}
                                     placeholder="Select Form Type..."
@@ -2275,7 +2392,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                         {formData.type === 'RPCI' && (
                             <div className="group w-full">
-                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Supplier</label>
+                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Supplier Filter (Optional)</label>
                                 <Select
                                     options={supplierOptions}
                                     value={supplierOptions.find((opt: any) => String(opt.value) === String(formData.supplierId)) || null}
@@ -2290,7 +2407,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     isDisabled={modalMode === 'view'}
                                     styles={customSelectStyles}
                                     isClearable={modalMode !== 'view'}
-                                    placeholder="Select supplier..."
+                                    placeholder="All Suppliers (or select to filter)..."
                                     menuPortalTarget={typeof window !== "undefined" ? document.body : null}
                                     menuPosition="fixed"
                                 />
@@ -2299,18 +2416,23 @@ export default function ManageReports({ auth, items = [], reports: serverReports
 
                         {formData.type === 'STOCK_CARD' && (
                             <div className="group w-full">
-                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Target Item</label>
+                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-wider">Target Item <span className="text-red-600">*</span></label>
                                 <Select
                                     options={stockCardItemOptions}
                                     value={formData.itemName ? (stockCardItemOptions.find((opt: any) => opt.value === formData.itemName) || { value: formData.itemName, label: formData.itemName }) : null}
                                     onChange={(opt: any) => {
                                         if (modalMode === 'view') return;
-                                        setFormData({ ...formData, itemName: opt ? opt.value : '' });
+                                        const selectedItem = opt ? opt.value : '';
+                                        let newTitle = formData.title;
+                                        if (!newTitle || newTitle.startsWith('Stock Card')) {
+                                            newTitle = selectedItem ? `Stock Card - ${selectedItem}` : 'Stock Card';
+                                        }
+                                        setFormData({ ...formData, itemName: selectedItem, title: newTitle });
                                     }}
                                     isDisabled={modalMode === 'view'}
                                     styles={customSelectStyles}
                                     isClearable={modalMode !== 'view'}
-                                    placeholder="Select an item (Inventory or Historical)..."
+                                    placeholder="Select an item (Active Inventory, Deliveries, or Historical)..."
                                     menuPortalTarget={typeof window !== "undefined" ? document.body : null}
                                     menuPosition="fixed"
                                 />
@@ -2324,12 +2446,12 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     <svg className="w-5 h-5 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                     </svg>
-                                    <h4 className="text-sm font-bold uppercase tracking-wider">End User Search & RIS Data Retrieval</h4>
+                                    <h4 className="text-sm font-bold uppercase tracking-wider">End User Search & Property Records</h4>
                                 </div>
                                 <p className="text-xs text-gray-500 mb-4">
                                     {modalMode === 'view'
-                                        ? 'End User and associated issued items retrieved for this Memorandum Receipt.'
-                                        : 'Select or enter an End User to search the RIS database and auto-populate issued items into the Memorandum Receipt.'}
+                                        ? 'End User and associated property items retrieved for this Memorandum Receipt.'
+                                        : 'Select or enter an End User to retrieve issued items into the Memorandum Receipt.'}
                                 </p>
 
                                 <div className="group w-full mb-3">
@@ -2341,12 +2463,14 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         onChange={(opt: any) => {
                                             if (modalMode === 'view') return;
                                             const selectedName = opt ? opt.value : '';
-                                            const matched = getEndUserIssuances(selectedName);
-                                            const firstMatch = matched[0];
+                                            let newTitle = formData.title;
+                                            if (!newTitle || newTitle.startsWith('Memorandum Receipt')) {
+                                                newTitle = selectedName ? `Memorandum Receipt - ${selectedName}` : 'Memorandum Receipt for Property';
+                                            }
                                             setFormData({
                                                 ...formData,
                                                 endUser: selectedName,
-                                                title: formData.title || (selectedName ? `Memorandum Receipt - ${selectedName}` : ''),
+                                                title: newTitle,
                                                 reference: formData.reference || generateReportReference(formData.generatedDate, reports, migratedRecords),
                                             });
                                         }}
@@ -2410,7 +2534,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                 <h4 className="text-sm font-bold uppercase tracking-wider">Coverage Period</h4>
                             </div>
                             <p className="text-xs text-gray-500 mb-4">
-                                Filter the transaction records included in this report. This period filter determines report data and does not overwrite the report's generation date.
+                                Filter transaction records included in this report. "All Records / Full Ledger" includes complete history.
                             </p>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-end">
@@ -2422,7 +2546,7 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                         isDisabled={modalMode === 'view'}
                                         onChange={(opt: any) => {
                                             if (modalMode === 'view') return;
-                                            setFormData({ ...formData, periodType: opt?.value || 'specific' });
+                                            setFormData({ ...formData, periodType: opt?.value || 'all' });
                                         }}
                                         styles={customSelectStyles}
                                         menuPortalTarget={typeof window !== "undefined" ? document.body : null}
@@ -2430,7 +2554,6 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                                     />
                                 </div>
 
-                                {/* Conditional Inputs */}
                                 {formData.periodType === 'specific' && (
                                     <FormInput
                                         label="Specific Date"
@@ -2525,6 +2648,31 @@ export default function ManageReports({ auth, items = [], reports: serverReports
                             </div>
                         </div>
                     </div>
+
+                    {/* In CREATE mode: Live Document Preview rendered right below configurations! */}
+                    {modalMode === 'create' && (
+                        <div className="mt-2 pt-6 border-t border-gray-200">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <span className="p-1.5 bg-red-100 text-red-900 rounded-lg">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    </span>
+                                    <div>
+                                        <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Live Document Preview</h4>
+                                        <p className="text-[11px] text-gray-500">Live preview dynamically reflects database inventory, receivings, issuances, and historical migrations.</p>
+                                    </div>
+                                </div>
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-100 text-green-800 border border-green-200">
+                                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                    Live Dynamic Preview
+                                </span>
+                            </div>
+
+                            <div ref={reportContentRef} className="bg-gray-100 p-6 rounded-xl border border-gray-200 overflow-x-auto print:bg-white print:p-0 print:border-none print-single-page print:overflow-hidden">
+                                {renderFormPaper()}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </ReportModal>
 
