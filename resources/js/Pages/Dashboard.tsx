@@ -32,6 +32,84 @@ type MovementInputPoint =
         risIssued?: number;
     };
 
+// Extracted outside component — does not depend on props or state
+const selectStyles = {
+    control: (provided: any, state: any) => ({
+        ...provided,
+        borderRadius: '0.375rem',
+        borderColor: state.isFocused ? '#7f1d1d' : '#d1d5db',
+        borderWidth: '1px',
+        padding: '1px 2px',
+        minWidth: '160px',
+        boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
+        fontSize: '0.8125rem',
+        fontWeight: '600',
+        backgroundColor: '#ffffff',
+        '&:hover': { borderColor: '#7f1d1d' },
+    }),
+    multiValue: (provided: any) => ({
+        ...provided,
+        backgroundColor: '#fef2f2',
+        borderColor: '#fca5a5',
+        borderWidth: '1px',
+        borderRadius: '0.25rem',
+    }),
+    multiValueLabel: (provided: any) => ({
+        ...provided,
+        color: '#7f1d1d',
+        fontSize: '0.75rem',
+        fontWeight: '700',
+    }),
+    multiValueRemove: (provided: any) => ({
+        ...provided,
+        color: '#7f1d1d',
+        ':hover': {
+            backgroundColor: '#7f1d1d',
+            color: '#ffffff',
+        },
+    }),
+    option: (provided: any, state: any) => ({
+        ...provided,
+        backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? '#fef2f2' : '#ffffff',
+        color: state.isSelected ? '#ffffff' : '#111827',
+        padding: '7px 12px',
+        fontSize: '0.8125rem',
+        fontWeight: '600',
+        cursor: 'pointer',
+    }),
+    singleValue: (provided: any) => ({
+        ...provided,
+        color: '#111827',
+    }),
+    menu: (provided: any) => ({
+        ...provided,
+        borderRadius: '0.375rem',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        border: '1px solid #e5e7eb',
+        zIndex: 50,
+    }),
+    indicatorSeparator: () => ({ display: 'none' }),
+};
+
+// Extracted outside component — pure function
+const getInitialAuditLogs = () => {
+    const now = new Date();
+    const formatTime = (minutesAgo: number) => {
+        const d = new Date(now.getTime() - minutesAgo * 60 * 1000);
+        const datePart = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        return `${datePart} • ${timePart}`;
+    };
+
+    return [
+        { user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', details: 'Added 5 unserviceable desktop units to disposal list', id: 'TRX-1006', status: 'Verified', time: '15 mins ago', timestamp: formatTime(15), badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
+        { user: 'Maria Santos', role: 'Internal Auditor', action: 'Generated Compliance Report', details: 'Generated Annual Physical Inventory & Inspection Report for FY 2025', id: 'TRX-1007', status: 'Logged', time: '1 hour ago', timestamp: formatTime(60), badge: 'bg-blue-50 text-blue-800 border border-blue-200' },
+        { user: 'Juan Dela Cruz', role: 'Property Staff', action: 'Stock In Requisition', details: 'Received 100 reams of A4 Copy Paper from Advance Paper Corp', id: 'TRX-1008', status: 'Verified', time: '3 hours ago', timestamp: formatTime(180), badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
+        { user: 'Staff Member', role: 'Property Staff', action: 'Issued Inventory Stock', details: 'Issued 20 units of Ballpen Black to SPMO Administrative Office', id: 'TRX-1009', status: 'Flagged', time: '5 hours ago', timestamp: formatTime(300), badge: 'bg-amber-50 text-amber-800 border border-amber-200' },
+        { user: 'System Admin', role: 'System Admin', action: 'Operating Mode Switched', details: 'Switched system operating mode from LIVE PRODUCTION to MAINTENANCE MODE', id: 'TRX-1010', status: 'Verified', time: '1 day ago', timestamp: formatTime(1440), badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
+    ];
+};
+
 export default function Dashboard({
     auth,
     stats = { totalInventoryValue: '₱0', totalRisIssued: 0, itemsIssuedMtd: 0, unserviceable: 0, criticalAlerts: 0, activeInventoryItems: 0 },
@@ -50,6 +128,7 @@ export default function Dashboard({
     filters?: { chartFilter?: string; customStartDate?: string; customEndDate?: string; };
 }) {
     const user = auth.user;
+    const systemMode = (usePage().props as any).system?.mode;
     const [collapsed, setCollapsed] = useState(false);
 
     // State for the Movement Analytics Filter
@@ -74,8 +153,9 @@ export default function Dashboard({
     // State for Audit Trail Filters
     const [selectedRoleFilter, setSelectedRoleFilter] = useState<any>(null);
     const [selectedStatusFilter, setSelectedStatusFilter] = useState<any>(null);
-    const [selectedRowLimit, setSelectedRowLimit] = useState<{ value: number | string; label: string } | null>(null);
+    const [selectedRowLimit, setSelectedRowLimit] = useState<{ value: number | string; label: string } | null>({ value: 5, label: '5 Rows' });
     const [auditSearchQuery, setAuditSearchQuery] = useState('');
+    const [showAuditFilters, setShowAuditFilters] = useState(false);
 
     const chartFilterOptions = [
         { value: 'monthly', label: 'Monthly View (Last 6 Mos)' },
@@ -97,82 +177,6 @@ export default function Dashboard({
         { value: 'Property Staff', label: 'Property Staff' },
     ];
 
-    const selectStyles = {
-        control: (provided: any, state: any) => ({
-            ...provided,
-            borderRadius: '0.375rem',
-            borderColor: state.isFocused ? '#7f1d1d' : '#d1d5db',
-            borderWidth: '1px',
-            padding: '1px 2px',
-            minWidth: '160px',
-            boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
-            fontSize: '0.8125rem',
-            fontWeight: '600',
-            backgroundColor: '#ffffff',
-            '&:hover': { borderColor: '#7f1d1d' },
-        }),
-        multiValue: (provided: any) => ({
-            ...provided,
-            backgroundColor: '#fef2f2',
-            borderColor: '#fca5a5',
-            borderWidth: '1px',
-            borderRadius: '0.25rem',
-        }),
-        multiValueLabel: (provided: any) => ({
-            ...provided,
-            color: '#7f1d1d',
-            fontSize: '0.75rem',
-            fontWeight: '700',
-        }),
-        multiValueRemove: (provided: any) => ({
-            ...provided,
-            color: '#7f1d1d',
-            ':hover': {
-                backgroundColor: '#7f1d1d',
-                color: '#ffffff',
-            },
-        }),
-        option: (provided: any, state: any) => ({
-            ...provided,
-            backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? '#fef2f2' : '#ffffff',
-            color: state.isSelected ? '#ffffff' : '#111827',
-            padding: '7px 12px',
-            fontSize: '0.8125rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-        }),
-        singleValue: (provided: any) => ({
-            ...provided,
-            color: '#111827',
-        }),
-        menu: (provided: any) => ({
-            ...provided,
-            borderRadius: '0.375rem',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            border: '1px solid #e5e7eb',
-            zIndex: 50,
-        }),
-        indicatorSeparator: () => ({ display: 'none' }),
-    };
-
-    const getInitialAuditLogs = () => {
-        const now = new Date();
-        const formatTime = (minutesAgo: number) => {
-            const d = new Date(now.getTime() - minutesAgo * 60 * 1000);
-            const datePart = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-            return `${datePart} • ${timePart}`;
-        };
-
-        return [
-            { user: 'Vince Balce', role: 'System Admin', action: 'Certified Unserviceable Assets', details: 'Added 5 unserviceable desktop units to disposal list', id: 'TRX-1006', status: 'Verified', time: '15 mins ago', timestamp: formatTime(15), badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
-            { user: 'Maria Santos', role: 'Internal Auditor', action: 'Generated Compliance Report', details: 'Generated Annual Physical Inventory & Inspection Report for FY 2025', id: 'TRX-1007', status: 'Logged', time: '1 hour ago', timestamp: formatTime(60), badge: 'bg-blue-50 text-blue-800 border border-blue-200' },
-            { user: 'Juan Dela Cruz', role: 'Property Staff', action: 'Stock In Requisition', details: 'Received 100 reams of A4 Copy Paper from Advance Paper Corp', id: 'TRX-1008', status: 'Verified', time: '3 hours ago', timestamp: formatTime(180), badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
-            { user: 'Staff Member', role: 'Property Staff', action: 'Issued Inventory Stock', details: 'Issued 20 units of Ballpen Black to SPMO Administrative Office', id: 'TRX-1009', status: 'Flagged', time: '5 hours ago', timestamp: formatTime(300), badge: 'bg-amber-50 text-amber-800 border border-amber-200' },
-            { user: 'System Admin', role: 'System Admin', action: 'Operating Mode Switched', details: 'Switched system operating mode from LIVE PRODUCTION to MAINTENANCE MODE', id: 'TRX-1010', status: 'Verified', time: '1 day ago', timestamp: formatTime(1440), badge: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
-        ];
-    };
-
     const auditTrailLogs = useMemo(() => {
         return auditLogs && auditLogs.length > 0 ? auditLogs : getInitialAuditLogs();
     }, [auditLogs]);
@@ -181,6 +185,15 @@ export default function Dashboard({
         const statuses = Array.from(new Set(auditTrailLogs.map((log) => log.status).filter(Boolean)));
         return statuses.map((s) => ({ value: s, label: s }));
     }, [auditTrailLogs]);
+
+    // Count active audit filters for badge
+    const activeAuditFilterCount = useMemo(() => {
+        let count = 0;
+        if (selectedRoleFilter && (Array.isArray(selectedRoleFilter) ? selectedRoleFilter.length > 0 : selectedRoleFilter.value)) count++;
+        if (selectedStatusFilter?.value) count++;
+        if (selectedRowLimit && selectedRowLimit.value !== 5) count++;
+        return count;
+    }, [selectedRoleFilter, selectedStatusFilter, selectedRowLimit]);
 
     const filteredAuditLogs = useMemo(() => {
         let logs = auditTrailLogs.filter((log) => {
@@ -643,14 +656,14 @@ export default function Dashboard({
 
             <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
 
-                {/* Merged Sticky Institutional Header */}
+                {/* Unified Sticky Header — Single Layer */}
                 <header className="sticky top-0 z-40 shadow-xs">
-                    {/* Non-Production Mode Alert Banner */}
-                    {(usePage().props as any).system?.mode && (usePage().props as any).system?.mode !== 'LIVE PRODUCTION' && (
+                    {/* Non-Production Mode Alert Banner (conditional — stays separate) */}
+                    {systemMode && systemMode !== 'LIVE PRODUCTION' && (
                         <div className={`px-6 py-2 text-xs font-mono font-bold text-center flex items-center justify-center gap-2 shadow-xs border-b ${
-                            (usePage().props as any).system?.mode === 'MAINTENANCE MODE'
+                            systemMode === 'MAINTENANCE MODE'
                                 ? 'bg-amber-950 text-amber-300 border-amber-800'
-                                : (usePage().props as any).system?.mode === 'STAGING SANDBOX'
+                                : systemMode === 'STAGING SANDBOX'
                                 ? 'bg-sky-950 text-sky-300 border-sky-800'
                                 : 'bg-purple-950 text-purple-300 border-purple-800'
                         }`}>
@@ -659,38 +672,28 @@ export default function Dashboard({
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
                             </span>
                             <span>
-                                {(usePage().props as any).system?.mode === 'MAINTENANCE MODE' && 'SYSTEM MAINTENANCE MODE ACTIVE — Write operations restricted to System Administrators.'}
-                                {(usePage().props as any).system?.mode === 'STAGING SANDBOX' && 'STAGING SANDBOX ENVIRONMENT — Operating with isolated test database.'}
-                                {(usePage().props as any).system?.mode === 'TRAINING SIMULATION' && 'TRAINING SIMULATION MODE — Operating with synthetic demo data.'}
+                                {systemMode === 'MAINTENANCE MODE' && 'SYSTEM MAINTENANCE MODE ACTIVE — Write operations restricted to System Administrators.'}
+                                {systemMode === 'STAGING SANDBOX' && 'STAGING SANDBOX ENVIRONMENT — Operating with isolated test database.'}
+                                {systemMode === 'TRAINING SIMULATION' && 'TRAINING SIMULATION MODE — Operating with synthetic demo data.'}
                             </span>
                         </div>
                     )}
 
-                    {/* Top Institutional Bar */}
-                    <div className="bg-red-950 text-red-100 text-[11px] px-6 lg:px-8 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide">
-                        <div className="flex items-center gap-3">
-                            <span className="font-bold tracking-wider uppercase text-amber-300">Supply & Property Management Office (SPMO)</span>
-                            <span className="hidden md:inline text-red-400">|</span>
-                            <span className="hidden md:inline text-red-200/80">Supply and Inventory Management System (SIMS)</span>
-                        </div>
-                        <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
-                            <SystemModeBadge />
-                            <span>•</span>
-                            <span>ACCESS LEVEL: AUTHORIZED PERSONNEL</span>
-                        </div>
-                    </div>
-
-                    {/* Main Header Content */}
-                    <div className="bg-white border-b border-gray-200 px-6 lg:px-8 py-4 flex items-center justify-between">
+                    {/* Single Merged Header */}
+                    <div className="bg-white border-b border-gray-200 px-6 lg:px-8 py-3 flex items-center justify-between">
                         <div>
-                            <div className="mb-1">
+                            <div className="flex items-center gap-3 mb-0.5">
+                                <span className="text-[10px] font-bold text-red-900 uppercase tracking-wider">SPMO — Supply & Inventory Management System</span>
+                            </div>
+                            <div className="mb-0.5">
                                 <Breadcrumbs items={[]} />
                             </div>
-                            <h2 className="text-2xl font-bold text-gray-900 font-serif tracking-tight">Supply & Inventory Management</h2>
+                            <h2 className="text-lg font-bold text-gray-900 font-serif tracking-tight">Supply & Inventory Management</h2>
                             <p className="text-xs text-gray-500 font-medium">Official Asset Control, Stock Requisition & Inventory Audit System</p>
                         </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right hidden sm:block border-l border-gray-200 pl-6">
+                        <div className="flex items-center gap-4">
+                            <SystemModeBadge />
+                            <div className="text-right hidden sm:block border-l border-gray-200 pl-4">
                                 <span className="block text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
                                     {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
                                 </span>
@@ -704,46 +707,47 @@ export default function Dashboard({
 
                 <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16">
 
-                    {/* Welcome / System Overview Banner */}
-                    <div className="bg-red-950 text-white rounded-lg border border-red-900 border-l-4 border-l-amber-400 p-6 lg:p-7 shadow-xs relative overflow-hidden">
-                        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
-                            <div className="max-w-3xl space-y-2.5">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-red-900/90 border border-red-800 text-[11px] font-bold text-amber-300 uppercase tracking-wider font-mono">
-                                    <span className="relative flex h-2 w-2">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                    {/* Compact Actionable Alerts Bar — replaces the old welcome banner */}
+                    {((stats.criticalAlerts ?? 0) > 0 || (stats.unserviceable ?? 0) > 0) && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg px-5 py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                            <div className="flex flex-wrap items-center gap-3">
+                                {(stats.criticalAlerts ?? 0) > 0 && (
+                                    <Link
+                                        href={route('inventory.index')}
+                                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-red-100 border border-red-200 text-xs font-bold text-red-900 hover:bg-red-200 transition-colors"
+                                    >
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <span>{stats.criticalAlerts} Critical Stock {stats.criticalAlerts === 1 ? 'Alert' : 'Alerts'}</span>
+                                    </Link>
+                                )}
+                                {(stats.unserviceable ?? 0) > 0 && (
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-100 border border-amber-300 text-xs font-bold text-amber-900">
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <span>{stats.unserviceable} Unserviceable Items Pending Disposal</span>
                                     </span>
-                                    Official System Status: Operational & Audited
-                                </div>
-                                <h1 className="text-2xl lg:text-3xl font-bold font-serif leading-tight text-white tracking-tight">
-                                    University Supply & Inventory Management Overview
-                                </h1>
-                                <p className="text-red-100/90 text-sm font-normal leading-relaxed">
-                                    Welcome back, <strong className="text-white">{user.name}</strong>. The Supply & Property Management Office Stockroom currently has <strong className="text-amber-300 font-semibold">{new Intl.NumberFormat('en-US').format(stats.activeInventoryItems ?? 0)} {(stats.activeInventoryItems ?? 0) === 1 ? 'available consumable item' : 'available consumable items'}</strong>.
-                                </p>
+                                )}
                             </div>
-
-                            <div className="shrink-0 w-full lg:w-auto">
-                                <Link
-                                    href={route('compliance.analytics')}
-                                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-400 text-red-950 rounded font-bold text-xs uppercase tracking-wider hover:bg-amber-300 transition-colors shadow-xs border border-amber-300"
-                                >
-                                    <span>Inventory Analytics Report</span>
-                                    <svg className="w-4 h-4 text-red-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                                </Link>
-                            </div>
+                            <Link
+                                href={route('compliance.analytics')}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-900 text-white rounded-md font-bold text-xs hover:bg-red-950 transition-colors shadow-xs shrink-0"
+                            >
+                                <span>Inventory Analytics Report</span>
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </Link>
                         </div>
-                    </div>
+                    )}
 
-                    {/* Quick Statistics Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-4">
+                    {/* Quick Statistics Grid — 4 Cards, no fake trends */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         {[
                             {
                                 label: 'Total Inventory Value',
                                 value: stats.totalInventoryValue ?? '₱0',
                                 sub: 'Across All Registered Units',
-                                trend: '+5.2%',
-                                trendUp: true,
                                 color: 'text-red-900',
                                 bg: 'bg-red-50',
                                 icon: (
@@ -753,25 +757,9 @@ export default function Dashboard({
                                 )
                             },
                             {
-                                label: 'Total RIS Issued',
-                                value: stats.totalRisIssued ?? 0,
-                                sub: 'Completed Requests',
-                                trend: 'Lifetime',
-                                trendUp: true,
-                                color: 'text-red-900',
-                                bg: 'bg-red-50',
-                                icon: (
-                                    <svg className="w-4 h-4 text-red-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                )
-                            },
-                            {
                                 label: 'Items Issued (MTD)',
                                 value: stats.itemsIssuedMtd ?? 0,
                                 sub: 'Current Month Total',
-                                trend: '+18%',
-                                trendUp: true,
                                 color: 'text-red-900',
                                 bg: 'bg-red-50',
                                 icon: (
@@ -784,8 +772,6 @@ export default function Dashboard({
                                 label: 'Unserviceable Items',
                                 value: stats.unserviceable ?? 0,
                                 sub: 'Pending Disposal / Audit',
-                                trend: 'Needs Check',
-                                trendUp: false,
                                 color: 'text-amber-800',
                                 bg: 'bg-amber-50',
                                 icon: (
@@ -798,8 +784,6 @@ export default function Dashboard({
                                 label: 'Critical Stock Alerts',
                                 value: stats.criticalAlerts ?? 0,
                                 sub: 'Requires Reordering',
-                                trend: 'Urgent',
-                                trendUp: false,
                                 color: 'text-red-700',
                                 bg: 'bg-red-50',
                                 icon: (
@@ -814,10 +798,6 @@ export default function Dashboard({
                                     <div className={`p-2 rounded ${stat.bg} border border-gray-200`}>
                                         {stat.icon}
                                     </div>
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider font-mono ${stat.trendUp ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'
-                                        }`}>
-                                        {stat.trend}
-                                    </span>
                                 </div>
                                 <div>
                                     <h3 className="text-2xl font-bold text-gray-900 tracking-tight font-sans">{stat.value}</h3>
@@ -828,9 +808,9 @@ export default function Dashboard({
                         ))}
                     </div>
 
-                    {/* Movement Analytics Section */}
+                    {/* Movement Analytics Section — KPI strip removed, chart section streamlined */}
                     <div className="bg-white rounded-2xl shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] border border-slate-200/80 flex flex-col overflow-hidden">
-                        {/* Modern Top Header & Filter Controls */}
+                        {/* Header & Filter Controls */}
                         <div className="px-6 py-5 border-b border-slate-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/40">
                             <div className="flex items-center gap-3.5">
                                 <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-950 via-red-900 to-red-800 flex items-center justify-center text-white shadow-xs ring-4 ring-red-50 shrink-0">
@@ -854,7 +834,7 @@ export default function Dashboard({
                             </div>
 
                             <div className="flex flex-wrap items-center gap-3">
-                                {/* Segmented Tab Switcher (Apple/Linear style) */}
+                                {/* Segmented Tab Switcher */}
                                 <div className="inline-flex rounded-xl bg-slate-100/90 p-1 border border-slate-200/70 shadow-2xs text-xs">
                                     <button
                                         type="button"
@@ -942,7 +922,7 @@ export default function Dashboard({
                             </div>
                         </div>
 
-                        {/* Modern Guide & Formula Bar */}
+                        {/* Reconciliation Formula Bar — kept as the single source of summary data */}
                         <div className="bg-slate-50/80 border-b border-slate-100 px-6 py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
                             <div className="flex flex-wrap items-center gap-4 text-slate-600 font-medium">
                                 <span className="inline-flex items-center gap-1.5 font-semibold text-slate-800">
@@ -970,104 +950,8 @@ export default function Dashboard({
                             </div>
                         </div>
 
-                        {/* Executive KPI Metric Strip */}
-                        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 p-5 bg-gradient-to-b from-slate-50/50 to-white border-b border-slate-100">
-                            {/* 1. Beginning Stock */}
-                            <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-all">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Beginning Stock</span>
-                                    <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 text-xs">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div className="mt-2">
-                                    <div className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                                        {movementSummary.startingStock.toLocaleString()} <span className="text-xs font-semibold text-slate-400">units</span>
-                                    </div>
-                                    <p className="text-[11px] text-slate-500 font-medium mt-0.5">Inventory level at start</p>
-                                </div>
-                            </div>
-
-                            {/* 2. Stock Receipts (In) */}
-                            <div className="bg-white p-4 rounded-xl border border-emerald-200/80 shadow-2xs flex flex-col justify-between bg-gradient-to-br from-white via-white to-emerald-50/30 hover:border-emerald-300 transition-all">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">(+) Stock Received</span>
-                                    <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-800 text-xs">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div className="mt-2">
-                                    <div className="text-2xl font-extrabold text-emerald-700 tracking-tight">
-                                        +{movementSummary.totalStockIn.toLocaleString()} <span className="text-xs font-semibold text-emerald-600/80">units</span>
-                                    </div>
-                                    <p className="text-[11px] text-emerald-700 font-medium mt-0.5">Total deliveries received</p>
-                                </div>
-                            </div>
-
-                            {/* 3. Total Stock Out */}
-                            <div className="bg-white p-4 rounded-xl border border-rose-200/80 shadow-2xs flex flex-col justify-between bg-gradient-to-br from-white via-white to-rose-50/30 hover:border-rose-300 transition-all">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-rose-800">(-) Total Dispatched</span>
-                                    <div className="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center text-rose-800 text-xs">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div className="mt-2">
-                                    <div className="text-2xl font-extrabold text-rose-700 tracking-tight">
-                                        -{movementSummary.totalRisIssued.toLocaleString()} <span className="text-xs font-semibold text-rose-600/80">units</span>
-                                    </div>
-                                    <p className="text-[11px] text-rose-700 font-medium mt-0.5">Issued via RIS to offices</p>
-                                </div>
-                            </div>
-
-                            {/* 4. Net Flow Delta */}
-                            <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-all">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Net Movement</span>
-                                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs ${movementSummary.netChange >= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div className="mt-2">
-                                    <div className={`text-2xl font-extrabold tracking-tight ${movementSummary.netChange >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
-                                        {movementSummary.netChange >= 0 ? `+${movementSummary.netChange.toLocaleString()}` : movementSummary.netChange.toLocaleString()} <span className="text-xs font-semibold text-slate-400">units</span>
-                                    </div>
-                                    <p className="text-[11px] text-slate-500 font-medium mt-0.5">
-                                        {movementSummary.netChange >= 0 ? 'Net stock increase' : 'Net stock decrease'}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* 5. Available Stock Hero Tile (University Maroon Gradient) */}
-                            <div className="col-span-2 lg:col-span-1 bg-gradient-to-br from-red-900 via-red-950 to-slate-950 text-white p-4 rounded-xl shadow-md ring-1 ring-black/10 flex flex-col justify-between relative overflow-hidden">
-                                <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-red-600/20 rounded-full blur-xl pointer-events-none"></div>
-                                <div className="flex items-center justify-between relative z-10">
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-red-200">(=) Available Stock</span>
-                                    <div className="w-7 h-7 rounded-lg bg-white/15 backdrop-blur-xs flex items-center justify-center text-white text-xs">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div className="mt-2 relative z-10">
-                                    <div className="text-2xl font-black text-white tracking-tight">
-                                        {movementSummary.endingStock.toLocaleString()} <span className="text-xs font-medium text-red-200">units</span>
-                                    </div>
-                                    <p className="text-[11px] text-red-200/90 font-medium mt-0.5">Current on-hand inventory</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Main Content Area: High-End Canvas or Modern Table */}
-                        <div className="p-6 flex-1 flex flex-col items-center justify-center min-h-[400px] bg-white">
+                        {/* Main Content Area: Chart Canvas or Ledger Table — no KPI strip */}
+                        <div className="p-6 flex-1 flex flex-col items-center justify-center min-h-[360px] bg-white">
                             {customRangeError ? (
                                 <div className="mb-4 w-full max-w-6xl rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs font-semibold text-rose-800 shadow-2xs">
                                     {customRangeError}
@@ -1075,7 +959,7 @@ export default function Dashboard({
                             ) : null}
 
                             {chartMode === 'ledger' ? (
-                                /* Ultra-Modern Monthly Ledger Table */
+                                /* Ledger Table */
                                 <div className="w-full max-w-6xl mx-auto overflow-x-auto">
                                     <table className="min-w-full divide-y divide-slate-200 border border-slate-200/80 rounded-xl overflow-hidden text-xs shadow-2xs">
                                         <thead className="bg-slate-50/90">
@@ -1146,7 +1030,7 @@ export default function Dashboard({
                                         <p className="mt-4 text-xs font-semibold text-slate-400">No movement data found for the selected view.</p>
                                     ) : null}
 
-                                    {/* Modern Dynamic Pill Legend */}
+                                    {/* Dynamic Pill Legend */}
                                     <div className="flex flex-wrap gap-4 mt-6 pt-4 border-t border-slate-100 w-full justify-center text-xs font-bold uppercase tracking-wider">
                                         {chartMode === 'waterfall' && (
                                             <>
@@ -1247,7 +1131,7 @@ export default function Dashboard({
                         </div>
                     </div>
 
-                    {/* System Transaction Audit Ledger */}
+                    {/* System Transaction Audit Ledger — with collapsible filters */}
                     <div className="bg-white rounded-lg shadow-xs border border-gray-200 overflow-hidden flex flex-col">
                         <div className="px-6 py-4 border-b border-gray-200 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-100/90">
                             <div>
@@ -1260,6 +1144,7 @@ export default function Dashboard({
                                 <p className="text-xs font-medium text-gray-600 mt-0.5">Chronological Activity Log for Property Custodians, Supply Officers, and Auditors</p>
                             </div>
                             <div className="flex flex-wrap items-center gap-3">
+                                {/* Search — always visible */}
                                 <div className="relative min-w-[200px] flex-1 sm:flex-initial">
                                     <input
                                         type="text"
@@ -1281,6 +1166,42 @@ export default function Dashboard({
                                     )}
                                 </div>
 
+                                {/* Filters toggle button */}
+                                <button
+                                    type="button"
+                                    onClick={() => setShowAuditFilters(!showAuditFilters)}
+                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded border transition-colors ${
+                                        showAuditFilters
+                                            ? 'bg-red-900 text-white border-red-900'
+                                            : 'bg-white text-gray-700 border-gray-300 hover:border-red-900 hover:text-red-900'
+                                    }`}
+                                >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                    </svg>
+                                    <span>Filters{activeAuditFilterCount > 0 ? ` (${activeAuditFilterCount})` : ''}</span>
+                                </button>
+
+                                {(selectedRoleFilter || selectedStatusFilter || auditSearchQuery || (selectedRowLimit && selectedRowLimit.value !== 5)) && (
+                                    <button
+                                        onClick={() => {
+                                            setSelectedRoleFilter(null);
+                                            setSelectedStatusFilter(null);
+                                            setSelectedRowLimit({ value: 5, label: '5 Rows' });
+                                            setAuditSearchQuery('');
+                                        }}
+                                        className="px-2.5 py-1.5 text-xs font-bold text-red-900 hover:text-red-950 bg-red-50 hover:bg-red-100 border border-red-200 rounded transition-colors"
+                                        title="Reset all audit ledger filters"
+                                    >
+                                        Reset
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Collapsible filter dropdowns panel */}
+                        {showAuditFilters && (
+                            <div className="px-6 py-3 border-b border-gray-200 bg-gray-50/80 flex flex-wrap items-center gap-3">
                                 <Select
                                     isMulti
                                     options={roleFilterOptions}
@@ -1308,23 +1229,9 @@ export default function Dashboard({
                                     placeholder="Row Limit"
                                     isClearable
                                 />
-
-                                {(selectedRoleFilter || selectedStatusFilter || auditSearchQuery || selectedRowLimit) && (
-                                    <button
-                                        onClick={() => {
-                                            setSelectedRoleFilter(null);
-                                            setSelectedStatusFilter(null);
-                                            setSelectedRowLimit(null);
-                                            setAuditSearchQuery('');
-                                        }}
-                                        className="px-2.5 py-1.5 text-xs font-bold text-red-900 hover:text-red-950 bg-red-50 hover:bg-red-100 border border-red-200 rounded transition-colors"
-                                        title="Reset all audit ledger filters"
-                                    >
-                                        Reset
-                                    </button>
-                                )}
                             </div>
-                        </div>
+                        )}
+
                         <div className="overflow-x-auto flex-1 flex flex-col justify-between min-w-full">
                             <table className="w-full text-left border-collapse flex-1 min-w-[700px]">
                                 <thead>
@@ -1370,12 +1277,12 @@ export default function Dashboard({
                                         <tr>
                                             <td colSpan={4} className="px-6 py-12 text-center">
                                                 <p className="text-gray-500 font-medium text-xs">No official audit logs match your selected filter criteria.</p>
-                                                {(selectedRoleFilter || selectedStatusFilter || auditSearchQuery || selectedRowLimit) && (
+                                                {(selectedRoleFilter || selectedStatusFilter || auditSearchQuery || (selectedRowLimit && selectedRowLimit.value !== 5)) && (
                                                     <button
                                                         onClick={() => {
                                                             setSelectedRoleFilter(null);
                                                             setSelectedStatusFilter(null);
-                                                            setSelectedRowLimit(null);
+                                                            setSelectedRowLimit({ value: 5, label: '5 Rows' });
                                                             setAuditSearchQuery('');
                                                         }}
                                                         className="mt-2 text-xs font-bold text-red-900 hover:underline"
