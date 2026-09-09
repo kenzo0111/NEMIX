@@ -1,6 +1,5 @@
 import SystemModeBadge from '@/Components/SystemModeBadge';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import Breadcrumbs from '@/Components/Breadcrumbs';
 import Sidebar from '@/Components/Sidebar';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState, useMemo, useEffect } from 'react';
@@ -684,9 +683,6 @@ export default function Dashboard({
                         <div>
                             <div className="flex items-center gap-3 mb-0.5">
                                 <span className="text-[10px] font-bold text-red-900 uppercase tracking-wider">SPMO — Supply & Inventory Management System</span>
-                            </div>
-                            <div className="mb-0.5">
-                                <Breadcrumbs items={[]} />
                             </div>
                             <h2 className="text-lg font-bold text-gray-900 font-serif tracking-tight">Supply & Inventory Management</h2>
                             <p className="text-xs text-gray-500 font-medium">Official Asset Control, Stock Requisition & Inventory Audit System</p>
