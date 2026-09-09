@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
-import SystemModeBadge from '@/Components/SystemModeBadge';
 import PageHeader from '@/Components/Common/PageHeader';
 import Toast, { useToast } from '@/Components/Common/Toast';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -319,43 +318,26 @@ export default function IssuanceCreate({ auth, items = [] }: IssuanceCreateProps
                     collapsed ? 'ml-20' : 'ml-72'
                 }`}
             >
-                <header className="sticky top-0 z-40 shadow-xs">
-                    <div className="bg-red-950 text-red-100 text-[11px] px-6 lg:px-8 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide">
-                        <div className="flex items-center gap-3">
-                            <span className="font-bold tracking-wider uppercase text-amber-300">
-                                Supply & Property Management Office (SPMO)
-                            </span>
-                            <span className="hidden md:inline text-red-400">|</span>
-                            <span className="hidden md:inline text-red-200/80">
-                                Requisition & Issue Slip (RIS) Workflow
-                            </span>
-                        </div>
-                        <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
-                            <SystemModeBadge />
-                            <span>•</span>
-                            <span>OFFICIAL ISSUANCE DISPATCH</span>
-                        </div>
-                    </div>
-
-                    <PageHeader
-                        title="Record New Inventory Issuance"
-                        subtitle="Step-by-step requisition slip compiler with real-time stock allocation and audit compliance"
-                        breadcrumbs={[
-                            { name: 'Inventory', href: route('inventory.index') },
-                            { name: 'Issuance', href: route('inventory.issuance') },
-                            { name: 'New Issuance Slip' },
-                        ]}
-                        actions={
-                            <Link
-                                href={route('inventory.issuance')}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-xs font-semibold transition-colors"
-                            >
-                                <ArrowLeft className="w-4 h-4 text-gray-500" />
-                                <span>Back to Issuance Registry</span>
-                            </Link>
-                        }
-                    />
-                </header>
+                {/* Unified Sticky Header — Same as Dashboard */}
+                <PageHeader
+                    title="Record New Inventory Issuance"
+                    subtitle="Step-by-step requisition slip compiler with real-time stock allocation and audit compliance"
+                    systemTag="SPMO — Requisition & Issue Slip (RIS) Workflow"
+                    breadcrumbs={[
+                        { name: 'Inventory', href: route('inventory.index') },
+                        { name: 'Issuance', href: route('inventory.issuance') },
+                        { name: 'New Issuance Slip' },
+                    ]}
+                    actions={
+                        <Link
+                            href={route('inventory.issuance')}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-xs font-semibold transition-colors"
+                        >
+                            <ArrowLeft className="w-4 h-4 text-gray-500" />
+                            <span>Back to Issuance Registry</span>
+                        </Link>
+                    }
+                />
 
                 <div className="p-6 lg:p-8 max-w-4xl mx-auto space-y-6">
                     {/* Stepper Progress Card */}

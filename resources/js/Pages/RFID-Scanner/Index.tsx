@@ -1,10 +1,9 @@
-import SystemModeBadge from '@/Components/SystemModeBadge';
 import Sidebar from '@/Components/Sidebar';
 import Modal from '@/Components/Modal';
 import { Head, router } from '@inertiajs/react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import RFIDHeader from './Components/RFIDHeader';
+import PageHeader from '@/Components/Common/PageHeader';
 import ItemSelector, { Item } from './Components/ItemSelector';
 import SelectedItemCard from './Components/SelectedItemCard';
 import RFIDScannerPanel, { AssignedSuccessData, UnassignedSuccessData } from './Components/RFIDScannerPanel';
@@ -305,6 +304,8 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
     };
 
     const taggedItemsCount = useMemo(() => items.filter(i => i.rfid_tag).length, [items]);
+    const untaggedCount = Math.max(0, items.length - taggedItemsCount);
+    const progressPercent = items.length > 0 ? Math.round((taggedItemsCount / items.length) * 100) : 100;
 
     const handleSelectNextUntagged = () => {
         const next = items.find(i => !i.rfid_tag && i.id !== selectedItem?.id);
@@ -327,29 +328,38 @@ export default function Index({ auth, items = [], selectedItemId = null, flash }
             />
 
             <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
-                {/* Institutional Top Bar */}
-                <div className="bg-red-950 text-red-100 text-[11px] px-6 lg:px-8 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide">
-                    <div className="flex items-center gap-3">
-                        <span className="font-bold tracking-wider uppercase text-amber-300">
-                            Supply & Property Management Office (SPMO)
-                        </span>
-                        <span className="hidden md:inline text-red-400">|</span>
-                        <span className="hidden md:inline text-red-200/80">
-                            Supply and Inventory Management System (SIMS)
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
-                        <SystemModeBadge />
-                        <span>•</span>
-                        <span>OPERATOR WORKSTATION</span>
-                    </div>
-                </div>
-
-                {/* Streamlined Header */}
-                <RFIDHeader
-                    totalItems={items.length}
-                    taggedCount={taggedItemsCount}
-                />
+                {/* Unified Sticky Header — Same as Dashboard */}
+                <PageHeader
+                    title="RFID Tagging"
+                    subtitle="Assign RFID tags to inventory items before receiving."
+                    breadcrumbs={[{ name: 'RFID Scanner', href: '#' }]}
+                    actions={
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                                <span className="text-xs font-bold text-gray-800 font-mono">
+                                    {taggedItemsCount} of {items.length} tagged
+                                </span>
+                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold font-mono ${
+                                    untaggedCount === 0 
+                                        ? 'bg-emerald-100 text-emerald-800' 
+                                        : 'bg-amber-100 text-amber-800'
+                                }`}>
+                                    {untaggedCount === 0 ? 'All Tagged' : `${untaggedCount} remaining`}
+                                </span>
+                            </div>
+                            <div className="w-32 sm:w-40 bg-gray-200 rounded-full h-1.5 mt-1 overflow-hidden ml-auto">
+                                <div
+                                    className="bg-red-900 h-1.5 rounded-full transition-all duration-300"
+                                    style={{ width: `${progressPercent}%` }}
+                                />
+                            </div>
+                        </div>
+                    }
+                >
+                    <p className="text-[11px] text-gray-400 font-mono mt-0.5">
+                        <span className="text-gray-500 font-medium">Workflow:</span> Select item → Scan tag → Assign
+                    </p>
+                </PageHeader>
 
                 <div className="p-6 lg:p-8 space-y-6 max-w-[1500px] mx-auto pb-16">
                     {/* ── STATE M: ALL ITEMS TAGGED (COMPLETION STATE) ── */}

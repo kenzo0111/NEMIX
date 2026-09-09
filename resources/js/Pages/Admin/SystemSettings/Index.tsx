@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
-import SystemModeBadge from '@/Components/SystemModeBadge';
+import PageHeader from '@/Components/Common/PageHeader';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import Modal from '@/Components/Modal';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -263,124 +263,57 @@ export default function Index({ auth, system, groupedSettings = {}, telemetry }:
 
             {/* Main Application Area */}
             <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
-                {/* Merged Sticky Institutional Header (Identical to Dashboard) */}
-                <header className="sticky top-0 z-40 shadow-xs">
-                    {/* Non-Production Mode Alert Banner */}
-                    {systemMode !== 'LIVE PRODUCTION' && (
-                        <div
-                            className={`px-6 py-2 text-xs font-mono font-bold text-center flex items-center justify-center gap-2 shadow-xs border-b ${
-                                systemMode === 'MAINTENANCE MODE'
-                                    ? 'bg-amber-950 text-amber-300 border-amber-800'
-                                    : systemMode === 'STAGING SANDBOX'
-                                    ? 'bg-sky-950 text-sky-300 border-sky-800'
-                                    : 'bg-purple-950 text-purple-300 border-purple-800'
-                            }`}
-                        >
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
-                            </span>
-                            <span>
-                                {systemMode === 'MAINTENANCE MODE' &&
-                                    'SYSTEM MAINTENANCE MODE ACTIVE — Consumable data writes restricted to Administrators.'}
-                                {systemMode === 'STAGING SANDBOX' &&
-                                    'STAGING SANDBOX ENVIRONMENT — Operating with isolated test consumable records.'}
-                                {systemMode === 'TRAINING SIMULATION' &&
-                                    'TRAINING SIMULATION MODE — Operating with synthetic consumable demonstration data.'}
-                            </span>
-                        </div>
-                    )}
-
-                    {/* Top Institutional Bar */}
-                    <div className="bg-red-950 text-red-100 text-[11px] px-6 lg:px-8 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide">
-                        <div className="flex items-center gap-3">
-                            <span className="font-bold tracking-wider uppercase text-amber-300">
-                                Supply & Property Management Office (SPMO)
-                            </span>
-                            <span className="hidden md:inline text-red-400">|</span>
-                            <span className="hidden md:inline text-red-200/80">
-                                Consumables & Inventory Policy Engine
-                            </span>
-                        </div>
-                        <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
-                            <SystemModeBadge />
-                            <span>•</span>
-                            <span>PORTAL NODE: {telemetry?.server_node || 'PH-MNL-PRM01'}</span>
-                        </div>
-                    </div>
-
-                    {/* Main Header Content */}
-                    <div className="bg-white border-b border-gray-200 px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div>
-                            <div className="mb-1">
-                                <Breadcrumbs
-                                    items={[
-                                        { name: 'Administration & Governance' },
-                                        { name: 'System Settings' },
-                                    ]}
-                                />
-                            </div>
-                            <div className="flex items-center gap-2.5">
-                                <h2 className="text-2xl font-bold text-gray-900 font-serif tracking-tight">
-                                    System Settings & Policies
-                                </h2>
-                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-900 border border-red-200/70 shadow-2xs">
-                                    Consumables Engine
-                                </span>
-                            </div>
-                            <p className="text-xs text-gray-500 font-medium mt-0.5">
-                                Manage institutional branding, document signatories, stock reorder thresholds, and document numbering.
-                            </p>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex items-center gap-4">
-                            <div className="text-right hidden sm:block border-l border-gray-200 pl-6">
-                                <span className="block text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
-                                    {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
-                                </span>
-                                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold block mt-0.5">
-                                    {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
-                                </span>
-                            </div>
-
-                            <div className="flex items-center gap-2.5 pl-2 border-l border-gray-200">
-                                <a
-                                    href={route('system.settings.backup')}
-                                    className="px-3.5 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-                                    title="Export JSON Configuration Snapshot"
-                                >
-                                    <Download className="w-3.5 h-3.5 text-gray-500" />
-                                    <span className="hidden sm:inline">Export Snapshot</span>
-                                </a>
-                                {isDirty && (
-                                    <button
-                                        type="button"
-                                        onClick={() => reset()}
-                                        disabled={processing}
-                                        className="px-3.5 py-2 text-xs font-semibold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-                                    >
-                                        <RotateCcw className="w-3.5 h-3.5" />
-                                        <span>Reset</span>
-                                    </button>
-                                )}
+                {/* Unified Sticky Header — Same as Dashboard */}
+                <PageHeader
+                    title="System Settings & Policies"
+                    subtitle="Manage institutional branding, document signatories, stock reorder thresholds, and document numbering."
+                    systemTag="SPMO — Consumables & Inventory Policy Engine"
+                    breadcrumbs={[
+                        { name: 'Administration & Governance' },
+                        { name: 'System Settings' },
+                    ]}
+                    badges={
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-900 border border-red-200/70 shadow-2xs">
+                            Consumables Engine
+                        </span>
+                    }
+                    actions={
+                        <div className="flex items-center gap-2">
+                            <a
+                                href={route('system.settings.backup')}
+                                className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                                title="Export JSON Configuration Snapshot"
+                            >
+                                <Download className="w-3.5 h-3.5 text-gray-500" />
+                                <span className="hidden sm:inline">Export Snapshot</span>
+                            </a>
+                            {isDirty && (
                                 <button
                                     type="button"
-                                    onClick={handleSubmit}
-                                    disabled={processing || !isDirty}
-                                    className={`px-4 py-2 rounded-lg text-xs font-bold text-white flex items-center gap-2 transition-all cursor-pointer shadow-xs ${
-                                        isDirty
-                                            ? 'bg-red-900 hover:bg-red-800 active:bg-red-950 ring-2 ring-red-900/20'
-                                            : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-                                    }`}
+                                    onClick={() => reset()}
+                                    disabled={processing}
+                                    className="px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                                 >
-                                    <Save className="w-4 h-4" />
-                                    <span>{processing ? 'Saving...' : 'Save All Settings'}</span>
+                                    <RotateCcw className="w-3.5 h-3.5" />
+                                    <span>Reset</span>
                                 </button>
-                            </div>
+                            )}
+                            <button
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={processing || !isDirty}
+                                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1.5 transition-all cursor-pointer shadow-xs ${
+                                    isDirty
+                                        ? 'bg-red-900 hover:bg-red-800 active:bg-red-950 ring-2 ring-red-900/20'
+                                        : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
+                                }`}
+                            >
+                                <Save className="w-3.5 h-3.5" />
+                                <span>{processing ? 'Saving...' : 'Save Settings'}</span>
+                            </button>
                         </div>
-                    </div>
-                </header>
+                    }
+                />
 
                 {/* Main Content Body */}
                 <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16">

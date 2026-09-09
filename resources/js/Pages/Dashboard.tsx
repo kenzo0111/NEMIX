@@ -1,6 +1,7 @@
 import SystemModeBadge from '@/Components/SystemModeBadge';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
+import PageHeader from '@/Components/Common/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState, useMemo, useEffect } from 'react';
@@ -657,53 +658,11 @@ export default function Dashboard({
             <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
 
                 {/* Unified Sticky Header — Single Layer */}
-                <header className="sticky top-0 z-40 shadow-xs">
-                    {/* Non-Production Mode Alert Banner (conditional — stays separate) */}
-                    {systemMode && systemMode !== 'LIVE PRODUCTION' && (
-                        <div className={`px-6 py-2 text-xs font-mono font-bold text-center flex items-center justify-center gap-2 shadow-xs border-b ${
-                            systemMode === 'MAINTENANCE MODE'
-                                ? 'bg-amber-950 text-amber-300 border-amber-800'
-                                : systemMode === 'STAGING SANDBOX'
-                                ? 'bg-sky-950 text-sky-300 border-sky-800'
-                                : 'bg-purple-950 text-purple-300 border-purple-800'
-                        }`}>
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
-                            </span>
-                            <span>
-                                {systemMode === 'MAINTENANCE MODE' && 'SYSTEM MAINTENANCE MODE ACTIVE — Write operations restricted to System Administrators.'}
-                                {systemMode === 'STAGING SANDBOX' && 'STAGING SANDBOX ENVIRONMENT — Operating with isolated test database.'}
-                                {systemMode === 'TRAINING SIMULATION' && 'TRAINING SIMULATION MODE — Operating with synthetic demo data.'}
-                            </span>
-                        </div>
-                    )}
-
-                    {/* Single Merged Header */}
-                    <div className="bg-white border-b border-gray-200 px-6 lg:px-8 py-3 flex items-center justify-between">
-                        <div>
-                            <div className="flex items-center gap-3 mb-0.5">
-                                <span className="text-[10px] font-bold text-red-900 uppercase tracking-wider">SPMO — Supply & Inventory Management System</span>
-                            </div>
-                            <div className="mb-0.5">
-                                <Breadcrumbs items={[]} />
-                            </div>
-                            <h2 className="text-lg font-bold text-gray-900 font-serif tracking-tight">Supply & Inventory Management</h2>
-                            <p className="text-xs text-gray-500 font-medium">Official Asset Control, Stock Requisition & Inventory Audit System</p>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <SystemModeBadge />
-                            <div className="text-right hidden sm:block border-l border-gray-200 pl-4">
-                                <span className="block text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
-                                    {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
-                                </span>
-                                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold block mt-0.5">
-                                    {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </header>
+                <PageHeader
+                    title="Supply & Inventory Management"
+                    subtitle="Official Asset Control, Stock Requisition & Inventory Audit System"
+                    breadcrumbs={[]}
+                />
 
                 <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16">
 

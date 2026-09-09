@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
-import SystemModeBadge from '@/Components/SystemModeBadge';
 import PageHeader from '@/Components/Common/PageHeader';
 import Toast, { useToast } from '@/Components/Common/Toast';
 import ConfirmDialog from '@/Components/Common/ConfirmDialog';
@@ -136,47 +135,15 @@ export default function ManageReports({
                     collapsed ? 'ml-20' : 'ml-72'
                 }`}
             >
-                {/* Institutional Header with Environment and Mode Bar */}
-                <header className="sticky top-0 z-40 shadow-xs print:hidden">
-                    {/* Operating Mode Banner */}
-                    {systemMode !== 'LIVE PRODUCTION' && (
-                        <div className="bg-amber-950 text-amber-300 px-6 py-1.5 text-xs font-mono font-bold flex items-center justify-center gap-2 border-b border-amber-800">
-                            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                            <span>
-                                {systemMode === 'MAINTENANCE MODE'
-                                    ? 'SYSTEM MAINTENANCE MODE ACTIVE — Report mutations restricted to Administrators.'
-                                    : `CURRENT ENVIRONMENT: ${systemMode}`}
-                            </span>
-                        </div>
-                    )}
-
-                    {/* Top Institutional Bar */}
-                    <div className="bg-red-950 text-red-100 text-[11px] px-6 lg:px-8 py-1.5 flex items-center justify-between border-b border-red-900 font-medium tracking-wide">
-                        <div className="flex items-center gap-3">
-                            <span className="font-bold tracking-wider uppercase text-amber-300">
-                                Supply & Property Management Office (SPMO)
-                            </span>
-                            <span className="hidden md:inline text-red-400">|</span>
-                            <span className="hidden md:inline text-red-200/80">
-                                COA Compliance & Property Reporting
-                            </span>
-                        </div>
-                        <div className="flex items-center gap-4 text-[10px] font-mono text-red-300">
-                            <SystemModeBadge />
-                            <span>•</span>
-                            <span>OFFICIAL RECORDS</span>
-                        </div>
-                    </div>
-
-                    <PageHeader
-                        title="COA Compliance Reports"
-                        subtitle="Official government inventory reporting (RSMI, RPCI, Stock Card, MR) & historical ledger archive"
-                        breadcrumbs={[
-                            { name: 'Compliance' },
-                            { name: 'Manage Reports' },
-                        ]}
-                    />
-                </header>
+                {/* Unified Sticky Header — Same as Dashboard */}
+                <PageHeader
+                    title="COA Compliance Reports"
+                    subtitle="Official government inventory reporting (RSMI, RPCI, Stock Card, MR) & historical ledger archive"
+                    breadcrumbs={[
+                        { name: 'Compliance' },
+                        { name: 'Manage Reports' },
+                    ]}
+                />
 
                 {/* Page Body */}
                 <div className="p-6 lg:p-8 max-w-[1600px] mx-auto space-y-6">
