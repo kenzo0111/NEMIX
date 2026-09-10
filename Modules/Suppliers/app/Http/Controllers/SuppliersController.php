@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Modules\Inventory\Models\Item;
-use Modules\Inventory\Models\Issuance;
+use Modules\Suppliers\Http\Requests\StoreSupplierRequest;
+use Modules\Suppliers\Http\Requests\UpdateSupplierRequest;
 use Modules\Suppliers\Models\Supplier;
 
 class SuppliersController extends Controller
@@ -38,16 +39,6 @@ class SuppliersController extends Controller
                 ->toArray();
         }
 
-        $itemsQuery = class_exists(Item::class)
-            ? ResourceOwnershipPolicy::scopeQuery(Item::query(), auth()->user())
-            : null;
-
-        $items = $itemsQuery ? $itemsQuery->get(['id', 'name', 'sku', 'supplier_id', 'stock', 'unit_cost', 'amount']) : collect();
-
-        $issuances = class_exists(Issuance::class)
-            ? ResourceOwnershipPolicy::scopeQuery(Issuance::with('item'), auth()->user(), 'issued_by')->latest()->get()
-            : collect();
-
         $suppliers = $suppliers->map(function ($supplier) use ($supplierItemValues) {
             $supplierId = (string) $supplier->id;
             $calculatedValue = round((float) ($supplierItemValues[$supplierId] ?? 0), 2);
@@ -58,25 +49,15 @@ class SuppliersController extends Controller
 
         return Inertia::render('Suppliers/ManageSupplier', [
             'suppliers' => $suppliers,
-            'items' => $items,
-            'issuances' => $issuances,
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreSupplierRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'tin' => ['required', 'string', 'max:50', 'unique:suppliers,tin'],
-            'address' => ['required', 'string', 'max:255'],
-            'reg_number' => ['required', 'string', 'max:100', 'unique:suppliers,reg_number'],
-            'category' => ['required', 'string', 'max:100'],
-            'status' => ['required', 'in:active,pending,blacklisted'],
-        ]);
-
+        $validated = $request->validated();
         $validated['created_by'] = auth()->id();
 
         Supplier::create($validated);
@@ -117,21 +98,12 @@ class SuppliersController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id): RedirectResponse
+    public function update(UpdateSupplierRequest $request, $id): RedirectResponse
     {
         $supplier = Supplier::findOrFail($id);
         ResourceOwnershipPolicy::authorize(auth()->user(), $supplier, 'created_by');
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'tin' => ['required', 'string', 'max:50', 'unique:suppliers,tin,' . $supplier->id],
-            'address' => ['required', 'string', 'max:255'],
-            'reg_number' => ['required', 'string', 'max:100', 'unique:suppliers,reg_number,' . $supplier->id],
-            'category' => ['required', 'string', 'max:100'],
-            'status' => ['required', 'in:active,pending,blacklisted'],
-        ]);
-
-        $supplier->update($validated);
+        $supplier->update($request->validated());
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully.');
     }
