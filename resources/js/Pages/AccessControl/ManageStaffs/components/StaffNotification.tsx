@@ -41,7 +41,7 @@ export default function StaffNotification({ notification, onDismiss }: StaffNoti
 
     return (
         <div
-            className={`border rounded-lg p-3.5 flex items-start gap-3 shadow-xs transition-all ${bg}`}
+            className={`border rounded-xl p-4 flex items-start gap-3 shadow-2xs transition-all ${bg}`}
             role="alert"
         >
             <div className={`shrink-0 mt-0.5 ${iconBg}`}>
@@ -56,7 +56,7 @@ export default function StaffNotification({ notification, onDismiss }: StaffNoti
             <button
                 type="button"
                 onClick={onDismiss}
-                className={`p-1 rounded transition-colors shrink-0 cursor-pointer ${closeHover}`}
+                className={`p-1 rounded-lg transition-colors shrink-0 cursor-pointer ${closeHover}`}
                 aria-label="Dismiss notification"
             >
                 <X className="w-4 h-4" />

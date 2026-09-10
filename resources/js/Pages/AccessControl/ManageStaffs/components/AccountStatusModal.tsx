@@ -24,11 +24,11 @@ export default function AccountStatusModal({
 
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="md">
-            <div className="overflow-hidden rounded-lg bg-white shadow-xl">
+            <div className="overflow-hidden rounded-xl bg-white shadow-xl">
                 {/* Status Color Bar */}
                 <div
-                    className={`h-1 w-full shrink-0 ${
-                        isActive ? 'bg-red-700' : 'bg-emerald-700'
+                    className={`h-1.5 w-full shrink-0 ${
+                        isActive ? 'bg-red-800' : 'bg-emerald-700'
                     }`}
                 ></div>
 
@@ -36,16 +36,16 @@ export default function AccountStatusModal({
                     <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
                             <div
-                                className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
                                     isActive
-                                        ? 'bg-red-100 text-red-700'
-                                        : 'bg-emerald-100 text-emerald-700'
+                                        ? 'bg-red-50 text-red-900 border-red-100/80'
+                                        : 'bg-emerald-50 text-emerald-800 border-emerald-200/80'
                                 }`}
                             >
                                 {isActive ? (
-                                    <AlertTriangle className="w-5 h-5" />
+                                    <AlertTriangle className="w-5 h-5 text-red-700" />
                                 ) : (
-                                    <UserCheck className="w-5 h-5" />
+                                    <UserCheck className="w-5 h-5 text-emerald-700" />
                                 )}
                             </div>
                             <div>
@@ -53,36 +53,36 @@ export default function AccountStatusModal({
                                     {isActive ? 'Disable Staff Account' : 'Enable Staff Account'}
                                 </h3>
                                 <p className="text-xs text-gray-500 mt-0.5">
-                                    Administrative status change confirmation
+                                    Administrative access authorization update
                                 </p>
                             </div>
                         </div>
                         <button
                             type="button"
                             onClick={onClose}
-                            className="text-gray-400 hover:text-gray-600 p-1.5 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
+                            className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                             aria-label="Close modal"
                         >
                             <X className="w-5 h-5" />
                         </button>
                     </div>
 
-                    <div className="mt-4 text-xs text-gray-600 space-y-2">
-                        <p>
-                            Are you sure you want to {isActive ? 'disable' : 'enable'} access for{' '}
+                    <div className="mt-4 text-xs text-gray-600 space-y-3">
+                        <p className="leading-relaxed">
+                            Are you sure you want to {isActive ? 'disable' : 'enable'} access credentials for{' '}
                             <strong className="text-gray-900 font-semibold">{staff.name}</strong>{' '}
-                            <span className="font-mono text-gray-500">({staff.email})</span>?
+                            <span className="font-mono text-gray-500 text-[11px]">({staff.email})</span>?
                         </p>
                         <div
-                            className={`p-3 rounded-md border text-xs leading-relaxed ${
+                            className={`p-3.5 rounded-lg border text-xs leading-relaxed ${
                                 isActive
-                                    ? 'bg-red-50/70 border-red-200 text-red-900'
-                                    : 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
+                                    ? 'bg-red-50/60 border-red-200/80 text-red-900'
+                                    : 'bg-emerald-50/60 border-emerald-200/80 text-emerald-900'
                             }`}
                         >
                             {isActive
-                                ? 'Disabling this account will immediately revoke all administrative privileges. Active sessions will be terminated and login attempts will be rejected until access is re-enabled by an administrator.'
-                                : 'Enabling this account will restore system login availability and reinstate administrative access according to their assigned role.'}
+                                ? 'Disabling this account immediately revokes university system privileges. Active user sessions will be invalidated and future authentication attempts blocked until re-enabled by an administrator.'
+                                : 'Enabling this account restores university portal access and reinstates administrative authority according to their assigned role.'}
                         </div>
                     </div>
 
@@ -92,7 +92,7 @@ export default function AccountStatusModal({
                             type="button"
                             onClick={onClose}
                             disabled={isProcessing}
-                            className="px-4 py-2 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer"
+                            className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer"
                         >
                             Cancel
                         </button>
@@ -100,7 +100,11 @@ export default function AccountStatusModal({
                             type="button"
                             onClick={onConfirm}
                             disabled={isProcessing}
-                            className="px-5 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-xs font-bold rounded-md shadow-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 uppercase font-mono tracking-wider cursor-pointer"
+                            className={`px-5 py-2.5 text-white text-xs font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 uppercase font-mono tracking-wider cursor-pointer ${
+                                isActive
+                                    ? 'bg-red-950 hover:bg-red-900 active:bg-red-950'
+                                    : 'bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900'
+                            }`}
                         >
                             {isProcessing ? (
                                 <>

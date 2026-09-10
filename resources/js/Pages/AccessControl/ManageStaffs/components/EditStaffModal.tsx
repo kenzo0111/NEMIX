@@ -15,8 +15,8 @@ interface EditStaffModalProps {
 const modalSelectStyles: StylesConfig<SelectOption, false> = {
     control: (provided, state) => ({
         ...provided,
-        borderRadius: '0.375rem',
-        borderColor: state.isFocused ? '#7f1d1d' : '#d1d5db',
+        borderRadius: '0.5rem',
+        borderColor: state.isFocused ? '#7f1d1d' : '#e5e7eb',
         boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
         '&:hover': { borderColor: '#7f1d1d' },
         minHeight: '38px',
@@ -34,7 +34,8 @@ const modalSelectStyles: StylesConfig<SelectOption, false> = {
     menu: (provided) => ({
         ...provided,
         zIndex: 60,
-        borderRadius: '0.375rem',
+        borderRadius: '0.5rem',
+        overflow: 'hidden',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
     }),
     menuPortal: (provided) => ({
@@ -95,27 +96,28 @@ export default function EditStaffModal({
 
     return (
         <Modal show={isOpen} onClose={handleClose} maxWidth="md">
-            <div className="overflow-hidden rounded-lg bg-white shadow-xl">
+            <div className="overflow-hidden rounded-xl bg-white shadow-xl">
                 {/* Institutional Maroon Accent Bar */}
-                <div className="h-1 w-full bg-red-900 shrink-0"></div>
+                <div className="h-1.5 w-full bg-red-900 shrink-0"></div>
 
                 {/* Modal Header */}
-                <div className="flex items-start justify-between px-6 py-4 border-b border-gray-200">
-                    <div className="flex items-center gap-2.5">
-                        <div className="p-2 bg-red-50 text-red-900 rounded-md border border-red-100 shrink-0">
-                            <Edit2 className="w-4 h-4" />
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-900 border border-red-100/80 flex items-center justify-center shrink-0">
+                            <Edit2 className="w-5 h-5" />
                         </div>
                         <div>
-                            <h3 className="text-base font-bold text-gray-900">Edit Staff</h3>
+                            <h3 className="text-base font-bold text-gray-900">Edit Staff Account</h3>
                             <p className="text-xs text-gray-500 mt-0.5">
-                                Update staff information and administrative role assignment.
+                                Update credentials and system role for{' '}
+                                <strong className="text-gray-800 font-semibold">{staff.name}</strong>.
                             </p>
                         </div>
                     </div>
                     <button
                         type="button"
                         onClick={handleClose}
-                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
+                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                         aria-label="Close modal"
                     >
                         <X className="w-5 h-5" />
@@ -129,7 +131,7 @@ export default function EditStaffModal({
                         <div>
                             <label
                                 htmlFor="edit-staff-name"
-                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1"
+                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5"
                             >
                                 Full Name <span className="text-red-600">*</span>
                             </label>
@@ -145,15 +147,15 @@ export default function EditStaffModal({
                                         setData('name', e.target.value);
                                         if (errors.name) clearErrors('name');
                                     }}
-                                    className={`w-full pl-9 pr-3 py-2 text-sm rounded-md border ${
-                                        errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-red-900'
-                                    } focus:outline-none focus:ring-1 bg-white text-gray-900`}
+                                    className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${
+                                        errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-red-900 focus:ring-red-900'
+                                    } focus:outline-none focus:ring-1 bg-white text-gray-900 placeholder:text-gray-400 transition-colors`}
                                     required
                                     autoFocus
                                 />
                             </div>
                             {errors.name && (
-                                <p className="mt-1 text-xs text-red-600 font-medium">{errors.name}</p>
+                                <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.name}</p>
                             )}
                         </div>
 
@@ -161,7 +163,7 @@ export default function EditStaffModal({
                         <div>
                             <label
                                 htmlFor="edit-staff-email"
-                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1"
+                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5"
                             >
                                 Email Address
                             </label>
@@ -174,20 +176,20 @@ export default function EditStaffModal({
                                     id="edit-staff-email"
                                     value={data.email}
                                     readOnly
-                                    className="w-full pl-9 pr-3 py-2 text-sm rounded-md border border-gray-300 bg-gray-50 text-gray-600 cursor-not-allowed select-none"
+                                    className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed select-none font-mono"
                                 />
                             </div>
                             {errors.email && (
-                                <p className="mt-1 text-xs text-red-600 font-medium">{errors.email}</p>
+                                <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.email}</p>
                             )}
-                            <p className="mt-1 text-xs text-gray-400">Email address cannot be modified.</p>
+                            <p className="mt-1 text-xs text-gray-400">Email address cannot be modified after registration.</p>
                         </div>
 
                         {/* System Role */}
                         <div>
                             <label
                                 htmlFor="edit-staff-role"
-                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1"
+                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5"
                             >
                                 System Role <span className="text-red-600">*</span>
                             </label>
@@ -205,25 +207,25 @@ export default function EditStaffModal({
                                 placeholder="Select a system role"
                             />
                             {errors.role && (
-                                <p className="mt-1 text-xs text-red-600 font-medium">{errors.role}</p>
+                                <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.role}</p>
                             )}
                         </div>
                     </div>
 
                     {/* Modal Actions */}
-                    <div className="flex items-center justify-end px-6 py-3.5 bg-gray-50/80 border-t border-gray-200 gap-2.5">
+                    <div className="flex items-center justify-end px-6 py-4 bg-gray-50/80 border-t border-gray-200 gap-2.5">
                         <button
                             type="button"
                             onClick={handleClose}
                             disabled={processing}
-                            className="px-4 py-2 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer"
+                            className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={processing}
-                            className="px-5 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-xs font-bold rounded-md shadow-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 uppercase font-mono tracking-wider cursor-pointer"
+                            className="px-5 py-2.5 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-xs font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 uppercase font-mono tracking-wider cursor-pointer"
                         >
                             {processing ? (
                                 <>

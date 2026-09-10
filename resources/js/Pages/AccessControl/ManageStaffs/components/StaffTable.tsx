@@ -35,26 +35,29 @@ export default function StaffTable({
     onResendInvitation,
 }: StaffTableProps) {
     return (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-xs overflow-hidden flex flex-col">
+        <section aria-label="Staff accounts roster" className="bg-white border border-gray-200/80 rounded-xl shadow-2xs overflow-hidden flex flex-col">
             <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[680px]">
+                <table className="w-full text-left border-collapse min-w-[760px]">
                     <thead>
-                        <tr className="border-b border-gray-200 bg-gray-50/90 text-[11px] font-semibold tracking-wider text-gray-700 uppercase">
-                            <th scope="col" className="px-6 py-3 w-5/12">
+                        <tr className="border-b border-gray-200 bg-gray-50/80 text-[11px] font-semibold tracking-wider text-gray-600 uppercase">
+                            <th scope="col" className="px-6 py-3.5 w-4/12">
                                 Staff Member
                             </th>
-                            <th scope="col" className="px-6 py-3 w-3/12">
+                            <th scope="col" className="px-6 py-3.5 w-3/12">
                                 Role
                             </th>
-                            <th scope="col" className="px-6 py-3 w-2/12">
+                            <th scope="col" className="px-6 py-3.5 w-2/12">
+                                Verification
+                            </th>
+                            <th scope="col" className="px-6 py-3.5 w-2/12">
                                 Status
                             </th>
-                            <th scope="col" className="px-6 py-3 w-2/12 text-right">
+                            <th scope="col" className="px-6 py-3.5 w-2/12 text-right">
                                 Actions
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200/80 bg-white">
+                    <tbody className="divide-y divide-gray-100 bg-white">
                         {staffs.length > 0 ? (
                             staffs.map((staff) => (
                                 <StaffTableRow
@@ -72,15 +75,15 @@ export default function StaffTable({
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={4} className="px-6 py-14 text-center">
+                                <td colSpan={5} className="px-6 py-14 text-center">
                                     <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
-                                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3">
+                                        <div className="w-12 h-12 rounded-full bg-red-50 text-red-900 border border-red-100/80 flex items-center justify-center mb-3">
                                             <Search className="w-5 h-5" />
                                         </div>
                                         <p className="text-sm font-semibold text-gray-900">
                                             No staff accounts found
                                         </p>
-                                        <p className="text-xs text-gray-500 mt-1">
+                                        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                                             {hasActiveFilters
                                                 ? 'No staff members match the current search or status filter criteria.'
                                                 : 'There are currently no staff accounts registered in the system.'}
@@ -89,7 +92,7 @@ export default function StaffTable({
                                             <button
                                                 type="button"
                                                 onClick={onResetFilters}
-                                                className="mt-4 px-3 py-1.5 text-xs font-semibold text-red-950 hover:bg-red-50 hover:border-red-900/50 border border-red-900/30 rounded-md transition-colors cursor-pointer shadow-2xs"
+                                                className="mt-4 px-3.5 py-1.5 text-xs font-semibold text-red-950 hover:bg-red-50 hover:border-red-900/50 border border-red-900/30 rounded-lg transition-colors cursor-pointer shadow-2xs"
                                             >
                                                 Clear search and filters
                                             </button>
@@ -103,12 +106,17 @@ export default function StaffTable({
             </div>
 
             {/* Table Footer */}
-            <div className="px-6 py-3 border-t border-gray-200 bg-gray-50/60 flex items-center justify-between text-xs text-gray-500">
+            <div className="px-6 py-3.5 border-t border-gray-200 bg-gray-50/60 flex items-center justify-between text-xs text-gray-500">
                 <span>
-                    Showing <span className="font-semibold text-gray-700">{staffs.length}</span> of{' '}
-                    <span className="font-semibold text-gray-700">{totalStaffCount}</span> staff accounts
+                    Showing <span className="font-semibold text-gray-800 tabular-nums">{staffs.length}</span> of{' '}
+                    <span className="font-semibold text-gray-800 tabular-nums">{totalStaffCount}</span> staff accounts
                 </span>
+                {hasActiveFilters && (
+                    <span className="text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md">
+                        Filtered Roster
+                    </span>
+                )}
             </div>
-        </div>
+        </section>
     );
 }
