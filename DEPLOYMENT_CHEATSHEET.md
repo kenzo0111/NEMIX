@@ -73,3 +73,25 @@ docker compose exec app php artisan config:clear
 # Re-link storage directory
 docker compose exec app php artisan storage:link
 ```
+
+---
+
+## 5. Live Database Access (pgAdmin Web Interface)
+
+The database management interface runs via Docker container on port `5050`:
+
+* **URL:** `http://157.230.253.79:5050`
+* **pgAdmin Login Email:** `admin@example.com` (or `PGADMIN_DEFAULT_EMAIL` in `.env`)
+* **pgAdmin Login Password:** `admin` (or `PGADMIN_DEFAULT_PASSWORD` in `.env`)
+
+### How to Register the Database Server inside pgAdmin:
+1. Click **Add New Server**
+2. **General Tab:**
+   * Name: `NEMIX DB`
+3. **Connection Tab:**
+   * Host name / address: `db`
+   * Port: `5432`
+   * Maintenance database: `laravel`
+   * Username: `sail`
+   * Password: `password`
+
