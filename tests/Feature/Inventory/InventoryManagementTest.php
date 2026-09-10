@@ -114,4 +114,60 @@ class InventoryManagementTest extends TestCase
         $response->assertRedirect(route('inventory.index'));
         $this->assertSoftDeleted('items', ['id' => $item->id]);
     }
+
+    public function test_auto_generates_unique_sku_when_sku_is_empty(): void
+    {
+        $response = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
+            'name' => 'Correction Tape 5mm',
+            'supplier_id' => $this->supplier->id,
+            'sku' => '',
+            'stock' => 25,
+            'unit_cost' => 35.00,
+            'status' => 'Available',
+            'unit_of_issue' => 'Piece',
+        ]);
+
+        $response->assertRedirect(route('inventory.index'));
+        $item = Item::where('name', 'Correction Tape 5mm')->first();
+        $this->assertNotNull($item);
+        $this->assertNotEmpty($item->sku);
+        $this->assertStringStartsWith('TSC-', $item->sku);
+    }
+
+    public function test_authoritative_status_and_amount_calculations(): void
+    {
+        // 0 stock should be authoritative 'Out of Stock'
+        $response = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
+            'name' => 'Special Paper Cream',
+            'supplier_id' => $this->supplier->id,
+            'stock' => 0,
+            'unit_cost' => 100.00,
+            'amount' => 9999.00, // Invalid client calculation
+            'status' => 'Available', // Invalid client status
+        ]);
+
+        $item = Item::where('name', 'Special Paper Cream')->first();
+        $this->assertNotNull($item);
+        $this->assertEquals(0, $item->amount);
+        $this->assertEquals('Out of Stock', $item->status);
+    }
+
+    public function test_search_and_filtering_parameters(): void
+    {
+        Item::create([
+            'name' => 'Highlighter Yellow',
+            'supplier_id' => $this->supplier->id,
+            'sku' => 'HLT-YEL-001',
+            'stock' => 15,
+            'status' => 'Low Stock',
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        $response = $this->actingAs($this->adminUser)->get(route('inventory.index', [
+            'search' => 'Highlighter',
+            'status' => 'Low Stock',
+        ]));
+
+        $response->assertOk();
+    }
 }

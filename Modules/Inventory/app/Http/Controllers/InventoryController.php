@@ -21,29 +21,105 @@ class InventoryController extends Controller
 {
     protected $inventoryService;
 
-    public function index()
+    public function generateUniqueSku(int $supplierId): string
     {
+        $supplier = Supplier::find($supplierId);
+        $supplierName = $supplier ? $supplier->name : 'GEN';
+        $words = preg_split('/\s+/', trim($supplierName));
+        $letters = [];
+        foreach (array_slice($words, 0, 3) as $word) {
+            if ($word !== '') {
+                $letters[] = strtoupper(substr($word, 0, 1));
+            }
+        }
+        while (count($letters) < 3) {
+            $letters[] = 'X';
+        }
+        $acronym = implode('', array_slice($letters, 0, 3));
+        $year = date('y');
+        $month = date('m');
+
+        $count = Item::where('supplier_id', $supplierId)->count();
+        $index = $count + 1;
+        do {
+            $sku = sprintf('%s-%s-%s-%03d-0001', $acronym, $year, $month, $index);
+            $exists = Item::where('sku', $sku)->exists();
+            if (!$exists) {
+                return $sku;
+            }
+            $index++;
+        } while (true);
+    }
+
+    public function index(Request $request)
+    {
+        $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
+            ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
+            : 10;
+
         $itemsQuery = ResourceOwnershipPolicy::scopeQuery(Item::with('supplier'), auth()->user());
         $suppliersQuery = ResourceOwnershipPolicy::scopeQuery(Supplier::query(), auth()->user());
 
+        if ($request->filled('search')) {
+            $search = trim((string) $request->input('search'));
+            $itemsQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('sku', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('rfid_tag', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('supplier')) {
+            $itemsQuery->where('supplier_id', $request->input('supplier'));
+        }
+
+        if ($request->filled('status')) {
+            $itemsQuery->where('status', $request->input('status'));
+        }
+
+        $itemsQuery->orderBy('id', 'desc');
+
+        $perPage = (int) $request->input('per_page', 10);
+        $paginator = $itemsQuery->paginate($perPage)->withQueryString();
+
+        $itemsList = collect($paginator->items())->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'sku' => $item->sku,
+                'stock' => $item->stock,
+                'unit_cost' => $item->unit_cost,
+                'amount' => $item->amount,
+                'status' => $item->status,
+                'description' => $item->description,
+                'unit_of_issue' => $item->unit_of_issue,
+                'supplier_id' => $item->supplier_id,
+                'supplier' => $item->supplier ? [
+                    'id' => $item->supplier->id,
+                    'name' => $item->supplier->name,
+                ] : null,
+                'rfid_tag' => $item->rfid_tag,
+            ];
+        })->values()->all();
+
         return Inertia::render('Inventory/AllItems', [
-            'items' => $itemsQuery->get()->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'sku' => $item->sku,
-                    'stock' => $item->stock,
-                    'unit_cost' => $item->unit_cost,
-                    'amount' => $item->amount,
-                    'status' => $item->status,
-                    'description' => $item->description,
-                    'unit_of_issue' => $item->unit_of_issue,
-                    'supplier_id' => $item->supplier_id,
-                    'supplier' => $item->supplier,
-                    'rfid_tag' => $item->rfid_tag,
-                ];
-            }),
-            'suppliers' => $suppliersQuery->get()
+            'items' => $itemsList,
+            'pagination' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+                'from' => $paginator->firstItem(),
+                'to' => $paginator->lastItem(),
+            ],
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'supplier' => $request->input('supplier', ''),
+                'status' => $request->input('status', ''),
+            ],
+            'suppliers' => $suppliersQuery->get(['id', 'name']),
+            'lowStockThreshold' => $lowStockThreshold,
         ]);
     }
 
@@ -57,23 +133,45 @@ class InventoryController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
-            'sku' => ['nullable', 'string', 'max:255', 'unique:items,sku'],
+            'sku' => ['nullable', 'string', 'max:255'],
             'stock' => ['required', 'integer', 'min:0', 'max:1000000'],
             'unit_cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
-            'status' => ['required', 'string', 'in:Available,Low Stock,Out of Stock'],
+            'status' => ['nullable', 'string', 'in:Available,Low Stock,Out of Stock'],
             'description' => ['nullable', 'string', 'max:2000'],
             'unit_of_issue' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $data = $request->only([
-            'name', 'supplier_id', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'unit_of_issue'
-        ]);
-        $data['created_by'] = auth()->id();
+        $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
+            ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
+            : 10;
 
-        Item::create($data);
+        $stock = (int) $validated['stock'];
+        $unitCost = isset($validated['unit_cost']) && $validated['unit_cost'] !== '' ? (float) $validated['unit_cost'] : 0.0;
+        $amount = round($stock * $unitCost, 2);
+        $status = $stock <= 0 ? 'Out of Stock' : ($stock <= $lowStockThreshold ? 'Low Stock' : 'Available');
 
-        return redirect()->route('inventory.index')->with('success', 'Item created successfully.');
+        return DB::transaction(function () use ($validated, $stock, $unitCost, $amount, $status) {
+            $sku = !empty($validated['sku']) ? trim($validated['sku']) : '';
+            if ($sku === '' || Item::where('sku', $sku)->exists()) {
+                $sku = $this->generateUniqueSku((int) $validated['supplier_id']);
+            }
+
+            $item = Item::create([
+                'name' => $validated['name'],
+                'supplier_id' => $validated['supplier_id'],
+                'sku' => $sku,
+                'stock' => $stock,
+                'unit_cost' => $unitCost,
+                'amount' => $amount,
+                'status' => $status,
+                'description' => $validated['description'] ?? null,
+                'unit_of_issue' => $validated['unit_of_issue'] ?? null,
+                'created_by' => auth()->id(),
+            ]);
+
+            return redirect()->route('inventory.index')->with('success', 'Inventory item created successfully.');
+        });
     }
 
     public function update(Request $request, Item $inventory)
@@ -87,14 +185,40 @@ class InventoryController extends Controller
             'stock' => ['required', 'integer', 'min:0', 'max:1000000'],
             'unit_cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
-            'status' => ['required', 'string', 'in:Available,Low Stock,Out of Stock'],
+            'status' => ['nullable', 'string', 'in:Available,Low Stock,Out of Stock'],
             'description' => ['nullable', 'string', 'max:2000'],
             'unit_of_issue' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $inventory->update($request->only(['name', 'supplier_id', 'sku', 'stock', 'unit_cost', 'amount', 'status', 'description', 'unit_of_issue']));
+        $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
+            ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
+            : 10;
 
-        return redirect()->route('inventory.index')->with('success', 'Item updated successfully.');
+        $stock = (int) $validated['stock'];
+        $unitCost = isset($validated['unit_cost']) && $validated['unit_cost'] !== '' ? (float) $validated['unit_cost'] : 0.0;
+        $amount = round($stock * $unitCost, 2);
+        $status = $stock <= 0 ? 'Out of Stock' : ($stock <= $lowStockThreshold ? 'Low Stock' : 'Available');
+
+        return DB::transaction(function () use ($validated, $inventory, $stock, $unitCost, $amount, $status) {
+            $sku = !empty($validated['sku']) ? trim($validated['sku']) : $inventory->sku;
+            if (empty($sku)) {
+                $sku = $this->generateUniqueSku((int) $validated['supplier_id']);
+            }
+
+            $inventory->update([
+                'name' => $validated['name'],
+                'supplier_id' => $validated['supplier_id'],
+                'sku' => $sku,
+                'stock' => $stock,
+                'unit_cost' => $unitCost,
+                'amount' => $amount,
+                'status' => $status,
+                'description' => $validated['description'] ?? null,
+                'unit_of_issue' => $validated['unit_of_issue'] ?? null,
+            ]);
+
+            return redirect()->route('inventory.index')->with('success', 'Inventory item updated successfully.');
+        });
     }
 
     public function destroy(Item $inventory)
@@ -103,7 +227,7 @@ class InventoryController extends Controller
 
         $inventory->delete();
 
-        return redirect()->route('inventory.index')->with('success', 'Item deleted successfully.');
+        return redirect()->route('inventory.index')->with('success', 'Inventory item deleted successfully.');
     }
 
     public function receiving()
