@@ -1,7 +1,7 @@
+@import './issuance-print.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import './issuance-print.css';
 
 .login-bg {
     background-image: url(/images/cnsc-campus-bg.jpg);
