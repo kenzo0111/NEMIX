@@ -1,3 +1,5 @@
+import { AuthCapabilities } from './navigation';
+
 export interface User {
     id: number;
     name: string;
@@ -6,6 +8,7 @@ export interface User {
     email_verified_at?: string | null;
     is_active?: boolean;
     role?: string;
+    primary_role?: string;
     roles?: string[];
     created_at?: string;
     created_at_formatted?: string;
@@ -195,6 +198,7 @@ export type PageProps<
         user: User;
         permissions?: string[];
         is_system_admin?: boolean;
+        capabilities?: AuthCapabilities;
     };
     system?: SystemConfigurationState;
     flash?: FlashMessages;

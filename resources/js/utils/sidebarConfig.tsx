@@ -1,165 +1,321 @@
-import { ReactNode } from 'react';
+import {
+    LayoutDashboard,
+    Package,
+    ScanLine,
+    Building2,
+    FileCheck2,
+    History,
+    ShieldCheck,
+    Settings,
+} from 'lucide-react';
+import {
+    AuthCapabilities,
+    SidebarCategory,
+    SidebarCategoryKey,
+    SidebarModule,
+    SidebarSubmodule,
+} from '@/types/navigation';
 
-export interface Submodule {
-    title: string;
-    href: string;
-    active?: boolean;
-    badge?: string;
+export type { SidebarModule, SidebarSubmodule, AuthCapabilities };
+export type Module = SidebarModule;
+export type Submodule = SidebarSubmodule;
+
+export const SIDEBAR_CATEGORIES: Record<SidebarCategoryKey, SidebarCategory> = {
+    overview: {
+        key: 'overview',
+        title: 'Overview',
+    },
+    logistics: {
+        key: 'logistics',
+        title: 'Logistics & Operations',
+    },
+    governance: {
+        key: 'governance',
+        title: 'Administration & Governance',
+    },
+};
+
+/**
+ * Normalizes input keys and names to ensure backwards compatibility
+ * between legacy page labels and formal administrative terminology.
+ */
+function normalizeSubmoduleActive(
+    itemKey: string,
+    subItemKey: string,
+    activeModule?: string,
+    activeSubmodule?: string,
+    routeCurrentName?: string
+): boolean {
+    if (activeSubmodule) {
+        const normSub = activeSubmodule.toLowerCase().trim();
+        if (subItemKey === 'all-items' && normSub === 'all items') return true;
+        if (subItemKey === 'receiving' && normSub === 'receiving') return true;
+        if (subItemKey === 'issuance' && normSub === 'issuance') return true;
+        if (subItemKey === 'supplier-registry' && (normSub === 'supplier registry' || normSub === 'manage supplier')) return true;
+        if (subItemKey === 'manage-reports' && (normSub === 'manage reports' || normSub === 'reports')) return true;
+        if (subItemKey === 'manage-analytics' && (normSub === 'manage analytics' || normSub === 'analytics')) return true;
+        if (subItemKey === 'login-audit' && (normSub === 'login audit' || normSub === 'manage login trails')) return true;
+        if (subItemKey === 'transaction-audit' && (normSub === 'transaction audit' || normSub === 'manage transaction')) return true;
+        if (subItemKey === 'roles-permissions' && (normSub === 'roles & permissions' || normSub === 'manage role permission' || normSub === 'role permission')) return true;
+        if (subItemKey === 'staff-accounts' && (normSub === 'staff accounts' || normSub === 'manage staffs' || normSub === 'staffs')) return true;
+    }
+
+    if (routeCurrentName) {
+        if (subItemKey === 'all-items' && routeCurrentName === 'inventory.index') return true;
+        if (subItemKey === 'receiving' && routeCurrentName.startsWith('inventory.receiving')) return true;
+        if (subItemKey === 'issuance' && routeCurrentName.startsWith('inventory.issuance')) return true;
+        if (subItemKey === 'supplier-registry' && routeCurrentName.startsWith('suppliers.')) return true;
+        if (subItemKey === 'manage-reports' && routeCurrentName.startsWith('compliance.reports')) return true;
+        if (subItemKey === 'manage-analytics' && routeCurrentName.startsWith('compliance.analytics')) return true;
+        if (subItemKey === 'login-audit' && routeCurrentName.startsWith('audit-logs.login-trails')) return true;
+        if (subItemKey === 'transaction-audit' && routeCurrentName.startsWith('audit-logs.transaction-trails')) return true;
+        if (subItemKey === 'roles-permissions' && routeCurrentName.startsWith('access-control.role-permission')) return true;
+        if (subItemKey === 'staff-accounts' && routeCurrentName.startsWith('access-control.staffs')) return true;
+    }
+
+    return false;
 }
 
-export interface Module {
-    title: string;
-    subtitle: string;
-    icon: ReactNode;
-    href?: string;
-    active?: boolean;
-    color?: string;
-    bg?: string;
-    category?: string;
-    badge?: string;
-    submodules?: Submodule[];
+function normalizeModuleActive(
+    itemKey: string,
+    activeModule?: string,
+    hasActiveSubmodule?: boolean,
+    routeCurrentName?: string
+): boolean {
+    if (hasActiveSubmodule) {
+        return true;
+    }
+
+    if (activeModule) {
+        const normMod = activeModule.toLowerCase().trim();
+        if (itemKey === 'dashboard' && normMod === 'dashboard') return true;
+        if (itemKey === 'inventory' && normMod === 'inventory') return true;
+        if (itemKey === 'rfid-scanner' && (normMod === 'rfid scanner' || normMod === 'rfid')) return true;
+        if (itemKey === 'suppliers' && (normMod === 'suppliers' || normMod === 'contract suppliers')) return true;
+        if (itemKey === 'compliance' && normMod === 'compliance') return true;
+        if (itemKey === 'audit-logs' && normMod === 'audit logs') return true;
+        if (itemKey === 'access-control' && (normMod === 'access control' || normMod === 'access')) return true;
+        if (itemKey === 'system-settings' && (normMod === 'system settings' || normMod === 'settings')) return true;
+    }
+
+    if (routeCurrentName) {
+        if (itemKey === 'dashboard' && routeCurrentName === 'dashboard') return true;
+        if (itemKey === 'rfid-scanner' && routeCurrentName.startsWith('rfid-scanner.')) return true;
+        if (itemKey === 'system-settings' && routeCurrentName.startsWith('system.settings.')) return true;
+    }
+
+    // Default dashboard active when nothing specified
+    if (!activeModule && !routeCurrentName && itemKey === 'dashboard') {
+        return true;
+    }
+
+    return false;
 }
 
-export function getSidebarModules(activeModule?: string, activeSubmodule?: string): Module[] {
-    return [
+export function getSidebarModules(activeModule?: string, activeSubmodule?: string): SidebarModule[] {
+    const routeCurrentName = typeof route === 'function' ? route().current() : undefined;
+
+    // Define RAW modules configuration
+    const rawModules: SidebarModule[] = [
         // OVERVIEW
         {
-            category: 'Overview',
+            key: 'dashboard',
+            category: 'overview',
+            categoryTitle: SIDEBAR_CATEGORIES.overview.title,
             title: 'Dashboard',
-            subtitle: 'Analytics & Summary',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 00-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                </svg>
-            ),
+            icon: LayoutDashboard,
             href: route('dashboard'),
-            active: activeModule === 'Dashboard' || (!activeModule && !activeSubmodule),
-            color: 'text-yellow-400',
-            bg: 'bg-yellow-500/20',
+            requiredCapability: (caps) => caps.dashboard,
+            requiredPermission: 'route:dashboard',
         },
 
         // LOGISTICS & OPERATIONS
         {
-            category: 'Logistics & Operations',
+            key: 'inventory',
+            category: 'logistics',
+            categoryTitle: SIDEBAR_CATEGORIES.logistics.title,
             title: 'Inventory',
-            subtitle: 'Stock & Storage',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                </svg>
-            ),
+            icon: Package,
             href: '#',
-            active: activeModule === 'Inventory',
-            color: 'text-blue-300',
-            bg: 'bg-blue-900/50',
+            requiredCapability: (caps) =>
+                caps.inventory.view || caps.inventory.receiving || caps.inventory.issuance,
+            requiredPermission: 'route:inventory.index',
             submodules: [
-                { title: 'All Items', href: route('inventory.index'), active: activeSubmodule === 'All Items' },
-                { title: 'Receiving', href: route('inventory.receiving'), active: activeSubmodule === 'Receiving' },
-                { title: 'Issuance', href: route('inventory.issuance'), active: activeSubmodule === 'Issuance' },
-            ]
+                {
+                    key: 'all-items',
+                    title: 'All Items',
+                    href: route('inventory.index'),
+                    requiredCapability: (caps) => caps.inventory.view,
+                    requiredPermission: 'route:inventory.index',
+                },
+                {
+                    key: 'receiving',
+                    title: 'Receiving',
+                    href: route('inventory.receiving'),
+                    requiredCapability: (caps) => caps.inventory.receiving,
+                    requiredPermission: 'route:inventory.receiving',
+                },
+                {
+                    key: 'issuance',
+                    title: 'Issuance',
+                    href: route('inventory.issuance'),
+                    requiredCapability: (caps) => caps.inventory.issuance,
+                    requiredPermission: 'route:inventory.issuance',
+                },
+            ],
         },
         {
-            category: 'Logistics & Operations',
+            key: 'rfid-scanner',
+            category: 'logistics',
+            categoryTitle: SIDEBAR_CATEGORIES.logistics.title,
             title: 'RFID Scanner',
-            subtitle: 'Access & Tagging',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                </svg>
-            ),
+            icon: ScanLine,
             href: route('rfid-scanner.index'),
-            active: activeModule === 'RFID Scanner',
-            color: 'text-cyan-300',
-            bg: 'bg-cyan-900/50',
-            badge: 'RFID',
+            requiredCapability: (caps) => caps.rfid.view,
+            requiredPermission: 'route:rfid-scanner.index',
         },
 
         // ADMINISTRATION & GOVERNANCE
         {
-            category: 'Administration & Governance',
+            key: 'suppliers',
+            category: 'governance',
+            categoryTitle: SIDEBAR_CATEGORIES.governance.title,
             title: 'Suppliers',
-            subtitle: 'Vendor Database',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                </svg>
-            ),
+            icon: Building2,
             href: '#',
-            active: activeModule === 'Suppliers' || activeModule === 'Contract Suppliers',
-            color: 'text-purple-300',
-            bg: 'bg-purple-900/50',
+            requiredCapability: (caps) => caps.suppliers.view,
+            requiredPermission: 'route:suppliers.index',
             submodules: [
-                { title: 'Manage Supplier', href: route('suppliers.index'), active: activeSubmodule === 'Manage Supplier' },
-            ]
+                {
+                    key: 'supplier-registry',
+                    title: 'Supplier Registry',
+                    href: route('suppliers.index'),
+                    requiredCapability: (caps) => caps.suppliers.view,
+                    requiredPermission: 'route:suppliers.index',
+                },
+            ],
         },
         {
-            category: 'Administration & Governance',
+            key: 'compliance',
+            category: 'governance',
+            categoryTitle: SIDEBAR_CATEGORIES.governance.title,
             title: 'Compliance',
-            subtitle: 'Reports & Analytics',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-            ),
+            icon: FileCheck2,
             href: '#',
-            active: activeModule === 'Compliance',
-            color: 'text-orange-300',
-            bg: 'bg-orange-900/50',
+            requiredCapability: (caps) => caps.compliance.reports || caps.compliance.analytics,
+            requiredPermission: 'route:compliance.reports',
             submodules: [
-                { title: 'Manage Reports', href: route('compliance.reports'), active: activeSubmodule === 'Manage Reports' },
-                { title: 'Manage Analytics', href: route('compliance.analytics'), active: activeSubmodule === 'Manage Analytics' },
-            ]
+                {
+                    key: 'manage-reports',
+                    title: 'Manage Reports',
+                    href: route('compliance.reports'),
+                    requiredCapability: (caps) => caps.compliance.reports,
+                    requiredPermission: 'route:compliance.reports',
+                },
+                {
+                    key: 'manage-analytics',
+                    title: 'Manage Analytics',
+                    href: route('compliance.analytics'),
+                    requiredCapability: (caps) => caps.compliance.analytics,
+                    requiredPermission: 'route:compliance.analytics',
+                },
+            ],
         },
         {
-            category: 'Administration & Governance',
+            key: 'audit-logs',
+            category: 'governance',
+            categoryTitle: SIDEBAR_CATEGORIES.governance.title,
             title: 'Audit Logs',
-            subtitle: 'Trails & Security',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            ),
+            icon: History,
             href: '#',
-            active: activeModule === 'Audit Logs',
-            color: 'text-gray-300',
-            bg: 'bg-gray-800/50',
+            requiredCapability: (caps) => caps.audit.login || caps.audit.transactions,
+            requiredPermission: 'route:audit-logs.login-trails',
             submodules: [
-                { title: 'Manage Login Trails', href: route('audit-logs.login-trails'), active: activeSubmodule === 'Manage Login Trails' },
-                { title: 'Manage Transaction', href: route('audit-logs.transaction-trails'), active: activeSubmodule === 'Manage Transaction' },
-            ]
+                {
+                    key: 'login-audit',
+                    title: 'Login Audit',
+                    href: route('audit-logs.login-trails'),
+                    requiredCapability: (caps) => caps.audit.login,
+                    requiredPermission: 'route:audit-logs.login-trails',
+                },
+                {
+                    key: 'transaction-audit',
+                    title: 'Transaction Audit',
+                    href: route('audit-logs.transaction-trails'),
+                    requiredCapability: (caps) => caps.audit.transactions,
+                    requiredPermission: 'route:audit-logs.transaction-trails',
+                },
+            ],
         },
         {
-            category: 'Administration & Governance',
+            key: 'access-control',
+            category: 'governance',
+            categoryTitle: SIDEBAR_CATEGORIES.governance.title,
             title: 'Access Control',
-            subtitle: 'Permissions & Staff',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                </svg>
-            ),
+            icon: ShieldCheck,
             href: '#',
-            active: activeModule === 'Access',
-            color: 'text-red-300',
-            bg: 'bg-red-900/50',
+            requiredCapability: (caps) => caps.accessControl.roles || caps.accessControl.staff,
+            requiredPermission: 'route:access-control.role-permission',
             submodules: [
-                { title: 'Manage Role Permission', href: route('access-control.role-permission'), active: activeSubmodule === 'Manage Role Permission' },
-                { title: 'Manage Staffs', href: route('access-control.staffs'), active: activeSubmodule === 'Manage Staffs' },
-            ]
+                {
+                    key: 'roles-permissions',
+                    title: 'Roles & Permissions',
+                    href: route('access-control.role-permission'),
+                    requiredCapability: (caps) => caps.accessControl.roles,
+                    requiredPermission: 'route:access-control.role-permission',
+                },
+                {
+                    key: 'staff-accounts',
+                    title: 'Staff Accounts',
+                    href: route('access-control.staffs'),
+                    requiredCapability: (caps) => caps.accessControl.staff,
+                    requiredPermission: 'route:access-control.staffs',
+                },
+            ],
         },
         {
-            category: 'Administration & Governance',
+            key: 'system-settings',
+            category: 'governance',
+            categoryTitle: SIDEBAR_CATEGORIES.governance.title,
             title: 'System Settings',
-            subtitle: 'Consumables & Policies',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-            ),
+            icon: Settings,
             href: route('system.settings.index'),
-            active: activeModule === 'System Settings' || (typeof route === 'function' && route().current('system.settings.*')),
-            color: 'text-amber-300',
-            bg: 'bg-amber-900/50',
+            requiredCapability: (caps) => caps.systemSettings,
+            requiredPermission: 'route:system.settings.index',
         },
     ];
+
+    // Compute active states
+    return rawModules.map((module) => {
+        let hasActiveSubmodule = false;
+        const submodules = module.submodules?.map((sub) => {
+            const isSubActive = normalizeSubmoduleActive(
+                module.key,
+                sub.key,
+                activeModule,
+                activeSubmodule,
+                routeCurrentName
+            );
+            if (isSubActive) {
+                hasActiveSubmodule = true;
+            }
+            return {
+                ...sub,
+                active: isSubActive,
+            };
+        });
+
+        const isModuleActive = normalizeModuleActive(
+            module.key,
+            activeModule,
+            hasActiveSubmodule,
+            routeCurrentName
+        );
+
+        return {
+            ...module,
+            active: isModuleActive,
+            submodules,
+        };
+    });
 }

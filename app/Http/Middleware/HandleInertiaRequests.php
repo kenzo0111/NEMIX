@@ -30,8 +30,11 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+        $isSystemAdmin = (bool) ($user && method_exists($user, 'isSystemAdmin') ? $user->isSystemAdmin() : false);
+
         if ($user) {
             $user->loadMissing('roles');
+            $primaryRole = $user->roles->first()?->name ?? (is_string($user->role ?? null) ? $user->role : 'Supply Officer');
             $userArray = [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -39,16 +42,72 @@ class HandleInertiaRequests extends Middleware
                 'email' => $user->email,
                 'email_verified_at' => $user->email_verified_at,
                 'is_active' => (bool) $user->is_active,
-                'role' => $user->roles->first()?->name ?? 'Supply Officer',
+                'role' => $primaryRole,
+                'primary_role' => $primaryRole,
                 'roles' => $user->getRoleNames()->toArray(),
                 'created_at' => $user->created_at?->toIso8601String(),
                 'created_at_formatted' => $user->created_at?->format('F d, Y'),
             ];
+
+            $userPermissions = [];
+            try {
+                $userPermissions = $user->getAllPermissions()->pluck('name')->all();
+            } catch (\Throwable $e) {
+                $userPermissions = $user->getPermissionNames()->toArray();
+            }
+
+            $hasPerm = function (string $routeName, bool $default = false) use ($isSystemAdmin, $user, $userPermissions) {
+                if ($isSystemAdmin) {
+                    return true;
+                }
+                if (in_array('route:' . $routeName, $userPermissions, true) || in_array($routeName, $userPermissions, true)) {
+                    return true;
+                }
+                try {
+                    if ($user->hasPermissionTo('route:' . $routeName) || $user->hasPermissionTo($routeName)) {
+                        return true;
+                    }
+                } catch (\Throwable $e) {
+                    // Fallback if permission not yet in database
+                }
+                return $default;
+            };
+
+            // Non-admin operational staff fallback if no route permissions seeded yet
+            $hasAnyConfiguredPerms = count($userPermissions) > 0;
+            $defaultForStaff = ! $hasAnyConfiguredPerms;
+
+            $capabilities = [
+                'dashboard' => true,
+                'inventory' => [
+                    'view' => $hasPerm('inventory.index', $defaultForStaff),
+                    'receiving' => $hasPerm('inventory.receiving', $defaultForStaff),
+                    'issuance' => $hasPerm('inventory.issuance', $defaultForStaff),
+                ],
+                'rfid' => [
+                    'view' => $hasPerm('rfid-scanner.index', $defaultForStaff),
+                ],
+                'suppliers' => [
+                    'view' => $hasPerm('suppliers.index', $defaultForStaff),
+                ],
+                'compliance' => [
+                    'reports' => $hasPerm('compliance.reports', $defaultForStaff),
+                    'analytics' => $hasPerm('compliance.analytics', $defaultForStaff),
+                ],
+                'audit' => [
+                    'login' => $hasPerm('audit-logs.login-trails', false),
+                    'transactions' => $hasPerm('audit-logs.transaction-trails', false),
+                ],
+                'accessControl' => [
+                    'roles' => $isSystemAdmin || $hasPerm('access-control.role-permission', false),
+                    'staff' => $isSystemAdmin || $hasPerm('access-control.staffs', false),
+                ],
+                'systemSettings' => $isSystemAdmin || $hasPerm('system.settings.index', false),
+            ];
         } else {
             $userArray = null;
+            $capabilities = null;
         }
-
-        $isSystemAdmin = (bool) ($user && method_exists($user, 'isSystemAdmin') ? $user->isSystemAdmin() : false);
 
         $sysConfig = \App\Models\SystemConfiguration::current();
         $sysConfig->loadMissing('changedBy');
@@ -68,6 +127,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $userArray,
                 'permissions' => $request->user()?->getPermissionNames()->toArray() ?? [],
                 'is_system_admin' => $isSystemAdmin,
+                'capabilities' => $capabilities,
             ],
             'system' => [
                 'mode' => $sysConfig->active_mode,
