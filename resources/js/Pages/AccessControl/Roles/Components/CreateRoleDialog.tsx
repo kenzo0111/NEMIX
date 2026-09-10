@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
-import { X } from 'lucide-react';
+import { X, ShieldPlus } from 'lucide-react';
 import { CreateRoleFormData } from '../types';
 
 interface CreateRoleDialogProps {
@@ -39,14 +39,19 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
         <Modal show={isOpen} onClose={onClose} maxWidth="md">
             <div className="bg-white rounded-xl overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                    <div>
-                        <h3 className="text-base font-bold text-gray-900">
-                            Create Role
-                        </h3>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                            Register a new administrative access role for the university.
-                        </p>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-900 border border-red-100 flex items-center justify-center shrink-0">
+                            <ShieldPlus className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="text-base font-bold text-gray-900">
+                                Create Role
+                            </h3>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                Register a new institutional access role.
+                            </p>
+                        </div>
                     </div>
                     <button
                         type="button"

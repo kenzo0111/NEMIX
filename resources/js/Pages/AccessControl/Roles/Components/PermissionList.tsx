@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, CheckCircle2 } from 'lucide-react';
 import { Permission } from '../types';
 import { formatActionLabel } from '../permissionMetadata';
 
@@ -13,6 +13,34 @@ interface PermissionListProps {
     onSelectAllModule: (selectAll: boolean) => void;
 }
 
+const getActionBadgeColor = (action: string) => {
+    const act = (action || '').toLowerCase();
+    if (act.includes('view') || act.includes('show') || act.includes('index')) {
+        return 'bg-sky-50 text-sky-800 border-sky-200/80';
+    }
+    if (act.includes('create') || act.includes('store') || act.includes('add')) {
+        return 'bg-emerald-50 text-emerald-800 border-emerald-200/80';
+    }
+    if (act.includes('update') || act.includes('edit') || act.includes('modify')) {
+        return 'bg-amber-50 text-amber-800 border-amber-200/80';
+    }
+    if (act.includes('delete') || act.includes('destroy') || act.includes('remove')) {
+        return 'bg-rose-50 text-rose-800 border-rose-200/80';
+    }
+    if (act.includes('approve') || act.includes('verify') || act.includes('audit')) {
+        return 'bg-teal-50 text-teal-800 border-teal-200/80';
+    }
+    if (
+        act.includes('export') ||
+        act.includes('download') ||
+        act.includes('generate') ||
+        act.includes('print')
+    ) {
+        return 'bg-indigo-50 text-indigo-800 border-indigo-200/80';
+    }
+    return 'bg-gray-100 text-gray-700 border-gray-200';
+};
+
 export default function PermissionList({
     moduleName,
     permissions,
@@ -23,6 +51,11 @@ export default function PermissionList({
     onSelectAllModule,
 }: PermissionListProps) {
     const allPermIds = useMemo(() => permissions.map((p) => p.id), [permissions]);
+    const assignedInModuleCount = useMemo(
+        () => permissions.filter((p) => assignedPermissionIds.includes(p.id)).length,
+        [permissions, assignedPermissionIds]
+    );
+
     const isAllSelected =
         allPermIds.length > 0 && allPermIds.every((id) => assignedPermissionIds.includes(id));
     const isPartiallySelected =
@@ -50,8 +83,8 @@ export default function PermissionList({
                             <h4 className="text-sm font-bold text-gray-900">
                                 {moduleName}
                             </h4>
-                            <span className="text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                                {permissions.length} capabilities
+                            <span className="text-[11px] font-semibold text-gray-600 bg-gray-100 border border-gray-200/80 px-2 py-0.5 rounded">
+                                {assignedInModuleCount} of {permissions.length} granted
                             </span>
                         </div>
                         <p className="text-xs text-gray-500 mt-0.5">
@@ -59,7 +92,7 @@ export default function PermissionList({
                         </p>
                     </div>
 
-                    <label className="inline-flex items-center gap-2 cursor-pointer select-none self-start sm:self-auto bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200 transition-colors">
+                    <label className="inline-flex items-center gap-2 cursor-pointer select-none self-start sm:self-auto bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200 transition-colors shadow-2xs">
                         <input
                             type="checkbox"
                             checked={isAllSelected}
@@ -84,7 +117,7 @@ export default function PermissionList({
                             onChange={(e) => onSearchChange(e.target.value)}
                             placeholder={`Search permissions in ${moduleName}...`}
                             aria-label={`Search permissions in ${moduleName}`}
-                            className="w-full pl-8 pr-7 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-1 focus:ring-red-900 focus:border-red-900 bg-gray-50/50 placeholder:text-gray-400"
+                            className="w-full pl-8 pr-7 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-1 focus:ring-red-900 focus:border-red-900 bg-gray-50/50 placeholder:text-gray-400 shadow-2xs"
                         />
                         <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                         {searchQuery && (
@@ -109,10 +142,10 @@ export default function PermissionList({
                             return (
                                 <label
                                     key={perm.id}
-                                    className={`flex items-start justify-between p-3 rounded-lg border cursor-pointer transition-colors ${
+                                    className={`flex items-start justify-between p-3 rounded-lg border cursor-pointer transition-all ${
                                         isChecked
-                                            ? 'bg-red-50/20 border-red-200'
-                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50/60'
+                                            ? 'bg-red-50/25 border-red-200/90 shadow-2xs ring-1 ring-red-900/10'
+                                            : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/60'
                                     }`}
                                 >
                                     <div className="flex items-start gap-3 min-w-0 flex-1">
@@ -123,15 +156,20 @@ export default function PermissionList({
                                             className="w-4 h-4 mt-0.5 text-red-900 border-gray-300 rounded focus:ring-red-900 focus:ring-1 cursor-pointer shrink-0"
                                         />
                                         <div className="flex flex-col min-w-0 pr-2">
-                                            <span
-                                                className={`text-xs ${
-                                                    isChecked
-                                                        ? 'text-gray-900 font-bold'
-                                                        : 'text-gray-800 font-semibold'
-                                                }`}
-                                            >
-                                                {perm.display_name}
-                                            </span>
+                                            <div className="flex items-center gap-1.5">
+                                                <span
+                                                    className={`text-xs ${
+                                                        isChecked
+                                                            ? 'text-gray-900 font-bold'
+                                                            : 'text-gray-800 font-semibold'
+                                                    }`}
+                                                >
+                                                    {perm.display_name}
+                                                </span>
+                                                {isChecked && (
+                                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                                )}
+                                            </div>
 
                                             {perm.description && (
                                                 <p className="text-[11px] text-gray-500 mt-0.5 leading-normal">
@@ -146,7 +184,11 @@ export default function PermissionList({
                                     </div>
 
                                     <div className="shrink-0 ml-2">
-                                        <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded bg-gray-100 text-gray-600 border border-gray-200">
+                                        <span
+                                            className={`inline-flex items-center px-2 py-0.5 text-[10px] font-semibold rounded border ${getActionBadgeColor(
+                                                perm.action
+                                            )}`}
+                                        >
                                             {formatActionLabel(perm.action)}
                                         </span>
                                     </div>
@@ -177,3 +219,4 @@ export default function PermissionList({
         </div>
     );
 }
+

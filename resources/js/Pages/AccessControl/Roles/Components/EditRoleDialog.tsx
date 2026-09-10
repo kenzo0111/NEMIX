@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
-import { X, Lock } from 'lucide-react';
+import { X, Lock, Sliders } from 'lucide-react';
 import { Role, Permission, EditRoleFormData, ModuleStats } from '../types';
 import PermissionModuleList from './PermissionModuleList';
 import PermissionList from './PermissionList';
@@ -116,15 +116,41 @@ export default function EditRoleDialog({
         <Modal show={isOpen} onClose={onClose} maxWidth="4xl">
             <div className="bg-white rounded-xl overflow-hidden flex flex-col max-h-[90vh]">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
-                    <div>
-                        <h3 className="text-base font-bold text-gray-900">
-                            Edit Role & Permissions
-                        </h3>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                            Configure title and granular capabilities for{' '}
-                            <strong className="text-gray-800 font-semibold">{role.name}</strong>.
-                        </p>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0 bg-white">
+                    <div className="flex items-center gap-3">
+                        <div
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+                                isSystemRole
+                                    ? 'bg-slate-100 border-slate-200 text-slate-700'
+                                    : 'bg-red-50 border-red-100 text-red-900'
+                            }`}
+                        >
+                            {isSystemRole ? (
+                                <Lock className="w-5 h-5" />
+                            ) : (
+                                <Sliders className="w-5 h-5" />
+                            )}
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-base font-bold text-gray-900">
+                                    Edit Role & Permissions
+                                </h3>
+                                {isSystemRole ? (
+                                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
+                                        System Role
+                                    </span>
+                                ) : (
+                                    <span className="text-[11px] font-semibold bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-200">
+                                        Custom Role
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                Configure title and granular capabilities for{' '}
+                                <strong className="text-gray-800 font-semibold">{role.name}</strong>.
+                            </p>
+                        </div>
                     </div>
                     <button
                         type="button"

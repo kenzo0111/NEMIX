@@ -1,6 +1,7 @@
 import React from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
+import { AlertTriangle } from 'lucide-react';
 import { Role } from '../types';
 
 interface DeleteRoleDialogProps {
@@ -32,18 +33,23 @@ export default function DeleteRoleDialog({
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="md">
             <div className="bg-white rounded-xl overflow-hidden p-6">
-                <div>
-                    <h3 className="text-base font-bold text-gray-900">
-                        Delete Role
-                    </h3>
-                    <p className="text-xs text-gray-600 mt-2 leading-relaxed">
-                        Are you sure you want to delete{' '}
-                        <strong className="text-gray-900 font-semibold">"{role.name}"</strong>?
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
-                        Staff accounts assigned to this role may lose the permissions granted
-                        through this role. This action cannot be undone.
-                    </p>
+                <div className="flex items-start gap-3.5">
+                    <div className="p-2 rounded-xl bg-red-50 text-red-700 border border-red-200/80 shrink-0 mt-0.5">
+                        <AlertTriangle className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h3 className="text-base font-bold text-gray-900">
+                            Delete Role
+                        </h3>
+                        <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
+                            Are you sure you want to delete{' '}
+                            <strong className="text-gray-900 font-semibold">"{role.name}"</strong>?
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                            Staff accounts assigned to this role may lose the capabilities granted
+                            through this role. This action cannot be undone.
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex items-center justify-end gap-2.5 mt-6 pt-4 border-t border-gray-100">

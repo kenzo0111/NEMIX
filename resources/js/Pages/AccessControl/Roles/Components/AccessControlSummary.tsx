@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield } from 'lucide-react';
+import { Shield, KeyRound, Layers, ShieldCheck } from 'lucide-react';
 
 interface AccessControlSummaryProps {
     rolesCount: number;
@@ -13,63 +13,85 @@ export default function AccessControlSummary({
     modulesCount,
 }: AccessControlSummaryProps) {
     return (
-        <section
-            aria-labelledby="summary-heading"
-            className="bg-white border border-gray-200/90 rounded-xl p-5 shadow-2xs"
-        >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2
-                        id="summary-heading"
-                        className="text-[11px] font-bold text-gray-500 uppercase tracking-wider"
-                    >
-                        Access Control Summary
-                    </h2>
+        <section aria-labelledby="summary-heading" className="space-y-3">
+            <h2 id="summary-heading" className="sr-only">
+                Access Control Summary Metrics
+            </h2>
 
-                    <div className="mt-3 flex flex-wrap items-baseline gap-8">
-                        <div>
-                            <span className="text-2xl font-bold text-gray-900 tracking-tight">
-                                {rolesCount}
-                            </span>
-                            <span className="block text-xs font-medium text-gray-500 mt-0.5">
-                                Configured Roles
-                            </span>
-                        </div>
-
-                        <div className="h-8 w-px bg-gray-200 hidden sm:block" />
-
-                        <div>
-                            <span className="text-2xl font-bold text-gray-900 tracking-tight">
-                                {permissionsCount}
-                            </span>
-                            <span className="block text-xs font-medium text-gray-500 mt-0.5">
-                                Permissions
-                            </span>
-                        </div>
-
-                        <div className="h-8 w-px bg-gray-200 hidden sm:block" />
-
-                        <div>
-                            <span className="text-2xl font-bold text-gray-900 tracking-tight">
-                                {modulesCount}
-                            </span>
-                            <span className="block text-xs font-medium text-gray-500 mt-0.5">
-                                Modules
-                            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* 1. Configured Roles */}
+                <div className="bg-white rounded-xl p-4 border border-gray-200/80 border-t-2 border-t-red-900 shadow-2xs hover:shadow-xs transition-shadow">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                            Configured Roles
+                        </span>
+                        <div className="p-1.5 rounded-lg bg-red-50 text-red-900 border border-red-100/80">
+                            <Shield className="w-4 h-4" />
                         </div>
                     </div>
+                    <div className="text-2xl font-bold text-gray-900 tracking-tight tabular-nums">
+                        {rolesCount.toLocaleString()}
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-1 font-medium">
+                        Active institutional access roles
+                    </p>
                 </div>
 
-                <div className="sm:self-center pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 flex items-center gap-2 text-xs text-gray-600">
-                    <Shield className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span>
-                        Access Model:{' '}
-                        <strong className="font-semibold text-gray-800">
-                            Role-Based Access Control
-                        </strong>
-                    </span>
+                {/* 2. System Permissions */}
+                <div className="bg-white rounded-xl p-4 border border-gray-200/80 border-t-2 border-t-slate-700 shadow-2xs hover:shadow-xs transition-shadow">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                            System Permissions
+                        </span>
+                        <div className="p-1.5 rounded-lg bg-slate-50 text-slate-700 border border-slate-200">
+                            <KeyRound className="w-4 h-4" />
+                        </div>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900 tracking-tight tabular-nums">
+                        {permissionsCount.toLocaleString()}
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-1 font-medium">
+                        Granular capability definitions
+                    </p>
+                </div>
+
+                {/* 3. Protected Modules */}
+                <div className="bg-white rounded-xl p-4 border border-gray-200/80 border-t-2 border-t-amber-600 shadow-2xs hover:shadow-xs transition-shadow">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                            System Modules
+                        </span>
+                        <div className="p-1.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200/80">
+                            <Layers className="w-4 h-4" />
+                        </div>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900 tracking-tight tabular-nums">
+                        {modulesCount.toLocaleString()}
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-1 font-medium">
+                        Protected functional subsystems
+                    </p>
+                </div>
+
+                {/* 4. Access Model */}
+                <div className="bg-white rounded-xl p-4 border border-gray-200/80 border-t-2 border-t-emerald-600 shadow-2xs hover:shadow-xs transition-shadow">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                            Access Model
+                        </span>
+                        <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+                            <ShieldCheck className="w-4 h-4" />
+                        </div>
+                    </div>
+                    <div className="text-base font-bold text-emerald-800 tracking-tight mt-1 truncate">
+                        RBAC Enforced
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-1.5 font-medium">
+                        Strict role-based authorization
+                    </p>
                 </div>
             </div>
         </section>
     );
 }
+
