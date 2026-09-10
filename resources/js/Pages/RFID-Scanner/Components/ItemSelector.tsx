@@ -1,34 +1,26 @@
 import { useMemo } from 'react';
 import Select, { SingleValue } from 'react-select';
-
-export interface Item {
-    id: number;
-    name: string;
-    sku: string | null;
-    description: string | null;
-    unit_of_issue: string | null;
-    stock: number;
-    status: string;
-    rfid_tag: string | null;
-    supplier_id: number | null;
-    supplier_name: string;
-    updated_at?: string;
-}
+import { RFIDInventoryItem } from '../types';
+import { institutionalSelectStyles } from '../utils/selectStyles';
 
 export interface ItemOption {
     value: number;
     label: string;
-    item: Item;
+    item: RFIDInventoryItem;
 }
 
 interface ItemSelectorProps {
-    items: Item[];
-    selectedItem: Item | null;
-    onSelectItem: (item: Item) => void;
+    items: RFIDInventoryItem[];
+    selectedItem: RFIDInventoryItem | null;
+    onSelectItem: (item: RFIDInventoryItem) => void;
 }
 
-export default function ItemSelector({ items, selectedItem, onSelectItem }: ItemSelectorProps) {
-    // Sort options: untagged items first, then alphabetical by name
+export default function ItemSelector({
+    items,
+    selectedItem,
+    onSelectItem,
+}: ItemSelectorProps) {
+    // Sort options: untagged items first, then alphabetical by item name
     const itemOptions: ItemOption[] = useMemo(() => {
         const sorted = [...items].sort((a, b) => {
             if (!a.rfid_tag && b.rfid_tag) return -1;
@@ -36,7 +28,7 @@ export default function ItemSelector({ items, selectedItem, onSelectItem }: Item
             return a.name.localeCompare(b.name);
         });
 
-        return sorted.map(item => ({
+        return sorted.map((item) => ({
             value: item.id,
             label: `${item.name} (${item.sku || 'No Property No'})`,
             item,
@@ -66,75 +58,48 @@ export default function ItemSelector({ items, selectedItem, onSelectItem }: Item
                 isClearable={false}
                 formatOptionLabel={(option: ItemOption) => {
                     const item = option.item;
-                    const isTagged = !!item.rfid_tag;
+                    const isTagged = Boolean(item.rfid_tag);
+
                     return (
-                        <div className="flex items-center justify-between py-0.5">
-                            <div className="min-w-0 pr-2">
-                                <div className="font-semibold text-gray-900 text-xs truncate">
+                        <div className="flex items-center justify-between py-1">
+                            <div className="min-w-0 pr-3">
+                                <div className="font-medium text-gray-900 text-xs truncate">
                                     {item.name}
                                 </div>
-                                <div className="text-[11px] text-gray-500 font-mono flex items-center gap-2 mt-0.5">
-                                    <span>Property No: <strong className="text-gray-700">{item.sku || 'N/A'}</strong></span>
+                                <div className="text-[11px] text-gray-500 flex items-center gap-2 mt-0.5">
+                                    <span className="font-mono">
+                                        Property No: <strong className="text-gray-700 font-semibold">{item.sku || 'N/A'}</strong>
+                                    </span>
                                     {item.supplier_name && (
                                         <>
-                                            <span>•</span>
-                                            <span className="truncate max-w-[140px]">{item.supplier_name}</span>
+                                            <span className="text-gray-300">•</span>
+                                            <span className="truncate max-w-[140px] text-gray-400">
+                                                {item.supplier_name}
+                                            </span>
                                         </>
                                     )}
                                 </div>
                             </div>
+
+                            {/* Minimal dot status */}
                             <span
-                                className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                                className={`shrink-0 inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium ${
                                     isTagged
-                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                        : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                        ? 'text-emerald-700 bg-emerald-50 border border-emerald-100'
+                                        : 'text-gray-600 bg-gray-50 border border-gray-200'
                                 }`}
                             >
-                                {isTagged ? 'Tagged' : 'Not Tagged'}
+                                <span
+                                    className={`w-1.5 h-1.5 rounded-full ${
+                                        isTagged ? 'bg-emerald-600' : 'bg-gray-400'
+                                    }`}
+                                />
+                                <span>{isTagged ? 'Tagged' : 'Untagged'}</span>
                             </span>
                         </div>
                     );
                 }}
-                styles={{
-                    control: (provided, state) => ({
-                        ...provided,
-                        borderRadius: '0.5rem',
-                        borderColor: state.isFocused ? '#7f1d1d' : '#d1d5db',
-                        borderWidth: '1px',
-                        padding: '2px 4px',
-                        boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
-                        fontSize: '0.8125rem',
-                        backgroundColor: '#ffffff',
-                        cursor: 'pointer',
-                        '&:hover': { borderColor: '#7f1d1d' },
-                    }),
-                    option: (provided, state) => ({
-                        ...provided,
-                        backgroundColor: state.isSelected ? '#fef2f2' : state.isFocused ? '#f9fafb' : '#ffffff',
-                        color: '#111827',
-                        padding: '8px 12px',
-                        cursor: 'pointer',
-                        borderBottom: '1px solid #f3f4f6',
-                    }),
-                    singleValue: (provided) => ({
-                        ...provided,
-                        color: '#111827',
-                        fontWeight: '600',
-                    }),
-                    menu: (provided) => ({
-                        ...provided,
-                        borderRadius: '0.5rem',
-                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                        border: '1px solid #e5e7eb',
-                        zIndex: 50,
-                        overflow: 'hidden',
-                    }),
-                    menuList: (provided) => ({
-                        ...provided,
-                        padding: 0,
-                        maxHeight: '260px',
-                    }),
-                }}
+                styles={institutionalSelectStyles}
             />
         </div>
     );
