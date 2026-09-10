@@ -39,22 +39,24 @@ export const SupplierRow: React.FC<SupplierRowProps> = ({
                 <SupplierStatusBadge status={supplier.status} />
             </td>
 
-            {/* Actions */}
-            <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
-                <button
-                    type="button"
-                    onClick={() => onView(supplier)}
-                    className="text-red-900 hover:text-red-950 hover:underline mr-4 font-semibold transition-colors"
-                >
-                    View
-                </button>
-                <button
-                    type="button"
-                    onClick={() => onEdit(supplier)}
-                    className="text-gray-600 hover:text-gray-900 hover:underline font-semibold transition-colors"
-                >
-                    Update
-                </button>
+            {/* Actions: View & Update (Matching Issuance institutional styling) */}
+            <td className="px-6 py-4 whitespace-nowrap text-right">
+                <div className="inline-flex items-center justify-end gap-2.5">
+                    <button
+                        type="button"
+                        onClick={() => onView(supplier)}
+                        className="text-gray-700 hover:text-red-950 font-semibold text-xs transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100"
+                    >
+                        View
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => onEdit(supplier)}
+                        className="border border-red-900/30 text-red-950 hover:bg-red-50 hover:border-red-900/50 font-semibold text-xs px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
+                    >
+                        Update
+                    </button>
+                </div>
             </td>
         </tr>
     );
