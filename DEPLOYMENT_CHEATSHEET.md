@@ -36,22 +36,24 @@ The application runs 24/7 in background mode (`-d`). You do not need to keep you
 
 ---
 
-## 3. How to Deploy New Updates to the Server
+## 3. Recommended CPU-Efficient Deployment (Zero-Spike)
 
-Whenever you modify your project locally and push changes to GitHub, deploy them to the live server in **4 easy steps**:
+> **Why Pre-Build Locally?**  
+> Running `npm run build` directly on a cloud Droplet (1-2 vCPUs, 2GB RAM) consumes over 1.2GB memory and spikes CPU to 100%, often causing kernel Out-Of-Memory (OOM) lockups. Building locally completes in ~10 seconds and keeps the Droplet CPU at ~0%.
 
-```bash
-# Step 1: Connect to server
-ssh root@157.230.253.79
+### Fast 3-Step Deployment from Local Windows PowerShell:
 
-# Step 2: Navigate to project folder
-cd /var/www/NEMIX
+```powershell
+# Step 1: Build production assets locally (10-15 seconds, 0% Droplet CPU load)
+npm run build
 
-# Step 3: Pull latest changes from GitHub
-git pull origin master
+# Step 2: Push your latest git commit (if not already pushed)
+git push origin master
 
-# Step 4: Rebuild Vite assets inside container
-docker compose exec app npm run build
+# Step 3: Deploy to server and apply updates
+ssh root@157.230.253.79 "cd /var/www/NEMIX && git pull origin master"
+scp -r public/build root@157.230.253.79:/var/www/NEMIX/public/
+ssh root@157.230.253.79 "docker cp /var/www/NEMIX/public/build/. nemix-app-1:/var/www/html/public/build/ && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan migrate --force && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan optimize:clear && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan config:cache && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan route:cache && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan view:cache && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan queue:restart"
 ```
 
 ---
