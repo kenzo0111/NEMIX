@@ -89,7 +89,7 @@ export default function StaffTable({
                                             <button
                                                 type="button"
                                                 onClick={onResetFilters}
-                                                className="mt-4 px-3 py-1.5 text-xs font-semibold text-red-900 hover:text-red-950 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition-colors"
+                                                className="mt-4 px-3 py-1.5 text-xs font-semibold text-red-950 hover:bg-red-50 hover:border-red-900/50 border border-red-900/30 rounded-md transition-colors cursor-pointer shadow-2xs"
                                             >
                                                 Clear search and filters
                                             </button>

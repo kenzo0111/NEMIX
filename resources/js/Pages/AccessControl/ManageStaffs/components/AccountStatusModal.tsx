@@ -60,10 +60,10 @@ export default function AccountStatusModal({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="text-gray-400 hover:text-gray-600 p-1 rounded-md transition-colors"
+                            className="text-gray-400 hover:text-gray-600 p-1.5 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
                             aria-label="Close modal"
                         >
-                            <X className="w-4 h-4" />
+                            <X className="w-5 h-5" />
                         </button>
                     </div>
 
@@ -92,7 +92,7 @@ export default function AccountStatusModal({
                             type="button"
                             onClick={onClose}
                             disabled={isProcessing}
-                            className="px-4 py-2 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-md transition-colors"
+                            className="px-4 py-2 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer"
                         >
                             Cancel
                         </button>
@@ -100,11 +100,7 @@ export default function AccountStatusModal({
                             type="button"
                             onClick={onConfirm}
                             disabled={isProcessing}
-                            className={`inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white rounded-md shadow-xs transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
-                                isActive
-                                    ? 'bg-red-700 hover:bg-red-800 active:bg-red-900 border border-red-800'
-                                    : 'bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 border border-emerald-800'
-                            }`}
+                            className="px-5 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-xs font-bold rounded-md shadow-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 uppercase font-mono tracking-wider cursor-pointer"
                         >
                             {isProcessing ? (
                                 <>

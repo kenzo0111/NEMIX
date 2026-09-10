@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Edit2, UserCheck, UserX, Shield } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import { Staff } from '../types';
 
 interface StaffTableRowProps {
@@ -29,7 +29,7 @@ export default function StaffTableRow({
     const isSelf = staff.id === currentUserId;
 
     return (
-        <tr className="hover:bg-gray-50/75 transition-colors border-b border-gray-200/80">
+        <tr className="hover:bg-red-50/20 transition-colors border-b border-gray-100 last:border-0 group">
             {/* Staff Member */}
             <td className="px-6 py-3.5">
                 <div className="flex items-center gap-3">
@@ -65,20 +65,19 @@ export default function StaffTableRow({
                 )}
             </td>
 
-            {/* Actions */}
-            <td className="px-6 py-3.5 text-right">
-                <div className="flex items-center justify-end gap-1.5">
+            {/* Actions: Matching Issuance institutional styling */}
+            <td className="px-6 py-3.5 whitespace-nowrap text-right">
+                <div className="inline-flex items-center justify-end gap-2.5">
                     {/* Resend Invite (for disabled/inactive accounts) */}
                     {!isActive && canResendInvite && (
                         <button
                             type="button"
                             onClick={() => onResendInvitation(staff)}
                             disabled={isResending}
-                            className="px-2.5 py-1 text-xs font-medium rounded text-amber-800 bg-amber-50/80 hover:bg-amber-100 border border-amber-200 transition-colors inline-flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="text-gray-700 hover:text-red-950 font-semibold text-xs transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
                             title="Resend registration invitation email"
                         >
-                            <Mail className="w-3.5 h-3.5" />
-                            <span>{isResending ? 'Sending...' : 'Resend Invite'}</span>
+                            {isResending ? 'Sending...' : 'Resend Invite'}
                         </button>
                     )}
 
@@ -87,11 +86,10 @@ export default function StaffTableRow({
                         <button
                             type="button"
                             onClick={() => onEdit(staff)}
-                            className="px-2.5 py-1 text-xs font-medium rounded text-gray-700 hover:text-red-900 bg-white hover:bg-red-50/60 border border-gray-300 transition-colors inline-flex items-center gap-1.5"
+                            className="text-gray-700 hover:text-red-950 font-semibold text-xs transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100"
                             title="Edit staff details and role"
                         >
-                            <Edit2 className="w-3.5 h-3.5" />
-                            <span>Edit</span>
+                            Edit
                         </button>
                     )}
 
@@ -102,25 +100,13 @@ export default function StaffTableRow({
                             onClick={() => onToggleStatus(staff)}
                             disabled={isSelf}
                             title={isSelf ? 'You cannot disable your own account.' : isActive ? 'Disable staff account' : 'Enable staff account'}
-                            className={`px-2.5 py-1 text-xs font-medium rounded border transition-colors inline-flex items-center gap-1.5 ${
+                            className={`border border-red-900/30 text-red-950 hover:bg-red-50 hover:border-red-900/50 font-semibold text-xs px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs ${
                                 isSelf
-                                    ? 'opacity-40 cursor-not-allowed text-gray-400 bg-gray-50 border-gray-200'
-                                    : isActive
-                                    ? 'text-red-700 hover:text-red-800 bg-white hover:bg-red-50/80 border-red-200'
-                                    : 'text-emerald-700 hover:text-emerald-800 bg-white hover:bg-emerald-50/80 border-emerald-200'
+                                    ? 'opacity-40 cursor-not-allowed border-gray-200 text-gray-400 bg-gray-50 hover:bg-gray-50 hover:border-gray-200'
+                                    : ''
                             }`}
                         >
-                            {isActive ? (
-                                <>
-                                    <UserX className="w-3.5 h-3.5" />
-                                    <span>Disable</span>
-                                </>
-                            ) : (
-                                <>
-                                    <UserCheck className="w-3.5 h-3.5" />
-                                    <span>Enable</span>
-                                </>
-                            )}
+                            {isActive ? 'Disable' : 'Enable'}
                         </button>
                     )}
 

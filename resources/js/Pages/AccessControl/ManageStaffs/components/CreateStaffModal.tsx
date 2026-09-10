@@ -111,10 +111,10 @@ export default function CreateStaffModal({
                     <button
                         type="button"
                         onClick={handleClose}
-                        className="text-gray-400 hover:text-gray-600 p-1 rounded-md transition-colors"
+                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
                         aria-label="Close modal"
                     >
-                        <X className="w-4 h-4" />
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 
@@ -223,14 +223,14 @@ export default function CreateStaffModal({
                             type="button"
                             onClick={handleClose}
                             disabled={processing}
-                            className="px-4 py-2 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-md transition-colors"
+                            className="px-4 py-2 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={processing}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-900 hover:bg-red-800 active:bg-red-950 text-white text-xs font-semibold rounded-md border border-red-950 shadow-xs transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="px-5 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-xs font-bold rounded-md shadow-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 uppercase font-mono tracking-wider cursor-pointer"
                         >
                             {processing ? (
                                 <>
@@ -242,7 +242,7 @@ export default function CreateStaffModal({
                                 </>
                             ) : (
                                 <>
-                                    <UserPlus className="w-3.5 h-3.5" />
+                                    <UserPlus className="w-3.5 h-3.5 text-amber-300" />
                                     <span>Add Staff</span>
                                 </>
                             )}

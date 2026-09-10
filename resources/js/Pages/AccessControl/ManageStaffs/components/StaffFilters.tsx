@@ -80,7 +80,7 @@ export default function StaffFilters({
                         <button
                             type="button"
                             onClick={() => onSearchChange('')}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-semibold p-0.5"
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-semibold p-0.5 cursor-pointer"
                             aria-label="Clear search"
                         >
                             ✕
@@ -105,7 +105,7 @@ export default function StaffFilters({
                     <button
                         type="button"
                         onClick={onResetFilters}
-                        className="px-3 py-2 text-xs font-medium text-red-900 hover:text-red-950 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition-colors"
+                        className="px-3 py-2 text-xs font-semibold text-red-950 hover:bg-red-50 hover:border-red-900/50 border border-red-900/30 rounded-md transition-colors cursor-pointer shadow-2xs"
                         title="Reset all filters"
                     >
                         Reset
@@ -119,9 +119,9 @@ export default function StaffFilters({
                     <button
                         type="button"
                         onClick={onOpenCreateModal}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-red-900 hover:bg-red-800 active:bg-red-950 border border-red-950 rounded-md font-semibold text-xs text-white shadow-xs transition-colors"
+                        className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer"
                     >
-                        <UserPlus className="w-3.5 h-3.5" />
+                        <UserPlus className="w-4 h-4 text-amber-300" />
                         <span>Add Staff</span>
                     </button>
                 ) : (

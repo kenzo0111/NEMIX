@@ -56,7 +56,7 @@ export default function StaffNotification({ notification, onDismiss }: StaffNoti
             <button
                 type="button"
                 onClick={onDismiss}
-                className={`p-1 rounded transition-colors shrink-0 ${closeHover}`}
+                className={`p-1 rounded transition-colors shrink-0 cursor-pointer ${closeHover}`}
                 aria-label="Dismiss notification"
             >
                 <X className="w-4 h-4" />
