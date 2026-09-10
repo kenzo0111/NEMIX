@@ -56,11 +56,11 @@ export const SupplierToolbar: React.FC<SupplierToolbarProps> = ({
                 )}
             </div>
 
-            {/* Register Supplier Action */}
+            {/* Register Supplier Action (Matching Issuance primary action button styling) */}
             <button
                 type="button"
                 onClick={onOpenCreateModal}
-                className="bg-red-900 hover:bg-red-950 text-white font-medium py-2 px-3.5 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-1.5 whitespace-nowrap"
+                className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer"
             >
                 <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
