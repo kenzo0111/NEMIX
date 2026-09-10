@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, RotateCcw, Calendar as CalendarIcon, X } from 'lucide-react';
+import { Search, RotateCcw, Calendar as CalendarIcon, X, Filter, ChevronDown } from 'lucide-react';
 import { LoginAuditFilters } from '../types';
 
 interface LoginAuditToolbarProps {
@@ -14,8 +14,8 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
     filters,
     availableRoles = [],
     availableStatuses = [
-        { value: 'login_success', label: 'Successful Login' },
-        { value: 'login_failed', label: 'Failed Login' },
+        { value: 'login_success', label: 'Successful' },
+        { value: 'login_failed', label: 'Failed' },
         { value: 'logout', label: 'Logged Out' },
     ],
     onFilterChange,
@@ -146,25 +146,24 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
         });
     };
 
-    const hasActiveFilters = Boolean(
-        filters.search ||
-        filters.role ||
-        filters.status ||
-        filters.date_from ||
-        filters.date_to
-    );
+    const activeFilterCount = [
+        filters.search,
+        filters.role,
+        filters.status,
+        filters.date_from || filters.date_to,
+    ].filter(Boolean).length;
 
     return (
-        <div className="bg-white rounded-lg border border-gray-200 shadow-xs p-4 space-y-3">
+        <div className="bg-white rounded-lg border border-gray-200/90 shadow-2xs p-4 space-y-3">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 {/* Search */}
-                <div className="relative flex-1 min-w-[260px] max-w-md">
+                <div className="relative flex-1 min-w-[280px] max-w-md">
                     <input
                         type="text"
                         value={search}
                         onChange={(e) => handleSearchChange(e.target.value)}
                         placeholder="Search name, email, or IP address..."
-                        className="w-full pl-9 pr-8 py-2 text-xs font-medium border border-gray-300 rounded-md bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 transition-colors"
+                        className="w-full pl-9 pr-8 py-2 text-xs font-medium border border-gray-300 rounded-md bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all"
                     />
                     <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                     {search && (
@@ -182,11 +181,12 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
                 {/* Filter Controls */}
                 <div className="flex flex-wrap items-center gap-2.5">
                     {/* Role Filter */}
-                    <div className="min-w-[140px]">
+                    <div className="relative min-w-[145px]">
                         <select
                             value={filters.role || ''}
                             onChange={handleRoleChange}
-                            className="w-full py-2 px-3 text-xs font-semibold border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 transition-colors"
+                            aria-label="Filter by Role"
+                            className="w-full appearance-none py-2 pl-3 pr-8 text-xs font-semibold border border-gray-300 rounded-md bg-white text-gray-800 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all cursor-pointer"
                         >
                             <option value="">All Roles</option>
                             {availableRoles.map((r) => (
@@ -196,14 +196,16 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
                             ))}
                             <option value="Unknown">Unknown / Unassigned</option>
                         </select>
+                        <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
 
                     {/* Status Filter */}
-                    <div className="min-w-[150px]">
+                    <div className="relative min-w-[145px]">
                         <select
                             value={filters.status || ''}
                             onChange={handleStatusChange}
-                            className="w-full py-2 px-3 text-xs font-semibold border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 transition-colors"
+                            aria-label="Filter by Status"
+                            className="w-full appearance-none py-2 pl-3 pr-8 text-xs font-semibold border border-gray-300 rounded-md bg-white text-gray-800 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all cursor-pointer"
                         >
                             <option value="">All Statuses</option>
                             {availableStatuses.map((s) => (
@@ -212,14 +214,16 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
                                 </option>
                             ))}
                         </select>
+                        <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
 
                     {/* Date Presets */}
-                    <div className="min-w-[140px]">
+                    <div className="relative min-w-[145px]">
                         <select
                             value={showCustomDates ? 'custom' : currentPreset}
                             onChange={handleDatePresetChange}
-                            className="w-full py-2 px-3 text-xs font-semibold border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 transition-colors"
+                            aria-label="Filter by Date Period"
+                            className="w-full appearance-none py-2 pl-3 pr-8 text-xs font-semibold border border-gray-300 rounded-md bg-white text-gray-800 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all cursor-pointer"
                         >
                             <option value="all">All Dates</option>
                             <option value="today">Today</option>
@@ -227,18 +231,19 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
                             <option value="30days">Last 30 Days</option>
                             <option value="custom">Custom Range...</option>
                         </select>
+                        <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
 
                     {/* Reset Button */}
-                    {hasActiveFilters && (
+                    {activeFilterCount > 0 && (
                         <button
                             type="button"
                             onClick={onReset}
-                            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-red-900 hover:text-red-950 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-red-900 hover:text-red-950 bg-red-50 hover:bg-red-100/80 border border-red-200/80 rounded-md transition-colors shadow-2xs"
                             title="Reset all filters"
                         >
                             <RotateCcw className="w-3.5 h-3.5" />
-                            <span>Reset</span>
+                            <span>Reset ({activeFilterCount})</span>
                         </button>
                     )}
                 </div>
@@ -246,29 +251,29 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
 
             {/* Custom Date Range Row */}
             {showCustomDates && (
-                <div className="pt-2 border-t border-gray-100 flex flex-wrap items-center gap-3 text-xs">
-                    <span className="font-semibold text-gray-600 inline-flex items-center gap-1">
-                        <CalendarIcon className="w-3.5 h-3.5 text-gray-500" />
-                        Date Range:
+                <div className="pt-2.5 border-t border-gray-100 flex flex-wrap items-center gap-3 text-xs bg-gray-50/50 p-2 rounded-md">
+                    <span className="font-semibold text-gray-700 inline-flex items-center gap-1">
+                        <CalendarIcon className="w-3.5 h-3.5 text-red-900" />
+                        Custom Date Range:
                     </span>
                     <div className="flex items-center gap-2">
-                        <label htmlFor="date_from" className="text-gray-500 font-medium">From</label>
+                        <label htmlFor="date_from" className="text-gray-500 font-medium text-[11px]">From</label>
                         <input
                             id="date_from"
                             type="date"
                             value={filters.date_from || ''}
                             onChange={(e) => handleCustomDateChange('from', e.target.value)}
-                            className="py-1 px-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 bg-white"
+                            className="py-1 px-2.5 text-xs font-medium border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 bg-white"
                         />
                     </div>
                     <div className="flex items-center gap-2">
-                        <label htmlFor="date_to" className="text-gray-500 font-medium">To</label>
+                        <label htmlFor="date_to" className="text-gray-500 font-medium text-[11px]">To</label>
                         <input
                             id="date_to"
                             type="date"
                             value={filters.date_to || ''}
                             onChange={(e) => handleCustomDateChange('to', e.target.value)}
-                            className="py-1 px-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 bg-white"
+                            className="py-1 px-2.5 text-xs font-medium border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 bg-white"
                         />
                     </div>
                 </div>

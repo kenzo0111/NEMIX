@@ -3,6 +3,7 @@ import { Head, router, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { ShieldCheck, Printer } from 'lucide-react';
 import {
     LoginAuditPageProps,
     LoginAuditRecord,
@@ -95,6 +96,10 @@ export default function LoginAuditIndex({
         });
     };
 
+    const handlePrintLedger = () => {
+        window.print();
+    };
+
     return (
         <div className="min-h-screen bg-gray-100/80 flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
             <Head title="Audit Logs - Login Audit Logs" />
@@ -116,7 +121,41 @@ export default function LoginAuditIndex({
                     ]}
                 />
 
-                <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16">
+                <div className="p-6 lg:p-8 space-y-5 max-w-[1600px] mx-auto pb-16">
+                    {/* Subtle Institutional Security Header Banner */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white border border-gray-200/90 rounded-lg shadow-2xs">
+                        <div className="flex items-center gap-2.5">
+                            <div className="p-1.5 bg-red-50 text-red-900 rounded-md border border-red-100">
+                                <ShieldCheck className="w-4 h-4" />
+                            </div>
+                            <div>
+                                <span className="text-xs font-bold text-gray-900 uppercase tracking-wide">
+                                    Authentication Audit Ledger
+                                </span>
+                                <span className="hidden sm:inline-block mx-2 text-gray-300">•</span>
+                                <span className="text-[11px] text-gray-500 font-medium">
+                                    Official read-only authentication audit trail
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 self-end sm:self-auto">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                                Active Ledger
+                            </span>
+                            <button
+                                type="button"
+                                onClick={handlePrintLedger}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-md transition-colors shadow-2xs"
+                                title="Print or save ledger as PDF"
+                            >
+                                <Printer className="w-3.5 h-3.5 text-gray-500" />
+                                <span>Print Ledger</span>
+                            </button>
+                        </div>
+                    </div>
+
                     {/* Compact Institutional Summary Strip */}
                     <LoginAuditSummary
                         summary={summary}

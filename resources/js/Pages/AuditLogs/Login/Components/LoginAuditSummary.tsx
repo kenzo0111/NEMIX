@@ -1,4 +1,5 @@
 import React from 'react';
+import { ScrollText, CheckCircle2, AlertOctagon, Users2, Filter } from 'lucide-react';
 import { LoginAuditSummary as SummaryData } from '../types';
 
 interface LoginAuditSummaryProps {
@@ -16,44 +17,90 @@ export const LoginAuditSummary: React.FC<LoginAuditSummaryProps> = ({
     const uniqueUsers = summary?.unique_users ?? 0;
 
     return (
-        <div className="bg-white rounded-lg border border-gray-200 shadow-xs overflow-hidden">
-            <div className="px-5 py-3 border-b border-gray-200 bg-gray-50/80 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                    Login Audit Summary
-                </h3>
-                {hasActiveFilters && (
-                    <span className="text-[11px] font-medium text-gray-500">
-                        Summary reflected for current filter scope
-                    </span>
-                )}
-            </div>
+        <div className="space-y-2">
+            {hasActiveFilters && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50/80 border border-amber-200/70 rounded-md text-[11px] text-amber-800 font-medium">
+                    <Filter className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                    <span>Summary counts reflect active filter parameters (Search / Role / Status / Date Range).</span>
+                </div>
+            )}
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-gray-200">
-                <div className="p-4 sm:px-6">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Records</p>
-                    <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Total Records */}
+                <div className="bg-white rounded-lg p-4 border border-gray-200/80 border-t-2 border-t-red-900 shadow-2xs hover:shadow-xs transition-shadow">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                            Total Records
+                        </span>
+                        <div className="p-1.5 rounded-md bg-red-50 text-red-900 border border-red-100">
+                            <ScrollText className="w-4 h-4" />
+                        </div>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900 tracking-tight tabular-nums">
                         {total.toLocaleString()}
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-1 font-medium">
+                        All recorded authentication attempts
                     </p>
                 </div>
 
-                <div className="p-4 sm:px-6">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Successful</p>
-                    <p className="text-xl sm:text-2xl font-bold text-emerald-700 mt-1">
+                {/* Successful */}
+                <div className="bg-white rounded-lg p-4 border border-gray-200/80 border-t-2 border-t-emerald-600 shadow-2xs hover:shadow-xs transition-shadow">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                            Successful
+                        </span>
+                        <div className="p-1.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">
+                            <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                    </div>
+                    <div className="text-2xl font-bold text-emerald-800 tracking-tight tabular-nums">
                         {successful.toLocaleString()}
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-1 font-medium">
+                        Authorized access sessions granted
                     </p>
                 </div>
 
-                <div className="p-4 sm:px-6">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Failed</p>
-                    <p className={`text-xl sm:text-2xl font-bold mt-1 ${failed > 0 ? 'text-red-700' : 'text-gray-900'}`}>
+                {/* Failed */}
+                <div className={`bg-white rounded-lg p-4 border border-gray-200/80 border-t-2 ${
+                    failed > 0 ? 'border-t-red-600 bg-red-50/20' : 'border-t-gray-300'
+                } shadow-2xs hover:shadow-xs transition-shadow`}>
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                            Failed Logins
+                        </span>
+                        <div className={`p-1.5 rounded-md border ${
+                            failed > 0 ? 'bg-red-50 text-red-700 border-red-200' : 'bg-gray-50 text-gray-500 border-gray-200'
+                        }`}>
+                            <AlertOctagon className="w-4 h-4" />
+                        </div>
+                    </div>
+                    <div className={`text-2xl font-bold tracking-tight tabular-nums ${
+                        failed > 0 ? 'text-red-700' : 'text-gray-900'
+                    }`}>
                         {failed.toLocaleString()}
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-1 font-medium">
+                        Denied or unrecognized attempts
                     </p>
                 </div>
 
-                <div className="p-4 sm:px-6">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Unique Users</p>
-                    <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">
+                {/* Unique Users */}
+                <div className="bg-white rounded-lg p-4 border border-gray-200/80 border-t-2 border-t-slate-600 shadow-2xs hover:shadow-xs transition-shadow">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                            Unique Users
+                        </span>
+                        <div className="p-1.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                            <Users2 className="w-4 h-4" />
+                        </div>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900 tracking-tight tabular-nums">
                         {uniqueUsers.toLocaleString()}
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-1 font-medium">
+                        Distinct user identities recorded
                     </p>
                 </div>
             </div>
