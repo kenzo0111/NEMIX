@@ -8,7 +8,6 @@ import {
     X,
     Search,
     Info,
-    Pencil,
     Key,
     Layers,
     ShieldCheck,
@@ -702,29 +701,25 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                                                        <div className="inline-flex items-center justify-end gap-2">
+                                                        <div className="inline-flex items-center justify-end gap-2.5">
                                                             <button
                                                                 type="button"
                                                                 onClick={() => handleEditAction(role)}
-                                                                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-gray-700 hover:text-red-950 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-md transition-all shadow-2xs cursor-pointer"
-                                                                title="Configure permissions"
+                                                                className="text-gray-700 hover:text-red-950 font-semibold text-xs transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100"
                                                             >
-                                                                <Pencil className="w-3.5 h-3.5 text-gray-500" />
-                                                                <span>Edit</span>
+                                                                Edit
                                                             </button>
                                                             <button
                                                                 type="button"
                                                                 onClick={() => handleDeleteAction(role)}
                                                                 disabled={isSystem}
-                                                                className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md transition-all shadow-2xs ${
+                                                                className={`border font-semibold text-xs px-2.5 py-1 rounded transition-colors ${
                                                                     isSystem
-                                                                        ? 'opacity-40 cursor-not-allowed border border-gray-200 text-gray-400 bg-gray-50'
-                                                                        : 'border border-red-200 text-red-800 hover:text-red-900 hover:bg-red-50 hover:border-red-300 cursor-pointer'
+                                                                        ? 'border-gray-200 text-gray-400 cursor-not-allowed opacity-40'
+                                                                        : 'border-red-900/30 text-red-950 hover:bg-red-50 hover:border-red-900/50 cursor-pointer shadow-2xs'
                                                                 }`}
-                                                                title={isSystem ? 'Default system roles cannot be deleted' : 'Delete role profile'}
                                                             >
-                                                                <Trash2 className="w-3.5 h-3.5" />
-                                                                <span>Delete</span>
+                                                                Delete
                                                             </button>
                                                         </div>
                                                     </td>
