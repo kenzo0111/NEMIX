@@ -18,7 +18,7 @@ use Spatie\Permission\Models\Role;
 
 class ManageStaffController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $staffs = User::query()
             ->with('roles:id,name')
@@ -29,7 +29,7 @@ class ManageStaffController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'role' => $user->roles->first()?->name ?? 'Unassigned',
-                'status' => $user->is_active ? 'Active' : 'Inactive',
+                'status' => $user->is_active ? 'Active' : 'Disabled',
                 'email_verified' => ! is_null($user->email_verified_at),
             ]);
 
@@ -38,9 +38,17 @@ class ManageStaffController extends Controller
             ->pluck('name')
             ->values();
 
+        $isSystemAdmin = (bool) $request->user()?->isSystemAdmin();
+
         return Inertia::render('AccessControl/ManageStaffs', [
             'staffs' => $staffs,
             'roles' => $roles,
+            'capabilities' => [
+                'canCreate' => $isSystemAdmin,
+                'canUpdate' => $isSystemAdmin,
+                'canToggleStatus' => $isSystemAdmin,
+                'canResendInvitation' => $isSystemAdmin,
+            ],
         ]);
     }
 

@@ -1,0 +1,245 @@
+import React, { useEffect } from 'react';
+import { useForm } from '@inertiajs/react';
+import Modal from '@/Components/Modal';
+import Select, { StylesConfig } from 'react-select';
+import { Edit2, User, Mail, X } from 'lucide-react';
+import { EditStaffFormData, SelectOption, Staff } from '../types';
+
+interface EditStaffModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    staff: Staff | null;
+    roleOptions: SelectOption[];
+}
+
+const modalSelectStyles: StylesConfig<SelectOption, false> = {
+    control: (provided, state) => ({
+        ...provided,
+        borderRadius: '0.375rem',
+        borderColor: state.isFocused ? '#7f1d1d' : '#d1d5db',
+        boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
+        '&:hover': { borderColor: '#7f1d1d' },
+        minHeight: '38px',
+        fontSize: '0.875rem',
+        backgroundColor: '#ffffff',
+    }),
+    option: (provided, state) => ({
+        ...provided,
+        backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? '#fef2f2' : '#ffffff',
+        color: state.isSelected ? '#ffffff' : '#1f2937',
+        cursor: 'pointer',
+        fontSize: '0.875rem',
+        fontWeight: state.isSelected ? '600' : '500',
+    }),
+    menu: (provided) => ({
+        ...provided,
+        zIndex: 60,
+        borderRadius: '0.375rem',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    }),
+    menuPortal: (provided) => ({
+        ...provided,
+        zIndex: 9999,
+    }),
+};
+
+export default function EditStaffModal({
+    isOpen,
+    onClose,
+    staff,
+    roleOptions,
+}: EditStaffModalProps) {
+    const { data, setData, put, processing, errors, reset, clearErrors } = useForm<EditStaffFormData>({
+        name: '',
+        email: '',
+        role: '',
+    });
+
+    useEffect(() => {
+        if (staff && isOpen) {
+            setData({
+                name: staff.name,
+                email: staff.email,
+                role: staff.role,
+            });
+            clearErrors();
+        } else if (!isOpen) {
+            reset();
+            clearErrors();
+        }
+    }, [staff, isOpen]);
+
+    if (!staff) return null;
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!data.name.trim() || !data.email.trim() || !data.role) {
+            return;
+        }
+
+        put(route('access-control.staffs.update', staff.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                onClose();
+            },
+        });
+    };
+
+    const handleClose = () => {
+        clearErrors();
+        onClose();
+    };
+
+    const selectedRoleOption = roleOptions.find((opt) => opt.value === data.role) || null;
+
+    return (
+        <Modal show={isOpen} onClose={handleClose} maxWidth="md">
+            <div className="overflow-hidden rounded-lg bg-white shadow-xl">
+                {/* Institutional Maroon Accent Bar */}
+                <div className="h-1 w-full bg-red-900 shrink-0"></div>
+
+                {/* Modal Header */}
+                <div className="flex items-start justify-between px-6 py-4 border-b border-gray-200">
+                    <div className="flex items-center gap-2.5">
+                        <div className="p-2 bg-red-50 text-red-900 rounded-md border border-red-100 shrink-0">
+                            <Edit2 className="w-4 h-4" />
+                        </div>
+                        <div>
+                            <h3 className="text-base font-bold text-gray-900">Edit Staff</h3>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                Update staff information and administrative role assignment.
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleClose}
+                        className="text-gray-400 hover:text-gray-600 p-1 rounded-md transition-colors"
+                        aria-label="Close modal"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+
+                {/* Form Body */}
+                <form onSubmit={handleSubmit}>
+                    <div className="p-6 space-y-4">
+                        {/* Full Name */}
+                        <div>
+                            <label
+                                htmlFor="edit-staff-name"
+                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1"
+                            >
+                                Full Name <span className="text-red-600">*</span>
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <User className="w-4 h-4" />
+                                </div>
+                                <input
+                                    type="text"
+                                    id="edit-staff-name"
+                                    value={data.name}
+                                    onChange={(e) => {
+                                        setData('name', e.target.value);
+                                        if (errors.name) clearErrors('name');
+                                    }}
+                                    className={`w-full pl-9 pr-3 py-2 text-sm rounded-md border ${
+                                        errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-red-900'
+                                    } focus:outline-none focus:ring-1 bg-white text-gray-900`}
+                                    required
+                                    autoFocus
+                                />
+                            </div>
+                            {errors.name && (
+                                <p className="mt-1 text-xs text-red-600 font-medium">{errors.name}</p>
+                            )}
+                        </div>
+
+                        {/* Email Address (Read-only) */}
+                        <div>
+                            <label
+                                htmlFor="edit-staff-email"
+                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1"
+                            >
+                                Email Address
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <Mail className="w-4 h-4" />
+                                </div>
+                                <input
+                                    type="email"
+                                    id="edit-staff-email"
+                                    value={data.email}
+                                    readOnly
+                                    className="w-full pl-9 pr-3 py-2 text-sm rounded-md border border-gray-300 bg-gray-50 text-gray-600 cursor-not-allowed select-none"
+                                />
+                            </div>
+                            {errors.email && (
+                                <p className="mt-1 text-xs text-red-600 font-medium">{errors.email}</p>
+                            )}
+                            <p className="mt-1 text-xs text-gray-400">Email address cannot be modified.</p>
+                        </div>
+
+                        {/* System Role */}
+                        <div>
+                            <label
+                                htmlFor="edit-staff-role"
+                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1"
+                            >
+                                System Role <span className="text-red-600">*</span>
+                            </label>
+                            <Select<SelectOption, false>
+                                inputId="edit-staff-role"
+                                value={selectedRoleOption}
+                                onChange={(opt) => {
+                                    setData('role', opt?.value || '');
+                                    if (errors.role) clearErrors('role');
+                                }}
+                                options={roleOptions}
+                                styles={modalSelectStyles}
+                                menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                                menuPosition="fixed"
+                                placeholder="Select a system role"
+                            />
+                            {errors.role && (
+                                <p className="mt-1 text-xs text-red-600 font-medium">{errors.role}</p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Modal Actions */}
+                    <div className="flex items-center justify-end px-6 py-3.5 bg-gray-50/80 border-t border-gray-200 gap-2.5">
+                        <button
+                            type="button"
+                            onClick={handleClose}
+                            disabled={processing}
+                            className="px-4 py-2 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-md transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-900 hover:bg-red-800 active:bg-red-950 text-white text-xs font-semibold rounded-md border border-red-950 shadow-xs transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                            {processing ? (
+                                <>
+                                    <svg className="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>Saving Changes...</span>
+                                </>
+                            ) : (
+                                <span>Save Changes</span>
+                            )}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </Modal>
+    );
+}
