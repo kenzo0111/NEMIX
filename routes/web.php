@@ -27,6 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Compliance & Reports
     Route::get('/compliance/reports', [ComplianceReportController::class, 'index'])->name('compliance.reports');
     Route::post('/compliance/reports', [ComplianceReportController::class, 'store'])->name('compliance.reports.store');
+    Route::post('/compliance/reports/preview-dataset', [ComplianceReportController::class, 'previewDataset'])->name('compliance.reports.preview_dataset');
     Route::put('/compliance/reports/{report}', [ComplianceReportController::class, 'update'])->name('compliance.reports.update');
     Route::delete('/compliance/reports/{report}', [ComplianceReportController::class, 'archive'])->name('compliance.reports.archive');
 

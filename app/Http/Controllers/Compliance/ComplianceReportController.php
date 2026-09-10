@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Compliance;
 use App\Http\Controllers\Controller;
 use App\Models\ComplianceReport;
 use App\Policies\ResourceOwnershipPolicy;
+use App\Services\Compliance\ComplianceReportDataService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -376,27 +378,33 @@ class ComplianceReportController extends Controller
 
     public static function generateReference(?string $dateStr = null): string
     {
-        $tz = config('app.timezone', 'Asia/Manila');
-        $datePrefix = $dateStr ? Carbon::parse($dateStr)->timezone($tz)->format('Y-m-d') : now($tz)->format('Y-m-d');
-
-        $existing = ComplianceReport::query()
-            ->where('reference', 'LIKE', $datePrefix . '-%')
-            ->pluck('reference');
-
-        $maxSeq = 0;
-        foreach ($existing as $ref) {
-            if (preg_match('/^' . preg_quote($datePrefix, '/') . '-(\d+)$/', (string) $ref, $matches)) {
-                $seq = (int) $matches[1];
-                if ($seq > $maxSeq) {
-                    $maxSeq = $seq;
-                }
-            }
-        }
-
-        return sprintf('%s-%04d', $datePrefix, $maxSeq + 1);
+        return app(ComplianceReportDataService::class)->generateUniqueReference($dateStr);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function previewDataset(Request $request, ComplianceReportDataService $dataService): JsonResponse
+    {
+        $validated = $request->validate([
+            'type' => ['required', 'string', 'max:50'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'reference' => ['nullable', 'string', 'max:100'],
+            'itemName' => ['nullable', 'string', 'max:255'],
+            'supplierId' => ['nullable', 'integer'],
+            'endUser' => ['nullable', 'string', 'max:255'],
+            'periodType' => ['nullable', 'string', 'in:all,specific,range,monthly,yearly'],
+            'date' => ['nullable', 'date'],
+            'startDate' => ['nullable', 'date'],
+            'endDate' => ['nullable', 'date'],
+            'selectedMonth' => ['nullable', 'integer', 'between:1,12'],
+            'selectedYear' => ['nullable', 'integer', 'between:2000,2100'],
+            'generatedDate' => ['nullable', 'date'],
+        ]);
+
+        $dataset = $dataService->getReportDataset($validated);
+
+        return response()->json($dataset);
+    }
+
+    public function store(Request $request, ComplianceReportDataService $dataService): RedirectResponse
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -449,7 +457,12 @@ class ComplianceReportController extends Controller
 
         $reference = !empty($validated['reference'])
             ? trim($validated['reference'])
-            : self::generateReference($generatedDate);
+            : $dataService->generateUniqueReference($generatedDate);
+
+        // Concurrency protection: if reference is taken, generate next atomic sequence
+        if (ComplianceReport::where('reference', $reference)->exists()) {
+            $reference = $dataService->generateUniqueReference($generatedDate);
+        }
 
         $payload = $validated['payload'] ?? [];
         $payload['generatedDate'] = $generatedDate;
