@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { MoreHorizontal, Tag, Trash2, Eye, Edit3 } from 'lucide-react';
+import { MoreHorizontal, Tag, Trash2 } from 'lucide-react';
 import { InventoryItem } from '../types';
 import { formatCurrency, formatNumber } from '../utils/inventory';
 import InventoryStatus from './InventoryStatus';
@@ -55,35 +55,31 @@ export default function InventoryRow({ item, onView, onEdit, onDelete }: Invento
                 <InventoryStatus status={item.status} />
             </td>
 
-            {/* 7. Streamlined Actions */}
-            <td className="px-5 py-3.5 align-middle text-right text-xs">
-                <div className="inline-flex items-center justify-end gap-1.5">
+            {/* 7. Institutional Actions */}
+            <td className="px-5 py-3.5 align-middle text-right whitespace-nowrap text-xs">
+                <div className="inline-flex items-center justify-end gap-2.5">
                     {/* View Action */}
                     <button
                         type="button"
                         onClick={() => onView(item)}
-                        className="px-2.5 py-1 text-gray-700 hover:text-red-950 hover:bg-gray-100 rounded font-medium transition-colors inline-flex items-center gap-1"
-                        title="View item record details"
+                        className="text-gray-700 hover:text-red-950 font-semibold text-xs transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100"
                     >
-                        <Eye className="w-3.5 h-3.5 text-gray-500" />
-                        <span>View</span>
+                        View
                     </button>
 
                     {/* Edit Action */}
                     <button
                         type="button"
                         onClick={() => onEdit(item)}
-                        className="px-2.5 py-1 text-red-950 hover:text-red-900 hover:bg-red-50 rounded font-medium transition-colors inline-flex items-center gap-1"
-                        title="Edit inventory item"
+                        className="border border-red-900/30 text-red-950 hover:bg-red-50 hover:border-red-900/50 font-semibold text-xs px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
                     >
-                        <Edit3 className="w-3.5 h-3.5 text-red-900" />
-                        <span>Edit</span>
+                        Edit
                     </button>
 
                     {/* More Menu Dropdown */}
                     <Menu as="div" className="relative inline-block text-left">
                         <MenuButton
-                            className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                            className="p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors cursor-pointer"
                             title="More actions"
                             aria-label="More actions"
                         >
