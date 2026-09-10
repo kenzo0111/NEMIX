@@ -5,7 +5,7 @@ import {
     Edit2,
     Trash2,
     Shield,
-    Check,
+    CheckCircle2,
     X,
     Search,
     Info,
@@ -75,8 +75,15 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
 
-    const [successModal, setSuccessModal] = useState<{ isOpen: boolean; message: string }>({ isOpen: false, message: '' });
-    const [unauthorizedModal, setUnauthorizedModal] = useState<{ isOpen: boolean; message: string }>({ isOpen: false, message: '' });
+    const [successModal, setSuccessModal] = useState<{ isOpen: boolean; title?: string; message: string }>({
+        isOpen: false,
+        title: 'Role Updated Successfully',
+        message: '',
+    });
+    const [unauthorizedModal, setUnauthorizedModal] = useState<{ isOpen: boolean; message: string }>({
+        isOpen: false,
+        message: '',
+    });
     const [roleSearchQuery, setRoleSearchQuery] = useState('');
 
     const modules = getSidebarModules('Access', 'Manage Role Permission');
@@ -125,8 +132,8 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
         setPermissions(normalizePermissions(systemPermissions));
     }, [systemPermissions]);
 
-    const showSuccess = (message: string) => {
-        setSuccessModal({ isOpen: true, message });
+    const showSuccess = (message: string, title: string = 'Role Updated Successfully') => {
+        setSuccessModal({ isOpen: true, title, message });
     };
 
     const showUnauthorized = (message: string) => {
@@ -243,6 +250,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
             onSuccess: () => {
                 setNewRoleName('');
                 setIsCreateModalOpen(false);
+                showSuccess('The new administrative role has been registered successfully.', 'Role Created Successfully');
             },
         });
     };
@@ -332,6 +340,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
             onSuccess: () => {
                 setIsEditModalOpen(false);
                 setEditingRole(null);
+                showSuccess('The selected role and its assigned permissions have been updated.', 'Role Updated Successfully');
             },
         });
     };
@@ -349,6 +358,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
             onSuccess: () => {
                 setIsDeleteModalOpen(false);
                 setRoleToDelete(null);
+                showSuccess('The administrative role profile has been deleted.', 'Role Deleted Successfully');
             },
         });
     };
@@ -372,7 +382,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
 
     return (
         <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
-            <Head title="Access Control - Manage Role & Permission" />
+            <Head title="Role & Permission Management - Access Control" />
 
             <Sidebar
                 modules={modules}
@@ -382,28 +392,32 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
             />
 
             <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
+                {/* 1. Page Header */}
                 <PageHeader
                     title="Role & Permission Management"
-                    description="Define access levels, system security privileges, and module capability rules"
-                    breadcrumbs={[{ name: 'Access Control' }, { name: 'Manage Role Permission' }]}
+                    description="Manage institutional user roles, module access, and administrative permissions across the university system."
+                    breadcrumbs={[
+                        { name: 'Access Control' },
+                        { name: 'Role & Permission Management' },
+                    ]}
                 />
 
                 <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16">
-                    {/* 1. Compact Institutional Access Control Summary */}
-                    <div className="bg-white rounded-lg border border-gray-200 px-6 py-4 shadow-2xs">
+                    {/* 2. Institutional Access Summary */}
+                    <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-2xs">
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 text-xs">
                             <div className="flex items-center gap-2">
-                                <h2 className="font-bold text-gray-900 font-serif tracking-wide text-sm">
-                                    Access Control Summary
-                                </h2>
+                                <span className="text-xs font-bold text-red-900 uppercase tracking-wider font-serif">
+                                    Access Control Overview
+                                </span>
                             </div>
                             <div className="flex flex-wrap items-center gap-x-8 gap-y-2 text-gray-600">
                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-gray-500">Roles:</span>
+                                    <span className="text-gray-500">Configured Roles:</span>
                                     <span className="font-semibold text-gray-900 font-mono">{stats.totalRoles}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-gray-500">Permissions:</span>
+                                    <span className="text-gray-500">System Permissions:</span>
                                     <span className="font-semibold text-gray-900 font-mono">{stats.totalPerms}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
@@ -418,15 +432,15 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                         </div>
                     </div>
 
-                    {/* 2. Main Role Management Card / Ledger */}
+                    {/* 3. Main Role Management Section */}
                     <div className="bg-white rounded-lg shadow-2xs border border-gray-200 overflow-hidden flex flex-col">
-                        <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50/50">
+                        <div className="p-5 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
                             <div>
-                                <h3 className="text-sm font-bold text-gray-900 font-serif">
-                                    Configured User Roles & Access Rights
-                                </h3>
-                                <p className="text-xs text-gray-600 mt-0.5">
-                                    Administrators can define system roles and configure assigned access privileges across institutional modules.
+                                <h2 className="text-base font-bold text-gray-900 font-serif">
+                                    Configured Roles & Access Rights
+                                </h2>
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                    Manage university user roles and define the system functions available to each administrative role.
                                 </p>
                             </div>
 
@@ -436,8 +450,8 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                         type="text"
                                         value={roleSearchQuery}
                                         onChange={(e) => setRoleSearchQuery(e.target.value)}
-                                        placeholder="Search role by name or ID..."
-                                        className="w-full pl-8 pr-7 py-1.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-red-900 focus:border-red-900 bg-white"
+                                        placeholder="Search roles..."
+                                        className="w-full pl-8 pr-7 py-2 text-xs border border-gray-300 rounded-md focus:ring-1 focus:ring-red-900 focus:border-red-900 bg-white"
                                     />
                                     <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                                     {roleSearchQuery && (
@@ -455,7 +469,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                 <button
                                     type="button"
                                     onClick={handleCreateClick}
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-red-900 hover:bg-red-800 border border-red-950 rounded font-semibold text-xs text-white shadow-2xs transition-colors cursor-pointer"
+                                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-900 hover:bg-red-800 border border-red-950 rounded-md font-semibold text-xs text-white shadow-2xs transition-colors cursor-pointer"
                                 >
                                     <Plus className="w-3.5 h-3.5" />
                                     <span>Create Role</span>
@@ -467,16 +481,16 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                             <table className="w-full text-left border-collapse flex-1 min-w-[700px]">
                                 <thead>
                                     <tr className="border-b border-gray-200 bg-gray-50/80">
-                                        <th className="px-6 py-3 text-[11px] font-bold tracking-wider text-gray-600 uppercase w-1/3">
+                                        <th className="px-6 py-3.5 text-xs font-semibold text-gray-600 w-1/3">
                                             Role
                                         </th>
-                                        <th className="px-6 py-3 text-[11px] font-bold tracking-wider text-gray-600 uppercase w-1/4">
+                                        <th className="px-6 py-3.5 text-xs font-semibold text-gray-600 w-1/4">
                                             Permissions
                                         </th>
-                                        <th className="px-6 py-3 text-[11px] font-bold tracking-wider text-gray-600 uppercase w-1/6">
+                                        <th className="px-6 py-3.5 text-xs font-semibold text-gray-600 w-1/6">
                                             Status
                                         </th>
-                                        <th className="px-6 py-3 text-[11px] font-bold tracking-wider text-gray-600 uppercase text-right w-1/4">
+                                        <th className="px-6 py-3.5 text-xs font-semibold text-gray-600 text-right w-1/4">
                                             Actions
                                         </th>
                                     </tr>
@@ -485,31 +499,36 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                     {filteredRoles.length > 0 ? (
                                         filteredRoles.map((role) => (
                                             <tr key={role.id} className="hover:bg-gray-50/70 transition-colors">
-                                                <td className="px-6 py-3.5">
-                                                    <div className="flex flex-col">
-                                                        <span className="font-semibold text-gray-900 text-sm">{role.name}</span>
-                                                        <span className="text-[11px] text-gray-500 font-mono mt-0.5">
-                                                            ROLE ID: #{role.id}
-                                                        </span>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-7 h-7 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold flex items-center justify-center border border-gray-200 shrink-0">
+                                                            {role.name.charAt(0).toUpperCase()}
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-semibold text-gray-900 text-sm">{role.name}</span>
+                                                            <span className="text-xs text-gray-500 font-mono mt-0.5">
+                                                                Role ID #{role.id}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-3.5">
-                                                    <span className="text-xs text-gray-700">
+                                                <td className="px-6 py-4">
+                                                    <span className="text-xs text-gray-700 font-normal">
                                                         {role.permissions_count ?? role.permissions?.length ?? 0} permissions
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-3.5">
+                                                <td className="px-6 py-4">
                                                     <div className="inline-flex items-center gap-1.5 text-xs text-gray-700 font-medium">
                                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
                                                         <span>Active</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-3.5 text-right">
+                                                <td className="px-6 py-4 text-right">
                                                     <div className="flex items-center justify-end gap-2">
                                                         <button
                                                             type="button"
                                                             onClick={() => handleEditAction(role)}
-                                                            className="px-2.5 py-1.5 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 hover:text-red-900 border border-gray-300 hover:border-red-900/30 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                                                            className="px-3 py-1.5 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-red-50/30 hover:text-red-900 border border-gray-300 hover:border-red-900/30 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
                                                         >
                                                             <Edit2 className="w-3.5 h-3.5" />
                                                             <span>Edit</span>
@@ -517,7 +536,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                                         <button
                                                             type="button"
                                                             onClick={() => handleDeleteAction(role)}
-                                                            className="px-2.5 py-1.5 text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 border border-red-200 hover:border-red-300 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                                                            className="px-3 py-1.5 text-xs font-medium rounded-md text-red-700 bg-white hover:bg-red-50 border border-red-200 hover:border-red-300 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
                                                         >
                                                             <Trash2 className="w-3.5 h-3.5" />
                                                             <span>Delete</span>
@@ -556,8 +575,8 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                         </div>
                     </div>
 
-                    {/* 3. Security Advisory Notice */}
-                    <div className="bg-amber-50/70 border border-amber-200/80 rounded-lg p-4 flex items-start gap-3 text-xs text-amber-950">
+                    {/* 4. Security Advisory Notice */}
+                    <div className="bg-amber-50/60 border border-amber-200/70 rounded-lg p-4 flex items-start gap-3 text-xs text-amber-950">
                         <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
                         <div>
                             <span className="font-semibold text-amber-900">Security Advisory: </span>
@@ -575,7 +594,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50/50">
                             <div>
                                 <h3 className="text-base font-bold text-gray-900 font-serif">Create Role</h3>
-                                <p className="text-xs text-gray-500 mt-0.5">Define a new user role in the access control registry.</p>
+                                <p className="text-xs text-gray-500 mt-0.5">Create a new administrative role for the university system.</p>
                             </div>
                             <button
                                 type="button"
@@ -597,7 +616,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                         id="roleName"
                                         value={newRoleName}
                                         onChange={(e) => setNewRoleName(e.target.value)}
-                                        className="bg-white border border-gray-300 text-gray-900 text-xs rounded focus:ring-1 focus:ring-red-900 focus:border-red-900 block w-full p-2.5 transition-all"
+                                        className="bg-white border border-gray-300 text-gray-900 text-xs rounded-md focus:ring-1 focus:ring-red-900 focus:border-red-900 block w-full p-2.5 transition-all"
                                         placeholder="e.g. Property Custodian"
                                         required
                                         autoFocus
@@ -608,14 +627,14 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                 <button
                                     type="button"
                                     onClick={() => setIsCreateModalOpen(false)}
-                                    className="px-4 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                                    className="px-4 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isCreatingRole}
-                                    className="px-4 py-2 bg-red-900 hover:bg-red-800 text-white rounded font-semibold text-xs transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
+                                    className="px-4 py-2 bg-red-900 hover:bg-red-800 text-white rounded-md font-semibold text-xs transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
                                 >
                                     {isCreatingRole ? 'Creating...' : 'Create Role'}
                                 </button>
@@ -624,7 +643,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                     </div>
                 </Modal>
 
-                {/* Edit Role & Permissions Modal - Two-Panel Layout */}
+                {/* Edit Role & Permissions Modal - Two-Column Administrative Layout */}
                 <Modal show={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} maxWidth="4xl">
                     <div className="overflow-hidden rounded-lg bg-white border border-gray-200 shadow-xl flex flex-col max-h-[90vh]">
                         <div className="h-1 w-full bg-red-900 shrink-0"></div>
@@ -658,18 +677,18 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                         id="editRoleName"
                                         value={editingRole?.name || ''}
                                         onChange={(e) => setEditingRole(editingRole ? { ...editingRole, name: e.target.value } : null)}
-                                        className="bg-white border border-gray-300 text-gray-900 text-xs rounded focus:ring-1 focus:ring-red-900 focus:border-red-900 block w-full p-2.5 transition-all max-w-md"
+                                        className="bg-white border border-gray-300 text-gray-900 text-xs rounded-md focus:ring-1 focus:ring-red-900 focus:border-red-900 block w-full p-2.5 transition-all max-w-md"
                                         required
                                     />
                                 </div>
 
-                                {/* Sub-header with Counter */}
+                                {/* Permission Summary Line */}
                                 <div className="border-t border-gray-200 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                     <div>
-                                        <h4 className="text-sm font-bold text-gray-900 font-serif">Assign Permissions</h4>
+                                        <h4 className="text-sm font-bold text-gray-900 font-serif">Module Permissions</h4>
                                         <p className="text-xs text-gray-500 mt-0.5">Select the permissions this role may access within each system module.</p>
                                     </div>
-                                    <div className="text-xs text-gray-600 font-medium bg-gray-50 px-3 py-1 rounded border border-gray-200 self-start sm:self-auto">
+                                    <div className="text-xs text-gray-600 font-medium self-start sm:self-auto">
                                         <span className="font-semibold text-gray-900">{editingRole?.permissions.length ?? 0}</span> of <span className="font-semibold text-gray-900">{stats.totalPerms}</span> permissions assigned
                                     </div>
                                 </div>
@@ -680,7 +699,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                     <select
                                         value={activeModuleTab}
                                         onChange={(e) => setActiveModuleTab(e.target.value)}
-                                        className="w-full text-xs font-medium border border-gray-300 rounded p-2 focus:ring-1 focus:ring-red-900 focus:border-red-900 bg-white"
+                                        className="w-full text-xs font-medium border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-red-900 focus:border-red-900 bg-white"
                                     >
                                         {moduleNames.map((mod) => {
                                             const modStats = getModuleStats(mod);
@@ -693,12 +712,12 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                     </select>
                                 </div>
 
-                                {/* Two-Panel Layout (Desktop & Tablet: md:flex) */}
+                                {/* Two-Column Layout (Desktop & Tablet: md:flex) */}
                                 <div className="border border-gray-200 rounded-lg overflow-hidden flex flex-col md:flex-row min-h-[380px]">
-                                    {/* LEFT PANEL: System Modules (hidden on mobile, visible md:block) */}
+                                    {/* LEFT PANEL: System Modules */}
                                     <div className="hidden md:block w-64 bg-gray-50/70 border-r border-gray-200 shrink-0 overflow-y-auto max-h-[440px]">
                                         <div className="px-4 py-3 border-b border-gray-200/80 bg-gray-100/60">
-                                            <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wider">
+                                            <span className="text-xs font-bold text-gray-700 tracking-wider">
                                                 System Modules
                                             </span>
                                         </div>
@@ -711,15 +730,15 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                                         key={mod}
                                                         type="button"
                                                         onClick={() => setActiveModuleTab(mod)}
-                                                        className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded transition-colors text-left cursor-pointer ${
+                                                        className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-md transition-colors text-left cursor-pointer ${
                                                             isSelected
-                                                                ? 'bg-red-900 text-white font-semibold shadow-2xs'
-                                                                : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                                                                ? 'bg-red-50/80 text-red-950 font-semibold border-l-2 border-red-900 shadow-2xs'
+                                                                : 'text-gray-700 hover:bg-gray-100/70 hover:text-gray-900 font-medium border-l-2 border-transparent'
                                                         }`}
                                                     >
                                                         <span className="truncate">{mod}</span>
                                                         <span className={`text-[11px] font-mono ml-2 shrink-0 ${
-                                                            isSelected ? 'text-red-100' : 'text-gray-500'
+                                                            isSelected ? 'text-red-900 font-semibold' : 'text-gray-500'
                                                         }`}>
                                                             {modStats.assigned}/{modStats.total}
                                                         </span>
@@ -737,10 +756,10 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                                 <div>
                                                     <h5 className="text-sm font-bold text-gray-900 font-serif">{activeModuleTab}</h5>
                                                     <p className="text-xs text-gray-500 mt-0.5">
-                                                        Configure which {activeModuleTab} functions this role may access.
+                                                        Choose the actions available to this role within the {activeModuleTab} module.
                                                     </p>
                                                 </div>
-                                                <label className="inline-flex items-center gap-2 cursor-pointer select-none self-start sm:self-auto bg-gray-50 px-2.5 py-1.5 rounded border border-gray-200">
+                                                <label className="inline-flex items-center gap-2 cursor-pointer select-none self-start sm:self-auto bg-gray-50 px-2.5 py-1.5 rounded-md border border-gray-200">
                                                     <input
                                                         type="checkbox"
                                                         checked={isCurrentModuleAllSelected}
@@ -750,8 +769,8 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                                         onChange={(e) => handleSelectAllModule(activeModuleTab, e.target.checked)}
                                                         className="w-4 h-4 text-red-900 border-gray-300 rounded focus:ring-red-900 focus:ring-1 cursor-pointer"
                                                     />
-                                                    <span className="text-xs font-semibold text-gray-700">
-                                                        Select all permissions in this module
+                                                    <span className="text-xs font-medium text-gray-700">
+                                                        Select all permissions
                                                     </span>
                                                 </label>
                                             </div>
@@ -792,27 +811,27 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                             </form>
                         </div>
 
-                        {/* Modal Footer */}
-                        <div className="flex items-center justify-end px-6 py-3.5 border-t border-gray-200 shrink-0 gap-2.5 bg-gray-50/80">
+                        {/* Sticky Modal Footer */}
+                        <div className="flex items-center justify-end px-6 py-3.5 border-t border-gray-200 shrink-0 gap-2.5 bg-gray-50/80 sticky bottom-0">
                             <button
                                 type="button"
                                 onClick={() => setIsEditModalOpen(false)}
-                                className="px-4 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors cursor-pointer"
+                                className="px-4 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 form="edit-role-form"
-                                className="px-4 py-2 bg-red-900 hover:bg-red-800 text-white rounded font-semibold text-xs transition-colors shadow-2xs cursor-pointer"
+                                className="px-4 py-2 bg-red-900 hover:bg-red-800 text-white rounded-md font-semibold text-xs transition-colors shadow-2xs cursor-pointer"
                             >
-                                Update Role & Permissions
+                                Save Changes
                             </button>
                         </div>
                     </div>
                 </Modal>
 
-                {/* Delete Confirmation Modal */}
+                {/* Delete Role Modal */}
                 <Modal show={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} maxWidth="md">
                     <div className="overflow-hidden rounded-lg bg-white border border-gray-200 shadow-xl">
                         <div className="h-1 w-full bg-red-700 shrink-0"></div>
@@ -829,7 +848,7 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                         Are you sure you want to delete the role <strong className="text-gray-900 font-semibold">"{roleToDelete?.name}"</strong>?
                                     </p>
                                     <p className="text-[11px] text-gray-500 mt-1">
-                                        This action will permanently revoke this role profile from any assigned administrative accounts.
+                                        This action cannot be undone.
                                     </p>
                                 </div>
                             </div>
@@ -837,14 +856,14 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                                 <button
                                     type="button"
                                     onClick={() => setIsDeleteModalOpen(false)}
-                                    className="px-4 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors cursor-pointer"
+                                    className="px-4 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="button"
                                     onClick={confirmDeleteRole}
-                                    className="px-4 py-2 text-xs font-semibold text-white bg-red-700 hover:bg-red-800 rounded transition-colors cursor-pointer"
+                                    className="px-4 py-2 text-xs font-semibold text-white bg-red-700 hover:bg-red-800 rounded-md transition-colors cursor-pointer"
                                 >
                                     Delete Role
                                 </button>
@@ -853,43 +872,49 @@ export default function ManageRolePermission({ auth, roles: initialRoles = [], p
                     </div>
                 </Modal>
 
-                {/* Success Notification Modal */}
+                {/* Success Modal */}
                 <Modal show={successModal.isOpen} onClose={() => setSuccessModal({ isOpen: false, message: '' })} maxWidth="sm">
                     <div className="overflow-hidden rounded-lg bg-white border border-gray-200 shadow-xl text-center">
                         <div className="h-1 w-full bg-emerald-600 shrink-0"></div>
                         <div className="p-6">
-                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-emerald-50 text-emerald-700 mb-3 border border-emerald-100">
-                                <Check className="w-6 h-6" />
+                            <div className="mx-auto flex items-center justify-center h-11 w-11 rounded-full bg-emerald-50 text-emerald-700 mb-3 border border-emerald-100">
+                                <CheckCircle2 className="w-5 h-5" />
                             </div>
-                            <h3 className="text-base font-bold text-gray-900 mb-1 font-serif">Action Completed</h3>
-                            <p className="text-xs text-gray-600 mb-5 leading-relaxed">{successModal.message}</p>
+                            <h3 className="text-base font-bold text-gray-900 mb-1 font-serif">
+                                {successModal.title || 'Role Updated Successfully'}
+                            </h3>
+                            <p className="text-xs text-gray-600 mb-5 leading-relaxed">
+                                {successModal.message || 'The selected role and its assigned permissions have been updated.'}
+                            </p>
                             <button
                                 type="button"
                                 onClick={() => setSuccessModal({ isOpen: false, message: '' })}
-                                className="w-full px-4 py-2 rounded text-xs font-semibold text-white bg-gray-900 hover:bg-gray-800 transition-colors cursor-pointer"
+                                className="w-full px-4 py-2 rounded-md text-xs font-semibold text-white bg-gray-900 hover:bg-gray-800 transition-colors cursor-pointer"
                             >
-                                Dismiss
+                                Close
                             </button>
                         </div>
                     </div>
                 </Modal>
 
-                {/* Unauthorized Action Modal */}
+                {/* Unauthorized Modal */}
                 <Modal show={unauthorizedModal.isOpen} onClose={() => setUnauthorizedModal({ isOpen: false, message: '' })} maxWidth="sm">
                     <div className="overflow-hidden rounded-lg bg-white border border-gray-200 shadow-xl text-center">
                         <div className="h-1 w-full bg-red-800 shrink-0"></div>
                         <div className="p-6">
-                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-50 text-red-800 mb-3 border border-red-100">
-                                <Shield className="w-6 h-6" />
+                            <div className="mx-auto flex items-center justify-center h-11 w-11 rounded-full bg-red-50 text-red-800 mb-3 border border-red-100">
+                                <Shield className="w-5 h-5" />
                             </div>
                             <h3 className="text-base font-bold text-gray-900 mb-1 font-serif">Permission Required</h3>
-                            <p className="text-xs text-gray-600 mb-5 leading-relaxed">{unauthorizedModal.message}</p>
+                            <p className="text-xs text-gray-600 mb-5 leading-relaxed">
+                                {unauthorizedModal.message || 'You do not have permission to perform this action.'}
+                            </p>
                             <button
                                 type="button"
                                 onClick={() => setUnauthorizedModal({ isOpen: false, message: '' })}
-                                className="w-full px-4 py-2 rounded text-xs font-semibold text-white bg-red-900 hover:bg-red-800 transition-colors cursor-pointer"
+                                className="w-full px-4 py-2 rounded-md text-xs font-semibold text-white bg-red-900 hover:bg-red-800 transition-colors cursor-pointer"
                             >
-                                Dismiss
+                                Close
                             </button>
                         </div>
                     </div>
