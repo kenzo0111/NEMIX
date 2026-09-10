@@ -1,0 +1,70 @@
+/* Dedicated Print Stylesheet for Official Requisition & Issue Slip (RIS) */
+
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 8mm;
+    }
+
+    body.printing-ris {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background: #ffffff !important;
+    }
+
+    /* Hide background interface, sidebars, headers, and modal backdrops */
+    body.printing-ris aside,
+    body.printing-ris main,
+    body.printing-ris header,
+    body.printing-ris nav,
+    body.printing-ris .ris-print-backdrop,
+    body.printing-ris .ris-print-hide {
+        display: none !important;
+    }
+
+    /* Reset modal container so it flows directly onto the printable page */
+    body.printing-ris .ris-print-modal-wrapper {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+    }
+
+    body.printing-ris .ris-print-modal {
+        box-shadow: none !important;
+        border: none !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        max-width: 210mm !important;
+        max-height: none !important;
+        transform: none !important;
+        display: block !important;
+        background: #ffffff !important;
+    }
+
+    body.printing-ris .ris-print-area {
+        border: none !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 210mm !important;
+        display: block !important;
+        background: #ffffff !important;
+        box-shadow: none !important;
+    }
+
+    body.printing-ris .print-zoom-fit {
+        zoom: 1;
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+        page-break-before: avoid !important;
+    }
+
+    ::-webkit-scrollbar {
+        display: none;
+    }
+}

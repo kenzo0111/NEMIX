@@ -12,6 +12,7 @@ class Issuance extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'ris_number',
         'item_id',
         'quantity',
         'recipient',
@@ -29,6 +30,11 @@ class Issuance extends Model
     protected $casts = [
         'date_issued' => 'date',
     ];
+
+    public function items()
+    {
+        return $this->hasMany(IssuanceItem::class);
+    }
 
     public function item()
     {

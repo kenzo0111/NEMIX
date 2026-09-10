@@ -7,6 +7,8 @@ use App\Models\User;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\Receiving;
 use Modules\Inventory\Models\Issuance;
+use Modules\Inventory\Models\IssuanceItem;
+use Modules\Inventory\Http\Requests\StoreIssuanceRequest;
 use Modules\Suppliers\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -378,87 +380,234 @@ class InventoryController extends Controller
         return redirect()->route('inventory.receiving')->with('success', 'Receiving record voided successfully.');
     }
 
-    public function issuance()
+    public function issuance(Request $request)
     {
-        $issuancesQuery = ResourceOwnershipPolicy::scopeQuery(Issuance::with(['item', 'issuer']), auth()->user(), 'issued_by');
+        $search = trim($request->input('search', ''));
+        $recipient = trim($request->input('recipient', ''));
+
+        $issuancesQuery = ResourceOwnershipPolicy::scopeQuery(
+            Issuance::with(['items.item', 'item', 'issuer']),
+            auth()->user(),
+            'issued_by'
+        );
+
+        if ($search !== '') {
+            $issuancesQuery->where(function ($query) use ($search) {
+                $query->where('ris_number', 'like', "%{$search}%")
+                    ->orWhere('recipient', 'like', "%{$search}%")
+                    ->orWhere('department', 'like', "%{$search}%")
+                    ->orWhere('purpose', 'like', "%{$search}%")
+                    ->orWhereHas('items.item', function ($iq) use ($search) {
+                        $iq->where('name', 'like', "%{$search}%")
+                            ->orWhere('sku', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('item', function ($iq) use ($search) {
+                        $iq->where('name', 'like', "%{$search}%")
+                            ->orWhere('sku', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($recipient !== '') {
+            $issuancesQuery->where('recipient', $recipient);
+        }
+
+        $paginated = $issuancesQuery
+            ->latest('date_issued')
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        $defaultApprovedBy = class_exists(\App\Models\SystemSetting::class)
+            ? \App\Models\SystemSetting::get('signatories.ris_approved_by_name', 'ARSENIO GEM A. GARCILLANOSA')
+            : 'ARSENIO GEM A. GARCILLANOSA';
+        $defaultApprovedByDesignation = class_exists(\App\Models\SystemSetting::class)
+            ? \App\Models\SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V')
+            : 'SUPPLY OFFICER III/ADMIN OFFICER V';
+
+        $transformed = $paginated->through(function ($issuance) use ($defaultApprovedBy, $defaultApprovedByDesignation) {
+            $dateFormatted = $issuance->date_issued ? $issuance->date_issued->format('Y-m-d') : '';
+            $risNo = $issuance->ris_number ?: ('RIS-' . ($issuance->date_issued ? $issuance->date_issued->format('Y-m') : date('Y-m')) . '-' . str_pad($issuance->id, 4, '0', STR_PAD_LEFT));
+
+            if ($issuance->items->isNotEmpty()) {
+                $itemsList = $issuance->items->map(function ($line) {
+                    $itemName = $line->item ? $line->item->name : 'N/A';
+                    $sku = $line->item ? $line->item->sku : '';
+                    return [
+                        'id' => $line->id,
+                        'item_id' => $line->item_id,
+                        'item' => $itemName,
+                        'item_name' => $itemName,
+                        'sku' => $sku,
+                        'stock_no' => $sku,
+                        'quantity' => (int) $line->quantity,
+                        'unit_cost' => (float) $line->unit_cost,
+                        'amount' => (float) $line->amount,
+                        'unit' => $line->item->unit_of_issue ?? 'pcs',
+                    ];
+                })->values()->all();
+
+                $totalQty = (int) $issuance->items->sum('quantity');
+                $totalAmt = (float) $issuance->items->sum('amount');
+                $firstItemName = $itemsList[0]['item'];
+                $itemSummary = count($itemsList) > 1
+                    ? count($itemsList) . ' items (' . $firstItemName . ', ...)'
+                    : $firstItemName;
+            } else {
+                $itemName = $issuance->item ? $issuance->item->name : 'N/A';
+                $sku = $issuance->item ? $issuance->item->sku : '';
+                $unitCost = (float) ($issuance->item->unit_cost ?? 0);
+                $qty = (int) $issuance->quantity;
+                $amt = (float) $qty * $unitCost;
+
+                $itemsList = [
+                    [
+                        'id' => $issuance->id,
+                        'item_id' => $issuance->item_id,
+                        'item' => $itemName,
+                        'item_name' => $itemName,
+                        'sku' => $sku,
+                        'stock_no' => $sku,
+                        'quantity' => $qty,
+                        'unit_cost' => $unitCost,
+                        'amount' => $amt,
+                        'unit' => $issuance->item->unit_of_issue ?? 'pcs',
+                    ]
+                ];
+                $totalQty = $qty;
+                $totalAmt = $amt;
+                $itemSummary = $itemName;
+            }
+
+            return [
+                'id' => $issuance->id,
+                'ris_number' => $risNo,
+                'item' => $itemSummary,
+                'sku' => $itemsList[0]['sku'] ?? '',
+                'quantity' => $totalQty,
+                'total_quantity' => $totalQty,
+                'unit_cost' => $itemsList[0]['unit_cost'] ?? 0,
+                'amount' => $totalAmt,
+                'total_amount' => $totalAmt,
+                'recipient' => $issuance->recipient,
+                'department' => $issuance->department,
+                'fund_cluster' => $issuance->fund_cluster,
+                'recipient_designation' => $issuance->recipient_designation,
+                'purpose' => $issuance->purpose,
+                'approved_by' => $issuance->approved_by ?: $defaultApprovedBy,
+                'approved_by_designation' => $issuance->approved_by_designation ?: $defaultApprovedByDesignation,
+                'date' => $dateFormatted,
+                'date_issued' => $dateFormatted,
+                'status' => $issuance->status,
+                'issued_by' => $issuance->issuer ? $issuance->issuer->name : 'Supply Staff',
+                'created_at' => $issuance->created_at ? $issuance->created_at->format('Y-m-d H:i:s') : '',
+                'items' => $itemsList,
+                'items_list' => $itemsList,
+            ];
+        });
+
         $itemsQuery = ResourceOwnershipPolicy::scopeQuery(Item::query(), auth()->user());
+        $recipientsQuery = ResourceOwnershipPolicy::scopeQuery(Issuance::query(), auth()->user(), 'issued_by');
 
         return Inertia::render('Inventory/Issuance', [
-            'issuances' => $issuancesQuery->get()->map(function ($issuance) {
-                return [
-                    'id' => $issuance->id,
-                    'item' => $issuance->item ? $issuance->item->name : 'N/A',
-                    'sku' => $issuance->item ? $issuance->item->sku : '',
-                    'quantity' => $issuance->quantity,
-                    'unit_cost' => $issuance->item->unit_cost ?? 0,
-                    'amount' => (float) $issuance->quantity * (float) ($issuance->item->unit_cost ?? 0),
-                    'recipient' => $issuance->recipient,
-                    'department' => $issuance->department,
-                    'fund_cluster' => $issuance->fund_cluster,
-                    'recipient_designation' => $issuance->recipient_designation,
-                    'purpose' => $issuance->purpose,
-                    'approved_by' => $issuance->approved_by ?: (class_exists(\App\Models\SystemSetting::class) ? \App\Models\SystemSetting::get('signatories.ris_approved_by_name', 'ARSENIO GEM A. GARCILLANOSA') : 'ARSENIO GEM A. GARCILLANOSA'),
-                    'approved_by_designation' => $issuance->approved_by_designation ?: (class_exists(\App\Models\SystemSetting::class) ? \App\Models\SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V') : 'SUPPLY OFFICER III/ADMIN OFFICER V'),
-                    'date' => $issuance->date_issued ? $issuance->date_issued->format('Y-m-d') : '',
-                    'status' => $issuance->status,
-                    'issued_by' => $issuance->issuer ? $issuance->issuer->name : 'Unknown',
-                    'created_at' => $issuance->created_at ? $issuance->created_at->format('Y-m-d H:i:s') : '',
-                ];
-            }),
-            'items' => $itemsQuery->get(['id', 'name', 'sku']),
+            'issuances' => $transformed,
+            'items' => $itemsQuery->get(['id', 'name', 'sku', 'stock', 'unit_of_issue', 'unit_cost']),
+            'recipients' => $recipientsQuery->distinct()->pluck('recipient')->filter()->values()->all(),
+            'divisions' => config('university.divisions', []),
+            'filters' => [
+                'search' => $search,
+                'recipient' => $recipient,
+            ],
         ]);
     }
 
-    public function storeIssuance(Request $request)
+    public function storeIssuance(StoreIssuanceRequest $request)
     {
-        $validated = $request->validate([
-            'issuances' => ['required', 'array', 'min:1', 'max:100'],
-            'issuances.*.item_id' => ['required', 'integer', 'exists:items,id'],
-            'issuances.*.quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
-            'recipient' => ['required', 'string', 'max:255'],
-            'department' => ['nullable', 'string', 'max:255'],
-            'fund_cluster' => ['nullable', 'string', 'max:255'],
-            'recipient_designation' => ['nullable', 'string', 'max:255'],
-            'purpose' => ['nullable', 'string', 'max:2000'],
-            'approved_by' => ['nullable', 'string', 'max:255'],
-            'approved_by_designation' => ['nullable', 'string', 'max:255'],
-            'date_issued' => ['required', 'date'],
-        ]);
-
         $normalizedDate = $this->normalizeDate($request->date_issued);
 
-        // Use database transaction for bulk insert
         \DB::transaction(function () use ($request, $normalizedDate) {
+            $risPrefix = class_exists(\App\Models\SystemSetting::class)
+                ? \App\Models\SystemSetting::get('numbering.ris_prefix', 'RIS-')
+                : 'RIS-';
+
+            $dateCarbon = Carbon::parse($normalizedDate);
+            $yearMonth = $dateCarbon->format('Y-m');
+
+            $monthCount = Issuance::whereYear('date_issued', $dateCarbon->year)
+                ->whereMonth('date_issued', $dateCarbon->month)
+                ->count();
+            $seq = $monthCount + 1;
+            $risNumber = sprintf('%s%s-%04d', $risPrefix, $yearMonth, $seq);
+            while (Issuance::where('ris_number', $risNumber)->exists()) {
+                $seq++;
+                $risNumber = sprintf('%s%s-%04d', $risPrefix, $yearMonth, $seq);
+            }
+
+            $approvedBy = $request->approved_by ?: (class_exists(\App\Models\SystemSetting::class)
+                ? \App\Models\SystemSetting::get('signatories.ris_approved_by_name', 'ARSENIO GEM A. GARCILLANOSA')
+                : 'ARSENIO GEM A. GARCILLANOSA');
+            $approvedByDesignation = $request->approved_by_designation ?: (class_exists(\App\Models\SystemSetting::class)
+                ? \App\Models\SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V')
+                : 'SUPPLY OFFICER III/ADMIN OFFICER V');
+
+            $lockedItems = [];
+            $totalQuantity = 0;
+
             foreach ($request->issuances as $issuanceData) {
-                $item = Item::findOrFail($issuanceData['item_id']);
-                
-                if ($item->stock < $issuanceData['quantity']) {
+                $item = Item::where('id', $issuanceData['item_id'])->lockForUpdate()->firstOrFail();
+                $qty = (int) $issuanceData['quantity'];
+
+                if ($item->stock < $qty) {
                     throw \Illuminate\Validation\ValidationException::withMessages([
-                        'issuances' => 'Insufficient stock for item: ' . $item->name
+                        'issuances' => 'Insufficient stock for item: ' . $item->name . ' (Available: ' . $item->stock . ', Requested: ' . $qty . ')'
                     ]);
                 }
 
-                Issuance::create([
-                    'item_id' => $issuanceData['item_id'],
-                    'quantity' => $issuanceData['quantity'],
-                    'recipient' => $request->recipient,
-                    'department' => $request->department,
-                    'fund_cluster' => $request->fund_cluster,
-                    'recipient_designation' => $request->recipient_designation,
-                    'purpose' => $request->purpose,
-                    'approved_by' => $request->approved_by ?: (class_exists(\App\Models\SystemSetting::class) ? \App\Models\SystemSetting::get('signatories.ris_approved_by_name', 'ARSENIO GEM A. GARCILLANOSA') : 'ARSENIO GEM A. GARCILLANOSA'),
-                    'approved_by_designation' => $request->approved_by_designation ?: (class_exists(\App\Models\SystemSetting::class) ? \App\Models\SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V') : 'SUPPLY OFFICER III/ADMIN OFFICER V'),
-                    'date_issued' => $normalizedDate,
-                    'status' => 'Issued',
-                    'issued_by' => auth()->id(),
+                $totalQuantity += $qty;
+                $lockedItems[] = [
+                    'item' => $item,
+                    'quantity' => $qty,
+                ];
+            }
+
+            $primaryItem = $lockedItems[0]['item'];
+
+            $issuance = Issuance::create([
+                'ris_number' => $risNumber,
+                'item_id' => $primaryItem->id,
+                'quantity' => $totalQuantity,
+                'recipient' => $request->recipient,
+                'department' => $request->department,
+                'fund_cluster' => $request->fund_cluster,
+                'recipient_designation' => $request->recipient_designation,
+                'purpose' => $request->purpose,
+                'approved_by' => $approvedBy,
+                'approved_by_designation' => $approvedByDesignation,
+                'date_issued' => $normalizedDate,
+                'status' => 'Issued',
+                'issued_by' => auth()->id(),
+            ]);
+
+            foreach ($lockedItems as $locked) {
+                $item = $locked['item'];
+                $qty = $locked['quantity'];
+                $unitCost = (float) ($item->unit_cost ?? 0);
+                $amount = $qty * $unitCost;
+
+                IssuanceItem::create([
+                    'issuance_id' => $issuance->id,
+                    'item_id' => $item->id,
+                    'quantity' => $qty,
+                    'unit_cost' => $unitCost,
+                    'amount' => $amount,
                 ]);
-                
-                $item->stock -= $issuanceData['quantity'];
+
+                $item->stock -= $qty;
                 $this->refreshItemTotals($item);
             }
         });
 
-        return redirect()->route('inventory.issuance')->with('success', 'Issuance records created successfully.');
+        return redirect()->route('inventory.issuance')->with('success', 'Issuance record created successfully.');
     }
 
     public function updateIssuance(Request $request, Issuance $issuance)
@@ -522,9 +671,22 @@ class InventoryController extends Controller
 
         \DB::transaction(function () use ($issuance) {
             if ($issuance->status === 'Issued') {
-                $item = Item::findOrFail($issuance->item_id);
-                $item->stock += $issuance->quantity;
-                $this->refreshItemTotals($item);
+                // Revert stock for child issuance items if present
+                if ($issuance->items()->count() > 0) {
+                    foreach ($issuance->items as $issuanceItem) {
+                        $item = Item::where('id', $issuanceItem->item_id)->lockForUpdate()->first();
+                        if ($item) {
+                            $item->stock += $issuanceItem->quantity;
+                            $this->refreshItemTotals($item);
+                        }
+                    }
+                } elseif ($issuance->item_id) {
+                    $item = Item::where('id', $issuance->item_id)->lockForUpdate()->first();
+                    if ($item) {
+                        $item->stock += $issuance->quantity;
+                        $this->refreshItemTotals($item);
+                    }
+                }
             }
 
             $issuance->delete();
