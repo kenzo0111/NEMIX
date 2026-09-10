@@ -1,3 +1,6 @@
+import { PageProps, User } from '@/types';
+import { SidebarUser } from '@/types/navigation';
+
 export type ReportType =
     | 'RSMI'
     | 'RPCI'
@@ -119,21 +122,11 @@ export interface ReportDatasetResponse {
     filters: Record<string, any>;
 }
 
-export interface ManageReportsPageProps {
-    auth: {
-        user: {
-            id: number;
-            name: string;
-            email: string;
-            role?: string;
-            roles?: Array<{ name: string }>;
-            [key: string]: any;
-        };
-    };
+export type ManageReportsPageProps = PageProps<{
     items?: any[];
     reports?: ComplianceReport[];
     issuances?: any[];
     receivings?: any[];
     suppliers?: any[];
     migratedRecords?: any[];
-}
+}>;
