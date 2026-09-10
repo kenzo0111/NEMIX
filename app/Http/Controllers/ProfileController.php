@@ -49,7 +49,7 @@ class ProfileController extends Controller
 
                 $loginHistory = \Modules\AuditLogs\Models\LoginTrail::where('user_id', $user->id)
                     ->latest('created_at')
-                    ->take(5)
+                    ->take(20)
                     ->get()
                     ->map(function ($trail) {
                         return [
