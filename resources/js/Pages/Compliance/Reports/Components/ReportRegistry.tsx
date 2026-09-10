@@ -15,40 +15,38 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
     onOpenGenerate,
 }) => {
     return (
-        <div className="bg-white border border-gray-200/80 rounded-xl overflow-hidden shadow-xs">
-            <div className="px-6 py-4 border-b border-gray-200/80 bg-gray-50/50 flex items-center justify-between">
-                <div>
-                    <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
-                        Official COA Documents
-                    </h2>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                        Historical registry of generated compliance certificates and inventory audit forms.
-                    </p>
-                </div>
-                <span className="text-xs font-medium text-gray-500 font-mono">
-                    {reports.length} {reports.length === 1 ? 'document' : 'documents'} recorded
-                </span>
-            </div>
-
+        <div className="overflow-hidden">
             {reports.length > 0 ? (
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr className="border-b border-gray-200 bg-gray-50/70 text-gray-600 font-semibold uppercase tracking-wider text-[11px]">
-                                <th className="py-3 px-6">Reference</th>
-                                <th className="py-3 px-6">Type</th>
-                                <th className="py-3 px-6">Document Title</th>
-                                <th className="py-3 px-6">Coverage</th>
-                                <th className="py-3 px-6">Generated</th>
-                                <th className="py-3 px-6 text-right">Actions</th>
+                    <table className="w-full text-left border-collapse">
+                        <thead className="bg-gray-50/80 border-b border-gray-200">
+                            <tr>
+                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                                    Reference No.
+                                </th>
+                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                                    Form Type
+                                </th>
+                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                                    Document Title
+                                </th>
+                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                                    Coverage Period
+                                </th>
+                                <th className="hidden md:table-cell px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                                    Date Generated
+                                </th>
+                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono w-44">
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 text-gray-700">
+                        <tbody className="bg-white divide-y divide-gray-100">
                             {reports.map((report) => {
                                 const shortType = getReportTypeShortLabel(report.type);
                                 const coverageText =
                                     report.coverageLabel ||
-                                    (report.date ? formatDisplayDate(report.date, 'MM/DD/YYYY') : '—');
+                                    (report.date ? formatDisplayDate(report.date, 'MM/DD/YYYY') : 'All Records');
                                 const genDate =
                                     report.generatedDate ||
                                     report.createdAt ||
@@ -58,42 +56,50 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                                 return (
                                     <tr
                                         key={report.id}
-                                        className="hover:bg-gray-50/70 transition-colors group"
+                                        className="hover:bg-red-50/20 transition-colors border-b border-gray-100 last:border-0 group"
                                     >
-                                        <td className="py-3.5 px-6 font-mono font-bold text-gray-900 whitespace-nowrap">
+                                        <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-900 font-mono tracking-wide">
                                             {report.reference}
                                         </td>
-                                        <td className="py-3.5 px-6 whitespace-nowrap">
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-900 border border-red-200 font-mono">
+                                        <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-900 border border-red-200/80 font-mono">
                                                 {shortType}
                                             </span>
                                         </td>
-                                        <td className="py-3.5 px-6 font-medium text-gray-900 max-w-xs truncate">
-                                            {report.title}
+                                        <td className="px-4 lg:px-6 py-4 text-xs font-medium text-gray-900 max-w-xs truncate">
+                                            <div className="font-semibold text-gray-900 leading-tight">
+                                                {report.title}
+                                            </div>
                                             {report.supplierName && (
-                                                <span className="block text-[11px] text-gray-400 font-normal">
+                                                <div className="text-[11px] text-gray-500 mt-0.5 leading-tight">
                                                     Supplier: {report.supplierName}
-                                                </span>
+                                                </div>
                                             )}
                                         </td>
-                                        <td className="py-3.5 px-6 text-gray-600 whitespace-nowrap">
+                                        <td className="px-4 lg:px-6 py-4 text-xs text-gray-600 whitespace-nowrap font-medium">
                                             {coverageText}
                                         </td>
-                                        <td className="py-3.5 px-6 text-gray-600 whitespace-nowrap">
+                                        <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-xs text-gray-600 font-mono">
                                             {formatDisplayDate(genDate, 'MM/DD/YYYY')}
                                         </td>
-                                        <td className="py-3.5 px-6 text-right whitespace-nowrap">
-                                            <button
-                                                type="button"
-                                                onClick={() => onViewReport(report)}
-                                                className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold text-red-900 hover:text-red-950 bg-red-50/80 hover:bg-red-100 rounded-md border border-red-200/60 transition-colors"
-                                            >
-                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                                <span>View</span>
-                                            </button>
+                                        {/* Actions: View & Official COA Form (Institutional maroon & neutral outline, identical to Issuance) */}
+                                        <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right">
+                                            <div className="inline-flex items-center gap-2.5">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onViewReport(report)}
+                                                    className="text-gray-700 hover:text-red-950 font-semibold text-xs transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100"
+                                                >
+                                                    View
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onViewReport(report)}
+                                                    className="border border-red-900/30 text-red-950 hover:bg-red-50 hover:border-red-900/50 font-semibold text-xs px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
+                                                >
+                                                    COA Form
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 );
@@ -115,13 +121,16 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                     <button
                         type="button"
                         onClick={onOpenGenerate}
-                        className="mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-red-900 bg-red-50 hover:bg-red-100 rounded-md border border-red-200 transition-colors"
+                        className="mt-4 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-xs inline-flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer"
                     >
-                        <span>Generate a report now</span>
-                        <span aria-hidden="true">&rarr;</span>
+                        <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Generate Report
                     </button>
                 </div>
             )}
         </div>
     );
 };
+

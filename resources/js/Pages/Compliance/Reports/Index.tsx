@@ -117,22 +117,23 @@ export default function ReportsIndex({
 
                 <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 print:p-0">
                     <div className="print:hidden space-y-6">
-                        {/* Report Registry Actions Toolbar */}
-                        <ReportToolbar
-                            searchTerm={searchTerm}
-                            onSearchChange={setSearchTerm}
-                            selectedType={selectedType}
-                            onTypeChange={setSelectedType}
-                            onOpenGenerate={handleOpenGenerate}
-                            onOpenMigration={handleOpenMigration}
-                        />
+                        {/* Primary Official COA Documents Ledger Card */}
+                        <div className="bg-white rounded-xl shadow-2xs border border-gray-200/80 overflow-hidden">
+                            <ReportToolbar
+                                searchTerm={searchTerm}
+                                onSearchChange={setSearchTerm}
+                                selectedType={selectedType}
+                                onTypeChange={setSelectedType}
+                                onOpenGenerate={handleOpenGenerate}
+                                onOpenMigration={handleOpenMigration}
+                            />
 
-                        {/* Official Documents Registry Table */}
-                        <ReportRegistry
-                            reports={filteredReports}
-                            onViewReport={handleViewReport}
-                            onOpenGenerate={handleOpenGenerate}
-                        />
+                            <ReportRegistry
+                                reports={filteredReports}
+                                onViewReport={handleViewReport}
+                                onOpenGenerate={handleOpenGenerate}
+                            />
+                        </div>
                     </div>
                 </div>
 
