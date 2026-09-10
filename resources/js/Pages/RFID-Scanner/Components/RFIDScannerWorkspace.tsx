@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Radio } from 'lucide-react';
 import { RFIDConnectionState, RFIDInventoryItem, RFIDWorkflowState } from '../types';
 import ScannerConnectionStatus from './Scanner/ScannerConnectionStatus';
 import ScannerIdleState from './Scanner/ScannerIdleState';
@@ -66,16 +67,26 @@ export default function RFIDScannerWorkspace({
             />
 
             {/* Header: Title and Connection Indicator */}
-            <div className="flex items-center justify-between pb-4 border-b border-gray-200 mb-6">
-                <div>
-                    <h2 className="text-base font-semibold text-gray-900 font-serif tracking-tight">
-                        RFID Scanner
-                    </h2>
-                    <p className="text-xs text-gray-500">
-                        {hasSelectedItem
-                            ? 'Present physical RFID tag to handheld reader'
-                            : 'Select an inventory item to begin'}
-                    </p>
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-6">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-red-50 text-red-900 border border-red-100/80 flex items-center justify-center shrink-0 shadow-2xs">
+                        <Radio className="w-5 h-5 text-red-900" />
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <h2 className="text-base font-semibold text-gray-900 font-serif tracking-tight">
+                                RFID Reader Station
+                            </h2>
+                            <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-semibold border border-gray-200/70">
+                                Live HID Wedge
+                            </span>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                            {hasSelectedItem
+                                ? 'Armed for input: scan tag via handheld reader or type code'
+                                : 'Awaiting item selection from catalog to arm scanner'}
+                        </p>
+                    </div>
                 </div>
 
                 <ScannerConnectionStatus

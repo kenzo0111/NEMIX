@@ -1,4 +1,5 @@
 import { RFIDInventoryItem } from '../../types';
+import { CheckCircle2, ArrowRight, Eye, ShieldCheck, Radio } from 'lucide-react';
 
 interface AssignmentSuccessStateProps {
     item: RFIDInventoryItem;
@@ -16,57 +17,58 @@ export default function AssignmentSuccessState({
     onViewItem,
 }: AssignmentSuccessStateProps) {
     return (
-        <div className="text-center py-8 px-6 bg-gray-50/50 rounded-xl border border-emerald-200">
-            <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-2.5">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2.5"
-                        d="M5 13l4 4L19 7"
-                    />
-                </svg>
+        <div className="text-center py-7 px-6 bg-gradient-to-b from-emerald-50/40 via-white to-gray-50/20 rounded-xl border border-emerald-200 shadow-2xs">
+            {/* Success Icon */}
+            <div className="w-12 h-12 rounded-2xl bg-emerald-100/80 text-emerald-700 flex items-center justify-center mx-auto mb-3 border border-emerald-200 shadow-2xs">
+                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
             </div>
 
-            <h3 className="text-sm font-semibold text-emerald-950 font-serif">
-                RFID Assigned
+            <h3 className="text-base font-semibold text-emerald-950 font-serif">
+                RFID Successfully Assigned
             </h3>
 
             <p className="text-xs text-gray-600 mt-1">
-                <span className="font-mono font-bold text-gray-900">{tag}</span> has been assigned to:
+                Tag <span className="font-mono font-bold text-gray-900 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">{tag}</span> is now linked.
             </p>
 
-            <div className="my-3 bg-white p-3 rounded-lg border border-gray-200 text-left max-w-sm mx-auto shadow-2xs">
-                <p className="font-semibold text-gray-900 text-xs">{item.name}</p>
-                <p className="text-[11px] text-gray-500 font-mono mt-0.5">
-                    Property No: {item.sku || 'N/A'}
-                </p>
-                {item.supplier_name && (
-                    <p className="text-[11px] text-gray-400 mt-0.5">
-                        Supplier: {item.supplier_name}
-                    </p>
-                )}
+            {/* Linked Item Summary Box */}
+            <div className="my-4 bg-white p-3.5 rounded-xl border border-gray-200 text-left max-w-sm mx-auto shadow-2xs">
+                <div className="flex items-center justify-between text-[11px] text-gray-400 font-mono mb-1">
+                    <span>RECORD LINKED</span>
+                    <span className="text-emerald-700 font-semibold flex items-center gap-1 font-sans">
+                        <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                        Verified
+                    </span>
+                </div>
+                <p className="font-semibold text-gray-900 text-xs truncate">{item.name}</p>
+                <div className="flex items-center gap-2 text-[11px] text-gray-500 font-mono mt-1">
+                    <span>Property No:</span>
+                    <span className="text-gray-900 font-semibold">{item.sku || 'N/A'}</span>
+                </div>
             </div>
 
+            {/* CTAs */}
             <div className="mt-5 flex items-center justify-center gap-3 max-w-sm mx-auto">
                 {nextItem && (
                     <button
                         type="button"
                         onClick={onSelectNextItem}
-                        className="flex-1 py-2 px-3 bg-red-950 hover:bg-red-900 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs inline-flex items-center justify-center gap-1.5"
+                        className="flex-1 py-2.5 px-3.5 bg-red-950 hover:bg-red-900 text-white text-xs font-medium rounded-lg transition-all cursor-pointer shadow-2xs inline-flex items-center justify-center gap-1.5 active:translate-y-px"
                     >
-                        <span>Next Untagged Item</span>
-                        <span>→</span>
+                        <span>Next Item: {nextItem.name.slice(0, 14)}...</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                 )}
                 <button
                     type="button"
                     onClick={() => onViewItem(item)}
-                    className="flex-1 py-2 px-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer"
+                    className="py-2.5 px-4 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5 shadow-2xs"
                 >
-                    View Item
+                    <Eye className="w-3.5 h-3.5 text-gray-500" />
+                    <span>View Item</span>
                 </button>
             </div>
         </div>
     );
 }
+

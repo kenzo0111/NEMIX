@@ -1,3 +1,5 @@
+import { AlertCircle, RotateCcw, RefreshCw } from 'lucide-react';
+
 interface ScannerErrorStateProps {
     message: string;
     tag?: string;
@@ -12,29 +14,22 @@ export default function ScannerErrorState({
     onReset,
 }: ScannerErrorStateProps) {
     return (
-        <div className="text-center py-8 px-6 bg-red-50/50 rounded-xl border border-red-200">
-            <div className="w-10 h-10 rounded-full bg-red-100 text-red-700 flex items-center justify-center mx-auto mb-2.5">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                    />
-                </svg>
+        <div className="text-center py-7 px-6 bg-gradient-to-b from-red-50/40 via-white to-gray-50/20 rounded-xl border border-red-200 shadow-2xs">
+            <div className="w-12 h-12 rounded-2xl bg-red-100/80 text-red-700 flex items-center justify-center mx-auto mb-3 border border-red-200">
+                <AlertCircle className="w-6 h-6 text-red-700" />
             </div>
 
-            <h3 className="text-sm font-semibold text-red-950 font-serif">
-                Action Failed
+            <h3 className="text-base font-semibold text-red-950 font-serif">
+                Action Could Not Be Completed
             </h3>
 
-            <p className="text-xs text-red-800 mt-1 max-w-sm mx-auto leading-relaxed">
-                {message || 'The operation could not be completed. Please try again.'}
+            <p className="text-xs text-red-800/90 mt-1 max-w-sm mx-auto leading-relaxed">
+                {message || 'The operation could not be completed. Please verify the connection and try again.'}
             </p>
 
             {tag && (
-                <div className="mt-3 font-mono text-xs font-bold text-gray-800 bg-white px-3 py-1 rounded border border-red-200 inline-block">
-                    Tag: {tag}
+                <div className="mt-3 font-mono text-xs font-bold text-gray-800 bg-white px-3 py-1.5 rounded-lg border border-red-200 inline-block shadow-2xs">
+                    Captured Tag: {tag}
                 </div>
             )}
 
@@ -42,18 +37,21 @@ export default function ScannerErrorState({
                 <button
                     type="button"
                     onClick={onRetry}
-                    className="flex-1 py-2 px-3 bg-red-950 hover:bg-red-900 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs"
+                    className="flex-1 py-2.5 px-3.5 bg-red-950 hover:bg-red-900 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs inline-flex items-center justify-center gap-1.5"
                 >
-                    Try Again
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Try Again</span>
                 </button>
                 <button
                     type="button"
                     onClick={onReset}
-                    className="flex-1 py-2 px-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer"
+                    className="flex-1 py-2.5 px-3.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5 shadow-2xs"
                 >
-                    Reset Scanner
+                    <RotateCcw className="w-3.5 h-3.5 text-gray-500" />
+                    <span>Reset</span>
                 </button>
             </div>
         </div>
     );
 }
+

@@ -1,4 +1,5 @@
 import { RFIDConnectionState } from '../../types';
+import { Wifi, WifiOff, RefreshCw, Radio } from 'lucide-react';
 
 interface ScannerConnectionStatusProps {
     connectionState: RFIDConnectionState;
@@ -13,34 +14,41 @@ export default function ScannerConnectionStatus({
 }: ScannerConnectionStatusProps) {
     const config = {
         connected: {
-            label: 'Connected',
+            label: 'Hardware Online',
             dotClass: 'bg-emerald-500',
-            badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+            badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200/90',
+            icon: Wifi,
         },
         degraded: {
-            label: 'Degraded',
+            label: 'Signal Degraded',
             dotClass: 'bg-amber-500 animate-pulse',
-            badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
+            badgeClass: 'bg-amber-50 text-amber-800 border-amber-200/90',
+            icon: Radio,
         },
         connecting: {
             label: 'Connecting...',
             dotClass: 'bg-amber-400 animate-pulse',
-            badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
+            badgeClass: 'bg-amber-50 text-amber-800 border-amber-200/90',
+            icon: RefreshCw,
         },
         offline: {
-            label: 'Offline',
+            label: 'Reader Disconnected',
             dotClass: 'bg-gray-400',
             badgeClass: 'bg-gray-100 text-gray-600 border-gray-200',
+            icon: WifiOff,
         },
     }[connectionState];
+
+    const Icon = config.icon;
 
     return (
         <div className="flex items-center gap-2">
             <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium border ${config.badgeClass}`}
-                title={`Scanner status: ${config.label}`}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium border shadow-2xs ${config.badgeClass}`}
+                title={`Scanner hardware status: ${config.label}`}
             >
-                <span className={`w-2 h-2 rounded-full ${config.dotClass}`} />
+                <Icon className="w-3 h-3 shrink-0" />
+                <span className={`w-1.5 h-1.5 rounded-full ${config.dotClass}`} />
                 <span>{config.label}</span>
             </span>
 
@@ -49,11 +57,13 @@ export default function ScannerConnectionStatus({
                     type="button"
                     onClick={onRetry}
                     disabled={isRetrying}
-                    className="text-xs font-mono text-red-900 hover:text-red-950 font-semibold underline cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1 text-xs font-mono text-red-900 hover:text-red-950 font-semibold underline cursor-pointer disabled:opacity-50"
                 >
-                    {isRetrying ? 'Checking...' : 'Retry'}
+                    <RefreshCw className={`w-3 h-3 ${isRetrying ? 'animate-spin' : ''}`} />
+                    <span>{isRetrying ? 'Checking...' : 'Reconnect'}</span>
                 </button>
             )}
         </div>
     );
 }
+

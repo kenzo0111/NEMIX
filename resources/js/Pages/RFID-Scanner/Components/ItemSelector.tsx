@@ -66,14 +66,22 @@ export default function ItemSelector({
                                 <div className="font-medium text-gray-900 text-xs truncate">
                                     {item.name}
                                 </div>
-                                <div className="text-[11px] text-gray-500 flex items-center gap-2 mt-0.5">
-                                    <span className="font-mono">
-                                        Property No: <strong className="text-gray-700 font-semibold">{item.sku || 'N/A'}</strong>
+                                <div className="text-[11px] text-gray-500 flex items-center gap-2 mt-0.5 font-mono">
+                                    <span>
+                                        Prop: <strong className="text-gray-700 font-semibold">{item.sku || 'N/A'}</strong>
                                     </span>
+                                    {item.rfid_tag && (
+                                        <>
+                                            <span className="text-gray-300">•</span>
+                                            <span className="text-emerald-700 font-semibold truncate max-w-[110px]">
+                                                Tag: {item.rfid_tag}
+                                            </span>
+                                        </>
+                                    )}
                                     {item.supplier_name && (
                                         <>
                                             <span className="text-gray-300">•</span>
-                                            <span className="truncate max-w-[140px] text-gray-400">
+                                            <span className="truncate max-w-[130px] text-gray-400 font-sans">
                                                 {item.supplier_name}
                                             </span>
                                         </>
@@ -81,17 +89,17 @@ export default function ItemSelector({
                                 </div>
                             </div>
 
-                            {/* Minimal dot status */}
+                            {/* Crisp status pill */}
                             <span
-                                className={`shrink-0 inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium ${
+                                className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${
                                     isTagged
-                                        ? 'text-emerald-700 bg-emerald-50 border border-emerald-100'
-                                        : 'text-gray-600 bg-gray-50 border border-gray-200'
+                                        ? 'text-emerald-800 bg-emerald-50 border-emerald-200/90'
+                                        : 'text-amber-800 bg-amber-50 border-amber-200/80'
                                 }`}
                             >
                                 <span
                                     className={`w-1.5 h-1.5 rounded-full ${
-                                        isTagged ? 'bg-emerald-600' : 'bg-gray-400'
+                                        isTagged ? 'bg-emerald-600' : 'bg-amber-500'
                                     }`}
                                 />
                                 <span>{isTagged ? 'Tagged' : 'Untagged'}</span>

@@ -1,4 +1,5 @@
 import { RFIDInventoryItem } from '../../types';
+import { Radio, Keyboard, Zap, Sparkles } from 'lucide-react';
 
 interface ScannerReadyStateProps {
     item: RFIDInventoryItem;
@@ -7,37 +8,55 @@ interface ScannerReadyStateProps {
 
 export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerReadyStateProps) {
     return (
-        <div className="text-center py-10 px-4 bg-gray-50/50 rounded-xl border border-gray-200 flex flex-col items-center justify-center">
-            <div className="w-14 h-14 bg-white rounded-full border border-gray-200 shadow-2xs flex items-center justify-center mx-auto text-red-900 mb-3">
-                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="1.75"
-                        d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
-                    />
-                </svg>
+        <div className="text-center py-8 px-5 bg-gradient-to-b from-gray-50/40 via-white to-gray-50/20 rounded-xl border border-gray-200/90 flex flex-col items-center justify-center relative overflow-hidden">
+            {/* Target Item Ribbon */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-900 border border-red-100 text-xs font-medium mb-5">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-800 animate-pulse" />
+                <span>Target:</span>
+                <strong className="font-semibold truncate max-w-[200px]">{item.name}</strong>
             </div>
 
-            <h3 className="text-base font-semibold text-gray-900 font-serif">
-                Ready to Scan
-            </h3>
-            <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1 leading-relaxed">
-                Present the RFID tag to the handheld reader or point the scanner trigger at the tag.
-            </p>
+            {/* Pulsing RFID Sensor Radar Target */}
+            <div className="relative my-2 flex items-center justify-center">
+                {/* Gentle animated rings */}
+                <div className="absolute w-28 h-28 rounded-full bg-red-900/5 animate-ping pointer-events-none" style={{ animationDuration: '3s' }} />
+                <div className="absolute w-24 h-24 rounded-full bg-red-900/10 pointer-events-none" />
+                <div className="relative w-16 h-16 bg-white rounded-2xl border border-red-200 shadow-sm flex items-center justify-center text-red-900 z-10">
+                    <Radio className="w-8 h-8 text-red-900 animate-pulse" />
+                </div>
+            </div>
 
-            <div className="w-20 border-t border-gray-200 my-4" />
+            {/* Title & Status */}
+            <div className="mt-4">
+                <h3 className="text-base font-semibold text-gray-900 font-serif">
+                    Scanner Active & Listening
+                </h3>
+                <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1 leading-relaxed">
+                    Present the physical RFID card or tag to the handheld reader trigger.
+                </p>
+            </div>
 
-            <div className="text-xs text-gray-500">
-                <span>Having scanner issues? </span>
+            {/* Live listening status badge */}
+            <div className="mt-4 flex items-center gap-2 bg-emerald-50/80 px-3 py-1 rounded-full border border-emerald-200/70 text-[11px] font-mono text-emerald-800">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>USB HID Reader Synchronized</span>
+            </div>
+
+            <div className="w-32 border-t border-gray-100 my-4" />
+
+            {/* Manual entry fallback option */}
+            <div className="flex items-center justify-center gap-1.5 text-xs text-gray-500">
+                <span>Scanner unavailable?</span>
                 <button
                     type="button"
                     onClick={onOpenManualEntry}
-                    className="text-red-900 hover:text-red-950 font-medium underline cursor-pointer"
+                    className="inline-flex items-center gap-1 text-red-900 hover:text-red-950 font-medium underline cursor-pointer"
                 >
-                    Enter RFID manually
+                    <Keyboard className="w-3 h-3" />
+                    <span>Enter tag manually</span>
                 </button>
             </div>
         </div>
     );
 }
+

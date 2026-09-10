@@ -13,6 +13,19 @@ import RFIDScannerWorkspace from './Components/RFIDScannerWorkspace';
 import RFIDRecordsTable from './Components/RFIDRecordsTable';
 import UnassignRFIDModal from './Components/UnassignRFIDModal';
 
+import {
+    Package,
+    CheckCircle2,
+    Tag,
+    Radio,
+    Box,
+    ArrowRight,
+    ExternalLink,
+    ShieldCheck,
+    Check,
+    AlertCircle,
+} from 'lucide-react';
+
 declare function route(name: string, params?: any): string;
 
 interface PageProps {
@@ -39,6 +52,7 @@ export default function Index({
     recordsPagination,
     recordsFilters,
     selectedItemId = null,
+    flash,
 }: PageProps) {
     const user = auth.user;
     const [collapsed, setCollapsed] = useState(false);
@@ -98,6 +112,10 @@ export default function Index({
         }
     }, [selectedItemId, items, selectedItem, selectItem, resetScanner]);
 
+    const taggedCount = useMemo(() => items.filter((i) => Boolean(i.rfid_tag)).length, [items]);
+    const untaggedCount = items.length - taggedCount;
+    const taggedPercent = items.length > 0 ? Math.round((taggedCount / items.length) * 100) : 0;
+
     const allItemsTagged = useMemo(
         () => items.length > 0 && items.every((i) => Boolean(i.rfid_tag)),
         [items]
@@ -125,36 +143,132 @@ export default function Index({
                 />
 
                 <div className="p-6 lg:p-8 space-y-6 max-w-[1500px] mx-auto pb-16">
+                    {/* Optional Flash Notification */}
+                    {flash?.success && (
+                        <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs rounded-xl shadow-2xs">
+                            <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                            <span>{flash.success}</span>
+                        </div>
+                    )}
+                    {flash?.error && (
+                        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 text-red-900 text-xs rounded-xl shadow-2xs">
+                            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                            <span>{flash.error}</span>
+                        </div>
+                    )}
+
+                    {/* Operational Metric Overview Strip */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* 1. Total Catalog Items */}
+                        <div className="bg-white rounded-xl p-4 border border-gray-200/90 shadow-2xs flex items-center justify-between">
+                            <div>
+                                <p className="text-[11px] font-medium text-gray-500">Catalog Registry</p>
+                                <p className="text-xl font-bold font-mono text-gray-900 mt-1">
+                                    {items.length}
+                                </p>
+                                <p className="text-[10px] text-gray-400 mt-0.5">Total registered items</p>
+                            </div>
+                            <div className="w-10 h-10 rounded-xl bg-gray-50 text-gray-600 border border-gray-100 flex items-center justify-center shrink-0">
+                                <Package className="w-5 h-5 text-gray-600" />
+                            </div>
+                        </div>
+
+                        {/* 2. RFID Tagged Items */}
+                        <div className="bg-white rounded-xl p-4 border border-gray-200/90 shadow-2xs flex items-center justify-between">
+                            <div>
+                                <div className="flex items-center gap-1.5">
+                                    <p className="text-[11px] font-medium text-gray-500">Tagged & Linked</p>
+                                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/70">
+                                        {taggedPercent}%
+                                    </span>
+                                </div>
+                                <p className="text-xl font-bold font-mono text-emerald-950 mt-1">
+                                    {taggedCount}
+                                </p>
+                                <p className="text-[10px] text-gray-400 mt-0.5">Active transponders</p>
+                            </div>
+                            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center shrink-0">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                            </div>
+                        </div>
+
+                        {/* 3. Untagged Pending Items */}
+                        <div className="bg-white rounded-xl p-4 border border-gray-200/90 shadow-2xs flex items-center justify-between">
+                            <div>
+                                <p className="text-[11px] font-medium text-gray-500">Pending Tagging</p>
+                                <p className="text-xl font-bold font-mono text-amber-950 mt-1">
+                                    {untaggedCount}
+                                </p>
+                                <p className="text-[10px] text-gray-400 mt-0.5">Awaiting physical scan</p>
+                            </div>
+                            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 border border-amber-100 flex items-center justify-center shrink-0">
+                                <Tag className="w-5 h-5 text-amber-600" />
+                            </div>
+                        </div>
+
+                        {/* 4. Hardware Scanner Station */}
+                        <div className="bg-white rounded-xl p-4 border border-gray-200/90 shadow-2xs flex items-center justify-between">
+                            <div>
+                                <p className="text-[11px] font-medium text-gray-500">Hardware Reader</p>
+                                <div className="flex items-center gap-1.5 mt-1">
+                                    <span
+                                        className={`w-2 h-2 rounded-full ${
+                                            connectionState === 'connected'
+                                                ? 'bg-emerald-500'
+                                                : connectionState === 'offline'
+                                                ? 'bg-gray-400'
+                                                : 'bg-amber-500 animate-pulse'
+                                        }`}
+                                    />
+                                    <p className="text-sm font-bold font-mono text-gray-900 capitalize">
+                                        {connectionState === 'connected'
+                                            ? 'Online'
+                                            : connectionState === 'offline'
+                                            ? 'Offline'
+                                            : connectionState}
+                                    </p>
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-0.5">USB HID Wedge ready</p>
+                            </div>
+                            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-900 border border-red-100/80 flex items-center justify-center shrink-0">
+                                <Radio className="w-5 h-5 text-red-900" />
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Completion State: shown only when all items are tagged and not dismissed */}
                     {allItemsTagged && !selectedItem && !isCompletionDismissed ? (
-                        <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-xs text-center max-w-xl mx-auto space-y-3">
-                            <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto border border-emerald-100">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                </svg>
+                        <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-2xs text-center max-w-xl mx-auto space-y-3">
+                            <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto border border-emerald-200/80 shadow-2xs">
+                                <CheckCircle2 className="w-7 h-7 text-emerald-600" />
                             </div>
                             <div>
+                                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-medium border border-emerald-200 mb-2">
+                                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                                    <span>All Inventory Items Tagged</span>
+                                </div>
                                 <h2 className="text-lg font-semibold text-gray-900 font-serif">
                                     RFID Tagging Complete
                                 </h2>
-                                <p className="text-xs text-gray-500 mt-1 max-w-md mx-auto">
-                                    All current inventory items have RFID tags assigned. You may review records or proceed to receiving.
+                                <p className="text-xs text-gray-500 mt-1 max-w-md mx-auto leading-relaxed">
+                                    All current inventory items have RFID transponders assigned. You may review the records registry or proceed directly to Receiving.
                                 </p>
                             </div>
-                            <div className="pt-2 flex items-center justify-center gap-3">
+                            <div className="pt-3 flex items-center justify-center gap-3">
                                 <button
                                     type="button"
                                     onClick={() => router.visit(route('inventory.receiving'))}
-                                    className="px-4 py-2 bg-red-950 hover:bg-red-900 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs"
+                                    className="px-4 py-2.5 bg-red-950 hover:bg-red-900 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
                                 >
-                                    Proceed to Receiving →
+                                    <span>Proceed to Receiving</span>
+                                    <ArrowRight className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setIsCompletionDismissed(true)}
-                                    className="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer"
+                                    className="px-4 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs"
                                 >
-                                    Manage RFID Tags
+                                    Review Tag Registry
                                 </button>
                             </div>
                         </div>
@@ -162,30 +276,36 @@ export default function Index({
                         /* Main Two-Column Workflow Workspace */
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                             {/* LEFT COLUMN (5 cols): Selected Item and Item Search */}
-                            <div className="lg:col-span-5 bg-white rounded-xl p-6 shadow-xs border border-gray-200 flex flex-col justify-between min-h-[420px]">
+                            <div className="lg:col-span-5 bg-white rounded-xl p-6 shadow-2xs border border-gray-200/90 flex flex-col justify-between min-h-[420px]">
                                 <div>
-                                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
-                                        <div>
-                                            <h2 className="text-base font-semibold text-gray-900 font-serif tracking-tight">
-                                                Selected Item
-                                            </h2>
-                                            <p className="text-xs text-gray-500">
-                                                Select inventory item to associate with an RFID tag
-                                            </p>
+                                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-9 h-9 rounded-lg bg-red-50 text-red-950 border border-red-100/80 flex items-center justify-center shrink-0 shadow-2xs">
+                                                <Box className="w-4 h-4 text-red-950" />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-base font-semibold text-gray-900 font-serif tracking-tight">
+                                                    Selected Item
+                                                </h2>
+                                                <p className="text-xs text-gray-500">
+                                                    Select item to pair with an RFID tag
+                                                </p>
+                                            </div>
                                         </div>
                                         <button
                                             type="button"
                                             onClick={() => router.visit(route('inventory.index'))}
-                                            className="text-xs text-red-900 hover:text-red-950 font-medium hover:underline cursor-pointer"
+                                            className="inline-flex items-center gap-1 text-xs text-red-900 hover:text-red-950 font-medium hover:underline cursor-pointer"
                                         >
-                                            Manage Items →
+                                            <span>Manage</span>
+                                            <ExternalLink className="w-3 h-3" />
                                         </button>
                                     </div>
 
                                     {/* Searchable Item Selector */}
                                     <div className="mb-4">
                                         <label className="block text-xs font-medium text-gray-600 mb-1.5">
-                                            Search Item
+                                            Search Item Catalog
                                         </label>
                                         <ItemSelector
                                             items={items}
