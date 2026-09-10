@@ -1,28 +1,14 @@
 import React, { useMemo } from 'react';
 import {
     Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    PointElement,
-    LineElement,
-    Tooltip,
-    Legend,
+    registerables,
     type ChartData,
     type ChartOptions,
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
 import { MovementPoint } from '../types';
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    PointElement,
-    LineElement,
-    Tooltip,
-    Legend
-);
+ChartJS.register(...registerables);
 
 interface InventoryMovementChartProps {
     data: MovementPoint[];
