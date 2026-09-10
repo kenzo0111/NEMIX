@@ -232,23 +232,57 @@ class InventoryController extends Controller
         return redirect()->route('inventory.index')->with('success', 'Inventory item deleted successfully.');
     }
 
-    public function receiving()
+    public function receiving(Request $request)
     {
-        $receivingsQuery = ResourceOwnershipPolicy::scopeQuery(Receiving::with(['item', 'supplier']), auth()->user());
+        $search = trim($request->input('search', ''));
+        $supplierId = $request->input('supplier', '');
+
+        $receivingsQuery = ResourceOwnershipPolicy::scopeQuery(
+            Receiving::with(['item', 'supplier']),
+            auth()->user()
+        );
+
+        if ($search !== '') {
+            $receivingsQuery->where(function ($query) use ($search) {
+                $query->whereHas('item', function ($iq) use ($search) {
+                    $iq->where('name', 'like', "%{$search}%")
+                        ->orWhere('sku', 'like', "%{$search}%");
+                })
+                ->orWhereHas('supplier', function ($sq) use ($search) {
+                    $sq->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        if ($supplierId !== '' && $supplierId !== null) {
+            $receivingsQuery->where('supplier_id', $supplierId);
+        }
+
+        $paginated = $receivingsQuery
+            ->latest('date_received')
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        $transformed = $paginated->through(function ($receiving) {
+            return [
+                'id' => $receiving->id,
+                'item_id' => $receiving->item_id,
+                'supplier_id' => $receiving->supplier_id,
+                'item' => $receiving->item ? $receiving->item->name : 'N/A',
+                'sku' => $receiving->item ? $receiving->item->sku : '',
+                'quantity' => (int) $receiving->quantity,
+                'supplier' => $receiving->supplier ? $receiving->supplier->name : '',
+                'date' => $receiving->date_received ? $receiving->date_received->format('Y-m-d') : '',
+                'date_received' => $receiving->date_received ? $receiving->date_received->format('Y-m-d') : '',
+            ];
+        });
+
         $itemsQuery = ResourceOwnershipPolicy::scopeQuery(Item::with('supplier'), auth()->user());
         $suppliersQuery = ResourceOwnershipPolicy::scopeQuery(Supplier::query(), auth()->user());
 
         return Inertia::render('Inventory/Receiving', [
-            'receivings' => $receivingsQuery->get()->map(function ($receiving) {
-                return [
-                    'id' => $receiving->id,
-                    'item' => $receiving->item ? $receiving->item->name : 'N/A',
-                    'sku' => $receiving->item ? $receiving->item->sku : '',
-                    'quantity' => $receiving->quantity,
-                    'supplier' => $receiving->supplier ? $receiving->supplier->name : '',
-                    'date' => $receiving->date_received ? $receiving->date_received->format('Y-m-d') : '',
-                ];
-            }),
+            'receivings' => $transformed,
             'items' => $itemsQuery->get()->map(function ($item) {
                 return [
                     'id' => $item->id,
@@ -259,9 +293,14 @@ class InventoryController extends Controller
                     'supplier_name' => $item->supplier ? $item->supplier->name : '',
                     'description' => $item->description,
                     'unit_of_issue' => $item->unit_of_issue,
+                    'stock' => (int) $item->stock,
                 ];
             }),
             'suppliers' => $suppliersQuery->get(['id', 'name']),
+            'filters' => [
+                'search' => $search,
+                'supplier' => $supplierId ? (int) $supplierId : '',
+            ],
         ]);
     }
 
@@ -303,17 +342,18 @@ class InventoryController extends Controller
 
         $normalizedDate = $this->normalizeDate($request->date_received);
 
-        \DB::transaction(function () use ($request, $normalizedDate) {
+        DB::transaction(function () use ($request, $normalizedDate) {
+            $item = Item::where('id', $request->item_id)->lockForUpdate()->firstOrFail();
+
             $data = $request->only(['item_id', 'supplier_id', 'quantity']);
             $data['date_received'] = $normalizedDate;
             $data['created_by'] = auth()->id();
             Receiving::create($data);
 
-            $item = Item::findOrFail($request->item_id);
             if (! $item->supplier_id && $request->supplier_id) {
                 $item->supplier_id = $request->supplier_id;
             }
-            $item->stock += $request->quantity;
+            $item->stock += (int) $request->quantity;
             $this->refreshItemTotals($item);
         });
 
@@ -333,33 +373,51 @@ class InventoryController extends Controller
 
         $normalizedDate = $this->normalizeDate($request->date_received);
 
-        \DB::transaction(function () use ($request, $receiving, $normalizedDate) {
-            $oldItem = Item::findOrFail($receiving->item_id);
-            $oldQuantity = $receiving->quantity;
+        DB::transaction(function () use ($request, $receiving, $normalizedDate) {
+            $oldItemId = $receiving->item_id;
+            $oldQuantity = (int) $receiving->quantity;
+            $newQuantity = (int) $request->quantity;
+            $newItemId = (int) $request->item_id;
+
+            if ($oldItemId == $newItemId) {
+                $item = Item::where('id', $oldItemId)->lockForUpdate()->firstOrFail();
+                $diff = $newQuantity - $oldQuantity;
+
+                if ($item->stock + $diff < 0) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'quantity' => "Cannot reduce received quantity by " . abs($diff) . ". The resulting stock balance for {$item->name} would be negative (" . ($item->stock + $diff) . ").",
+                    ]);
+                }
+
+                $item->stock += $diff;
+                if (! $item->supplier_id && $request->supplier_id) {
+                    $item->supplier_id = $request->supplier_id;
+                }
+                $this->refreshItemTotals($item);
+            } else {
+                // Item changed
+                $oldItem = Item::where('id', $oldItemId)->lockForUpdate()->firstOrFail();
+                $newItem = Item::where('id', $newItemId)->lockForUpdate()->firstOrFail();
+
+                if ($oldItem->stock - $oldQuantity < 0) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'item_id' => "Cannot reassign item: reducing stock for {$oldItem->name} by {$oldQuantity} would result in a negative stock balance (" . ($oldItem->stock - $oldQuantity) . ").",
+                    ]);
+                }
+
+                $oldItem->stock -= $oldQuantity;
+                $this->refreshItemTotals($oldItem);
+
+                $newItem->stock += $newQuantity;
+                if (! $newItem->supplier_id && $request->supplier_id) {
+                    $newItem->supplier_id = $request->supplier_id;
+                }
+                $this->refreshItemTotals($newItem);
+            }
 
             $updateData = $request->only(['item_id', 'supplier_id', 'quantity']);
             $updateData['date_received'] = $normalizedDate;
             $receiving->update($updateData);
-            
-            if ($oldItem->id == $request->item_id) {
-                // Revert old quantity, apply new quantity
-                $oldItem->stock = $oldItem->stock - $oldQuantity + $request->quantity;
-                if (! $oldItem->supplier_id && $request->supplier_id) {
-                    $oldItem->supplier_id = $request->supplier_id;
-                }
-                $this->refreshItemTotals($oldItem);
-            } else {
-                // Item changed. Revert old item stock, update new item stock
-                $oldItem->stock -= $oldQuantity;
-                $this->refreshItemTotals($oldItem);
-
-                $newItem = Item::findOrFail($request->item_id);
-                if (! $newItem->supplier_id && $request->supplier_id) {
-                    $newItem->supplier_id = $request->supplier_id;
-                }
-                $newItem->stock += $request->quantity;
-                $this->refreshItemTotals($newItem);
-            }
         });
 
         return redirect()->route('inventory.receiving')->with('success', 'Receiving record updated successfully.');
@@ -369,9 +427,16 @@ class InventoryController extends Controller
     {
         ResourceOwnershipPolicy::authorize(auth()->user(), $receiving, 'created_by');
 
-        \DB::transaction(function () use ($receiving) {
-            $item = Item::findOrFail($receiving->item_id);
-            $item->stock -= $receiving->quantity;
+        DB::transaction(function () use ($receiving) {
+            $item = Item::where('id', $receiving->item_id)->lockForUpdate()->firstOrFail();
+
+            if ($item->stock - (int) $receiving->quantity < 0) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'error' => "Cannot void receiving record: current stock for {$item->name} ({$item->stock}) is less than the received quantity ({$receiving->quantity}).",
+                ]);
+            }
+
+            $item->stock -= (int) $receiving->quantity;
             $this->refreshItemTotals($item);
 
             $receiving->delete();

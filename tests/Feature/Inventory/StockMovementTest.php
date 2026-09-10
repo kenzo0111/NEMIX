@@ -142,4 +142,86 @@ class StockMovementTest extends TestCase
         $this->assertEquals(50, $this->item->stock);
         $this->assertSoftDeleted('issuances', ['id' => $issuance->id]);
     }
+
+    public function test_updating_receiving_adjusts_stock_by_difference(): void
+    {
+        $receiving = Receiving::create([
+            'item_id' => $this->item->id,
+            'supplier_id' => $this->supplier->id,
+            'quantity' => 20,
+            'date_received' => now()->toDateString(),
+            'created_by' => $this->adminUser->id,
+        ]);
+        $this->item->stock += 20;
+        $this->item->save();
+
+        // Increase receiving from 20 to 35 (+15 diff)
+        $response = $this->actingAs($this->adminUser)->put(route('inventory.receiving.update', $receiving), [
+            'item_id' => $this->item->id,
+            'supplier_id' => $this->supplier->id,
+            'quantity' => 35,
+            'date_received' => now()->toDateString(),
+        ]);
+
+        $response->assertRedirect(route('inventory.receiving'));
+        $this->item->refresh();
+        $this->assertEquals(85, $this->item->stock); // 70 + 15 = 85
+
+        // Decrease receiving from 35 to 25 (-10 diff)
+        $response = $this->actingAs($this->adminUser)->put(route('inventory.receiving.update', $receiving), [
+            'item_id' => $this->item->id,
+            'supplier_id' => $this->supplier->id,
+            'quantity' => 25,
+            'date_received' => now()->toDateString(),
+        ]);
+
+        $response->assertRedirect(route('inventory.receiving'));
+        $this->item->refresh();
+        $this->assertEquals(75, $this->item->stock); // 85 - 10 = 75
+    }
+
+    public function test_updating_receiving_prevents_negative_resulting_stock(): void
+    {
+        $receiving = Receiving::create([
+            'item_id' => $this->item->id,
+            'supplier_id' => $this->supplier->id,
+            'quantity' => 50,
+            'date_received' => now()->toDateString(),
+            'created_by' => $this->adminUser->id,
+        ]);
+        // Set item current stock to 10 (e.g., 40 were already issued)
+        $this->item->stock = 10;
+        $this->item->save();
+
+        // Attempt to reduce receiving from 50 to 10 (diff = -40, but stock is only 10, resulting in -30)
+        $response = $this->actingAs($this->adminUser)->put(route('inventory.receiving.update', $receiving), [
+            'item_id' => $this->item->id,
+            'supplier_id' => $this->supplier->id,
+            'quantity' => 10,
+            'date_received' => now()->toDateString(),
+        ]);
+
+        $response->assertSessionHasErrors(['quantity']);
+        $this->item->refresh();
+        $this->assertEquals(10, $this->item->stock);
+    }
+
+    public function test_receiving_index_supports_search_and_supplier_filtering(): void
+    {
+        Receiving::create([
+            'item_id' => $this->item->id,
+            'supplier_id' => $this->supplier->id,
+            'quantity' => 10,
+            'date_received' => now()->toDateString(),
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        $response = $this->actingAs($this->adminUser)->get(route('inventory.receiving', [
+            'search' => 'Tape',
+            'supplier' => $this->supplier->id,
+        ]));
+
+        $response->assertOk();
+    }
 }
+
