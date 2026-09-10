@@ -80,9 +80,9 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
                 <button
                     type="button"
                     onClick={onScanRfid}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3.5 py-2 border border-red-900 text-red-900 hover:bg-red-50 active:bg-red-100 rounded-md font-semibold text-xs transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3.5 py-2 border border-red-900/30 text-red-950 hover:bg-red-50 hover:border-red-900/50 rounded-md font-semibold text-xs transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
                 >
-                    <svg className="w-4 h-4 text-red-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-red-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -93,11 +93,11 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
                     Scan RFID
                 </button>
 
-                {/* Record Receiving Button (Primary Maroon) */}
+                {/* Record Receiving Button (Primary Institutional Maroon) */}
                 <button
                     type="button"
                     onClick={onRecordReceiving}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-900 hover:bg-red-950 active:bg-red-900 text-white rounded-md font-semibold text-xs transition-colors shadow-xs cursor-pointer whitespace-nowrap"
+                    className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer"
                 >
                     <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />

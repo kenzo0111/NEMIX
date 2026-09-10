@@ -39,22 +39,24 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
                 {formatDisplayDate(receiving.date || receiving.date_received, 'MM/DD/YYYY') || receiving.date}
             </td>
 
-            {/* Direct Row Actions: View and Update only (University Maroon Palette) */}
-            <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-2">
-                <button
-                    type="button"
-                    onClick={() => onView(receiving)}
-                    className="text-gray-700 hover:text-red-900 font-semibold px-2 py-1 transition-colors"
-                >
-                    View
-                </button>
-                <button
-                    type="button"
-                    onClick={() => onUpdate(receiving)}
-                    className="inline-flex items-center px-2.5 py-1 border border-red-900 text-red-900 hover:bg-red-50 rounded-md font-semibold text-xs transition-colors shadow-2xs"
-                >
-                    Update
-                </button>
+            {/* Direct Row Actions: View and Update only (Institutional Maroon Palette) */}
+            <td className="px-6 py-4 whitespace-nowrap text-right">
+                <div className="inline-flex items-center gap-2.5">
+                    <button
+                        type="button"
+                        onClick={() => onView(receiving)}
+                        className="text-gray-700 hover:text-red-950 font-semibold text-xs transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100"
+                    >
+                        View
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => onUpdate(receiving)}
+                        className="border border-red-900/30 text-red-950 hover:bg-red-50 hover:border-red-900/50 font-semibold text-xs px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
+                    >
+                        Update
+                    </button>
+                </div>
             </td>
         </tr>
     );
