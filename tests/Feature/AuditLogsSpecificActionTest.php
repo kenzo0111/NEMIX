@@ -289,7 +289,8 @@ class AuditLogsSpecificActionTest extends TestCase
         $logs = $response->viewData('page')['props']['logs'];
         $this->assertNotEmpty($logs);
 
-        $actions = collect($logs)->pluck('action')->all();
+        $items = isset($logs['data']) ? $logs['data'] : (method_exists($logs, 'items') ? $logs->items() : $logs);
+        $actions = collect($items)->pluck('action')->all();
         $this->assertContains('Added Inventory Item', $actions);
     }
 }
