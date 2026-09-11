@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateSystemSettingsRequest;
 use App\Models\SystemConfiguration;
 use App\Models\SystemSetting;
 use Illuminate\Http\RedirectResponse;
@@ -17,21 +18,22 @@ use Modules\AuditLogs\Models\TransactionTrail;
 class SystemSettingController extends Controller
 {
     /**
-     * Authorize that the current authenticated user is a System Administrator.
+     * Authorize that the current authenticated user is a System Administrator or holds required permission.
      */
-    protected function authorizeSystemAdmin(Request $request): void
+    protected function authorizeSystemAdmin(Request $request, string $permission = 'system.settings.index'): void
     {
         $user = $request->user();
 
-        $isSystemAdmin = $user && (
+        $isAuthorized = $user && (
             (method_exists($user, 'isSystemAdmin') && $user->isSystemAdmin()) ||
             $user->hasRole('System Admin') ||
             $user->hasRole('System Administrator') ||
             ($user->role ?? null) === 'System Admin' ||
-            ($user->role ?? null) === 'System Administrator'
+            ($user->role ?? null) === 'System Administrator' ||
+            (method_exists($user, 'can') && $user->can($permission))
         );
 
-        if (! $isSystemAdmin) {
+        if (! $isAuthorized) {
             abort(403, 'Unauthorized. Access to System Settings is restricted to System Administrators.');
         }
     }
@@ -41,7 +43,7 @@ class SystemSettingController extends Controller
      */
     public function index(Request $request): Response
     {
-        $this->authorizeSystemAdmin($request);
+        $this->authorizeSystemAdmin($request, 'system.settings.index');
 
         $groupedSettings = SystemSetting::getAllGrouped();
         $sysConfig = SystemConfiguration::current();
@@ -65,23 +67,22 @@ class SystemSettingController extends Controller
     /**
      * Update system settings.
      */
-    public function update(Request $request): RedirectResponse
+    public function update(UpdateSystemSettingsRequest $request): RedirectResponse
     {
-        $this->authorizeSystemAdmin($request);
+        $this->authorizeSystemAdmin($request, 'system.settings.update');
 
-        $validated = $request->validate([
-            'settings' => ['required', 'array'],
-            'settings.*' => ['nullable'],
-        ]);
+        $settingsData = $request->settingsData();
 
         $updatedKeys = [];
-        $settingsData = $validated['settings'];
+        $auditDiffs = [];
 
-        DB::transaction(function () use ($settingsData, &$updatedKeys) {
+        DB::transaction(function () use ($settingsData, &$updatedKeys, &$auditDiffs) {
             foreach ($settingsData as $key => $val) {
                 $setting = SystemSetting::where('key', $key)->first();
 
                 if ($setting) {
+                    $oldVal = SystemSetting::castValue($setting->value, $setting->data_type);
+
                     // Normalize value based on type
                     $encodedValue = match ($setting->data_type) {
                         'integer' => json_encode((int) $val),
@@ -96,6 +97,21 @@ class SystemSettingController extends Controller
                     ]);
 
                     $updatedKeys[] = $key;
+
+                    // Track audit diff (omitting any potentially sensitive keys)
+                    $isSensitive = str_contains(strtolower($key), 'secret') ||
+                                   str_contains(strtolower($key), 'password') ||
+                                   str_contains(strtolower($key), 'token');
+
+                    if ($isSensitive) {
+                        $auditDiffs[] = "{$key}: [REDACTED]";
+                    } else {
+                        $oldDisplay = is_array($oldVal) ? json_encode($oldVal) : (is_bool($oldVal) ? ($oldVal ? 'true' : 'false') : (string) $oldVal);
+                        $newDisplay = is_array($val) ? json_encode($val) : (is_bool($val) ? ($val ? 'true' : 'false') : (string) $val);
+                        if ($oldDisplay !== $newDisplay) {
+                            $auditDiffs[] = "{$key}: {$oldDisplay} → {$newDisplay}";
+                        }
+                    }
                 }
             }
         });
@@ -107,12 +123,16 @@ class SystemSettingController extends Controller
         try {
             if (class_exists(TransactionTrail::class)) {
                 $user = $request->user();
+                $diffSummary = count($auditDiffs) > 0
+                    ? ' Changes: ' . implode('; ', array_slice($auditDiffs, 0, 5)) . (count($auditDiffs) > 5 ? '...' : '')
+                    : '';
+
                 TransactionTrail::create([
                     'user_id' => $user?->id,
                     'module' => 'System Settings',
                     'action' => 'Consumables Settings Updated',
                     'resource_ref' => 'CONFIG-BATCH-' . count($updatedKeys),
-                    'details' => "Updated " . count($updatedKeys) . " configuration parameter(s) by {$user?->name} ({$user?->email}). IP: " . $request->ip(),
+                    'details' => "Updated " . count($updatedKeys) . " configuration parameter(s) by {$user?->name} ({$user?->email}). IP: " . $request->ip() . '.' . $diffSummary,
                     'status' => 'Verified',
                 ]);
             }
@@ -128,7 +148,7 @@ class SystemSettingController extends Controller
      */
     public function testEmail(Request $request): RedirectResponse
     {
-        $this->authorizeSystemAdmin($request);
+        $this->authorizeSystemAdmin($request, 'system.settings.test-email');
 
         $validated = $request->validate([
             'recipient' => ['nullable', 'email'],
@@ -157,7 +177,7 @@ class SystemSettingController extends Controller
      */
     public function exportBackup(Request $request)
     {
-        $this->authorizeSystemAdmin($request);
+        $this->authorizeSystemAdmin($request, 'system.settings.backup');
 
         $data = [
             'exported_at' => now()->toIso8601String(),

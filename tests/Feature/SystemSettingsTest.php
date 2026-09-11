@@ -166,4 +166,32 @@ class SystemSettingsTest extends TestCase
 
         $this->assertEquals('Low Stock', $item->fresh()->status);
     }
+
+    public function test_cannot_set_critical_stock_threshold_higher_than_low_stock(): void
+    {
+        $response = $this->actingAs($this->adminUser)->post('/admin/system-settings', [
+            'settings' => [
+                'inventory.low_stock_threshold' => 10,
+                'inventory.critical_stock_threshold' => 15,
+            ],
+        ]);
+
+        $response->assertSessionHasErrors('settings.inventory.critical_stock_threshold');
+    }
+
+    public function test_can_update_recognized_units_of_issue(): void
+    {
+        $response = $this->actingAs($this->adminUser)->post('/admin/system-settings', [
+            'settings' => [
+                'inventory.units_of_issue' => ['box', 'ream', 'carton', 'bundle'],
+            ],
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $units = SystemSetting::get('inventory.units_of_issue');
+        $this->assertIsArray($units);
+        $this->assertContains('carton', $units);
+    }
 }
