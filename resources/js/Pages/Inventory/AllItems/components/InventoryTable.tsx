@@ -33,23 +33,26 @@ export default function InventoryTable({
     return (
         <div className="w-full overflow-hidden">
             <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[800px]">
+                <table className="w-full text-left border-collapse min-w-[850px]">
                     <thead className="bg-gray-50/80 border-b border-gray-200">
                         <tr>
+                            <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                                Stock No.
+                            </th>
                             <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
                                 Item
                             </th>
                             <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
-                                Supplier
+                                Description
                             </th>
                             <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
                                 Unit
                             </th>
                             <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
-                                Stock
+                                On Hand
                             </th>
                             <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
-                                Unit Cost
+                                Inventory Value
                             </th>
                             <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
                                 Status
@@ -62,7 +65,7 @@ export default function InventoryTable({
                     <tbody className="bg-white divide-y divide-gray-100">
                         {items.length === 0 ? (
                             <tr>
-                                <td colSpan={7} className="px-6 py-16 text-center text-gray-500">
+                                <td colSpan={8} className="px-6 py-16 text-center text-gray-500">
                                     <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
                                         <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3">
                                             <PackageOpen className="w-6 h-6" />

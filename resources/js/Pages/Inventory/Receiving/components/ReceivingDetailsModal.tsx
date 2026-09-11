@@ -75,7 +75,37 @@ export const ReceivingDetailsModal: React.FC<ReceivingDetailsModalProps> = ({
                             <dt className="font-semibold text-gray-500 uppercase tracking-wider">Quantity Received</dt>
                             <dd className="mt-1 font-semibold text-gray-900 sm:col-span-2 sm:mt-0 font-mono">
                                 <span className="text-emerald-700 mr-1">+</span>
-                                {receiving.quantity} pcs
+                                {receiving.quantity} {receiving.unit || 'pcs'}
+                            </dd>
+                        </div>
+                        <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
+                            <dt className="font-semibold text-gray-500 uppercase tracking-wider">Batch Remaining</dt>
+                            <dd className="mt-1 font-semibold sm:col-span-2 sm:mt-0 font-mono">
+                                {receiving.quantity_remaining !== null && receiving.quantity_remaining !== undefined ? (
+                                    <span className={receiving.quantity_remaining > 0 ? 'text-emerald-700' : 'text-gray-500'}>
+                                        {receiving.quantity_remaining} {receiving.unit || 'pcs'}
+                                    </span>
+                                ) : (
+                                    <span className="text-gray-400">N/A</span>
+                                )}
+                            </dd>
+                        </div>
+                        <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
+                            <dt className="font-semibold text-gray-500 uppercase tracking-wider">Unit Cost</dt>
+                            <dd className="mt-1 font-mono text-gray-900 sm:col-span-2 sm:mt-0">
+                                {receiving.unit_cost !== null && receiving.unit_cost !== undefined
+                                    ? `₱${Number(receiving.unit_cost).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                    : 'N/A'}
+                            </dd>
+                        </div>
+                        <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
+                            <dt className="font-semibold text-gray-500 uppercase tracking-wider">Batch Value</dt>
+                            <dd className="mt-1 font-mono font-bold text-gray-900 sm:col-span-2 sm:mt-0">
+                                {receiving.amount !== null && receiving.amount !== undefined
+                                    ? `₱${Number(receiving.amount).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                    : receiving.unit_cost
+                                    ? `₱${(Number(receiving.unit_cost) * receiving.quantity).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                    : 'N/A'}
                             </dd>
                         </div>
                         <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4">

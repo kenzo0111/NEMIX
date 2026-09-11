@@ -1,10 +1,11 @@
 import React from 'react';
 import Modal from '@/Components/Modal';
 import { Link } from '@inertiajs/react';
-import { X, Edit3, Tag, Package } from 'lucide-react';
+import { X, Edit3, Tag, Package, History, Layers } from 'lucide-react';
 import { InventoryItem } from '../types';
 import { formatCurrency, formatNumber } from '../utils/inventory';
 import InventoryStatus from './InventoryStatus';
+import { formatDisplayDate } from '@/utils/dateUtils';
 
 interface InventoryDetailsModalProps {
     show: boolean;
@@ -21,8 +22,11 @@ export default function InventoryDetailsModal({
 }: InventoryDetailsModalProps) {
     if (!item) return null;
 
+    const batches = item.receiving_batches || [];
+    const recentIssuances = item.recent_issuances || [];
+
     return (
-        <Modal show={show} onClose={onClose} maxWidth="2xl">
+        <Modal show={show} onClose={onClose} maxWidth="3xl">
             <div className="relative bg-white rounded-lg shadow-xl overflow-hidden border border-gray-200">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-red-950" />
@@ -35,10 +39,10 @@ export default function InventoryDetailsModal({
                         </div>
                         <div>
                             <h3 className="text-base font-bold text-gray-900 tracking-tight font-serif">
-                                Item Details
+                                Item Master Record
                             </h3>
                             <p className="text-xs text-gray-500 font-medium">
-                                Official university consumable inventory and property record.
+                                Standardized consumable inventory identity and batch ledger.
                             </p>
                         </div>
                     </div>
@@ -52,116 +56,232 @@ export default function InventoryDetailsModal({
                     </button>
                 </div>
 
-                {/* Modal Body / Record Attributes */}
-                <div className="p-6 space-y-5">
-                    {/* Primary Identifier Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-gray-100">
-                        <div>
-                            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-mono">
-                                Item Name
-                            </dt>
-                            <dd className="mt-1 text-base font-bold text-gray-900">
-                                {item.name}
-                            </dd>
-                        </div>
-                        <div>
-                            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-mono">
-                                SKU / Code
-                            </dt>
-                            <dd className="mt-1 text-sm font-mono font-medium text-gray-800 bg-gray-50 px-2 py-1 rounded border border-gray-200 inline-block">
-                                {item.sku || 'N/A'}
-                            </dd>
-                        </div>
-                    </div>
-
-                    {/* Secondary Attributes Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        <div>
-                            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-mono">
-                                Supplier
-                            </dt>
-                            <dd className="mt-1 text-xs font-medium text-gray-800">
-                                {item.supplier?.name || 'No Supplier Assigned'}
-                            </dd>
+                {/* Modal Body */}
+                <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+                    {/* 1. ITEM INFORMATION SECTION */}
+                    <div>
+                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                            <Package className="w-4 h-4 text-red-900" />
+                            <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                                Item Information
+                            </h4>
                         </div>
 
-                        <div>
-                            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-mono">
-                                Unit of Issue
-                            </dt>
-                            <dd className="mt-1 text-xs font-medium text-gray-800 uppercase font-mono">
-                                {item.unit_of_issue || '—'}
-                            </dd>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 bg-gray-50/60 p-4 rounded-lg border border-gray-100">
+                            <div>
+                                <dt className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider font-mono">
+                                    Stock Number
+                                </dt>
+                                <dd className="mt-1 text-sm font-mono font-bold text-gray-900">
+                                    <span className="bg-white px-2 py-0.5 rounded border border-gray-200 inline-block">
+                                        {item.sku || item.stock_no || 'N/A'}
+                                    </span>
+                                </dd>
+                            </div>
+
+                            <div>
+                                <dt className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider font-mono">
+                                    Unit of Issue
+                                </dt>
+                                <dd className="mt-1 text-sm font-medium text-gray-800 uppercase font-mono">
+                                    {item.unit_of_issue || item.unit || '—'}
+                                </dd>
+                            </div>
+
+                            <div>
+                                <dt className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider font-mono">
+                                    Total On Hand
+                                </dt>
+                                <dd className="mt-1 text-sm font-bold text-gray-900 font-mono">
+                                    {formatNumber(item.on_hand ?? item.stock)}{' '}
+                                    <span className="text-gray-500 text-xs font-normal font-sans">
+                                        {item.unit_of_issue ? item.unit_of_issue.toLowerCase() : 'units'}
+                                    </span>
+                                </dd>
+                            </div>
+
+                            <div>
+                                <dt className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider font-mono">
+                                    Inventory Value
+                                </dt>
+                                <dd className="mt-1 text-sm font-bold text-emerald-800 font-mono">
+                                    {formatCurrency(item.inventory_value ?? item.amount)}
+                                </dd>
+                            </div>
                         </div>
 
-                        <div>
-                            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-mono">
-                                Inventory Status
-                            </dt>
-                            <dd className="mt-1">
-                                <InventoryStatus status={item.status} />
-                            </dd>
-                        </div>
+                        {/* Item Name & Full Specifications */}
+                        <div className="mt-3 grid grid-cols-1 gap-3">
+                            <div>
+                                <dt className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider font-mono">
+                                    Item Name
+                                </dt>
+                                <dd className="mt-0.5 text-base font-bold text-gray-900">
+                                    {item.name}
+                                </dd>
+                            </div>
 
-                        <div>
-                            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-mono">
-                                Stock Level
-                            </dt>
-                            <dd className="mt-1 text-sm font-semibold text-gray-900 font-mono">
-                                {formatNumber(item.stock)} units
-                            </dd>
-                        </div>
+                            <div>
+                                <dt className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider font-mono">
+                                    Specifications / Description
+                                </dt>
+                                <dd className="mt-0.5 text-xs text-gray-700 whitespace-pre-wrap bg-gray-50/50 p-2.5 rounded border border-gray-100">
+                                    {item.description || 'No detailed specifications or notes recorded.'}
+                                </dd>
+                            </div>
 
-                        <div>
-                            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-mono">
-                                Unit Cost
-                            </dt>
-                            <dd className="mt-1 text-sm font-medium text-gray-800 font-mono">
-                                {formatCurrency(item.unit_cost)}
-                            </dd>
-                        </div>
-
-                        <div>
-                            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-mono">
-                                Total Amount
-                            </dt>
-                            <dd className="mt-1 text-sm font-bold text-gray-900 font-mono">
-                                {formatCurrency(item.amount)}
-                            </dd>
-                        </div>
-                    </div>
-
-                    {/* RFID Tag Value */}
-                    <div className="pt-3 border-t border-gray-100">
-                        <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-mono">
-                            RFID Identification Tag
-                        </dt>
-                        <dd className="mt-1">
                             {item.rfid_tag ? (
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-mono font-semibold bg-red-950/5 text-red-950 border border-red-900/10">
-                                    <Tag className="w-3.5 h-3.5" />
-                                    <span>{item.rfid_tag}</span>
-                                </span>
-                            ) : (
-                                <span className="text-xs text-gray-500 font-normal">
-                                    No RFID tag assigned to this item.
-                                </span>
-                            )}
-                        </dd>
+                                <div>
+                                    <dt className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider font-mono">
+                                        RFID Identification Tag
+                                    </dt>
+                                    <dd className="mt-0.5">
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-mono font-semibold bg-red-950/5 text-red-950 border border-red-900/10">
+                                            <Tag className="w-3.5 h-3.5" />
+                                            <span>{item.rfid_tag}</span>
+                                        </span>
+                                    </dd>
+                                </div>
+                            ) : null}
+                        </div>
                     </div>
 
-                    {/* Full Description */}
-                    <div className="pt-3 border-t border-gray-100">
-                        <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-mono">
-                            Full Specifications / Description
-                        </dt>
-                        <dd className="mt-1 text-xs text-gray-700 whitespace-pre-wrap leading-relaxed bg-gray-50/70 p-3 rounded border border-gray-100 min-h-[60px]">
-                            {item.description || 'No detailed specifications or notes recorded.'}
-                        </dd>
+                    {/* 2. RECEIVING HISTORY / BATCHES SECTION */}
+                    <div>
+                        <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
+                            <div className="flex items-center gap-2">
+                                <Layers className="w-4 h-4 text-red-900" />
+                                <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                                    Receiving History & Active Batches
+                                </h4>
+                            </div>
+                            <span className="text-xs text-gray-500 font-mono">
+                                {batches.length} {batches.length === 1 ? 'batch' : 'batches'} recorded
+                            </span>
+                        </div>
+
+                        {batches.length === 0 ? (
+                            <div className="text-center py-6 px-4 bg-gray-50/50 rounded-lg border border-dashed border-gray-200 text-gray-500">
+                                <p className="text-xs font-medium">No separate receiving batches recorded yet.</p>
+                                <p className="text-[11px] text-gray-400 mt-1">
+                                    Use the Receiving module to record incoming shipments from suppliers.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto rounded border border-gray-200">
+                                <table className="w-full text-left border-collapse min-w-[500px]">
+                                    <thead className="bg-gray-50 border-b border-gray-200">
+                                        <tr>
+                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono">
+                                                Date
+                                            </th>
+                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono">
+                                                Supplier
+                                            </th>
+                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono text-right">
+                                                Received
+                                            </th>
+                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono text-right">
+                                                Remaining
+                                            </th>
+                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono text-right">
+                                                Unit Cost
+                                            </th>
+                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono text-right">
+                                                Batch Value
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-100 text-xs">
+                                        {batches.map((batch) => (
+                                            <tr key={batch.id} className="hover:bg-gray-50/50">
+                                                <td className="px-4 py-2.5 font-mono text-gray-600">
+                                                    {formatDisplayDate(batch.date_received, 'MM/DD/YYYY') || batch.date_received}
+                                                </td>
+                                                <td className="px-4 py-2.5 font-medium text-gray-800">
+                                                    {batch.supplier_name}
+                                                </td>
+                                                <td className="px-4 py-2.5 text-right font-mono text-gray-700">
+                                                    {formatNumber(batch.quantity_received)}
+                                                </td>
+                                                <td className="px-4 py-2.5 text-right font-mono font-semibold">
+                                                    <span className={batch.quantity_remaining > 0 ? 'text-emerald-700' : 'text-gray-400'}>
+                                                        {formatNumber(batch.quantity_remaining)}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-2.5 text-right font-mono text-gray-700">
+                                                    {formatCurrency(batch.unit_cost)}
+                                                </td>
+                                                <td className="px-4 py-2.5 text-right font-mono font-bold text-gray-900">
+                                                    {formatCurrency(batch.batch_value)}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
+
+                    {/* 3. RECENT ISSUANCE SECTION */}
+                    {recentIssuances.length > 0 ? (
+                        <div>
+                            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                                <History className="w-4 h-4 text-red-900" />
+                                <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                                    Recent Issuance Allocations
+                                </h4>
+                            </div>
+
+                            <div className="overflow-x-auto rounded border border-gray-200">
+                                <table className="w-full text-left border-collapse min-w-[500px]">
+                                    <thead className="bg-gray-50 border-b border-gray-200">
+                                        <tr>
+                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono">
+                                                Date
+                                            </th>
+                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono">
+                                                RIS Reference
+                                            </th>
+                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono">
+                                                Recipient / Office
+                                            </th>
+                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono text-right">
+                                                Quantity
+                                            </th>
+                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono text-right">
+                                                Issued Value
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-100 text-xs">
+                                        {recentIssuances.map((iss) => (
+                                            <tr key={iss.id} className="hover:bg-gray-50/50">
+                                                <td className="px-4 py-2 font-mono text-gray-600">
+                                                    {formatDisplayDate(iss.date_issued, 'MM/DD/YYYY') || iss.date_issued}
+                                                </td>
+                                                <td className="px-4 py-2 font-mono font-semibold text-gray-800">
+                                                    {iss.ris_number}
+                                                </td>
+                                                <td className="px-4 py-2 text-gray-700">
+                                                    {iss.recipient}
+                                                </td>
+                                                <td className="px-4 py-2 text-right font-mono text-red-700 font-semibold">
+                                                    -{formatNumber(iss.quantity)}
+                                                </td>
+                                                <td className="px-4 py-2 text-right font-mono font-bold text-gray-800">
+                                                    {formatCurrency(iss.amount)}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ) : null}
                 </div>
 
-                {/* Modal Footer Actions */}
+                {/* Modal Footer */}
                 <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-wrap items-center justify-between gap-3">
                     <button
                         type="button"
@@ -189,7 +309,7 @@ export default function InventoryDetailsModal({
                             className="px-4 py-2 text-xs font-semibold text-white bg-red-950 hover:bg-red-900 rounded-md transition-colors inline-flex items-center gap-1.5 shadow-xs"
                         >
                             <Edit3 className="w-3.5 h-3.5" />
-                            <span>Edit Item</span>
+                            <span>Edit Item Identity</span>
                         </button>
                     </div>
                 </div>

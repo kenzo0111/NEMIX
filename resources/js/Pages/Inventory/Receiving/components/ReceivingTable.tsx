@@ -36,10 +36,19 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                                 Item Received
                             </th>
                             <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">
-                                Quantity
-                            </th>
-                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">
                                 Supplier
+                            </th>
+                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono">
+                                Received
+                            </th>
+                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono">
+                                Remaining
+                            </th>
+                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono">
+                                Unit Cost
+                            </th>
+                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono">
+                                Batch Amount
                             </th>
                             <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 uppercase font-mono">
                                 Date Received
@@ -52,7 +61,7 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                     <tbody className="bg-white divide-y divide-gray-100">
                         {receivings.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
                                     <div className="flex flex-col items-center justify-center">
                                         <svg
                                             className="w-10 h-10 text-gray-300 mb-2"

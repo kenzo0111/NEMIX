@@ -44,6 +44,32 @@ class Receiving extends Model
         return $this->belongsTo(\Modules\Suppliers\Models\Supplier::class);
     }
 
+    public function batch()
+    {
+        return $this->hasOne(InventoryBatch::class, 'receiving_id');
+    }
+
+    public function getUnitCostAttribute(): float
+    {
+        if ($this->batch) {
+            return (float) $this->batch->unit_cost;
+        }
+        return (float) ($this->item?->unit_cost ?? 0.00);
+    }
+
+    public function getQuantityRemainingAttribute(): int
+    {
+        if ($this->batch) {
+            return (int) $this->batch->quantity_remaining;
+        }
+        return (int) $this->quantity;
+    }
+
+    public function getAmountAttribute(): float
+    {
+        return round((float) $this->quantity * (float) $this->unit_cost, 2);
+    }
+
     /**
      * Get the user who recorded the receiving.
      */

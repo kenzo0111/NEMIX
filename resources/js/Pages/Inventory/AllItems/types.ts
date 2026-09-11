@@ -12,19 +12,45 @@ export interface Supplier {
 
 export type InventoryStatus = 'Available' | 'Low Stock' | 'Out of Stock';
 
+export interface ReceivingBatchRecord {
+    id: number;
+    supplier_id: number;
+    supplier_name: string;
+    quantity_received: number;
+    quantity_remaining: number;
+    unit_cost: number;
+    batch_value: number;
+    date_received: string;
+}
+
+export interface RecentIssuanceRecord {
+    id: number;
+    ris_number: string;
+    date_issued: string;
+    quantity: number;
+    amount: number;
+    recipient: string;
+}
+
 export interface InventoryItem {
     id: number;
     name: string;
     sku: string;
-    supplier_id: number | null;
+    stock_no?: string;
+    supplier_id?: number | null;
     supplier?: Supplier | null;
     stock: number;
-    unit_cost: number | string;
-    amount: number | string;
+    on_hand?: number;
+    unit_cost?: number | string;
+    amount?: number | string;
+    inventory_value?: number;
     status: InventoryStatus;
     description?: string | null;
     unit_of_issue?: string | null;
+    unit?: string | null;
     rfid_tag?: string | null;
+    receiving_batches?: ReceivingBatchRecord[];
+    recent_issuances?: RecentIssuanceRecord[];
 }
 
 export interface PaginationMeta {

@@ -402,6 +402,10 @@ export default function AllItemsIndex({
                     }
                 }}
                 onSubmit={handleFormSubmit}
+                onViewExistingItem={(item) => {
+                    setIsFormOpen(false);
+                    setViewItem(item);
+                }}
             />
 
             {/* Delete Confirmation Modal */}

@@ -31,7 +31,7 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
     onSubmit,
 }) => {
     return (
-        <Modal show={show} onClose={() => !processing && onClose()} maxWidth="md" closeable={!processing}>
+        <Modal show={show} onClose={() => !processing && onClose()} maxWidth="lg" closeable={!processing}>
             <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
                 {/* Thin Maroon Accent Header */}
                 <div className="h-1 bg-red-900 w-full" />

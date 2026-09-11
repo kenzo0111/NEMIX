@@ -34,4 +34,9 @@ class IssuanceItem extends Model
     {
         return $this->belongsTo(Item::class);
     }
+
+    public function allocations()
+    {
+        return $this->hasMany(IssuanceBatchAllocation::class, 'issuance_item_id');
+    }
 }

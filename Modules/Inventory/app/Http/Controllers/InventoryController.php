@@ -4,44 +4,73 @@ namespace Modules\Inventory\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Modules\Inventory\Models\Item;
-use Modules\Inventory\Models\Receiving;
-use Modules\Inventory\Models\Issuance;
-use Modules\Inventory\Models\IssuanceItem;
-use Modules\Inventory\Http\Requests\StoreIssuanceRequest;
-use Modules\Suppliers\Models\Supplier;
+use App\Policies\ResourceOwnershipPolicy;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Modules\Inventory\Http\Requests\StoreIssuanceRequest;
+use Modules\Inventory\Models\InventoryBatch;
+use Modules\Inventory\Models\Issuance;
+use Modules\Inventory\Models\IssuanceItem;
+use Modules\Inventory\Models\Item;
+use Modules\Inventory\Models\Receiving;
+use Modules\Inventory\Services\InventoryBalanceService;
+use Modules\Inventory\Services\InventoryCostingService;
+use Modules\Inventory\Services\InventoryDuplicateDetectionService;
+use Modules\Inventory\Services\InventoryIssuanceService;
+use Modules\Inventory\Services\InventoryReceivingService;
 use Modules\Inventory\Services\InventoryService;
-use Modules\Inventory\DTOs\InventoryItemDTO;
-use Carbon\Carbon;
-
-use App\Policies\ResourceOwnershipPolicy;
+use Modules\Suppliers\Models\Supplier;
 
 class InventoryController extends Controller
 {
-    protected $inventoryService;
+    public function __construct(
+        protected InventoryService $inventoryService,
+        protected InventoryReceivingService $receivingService,
+        protected InventoryIssuanceService $issuanceService,
+        protected InventoryBalanceService $balanceService,
+        protected InventoryDuplicateDetectionService $duplicateDetectionService
+    ) {}
 
-    public function generateUniqueSku(int $supplierId): string
+    public function generateUniqueSku(?int $supplierId = null, ?string $name = null): string
     {
-        $supplier = Supplier::find($supplierId);
-        $supplierName = $supplier ? $supplier->name : 'GEN';
-        $words = preg_split('/\s+/', trim($supplierName));
-        $letters = [];
-        foreach (array_slice($words, 0, 3) as $word) {
-            if ($word !== '') {
-                $letters[] = strtoupper(substr($word, 0, 1));
+        $acronym = 'GEN';
+        if ($supplierId) {
+            $supplier = Supplier::find($supplierId);
+            $supplierName = $supplier ? $supplier->name : '';
+            if (!empty($supplierName)) {
+                $words = preg_split('/\s+/', trim($supplierName));
+                $letters = [];
+                foreach (array_slice($words, 0, 3) as $word) {
+                    if ($word !== '') {
+                        $letters[] = strtoupper(substr($word, 0, 1));
+                    }
+                }
+                while (count($letters) < 3) {
+                    $letters[] = 'X';
+                }
+                $acronym = implode('', array_slice($letters, 0, 3));
             }
+        } elseif (!empty($name)) {
+            $words = preg_split('/\s+/', trim($name));
+            $letters = [];
+            foreach (array_slice($words, 0, 3) as $word) {
+                if ($word !== '') {
+                    $letters[] = strtoupper(substr($word, 0, 1));
+                }
+            }
+            while (count($letters) < 3) {
+                $letters[] = 'X';
+            }
+            $acronym = implode('', array_slice($letters, 0, 3));
         }
-        while (count($letters) < 3) {
-            $letters[] = 'X';
-        }
-        $acronym = implode('', array_slice($letters, 0, 3));
+
         $year = date('y');
         $month = date('m');
 
-        $count = Item::where('supplier_id', $supplierId)->count();
+        $count = Item::count();
         $index = $count + 1;
         do {
             $sku = sprintf('%s-%s-%s-%03d-0001', $acronym, $year, $month, $index);
@@ -59,7 +88,10 @@ class InventoryController extends Controller
             ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
             : 10;
 
-        $itemsQuery = ResourceOwnershipPolicy::scopeQuery(Item::with('supplier'), auth()->user());
+        $itemsQuery = ResourceOwnershipPolicy::scopeQuery(
+            Item::with(['supplier', 'batches.supplier']),
+            auth()->user()
+        );
         $suppliersQuery = ResourceOwnershipPolicy::scopeQuery(Supplier::query(), auth()->user());
 
         if ($request->filled('search')) {
@@ -73,7 +105,13 @@ class InventoryController extends Controller
         }
 
         if ($request->filled('supplier')) {
-            $itemsQuery->where('supplier_id', $request->input('supplier'));
+            $supplierFilter = $request->input('supplier');
+            $itemsQuery->where(function ($q) use ($supplierFilter) {
+                $q->where('supplier_id', $supplierFilter)
+                  ->orWhereHas('batches', function ($bq) use ($supplierFilter) {
+                      $bq->where('supplier_id', $supplierFilter);
+                  });
+            });
         }
 
         if ($request->filled('status')) {
@@ -86,13 +124,28 @@ class InventoryController extends Controller
         $paginator = $itemsQuery->paginate($perPage)->withQueryString();
 
         $itemsList = collect($paginator->items())->map(function ($item) {
+            $receivingBatches = $item->batches ? $item->batches->map(function ($batch) {
+                return [
+                    'id' => $batch->id,
+                    'supplier_id' => $batch->supplier_id,
+                    'supplier_name' => $batch->supplier ? $batch->supplier->name : 'N/A',
+                    'quantity_received' => (int) $batch->quantity_received,
+                    'quantity_remaining' => (int) $batch->quantity_remaining,
+                    'unit_cost' => (float) $batch->unit_cost,
+                    'batch_value' => (float) $batch->batch_value,
+                    'date_received' => $batch->date_received ? $batch->date_received->format('Y-m-d') : '',
+                ];
+            })->values()->all() : [];
+
             return [
                 'id' => $item->id,
                 'name' => $item->name,
                 'sku' => $item->sku,
-                'stock' => $item->stock,
-                'unit_cost' => $item->unit_cost,
-                'amount' => $item->amount,
+                'stock' => (int) $item->stock,
+                'on_hand' => (int) $item->stock,
+                'unit_cost' => (float) ($item->unit_cost ?? 0),
+                'amount' => (float) $item->inventory_value,
+                'inventory_value' => (float) $item->inventory_value,
                 'status' => $item->status,
                 'description' => $item->description,
                 'unit_of_issue' => $item->unit_of_issue,
@@ -102,6 +155,7 @@ class InventoryController extends Controller
                     'name' => $item->supplier->name,
                 ] : null,
                 'rfid_tag' => $item->rfid_tag,
+                'receiving_batches' => $receivingBatches,
             ];
         })->values()->all();
 
@@ -125,18 +179,64 @@ class InventoryController extends Controller
         ]);
     }
 
-    public function __construct(InventoryService $inventoryService)
+    public function show(Item $inventory)
     {
-        $this->inventoryService = $inventoryService;
+        $inventory->load(['supplier', 'batches.supplier']);
+
+        $receivingBatches = $inventory->batches->map(function ($batch) {
+            return [
+                'id' => $batch->id,
+                'supplier_id' => $batch->supplier_id,
+                'supplier_name' => $batch->supplier ? $batch->supplier->name : 'N/A',
+                'quantity_received' => (int) $batch->quantity_received,
+                'quantity_remaining' => (int) $batch->quantity_remaining,
+                'unit_cost' => (float) $batch->unit_cost,
+                'batch_value' => (float) $batch->batch_value,
+                'date_received' => $batch->date_received ? $batch->date_received->format('Y-m-d') : '',
+            ];
+        })->values()->all();
+
+        $recentIssuances = IssuanceItem::with('issuance')
+            ->where('item_id', $inventory->id)
+            ->latest('id')
+            ->take(5)
+            ->get()
+            ->map(function ($line) {
+                return [
+                    'id' => $line->id,
+                    'ris_number' => $line->issuance?->ris_number ?: ('RIS-' . $line->issuance_id),
+                    'date_issued' => $line->issuance?->date_issued ? $line->issuance->date_issued->format('Y-m-d') : '',
+                    'quantity' => (int) $line->quantity,
+                    'amount' => (float) $line->amount,
+                    'recipient' => $line->issuance?->recipient ?: 'Office',
+                ];
+            });
+
+        return response()->json([
+            'id' => $inventory->id,
+            'name' => $inventory->name,
+            'sku' => $inventory->sku,
+            'stock' => (int) $inventory->stock,
+            'on_hand' => (int) $inventory->stock,
+            'unit_cost' => (float) ($inventory->unit_cost ?? 0),
+            'amount' => (float) $inventory->inventory_value,
+            'inventory_value' => (float) $inventory->inventory_value,
+            'status' => $inventory->status,
+            'description' => $inventory->description,
+            'unit_of_issue' => $inventory->unit_of_issue,
+            'rfid_tag' => $inventory->rfid_tag,
+            'receiving_batches' => $receivingBatches,
+            'recent_issuances' => $recentIssuances,
+        ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
+            'supplier_id' => ['nullable', 'integer', 'exists:suppliers,id'],
             'sku' => ['nullable', 'string', 'max:255'],
-            'stock' => ['required', 'integer', 'min:0', 'max:1000000'],
+            'stock' => ['nullable', 'integer', 'min:0', 'max:1000000'],
             'unit_cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'status' => ['nullable', 'string', 'in:Available,Low Stock,Out of Stock'],
@@ -144,33 +244,59 @@ class InventoryController extends Controller
             'unit_of_issue' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
-            ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
-            : 10;
+        // 1. Canonical Duplicate Detection
+        $duplicate = $this->duplicateDetectionService->findDuplicate($validated);
+        if ($duplicate) {
+            throw ValidationException::withMessages([
+                'name' => $this->duplicateDetectionService->buildDuplicateMessage($duplicate),
+            ]);
+        }
 
-        $stock = (int) $validated['stock'];
+        $stock = isset($validated['stock']) ? (int) $validated['stock'] : 0;
         $unitCost = isset($validated['unit_cost']) && $validated['unit_cost'] !== '' ? (float) $validated['unit_cost'] : 0.0;
-        $amount = round($stock * $unitCost, 2);
-        $status = $stock <= 0 ? 'Out of Stock' : ($stock <= $lowStockThreshold ? 'Low Stock' : 'Available');
+        $supplierId = !empty($validated['supplier_id']) ? (int) $validated['supplier_id'] : null;
 
-        return DB::transaction(function () use ($validated, $stock, $unitCost, $amount, $status) {
+        return DB::transaction(function () use ($validated, $stock, $unitCost, $supplierId) {
             $sku = !empty($validated['sku']) ? trim($validated['sku']) : '';
             if ($sku === '' || Item::where('sku', $sku)->exists()) {
-                $sku = $this->generateUniqueSku((int) $validated['supplier_id']);
+                $sku = $this->generateUniqueSku($supplierId, $validated['name']);
             }
 
             $item = Item::create([
                 'name' => $validated['name'],
-                'supplier_id' => $validated['supplier_id'],
+                'supplier_id' => $supplierId,
                 'sku' => $sku,
                 'stock' => $stock,
                 'unit_cost' => $unitCost,
-                'amount' => $amount,
-                'status' => $status,
+                'amount' => round($stock * $unitCost, 2),
+                'status' => $this->balanceService->determineStatus($stock),
                 'description' => $validated['description'] ?? null,
                 'unit_of_issue' => $validated['unit_of_issue'] ?? null,
                 'created_by' => auth()->id(),
             ]);
+
+            // If initial stock is recorded directly, preserve it in an initial batch
+            if ($stock > 0) {
+                // If no supplier specified, pick first supplier or leave null
+                $batchSupplierId = $supplierId;
+                if (!$batchSupplierId) {
+                    $firstSupplier = Supplier::first();
+                    $batchSupplierId = $firstSupplier ? $firstSupplier->id : 1;
+                }
+
+                InventoryBatch::create([
+                    'item_id' => $item->id,
+                    'receiving_id' => null,
+                    'supplier_id' => $batchSupplierId,
+                    'quantity_received' => $stock,
+                    'quantity_remaining' => $stock,
+                    'unit_cost' => $unitCost,
+                    'date_received' => date('Y-m-d'),
+                    'created_by' => auth()->id(),
+                ]);
+
+                $this->balanceService->synchronizeItem($item);
+            }
 
             return redirect()->route('inventory.index')->with('success', 'Inventory item created successfully.');
         });
@@ -182,9 +308,9 @@ class InventoryController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
+            'supplier_id' => ['nullable', 'integer', 'exists:suppliers,id'],
             'sku' => ['nullable', 'string', 'max:255', 'unique:items,sku,' . $inventory->id],
-            'stock' => ['required', 'integer', 'min:0', 'max:1000000'],
+            'stock' => ['nullable', 'integer', 'min:0', 'max:1000000'],
             'unit_cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'status' => ['nullable', 'string', 'in:Available,Low Stock,Out of Stock'],
@@ -192,32 +318,43 @@ class InventoryController extends Controller
             'unit_of_issue' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
-            ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
-            : 10;
+        // Duplicate check (excluding current item)
+        $duplicate = $this->duplicateDetectionService->findDuplicate($validated, $inventory->id);
+        if ($duplicate) {
+            throw ValidationException::withMessages([
+                'name' => $this->duplicateDetectionService->buildDuplicateMessage($duplicate),
+            ]);
+        }
 
-        $stock = (int) $validated['stock'];
-        $unitCost = isset($validated['unit_cost']) && $validated['unit_cost'] !== '' ? (float) $validated['unit_cost'] : 0.0;
-        $amount = round($stock * $unitCost, 2);
-        $status = $stock <= 0 ? 'Out of Stock' : ($stock <= $lowStockThreshold ? 'Low Stock' : 'Available');
-
-        return DB::transaction(function () use ($validated, $inventory, $stock, $unitCost, $amount, $status) {
+        return DB::transaction(function () use ($validated, $inventory) {
             $sku = !empty($validated['sku']) ? trim($validated['sku']) : $inventory->sku;
             if (empty($sku)) {
-                $sku = $this->generateUniqueSku((int) $validated['supplier_id']);
+                $sku = $this->generateUniqueSku($validated['supplier_id'] ?? $inventory->supplier_id, $validated['name']);
             }
 
-            $inventory->update([
+            $updateData = [
                 'name' => $validated['name'],
-                'supplier_id' => $validated['supplier_id'],
                 'sku' => $sku,
-                'stock' => $stock,
-                'unit_cost' => $unitCost,
-                'amount' => $amount,
-                'status' => $status,
                 'description' => $validated['description'] ?? null,
                 'unit_of_issue' => $validated['unit_of_issue'] ?? null,
-            ]);
+            ];
+
+            if (isset($validated['supplier_id'])) {
+                $updateData['supplier_id'] = $validated['supplier_id'];
+            }
+
+            // If item has no batch history, allow updating stock/unit_cost
+            if (!$inventory->batches()->exists()) {
+                if (isset($validated['stock'])) {
+                    $updateData['stock'] = (int) $validated['stock'];
+                }
+                if (isset($validated['unit_cost'])) {
+                    $updateData['unit_cost'] = (float) $validated['unit_cost'];
+                }
+            }
+
+            $inventory->update($updateData);
+            $this->balanceService->synchronizeItem($inventory);
 
             return redirect()->route('inventory.index')->with('success', 'Inventory item updated successfully.');
         });
@@ -226,6 +363,12 @@ class InventoryController extends Controller
     public function destroy(Item $inventory)
     {
         ResourceOwnershipPolicy::authorize(auth()->user(), $inventory, 'created_by');
+
+        if ($inventory->hasHistoricalTransactions()) {
+            throw ValidationException::withMessages([
+                'error' => 'This item cannot be deleted because it is referenced by existing inventory transactions. Archive or deactivate the item instead.',
+            ]);
+        }
 
         $inventory->delete();
 
@@ -238,7 +381,7 @@ class InventoryController extends Controller
         $supplierId = $request->input('supplier', '');
 
         $receivingsQuery = ResourceOwnershipPolicy::scopeQuery(
-            Receiving::with(['item', 'supplier']),
+            Receiving::with(['item', 'supplier', 'batch']),
             auth()->user()
         );
 
@@ -265,6 +408,7 @@ class InventoryController extends Controller
             ->withQueryString();
 
         $transformed = $paginated->through(function ($receiving) {
+            $dateStr = $receiving->date_received ? $receiving->date_received->format('Y-m-d') : '';
             return [
                 'id' => $receiving->id,
                 'item_id' => $receiving->item_id,
@@ -272,9 +416,13 @@ class InventoryController extends Controller
                 'item' => $receiving->item ? $receiving->item->name : 'N/A',
                 'sku' => $receiving->item ? $receiving->item->sku : '',
                 'quantity' => (int) $receiving->quantity,
+                'unit_cost' => (float) $receiving->unit_cost,
+                'amount' => (float) $receiving->amount,
+                'quantity_remaining' => (int) $receiving->quantity_remaining,
+                'remaining' => (int) $receiving->quantity_remaining,
                 'supplier' => $receiving->supplier ? $receiving->supplier->name : '',
-                'date' => $receiving->date_received ? $receiving->date_received->format('Y-m-d') : '',
-                'date_received' => $receiving->date_received ? $receiving->date_received->format('Y-m-d') : '',
+                'date' => $dateStr,
+                'date_received' => $dateStr,
             ];
         });
 
@@ -294,6 +442,7 @@ class InventoryController extends Controller
                     'description' => $item->description,
                     'unit_of_issue' => $item->unit_of_issue,
                     'stock' => (int) $item->stock,
+                    'unit_cost' => (float) ($item->unit_cost ?? 0),
                 ];
             }),
             'suppliers' => $suppliersQuery->get(['id', 'name']),
@@ -302,16 +451,6 @@ class InventoryController extends Controller
                 'supplier' => $supplierId ? (int) $supplierId : '',
             ],
         ]);
-    }
-
-    private function refreshItemTotals(Item $item): void
-    {
-        $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
-            ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
-            : 10;
-        $item->amount = (float) $item->stock * (float) ($item->unit_cost ?? 0);
-        $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= $lowStockThreshold ? 'Low Stock' : 'Available');
-        $item->save();
     }
 
     private function normalizeDate(?string $date): ?string
@@ -337,25 +476,13 @@ class InventoryController extends Controller
             'item_id' => ['required', 'integer', 'exists:items,id'],
             'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
             'quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
+            'unit_cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'date_received' => ['required', 'date'],
         ]);
 
-        $normalizedDate = $this->normalizeDate($request->date_received);
+        $validated['date_received'] = $this->normalizeDate($request->date_received);
 
-        DB::transaction(function () use ($request, $normalizedDate) {
-            $item = Item::where('id', $request->item_id)->lockForUpdate()->firstOrFail();
-
-            $data = $request->only(['item_id', 'supplier_id', 'quantity']);
-            $data['date_received'] = $normalizedDate;
-            $data['created_by'] = auth()->id();
-            Receiving::create($data);
-
-            if (! $item->supplier_id && $request->supplier_id) {
-                $item->supplier_id = $request->supplier_id;
-            }
-            $item->stock += (int) $request->quantity;
-            $this->refreshItemTotals($item);
-        });
+        $this->receivingService->receive($validated, auth()->id());
 
         return redirect()->route('inventory.receiving')->with('success', 'Receiving record created successfully.');
     }
@@ -368,57 +495,13 @@ class InventoryController extends Controller
             'item_id' => ['required', 'integer', 'exists:items,id'],
             'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
             'quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
+            'unit_cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'date_received' => ['required', 'date'],
         ]);
 
-        $normalizedDate = $this->normalizeDate($request->date_received);
+        $validated['date_received'] = $this->normalizeDate($request->date_received);
 
-        DB::transaction(function () use ($request, $receiving, $normalizedDate) {
-            $oldItemId = $receiving->item_id;
-            $oldQuantity = (int) $receiving->quantity;
-            $newQuantity = (int) $request->quantity;
-            $newItemId = (int) $request->item_id;
-
-            if ($oldItemId == $newItemId) {
-                $item = Item::where('id', $oldItemId)->lockForUpdate()->firstOrFail();
-                $diff = $newQuantity - $oldQuantity;
-
-                if ($item->stock + $diff < 0) {
-                    throw \Illuminate\Validation\ValidationException::withMessages([
-                        'quantity' => "Cannot reduce received quantity by " . abs($diff) . ". The resulting stock balance for {$item->name} would be negative (" . ($item->stock + $diff) . ").",
-                    ]);
-                }
-
-                $item->stock += $diff;
-                if (! $item->supplier_id && $request->supplier_id) {
-                    $item->supplier_id = $request->supplier_id;
-                }
-                $this->refreshItemTotals($item);
-            } else {
-                // Item changed
-                $oldItem = Item::where('id', $oldItemId)->lockForUpdate()->firstOrFail();
-                $newItem = Item::where('id', $newItemId)->lockForUpdate()->firstOrFail();
-
-                if ($oldItem->stock - $oldQuantity < 0) {
-                    throw \Illuminate\Validation\ValidationException::withMessages([
-                        'item_id' => "Cannot reassign item: reducing stock for {$oldItem->name} by {$oldQuantity} would result in a negative stock balance (" . ($oldItem->stock - $oldQuantity) . ").",
-                    ]);
-                }
-
-                $oldItem->stock -= $oldQuantity;
-                $this->refreshItemTotals($oldItem);
-
-                $newItem->stock += $newQuantity;
-                if (! $newItem->supplier_id && $request->supplier_id) {
-                    $newItem->supplier_id = $request->supplier_id;
-                }
-                $this->refreshItemTotals($newItem);
-            }
-
-            $updateData = $request->only(['item_id', 'supplier_id', 'quantity']);
-            $updateData['date_received'] = $normalizedDate;
-            $receiving->update($updateData);
-        });
+        $this->receivingService->update($receiving, $validated, auth()->id());
 
         return redirect()->route('inventory.receiving')->with('success', 'Receiving record updated successfully.');
     }
@@ -427,20 +510,7 @@ class InventoryController extends Controller
     {
         ResourceOwnershipPolicy::authorize(auth()->user(), $receiving, 'created_by');
 
-        DB::transaction(function () use ($receiving) {
-            $item = Item::where('id', $receiving->item_id)->lockForUpdate()->firstOrFail();
-
-            if ($item->stock - (int) $receiving->quantity < 0) {
-                throw \Illuminate\Validation\ValidationException::withMessages([
-                    'error' => "Cannot void receiving record: current stock for {$item->name} ({$item->stock}) is less than the received quantity ({$receiving->quantity}).",
-                ]);
-            }
-
-            $item->stock -= (int) $receiving->quantity;
-            $this->refreshItemTotals($item);
-
-            $receiving->delete();
-        });
+        $this->receivingService->void($receiving, auth()->id());
 
         return redirect()->route('inventory.receiving')->with('success', 'Receiving record voided successfully.');
     }
@@ -451,7 +521,7 @@ class InventoryController extends Controller
         $recipient = trim($request->input('recipient', ''));
 
         $issuancesQuery = ResourceOwnershipPolicy::scopeQuery(
-            Issuance::with(['items.item', 'item', 'issuer']),
+            Issuance::with(['items.item', 'items.allocations.inventoryBatch.supplier', 'item', 'issuer']),
             auth()->user(),
             'issued_by'
         );
@@ -498,6 +568,16 @@ class InventoryController extends Controller
                 $itemsList = $issuance->items->map(function ($line) {
                     $itemName = $line->item ? $line->item->name : 'N/A';
                     $sku = $line->item ? $line->item->sku : '';
+                    $batchAllocations = $line->allocations ? $line->allocations->map(function ($al) {
+                        return [
+                            'batch_id' => $al->inventory_batch_id,
+                            'supplier' => $al->inventoryBatch?->supplier?->name ?? 'Supplier',
+                            'quantity' => (int) $al->quantity,
+                            'unit_cost' => (float) $al->unit_cost,
+                            'amount' => (float) $al->amount,
+                        ];
+                    })->values()->all() : [];
+
                     return [
                         'id' => $line->id,
                         'item_id' => $line->item_id,
@@ -509,6 +589,7 @@ class InventoryController extends Controller
                         'unit_cost' => (float) $line->unit_cost,
                         'amount' => (float) $line->amount,
                         'unit' => $line->item->unit_of_issue ?? 'pcs',
+                        'allocations' => $batchAllocations,
                     ];
                 })->values()->all();
 
@@ -537,6 +618,7 @@ class InventoryController extends Controller
                         'unit_cost' => $unitCost,
                         'amount' => $amt,
                         'unit' => $issuance->item->unit_of_issue ?? 'pcs',
+                        'allocations' => [],
                     ]
                 ];
                 $totalQty = $qty;
@@ -590,87 +672,25 @@ class InventoryController extends Controller
     {
         $normalizedDate = $this->normalizeDate($request->date_issued);
 
-        \DB::transaction(function () use ($request, $normalizedDate) {
-            $risPrefix = class_exists(\App\Models\SystemSetting::class)
-                ? \App\Models\SystemSetting::get('numbering.ris_prefix', 'RIS-')
-                : 'RIS-';
+        $approvedBy = $request->approved_by ?: (class_exists(\App\Models\SystemSetting::class)
+            ? \App\Models\SystemSetting::get('signatories.ris_approved_by_name', 'ARSENIO GEM A. GARCILLANOSA')
+            : 'ARSENIO GEM A. GARCILLANOSA');
+        $approvedByDesignation = $request->approved_by_designation ?: (class_exists(\App\Models\SystemSetting::class)
+            ? \App\Models\SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V')
+            : 'SUPPLY OFFICER III/ADMIN OFFICER V');
 
-            $dateCarbon = Carbon::parse($normalizedDate);
-            $yearMonth = $dateCarbon->format('Y-m');
+        $data = [
+            'recipient' => $request->recipient,
+            'department' => $request->department,
+            'fund_cluster' => $request->fund_cluster,
+            'recipient_designation' => $request->recipient_designation,
+            'purpose' => $request->purpose,
+            'approved_by' => $approvedBy,
+            'approved_by_designation' => $approvedByDesignation,
+            'date_issued' => $normalizedDate,
+        ];
 
-            $monthCount = Issuance::whereYear('date_issued', $dateCarbon->year)
-                ->whereMonth('date_issued', $dateCarbon->month)
-                ->count();
-            $seq = $monthCount + 1;
-            $risNumber = sprintf('%s%s-%04d', $risPrefix, $yearMonth, $seq);
-            while (Issuance::where('ris_number', $risNumber)->exists()) {
-                $seq++;
-                $risNumber = sprintf('%s%s-%04d', $risPrefix, $yearMonth, $seq);
-            }
-
-            $approvedBy = $request->approved_by ?: (class_exists(\App\Models\SystemSetting::class)
-                ? \App\Models\SystemSetting::get('signatories.ris_approved_by_name', 'ARSENIO GEM A. GARCILLANOSA')
-                : 'ARSENIO GEM A. GARCILLANOSA');
-            $approvedByDesignation = $request->approved_by_designation ?: (class_exists(\App\Models\SystemSetting::class)
-                ? \App\Models\SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V')
-                : 'SUPPLY OFFICER III/ADMIN OFFICER V');
-
-            $lockedItems = [];
-            $totalQuantity = 0;
-
-            foreach ($request->issuances as $issuanceData) {
-                $item = Item::where('id', $issuanceData['item_id'])->lockForUpdate()->firstOrFail();
-                $qty = (int) $issuanceData['quantity'];
-
-                if ($item->stock < $qty) {
-                    throw \Illuminate\Validation\ValidationException::withMessages([
-                        'issuances' => 'Insufficient stock for item: ' . $item->name . ' (Available: ' . $item->stock . ', Requested: ' . $qty . ')'
-                    ]);
-                }
-
-                $totalQuantity += $qty;
-                $lockedItems[] = [
-                    'item' => $item,
-                    'quantity' => $qty,
-                ];
-            }
-
-            $primaryItem = $lockedItems[0]['item'];
-
-            $issuance = Issuance::create([
-                'ris_number' => $risNumber,
-                'item_id' => $primaryItem->id,
-                'quantity' => $totalQuantity,
-                'recipient' => $request->recipient,
-                'department' => $request->department,
-                'fund_cluster' => $request->fund_cluster,
-                'recipient_designation' => $request->recipient_designation,
-                'purpose' => $request->purpose,
-                'approved_by' => $approvedBy,
-                'approved_by_designation' => $approvedByDesignation,
-                'date_issued' => $normalizedDate,
-                'status' => 'Issued',
-                'issued_by' => auth()->id(),
-            ]);
-
-            foreach ($lockedItems as $locked) {
-                $item = $locked['item'];
-                $qty = $locked['quantity'];
-                $unitCost = (float) ($item->unit_cost ?? 0);
-                $amount = $qty * $unitCost;
-
-                IssuanceItem::create([
-                    'issuance_id' => $issuance->id,
-                    'item_id' => $item->id,
-                    'quantity' => $qty,
-                    'unit_cost' => $unitCost,
-                    'amount' => $amount,
-                ]);
-
-                $item->stock -= $qty;
-                $this->refreshItemTotals($item);
-            }
-        });
+        $this->issuanceService->issue($data, $request->issuances, auth()->id());
 
         return redirect()->route('inventory.issuance')->with('success', 'Issuance record created successfully.');
     }
@@ -707,134 +727,24 @@ class InventoryController extends Controller
                 'quantity' => (int) $request->quantity,
             ]];
         } else {
-            throw \Illuminate\Validation\ValidationException::withMessages([
+            throw ValidationException::withMessages([
                 'quantity' => 'At least one item line must be specified for this issuance voucher.'
             ]);
         }
 
-        $condensedRequested = [];
-        foreach ($requestedLines as $line) {
-            $iid = (int) $line['item_id'];
-            $qty = (int) $line['quantity'];
-            $condensedRequested[$iid] = ($condensedRequested[$iid] ?? 0) + $qty;
-        }
+        $data = [
+            'recipient' => $request->recipient,
+            'department' => $request->department,
+            'fund_cluster' => $request->fund_cluster,
+            'recipient_designation' => $request->recipient_designation,
+            'purpose' => $request->purpose,
+            'approved_by' => $request->approved_by,
+            'approved_by_designation' => $request->approved_by_designation,
+            'date_issued' => $normalizedDate,
+            'status' => $request->status,
+        ];
 
-        \DB::transaction(function () use ($request, $issuance, $normalizedDate, $condensedRequested) {
-            // 1. Lock the issuance record
-            $lockedIssuance = Issuance::where('id', $issuance->id)->lockForUpdate()->firstOrFail();
-
-            // 2. Retrieve old issuance items
-            $oldChildItems = $lockedIssuance->items()->get();
-            $oldLines = [];
-            if ($oldChildItems->isNotEmpty()) {
-                foreach ($oldChildItems as $ci) {
-                    $oldLines[] = ['item_id' => (int) $ci->item_id, 'quantity' => (int) $ci->quantity];
-                }
-            } elseif ($lockedIssuance->item_id) {
-                $oldLines[] = ['item_id' => (int) $lockedIssuance->item_id, 'quantity' => (int) $lockedIssuance->quantity];
-            }
-
-            // 3. Lock all affected inventory items in deterministic order
-            $allItemIds = array_values(array_unique(array_merge(
-                array_column($oldLines, 'item_id'),
-                array_keys($condensedRequested)
-            )));
-            sort($allItemIds);
-
-            $lockedItems = Item::whereIn('id', $allItemIds)->lockForUpdate()->get()->keyBy('id');
-
-            // 4. Reverse old stock impact if previously Issued
-            if ($lockedIssuance->status === 'Issued') {
-                foreach ($oldLines as $oldLine) {
-                    $item = $lockedItems->get($oldLine['item_id']);
-                    if ($item) {
-                        $item->stock += (int) $oldLine['quantity'];
-                    }
-                }
-            }
-
-            // 5. Validate and apply new stock deductions if new status is Issued
-            if ($request->status === 'Issued') {
-                foreach ($condensedRequested as $itemId => $reqQty) {
-                    $item = $lockedItems->get($itemId);
-                    if (! $item || $item->stock < $reqQty) {
-                        $available = $item ? $item->stock : 0;
-                        $itemName = $item ? $item->name : "Item #{$itemId}";
-                        throw \Illuminate\Validation\ValidationException::withMessages([
-                            'quantity' => "Insufficient stock for item: {$itemName} (Available: {$available}, Requested: {$reqQty})"
-                        ]);
-                    }
-                }
-
-                foreach ($condensedRequested as $itemId => $reqQty) {
-                    $item = $lockedItems->get($itemId);
-                    $item->stock -= $reqQty;
-                }
-            }
-
-            // 6. Recalculate totals and statuses for all touched inventory items
-            foreach ($lockedItems as $item) {
-                $this->refreshItemTotals($item);
-            }
-
-            // 7. Synchronize child issuance_items
-            $lockedIssuance->items()->delete();
-
-            $primaryItemId = null;
-            $totalQuantity = 0;
-            $totalAmount = 0.00;
-
-            foreach ($condensedRequested as $itemId => $qty) {
-                $item = $lockedItems->get($itemId);
-                $unitCost = (float) ($item->unit_cost ?? 0);
-                $amount = $qty * $unitCost;
-
-                if ($primaryItemId === null) {
-                    $primaryItemId = $itemId;
-                }
-                $totalQuantity += $qty;
-                $totalAmount += $amount;
-
-                IssuanceItem::create([
-                    'issuance_id' => $lockedIssuance->id,
-                    'item_id' => $itemId,
-                    'quantity' => $qty,
-                    'unit_cost' => $unitCost,
-                    'amount' => $amount,
-                ]);
-            }
-
-            // 8. Update issuance parent fields consistently
-            $updateData = $request->only([
-                'recipient', 'department', 'fund_cluster',
-                'recipient_designation', 'purpose', 'approved_by', 'approved_by_designation',
-                'status'
-            ]);
-            $updateData['date_issued'] = $normalizedDate;
-            $updateData['item_id'] = $primaryItemId;
-            $updateData['quantity'] = $totalQuantity;
-            $lockedIssuance->update($updateData);
-
-            // 9. Write audit log
-            if (class_exists(\Modules\AuditLogs\Models\TransactionTrail::class)) {
-                \Modules\AuditLogs\Models\TransactionTrail::create([
-                    'user_id' => auth()->id(),
-                    'module' => 'Inventory',
-                    'action' => 'Updated Stock Issuance',
-                    'resource_ref' => $lockedIssuance->ris_number ?: ('RIS-' . $lockedIssuance->id),
-                    'details' => json_encode([
-                        'issuance_id' => $lockedIssuance->id,
-                        'ris_number' => $lockedIssuance->ris_number,
-                        'recipient' => $lockedIssuance->recipient,
-                        'status' => $lockedIssuance->status,
-                        'total_quantity' => $totalQuantity,
-                        'total_amount' => $totalAmount,
-                        'items_count' => count($condensedRequested),
-                    ]),
-                    'status' => 'completed',
-                ]);
-            }
-        });
+        $this->issuanceService->update($issuance, $data, $requestedLines, auth()->id());
 
         return redirect()->route('inventory.issuance')->with('success', 'Issuance record updated successfully.');
     }
@@ -843,28 +753,7 @@ class InventoryController extends Controller
     {
         ResourceOwnershipPolicy::authorize(auth()->user(), $issuance, 'issued_by');
 
-        \DB::transaction(function () use ($issuance) {
-            if ($issuance->status === 'Issued') {
-                // Revert stock for child issuance items if present
-                if ($issuance->items()->count() > 0) {
-                    foreach ($issuance->items as $issuanceItem) {
-                        $item = Item::where('id', $issuanceItem->item_id)->lockForUpdate()->first();
-                        if ($item) {
-                            $item->stock += $issuanceItem->quantity;
-                            $this->refreshItemTotals($item);
-                        }
-                    }
-                } elseif ($issuance->item_id) {
-                    $item = Item::where('id', $issuance->item_id)->lockForUpdate()->first();
-                    if ($item) {
-                        $item->stock += $issuance->quantity;
-                        $this->refreshItemTotals($item);
-                    }
-                }
-            }
-
-            $issuance->delete();
-        });
+        $this->issuanceService->destroy($issuance, auth()->id());
 
         return redirect()->route('inventory.issuance')->with('success', 'Issuance record archived successfully.');
     }

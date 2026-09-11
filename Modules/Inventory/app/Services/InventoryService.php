@@ -70,27 +70,15 @@ class InventoryService implements ServiceInterface
      */
     public function recordReceiving(ReceivingDTO $dto): Receiving
     {
-        return DB::transaction(function () use ($dto) {
-            $receiving = Receiving::create([
-                'item_id' => $dto->item_id,
-                'supplier_id' => $dto->supplier_id,
-                'quantity' => $dto->quantity,
-                'date_received' => $dto->date_received,
-            ]);
-            $item = Item::findOrFail($dto->item_id);
-            if (! $item->supplier_id && $dto->supplier_id) {
-                $item->supplier_id = $dto->supplier_id;
-            }
-            $item->stock += $dto->quantity;
-            // Recalculate amount and status (replicating controller logic)
-            $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
-                ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
-                : 10;
-            $item->amount = (float) $item->stock * (float) ($item->unit_cost ?? 0);
-            $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= $lowStockThreshold ? 'Low Stock' : 'Available');
-            $item->save();
-            return $receiving;
-        });
+        $receivingService = app(InventoryReceivingService::class);
+        $result = $receivingService->receive([
+            'item_id' => $dto->item_id,
+            'supplier_id' => $dto->supplier_id,
+            'quantity' => $dto->quantity,
+            'date_received' => $dto->date_received,
+        ], auth()->id());
+
+        return $result['receiving'];
     }
 
     /**
@@ -98,34 +86,22 @@ class InventoryService implements ServiceInterface
      */
     public function recordIssuance(IssuanceDTO $dto): Issuance
     {
-        return DB::transaction(function () use ($dto) {
-            $item = Item::findOrFail($dto->item_id);
-            if ($item->stock < $dto->quantity) {
-                abort(400, 'Insufficient stock');
-            }
-            $issuance = Issuance::create([
+        $issuanceService = app(InventoryIssuanceService::class);
+        return $issuanceService->issue([
+            'recipient' => $dto->recipient,
+            'department' => $dto->department,
+            'fund_cluster' => $dto->fund_cluster,
+            'recipient_designation' => $dto->recipient_designation,
+            'purpose' => $dto->purpose,
+            'approved_by' => $dto->approved_by ?: 'ARSENIO GEM A. GARCILLANOSA',
+            'approved_by_designation' => $dto->approved_by_designation ?: 'SUPPLY OFFICER III/ADMIN OFFICER V',
+            'date_issued' => $dto->date_issued,
+        ], [
+            [
                 'item_id' => $dto->item_id,
                 'quantity' => $dto->quantity,
-                'recipient' => $dto->recipient,
-                'department' => $dto->department,
-                'fund_cluster' => $dto->fund_cluster,
-                'recipient_designation' => $dto->recipient_designation,
-                'purpose' => $dto->purpose,
-                'approved_by' => $dto->approved_by ?: 'ARSENIO GEM A. GARCILLANOSA',
-                'approved_by_designation' => $dto->approved_by_designation ?: 'SUPPLY OFFICER III/ADMIN OFFICER V',
-                'date_issued' => $dto->date_issued,
-                'status' => 'Issued',
-                'issued_by' => auth()->id(),
-            ]);
-            $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
-                ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
-                : 10;
-            $item->stock -= $dto->quantity;
-            $item->amount = (float) $item->stock * (float) ($item->unit_cost ?? 0);
-            $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= $lowStockThreshold ? 'Low Stock' : 'Available');
-            $item->save();
-            return $issuance;
-        });
+            ]
+        ], auth()->id());
     }
 
     // Generic execute method for ServiceInterface compliance

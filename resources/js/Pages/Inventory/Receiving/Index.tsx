@@ -155,6 +155,7 @@ export default function ReceivingIndex({
         item_id: '',
         supplier_id: '',
         quantity: '',
+        unit_cost: '',
         date_received: getLocalDateString(),
     });
 
@@ -182,6 +183,7 @@ export default function ReceivingIndex({
             item_id: '',
             supplier_id: '',
             quantity: '',
+            unit_cost: '',
             date_received: getLocalDateString(),
         });
         setIsFormModalOpen(true);
@@ -200,6 +202,7 @@ export default function ReceivingIndex({
             item_id: receiving.item_id || '',
             supplier_id: receiving.supplier_id || '',
             quantity: receiving.quantity || '',
+            unit_cost: receiving.unit_cost !== null && receiving.unit_cost !== undefined ? receiving.unit_cost : '',
             date_received: receiving.date || receiving.date_received || getLocalDateString(),
         });
         setIsDetailsModalOpen(false);
@@ -249,6 +252,7 @@ export default function ReceivingIndex({
             item_id: item.id,
             supplier_id: matchingSupplierId,
             quantity: 1,
+            unit_cost: '',
             date_received: getLocalDateString(),
         });
         setIsFormModalOpen(true);

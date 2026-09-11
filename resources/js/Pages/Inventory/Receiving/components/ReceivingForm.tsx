@@ -57,8 +57,8 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
         const chosenItem = selected.item;
         setData('item_id', chosenItem.id);
 
-        // If the selected item already has an associated supplier in the database, automatically bind it
-        if (chosenItem.supplier_id) {
+        // Prefill supplier if item has an associated default supplier and no supplier is selected yet
+        if (chosenItem.supplier_id && !data.supplier_id) {
             setData('supplier_id', chosenItem.supplier_id);
         }
     };
@@ -93,11 +93,9 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Supplier <span className="text-red-600">*</span>
                     </label>
-                    {selectedItemOption?.item?.supplier_id && (
-                        <span className="text-[11px] text-emerald-700 font-medium">
-                            Auto-matched from item record
-                        </span>
-                    )}
+                    <span className="text-[11px] text-gray-500 font-medium">
+                        Deliveries can be received from any vendor
+                    </span>
                 </div>
                 <Select
                     value={selectedSupplierOption}
@@ -113,8 +111,8 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                 )}
             </div>
 
-            {/* Quantity and Date Received */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Quantity, Unit Cost, and Amount */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Quantity */}
                 <div>
                     <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
@@ -138,25 +136,66 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     )}
                 </div>
 
-                {/* Date Received */}
+                {/* Unit Cost */}
                 <div>
                     <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                        Date Received <span className="text-red-600">*</span>
+                        Unit Cost (₱)
                     </label>
                     <input
-                        type="date"
-                        value={data.date_received}
-                        onChange={(e) => setData('date_received', e.target.value)}
-                        className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-medium focus:outline-none transition-colors ${
-                            errors.date_received
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={data.unit_cost !== undefined ? data.unit_cost : ''}
+                        onChange={(e) => setData('unit_cost', e.target.value)}
+                        placeholder="0.00"
+                        className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-mono font-medium focus:outline-none transition-colors ${
+                            errors.unit_cost
                                 ? 'border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600'
                                 : 'border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900'
                         }`}
                     />
-                    {errors.date_received && (
-                        <p className="mt-1 text-xs text-red-600 font-medium">{errors.date_received}</p>
+                    {errors.unit_cost && (
+                        <p className="mt-1 text-xs text-red-600 font-medium">{errors.unit_cost}</p>
                     )}
                 </div>
+
+                {/* Batch Total Amount Preview */}
+                <div>
+                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Batch Total (₱)
+                    </label>
+                    <input
+                        type="text"
+                        readOnly
+                        disabled
+                        value={
+                            data.quantity && data.unit_cost
+                                ? `₱${(Number(data.quantity) * Number(data.unit_cost)).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                : '₱0.00'
+                        }
+                        className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-xs font-mono font-bold text-gray-900 cursor-not-allowed"
+                    />
+                </div>
+            </div>
+
+            {/* Date Received */}
+            <div>
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                    Date Received <span className="text-red-600">*</span>
+                </label>
+                <input
+                    type="date"
+                    value={data.date_received}
+                    onChange={(e) => setData('date_received', e.target.value)}
+                    className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-medium focus:outline-none transition-colors ${
+                        errors.date_received
+                            ? 'border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600'
+                            : 'border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900'
+                    }`}
+                />
+                {errors.date_received && (
+                    <p className="mt-1 text-xs text-red-600 font-medium">{errors.date_received}</p>
+                )}
             </div>
 
             {/* Modal Actions Footer */}

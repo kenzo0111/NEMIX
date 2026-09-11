@@ -21,8 +21,12 @@ export interface ReceivingRecord {
     supplier_id: number;
     item: string;
     sku: string;
+    unit?: string;
     supplier: string;
     quantity: number;
+    quantity_remaining?: number | null;
+    unit_cost?: number | null;
+    amount?: number | null;
     date: string;
     date_received?: string;
 }
@@ -31,6 +35,7 @@ export interface ReceivingFormData {
     item_id: number | '';
     supplier_id: number | '';
     quantity: number | '';
+    unit_cost?: number | string;
     date_received: string;
 }
 

@@ -57,10 +57,26 @@ class Supplier extends Model
         return $this->hasMany(\Modules\Inventory\Models\Item::class, 'supplier_id');
     }
 
+    public function batches()
+    {
+        return $this->hasMany(\Modules\Inventory\Models\InventoryBatch::class, 'supplier_id');
+    }
+
     public function getContractSuppliesValueAttribute(): float
     {
         if (array_key_exists('contract_supplies_value', $this->attributes)) {
             return (float) $this->attributes['contract_supplies_value'];
+        }
+
+        if (class_exists(\Modules\Inventory\Models\InventoryBatch::class)) {
+            $hasBatches = $this->batches()->exists();
+            if ($hasBatches) {
+                return (float) ($this->batches()
+                    ->where('quantity_remaining', '>', 0)
+                    ->where('unit_cost', '>', 0)
+                    ->selectRaw('COALESCE(SUM(quantity_remaining * unit_cost), 0) as total_val')
+                    ->value('total_val') ?? 0.00);
+            }
         }
 
         if ($this->relationLoaded('items')) {

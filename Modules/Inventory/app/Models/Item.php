@@ -23,6 +23,10 @@ class Item extends Model
 
     public function hasHistoricalTransactions(): bool
     {
+        if (class_exists(InventoryBatch::class) && InventoryBatch::where('item_id', $this->id)->exists()) {
+            return true;
+        }
+
         if (class_exists(Receiving::class) && Receiving::where('item_id', $this->id)->exists()) {
             return true;
         }
@@ -57,6 +61,35 @@ class Item extends Model
         'unit_cost' => 'decimal:2',
         'amount' => 'decimal:2',
     ];
+
+    protected $appends = [
+        'inventory_value',
+    ];
+
+    public function batches(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(InventoryBatch::class, 'item_id');
+    }
+
+    public function activeBatches(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(InventoryBatch::class, 'item_id')
+            ->where('quantity_remaining', '>', 0)
+            ->orderBy('date_received', 'asc')
+            ->orderBy('id', 'asc');
+    }
+
+    public function getInventoryValueAttribute(): float
+    {
+        if (class_exists(InventoryBatch::class) && $this->batches()->exists()) {
+            return (float) ($this->batches()
+                ->where('quantity_remaining', '>', 0)
+                ->selectRaw('COALESCE(SUM(quantity_remaining * unit_cost), 0) as total_val')
+                ->value('total_val') ?? 0.00);
+        }
+
+        return (float) ($this->amount ?? ((float) $this->stock * (float) ($this->unit_cost ?? 0)));
+    }
 
     public function supplier(): BelongsTo
     {

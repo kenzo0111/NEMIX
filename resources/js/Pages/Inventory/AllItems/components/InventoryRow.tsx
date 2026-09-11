@@ -16,41 +16,50 @@ interface InventoryRowProps {
 export default function InventoryRow({ item, onView, onEdit, onDelete }: InventoryRowProps) {
     return (
         <tr className="hover:bg-red-50/20 transition-colors border-b border-gray-100 last:border-0 group">
-            {/* 1. Item Name & Metadata */}
+            {/* 1. Stock Number */}
+            <td className="px-5 py-3.5 align-middle text-xs font-mono font-semibold text-gray-800">
+                <span className="bg-gray-100 px-2 py-0.5 rounded border border-gray-200">
+                    {item.sku || 'N/A'}
+                </span>
+            </td>
+
+            {/* 2. Item Name & RFID Badge */}
             <td className="px-5 py-3.5 align-middle">
                 <div className="text-sm font-semibold text-gray-900 leading-snug">{item.name}</div>
-                <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500 font-mono">
-                    <span>SKU: {item.sku || 'N/A'}</span>
-                    {item.rfid_tag ? (
-                        <span className="text-[11px] text-gray-500 font-sans font-normal">
-                            • <span className="text-red-950 font-medium">RFID Tagged</span>
+                {item.rfid_tag ? (
+                    <div className="mt-0.5">
+                        <span className="inline-flex items-center gap-1 text-[11px] text-red-950 font-medium">
+                            <Tag className="w-3 h-3 text-red-900" />
+                            <span>RFID Tagged</span>
                         </span>
-                    ) : null}
-                </div>
+                    </div>
+                ) : null}
             </td>
 
-            {/* 2. Supplier */}
-            <td className="px-5 py-3.5 align-middle text-sm text-gray-600 font-medium">
-                {item.supplier?.name || 'No Supplier'}
+            {/* 3. Description / Specification */}
+            <td className="px-5 py-3.5 align-middle text-xs text-gray-600 max-w-[200px] truncate" title={item.description || ''}>
+                {item.description || '—'}
             </td>
 
-            {/* 3. Unit of Issue */}
-            <td className="px-5 py-3.5 align-middle text-sm text-gray-600 lowercase">
+            {/* 4. Unit of Issue */}
+            <td className="px-5 py-3.5 align-middle text-xs text-gray-700 font-medium uppercase font-mono">
                 {item.unit_of_issue || '—'}
             </td>
 
-            {/* 4. Stock Level */}
+            {/* 5. On Hand Stock */}
             <td className="px-5 py-3.5 align-middle text-sm text-gray-900 font-semibold font-mono">
-                {formatNumber(item.stock)}{' '}
-                <span className="text-gray-400 text-xs font-normal font-sans">units</span>
+                {formatNumber(item.on_hand ?? item.stock)}{' '}
+                <span className="text-gray-400 text-xs font-normal font-sans">
+                    {item.unit_of_issue ? item.unit_of_issue.toLowerCase() : 'units'}
+                </span>
             </td>
 
-            {/* 5. Unit Cost */}
-            <td className="px-5 py-3.5 align-middle text-sm text-gray-700 font-medium font-mono">
-                {formatCurrency(item.unit_cost)}
+            {/* 6. Total Inventory Value */}
+            <td className="px-5 py-3.5 align-middle text-sm text-gray-900 font-bold font-mono">
+                {formatCurrency(item.inventory_value ?? item.amount)}
             </td>
 
-            {/* 6. Inventory Status */}
+            {/* 7. Inventory Status */}
             <td className="px-5 py-3.5 align-middle">
                 <InventoryStatus status={item.status} />
             </td>
