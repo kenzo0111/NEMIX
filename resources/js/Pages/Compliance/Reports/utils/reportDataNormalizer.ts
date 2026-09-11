@@ -1,4 +1,5 @@
 import { formatDisplayDate } from '@/utils/dateUtils';
+import { formatFundClusterDisplay } from '../constants';
 import { ComplianceReport, ReportDatasetResponse, ReportFormData, ReportType } from '../types';
 
 export interface NormalizedReportData {
@@ -112,12 +113,14 @@ export function normalizeReportPaperData(
         snapshot?.entity_name ||
         'University of Camarines Norte';
 
-    const defaultFundCluster =
+    const defaultFundCluster = formatFundClusterDisplay(
         payload?.fundCluster ||
         payload?.fund_cluster ||
         snapshot?.fundCluster ||
         snapshot?.fund_cluster ||
-        '01 - Regular Agency Fund';
+        fallbackFormData?.fundCluster ||
+        '01 - Regular Agency Fund',
+    );
 
     // 1. RSMI Normalization
     if (type === 'RSMI') {
@@ -150,11 +153,13 @@ export function normalizeReportPaperData(
             payload.entityName ||
             institutionName;
 
-        const fundCluster =
+        const fundCluster = formatFundClusterDisplay(
             rsmiSource.fundCluster ||
             rsmiSource.fund_cluster ||
             payload.fundCluster ||
-            defaultFundCluster;
+            fallbackFormData?.fundCluster ||
+            defaultFundCluster,
+        );
 
         const supplyCustodianName =
             publicSettings['signatories_rsmi_certified_by_name'] ||
@@ -208,11 +213,13 @@ export function normalizeReportPaperData(
             payload.entity_name ||
             institutionName;
 
-        const fund_cluster =
+        const fund_cluster = formatFundClusterDisplay(
             rpciSource.fund_cluster ||
             rpciSource.fundCluster ||
             payload.fund_cluster ||
-            defaultFundCluster;
+            fallbackFormData?.fundCluster ||
+            defaultFundCluster,
+        );
 
         const accountable_officer =
             publicSettings['signatories_rpci_accountable_officer_name'] ||
@@ -266,11 +273,13 @@ export function normalizeReportPaperData(
             payload.entity_name ||
             institutionName;
 
-        const fund_cluster =
+        const fund_cluster = formatFundClusterDisplay(
             scSource.fund_cluster ||
             scSource.fundCluster ||
             payload.fund_cluster ||
-            defaultFundCluster;
+            fallbackFormData?.fundCluster ||
+            defaultFundCluster,
+        );
 
         const item =
             scSource.item ||
@@ -339,11 +348,13 @@ export function normalizeReportPaperData(
             payload.entityName ||
             institutionName;
 
-        const fundCluster =
+        const fundCluster = formatFundClusterDisplay(
             mrSource.fundCluster ||
             mrSource.fund_cluster ||
             payload.fundCluster ||
-            defaultFundCluster;
+            fallbackFormData?.fundCluster ||
+            defaultFundCluster,
+        );
 
         const receivedByName =
             report?.endUser ||

@@ -48,6 +48,13 @@ const formatDate = (dateString?: string) => {
   return formatDisplayDate(dateString, 'MM/DD/YYYY') || '\u00A0';
 };
 
+const formatFundCluster = (val?: string | null): string => {
+  if (!val || val === '01' || val === 'General Fund' || val === 'Regular Agency Fund') {
+    return '01 - Regular Agency Fund';
+  }
+  return val;
+};
+
 const formatCurrency = (amount?: number | string) => {
   if (amount === undefined || amount === null || amount === '') return '\u00A0';
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;
@@ -255,7 +262,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
                 Fund Cluster:
               </td>
               <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
-                {data.fundCluster || '01 - Regular Agency Fund'}
+                {formatFundCluster(data.fundCluster)}
               </td>
               <td>&nbsp;</td>
               <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '6px 0 3px 0' }}>

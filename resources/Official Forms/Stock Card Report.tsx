@@ -32,6 +32,13 @@ interface StockCardProps {
 
 // --- Helper Functions ---
 
+const formatFundCluster = (val?: string | null): string => {
+  if (!val || val === '01' || val === 'General Fund' || val === 'Regular Agency Fund') {
+    return '01 - Regular Agency Fund';
+  }
+  return val;
+};
+
 const formatDate = (dateString?: string) => {
   if (!dateString) return '';
   return formatDisplayDate(dateString, 'MM/DD/YYYY');
@@ -154,7 +161,7 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
                 Fund Cluster:
               </td>
               <td style={{ borderBottom: '1px solid #000000', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 6px 3px 6px', lineHeight: 1.2 }}>
-                {data.fund_cluster || '01 - Regular Agency Fund'}
+                {formatFundCluster(data.fund_cluster)}
               </td>
             </tr>
           </tbody>
