@@ -82,7 +82,7 @@ export default function Edit({
                 />
 
                 {/* Primary Content Container */}
-                <div className="p-6 lg:p-8 max-w-5xl mx-auto pb-16">
+                <div className="p-6 lg:p-8 max-w-6xl mx-auto pb-16">
                     {/* Institutional Personnel Header */}
                     <PersonnelHeader profile={resolvedProfile} />
 
