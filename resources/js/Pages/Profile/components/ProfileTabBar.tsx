@@ -10,7 +10,7 @@ interface Props {
 interface TabItem {
     id: ProfileTab;
     label: string;
-    subtitle: string;
+    num: string;
     icon: React.ComponentType<{ className?: string }>;
 }
 
@@ -18,29 +18,32 @@ const TABS: TabItem[] = [
     {
         id: 'profile',
         label: 'Personnel Information',
-        subtitle: 'Official Records',
+        num: '01',
         icon: User,
     },
     {
         id: 'security',
         label: 'Security Credentials',
-        subtitle: 'OTP Protected',
+        num: '02',
         icon: KeyRound,
     },
     {
         id: 'audit',
         label: 'Authentication & Audit',
-        subtitle: 'Activity Ledger',
+        num: '03',
         icon: ShieldCheck,
     },
 ];
 
 export default function ProfileTabBar({ activeTab, onTabChange }: Props) {
     return (
-        <div className="mb-6">
-            <div className="p-1.5 rounded-xl bg-slate-100/90 border border-slate-200/80 inline-flex flex-col sm:flex-row gap-1.5 w-full sm:w-auto shadow-2xs">
+        <nav
+            aria-label="Profile Categories"
+            className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-1.5 overflow-x-auto scrollbar-none mb-6"
+        >
+            <div className="flex items-center gap-1 min-w-max">
                 {TABS.map((tab) => {
-                    const Icon = tab.icon;
+                    const IconComponent = tab.icon;
                     const isActive = activeTab === tab.id;
 
                     return (
@@ -48,35 +51,35 @@ export default function ProfileTabBar({ activeTab, onTabChange }: Props) {
                             key={tab.id}
                             type="button"
                             onClick={() => onTabChange(tab.id)}
-                            className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs sm:text-sm transition-all cursor-pointer select-none text-left ${
+                            className={`group inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
                                 isActive
-                                    ? 'bg-white text-slate-900 font-semibold shadow-xs border border-slate-200/90'
-                                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium'
+                                    ? 'bg-red-900 text-white shadow-xs'
+                                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                             }`}
-                            aria-current={isActive ? 'page' : undefined}
                         >
                             <div
-                                className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                                className={`p-1 rounded-lg transition-colors ${
                                     isActive
-                                        ? 'bg-red-900 text-white shadow-2xs'
-                                        : 'bg-slate-200/70 text-slate-500'
+                                        ? 'bg-red-800 text-amber-300'
+                                        : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700'
                                 }`}
                             >
-                                <Icon className="w-4 h-4" />
+                                <IconComponent className="w-3.5 h-3.5" />
                             </div>
-
-                            <div className="min-w-0 pr-1">
-                                <div className="leading-tight font-sans tracking-tight">
-                                    {tab.label}
-                                </div>
-                                <div className={`text-[10px] font-mono leading-none mt-0.5 ${isActive ? 'text-red-900 font-semibold' : 'text-slate-400'}`}>
-                                    {tab.subtitle}
-                                </div>
-                            </div>
+                            <span>{tab.label}</span>
+                            <span
+                                className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                                    isActive
+                                        ? 'bg-red-950/70 text-red-200'
+                                        : 'text-slate-400 bg-slate-100'
+                                }`}
+                            >
+                                {tab.num}
+                            </span>
                         </button>
                     );
                 })}
             </div>
-        </div>
+        </nav>
     );
 }

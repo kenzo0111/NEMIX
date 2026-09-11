@@ -349,16 +349,20 @@ export default function UpdateProfileInformationCard({
                                         type="button"
                                         onClick={handleCancel}
                                         disabled={processing || !isDirty}
-                                        className="px-4 py-2 bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 rounded-lg text-xs font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                                        className="px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
                                     >
-                                        <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
-                                        <span>Cancel</span>
+                                        <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                                        <span>Reset</span>
                                     </button>
 
                                     <button
                                         type="submit"
                                         disabled={processing || !isDirty}
-                                        className="px-5 py-2 bg-red-900 hover:bg-red-950 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors border border-red-900 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
+                                        className={`px-4 py-2 rounded-xl text-xs font-semibold text-white flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98] ${
+                                            isDirty && !processing
+                                                ? 'bg-red-900 hover:bg-red-800 active:bg-red-950 shadow-red-950/15 shadow-md'
+                                                : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                                        }`}
                                     >
                                         {processing ? (
                                             <>
@@ -366,7 +370,7 @@ export default function UpdateProfileInformationCard({
                                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                                                 </svg>
-                                                <span>Saving Changes...</span>
+                                                <span>Saving...</span>
                                             </>
                                         ) : (
                                             <>

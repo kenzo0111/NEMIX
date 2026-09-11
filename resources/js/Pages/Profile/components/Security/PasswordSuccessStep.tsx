@@ -29,7 +29,7 @@ export default function PasswordSuccessStep({ onDone }: Props) {
                 <button
                     type="button"
                     onClick={onDone}
-                    className="px-5 py-2 bg-red-900 hover:bg-red-950 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors border border-red-900 cursor-pointer inline-flex items-center gap-1.5"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-white inline-flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98] bg-red-900 hover:bg-red-800 active:bg-red-950 shadow-red-950/15 shadow-md"
                 >
                     <span>Return to Security Settings</span>
                 </button>
