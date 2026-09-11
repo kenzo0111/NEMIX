@@ -736,4 +736,91 @@ class IsoIec25010DefectFixesTest extends TestCase
         $this->assertEquals(1, $issuance->items()->count(), 'Issuance items count must remain 1');
         $this->assertEquals(2, $issuance->items()->first()->quantity);
     }
+
+    /**
+     * TEST 13 — Item Permanent Deletion Protection (GAP-001)
+     * Create Item A -> Receiving & Issuance referencing Item A.
+     * Soft delete allowed (archived). Force delete blocked.
+     * Transaction history preserved. Raw SQL delete blocked by database constraint.
+     */
+    public function test_item_permanent_deletion_is_blocked_when_referenced_by_transactions(): void
+    {
+        $item = Item::create([
+            'name' => 'Item A Testing Consumable',
+            'sku' => 'ITM-A-GAP001',
+            'supplier_id' => $this->supplier->id,
+            'stock' => 50,
+            'unit_cost' => 100.00,
+            'status' => 'Available',
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        $receiving = Receiving::create([
+            'item_id' => $item->id,
+            'supplier_id' => $this->supplier->id,
+            'quantity' => 50,
+            'date_received' => '2026-09-01',
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        $issuance = Issuance::create([
+            'ris_number' => 'RIS-2026-09-GAP01',
+            'item_id' => $item->id,
+            'quantity' => 10,
+            'recipient' => 'Records Section',
+            'date_issued' => '2026-09-02',
+            'status' => 'Issued',
+            'issued_by' => $this->adminUser->id,
+        ]);
+
+        $issuanceItem = IssuanceItem::create([
+            'issuance_id' => $issuance->id,
+            'item_id' => $item->id,
+            'quantity' => 10,
+            'unit_cost' => 100.00,
+            'amount' => 1000.00,
+        ]);
+
+        // 1. Normal soft deletion: allowed for archiving
+        $item->delete();
+        $this->assertSoftDeleted('items', ['id' => $item->id]);
+
+        // Historical transactions must remain intact
+        $this->assertDatabaseHas('receivings', ['id' => $receiving->id]);
+        $this->assertDatabaseHas('issuances', ['id' => $issuance->id]);
+        $this->assertDatabaseHas('issuance_items', ['id' => $issuanceItem->id]);
+
+        // 2. Permanent forceDelete: must be blocked because transaction history exists
+        $forceDeleteBlocked = false;
+        try {
+            $item->forceDelete();
+        } catch (\Throwable $e) {
+            $forceDeleteBlocked = true;
+            $this->assertStringContainsString('cannot be permanently deleted because it is referenced by existing inventory transactions', $e->getMessage());
+        }
+
+        $this->assertTrue($forceDeleteBlocked, 'Permanent forceDelete must be blocked by model protection when referenced by transactions');
+        $this->assertSoftDeleted('items', ['id' => $item->id]);
+        $this->assertDatabaseHas('receivings', ['id' => $receiving->id]);
+        $this->assertDatabaseHas('issuances', ['id' => $issuance->id]);
+        $this->assertDatabaseHas('issuance_items', ['id' => $issuanceItem->id]);
+
+        // 3. Raw database constraint level protection
+        if (DB::getDriverName() === 'sqlite') {
+            DB::statement('PRAGMA foreign_keys = ON');
+        }
+
+        $rawSqlDeleteBlocked = false;
+        try {
+            DB::delete('DELETE FROM items WHERE id = ?', [$item->id]);
+        } catch (\Throwable $e) {
+            $rawSqlDeleteBlocked = true;
+        }
+
+        $this->assertTrue($rawSqlDeleteBlocked, 'Raw database DELETE statement must be rejected by foreign key constraint');
+        $this->assertDatabaseHas('receivings', ['id' => $receiving->id]);
+        $this->assertDatabaseHas('issuances', ['id' => $issuance->id]);
+        $this->assertDatabaseHas('issuance_items', ['id' => $issuanceItem->id]);
+    }
 }
+
