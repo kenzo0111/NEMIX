@@ -1,8 +1,8 @@
 import AuthAlert from '@/Components/Auth/AuthAlert';
+import AuthSubmitButton from '@/Components/Auth/AuthSubmitButton';
 import PasswordField from '@/Components/Auth/PasswordField';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import FullAuthLayout from '@/Layouts/Auth/FullAuthLayout';
 import { PageProps } from '@/types';
@@ -41,14 +41,14 @@ export default function Register({
             headline="Institutional Account Activation"
             subheadline="Activate your official credentials for the SPMO Smart Supply and Inventory System."
             headerSlot={
-                <div className="mb-6 border-b border-stone-200/80 pb-4">
+                <div className="mb-5 pb-3 border-b border-stone-200/80">
                     <h2 className="text-xl sm:text-2xl font-bold text-stone-900 font-serif tracking-tight">
-                        {isInvitation ? 'Complete Registration' : 'Staff Account Registration'}
+                        {isInvitation ? 'Complete Registration' : 'Account Registration'}
                     </h2>
-                    <p className="text-xs sm:text-sm text-stone-500 mt-1">
+                    <p className="text-xs sm:text-sm text-stone-600 mt-1">
                         {isInvitation
-                            ? 'Your institutional account has been provisioned. Set your password to activate system access.'
-                            : 'Register your personnel credentials to activate official SPMO system access.'}
+                            ? 'Your staff account has been provisioned. Complete your account activation below.'
+                            : 'Register your institutional credentials to activate official SPMO system access.'}
                     </p>
                 </div>
             }
@@ -57,7 +57,7 @@ export default function Register({
 
             {isInvitation && (
                 <AuthAlert variant="info" className="mb-5">
-                    This invitation is tied to <strong>{email}</strong>. Verify your full name and create your official password below.
+                    This activation is provisioned for <strong>{email}</strong>. Please confirm your name and set your account password.
                 </AuthAlert>
             )}
 
@@ -65,7 +65,7 @@ export default function Register({
                 {/* Full Name */}
                 <div>
                     <InputLabel htmlFor="name" value="Full Name" className="text-stone-800 font-semibold text-sm mb-1.5" />
-                    <div className="relative rounded-lg shadow-xs">
+                    <div className="relative rounded-lg shadow-2xs">
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                             <User className="w-4 h-4" aria-hidden="true" />
                         </div>
@@ -73,7 +73,7 @@ export default function Register({
                             id="name"
                             name="name"
                             value={data.name}
-                            className="pl-10 block w-full rounded-lg border-stone-300 shadow-xs focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-colors py-2.5 text-sm bg-stone-50/60 focus:bg-white"
+                            className="pl-10 block w-full rounded-lg border-stone-300 shadow-2xs focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-colors py-2.5 text-sm bg-stone-50/60 focus:bg-white"
                             autoComplete="name"
                             isFocused={true}
                             onChange={(e) => setData('name', e.target.value)}
@@ -87,7 +87,7 @@ export default function Register({
                 {/* Official Email */}
                 <div>
                     <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-800 font-semibold text-sm mb-1.5" />
-                    <div className="relative rounded-lg shadow-xs">
+                    <div className="relative rounded-lg shadow-2xs">
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                             <Mail className="w-4 h-4" aria-hidden="true" />
                         </div>
@@ -96,7 +96,7 @@ export default function Register({
                             type="email"
                             name="email"
                             value={data.email}
-                            className={`pl-10 block w-full rounded-lg border-stone-300 shadow-xs focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-colors py-2.5 text-sm ${
+                            className={`pl-10 block w-full rounded-lg border-stone-300 shadow-2xs focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-colors py-2.5 text-sm ${
                                 isInvitation ? 'bg-stone-100 text-stone-600 cursor-not-allowed' : 'bg-stone-50/60 focus:bg-white'
                             }`}
                             autoComplete="username"
@@ -133,16 +133,12 @@ export default function Register({
 
                 {/* Actions */}
                 <div className="pt-2 space-y-3">
-                    <PrimaryButton
-                        type="submit"
-                        className="w-full justify-center py-2.5 px-4 bg-red-900 hover:bg-red-950 focus:bg-red-950 active:bg-red-950 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
-                        disabled={processing}
-                        aria-busy={processing}
+                    <AuthSubmitButton
+                        processing={processing}
+                        loadingText={isInvitation ? 'Activating Account...' : 'Registering...'}
                     >
-                        {processing
-                            ? (isInvitation ? 'Activating Account...' : 'Registering...')
-                            : (isInvitation ? 'Activate Account' : 'Register Account')}
-                    </PrimaryButton>
+                        {isInvitation ? 'Activate Account' : 'Register Account'}
+                    </AuthSubmitButton>
 
                     <div className="text-center">
                         <Link

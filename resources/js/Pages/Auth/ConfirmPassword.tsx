@@ -1,6 +1,6 @@
 import AuthHeader from '@/Components/Auth/AuthHeader';
+import AuthSubmitButton from '@/Components/Auth/AuthSubmitButton';
 import PasswordField from '@/Components/Auth/PasswordField';
-import PrimaryButton from '@/Components/PrimaryButton';
 import CompactAuthLayout from '@/Layouts/Auth/CompactAuthLayout';
 import { PageProps } from '@/types';
 import { Head, useForm, usePage } from '@inertiajs/react';
@@ -28,7 +28,7 @@ export default function ConfirmPassword(_props: ConfirmPasswordPageProps) {
             headerSlot={
                 <AuthHeader
                     title="Confirm Password"
-                    description="This is a secure institutional area. Please confirm your password before continuing."
+                    description="For security, confirm your current password before continuing."
                 />
             }
         >
@@ -47,14 +47,12 @@ export default function ConfirmPassword(_props: ConfirmPasswordPageProps) {
                 />
 
                 <div className="pt-2">
-                    <PrimaryButton
-                        type="submit"
-                        className="w-full justify-center py-2.5 px-4 bg-red-900 hover:bg-red-950 focus:bg-red-950 active:bg-red-950 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
-                        disabled={processing}
-                        aria-busy={processing}
+                    <AuthSubmitButton
+                        processing={processing}
+                        loadingText="Confirming..."
                     >
-                        {processing ? 'Confirming...' : 'Confirm'}
-                    </PrimaryButton>
+                        Confirm
+                    </AuthSubmitButton>
                 </div>
             </form>
         </CompactAuthLayout>

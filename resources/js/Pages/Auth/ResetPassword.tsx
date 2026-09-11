@@ -1,8 +1,8 @@
 import AuthHeader from '@/Components/Auth/AuthHeader';
+import AuthSubmitButton from '@/Components/Auth/AuthSubmitButton';
 import PasswordField from '@/Components/Auth/PasswordField';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import CompactAuthLayout from '@/Layouts/Auth/CompactAuthLayout';
 import { PageProps } from '@/types';
@@ -47,7 +47,7 @@ export default function ResetPassword({
                 {/* Official Email */}
                 <div>
                     <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-800 font-semibold text-sm mb-1.5" />
-                    <div className="relative rounded-lg shadow-xs">
+                    <div className="relative rounded-lg shadow-2xs">
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                             <Mail className="w-4 h-4" aria-hidden="true" />
                         </div>
@@ -56,7 +56,7 @@ export default function ResetPassword({
                             type="email"
                             name="email"
                             value={data.email}
-                            className="pl-10 block w-full rounded-lg border-stone-300 shadow-xs py-2.5 text-sm bg-stone-100 text-stone-600 cursor-not-allowed"
+                            className="pl-10 block w-full rounded-lg border-stone-300 shadow-2xs py-2.5 text-sm bg-stone-100 text-stone-600 cursor-not-allowed"
                             autoComplete="username"
                             onChange={(e) => setData('email', e.target.value)}
                             disabled={true}
@@ -90,14 +90,12 @@ export default function ResetPassword({
                 />
 
                 <div className="pt-2">
-                    <PrimaryButton
-                        type="submit"
-                        className="w-full justify-center py-2.5 px-4 bg-red-900 hover:bg-red-950 focus:bg-red-950 active:bg-red-950 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
-                        disabled={processing}
-                        aria-busy={processing}
+                    <AuthSubmitButton
+                        processing={processing}
+                        loadingText="Resetting Password..."
                     >
-                        {processing ? 'Resetting Password...' : 'Reset Password'}
-                    </PrimaryButton>
+                        Reset Password
+                    </AuthSubmitButton>
                 </div>
             </form>
         </CompactAuthLayout>

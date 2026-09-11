@@ -1,8 +1,8 @@
 import AuthAlert from '@/Components/Auth/AuthAlert';
 import AuthHeader from '@/Components/Auth/AuthHeader';
+import AuthSubmitButton from '@/Components/Auth/AuthSubmitButton';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import CompactAuthLayout from '@/Layouts/Auth/CompactAuthLayout';
 import { PageProps } from '@/types';
@@ -28,12 +28,12 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
         <CompactAuthLayout
             headerSlot={
                 <AuthHeader
-                    title="Account Password Recovery"
-                    description="Enter your registered institutional email address to request a secure password reset link."
+                    title="Password Recovery"
+                    description="Enter your registered institutional email address. We will send a password reset link if the account is eligible."
                 />
             }
         >
-            <Head title={`Forgot Password | ${institutionName}`} />
+            <Head title={`Password Recovery | ${institutionName}`} />
 
             {status && (
                 <AuthAlert variant="success" className="mb-5">
@@ -44,7 +44,7 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
             <form onSubmit={submit} className="space-y-4">
                 <div>
                     <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-800 font-semibold text-sm mb-1.5" />
-                    <div className="relative rounded-lg shadow-xs">
+                    <div className="relative rounded-lg shadow-2xs">
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                             <Mail className="w-4 h-4" aria-hidden="true" />
                         </div>
@@ -53,7 +53,7 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
                             type="email"
                             name="email"
                             value={data.email}
-                            className="pl-10 block w-full rounded-lg border-stone-300 shadow-xs focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-colors py-2.5 text-sm bg-stone-50/60 focus:bg-white"
+                            className="pl-10 block w-full rounded-lg border-stone-300 shadow-2xs focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-colors py-2.5 text-sm bg-stone-50/60 focus:bg-white"
                             isFocused={true}
                             onChange={(e) => setData('email', e.target.value)}
                             required
@@ -64,14 +64,12 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
                 </div>
 
                 <div className="pt-2 space-y-3">
-                    <PrimaryButton
-                        type="submit"
-                        className="w-full justify-center py-2.5 px-4 bg-red-900 hover:bg-red-950 focus:bg-red-950 active:bg-red-950 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
-                        disabled={processing}
-                        aria-busy={processing}
+                    <AuthSubmitButton
+                        processing={processing}
+                        loadingText="Sending Reset Link..."
                     >
-                        {processing ? 'Sending Reset Link...' : 'Send Reset Link'}
-                    </PrimaryButton>
+                        Send Reset Link
+                    </AuthSubmitButton>
 
                     <div className="text-center">
                         <Link

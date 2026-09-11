@@ -1,9 +1,9 @@
 import AuthAlert from '@/Components/Auth/AuthAlert';
+import AuthSubmitButton from '@/Components/Auth/AuthSubmitButton';
 import PasswordField from '@/Components/Auth/PasswordField';
 import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import FullAuthLayout from '@/Layouts/Auth/FullAuthLayout';
 import { PageProps } from '@/types';
@@ -38,17 +38,17 @@ export default function Login({
             headline="Smart Supply and Inventory Management System"
             subheadline="RFID Inventory Tracking and Automated Reporting"
             headerSlot={
-                <div className="mb-6 border-b border-stone-200/80 pb-4">
+                <div className="mb-5 pb-3 border-b border-stone-200/80">
                     <h2 className="text-xl sm:text-2xl font-bold text-stone-900 font-serif tracking-tight">
-                        Administrative Sign In
+                        Administrative Login
                     </h2>
-                    <p className="text-xs sm:text-sm text-stone-500 mt-1">
-                        Sign in with your official university credentials to access custodial records.
+                    <p className="text-xs sm:text-sm text-stone-600 mt-1">
+                        Sign in using your institutional account.
                     </p>
                 </div>
             }
         >
-            <Head title={`Sign In | ${institutionName}`} />
+            <Head title={`Administrative Login | ${institutionName}`} />
 
             {status && (
                 <AuthAlert variant="success" className="mb-5">
@@ -57,10 +57,10 @@ export default function Login({
             )}
 
             <form onSubmit={submit} className="space-y-4">
-                {/* Official Email Field */}
+                {/* Official Email Address */}
                 <div>
                     <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-800 font-semibold text-sm mb-1.5" />
-                    <div className="relative rounded-lg shadow-xs">
+                    <div className="relative rounded-lg shadow-2xs">
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                             <Mail className="w-4 h-4" aria-hidden="true" />
                         </div>
@@ -69,7 +69,7 @@ export default function Login({
                             type="email"
                             name="email"
                             value={data.email}
-                            className="pl-10 block w-full rounded-lg border-stone-300 shadow-xs focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-colors py-2.5 text-sm bg-stone-50/60 focus:bg-white"
+                            className="pl-10 block w-full rounded-lg border-stone-300 shadow-2xs focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-colors py-2.5 text-sm bg-stone-50/60 focus:bg-white"
                             autoComplete="username"
                             isFocused={true}
                             onChange={(e) => setData('email', e.target.value)}
@@ -113,16 +113,14 @@ export default function Login({
                     )}
                 </div>
 
-                {/* Submit Action */}
+                {/* Primary Action Button */}
                 <div className="pt-2">
-                    <PrimaryButton
-                        type="submit"
-                        className="w-full justify-center py-2.5 px-4 bg-red-900 hover:bg-red-950 focus:bg-red-950 active:bg-red-950 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
-                        disabled={processing}
-                        aria-busy={processing}
+                    <AuthSubmitButton
+                        processing={processing}
+                        loadingText="Signing in..."
                     >
-                        {processing ? 'Signing in...' : 'Sign In'}
-                    </PrimaryButton>
+                        Sign In
+                    </AuthSubmitButton>
                 </div>
             </form>
         </FullAuthLayout>
