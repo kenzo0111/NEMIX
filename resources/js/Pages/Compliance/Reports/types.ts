@@ -23,6 +23,8 @@ export interface ReportFormData {
     supplierId: string | number;
     supplierName: string;
     endUser: string;
+    fundCluster?: string;
+    fund_cluster?: string;
     generatedDate: string;
     periodType: ReportPeriodType;
     date: string;
@@ -41,6 +43,8 @@ export interface ComplianceReport {
     supplierId?: number | string | null;
     supplierName?: string | null;
     endUser?: string | null;
+    fundCluster?: string | null;
+    fund_cluster?: string | null;
     periodType?: ReportPeriodType;
     date?: string | null;
     dateValue?: string | null;

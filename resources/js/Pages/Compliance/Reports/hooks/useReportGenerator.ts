@@ -23,6 +23,8 @@ export function useReportGenerator(
         supplierId: '',
         supplierName: '',
         endUser: '',
+        fundCluster: '01 - Regular Agency Fund',
+        fund_cluster: '01 - Regular Agency Fund',
         generatedDate: today,
         periodType: 'monthly',
         date: today,
@@ -142,7 +144,8 @@ export function useReportGenerator(
             items: previewDataset?.rpci?.items || previewDataset?.mr?.items,
             entries: previewDataset?.stockCard?.entries,
             entityName: previewDataset?.rsmi?.entityName || previewDataset?.rpci?.entity_name || previewDataset?.stockCard?.entity_name || previewDataset?.mr?.entityName,
-            fundCluster: previewDataset?.rsmi?.fundCluster || previewDataset?.rpci?.fund_cluster || previewDataset?.stockCard?.fund_cluster || previewDataset?.mr?.fundCluster,
+            fundCluster: previewDataset?.rsmi?.fundCluster || previewDataset?.rpci?.fund_cluster || previewDataset?.stockCard?.fund_cluster || previewDataset?.mr?.fundCluster || formData.fundCluster || '01 - Regular Agency Fund',
+            fund_cluster: previewDataset?.rsmi?.fundCluster || previewDataset?.rpci?.fund_cluster || previewDataset?.stockCard?.fund_cluster || previewDataset?.mr?.fundCluster || formData.fund_cluster || formData.fundCluster || '01 - Regular Agency Fund',
         };
 
         const payload: any = {
