@@ -9,6 +9,34 @@ class Supplier extends Model
 {
     use SoftDeletes;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($supplier) {
+            if ($supplier->hasHistoricalTransactions()) {
+                throw new \RuntimeException('This record cannot be permanently deleted because it is referenced by existing inventory transactions. Archive or deactivate the record instead.');
+            }
+        });
+    }
+
+    public function hasHistoricalTransactions(): bool
+    {
+        if (class_exists(\Modules\Inventory\Models\Receiving::class)) {
+            if (\Modules\Inventory\Models\Receiving::where('supplier_id', $this->id)->exists()) {
+                return true;
+            }
+        }
+
+        if (class_exists(\Modules\Inventory\Models\Item::class)) {
+            if (\Modules\Inventory\Models\Item::where('supplier_id', $this->id)->exists()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     protected $fillable = [
         'name',
         'tin',

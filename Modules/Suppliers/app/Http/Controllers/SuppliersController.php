@@ -116,7 +116,15 @@ class SuppliersController extends Controller
         $supplier = Supplier::findOrFail($id);
         ResourceOwnershipPolicy::authorize(auth()->user(), $supplier, 'created_by');
 
-        $supplier->delete();
+        if ($supplier->hasHistoricalTransactions()) {
+            return back()->with('error', 'This record cannot be permanently deleted because it is referenced by existing inventory transactions. Archive or deactivate the record instead.');
+        }
+
+        try {
+            $supplier->delete();
+        } catch (\Throwable $e) {
+            return back()->with('error', 'This record cannot be permanently deleted because it is referenced by existing inventory transactions. Archive or deactivate the record instead.');
+        }
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier deleted successfully.');
     }

@@ -49,4 +49,32 @@ return Application::configure(basePath: dirname(__DIR__))
                 }
             }
         });
+
+        $exceptions->render(function (\Illuminate\Database\QueryException $e, $request) {
+            $message = $e->getMessage();
+            if (
+                str_contains($message, 'foreign key constraint') ||
+                str_contains($message, 'FOREIGN KEY constraint failed') ||
+                str_contains($message, 'Cannot delete or update a parent row') ||
+                str_contains($message, 'foreign_key')
+            ) {
+                $friendlyMessage = 'This record cannot be deleted because it is referenced by existing inventory transactions.';
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => $friendlyMessage], 422);
+                }
+                return back()->with('error', $friendlyMessage);
+            }
+
+            if (
+                str_contains($message, 'rfid_tag') ||
+                str_contains($message, 'UNIQUE constraint failed: items.rfid_tag') ||
+                str_contains($message, 'duplicate key value violates unique constraint')
+            ) {
+                $friendlyMessage = 'This RFID tag is already associated with an existing inventory item.';
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => $friendlyMessage], 422);
+                }
+                return back()->withErrors(['rfid_tag' => $friendlyMessage]);
+            }
+        });
     })->create();

@@ -145,21 +145,67 @@ class RfidScannerController extends Controller
                 $item = Item::lockForUpdate()->findOrFail($itemId);
                 ResourceOwnershipPolicy::authorize($user, $item, 'created_by');
 
-                // Authoritative backend uniqueness validation
-                $existing = Item::where('rfid_tag', $rfidTag)
+                // Authoritative uniqueness validation including soft-deleted items
+                $existing = Item::withTrashed()
+                    ->where('rfid_tag', $rfidTag)
                     ->where('id', '!=', $itemId)
+                    ->lockForUpdate()
                     ->first();
 
                 if ($existing) {
-                    return back()->withErrors([
-                        'rfid_tag' => "Conflict: RFID ID '{$rfidTag}' is already assigned to '{$existing->name}' (Property No: " . ($existing->sku ?? 'N/A') . ").",
-                        'conflict_item' => [
-                            'id' => $existing->id,
-                            'name' => $existing->name,
-                            'sku' => $existing->sku ?? 'N/A',
-                            'description' => $existing->description,
-                        ],
-                    ]);
+                    if (! $existing->trashed()) {
+                        // Active item collision -> Reject
+                        return back()->withErrors([
+                            'rfid_tag' => 'This RFID tag is already assigned to another active inventory item.',
+                            'conflict_item' => [
+                                'id' => $existing->id,
+                                'name' => $existing->name,
+                                'sku' => $existing->sku ?? 'N/A',
+                                'description' => $existing->description,
+                            ],
+                        ]);
+                    }
+
+                    // Soft-deleted / retired item -> Controlled reassignment
+                    $existing->update(['rfid_tag' => null]);
+                    $previousTag = $item->rfid_tag;
+                    $item->update(['rfid_tag' => $rfidTag]);
+
+                    if (class_exists(TransactionTrail::class)) {
+                        TransactionTrail::create([
+                            'user_id' => $user?->id,
+                            'module' => 'RFID Scanner',
+                            'action' => 'reassign',
+                            'resource_ref' => $item->sku ?? (string) $item->id,
+                            'details' => json_encode([
+                                'rfid_tag' => $rfidTag,
+                                'previous_item' => [
+                                    'id' => $existing->id,
+                                    'name' => $existing->name,
+                                    'sku' => $existing->sku ?? 'N/A',
+                                ],
+                                'new_item' => [
+                                    'id' => $item->id,
+                                    'name' => $item->name,
+                                    'sku' => $item->sku ?? 'N/A',
+                                ],
+                                'changed_by' => $user?->name ?? 'System Administrator',
+                                'timestamp' => now()->toIso8601String(),
+                                'reason' => 'Controlled reassignment from retired inventory item',
+                                'action' => 'reassigned_rfid_tag',
+                            ]),
+                            'status' => 'completed',
+                        ]);
+                    }
+
+                    $nextUntagged = Item::whereNull('rfid_tag')
+                        ->where('id', '!=', $itemId)
+                        ->first();
+
+                    $redirectParams = $nextUntagged ? ['item_id' => $nextUntagged->id] : ['item_id' => $itemId];
+
+                    return redirect()->route('rfid-scanner.index', $redirectParams)
+                        ->with('success', "RFID Tag {$rfidTag} successfully reassigned from retired item to {$item->name}.");
                 }
 
                 $previousTag = $item->rfid_tag;
@@ -194,7 +240,7 @@ class RfidScannerController extends Controller
             });
         } catch (QueryException $e) {
             return back()->withErrors([
-                'rfid_tag' => "Database integrity conflict: Tag '{$rfidTag}' could not be assigned due to a uniqueness collision.",
+                'rfid_tag' => 'This RFID tag is already associated with an existing inventory item.',
             ]);
         }
     }
@@ -299,11 +345,10 @@ class RfidScannerController extends Controller
                 'name' => $item->name,
                 'sku' => $item->sku,
                 'description' => $item->description,
-                'supplier_id' => $item->supplier_id,
-                'supplier_name' => $item->supplier ? $item->supplier->name : '',
                 'rfid_tag' => $item->rfid_tag,
-                'stock' => $item->stock,
+                'stock' => (int) $item->stock,
                 'unit_of_issue' => $item->unit_of_issue,
+                'status' => $item->status,
             ],
         ]);
     }

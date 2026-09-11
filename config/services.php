@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'rfid' => [
+        'device_token' => env('RFID_DEVICE_TOKEN'),
+    ],
+
 ];

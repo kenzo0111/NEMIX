@@ -18,8 +18,21 @@ use Spatie\Permission\Models\Role;
 
 class ManageStaffController extends Controller
 {
+    /**
+     * Authorize that the current authenticated user has System Administrator privileges.
+     */
+    protected function authorizeAdmin(Request $request): void
+    {
+        $user = $request->user();
+        if (! $user || ! $user->isSystemAdmin()) {
+            abort(403, 'Unauthorized action. System Admin access required.');
+        }
+    }
+
     public function index(Request $request): Response
     {
+        $this->authorizeAdmin($request);
+
         $staffs = User::query()
             ->with('roles:id,name')
             ->orderBy('name')

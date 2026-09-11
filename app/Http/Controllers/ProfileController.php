@@ -157,6 +157,10 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
+        if ($user->hasHistoricalTransactions()) {
+            return back()->with('error', 'This record cannot be permanently deleted because it is referenced by existing inventory transactions. Archive or deactivate the record instead.');
+        }
+
         Auth::logout();
 
         $user->delete();

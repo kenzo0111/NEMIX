@@ -13,6 +13,34 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($user) {
+            if ($user->hasHistoricalTransactions()) {
+                throw new \RuntimeException('This record cannot be permanently deleted because it is referenced by existing inventory transactions. Archive or deactivate the record instead.');
+            }
+        });
+    }
+
+    public function hasHistoricalTransactions(): bool
+    {
+        if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
+            if (\Modules\Inventory\Models\Issuance::where('issued_by', $this->id)->exists()) {
+                return true;
+            }
+        }
+
+        if (class_exists(\Modules\Inventory\Models\Receiving::class)) {
+            if (\Modules\Inventory\Models\Receiving::where('created_by', $this->id)->exists()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * The attributes that are mass assignable.
      *

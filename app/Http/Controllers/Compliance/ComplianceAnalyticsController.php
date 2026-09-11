@@ -132,15 +132,19 @@ class ComplianceAnalyticsController extends Controller
                 ];
             });
 
+        $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
+            ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
+            : 10;
+
         $lowStockChartItems = $items
             ->where('status', 'Low Stock')
             ->take(6)
             ->values()
-            ->map(function ($item) {
+            ->map(function ($item) use ($lowStockThreshold) {
                 return [
                     'label' => $item['name'],
                     'value' => $item['stock'],
-                    'meta' => 'Min threshold 10',
+                    'meta' => 'Min threshold ' . $lowStockThreshold,
                     'color' => '#f59e0b',
                 ];
             });

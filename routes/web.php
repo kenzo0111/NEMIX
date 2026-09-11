@@ -64,9 +64,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // RFID Hardware Scanner API (Accessible by ESP32 & Web Live Sync)
-Route::get('/rfid-scanner/status', [RfidScannerController::class, 'status'])->name('rfid-scanner.status');
-Route::get('/rfid-scanner/lookup/{tag}', [RfidScannerController::class, 'lookup'])->name('rfid-scanner.lookup');
-Route::get('/rfid-scanner/live-feed', [RfidScannerController::class, 'liveFeed'])->name('rfid-scanner.live-feed');
+Route::middleware(\App\Http\Middleware\AuthenticateRfidHardware::class)->group(function () {
+    Route::get('/rfid-scanner/status', [RfidScannerController::class, 'status'])->name('rfid-scanner.status');
+    Route::get('/rfid-scanner/lookup/{tag}', [RfidScannerController::class, 'lookup'])->name('rfid-scanner.lookup');
+    Route::get('/rfid-scanner/live-feed', [RfidScannerController::class, 'liveFeed'])->name('rfid-scanner.live-feed');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/account-settings', [ProfileController::class, 'edit'])->name('account.settings');

@@ -10,6 +10,34 @@ class Item extends Model
 {
     use SoftDeletes;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($item) {
+            if ($item->isForceDeleting() && $item->hasHistoricalTransactions()) {
+                throw new \RuntimeException('This record cannot be permanently deleted because it is referenced by existing inventory transactions. Archive or deactivate the record instead.');
+            }
+        });
+    }
+
+    public function hasHistoricalTransactions(): bool
+    {
+        if (class_exists(Receiving::class) && Receiving::where('item_id', $this->id)->exists()) {
+            return true;
+        }
+
+        if (class_exists(Issuance::class) && Issuance::where('item_id', $this->id)->exists()) {
+            return true;
+        }
+
+        if (class_exists(IssuanceItem::class) && IssuanceItem::where('item_id', $this->id)->exists()) {
+            return true;
+        }
+
+        return false;
+    }
+
     protected $fillable = [
         'name',
         'supplier_id',

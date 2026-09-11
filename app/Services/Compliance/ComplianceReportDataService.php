@@ -163,34 +163,63 @@ class ComplianceReportDataService
 
         // 1. Live Issuances
         if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
-            $liveIssuances = \Modules\Inventory\Models\Issuance::with(['item', 'issuer'])
+            $liveIssuances = \Modules\Inventory\Models\Issuance::with(['items.item', 'item', 'issuer'])
                 ->latest()
                 ->get()
                 ->filter(function ($issuance) use ($filters) {
                     $dt = $issuance->date_issued ?? $issuance->created_at;
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
                 })
-                ->map(function ($issuance) {
+                ->flatMap(function ($issuance) {
+                    $rawDate = $issuance->date_issued ?? $issuance->created_at;
+                    $normDate = $this->normalizeDate($rawDate);
+                    $risNo = $issuance->ris_number ?: ($issuance->id ? sprintf('%04d', $issuance->id) : '-');
+                    $dept = $issuance->department ?? '-';
+                    $fundCluster = $issuance->fund_cluster ?? '01 - Regular Agency Fund';
+
+                    if ($issuance->items->isNotEmpty()) {
+                        return $issuance->items->map(function ($line) use ($normDate, $risNo, $dept, $fundCluster) {
+                            $item = $line->item;
+                            $qty = (int) $line->quantity;
+                            $unitCost = (float) ($line->unit_cost ?? $item?->unit_cost ?? 0);
+                            $amount = (float) ($line->amount ?? ($qty * $unitCost));
+
+                            return [
+                                'source' => 'live',
+                                'risNo' => $risNo,
+                                'responsibilityCenterCode' => $dept,
+                                'stockNo' => $item?->sku ?? '-',
+                                'itemDescription' => $item?->name ?? '-',
+                                'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
+                                'quantityIssued' => $qty,
+                                'unitCost' => $unitCost,
+                                'amount' => $amount,
+                                'date' => $normDate,
+                                'entity_name' => 'University of Camarines Norte',
+                                'fund_cluster' => $fundCluster,
+                            ];
+                        });
+                    }
+
                     $item = $issuance->item;
                     $qty = (int) ($issuance->quantity ?? 0);
                     $unitCost = (float) ($item?->unit_cost ?? 0);
                     $amount = $qty * $unitCost;
-                    $rawDate = $issuance->date_issued ?? $issuance->created_at;
 
-                    return [
+                    return [[
                         'source' => 'live',
-                        'risNo' => $issuance->id ? sprintf('%04d', $issuance->id) : '-',
-                        'responsibilityCenterCode' => $issuance->department ?? '-',
+                        'risNo' => $risNo,
+                        'responsibilityCenterCode' => $dept,
                         'stockNo' => $item?->sku ?? '-',
                         'itemDescription' => $item?->name ?? '-',
                         'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
                         'quantityIssued' => $qty,
                         'unitCost' => $unitCost,
                         'amount' => $amount,
-                        'date' => $this->normalizeDate($rawDate),
+                        'date' => $normDate,
                         'entity_name' => 'University of Camarines Norte',
-                        'fund_cluster' => $issuance->fund_cluster ?? '01 - Regular Agency Fund',
-                    ];
+                        'fund_cluster' => $fundCluster,
+                    ]];
                 });
 
             $records = $records->concat($liveIssuances);
@@ -308,6 +337,7 @@ class ComplianceReportDataService
         return [
             'issuedItems' => $issuedItems,
             'recapitulationItems' => $recapitulationItems,
+            'recapitulation' => $recapitulationItems,
             'summary' => [
                 'recordCount' => count($issuedItems),
                 'totalUnits' => $totalUnits,
@@ -473,33 +503,70 @@ class ComplianceReportDataService
 
         // 2. Issuances
         if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
-            $issuancesQuery = \Modules\Inventory\Models\Issuance::with(['item']);
+            $issuancesQuery = \Modules\Inventory\Models\Issuance::with(['items.item', 'item']);
             if ($activeItem) {
-                $issuancesQuery->where('item_id', $activeItem->id);
+                $issuancesQuery->where(function ($q) use ($activeItem) {
+                    $q->whereHas('items', function ($sub) use ($activeItem) {
+                        $sub->where('item_id', $activeItem->id);
+                    })->orWhere(function ($sub) use ($activeItem) {
+                        $sub->where('item_id', $activeItem->id)
+                            ->whereDoesntHave('items');
+                    });
+                });
             }
             $issuances = $issuancesQuery->get()
                 ->filter(function ($iss) use ($targetLower, $activeItem, $filters) {
-                    if (!$activeItem) {
-                        $name = strtolower((string)($iss->item?->name ?? ''));
-                        if ($name !== $targetLower) return false;
-                    }
                     $dt = $iss->date_issued ?? $iss->created_at;
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
                 })
-                ->map(function ($iss) {
-                    $qty = (int) ($iss->quantity ?? 0);
+                ->flatMap(function ($iss) use ($targetLower, $activeItem) {
                     $dt = $iss->date_issued ?? $iss->created_at;
                     $office = $iss->department ?? $iss->recipient ?? 'Office';
+                    $ref = $iss->ris_number ?: ('RIS-' . $iss->id);
 
-                    return [
+                    if ($iss->items->isNotEmpty()) {
+                        $matchingLines = $iss->items->filter(function ($line) use ($targetLower, $activeItem) {
+                            if ($activeItem) {
+                                return (int) $line->item_id === (int) $activeItem->id;
+                            }
+                            $name = strtolower((string)($line->item?->name ?? ''));
+                            return $name === $targetLower;
+                        });
+
+                        return $matchingLines->map(function ($line) use ($dt, $ref, $office, $iss) {
+                            $qty = (int) ($line->quantity ?? 0);
+                            return [
+                                'date' => $this->normalizeDate($dt),
+                                'reference' => $ref,
+                                'receipt_qty' => '',
+                                'issue_qty' => $qty > 0 ? $qty : '',
+                                'issue_office' => $office,
+                                'days_to_consume' => $iss->purpose ?? '',
+                                '_type' => 'issue',
+                            ];
+                        });
+                    }
+
+                    // Fallback to legacy single item
+                    if (!$activeItem) {
+                        $name = strtolower((string)($iss->item?->name ?? ''));
+                        if ($name !== $targetLower) {
+                            return [];
+                        }
+                    } elseif ((int) $iss->item_id !== (int) $activeItem->id) {
+                        return [];
+                    }
+
+                    $qty = (int) ($iss->quantity ?? 0);
+                    return [[
                         'date' => $this->normalizeDate($dt),
-                        'reference' => 'RIS-' . $iss->id,
+                        'reference' => $ref,
                         'receipt_qty' => '',
                         'issue_qty' => $qty > 0 ? $qty : '',
                         'issue_office' => $office,
                         'days_to_consume' => $iss->purpose ?? '',
                         '_type' => 'issue',
-                    ];
+                    ]];
                 });
 
             $transactions = $transactions->concat($issuances);
@@ -613,7 +680,7 @@ class ComplianceReportDataService
 
         // 1. Live issuances
         if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
-            $query = \Modules\Inventory\Models\Issuance::with(['item']);
+            $query = \Modules\Inventory\Models\Issuance::with(['items.item', 'item']);
             $issuances = $query->latest()->get()
                 ->filter(function ($iss) use ($endUserLower, $filters) {
                     if ($endUserLower && strtolower((string)$iss->recipient) !== $endUserLower) {
@@ -622,14 +689,41 @@ class ComplianceReportDataService
                     $dt = $iss->date_issued ?? $iss->created_at;
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
                 })
-                ->map(function ($iss) {
+                ->flatMap(function ($iss) {
+                    $dt = $iss->date_issued ?? $iss->created_at;
+                    $recipient = $iss->recipient ?? 'Accountable Officer';
+                    $designation = $iss->recipient_designation ?? 'Property Custodian';
+                    $department = $iss->department ?? 'Official Business';
+
+                    if ($iss->items->isNotEmpty()) {
+                        return $iss->items->map(function ($line) use ($iss, $dt, $recipient, $designation, $department) {
+                            $item = $line->item;
+                            $qty = (int) ($line->quantity ?? 1);
+                            $cost = (float) ($line->unit_cost ?? $item?->unit_cost ?? 0);
+                            $total = (float) ($line->amount ?? ($qty * $cost));
+
+                            return [
+                                'source' => 'live',
+                                'quantity' => $qty,
+                                'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
+                                'description' => $item?->name ?? 'Property Item',
+                                'propertyNo' => $item?->sku ?? ('PROP-' . $iss->id),
+                                'dateAcquired' => $this->normalizeDate($dt),
+                                'unitValue' => $cost,
+                                'totalValue' => $total,
+                                'recipient' => $recipient,
+                                'designation' => $designation,
+                                'department' => $department,
+                            ];
+                        });
+                    }
+
                     $item = $iss->item;
                     $qty = (int) ($iss->quantity ?? 1);
                     $cost = (float) ($item?->unit_cost ?? 0);
                     $total = $qty * $cost;
-                    $dt = $iss->date_issued ?? $iss->created_at;
 
-                    return [
+                    return [[
                         'source' => 'live',
                         'quantity' => $qty,
                         'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
@@ -638,10 +732,10 @@ class ComplianceReportDataService
                         'dateAcquired' => $this->normalizeDate($dt),
                         'unitValue' => $cost,
                         'totalValue' => $total,
-                        'recipient' => $iss->recipient ?? 'Accountable Officer',
-                        'designation' => $iss->recipient_designation ?? 'Property Custodian',
-                        'department' => $iss->department ?? 'Official Business',
-                    ];
+                        'recipient' => $recipient,
+                        'designation' => $designation,
+                        'department' => $department,
+                    ]];
                 });
 
             $records = $records->concat($issuances);

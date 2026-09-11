@@ -83,8 +83,11 @@ class InventoryService implements ServiceInterface
             }
             $item->stock += $dto->quantity;
             // Recalculate amount and status (replicating controller logic)
+            $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
+                ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
+                : 10;
             $item->amount = (float) $item->stock * (float) ($item->unit_cost ?? 0);
-            $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= 10 ? 'Low Stock' : 'Available');
+            $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= $lowStockThreshold ? 'Low Stock' : 'Available');
             $item->save();
             return $receiving;
         });
@@ -114,9 +117,12 @@ class InventoryService implements ServiceInterface
                 'status' => 'Issued',
                 'issued_by' => auth()->id(),
             ]);
+            $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
+                ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
+                : 10;
             $item->stock -= $dto->quantity;
             $item->amount = (float) $item->stock * (float) ($item->unit_cost ?? 0);
-            $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= 10 ? 'Low Stock' : 'Available');
+            $item->status = $item->stock <= 0 ? 'Out of Stock' : ($item->stock <= $lowStockThreshold ? 'Low Stock' : 'Available');
             $item->save();
             return $issuance;
         });

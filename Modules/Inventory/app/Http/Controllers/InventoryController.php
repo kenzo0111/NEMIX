@@ -680,8 +680,11 @@ class InventoryController extends Controller
         ResourceOwnershipPolicy::authorize(auth()->user(), $issuance, 'issued_by');
 
         $validated = $request->validate([
-            'item_id' => ['required', 'integer', 'exists:items,id'],
-            'quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
+            'issuances' => ['nullable', 'array', 'min:1', 'max:100'],
+            'issuances.*.item_id' => ['required_with:issuances', 'integer', 'exists:items,id'],
+            'issuances.*.quantity' => ['required_with:issuances', 'integer', 'min:1', 'max:1000000'],
+            'item_id' => ['nullable', 'integer', 'exists:items,id'],
+            'quantity' => ['nullable', 'integer', 'min:1', 'max:1000000'],
             'recipient' => ['required', 'string', 'max:255'],
             'department' => ['nullable', 'string', 'max:255'],
             'fund_cluster' => ['nullable', 'string', 'max:255'],
@@ -695,35 +698,141 @@ class InventoryController extends Controller
 
         $normalizedDate = $this->normalizeDate($request->date_issued);
 
-        \DB::transaction(function () use ($request, $issuance, $normalizedDate) {
-            $oldItem = Item::findOrFail($issuance->item_id);
-            $oldQuantity = $issuance->quantity;
-            $oldStatus = $issuance->status;
-            
+        $requestedLines = [];
+        if ($request->filled('issuances') && is_array($request->issuances)) {
+            $requestedLines = $request->issuances;
+        } elseif ($request->filled('item_id') && $request->filled('quantity')) {
+            $requestedLines = [[
+                'item_id' => (int) $request->item_id,
+                'quantity' => (int) $request->quantity,
+            ]];
+        } else {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'quantity' => 'At least one item line must be specified for this issuance voucher.'
+            ]);
+        }
+
+        $condensedRequested = [];
+        foreach ($requestedLines as $line) {
+            $iid = (int) $line['item_id'];
+            $qty = (int) $line['quantity'];
+            $condensedRequested[$iid] = ($condensedRequested[$iid] ?? 0) + $qty;
+        }
+
+        \DB::transaction(function () use ($request, $issuance, $normalizedDate, $condensedRequested) {
+            // 1. Lock the issuance record
+            $lockedIssuance = Issuance::where('id', $issuance->id)->lockForUpdate()->firstOrFail();
+
+            // 2. Retrieve old issuance items
+            $oldChildItems = $lockedIssuance->items()->get();
+            $oldLines = [];
+            if ($oldChildItems->isNotEmpty()) {
+                foreach ($oldChildItems as $ci) {
+                    $oldLines[] = ['item_id' => (int) $ci->item_id, 'quantity' => (int) $ci->quantity];
+                }
+            } elseif ($lockedIssuance->item_id) {
+                $oldLines[] = ['item_id' => (int) $lockedIssuance->item_id, 'quantity' => (int) $lockedIssuance->quantity];
+            }
+
+            // 3. Lock all affected inventory items in deterministic order
+            $allItemIds = array_values(array_unique(array_merge(
+                array_column($oldLines, 'item_id'),
+                array_keys($condensedRequested)
+            )));
+            sort($allItemIds);
+
+            $lockedItems = Item::whereIn('id', $allItemIds)->lockForUpdate()->get()->keyBy('id');
+
+            // 4. Reverse old stock impact if previously Issued
+            if ($lockedIssuance->status === 'Issued') {
+                foreach ($oldLines as $oldLine) {
+                    $item = $lockedItems->get($oldLine['item_id']);
+                    if ($item) {
+                        $item->stock += (int) $oldLine['quantity'];
+                    }
+                }
+            }
+
+            // 5. Validate and apply new stock deductions if new status is Issued
+            if ($request->status === 'Issued') {
+                foreach ($condensedRequested as $itemId => $reqQty) {
+                    $item = $lockedItems->get($itemId);
+                    if (! $item || $item->stock < $reqQty) {
+                        $available = $item ? $item->stock : 0;
+                        $itemName = $item ? $item->name : "Item #{$itemId}";
+                        throw \Illuminate\Validation\ValidationException::withMessages([
+                            'quantity' => "Insufficient stock for item: {$itemName} (Available: {$available}, Requested: {$reqQty})"
+                        ]);
+                    }
+                }
+
+                foreach ($condensedRequested as $itemId => $reqQty) {
+                    $item = $lockedItems->get($itemId);
+                    $item->stock -= $reqQty;
+                }
+            }
+
+            // 6. Recalculate totals and statuses for all touched inventory items
+            foreach ($lockedItems as $item) {
+                $this->refreshItemTotals($item);
+            }
+
+            // 7. Synchronize child issuance_items
+            $lockedIssuance->items()->delete();
+
+            $primaryItemId = null;
+            $totalQuantity = 0;
+            $totalAmount = 0.00;
+
+            foreach ($condensedRequested as $itemId => $qty) {
+                $item = $lockedItems->get($itemId);
+                $unitCost = (float) ($item->unit_cost ?? 0);
+                $amount = $qty * $unitCost;
+
+                if ($primaryItemId === null) {
+                    $primaryItemId = $itemId;
+                }
+                $totalQuantity += $qty;
+                $totalAmount += $amount;
+
+                IssuanceItem::create([
+                    'issuance_id' => $lockedIssuance->id,
+                    'item_id' => $itemId,
+                    'quantity' => $qty,
+                    'unit_cost' => $unitCost,
+                    'amount' => $amount,
+                ]);
+            }
+
+            // 8. Update issuance parent fields consistently
             $updateData = $request->only([
-                'item_id', 'quantity', 'recipient', 'department', 'fund_cluster',
+                'recipient', 'department', 'fund_cluster',
                 'recipient_designation', 'purpose', 'approved_by', 'approved_by_designation',
                 'status'
             ]);
             $updateData['date_issued'] = $normalizedDate;
-            $issuance->update($updateData);
-            
-            // Revert previous stock if the issuance was 'Issued'
-            if ($oldStatus === 'Issued') {
-                $oldItem->stock += $oldQuantity;
-            }
-            $this->refreshItemTotals($oldItem);
+            $updateData['item_id'] = $primaryItemId;
+            $updateData['quantity'] = $totalQuantity;
+            $lockedIssuance->update($updateData);
 
-            // Deduct new stock if new status is 'Issued'
-            if ($request->status === 'Issued') {
-                $newItem = Item::findOrFail($request->item_id);
-                if ($newItem->stock < $request->quantity) {
-                    throw \Illuminate\Validation\ValidationException::withMessages([
-                        'quantity' => 'Insufficient stock for item: ' . $newItem->name
-                    ]);
-                }
-                $newItem->stock -= $request->quantity;
-                $this->refreshItemTotals($newItem);
+            // 9. Write audit log
+            if (class_exists(\Modules\AuditLogs\Models\TransactionTrail::class)) {
+                \Modules\AuditLogs\Models\TransactionTrail::create([
+                    'user_id' => auth()->id(),
+                    'module' => 'Inventory',
+                    'action' => 'Updated Stock Issuance',
+                    'resource_ref' => $lockedIssuance->ris_number ?: ('RIS-' . $lockedIssuance->id),
+                    'details' => json_encode([
+                        'issuance_id' => $lockedIssuance->id,
+                        'ris_number' => $lockedIssuance->ris_number,
+                        'recipient' => $lockedIssuance->recipient,
+                        'status' => $lockedIssuance->status,
+                        'total_quantity' => $totalQuantity,
+                        'total_amount' => $totalAmount,
+                        'items_count' => count($condensedRequested),
+                    ]),
+                    'status' => 'completed',
+                ]);
             }
         });
 

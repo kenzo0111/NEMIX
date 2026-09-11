@@ -35,11 +35,15 @@ class DashboardService
             ? (int) DB::table(DB::raw('(select distinct recipient, date_issued, status, issued_by, created_at from issuances) as distinct_issuances'))->count()
             : 0;
 
+        $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
+            ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
+            : 10;
+
         $criticalAlertsCount = class_exists(\Modules\Inventory\Models\Item::class)
-            ? (int) \Modules\Inventory\Models\Item::where(function ($q) {
+            ? (int) \Modules\Inventory\Models\Item::where(function ($q) use ($lowStockThreshold) {
                 $q->where('status', 'Low Stock')
-                    ->orWhere(function ($sub) {
-                        $sub->where('stock', '<=', 10)->where('stock', '>', 0);
+                    ->orWhere(function ($sub) use ($lowStockThreshold) {
+                        $sub->where('stock', '<=', $lowStockThreshold)->where('stock', '>', 0);
                     });
             })->count()
             : 0;
@@ -296,22 +300,27 @@ class DashboardService
             return [];
         }
 
-        return \Modules\Inventory\Models\Item::where(function ($q) {
+        $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
+            ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
+            : 10;
+
+        return \Modules\Inventory\Models\Item::where(function ($q) use ($lowStockThreshold) {
                 $q->where('status', 'Low Stock')
                     ->orWhere('status', 'Out of Stock')
-                    ->orWhere('stock', '<=', 10);
+                    ->orWhere('stock', '<=', $lowStockThreshold);
             })
             ->orderBy('stock', 'asc')
             ->take($limit)
             ->get()
-            ->map(function ($item) {
-                $priority = $item->stock <= 0 ? 'Critical' : ($item->stock <= 5 ? 'Critical' : 'Low');
+            ->map(function ($item) use ($lowStockThreshold) {
+                $criticalCutoff = max(1, (int) round($lowStockThreshold / 2));
+                $priority = $item->stock <= 0 ? 'Critical' : ($item->stock <= $criticalCutoff ? 'Critical' : 'Low');
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
                     'sku' => $item->sku ?? 'No SKU',
                     'current' => (int) $item->stock,
-                    'min' => 10,
+                    'min' => $lowStockThreshold,
                     'unit' => $item->unit_of_issue ?? 'Pcs',
                     'priority' => $priority,
                     'status' => $item->stock <= 0 ? 'Out of Stock' : ($priority === 'Critical' ? 'Critical' : 'Low Stock'),
