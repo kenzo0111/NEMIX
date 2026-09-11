@@ -121,6 +121,13 @@ class HandleInertiaRequests extends Middleware
             // Fallback gracefully if table not yet migrated
         }
 
+        $publicBranding = [
+            'institutionName' => $publicSettings['institution_name'] ?? 'University of Camarines Norte',
+            'acronym' => $publicSettings['institution_acronym'] ?? 'UCN',
+            'officeName' => $publicSettings['institution_custodial_office'] ?? 'Supply & Property Management Office (SPMO)',
+            'logoUrl' => $publicSettings['institution_logo_path'] ?? '/images/ucnlogo.png',
+        ];
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -129,7 +136,8 @@ class HandleInertiaRequests extends Middleware
                 'is_system_admin' => $isSystemAdmin,
                 'capabilities' => $capabilities,
             ],
-            'system' => [
+            'branding' => $publicBranding,
+            'system' => $user ? [
                 'mode' => $sysConfig->active_mode,
                 'previous_mode' => $sysConfig->previous_mode,
                 'env' => $sysConfig->environment,
@@ -143,7 +151,7 @@ class HandleInertiaRequests extends Middleware
                 'change_reason' => $sysConfig->change_reason,
                 'version' => 'v2.4.0-Enterprise',
                 'settings' => $publicSettings,
-            ],
+            ] : null,
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

@@ -184,6 +184,13 @@ export interface SystemConfigurationState {
     version?: string;
 }
 
+export interface PublicInstitutionBranding {
+    institutionName: string;
+    acronym?: string;
+    officeName: string;
+    logoUrl?: string;
+}
+
 export interface FlashMessages {
     success?: string | null;
     error?: string | null;
@@ -200,6 +207,7 @@ export type PageProps<
         is_system_admin?: boolean;
         capabilities?: AuthCapabilities;
     };
-    system?: SystemConfigurationState;
+    branding?: PublicInstitutionBranding;
+    system?: SystemConfigurationState | null;
     flash?: FlashMessages;
 };
