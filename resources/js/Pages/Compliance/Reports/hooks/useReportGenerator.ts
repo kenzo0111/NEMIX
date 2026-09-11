@@ -111,19 +111,50 @@ export function useReportGenerator(
         setIsSubmitting(true);
 
         const genDate = formData.generatedDate || getLocalDateString();
-        const payload = {
+        const coverageLabel = previewDataset?.coverageLabel || formData.date;
+
+        const snapshot = previewDataset ? {
+            ...previewDataset,
+            rsmi: previewDataset.rsmi,
+            rpci: previewDataset.rpci,
+            stockCard: previewDataset.stockCard,
+            mr: previewDataset.mr,
+            summary: previewDataset.summary,
+            issuedItems: previewDataset.rsmi?.issuedItems,
+            recapitulationItems: previewDataset.rsmi?.recapitulationItems,
+            items: previewDataset.rpci?.items || previewDataset.mr?.items,
+            entries: previewDataset.stockCard?.entries,
+        } : null;
+
+        const payloadData: Record<string, any> = {
+            ...formData,
+            generatedDate: genDate,
+            coverageLabel,
+            snapshot: snapshot || undefined,
+            dataset: snapshot || undefined,
+            rsmi: previewDataset?.rsmi,
+            rpci: previewDataset?.rpci,
+            stockCard: previewDataset?.stockCard,
+            mr: previewDataset?.mr,
+            summary: previewDataset?.summary,
+            issuedItems: previewDataset?.rsmi?.issuedItems,
+            recapitulationItems: previewDataset?.rsmi?.recapitulationItems,
+            items: previewDataset?.rpci?.items || previewDataset?.mr?.items,
+            entries: previewDataset?.stockCard?.entries,
+            entityName: previewDataset?.rsmi?.entityName || previewDataset?.rpci?.entity_name || previewDataset?.stockCard?.entity_name || previewDataset?.mr?.entityName,
+            fundCluster: previewDataset?.rsmi?.fundCluster || previewDataset?.rpci?.fund_cluster || previewDataset?.stockCard?.fund_cluster || previewDataset?.mr?.fundCluster,
+        };
+
+        const payload: any = {
             ...formData,
             title: formData.title || `${formData.type} Report`,
             type: formData.type,
             reference: formData.reference || previewDataset?.reference || '',
             periodType: formData.periodType || 'all',
             generatedDate: genDate,
-            coverageLabel: previewDataset?.coverageLabel || formData.date,
-            payload: {
-                ...formData,
-                generatedDate: genDate,
-                coverageLabel: previewDataset?.coverageLabel,
-            },
+            coverageLabel,
+            snapshot: snapshot || undefined,
+            payload: payloadData,
         };
 
         router.post(route('compliance.reports.store'), payload, {

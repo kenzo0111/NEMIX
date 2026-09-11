@@ -3,6 +3,7 @@ import Modal from '@/Components/Modal';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { getReportTypeLabel } from '../constants';
 import { ComplianceReport } from '../types';
+import { normalizeReportPaperData } from '../utils/reportDataNormalizer';
 
 const RSMIFormPaper = lazy(() =>
     import('../../../../../Official Forms/RSMI Report').then((m) => ({ default: m.RSMIFormPaper })),
@@ -131,97 +132,49 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
     };
 
     const renderOfficialPaper = () => {
-        const payload = report.payload || {};
+        if (!report) return null;
 
-        if (report.type === 'RSMI') {
-            // Build reconstructed RSMI or use stored payload
-            const rawIssued = payload.issuedItems || [];
-            const rawRecap = payload.recapitulationItems || [];
+        const normalized = normalizeReportPaperData(report, user, publicSettings);
+        if (!normalized) {
+            return (
+                <div className="p-12 text-center text-xs text-gray-500">
+                    Preview not available for this document type.
+                </div>
+            );
+        }
 
+        if (report.type === 'RSMI' && normalized.rsmiData) {
             return (
                 <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
-                    <RSMIFormPaper
-                        data={{
-                            entityName: payload.entityName || publicSettings['institution_name'] || 'University of Camarines Norte',
-                            serialNo: report.reference,
-                            fundCluster: payload.fundCluster || '01 - Regular Agency Fund',
-                            date: formatDisplayDate(genDate, 'YYYY-MM-DD') || '',
-                            issuedItems: rawIssued,
-                            recapitulationItems: rawRecap,
-                            supplyCustodianName: publicSettings['signatories_rsmi_certified_by_name'] || user?.name || 'Supply Custodian',
-                            accountingStaffName: publicSettings['signatories_rsmi_posted_by_name'] || 'Accounting Staff',
-                            accountingDate: formatDisplayDate(genDate, 'YYYY-MM-DD') || '',
-                        }}
-                    />
+                    <RSMIFormPaper data={normalized.rsmiData} />
                 </Suspense>
             );
         }
 
-        if (report.type === 'RPCI') {
-            const rawItems = payload.items || [];
+        if (report.type === 'RPCI' && normalized.rpciData) {
             return (
                 <div className="min-w-[1000px] overflow-x-auto">
                     <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
-                        <RPCIFormPaper
-                            data={{
-                                entity_name: payload.entity_name || publicSettings['institution_name'] || 'University of Camarines Norte',
-                                as_at_date: formatDisplayDate(genDate, 'YYYY-MM-DD') || '',
-                                fund_cluster: payload.fund_cluster || '01 - Regular Agency Fund',
-                                inventory_type: report.title,
-                                accountable_officer: publicSettings['signatories_rpci_accountable_officer_name'] || user?.name || 'Supply Custodian',
-                                designation: publicSettings['signatories_rpci_accountable_officer_designation'] || 'Supply Officer III',
-                                items: rawItems,
-                            }}
-                        />
+                        <RPCIFormPaper data={normalized.rpciData} />
                     </Suspense>
                 </div>
             );
         }
 
-        if (report.type === 'STOCK_CARD') {
-            const rawEntries = payload.entries || [];
+        if (report.type === 'STOCK_CARD' && normalized.stockCardData) {
             return (
                 <div className="min-w-[750px] overflow-x-auto">
                     <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
-                        <StockCardFormPaper
-                            data={{
-                                entity_name: payload.entity_name || publicSettings['institution_name'] || 'University of Camarines Norte',
-                                fund_cluster: payload.fund_cluster || '01 - Regular Agency Fund',
-                                item: report.itemName || payload.item || report.title,
-                                stock_no: payload.stock_no || '-',
-                                description: payload.description || report.title,
-                                re_order_point: payload.re_order_point || '-',
-                                unit_of_measurement: payload.unit_of_measurement || 'Pieces',
-                                entries: rawEntries,
-                            }}
-                        />
+                        <StockCardFormPaper data={normalized.stockCardData} />
                     </Suspense>
                 </div>
             );
         }
 
-        if (report.type === 'MR' || report.type === 'MOR') {
-            const rawItems = payload.items || [];
+        if ((report.type === 'MR' || report.type === 'MOR') && normalized.mrData) {
             return (
                 <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
-                    <MRFormPaper
-                        data={{
-                            entityName: payload.entityName || publicSettings['institution_name'] || 'University of Camarines Norte',
-                            fundCluster: payload.fundCluster || '01 - Regular Agency Fund',
-                            mrNo: report.reference,
-                            date: formatDisplayDate(genDate, 'YYYY-MM-DD') || '',
-                            purpose: payload.purpose || 'Official Business',
-                            items: rawItems,
-                            receivedByName: report.endUser || payload.receivedByName || 'Accountable Officer',
-                            receivedByPosition: payload.receivedByPosition || 'Recipient',
-                            receivedByOffice: payload.receivedByOffice || 'Official Business',
-                            receivedByDate: formatDisplayDate(genDate, 'YYYY-MM-DD') || '',
-                            issuedByName: user?.name || 'ARSENIO GEM A. GARCILLANOSA',
-                            issuedByPosition: 'SUPPLY OFFICER III / PROPERTY CUSTODIAN',
-                            issuedByOffice: 'Supply & Property Division',
-                            issuedByDate: formatDisplayDate(genDate, 'YYYY-MM-DD') || '',
-                        }}
-                    />
+                    <MRFormPaper data={normalized.mrData} />
                 </Suspense>
             );
         }

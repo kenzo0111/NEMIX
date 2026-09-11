@@ -8,6 +8,7 @@ import {
     REPORT_TYPE_OPTIONS,
 } from '../constants';
 import { ReportDatasetResponse, ReportFormData } from '../types';
+import { normalizeReportPaperData } from '../utils/reportDataNormalizer';
 
 const RSMIFormPaper = lazy(() =>
     import('../../../../../Official Forms/RSMI Report').then((m) => ({ default: m.RSMIFormPaper })),
@@ -105,88 +106,41 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
     const renderOfficialPaper = () => {
         if (!previewDataset) return null;
 
-        if (formData.type === 'RSMI' && previewDataset.rsmi) {
+        const normalized = normalizeReportPaperData(previewDataset, user, publicSettings, formData);
+        if (!normalized) return null;
+
+        if (formData.type === 'RSMI' && normalized.rsmiData) {
             return (
                 <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
-                    <RSMIFormPaper
-                        data={{
-                            entityName: previewDataset.rsmi.entityName || publicSettings['institution_name'] || 'University of Camarines Norte',
-                            serialNo: previewDataset.reference || formData.reference,
-                            fundCluster: previewDataset.rsmi.fundCluster || '01 - Regular Agency Fund',
-                            date: previewDataset.generatedDate,
-                            issuedItems: previewDataset.rsmi.issuedItems || [],
-                            recapitulationItems: previewDataset.rsmi.recapitulationItems || [],
-                            supplyCustodianName: publicSettings['signatories_rsmi_certified_by_name'] || user?.name || 'Supply Custodian',
-                            accountingStaffName: publicSettings['signatories_rsmi_posted_by_name'] || 'Accounting Staff',
-                            accountingDate: previewDataset.generatedDate,
-                        }}
-                    />
+                    <RSMIFormPaper data={normalized.rsmiData} />
                 </Suspense>
             );
         }
 
-        if (formData.type === 'RPCI' && previewDataset.rpci) {
+        if (formData.type === 'RPCI' && normalized.rpciData) {
             return (
                 <div className="min-w-[1000px] overflow-x-auto">
                     <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
-                        <RPCIFormPaper
-                            data={{
-                                entity_name: previewDataset.rpci.entity_name || publicSettings['institution_name'] || 'University of Camarines Norte',
-                                as_at_date: previewDataset.generatedDate,
-                                fund_cluster: previewDataset.rpci.fund_cluster || '01 - Regular Agency Fund',
-                                inventory_type: formData.title || 'Report on Physical Count of Inventories',
-                                accountable_officer: publicSettings['signatories_rpci_accountable_officer_name'] || user?.name || 'Supply Custodian',
-                                designation: publicSettings['signatories_rpci_accountable_officer_designation'] || 'Supply Officer III',
-                                items: previewDataset.rpci.items || [],
-                            }}
-                        />
+                        <RPCIFormPaper data={normalized.rpciData} />
                     </Suspense>
                 </div>
             );
         }
 
-        if (formData.type === 'STOCK_CARD' && previewDataset.stockCard) {
+        if (formData.type === 'STOCK_CARD' && normalized.stockCardData) {
             return (
                 <div className="min-w-[750px] overflow-x-auto">
                     <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
-                        <StockCardFormPaper
-                            data={{
-                                entity_name: previewDataset.stockCard.entity_name || publicSettings['institution_name'] || 'University of Camarines Norte',
-                                fund_cluster: previewDataset.stockCard.fund_cluster || '01 - Regular Agency Fund',
-                                item: previewDataset.stockCard.item,
-                                stock_no: previewDataset.stockCard.stock_no,
-                                description: previewDataset.stockCard.description,
-                                re_order_point: previewDataset.stockCard.re_order_point,
-                                unit_of_measurement: previewDataset.stockCard.unit_of_measurement,
-                                entries: previewDataset.stockCard.entries || [],
-                            }}
-                        />
+                        <StockCardFormPaper data={normalized.stockCardData} />
                     </Suspense>
                 </div>
             );
         }
 
-        if ((formData.type === 'MR' || formData.type === 'MOR') && previewDataset.mr) {
+        if ((formData.type === 'MR' || formData.type === 'MOR') && normalized.mrData) {
             return (
                 <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
-                    <MRFormPaper
-                        data={{
-                            entityName: previewDataset.mr.entityName || publicSettings['institution_name'] || 'University of Camarines Norte',
-                            fundCluster: previewDataset.mr.fundCluster || '01 - Regular Agency Fund',
-                            mrNo: previewDataset.reference || formData.reference,
-                            date: previewDataset.generatedDate,
-                            purpose: previewDataset.mr.receivedByOffice || 'Official Business',
-                            items: previewDataset.mr.items || [],
-                            receivedByName: previewDataset.mr.receivedByName || 'Accountable Officer',
-                            receivedByPosition: previewDataset.mr.receivedByPosition || 'Recipient',
-                            receivedByOffice: previewDataset.mr.receivedByOffice || 'Official Business',
-                            receivedByDate: previewDataset.generatedDate,
-                            issuedByName: user?.name || 'ARSENIO GEM A. GARCILLANOSA',
-                            issuedByPosition: 'SUPPLY OFFICER III / PROPERTY CUSTODIAN',
-                            issuedByOffice: 'Supply & Property Division',
-                            issuedByDate: previewDataset.generatedDate,
-                        }}
-                    />
+                    <MRFormPaper data={normalized.mrData} />
                 </Suspense>
             );
         }

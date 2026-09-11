@@ -421,6 +421,7 @@ class ComplianceReportController extends Controller
             'selectedYear' => ['nullable', 'integer', 'between:2000,2100'],
             'coverageLabel' => ['nullable', 'string', 'max:255'],
             'generatedDate' => ['nullable', 'date'],
+            'snapshot' => ['nullable', 'array'],
             'payload' => ['nullable', 'array'],
         ]);
 
@@ -464,8 +465,99 @@ class ComplianceReportController extends Controller
             $reference = $dataService->generateUniqueReference($generatedDate);
         }
 
-        $payload = $validated['payload'] ?? [];
+        $rawPayload = $request->input('payload');
+        $rawSnapshot = $request->input('snapshot')
+            ?? data_get($rawPayload, 'snapshot')
+            ?? data_get($rawPayload, 'dataset');
+
+        $type = strtoupper((string)$validated['type']);
+
+        // Check whether the client-provided payload or snapshot already contains generated rows
+        $hasGeneratedRows = false;
+        if (is_array($rawSnapshot) && !empty($rawSnapshot)) {
+            if ($type === 'RSMI' && (!empty($rawSnapshot['issuedItems']) || !empty(data_get($rawSnapshot, 'rsmi.issuedItems')))) {
+                $hasGeneratedRows = true;
+            } elseif ($type === 'RPCI' && (!empty($rawSnapshot['items']) || !empty(data_get($rawSnapshot, 'rpci.items')))) {
+                $hasGeneratedRows = true;
+            } elseif (($type === 'STOCK_CARD' || $type === 'STOCKCARD') && (!empty($rawSnapshot['entries']) || !empty(data_get($rawSnapshot, 'stockCard.entries')))) {
+                $hasGeneratedRows = true;
+            } elseif (($type === 'MR' || $type === 'MOR') && (!empty($rawSnapshot['items']) || !empty(data_get($rawSnapshot, 'mr.items')))) {
+                $hasGeneratedRows = true;
+            } else {
+                $hasGeneratedRows = true;
+            }
+        } elseif (is_array($rawPayload)) {
+            if ($type === 'RSMI' && (!empty($rawPayload['issuedItems']) || !empty(data_get($rawPayload, 'rsmi.issuedItems')))) {
+                $hasGeneratedRows = true;
+            } elseif ($type === 'RPCI' && (!empty($rawPayload['items']) || !empty(data_get($rawPayload, 'rpci.items')))) {
+                $hasGeneratedRows = true;
+            } elseif (($type === 'STOCK_CARD' || $type === 'STOCKCARD') && (!empty($rawPayload['entries']) || !empty(data_get($rawPayload, 'stockCard.entries')))) {
+                $hasGeneratedRows = true;
+            } elseif (($type === 'MR' || $type === 'MOR') && (!empty($rawPayload['items']) || !empty(data_get($rawPayload, 'mr.items')))) {
+                $hasGeneratedRows = true;
+            }
+        }
+
+        // If no pre-rendered snapshot was supplied by the client, synthesize an authoritative snapshot
+        $snapshot = $rawSnapshot;
+        if (!$hasGeneratedRows || empty($snapshot)) {
+            $synthFilters = array_merge($validated, [
+                'reference' => $reference,
+                'generatedDate' => $generatedDate,
+                'coverageLabel' => $coverageLabel,
+            ]);
+            $snapshot = $dataService->getReportDataset($synthFilters);
+        }
+
+        // Build fully populated, standardized payload
+        $payload = is_array($rawPayload) ? $rawPayload : [];
         $payload['generatedDate'] = $generatedDate;
+        $payload['coverageLabel'] = $coverageLabel;
+        $payload['reference'] = $reference;
+        $payload['title'] = $validated['title'];
+        $payload['type'] = $validated['type'];
+        $payload['snapshot'] = $snapshot;
+        $payload['dataset'] = $snapshot;
+
+        if ($type === 'RSMI') {
+            $rsmiData = data_get($snapshot, 'rsmi') ?? $snapshot;
+            $payload['rsmi'] = $rsmiData;
+            $payload['issuedItems'] = data_get($rsmiData, 'issuedItems', data_get($payload, 'issuedItems', []));
+            $payload['recapitulationItems'] = data_get($rsmiData, 'recapitulationItems', data_get($payload, 'recapitulationItems', []));
+            $payload['summary'] = data_get($rsmiData, 'summary', data_get($snapshot, 'summary', []));
+            $payload['entityName'] = data_get($rsmiData, 'entityName', data_get($payload, 'entityName'));
+            $payload['fundCluster'] = data_get($rsmiData, 'fundCluster', data_get($payload, 'fundCluster'));
+        } elseif ($type === 'RPCI') {
+            $rpciData = data_get($snapshot, 'rpci') ?? $snapshot;
+            $payload['rpci'] = $rpciData;
+            $payload['items'] = data_get($rpciData, 'items', data_get($payload, 'items', []));
+            $payload['summary'] = data_get($rpciData, 'summary', data_get($snapshot, 'summary', []));
+            $payload['entity_name'] = data_get($rpciData, 'entity_name', data_get($payload, 'entity_name'));
+            $payload['fund_cluster'] = data_get($rpciData, 'fund_cluster', data_get($payload, 'fund_cluster'));
+        } elseif ($type === 'STOCK_CARD' || $type === 'STOCKCARD') {
+            $scData = data_get($snapshot, 'stockCard') ?? $snapshot;
+            $payload['stockCard'] = $scData;
+            $payload['entries'] = data_get($scData, 'entries', data_get($payload, 'entries', []));
+            $payload['summary'] = data_get($scData, 'summary', data_get($snapshot, 'summary', []));
+            $payload['item'] = data_get($scData, 'item', data_get($payload, 'item', $validated['itemName'] ?? null));
+            $payload['stock_no'] = data_get($scData, 'stock_no', data_get($payload, 'stock_no'));
+            $payload['description'] = data_get($scData, 'description', data_get($payload, 'description'));
+            $payload['re_order_point'] = data_get($scData, 're_order_point', data_get($payload, 're_order_point'));
+            $payload['unit_of_measurement'] = data_get($scData, 'unit_of_measurement', data_get($payload, 'unit_of_measurement'));
+            $payload['entity_name'] = data_get($scData, 'entity_name', data_get($payload, 'entity_name'));
+            $payload['fund_cluster'] = data_get($scData, 'fund_cluster', data_get($payload, 'fund_cluster'));
+        } elseif ($type === 'MR' || $type === 'MOR') {
+            $mrData = data_get($snapshot, 'mr') ?? $snapshot;
+            $payload['mr'] = $mrData;
+            $payload['items'] = data_get($mrData, 'items', data_get($payload, 'items', []));
+            $payload['summary'] = data_get($mrData, 'summary', data_get($snapshot, 'summary', []));
+            $payload['receivedByName'] = data_get($mrData, 'receivedByName', data_get($payload, 'receivedByName', data_get($payload, 'endUser')));
+            $payload['receivedByPosition'] = data_get($mrData, 'receivedByPosition', data_get($payload, 'receivedByPosition'));
+            $payload['receivedByOffice'] = data_get($mrData, 'receivedByOffice', data_get($payload, 'receivedByOffice'));
+            $payload['grandTotal'] = data_get($mrData, 'grandTotal', data_get($payload, 'grandTotal'));
+            $payload['entityName'] = data_get($mrData, 'entityName', data_get($payload, 'entityName'));
+            $payload['fundCluster'] = data_get($mrData, 'fundCluster', data_get($payload, 'fundCluster'));
+        }
 
         ComplianceReport::create([
             'title' => $validated['title'],
@@ -505,6 +597,7 @@ class ComplianceReportController extends Controller
             'selectedYear' => ['nullable', 'integer', 'between:2000,2100'],
             'coverageLabel' => ['nullable', 'string', 'max:255'],
             'generatedDate' => ['nullable', 'date'],
+            'snapshot' => ['nullable', 'array'],
             'payload' => ['nullable', 'array'],
         ]);
 
@@ -539,9 +632,22 @@ class ComplianceReportController extends Controller
             }
         }
 
-        $payload = $validated['payload'] ?? [];
+        $existingPayload = is_array($report->payload) ? $report->payload : [];
+        $newPayload = $validated['payload'] ?? [];
+
+        // Preserve existing snapshot and row arrays unless updated snapshot is provided
+        $snapshot = $request->input('snapshot')
+            ?? data_get($newPayload, 'snapshot')
+            ?? data_get($existingPayload, 'snapshot')
+            ?? data_get($existingPayload, 'dataset');
+
+        $mergedPayload = array_merge($existingPayload, $newPayload);
         if (!empty($cleanGeneratedDate)) {
-            $payload['generatedDate'] = $cleanGeneratedDate;
+            $mergedPayload['generatedDate'] = $cleanGeneratedDate;
+        }
+        if ($snapshot) {
+            $mergedPayload['snapshot'] = $snapshot;
+            $mergedPayload['dataset'] = $snapshot;
         }
 
         $report->update([
@@ -556,7 +662,7 @@ class ComplianceReportController extends Controller
             'selected_month' => $validated['selectedMonth'] ?? null,
             'selected_year' => $validated['selectedYear'] ?? null,
             'coverage_label' => $coverageLabel,
-            'payload' => $payload,
+            'payload' => $mergedPayload,
         ]);
 
         return redirect()->route('compliance.reports')->with('success', 'Compliance report updated successfully.');
