@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useRef } from 'react';
+import React, { Suspense, lazy, useRef, useEffect } from 'react';
 import Modal from '@/Components/Modal';
 import Select from 'react-select';
 import {
@@ -9,6 +9,11 @@ import {
 } from '../constants';
 import { ReportDatasetResponse, ReportFormData } from '../types';
 import { normalizeReportPaperData } from '../utils/reportDataNormalizer';
+import {
+    triggerCompliancePrint,
+    applyCompliancePrintStyle,
+    getCompliancePrintConfig,
+} from '../utils/printConfig';
 
 const RSMIFormPaper = lazy(() =>
     import('../../../../../Official Forms/RSMI Report').then((m) => ({ default: m.RSMIFormPaper })),
@@ -103,6 +108,34 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
 
     const isLandscape = formData.type === 'RPCI';
 
+    useEffect(() => {
+        if (!show || currentStep !== 'preview') return;
+
+        const config = getCompliancePrintConfig(formData.type);
+
+        const handleBeforePrint = () => {
+            applyCompliancePrintStyle(config);
+            document.body.classList.add('printing-compliance');
+        };
+
+        const handleAfterPrint = () => {
+            document.body.classList.remove('printing-compliance');
+        };
+
+        window.addEventListener('beforeprint', handleBeforePrint);
+        window.addEventListener('afterprint', handleAfterPrint);
+
+        return () => {
+            window.removeEventListener('beforeprint', handleBeforePrint);
+            window.removeEventListener('afterprint', handleAfterPrint);
+            document.body.classList.remove('printing-compliance');
+        };
+    }, [show, currentStep, formData.type]);
+
+    const handlePrintPreview = () => {
+        triggerCompliancePrint(formData.type);
+    };
+
     const renderOfficialPaper = () => {
         if (!previewDataset) return null;
 
@@ -119,7 +152,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
 
         if (formData.type === 'RPCI' && normalized.rpciData) {
             return (
-                <div className="min-w-[1000px] overflow-x-auto">
+                <div className="min-w-[1000px] print:min-w-0 overflow-x-auto print:overflow-visible">
                     <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
                         <RPCIFormPaper data={normalized.rpciData} />
                     </Suspense>
@@ -129,7 +162,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
 
         if (formData.type === 'STOCK_CARD' && normalized.stockCardData) {
             return (
-                <div className="min-w-[750px] overflow-x-auto">
+                <div className="min-w-[750px] print:min-w-0 overflow-x-auto print:overflow-visible">
                     <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
                         <StockCardFormPaper data={normalized.stockCardData} />
                     </Suspense>
@@ -155,12 +188,12 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
             maxWidth={isLandscape && currentStep === 'preview' ? '7xl' : '4xl'}
             closeable={!isSubmitting}
         >
-            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white shadow-2xl border border-gray-200">
+            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white shadow-2xl border border-gray-200 print:max-h-none print:shadow-none print:border-none compliance-print-dialog-panel">
                 {/* Thin Maroon Accent Top Line */}
-                <div className="h-1 bg-gradient-to-r from-red-900 via-red-800 to-amber-600 w-full shrink-0" />
+                <div className="h-1 bg-gradient-to-r from-red-900 via-red-800 to-amber-600 w-full shrink-0 print:hidden compliance-print-hide" />
 
                 {/* Modal Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/80 bg-gradient-to-b from-gray-50/90 to-white shrink-0">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/80 bg-gradient-to-b from-gray-50/90 to-white shrink-0 print:hidden compliance-print-hide">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-100/80 flex items-center justify-center text-red-900 shadow-2xs shrink-0">
                             {currentStep === 'configure' ? (
@@ -498,9 +531,9 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                             )}
                         </div>
                     ) : (
-                        <div className="space-y-4">
+                        <div className="space-y-4 print:space-y-0">
                             {/* Summary metrics header banner */}
-                            <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white border border-gray-200/80 border-l-4 border-l-red-900 rounded-xl shadow-2xs text-xs">
+                            <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white border border-gray-200/80 border-l-4 border-l-red-900 rounded-xl shadow-2xs text-xs print:hidden compliance-print-hide">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-lg bg-red-50 text-red-900 flex items-center justify-center shrink-0">
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -536,10 +569,12 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                             {/* Official COA Paper Preview in realistic workspace canvas */}
                             <div
                                 ref={reportPaperRef}
-                                className="bg-slate-100/90 p-4 sm:p-7 rounded-xl border border-slate-200/80 overflow-x-auto shadow-inner flex justify-center print:p-0 print:border-none print:bg-white"
+                                className="bg-slate-100/90 p-4 sm:p-7 rounded-xl border border-slate-200/80 overflow-x-auto shadow-inner flex justify-center print:p-0 print:border-none print:bg-white print:block print:w-full print:shadow-none print:m-0 print:overflow-visible"
                             >
-                                <div className="shadow-md rounded-sm border border-gray-200/60 bg-white">
-                                    {renderOfficialPaper()}
+                                <div className="shadow-md rounded-sm border border-gray-200/60 bg-white print:shadow-none print:border-none print:rounded-none print:p-0 print:m-0 print:w-full print:block print:overflow-visible">
+                                    <div className="compliance-print-area">
+                                        {renderOfficialPaper()}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -547,7 +582,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                 </div>
 
                 {/* Modal Footer */}
-                <div className="flex items-center justify-between px-6 py-3.5 bg-gradient-to-b from-white to-gray-50 border-t border-gray-200/80 shrink-0">
+                <div className="flex items-center justify-between px-6 py-3.5 bg-gradient-to-b from-white to-gray-50 border-t border-gray-200/80 shrink-0 print:hidden compliance-print-hide">
                     {currentStep === 'preview' ? (
                         <button
                             type="button"
@@ -597,29 +632,43 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                 )}
                             </button>
                         ) : (
-                            <button
-                                type="button"
-                                onClick={onSubmitReport}
-                                disabled={isSubmitting}
-                                className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-red-900 rounded-lg hover:bg-red-950 disabled:opacity-50 transition-all shadow-xs active:scale-[0.99] cursor-pointer"
-                            >
-                                {isSubmitting ? (
-                                    <>
-                                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                        </svg>
-                                        <span>Recording in Registry...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        <span>Save & Record Document</span>
-                                    </>
-                                )}
-                            </button>
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={handlePrintPreview}
+                                    disabled={isSubmitting}
+                                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 shadow-2xs hover:border-gray-400 transition-all cursor-pointer"
+                                >
+                                    <svg className="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                    </svg>
+                                    <span>Print Preview</span>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={onSubmitReport}
+                                    disabled={isSubmitting}
+                                    className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-red-900 rounded-lg hover:bg-red-950 disabled:opacity-50 transition-all shadow-xs active:scale-[0.99] cursor-pointer"
+                                >
+                                    {isSubmitting ? (
+                                        <>
+                                            <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                            </svg>
+                                            <span>Recording in Registry...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            <span>Save & Record Document</span>
+                                        </>
+                                    )}
+                                </button>
+                            </>
                         )}
                     </div>
                 </div>

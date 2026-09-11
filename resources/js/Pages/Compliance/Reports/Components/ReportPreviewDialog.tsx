@@ -1,9 +1,14 @@
-import React, { Suspense, lazy, useRef } from 'react';
+import React, { Suspense, lazy, useRef, useEffect } from 'react';
 import Modal from '@/Components/Modal';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { getReportTypeLabel } from '../constants';
 import { ComplianceReport } from '../types';
 import { normalizeReportPaperData } from '../utils/reportDataNormalizer';
+import {
+    triggerCompliancePrint,
+    applyCompliancePrintStyle,
+    getCompliancePrintConfig,
+} from '../utils/printConfig';
 
 const RSMIFormPaper = lazy(() =>
     import('../../../../../Official Forms/RSMI Report').then((m) => ({ default: m.RSMIFormPaper })),
@@ -43,33 +48,45 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
 }) => {
     const reportContentRef = useRef<HTMLDivElement | null>(null);
 
+    const isLandscape = report?.type === 'RPCI';
+    const reportTypeLabel = getReportTypeLabel(report?.type);
+    const coverageText =
+        report?.coverageLabel ||
+        (report?.date ? formatDisplayDate(report.date, 'MM/DD/YYYY') : 'All Records');
+    const genDate =
+        report?.generatedDate ||
+        report?.createdAt ||
+        report?.created_at ||
+        report?.date;
+
+    useEffect(() => {
+        if (!show || !report) return;
+
+        const config = getCompliancePrintConfig(report.type);
+
+        const handleBeforePrint = () => {
+            applyCompliancePrintStyle(config);
+            document.body.classList.add('printing-compliance');
+        };
+
+        const handleAfterPrint = () => {
+            document.body.classList.remove('printing-compliance');
+        };
+
+        window.addEventListener('beforeprint', handleBeforePrint);
+        window.addEventListener('afterprint', handleAfterPrint);
+
+        return () => {
+            window.removeEventListener('beforeprint', handleBeforePrint);
+            window.removeEventListener('afterprint', handleAfterPrint);
+            document.body.classList.remove('printing-compliance');
+        };
+    }, [show, report]);
+
     if (!report) return null;
 
-    const isLandscape = report.type === 'RPCI';
-    const reportTypeLabel = getReportTypeLabel(report.type);
-    const coverageText =
-        report.coverageLabel ||
-        (report.date ? formatDisplayDate(report.date, 'MM/DD/YYYY') : 'All Records');
-    const genDate =
-        report.generatedDate ||
-        report.createdAt ||
-        report.created_at ||
-        report.date;
-
     const handlePrint = () => {
-        const dynamicPrintStyleId = 'dynamic-print-orientation-style';
-        let style = document.getElementById(dynamicPrintStyleId) as HTMLStyleElement | null;
-        if (!style) {
-            style = document.createElement('style');
-            style.id = dynamicPrintStyleId;
-            style.setAttribute('media', 'print');
-            document.head.appendChild(style);
-        } else {
-            document.head.appendChild(style);
-        }
-
-        style.textContent = `@page { size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'}; margin: 8mm; }`;
-        window.print();
+        triggerCompliancePrint(report.type);
     };
 
     const handleDownload = async () => {
@@ -153,7 +170,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
 
         if (report.type === 'RPCI' && normalized.rpciData) {
             return (
-                <div className="min-w-[1000px] overflow-x-auto">
+                <div className="min-w-[1000px] print:min-w-0 overflow-x-auto print:overflow-visible">
                     <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
                         <RPCIFormPaper data={normalized.rpciData} />
                     </Suspense>
@@ -163,7 +180,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
 
         if (report.type === 'STOCK_CARD' && normalized.stockCardData) {
             return (
-                <div className="min-w-[750px] overflow-x-auto">
+                <div className="min-w-[750px] print:min-w-0 overflow-x-auto print:overflow-visible">
                     <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
                         <StockCardFormPaper data={normalized.stockCardData} />
                     </Suspense>
@@ -193,12 +210,12 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
             maxWidth={isLandscape ? '7xl' : '5xl'}
             closeable={true}
         >
-            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white shadow-2xl border border-gray-200 print:max-h-none print:shadow-none print:border-none">
+            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white shadow-2xl border border-gray-200 print:max-h-none print:shadow-none print:border-none compliance-print-dialog-panel">
                 {/* Thin Maroon Accent Top Line */}
-                <div className="h-1 bg-gradient-to-r from-red-900 via-red-800 to-amber-600 w-full shrink-0 print:hidden" />
+                <div className="h-1 bg-gradient-to-r from-red-900 via-red-800 to-amber-600 w-full shrink-0 print:hidden compliance-print-hide" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/80 bg-gradient-to-b from-gray-50/90 to-white shrink-0 print:hidden">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/80 bg-gradient-to-b from-gray-50/90 to-white shrink-0 print:hidden compliance-print-hide">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-100/80 flex items-center justify-center text-red-900 shadow-2xs shrink-0">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -233,9 +250,9 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                 </div>
 
                 {/* Body */}
-                <div className="p-6 overflow-y-auto flex-1 space-y-4 bg-gray-50/40 print:p-0 print:overflow-visible print:bg-white">
+                <div className="p-6 overflow-y-auto flex-1 space-y-4 bg-gray-50/40 print:p-0 print:overflow-visible print:bg-white print:block print:space-y-0">
                     {/* Report Metadata Summary Card (Read-Only) */}
-                    <div className="bg-white border border-gray-200/80 rounded-xl p-4 shadow-2xs print:hidden">
+                    <div className="bg-white border border-gray-200/80 rounded-xl p-4 shadow-2xs print:hidden compliance-print-hide">
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
                             <div className="space-y-0.5">
                                 <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider font-mono">
@@ -275,16 +292,18 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                     {/* Paper Preview Canvas */}
                     <div
                         ref={reportContentRef}
-                        className="bg-slate-100/90 p-4 sm:p-7 rounded-xl border border-slate-200/80 overflow-x-auto shadow-inner flex justify-center print:p-0 print:border-none print:bg-white"
+                        className="bg-slate-100/90 p-4 sm:p-7 rounded-xl border border-slate-200/80 overflow-x-auto shadow-inner flex justify-center print:p-0 print:border-none print:bg-white print:block print:w-full print:shadow-none print:m-0 print:overflow-visible"
                     >
-                        <div className="shadow-md rounded-sm border border-gray-200/60 bg-white">
-                            {renderOfficialPaper()}
+                        <div className="shadow-md rounded-sm border border-gray-200/60 bg-white print:shadow-none print:border-none print:rounded-none print:p-0 print:m-0 print:w-full print:block print:overflow-visible">
+                            <div className="compliance-print-area">
+                                {renderOfficialPaper()}
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between px-6 py-3.5 bg-gradient-to-b from-white to-gray-50 border-t border-gray-200/80 shrink-0 print:hidden">
+                <div className="flex items-center justify-between px-6 py-3.5 bg-gradient-to-b from-white to-gray-50 border-t border-gray-200/80 shrink-0 print:hidden compliance-print-hide">
                     <button
                         type="button"
                         onClick={onClose}

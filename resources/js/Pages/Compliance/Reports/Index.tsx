@@ -90,10 +90,10 @@ export default function ReportsIndex({
     };
 
     return (
-        <div className="min-h-screen bg-gray-100/80 flex font-sans text-gray-900 selection:bg-red-900 selection:text-white print:bg-white">
+        <div className="min-h-screen bg-gray-100/80 flex font-sans text-gray-900 selection:bg-red-900 selection:text-white print:bg-white print:min-h-0 print:h-auto print:block">
             <Head title="COA Compliance Reports & Official Forms" />
 
-            <div className="print:hidden">
+            <div className="print:hidden compliance-print-hide">
                 <Sidebar
                     modules={modules}
                     user={user}
@@ -105,9 +105,9 @@ export default function ReportsIndex({
             <main
                 className={`flex-1 transition-all duration-300 ease-in-out ${
                     collapsed ? 'ml-20' : 'ml-72'
-                } print:ml-0 print:overflow-visible`}
+                } print:ml-0 print:overflow-visible print:h-auto print:p-0`}
             >
-                <div className="print:hidden">
+                <div className="print:hidden compliance-print-hide">
                     <PageHeader
                         title="MANAGE REPORTS"
                         description="Generate and maintain official inventory and compliance documents."
@@ -115,7 +115,7 @@ export default function ReportsIndex({
                     />
                 </div>
 
-                <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 print:p-0">
+                <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 print:p-0 print:m-0 print:space-y-0 print:h-auto">
                     <div className="print:hidden space-y-6">
                         {/* Primary Official COA Documents Ledger Card */}
                         <div className="bg-white rounded-xl shadow-2xs border border-gray-200/80 overflow-hidden">

@@ -75,8 +75,6 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             margin: 0 auto;
             box-sizing: border-box;
             line-height: 1.2;
-            page-break-inside: avoid;
-            break-inside: avoid;
         }
         .header-appendix {
             text-align: right;
@@ -147,8 +145,23 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
 
         @media print {
             body { margin: 0; padding: 0; background: #fff; }
-            .rsmi-container { width: 100%; max-width: none; page-break-inside: avoid; break-inside: avoid; }
+            .rsmi-container { width: 100%; max-width: none; margin: 0 auto; padding: 0; }
             .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .header-appendix, .main-title, .rsmi-top-info {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .rsmi-signatures, .recap-section {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .main-table tr {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .main-table thead {
+                display: table-header-group;
+            }
         }
       `}</style>
 
@@ -157,7 +170,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         <div className="main-title">REPORT OF SUPPLIES AND MATERIALS ISSUED</div>
 
         {/* Top Info with fixed pixel widths to prevent overlap */}
-        <table style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <table className="rsmi-top-info" style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <colgroup>
             <col style={{ width: '90px' }} />
             <col style={{ width: '280px' }} />
@@ -268,7 +281,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             ))}
 
             {/* Footer / Signatures */}
-            <tr>
+            <tr className="rsmi-signatures">
               <td colSpan={9} style={{ padding: 0, border: 'none', borderTop: '1px solid #000000' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <colgroup>

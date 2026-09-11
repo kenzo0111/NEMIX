@@ -60,8 +60,6 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
             margin: 0 auto;
             box-sizing: border-box;
             line-height: 1.2;
-            page-break-inside: avoid;
-            break-inside: avoid;
         }
         .header-title {
             text-align: right;
@@ -113,8 +111,19 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
         
         @media print {
             body { margin: 0; padding: 0; background: #fff; }
-            .sc-container { width: 100%; max-width: none; page-break-inside: avoid; break-inside: avoid; }
+            .sc-container { width: 100%; max-width: none; margin: 0 auto; padding: 0; }
             .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .header-title, .main-title, .sc-top-info, .sc-header-box {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .main-table tr {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .main-table thead {
+                display: table-header-group;
+            }
         }
       `}</style>
 
@@ -124,7 +133,7 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
         <div className="main-title">STOCK CARD</div>
 
         {/* Top Info Grid with explicit column widths to prevent any layout collapse */}
-        <table style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <table className="sc-top-info" style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <colgroup>
             <col style={{ width: '90px' }} />
             <col style={{ width: '280px' }} />
@@ -152,7 +161,7 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
         </table>
 
         {/* Boxed Header Info */}
-        <table className="main-table" style={{ borderBottom: 'none', tableLayout: 'fixed' }}>
+        <table className="main-table sc-header-box" style={{ borderBottom: 'none', tableLayout: 'fixed' }}>
           <colgroup>
             <col style={{ width: '14%' }} />
             <col style={{ width: '38%' }} />

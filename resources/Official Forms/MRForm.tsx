@@ -103,8 +103,6 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
           margin: 0 auto;
           box-sizing: border-box;
           line-height: 1.2;
-          page-break-inside: avoid;
-          break-inside: avoid;
         }
         .header-appendix {
           text-align: right;
@@ -199,8 +197,23 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
 
         @media print {
           body { margin: 0; padding: 0; background: #fff; }
-          .mr-container { width: 100%; max-width: none; page-break-inside: avoid; break-inside: avoid; }
+          .mr-container { width: 100%; max-width: none; margin: 0 auto; padding: 0; }
           .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .header-appendix, .main-title, .sub-title, .purpose-statement, .mr-top-info {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+          .signatures-table {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+          .main-table tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+          .main-table thead {
+            display: table-header-group;
+          }
         }
       `}</style>
 
@@ -213,7 +226,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         <div className="sub-title">(MEMORANDUM OF RECEIPT)</div>
 
         {/* Top Info Grid with explicit column widths to prevent collapse */}
-        <table style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <table className="mr-top-info" style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <colgroup>
             <col style={{ width: '90px' }} />
             <col style={{ width: '280px' }} />

@@ -1,0 +1,186 @@
+/* ==========================================================================
+   Shared Print Stylesheet for Official Compliance Reports & Forms
+   Standardized layout for COA Official Forms:
+   - Stock Card (Appendix 58)
+   - RSMI: Report of Supplies and Materials Issued (Appendix 64)
+   - RPCI: Report on the Physical Count of Inventories (Appendix 66)
+   - Memorandum Receipt / MOR (Appendix 59-A)
+   ========================================================================== */
+
+@media print {
+    /* 1. Universal Page & Root Resets */
+    html,
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        overflow: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* 2. Hide Application Chrome & Background Tree during Compliance Print */
+    body.printing-compliance #app:not(:has(.compliance-print-area)),
+    body.printing-compliance aside,
+    body.printing-compliance header,
+    body.printing-compliance nav,
+    body.printing-compliance .print-hidden,
+    body.printing-compliance .print\:hidden,
+    .compliance-print-hide {
+        display: none !important;
+    }
+
+    /* Neutralize #app layout in case modal is mounted within #app */
+    #app {
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        background: #ffffff !important;
+    }
+
+    .min-h-screen {
+        min-height: 0 !important;
+        height: auto !important;
+    }
+
+    /* 3. Reset Headless UI Modal & Transition Wrappers for Print */
+    body.printing-compliance [data-headlessui-portal],
+    body.printing-compliance #headlessui-portal-root,
+    body.printing-compliance #modal,
+    body.printing-compliance [role="dialog"],
+    body.printing-compliance [role="dialog"] > div,
+    .compliance-print-modal-wrapper {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        transform: none !important;
+        overflow: visible !important;
+        background: #ffffff !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* Dialog Panel / Outer Card Reset */
+    .compliance-print-dialog-panel {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: none !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        transform: none !important;
+        overflow: visible !important;
+        background: #ffffff !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+    }
+
+    /* 4. Dedicated Compliance Print Area */
+    .compliance-print-area {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        transform: none !important;
+        overflow: visible !important;
+    }
+
+    /* Reset screen preview constraints inside printable area */
+    .compliance-print-area [class*="min-w-"],
+    .compliance-print-area [class*="overflow-"] {
+        min-width: 0 !important;
+        overflow: visible !important;
+        width: 100% !important;
+    }
+
+    /* 5. Clean Container Resets (No Container-Level Page-Break Avoid) */
+    .sc-container,
+    .rsmi-container,
+    .rpci-container,
+    .mr-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+        background: #ffffff !important;
+    }
+
+    /* 6. Atomic Sections to Keep Intact */
+    .report-header,
+    .header-appendix,
+    .header-title,
+    .main-title,
+    .sub-title,
+    .sc-header-block,
+    .sc-top-info,
+    .sc-header-box,
+    .rsmi-top-info,
+    .rsmi-signatures,
+    .recap-section,
+    .rpci-top-info,
+    .mr-top-info,
+    .signatures-table,
+    .signatures-section,
+    .footer-table,
+    .footer-cell {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* 7. Table Pagination */
+    table {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+    }
+
+    thead {
+        display: table-header-group !important;
+    }
+
+    tfoot {
+        display: table-footer-group !important;
+    }
+
+    tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* 8. Colors & Borders */
+    .main-table th,
+    .main-table td {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Hide scrollbars completely in print */
+    ::-webkit-scrollbar {
+        display: none !important;
+    }
+}

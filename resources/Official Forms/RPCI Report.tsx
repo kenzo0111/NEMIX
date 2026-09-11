@@ -60,8 +60,6 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
             margin: 0 auto;
             box-sizing: border-box;
             line-height: 1.2;
-            page-break-inside: avoid;
-            break-inside: avoid;
         }
         .header-appendix {
             text-align: right;
@@ -126,8 +124,23 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
         }
         @media print {
             body { margin: 0; padding: 0; background: #fff; }
-            .rpci-container { width: 100%; max-width: none; page-break-inside: avoid; break-inside: avoid; }
+            .rpci-container { width: 100%; max-width: none; margin: 0 auto; padding: 0; }
             .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .header-appendix, .main-title, .sub-title, .rpci-top-info {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .footer-table {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .main-table tr {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .main-table thead {
+                display: table-header-group;
+            }
         }
       `}</style>
 
@@ -149,7 +162,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
         </div>
 
         {/* Top Info Grid */}
-        <table style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <table className="rpci-top-info" style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <colgroup>
             <col style={{ width: '90px' }} />
             <col style={{ width: '280px' }} />
