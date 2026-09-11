@@ -8,6 +8,79 @@ export interface CompliancePrintConfig {
     margin: string;
 }
 
+export interface CompliancePdfConfig {
+    paper: 'a4';
+    orientation: 'portrait' | 'landscape';
+    marginMm: number;
+    pageWidthMm: number;
+    pageHeightMm: number;
+    targetWidthMm: number;
+    targetHeightMm: number;
+}
+
+export const REPORT_PDF_CONFIG: Record<string, CompliancePdfConfig> = {
+    STOCK_CARD: {
+        paper: 'a4',
+        orientation: 'portrait',
+        marginMm: 8,
+        pageWidthMm: 210,
+        pageHeightMm: 297,
+        targetWidthMm: 194,
+        targetHeightMm: 281,
+    },
+    RSMI: {
+        paper: 'a4',
+        orientation: 'portrait',
+        marginMm: 8,
+        pageWidthMm: 210,
+        pageHeightMm: 297,
+        targetWidthMm: 194,
+        targetHeightMm: 281,
+    },
+    RPCI: {
+        paper: 'a4',
+        orientation: 'landscape',
+        marginMm: 8,
+        pageWidthMm: 297,
+        pageHeightMm: 210,
+        targetWidthMm: 281,
+        targetHeightMm: 194,
+    },
+    MR: {
+        paper: 'a4',
+        orientation: 'portrait',
+        marginMm: 8,
+        pageWidthMm: 210,
+        pageHeightMm: 297,
+        targetWidthMm: 194,
+        targetHeightMm: 281,
+    },
+    MOR: {
+        paper: 'a4',
+        orientation: 'portrait',
+        marginMm: 8,
+        pageWidthMm: 210,
+        pageHeightMm: 297,
+        targetWidthMm: 194,
+        targetHeightMm: 281,
+    },
+};
+
+export const getCompliancePdfConfig = (type?: string | null): CompliancePdfConfig => {
+    if (type && REPORT_PDF_CONFIG[type]) {
+        return REPORT_PDF_CONFIG[type];
+    }
+    return {
+        paper: 'a4',
+        orientation: 'portrait',
+        marginMm: 8,
+        pageWidthMm: 210,
+        pageHeightMm: 297,
+        targetWidthMm: 194,
+        targetHeightMm: 281,
+    };
+};
+
 export const REPORT_PRINT_CONFIGS: Record<string, CompliancePrintConfig> = {
     STOCK_CARD: {
         orientation: 'portrait',

@@ -77,7 +77,7 @@ const renderDescription = (text?: string) => {
 
 export const MRFormPaper: React.FC<MRFormProps> = ({ 
   data, 
-  targetRows = 8 
+  targetRows = 10 
 }) => {
   const items = data.items || [];
   const emptyRowsCount = Math.max(0, targetRows - items.length);
@@ -106,39 +106,39 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
           background: #ffffff;
           color: #000000;
           width: 100%;
-          max-width: 190mm;
+          max-width: 194mm;
           margin: 0 auto;
           box-sizing: border-box;
-          line-height: 1.2;
+          line-height: 1.25;
         }
         .header-appendix {
           text-align: right;
           font-style: italic;
           font-weight: bold;
           font-size: 10.5pt;
-          margin-bottom: 2px;
+          margin-bottom: 2mm;
         }
         .main-title {
           text-align: center;
           font-weight: bold;
-          font-size: 12pt;
-          margin-bottom: 2px;
+          font-size: 13.5pt;
+          margin-bottom: 1.5mm;
           letter-spacing: 0.5px;
           text-transform: uppercase;
         }
         .sub-title {
           text-align: center;
           font-style: italic;
-          font-size: 9pt;
-          margin-bottom: 8px;
+          font-size: 9.5pt;
+          margin-bottom: 3.5mm;
         }
 
         /* Purpose statement */
         .purpose-statement {
-          margin-bottom: 8px;
-          line-height: 1.25;
+          margin-bottom: 3.5mm;
+          line-height: 1.35;
           text-align: justify;
-          font-size: 9pt;
+          font-size: 9.5pt;
         }
 
         /* Main Table Grid */
@@ -150,8 +150,8 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         }
         .main-table th, .main-table td {
           border: 1px solid #000000;
-          padding: 2.5px 4px;
-          font-size: 8.5pt;
+          padding: 2mm 1.5mm;
+          font-size: 9pt;
           box-sizing: border-box;
           word-break: break-word;
           overflow-wrap: anywhere;
@@ -162,9 +162,11 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
           text-align: center;
           font-weight: bold;
           background-color: #ffffff;
+          padding: 2.5mm 1.5mm;
         }
         .empty-row td {
-          height: 17px;
+          height: 7.5mm;
+          min-height: 7.5mm;
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
@@ -186,11 +188,12 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
           border: 1.5px solid #000000;
           border-top: none;
           table-layout: fixed;
+          min-height: 38mm;
         }
         .sig-cell {
           width: 50%;
           vertical-align: top;
-          padding: 6px 10px;
+          padding: 3mm 4mm;
           box-sizing: border-box;
         }
         .sig-cell:first-child {
@@ -198,8 +201,8 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         }
         .sig-header {
           font-weight: bold;
-          margin-bottom: 12px;
-          font-size: 9pt;
+          margin-bottom: 12mm;
+          font-size: 9.5pt;
         }
 
         @media print {

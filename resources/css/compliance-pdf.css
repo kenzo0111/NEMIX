@@ -1,0 +1,272 @@
+/* ==========================================================================
+   Shared PDF & Document Stylesheet for Official Compliance Forms
+   Standardized layout and proportions for COA Official Forms:
+   - MR: Memorandum Receipt for Property (Appendix 59-A)
+   - RSMI: Report of Supplies and Materials Issued (Appendix 64)
+   - RPCI: Report on the Physical Count of Inventories (Appendix 66)
+   - Stock Card (Appendix 58)
+   ========================================================================== */
+
+/* 1. Base Typography & Form Containers */
+.mr-container,
+.rsmi-container,
+.rpci-container,
+.sc-container {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 9.5pt;
+    line-height: 1.25;
+    color: #000000;
+    background: #ffffff;
+    box-sizing: border-box;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Specific paper widths for portrait vs landscape */
+.mr-container,
+.rsmi-container,
+.sc-container {
+    max-width: 194mm;
+}
+
+.rpci-container {
+    max-width: 281mm;
+}
+
+/* 2. Header & Title Hierarchy */
+.header-appendix,
+.header-title {
+    text-align: right;
+    font-style: italic;
+    font-weight: bold;
+    font-size: 10.5pt;
+    margin-bottom: 2mm;
+    line-height: 1.2;
+}
+
+.main-title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 13.5pt;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 1.5mm;
+    line-height: 1.25;
+}
+
+.sub-title {
+    text-align: center;
+    font-style: italic;
+    font-size: 9.5pt;
+    margin-bottom: 3.5mm;
+    line-height: 1.25;
+}
+
+/* Purpose & Acknowledgement Statements */
+.purpose-statement {
+    margin-bottom: 3.5mm;
+    line-height: 1.35;
+    text-align: justify;
+    font-size: 9.5pt;
+}
+
+/* 3. Top Info & Metadata Tables */
+.mr-top-info,
+.rsmi-top-info,
+.rpci-top-info,
+.sc-top-info {
+    width: 100%;
+    margin-bottom: 3.5mm;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.mr-top-info td,
+.rsmi-top-info td,
+.rpci-top-info td,
+.sc-top-info td {
+    padding: 1.5mm 1mm;
+    vertical-align: middle;
+    font-size: 9.5pt;
+    line-height: 1.25;
+}
+
+.mr-top-info .label,
+.rsmi-top-info .label,
+.rpci-top-info .label,
+.sc-top-info .label {
+    font-weight: bold;
+}
+
+.mr-top-info .value,
+.rsmi-top-info .value,
+.rpci-top-info .value,
+.sc-top-info .value {
+    border-bottom: 1px solid #000000;
+}
+
+/* 4. Official Main Tables */
+.main-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1.5px solid #000000;
+    table-layout: fixed;
+    margin-bottom: 0;
+}
+
+.main-table th {
+    border: 1px solid #000000;
+    padding: 2.5mm 1.5mm;
+    font-size: 9pt;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    line-height: 1.25;
+}
+
+.main-table td {
+    border: 1px solid #000000;
+    padding: 2mm 1.5mm;
+    font-size: 9pt;
+    box-sizing: border-box;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    vertical-align: middle;
+    line-height: 1.25;
+}
+
+/* Preserve substantial row heights for realistic government form presence */
+.main-table tr.data-row td,
+.main-table tr.empty-row td,
+.empty-row td {
+    height: 7.5mm !important;
+    min-height: 7.5mm !important;
+}
+
+/* Table Alignment Classes */
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+.text-left { text-align: left !important; }
+.font-bold { font-weight: bold !important; }
+
+/* 5. Signature Blocks */
+.signatures-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1.5px solid #000000;
+    border-top: none;
+    table-layout: fixed;
+    min-height: 38mm;
+}
+
+.sig-cell {
+    width: 50%;
+    vertical-align: top;
+    padding: 3mm 4mm;
+    box-sizing: border-box;
+}
+
+.sig-cell:first-child {
+    border-right: 1px solid #000000;
+}
+
+.sig-header {
+    font-weight: bold;
+    font-size: 9.5pt;
+    margin-bottom: 12mm; /* Substantial room for handwritten signature */
+}
+
+.sig-name-table {
+    width: 85%;
+    margin: 0 auto 3mm auto;
+    border-collapse: collapse;
+}
+
+.sig-name-cell {
+    border: none;
+    border-bottom: 1px solid #000000;
+    padding: 0 1mm 1.5mm 1mm;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 10pt;
+    line-height: 1.2;
+}
+
+.sig-title-cell {
+    border: none;
+    text-align: center;
+    font-size: 8pt;
+    padding-top: 1mm;
+    line-height: 1.2;
+}
+
+.sig-meta-table {
+    width: 100%;
+    margin-top: 2mm;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.sig-meta-label {
+    border: none;
+    font-weight: bold;
+    font-size: 8.5pt;
+    vertical-align: middle;
+    padding: 1.5mm 0;
+}
+
+.sig-meta-value {
+    border: none;
+    border-bottom: 1px solid #000000;
+    padding: 1.5mm 1mm;
+    vertical-align: middle;
+    font-size: 8.5pt;
+    line-height: 1.2;
+}
+
+/* RSMI Footer / Recapitulation */
+.recap-section {
+    margin-top: 3.5mm;
+    width: 100%;
+}
+
+.rsmi-footer-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1.5px solid #000000;
+    border-top: none;
+}
+
+.rsmi-footer-cell {
+    vertical-align: top;
+    padding: 3mm 4mm;
+    font-size: 8.5pt;
+}
+
+/* RPCI 3-Column Footer */
+.rpci-footer-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 3.5mm;
+}
+
+.rpci-footer-cell {
+    width: 33.33%;
+    vertical-align: top;
+    padding: 2mm 3mm;
+    font-size: 8.5pt;
+}
+
+/* 6. Off-Screen Rendering Container for High-Fidelity PDF Generation */
+.compliance-pdf-render-wrapper {
+    position: fixed;
+    top: -10000px;
+    left: -10000px;
+    opacity: 0;
+    pointer-events: none;
+    background: #ffffff;
+    z-index: -9999;
+}

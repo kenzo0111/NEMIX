@@ -46,7 +46,7 @@ const formatDate = (dateString?: string) => {
 
 export const StockCard: React.FC<StockCardProps> = ({ data }) => {
   const entries = data.entries || [];
-  const targetRowCount = 10;
+  const targetRowCount = 12;
   const emptyRowsCount = Math.max(0, targetRowCount - entries.length);
   const emptyRows = Array.from({ length: emptyRowsCount });
 
@@ -63,23 +63,23 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
             background: #ffffff;
             color: #000000;
             width: 100%;
-            max-width: 190mm;
+            max-width: 194mm;
             margin: 0 auto;
             box-sizing: border-box;
-            line-height: 1.2;
+            line-height: 1.25;
         }
         .header-title {
             text-align: right;
             font-style: italic;
             font-size: 10.5pt;
-            margin-bottom: 2px;
+            margin-bottom: 2mm;
             font-weight: bold;
         }
         .main-title {
             text-align: center;
             font-weight: bold;
-            font-size: 12pt;
-            margin-bottom: 8px;
+            font-size: 13.5pt;
+            margin-bottom: 2.5mm;
             letter-spacing: 0.5px;
         }
         table {
@@ -95,8 +95,8 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
         }
         .main-table th, .main-table td {
             border: 1px solid #000000;
-            padding: 2.5px 4px;
-            font-size: 8.5pt;
+            padding: 2mm 1.5mm;
+            font-size: 9pt;
             box-sizing: border-box;
             word-break: break-word;
             overflow-wrap: anywhere;
@@ -107,9 +107,11 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
             background-color: #ffffff;
             font-weight: bold;
             text-align: center;
+            padding: 2.5mm 1.5mm;
         }
         .empty-row td {
-            height: 17px;
+            height: 7.5mm;
+            min-height: 7.5mm;
         }
         
         .text-center { text-align: center; }

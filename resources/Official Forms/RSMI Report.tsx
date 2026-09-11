@@ -58,7 +58,7 @@ const getDynamicNameStyle = (name?: string, defaultSize = '9pt'): React.CSSPrope
 
 export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
   const items = data.issuedItems || [];
-  const targetRowCount = 8;
+  const targetRowCount = 10;
   const paddedItems = [...items, ...Array(Math.max(0, targetRowCount - items.length)).fill({})];
 
   const recap = data.recapitulationItems || [];
@@ -78,23 +78,23 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             background: #ffffff;
             color: #000000;
             width: 100%;
-            max-width: 190mm;
+            max-width: 194mm;
             margin: 0 auto;
             box-sizing: border-box;
-            line-height: 1.2;
+            line-height: 1.25;
         }
         .header-appendix {
             text-align: right;
             font-style: italic;
             font-size: 10.5pt;
-            margin-bottom: 2px;
+            margin-bottom: 2mm;
             font-weight: bold;
         }
         .main-title {
             text-align: center;
             font-weight: bold;
-            font-size: 11.5pt;
-            margin-bottom: 8px;
+            font-size: 13.5pt;
+            margin-bottom: 2.5mm;
             letter-spacing: 0.5px;
         }
 
@@ -107,8 +107,8 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         }
         .main-table th, .main-table td {
             border: 1px solid #000000;
-            padding: 2.5px 4px;
-            font-size: 8.5pt;
+            padding: 2mm 1.5mm;
+            font-size: 9pt;
             word-break: break-word;
             overflow-wrap: anywhere;
             box-sizing: border-box;
@@ -119,9 +119,11 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             text-align: center;
             font-weight: bold;
             background-color: #ffffff;
+            padding: 2.5mm 1.5mm;
         }
         .empty-row td {
-            height: 17px;
+            height: 7.5mm;
+            min-height: 7.5mm;
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
@@ -130,21 +132,22 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         .header-italic {
             font-style: italic;
             font-weight: normal !important;
-            padding: 2px 4px !important;
+            padding: 2mm 1.5mm !important;
         }
 
         /* Footer / Signatures */
         .footer-cell {
             vertical-align: top !important;
-            padding: 6px 8px !important;
+            padding: 3mm 4mm !important;
+            min-height: 38mm;
         }
         .certify-text {
-            margin-bottom: 12px;
-            font-size: 8.5pt;
+            margin-bottom: 12mm;
+            font-size: 9pt;
         }
         .posted-text {
-            margin-bottom: 10px;
-            font-size: 8.5pt;
+            margin-bottom: 12mm;
+            font-size: 9pt;
         }
 
         /* Ensure borders match precisely */
@@ -158,7 +161,11 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
-            .rsmi-signatures, .recap-section {
+            .rsmi-signatures {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .recap-section {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }

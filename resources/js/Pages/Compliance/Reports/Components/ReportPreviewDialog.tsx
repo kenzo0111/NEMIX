@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useRef, useEffect } from 'react';
+import React, { Suspense, lazy, useRef, useEffect, useState } from 'react';
 import Modal from '@/Components/Modal';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { getReportTypeLabel } from '../constants';
@@ -9,6 +9,7 @@ import {
     applyCompliancePrintStyle,
     getCompliancePrintConfig,
 } from '../utils/printConfig';
+import { generateCompliancePdf } from '../utils/compliancePdfEngine';
 
 const RSMIFormPaper = lazy(() =>
     import('../../../../../Official Forms/RSMI Report').then((m) => ({ default: m.RSMIFormPaper })),
@@ -44,28 +45,29 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
     receivings = [],
     migratedRecords = [],
     user,
-    publicSettings = {},
+    publicSettings,
 }) => {
-    const reportContentRef = useRef<HTMLDivElement | null>(null);
+    const reportContentRef = useRef<HTMLDivElement>(null);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const isLandscape = report?.type === 'RPCI';
     const reportTypeLabel = getReportTypeLabel(report?.type);
-    const coverageText =
-        report?.coverageLabel ||
-        (report?.date ? formatDisplayDate(report.date, 'MM/DD/YYYY') : 'All Records');
     const genDate =
         report?.generatedDate ||
         report?.createdAt ||
         report?.created_at ||
         report?.date;
+    const coverageText =
+        report?.coverageLabel ||
+        (report?.date ? formatDisplayDate(report.date, 'MM/DD/YYYY') : 'Not Specified');
 
     useEffect(() => {
         if (!show || !report) return;
 
         const config = getCompliancePrintConfig(report.type);
+        applyCompliancePrintStyle(config);
 
         const handleBeforePrint = () => {
-            applyCompliancePrintStyle(config);
             document.body.classList.add('printing-compliance');
         };
 
@@ -91,61 +93,24 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
 
     const handleDownload = async () => {
         const reportElement = reportContentRef.current;
-        if (!reportElement) return;
+        if (!reportElement || isDownloading) return;
 
         const paperElement =
             (reportElement.querySelector('.sc-container, .rsmi-container, .rpci-container, .mr-container') as HTMLElement) ||
             reportElement;
 
-        const safeName = [report.type, report.reference, report.title]
-            .filter(Boolean)
-            .join('_')
-            .replace(/[^a-z0-9_-]+/gi, '_')
-            .replace(/_+/g, '_')
-            .replace(/^_|_$/g, '');
-        const fileName = `${safeName || 'compliance_report'}.pdf`;
-
-        const [{ jsPDF }, html2canvasModule] = await Promise.all([
-            import('jspdf'),
-            import('html2canvas'),
-        ]);
-        const html2canvas = html2canvasModule.default;
-        const doc = new jsPDF({
-            orientation: isLandscape ? 'landscape' : 'portrait',
-            unit: 'mm',
-            format: 'a4',
-        });
-
-        const pageWidth = isLandscape ? 297 : 210;
-        const pageHeight = isLandscape ? 210 : 297;
-        const margin = 8;
-        const targetWidth = pageWidth - margin * 2;
-        const targetHeight = pageHeight - margin * 2;
-
-        const canvas = await html2canvas(paperElement, {
-            scale: 2,
-            backgroundColor: '#ffffff',
-            useCORS: true,
-            logging: false,
-            windowWidth: paperElement.scrollWidth,
-            windowHeight: paperElement.scrollHeight,
-        });
-
-        const imageData = canvas.toDataURL('image/png');
-        const imgAspectRatio = canvas.width / canvas.height;
-        let finalWidth = targetWidth;
-        let finalHeight = targetWidth / imgAspectRatio;
-
-        if (finalHeight > targetHeight) {
-            finalHeight = targetHeight;
-            finalWidth = targetHeight * imgAspectRatio;
+        try {
+            setIsDownloading(true);
+            await generateCompliancePdf(paperElement, {
+                type: report.type,
+                reference: report.reference,
+                title: report.title,
+            });
+        } catch (error) {
+            console.error('Failed to generate compliance PDF:', error);
+        } finally {
+            setIsDownloading(false);
         }
-
-        const posX = (pageWidth - finalWidth) / 2;
-        const posY = (pageHeight - finalHeight) / 2;
-
-        doc.addImage(imageData, 'PNG', posX, posY, finalWidth, finalHeight, undefined, 'FAST');
-        doc.save(fileName);
     };
 
     const renderOfficialPaper = () => {
@@ -327,12 +292,25 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                         <button
                             type="button"
                             onClick={handleDownload}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-red-900 rounded-lg hover:bg-red-950 transition-all shadow-xs active:scale-[0.99] cursor-pointer"
+                            disabled={isDownloading}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-red-900 rounded-lg hover:bg-red-950 disabled:opacity-60 transition-all shadow-xs active:scale-[0.99] cursor-pointer"
                         >
-                            <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v10m0 0l4-4m-4 4l-4-4m-5 8v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
-                            </svg>
-                            <span>Download PDF</span>
+                            {isDownloading ? (
+                                <>
+                                    <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                    </svg>
+                                    <span>Generating PDF...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v10m0 0l4-4m-4 4l-4-4m-5 8v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+                                    </svg>
+                                    <span>Download PDF</span>
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>

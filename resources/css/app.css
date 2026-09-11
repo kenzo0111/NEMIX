@@ -1,5 +1,6 @@
 @import './issuance-print.css';
 @import './compliance-print.css';
+@import './compliance-pdf.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
