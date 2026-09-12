@@ -122,9 +122,9 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
         setSelectedSupplier(supplier);
         setData({
             name: supplier.name,
-            tin: supplier.tin,
-            address: supplier.address,
-            reg_number: supplier.reg_number,
+            tin: supplier.tin || '',
+            address: supplier.address || '',
+            reg_number: supplier.reg_number || '',
             category: DEFAULT_CATEGORY,
             status: (supplier.status || 'active') as SupplierStatus,
         });

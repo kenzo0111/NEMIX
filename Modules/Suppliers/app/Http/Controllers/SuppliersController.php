@@ -26,24 +26,29 @@ class SuppliersController extends Controller
 
         $supplierIds = $suppliers->pluck('id')->filter()->all();
 
-        $supplierItemValues = [];
-        if (!empty($supplierIds) && class_exists(Item::class)) {
-            $supplierItemValues = Item::query()
-                ->whereIn('supplier_id', $supplierIds)
-                ->where('stock', '>', 0)
-                ->whereNotNull('unit_cost')
-                ->where('unit_cost', '>', 0)
-                ->groupBy('supplier_id')
-                ->select('supplier_id', DB::raw('SUM(stock * unit_cost) as total_val'))
-                ->pluck('total_val', 'supplier_id')
-                ->toArray();
-        }
+        $valuationService = app(\Modules\Inventory\Services\InventoryValuationService::class);
+        $metricsMap = $valuationService->getSupplierMetricsMap($supplierIds);
 
-        $suppliers = $suppliers->map(function ($supplier) use ($supplierItemValues) {
+        $suppliers = $suppliers->map(function ($supplier) use ($metricsMap) {
             $supplierId = (string) $supplier->id;
-            $calculatedValue = round((float) ($supplierItemValues[$supplierId] ?? 0), 2);
-            $supplier->contract_supplies_value = $calculatedValue;
-            $supplier->amount = $calculatedValue;
+            $metrics = $metricsMap[$supplierId] ?? [
+                'total_received_value' => 0.00,
+                'current_inventory_value' => 0.00,
+                'total_received_quantity' => 0,
+                'current_quantity' => 0,
+                'batch_count' => 0,
+            ];
+
+            $supplier->total_received_value = $metrics['total_received_value'];
+            $supplier->current_inventory_value = $metrics['current_inventory_value'];
+            $supplier->total_received_quantity = $metrics['total_received_quantity'];
+            $supplier->current_quantity = $metrics['current_quantity'];
+            $supplier->batch_count = $metrics['batch_count'];
+
+            // Backward compatibility attributes
+            $supplier->contract_supplies_value = $metrics['current_inventory_value'];
+            $supplier->amount = $metrics['current_inventory_value'];
+
             return $supplier;
         });
 

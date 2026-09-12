@@ -13,11 +13,18 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
     if (!supplier) return null;
 
     const formatCurrency = (val: number | string | null | undefined) => {
-        const num = Number(val) || 0;
+        if (val === null || val === undefined || val === '') return '—';
+        const num = Number(val);
+        if (isNaN(num)) return '—';
         return `₱${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
-    const contractValue = Number(supplier.contract_supplies_value ?? supplier.amount ?? 0);
+    const totalReceivedVal = supplier.total_received_value ?? 0;
+    const currentInventoryVal = supplier.current_inventory_value ?? supplier.contract_supplies_value ?? supplier.amount ?? 0;
+    const batchCount = supplier.batch_count ?? 0;
+    const totalRecQty = supplier.total_received_quantity ?? 0;
+    const currentQty = supplier.current_quantity ?? 0;
+    const hasContractValue = supplier.contract_value !== null && supplier.contract_value !== undefined && supplier.contract_value !== '';
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
@@ -84,10 +91,10 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                         </dl>
                     </div>
 
-                    {/* Supplier Status & Valuation Section */}
+                    {/* Supply Activity & Compliance Section */}
                     <div>
                         <h4 className="text-xs font-semibold text-gray-800 uppercase tracking-wider pb-2 mb-3 border-b border-gray-200">
-                            Compliance &amp; Contract Valuation
+                            Supply Activity &amp; Compliance
                         </h4>
                         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
@@ -97,13 +104,54 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-gray-500 font-medium">Contract Supplies Value</dt>
+                                <dt className="text-gray-500 font-medium">Receiving Batches</dt>
+                                <dd className="text-sm font-mono font-semibold text-gray-900 mt-1">
+                                    {batchCount} {batchCount === 1 ? 'batch' : 'batches'}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt className="text-gray-500 font-medium">Total Quantity Received</dt>
+                                <dd className="text-sm font-mono font-medium text-gray-900 mt-1">
+                                    {totalRecQty.toLocaleString()} units
+                                </dd>
+                            </div>
+                            <div>
+                                <dt className="text-gray-500 font-medium">Current Quantity Remaining</dt>
+                                <dd className="text-sm font-mono font-medium text-gray-900 mt-1">
+                                    {currentQty.toLocaleString()} units
+                                </dd>
+                            </div>
+                            <div>
+                                <dt className="text-gray-500 font-medium">Total Received Value</dt>
                                 <dd className="text-sm font-mono font-bold text-gray-900 mt-1">
-                                    {formatCurrency(contractValue)}
+                                    {formatCurrency(totalReceivedVal)}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt className="text-gray-500 font-medium">Current Inventory Value</dt>
+                                <dd className="text-sm font-mono font-bold text-gray-900 mt-1">
+                                    {formatCurrency(currentInventoryVal)}
                                 </dd>
                             </div>
                         </dl>
                     </div>
+
+                    {/* Contract Information Section - Only rendered if formal contract recorded */}
+                    {hasContractValue && (
+                        <div>
+                            <h4 className="text-xs font-semibold text-gray-800 uppercase tracking-wider pb-2 mb-3 border-b border-gray-200">
+                                Contract Information
+                            </h4>
+                            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <dt className="text-gray-500 font-medium">Awarded Contract Value</dt>
+                                    <dd className="text-sm font-mono font-bold text-gray-900 mt-1">
+                                        {formatCurrency(supplier.contract_value)}
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    )}
                 </div>
 
                 {/* Footer */}

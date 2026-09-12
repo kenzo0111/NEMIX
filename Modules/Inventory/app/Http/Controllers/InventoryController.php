@@ -279,12 +279,7 @@ class InventoryController extends Controller
 
             // If initial stock is recorded directly, preserve it in an initial batch
             if ($stock > 0) {
-                // If no supplier specified, pick first supplier or leave null
-                $batchSupplierId = $supplierId;
-                if (!$batchSupplierId) {
-                    $firstSupplier = Supplier::first();
-                    $batchSupplierId = $firstSupplier ? $firstSupplier->id : 1;
-                }
+                $batchSupplierId = $supplierId ?: null;
 
                 InventoryBatch::create([
                     'item_id' => $item->id,

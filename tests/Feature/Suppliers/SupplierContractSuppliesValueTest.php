@@ -5,6 +5,7 @@ namespace Tests\Feature\Suppliers;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Modules\Inventory\Models\InventoryBatch;
 use Modules\Inventory\Models\Issuance;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\Receiving;
@@ -51,7 +52,7 @@ class SupplierContractSuppliesValueTest extends TestCase
         ]);
 
         // Supplier A: Bond Paper (10 * 250 = 2,500)
-        Item::create([
+        $item1 = Item::create([
             'name' => 'Bond Paper',
             'supplier_id' => $supplierA->id,
             'sku' => 'ITM-BND-01',
@@ -61,9 +62,18 @@ class SupplierContractSuppliesValueTest extends TestCase
             'status' => 'Available',
             'created_by' => $this->adminUser->id,
         ]);
+        InventoryBatch::create([
+            'item_id' => $item1->id,
+            'supplier_id' => $supplierA->id,
+            'quantity_received' => 10,
+            'quantity_remaining' => 10,
+            'unit_cost' => 250.00,
+            'date_received' => '2026-09-01',
+            'created_by' => $this->adminUser->id,
+        ]);
 
         // Supplier A: Printer Ink (5 * 600 = 3,000)
-        Item::create([
+        $item2 = Item::create([
             'name' => 'Printer Ink',
             'supplier_id' => $supplierA->id,
             'sku' => 'ITM-INK-01',
@@ -73,9 +83,18 @@ class SupplierContractSuppliesValueTest extends TestCase
             'status' => 'Available',
             'created_by' => $this->adminUser->id,
         ]);
+        InventoryBatch::create([
+            'item_id' => $item2->id,
+            'supplier_id' => $supplierA->id,
+            'quantity_received' => 5,
+            'quantity_remaining' => 5,
+            'unit_cost' => 600.00,
+            'date_received' => '2026-09-01',
+            'created_by' => $this->adminUser->id,
+        ]);
 
         // Supplier A: Folder (20 * 25 = 500)
-        Item::create([
+        $item3 = Item::create([
             'name' => 'Folder',
             'supplier_id' => $supplierA->id,
             'sku' => 'ITM-FLD-01',
@@ -85,9 +104,18 @@ class SupplierContractSuppliesValueTest extends TestCase
             'status' => 'Available',
             'created_by' => $this->adminUser->id,
         ]);
+        InventoryBatch::create([
+            'item_id' => $item3->id,
+            'supplier_id' => $supplierA->id,
+            'quantity_received' => 20,
+            'quantity_remaining' => 20,
+            'unit_cost' => 25.00,
+            'date_received' => '2026-09-01',
+            'created_by' => $this->adminUser->id,
+        ]);
 
         // Supplier B: Single Item (4 * 150 = 600)
-        Item::create([
+        $item4 = Item::create([
             'name' => 'Stapler',
             'supplier_id' => $supplierB->id,
             'sku' => 'ITM-STP-01',
@@ -95,6 +123,15 @@ class SupplierContractSuppliesValueTest extends TestCase
             'unit_cost' => 150.00,
             'amount' => 600.00,
             'status' => 'Available',
+            'created_by' => $this->adminUser->id,
+        ]);
+        InventoryBatch::create([
+            'item_id' => $item4->id,
+            'supplier_id' => $supplierB->id,
+            'quantity_received' => 4,
+            'quantity_remaining' => 4,
+            'unit_cost' => 150.00,
+            'date_received' => '2026-09-01',
             'created_by' => $this->adminUser->id,
         ]);
 
@@ -131,6 +168,15 @@ class SupplierContractSuppliesValueTest extends TestCase
             'unit_cost' => 500.00,
             'amount' => 5000.00,
             'status' => 'Available',
+            'created_by' => $this->adminUser->id,
+        ]);
+        InventoryBatch::create([
+            'item_id' => $item->id,
+            'supplier_id' => $supplier->id,
+            'quantity_received' => 10,
+            'quantity_remaining' => 10,
+            'unit_cost' => 500.00,
+            'date_received' => '2026-09-01',
             'created_by' => $this->adminUser->id,
         ]);
 
@@ -176,6 +222,15 @@ class SupplierContractSuppliesValueTest extends TestCase
             'unit_cost' => 500.00,
             'amount' => 7500.00,
             'status' => 'Available',
+            'created_by' => $this->adminUser->id,
+        ]);
+        InventoryBatch::create([
+            'item_id' => $item->id,
+            'supplier_id' => $supplier->id,
+            'quantity_received' => 15,
+            'quantity_remaining' => 15,
+            'unit_cost' => 500.00,
+            'date_received' => '2026-09-01',
             'created_by' => $this->adminUser->id,
         ]);
 
@@ -273,6 +328,9 @@ class SupplierContractSuppliesValueTest extends TestCase
             'created_by' => $this->adminUser->id,
         ]);
 
+        $receivingService = app(\Modules\Inventory\Services\InventoryReceivingService::class);
+        $issuanceService = app(\Modules\Inventory\Services\InventoryIssuanceService::class);
+
         $item = Item::create([
             'name' => 'Adjustment Item',
             'supplier_id' => $supplier->id,
@@ -283,45 +341,47 @@ class SupplierContractSuppliesValueTest extends TestCase
             'status' => 'Available',
             'created_by' => $this->adminUser->id,
         ]);
-
-        // 1. Receive 10 units
-        $receiving = Receiving::create([
+        InventoryBatch::create([
             'item_id' => $item->id,
             'supplier_id' => $supplier->id,
-            'quantity' => 10,
+            'quantity_received' => 10,
+            'quantity_remaining' => 10,
+            'unit_cost' => 100.00,
             'date_received' => now()->toDateString(),
             'created_by' => $this->adminUser->id,
         ]);
-        $item->stock += 10;
-        $item->amount = 2000.00;
-        $item->save();
+
+        // 1. Receive 10 units via service (creates receiving & batch)
+        $recResult = $receivingService->record([
+            'item_id' => $item->id,
+            'supplier_id' => $supplier->id,
+            'quantity' => 10,
+            'unit_cost' => 100.00,
+            'date_received' => now()->toDateString(),
+        ], $this->adminUser->id);
+        $receiving = $recResult['receiving'];
 
         $this->actingAs($this->adminUser)->get(route('suppliers.index'))
             ->assertInertia(fn (Assert $page) => $page->where('suppliers.0.contract_supplies_value', fn ($val) => (float) $val == 2000.00));
 
-        // 2. Void Receiving: stock reverts by -10 -> value becomes 1,000.00
+        // 2. Void Receiving: batch voided -> value becomes 1,000.00
         $this->actingAs($this->adminUser)->delete(route('inventory.receiving.destroy', $receiving));
         $this->actingAs($this->adminUser)->get(route('suppliers.index'))
             ->assertInertia(fn (Assert $page) => $page->where('suppliers.0.contract_supplies_value', fn ($val) => (float) $val == 1000.00));
 
-        // 3. Issue 4 units
-        $item->refresh();
-        $issuance = Issuance::create([
-            'item_id' => $item->id,
-            'quantity' => 4,
+        // 3. Issue 4 units via service (allocates from batch)
+        $issuance = $issuanceService->store([
+            'lines' => [
+                ['item_id' => $item->id, 'quantity' => 4],
+            ],
             'recipient' => 'Staff Member',
             'date_issued' => now()->toDateString(),
-            'status' => 'Issued',
-            'issued_by' => $this->adminUser->id,
-        ]);
-        $item->stock -= 4;
-        $item->amount = 600.00;
-        $item->save();
+        ], $this->adminUser->id);
 
         $this->actingAs($this->adminUser)->get(route('suppliers.index'))
             ->assertInertia(fn (Assert $page) => $page->where('suppliers.0.contract_supplies_value', fn ($val) => (float) $val == 600.00));
 
-        // 4. Void Issuance: stock reverts by +4 -> value becomes 1,000.00
+        // 4. Void Issuance: restores batch stock -> value becomes 1,000.00
         $this->actingAs($this->adminUser)->delete(route('inventory.issuance.destroy', $issuance));
         $this->actingAs($this->adminUser)->get(route('suppliers.index'))
             ->assertInertia(fn (Assert $page) => $page->where('suppliers.0.contract_supplies_value', fn ($val) => (float) $val == 1000.00));

@@ -5,13 +5,24 @@ export type SupplierCategory = 'goods';
 export interface Supplier {
     id: number;
     name: string;
-    tin: string;
-    address: string;
-    reg_number: string;
-    category: SupplierCategory | string;
+    tin: string | null;
+    address: string | null;
+    reg_number: string | null;
+    registration_number?: string | null;
+    category?: SupplierCategory | string | null;
+    classification?: string | null;
     status: SupplierStatus;
-    contract_supplies_value?: number | null;
-    amount?: number | null;
+
+    batch_count?: number;
+    total_received_quantity?: number;
+    current_quantity?: number;
+
+    total_received_value?: number | string;
+    current_inventory_value?: number | string;
+
+    contract_value?: number | string | null;
+    contract_supplies_value?: number | string | null;
+    amount?: number | string | null;
     created_by?: number | null;
     created_at?: string;
     updated_at?: string;

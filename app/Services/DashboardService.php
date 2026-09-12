@@ -13,14 +13,9 @@ class DashboardService
      */
     public function getSummaryStats(): array
     {
-        $totalInventoryValue = 0.0;
-        if (class_exists(\Modules\Inventory\Models\InventoryBatch::class) && \Modules\Inventory\Models\InventoryBatch::whereNull('deleted_at')->exists()) {
-            $totalInventoryValue = (float) \Modules\Inventory\Models\InventoryBatch::whereNull('deleted_at')
-                ->where('quantity_remaining', '>', 0)
-                ->sum(DB::raw('quantity_remaining * COALESCE(unit_cost, 0)'));
-        } elseif (class_exists(\Modules\Inventory\Models\Item::class)) {
-            $totalInventoryValue = (float) \Modules\Inventory\Models\Item::query()->sum(DB::raw('stock * COALESCE(unit_cost, 0)'));
-        }
+        $totalInventoryValue = class_exists(\Modules\Inventory\Services\InventoryValuationService::class)
+            ? app(\Modules\Inventory\Services\InventoryValuationService::class)->getCurrentInventoryValue()
+            : 0.0;
 
         $activeInventoryItems = class_exists(\Modules\Inventory\Models\Item::class)
             ? (int) \Modules\Inventory\Models\Item::where('stock', '>', 0)->count()

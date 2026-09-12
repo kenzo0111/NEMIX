@@ -71,6 +71,11 @@ class Item extends Model
         return $this->hasMany(InventoryBatch::class, 'item_id');
     }
 
+    public function inventoryBatches(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->batches();
+    }
+
     public function activeBatches(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(InventoryBatch::class, 'item_id')

@@ -50,6 +50,11 @@ class Supplier extends Model
 
     protected $appends = [
         'contract_supplies_value',
+        'total_received_value',
+        'current_inventory_value',
+        'total_received_quantity',
+        'current_quantity',
+        'batch_count',
     ];
 
     public function items()
@@ -57,9 +62,94 @@ class Supplier extends Model
         return $this->hasMany(\Modules\Inventory\Models\Item::class, 'supplier_id');
     }
 
-    public function batches()
+    public function inventoryBatches()
     {
         return $this->hasMany(\Modules\Inventory\Models\InventoryBatch::class, 'supplier_id');
+    }
+
+    public function batches()
+    {
+        return $this->inventoryBatches();
+    }
+
+    public function getTotalReceivedValueAttribute(): float
+    {
+        if (array_key_exists('total_received_value', $this->attributes)) {
+            return (float) $this->attributes['total_received_value'];
+        }
+
+        if (class_exists(\Modules\Inventory\Models\InventoryBatch::class)) {
+            return (float) ($this->inventoryBatches()
+                ->whereNull('deleted_at')
+                ->selectRaw('COALESCE(SUM(quantity_received * unit_cost), 0) as total_val')
+                ->value('total_val') ?? 0.00);
+        }
+
+        return 0.00;
+    }
+
+    public function getCurrentInventoryValueAttribute(): float
+    {
+        if (array_key_exists('current_inventory_value', $this->attributes)) {
+            return (float) $this->attributes['current_inventory_value'];
+        }
+
+        if (class_exists(\Modules\Inventory\Models\InventoryBatch::class)) {
+            return (float) ($this->inventoryBatches()
+                ->whereNull('deleted_at')
+                ->where('quantity_remaining', '>', 0)
+                ->where('unit_cost', '>', 0)
+                ->selectRaw('COALESCE(SUM(quantity_remaining * unit_cost), 0) as total_val')
+                ->value('total_val') ?? 0.00);
+        }
+
+        return 0.00;
+    }
+
+    public function getTotalReceivedQuantityAttribute(): int
+    {
+        if (array_key_exists('total_received_quantity', $this->attributes)) {
+            return (int) $this->attributes['total_received_quantity'];
+        }
+
+        if (class_exists(\Modules\Inventory\Models\InventoryBatch::class)) {
+            return (int) ($this->inventoryBatches()
+                ->whereNull('deleted_at')
+                ->sum('quantity_received') ?? 0);
+        }
+
+        return 0;
+    }
+
+    public function getCurrentQuantityAttribute(): int
+    {
+        if (array_key_exists('current_quantity', $this->attributes)) {
+            return (int) $this->attributes['current_quantity'];
+        }
+
+        if (class_exists(\Modules\Inventory\Models\InventoryBatch::class)) {
+            return (int) ($this->inventoryBatches()
+                ->whereNull('deleted_at')
+                ->where('quantity_remaining', '>', 0)
+                ->sum('quantity_remaining') ?? 0);
+        }
+
+        return 0;
+    }
+
+    public function getBatchCountAttribute(): int
+    {
+        if (array_key_exists('batch_count', $this->attributes)) {
+            return (int) $this->attributes['batch_count'];
+        }
+
+        if (class_exists(\Modules\Inventory\Models\InventoryBatch::class)) {
+            return (int) ($this->inventoryBatches()
+                ->whereNull('deleted_at')
+                ->count() ?? 0);
+        }
+
+        return 0;
     }
 
     public function getContractSuppliesValueAttribute(): float
@@ -68,32 +158,7 @@ class Supplier extends Model
             return (float) $this->attributes['contract_supplies_value'];
         }
 
-        if (class_exists(\Modules\Inventory\Models\InventoryBatch::class)) {
-            $hasBatches = $this->batches()->exists();
-            if ($hasBatches) {
-                return (float) ($this->batches()
-                    ->where('quantity_remaining', '>', 0)
-                    ->where('unit_cost', '>', 0)
-                    ->selectRaw('COALESCE(SUM(quantity_remaining * unit_cost), 0) as total_val')
-                    ->value('total_val') ?? 0.00);
-            }
-        }
-
-        if ($this->relationLoaded('items')) {
-            return (float) $this->items
-                ->where('stock', '>', 0)
-                ->sum(fn ($item) => (float) $item->stock * (float) ($item->unit_cost ?? 0));
-        }
-
-        if (! class_exists(\Modules\Inventory\Models\Item::class)) {
-            return 0.00;
-        }
-
-        return (float) ($this->items()
-            ->where('stock', '>', 0)
-            ->where('unit_cost', '>', 0)
-            ->selectRaw('COALESCE(SUM(stock * unit_cost), 0) as total_val')
-            ->value('total_val') ?? 0.00);
+        return $this->getCurrentInventoryValueAttribute();
     }
 
     public function creator()
