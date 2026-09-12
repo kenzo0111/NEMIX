@@ -59,28 +59,30 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
         }
         .sc-container {
             font-family: 'Times New Roman', Times, serif;
-            font-size: 9.5pt;
+            font-size: 8.5pt;
             background: #ffffff;
             color: #000000;
             width: 100%;
             max-width: 194mm;
             margin: 0 auto;
             box-sizing: border-box;
-            line-height: 1.25;
+            line-height: 1.15;
         }
         .header-title {
             text-align: right;
             font-style: italic;
-            font-size: 10.5pt;
-            margin-bottom: 2mm;
+            font-size: 9pt;
+            margin-bottom: 1mm;
             font-weight: bold;
+            line-height: 1.1;
         }
         .main-title {
             text-align: center;
             font-weight: bold;
-            font-size: 13.5pt;
-            margin-bottom: 2.5mm;
-            letter-spacing: 0.5px;
+            font-size: 11.5pt;
+            margin-bottom: 1.2mm;
+            letter-spacing: 0.3px;
+            line-height: 1.15;
         }
         table {
             width: 100%;
@@ -95,23 +97,25 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
         }
         .main-table th, .main-table td {
             border: 1px solid #000000;
-            padding: 2mm 1.5mm;
-            font-size: 9pt;
+            padding: 0.6mm 1mm;
+            font-size: 8pt;
             box-sizing: border-box;
             word-break: break-word;
             overflow-wrap: anywhere;
             vertical-align: middle;
-            line-height: 1.25;
+            line-height: 1.1;
         }
         .main-table th {
             background-color: #ffffff;
             font-weight: bold;
             text-align: center;
-            padding: 2.5mm 1.5mm;
+            padding: 0.8mm 1mm;
         }
         .empty-row td {
-            height: 7.5mm;
-            min-height: 7.5mm;
+            height: 4mm !important;
+            min-height: 4mm !important;
+            padding: 0 1mm !important;
+            line-height: 1 !important;
         }
         
         .text-center { text-align: center; }
@@ -142,27 +146,27 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
         <div className="main-title">STOCK CARD</div>
 
         {/* Top Info Grid with explicit column widths to prevent any layout collapse */}
-        <table className="sc-top-info" style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <table className="sc-top-info" style={{ width: '100%', marginBottom: '6px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <colgroup>
-            <col style={{ width: '90px' }} />
+            <col style={{ width: '85px' }} />
             <col style={{ width: '280px' }} />
-            <col style={{ width: '30px' }} />
-            <col style={{ width: '90px' }} />
+            <col style={{ width: '25px' }} />
+            <col style={{ width: '85px' }} />
             <col style={{ width: '230px' }} />
           </colgroup>
           <tbody>
             <tr>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 0' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '1.5px 0' }}>
                 Entity Name:
               </td>
-              <td style={{ borderBottom: '1px solid #000000', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 6px 3px 6px', lineHeight: 1.2 }}>
+              <td style={{ borderBottom: '1px solid #000000', fontSize: '8.5pt', verticalAlign: 'middle', padding: '1.5px 4px', lineHeight: 1.1 }}>
                 {data.entity_name ? data.entity_name.replace(/Camarines Norte State College/gi, 'University of Camarines Norte') : 'University of Camarines Norte'}
               </td>
               <td>&nbsp;</td>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 0' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '1.5px 0' }}>
                 Fund Cluster:
               </td>
-              <td style={{ borderBottom: '1px solid #000000', fontSize: '10pt', verticalAlign: 'middle', padding: '2px 6px 3px 6px', lineHeight: 1.2 }}>
+              <td style={{ borderBottom: '1px solid #000000', fontSize: '8.5pt', verticalAlign: 'middle', padding: '1.5px 4px', lineHeight: 1.1 }}>
                 {formatFundCluster(data.fund_cluster)}
               </td>
             </tr>
@@ -179,21 +183,21 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
           </colgroup>
           <tbody>
             <tr>
-              <td style={{ textAlign: 'center', fontWeight: 'normal', padding: '6px 4px' }}>Item:</td>
-              <td style={{ textAlign: 'center', fontWeight: 'bold', padding: '6px 6px' }}>{data.item || '\u00A0'}</td>
-              <td style={{ textAlign: 'center', fontWeight: 'normal', padding: '6px 4px' }}>Stock No.:</td>
-              <td style={{ textAlign: 'center', fontWeight: 'bold', padding: '6px 6px' }}>{data.stock_no || '\u00A0'}</td>
+              <td style={{ textAlign: 'center', fontWeight: 'normal', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>Item:</td>
+              <td style={{ textAlign: 'center', fontWeight: 'bold', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>{data.item || '\u00A0'}</td>
+              <td style={{ textAlign: 'center', fontWeight: 'normal', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>Stock No.:</td>
+              <td style={{ textAlign: 'center', fontWeight: 'bold', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>{data.stock_no || '\u00A0'}</td>
             </tr>
             <tr>
-              <td style={{ textAlign: 'center', padding: '6px 4px' }}>Description:</td>
-              <td style={{ textAlign: 'center', padding: '6px 6px' }}>{data.description || '\u00A0'}</td>
-              <td style={{ textAlign: 'center', padding: '6px 4px' }}>Re-order Point:</td>
-              <td style={{ textAlign: 'center', padding: '6px 6px' }}>{data.re_order_point || '\u00A0'}</td>
+              <td style={{ textAlign: 'center', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>Description:</td>
+              <td style={{ textAlign: 'center', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>{data.description || '\u00A0'}</td>
+              <td style={{ textAlign: 'center', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>Re-order Point:</td>
+              <td style={{ textAlign: 'center', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>{data.re_order_point || '\u00A0'}</td>
             </tr>
             <tr>
-              <td style={{ textAlign: 'center', lineHeight: 1.2, padding: '4px 4px' }}>Unit of<br />Measurement:</td>
-              <td style={{ textAlign: 'center', padding: '6px 6px' }}>{data.unit_of_measurement || '\u00A0'}</td>
-              <td colSpan={2} style={{ background: '#ffffff', padding: '6px 4px' }}>&nbsp;</td>
+              <td style={{ textAlign: 'center', lineHeight: 1.1, padding: '2px 4px', fontSize: '8pt' }}>Unit of<br />Measurement:</td>
+              <td style={{ textAlign: 'center', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>{data.unit_of_measurement || '\u00A0'}</td>
+              <td colSpan={2} style={{ background: '#ffffff', padding: '2px 4px' }}>&nbsp;</td>
             </tr>
           </tbody>
         </table>

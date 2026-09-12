@@ -65,46 +65,46 @@ export const InspectionAcceptanceReport: React.FC<InspectionAcceptanceReportProp
   return (
     <>
       <style>{`
-        @page { margin: 18pt; size: A4 portrait; }
+        @page { margin: 8mm; size: A4 portrait; }
         .iar-container {
             font-family: 'Times New Roman', Times, serif;
-            font-size: 11pt;
-            line-height: 1.25;
+            font-size: 8.5pt;
+            line-height: 1.15;
             color: #000;
             background: #fff;
             width: 100%;
-            max-width: 210mm;
+            max-width: 194mm;
             margin: 0 auto;
             box-sizing: border-box;
         }
 
         /* Titles */
-        .header-title { text-align: right; font-style: italic; font-size: 12pt; margin-bottom: 6px; }
-        .main-title { text-align: center; font-weight: bold; font-size: 13pt; margin-bottom: 10px; }
+        .header-title { text-align: right; font-style: italic; font-size: 9pt; margin-bottom: 1mm; line-height: 1.1; }
+        .main-title { text-align: center; font-weight: bold; font-size: 11.5pt; margin-bottom: 1.2mm; letter-spacing: 0.3px; line-height: 1.15; }
 
         /* Tables */
         table { width: 100%; border-collapse: collapse; }
         
         /* Info Table */
-        .info-table { margin-bottom: 12px; }
-        .info-table td { padding: 2px 6px; font-size: 9.5pt; vertical-align: bottom; }
+        .info-table { margin-bottom: 4px; }
+        .info-table td { padding: 1.5px 4px; font-size: 8.5pt; vertical-align: bottom; line-height: 1.1; }
         .info-table .label { width: 14%; font-weight: normal; padding-right: 4px; }
-        .info-table .field { border-bottom: 1px solid #000; padding: 0 4px 2px 4px; line-height: 1.25; min-height: 18px; box-sizing: border-box; }
+        .info-table .field { border-bottom: 1px solid #000; padding: 0 4px 1px 4px; line-height: 1.15; min-height: 16px; box-sizing: border-box; }
 
         /* Items Table */
-        .items-table { margin: 8px 0 6px 0; table-layout: fixed; border: 1px solid #000; }
-        .items-table th, .items-table td { border: 1px solid #000; padding: 6px; font-size: 10pt; vertical-align: middle; }
+        .items-table { margin: 4px 0; table-layout: fixed; border: 1px solid #000; }
+        .items-table th, .items-table td { border: 1px solid #000; padding: 0.6mm 1mm; font-size: 8pt; vertical-align: middle; line-height: 1.1; height: auto; }
         
         /* Specific header rows within items table */
-        .meta-cell { border: none !important; border-right: 1px solid #000 !important; text-align: left; padding: 3px; font-size: 9pt; }
-        .meta-cell-last { border: none !important; text-align: left; padding: 3px; font-size: 9pt; }
+        .meta-cell { border: none !important; border-right: 1px solid #000 !important; text-align: left; padding: 2px 4px; font-size: 8pt; line-height: 1.1; }
+        .meta-cell-last { border: none !important; text-align: left; padding: 2px 4px; font-size: 8pt; line-height: 1.1; }
         .meta-row { border-bottom: 1px solid #000; }
 
-        .items-table th.col-header { background: #f2f2f2; font-weight: bold; text-align: center; }
+        .items-table th.col-header { background: #f2f2f2; font-weight: bold; text-align: center; padding: 0.8mm 1mm; }
         
         /* Columns */
         .stock-col { width: 12%; text-align: center; }
-        .description-col { width: 52%; text-align: left; padding-left: 6px; vertical-align: top; }
+        .description-col { width: 52%; text-align: left; padding-left: 4px; vertical-align: top; }
         .unit-col { width: 12%; text-align: center; }
         .quantity-col { width: 12%; text-align: right; }
         
@@ -117,31 +117,39 @@ export const InspectionAcceptanceReport: React.FC<InspectionAcceptanceReportProp
         /* Description header override */
         .description-header { text-align: center; vertical-align: middle; padding-left: 0; }
         
-        .items-table tbody td { height: 26px; }
+        .items-table tbody td { height: auto; }
+        .items-table tr.empty-row td,
+        .empty-row td {
+            height: 4mm !important;
+            min-height: 4mm !important;
+            padding: 0 1mm !important;
+            line-height: 1 !important;
+        }
 
         /* Footer / Signatures */
-        .items-table tfoot th { text-align: center; font-weight: bold; padding: 6px 8px; border: 1px solid #000; background: #fff; }
-        .items-table tfoot td { border: 1px solid #000; padding: 10px 12px; vertical-align: top; min-height: 140px; }
+        .items-table tfoot th { text-align: center; font-weight: bold; padding: 2px 4px; border: 1px solid #000; background: #fff; font-size: 8pt; }
+        .items-table tfoot td { border: 1px solid #000; padding: 3px 6px; vertical-align: top; min-height: auto; height: auto; }
 
-        .section-content { display: flex; flex-direction: column; justify-content: space-between; height: 100%; min-height: 140px; }
-        .date-field { margin-bottom: 8px; font-size: 10pt; }
+        .section-content { display: flex; flex-direction: column; justify-content: space-between; height: 100%; min-height: auto; }
+        .date-field { margin-bottom: 3px; font-size: 8pt; line-height: 1.1; }
         
         /* Checkboxes */
-        .checkbox-group { margin-bottom: 6px; font-size: 10pt; display: flex; align-items: center; }
+        .checkbox-group { margin-bottom: 2px; font-size: 8pt; display: flex; align-items: center; line-height: 1.1; }
         .checkbox { 
             display: inline-block; 
-            width: 14px; height: 14px; 
+            width: 12px; height: 12px; 
             border: 1px solid #000; 
-            margin-right: 6px; 
+            margin-right: 4px; 
             text-align: center;
-            line-height: 12px;
-            font-size: 12px;
+            line-height: 10px;
+            font-size: 10px;
+            flex-shrink: 0;
         }
 
         /* Signatures */
-        .signature-block { margin-top: auto; text-align: center; margin-top: 24px; }
-        .signature-line { display: inline-block; width: 80%; border-top: 1px solid #000; padding-top: 6px; font-weight: bold; font-size: 10pt; text-transform: uppercase; }
-        .position-line { display: block; width: 80%; margin: 6px auto 0; font-size: 9pt; }
+        .signature-block { margin-top: 6px; text-align: center; }
+        .signature-line { display: inline-block; width: 80%; border-top: 1px solid #000; padding-top: 2px; font-weight: bold; font-size: 8.5pt; text-transform: uppercase; line-height: 1.15; }
+        .position-line { display: block; width: 80%; margin: 2px auto 0; font-size: 7.5pt; line-height: 1.1; }
 
         @media print {
             body { margin: 0; padding: 0; }
@@ -213,7 +221,7 @@ export const InspectionAcceptanceReport: React.FC<InspectionAcceptanceReportProp
 
             {/* Empty Rows */}
             {emptyRows.map((_, index) => (
-              <tr key={`empty-${index}`}>
+              <tr key={`empty-${index}`} className="empty-row">
                 <td className="stock-col">&nbsp;</td>
                 <td className="description-col">&nbsp;</td>
                 <td className="unit-col">&nbsp;</td>

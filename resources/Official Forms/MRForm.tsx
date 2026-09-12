@@ -102,43 +102,46 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         }
         .mr-container {
           font-family: 'Times New Roman', Times, serif;
-          font-size: 9.5pt;
+          font-size: 8.5pt;
           background: #ffffff;
           color: #000000;
           width: 100%;
           max-width: 194mm;
           margin: 0 auto;
           box-sizing: border-box;
-          line-height: 1.25;
+          line-height: 1.15;
         }
         .header-appendix {
           text-align: right;
           font-style: italic;
           font-weight: bold;
-          font-size: 10.5pt;
-          margin-bottom: 2mm;
+          font-size: 9pt;
+          margin-bottom: 1mm;
+          line-height: 1.1;
         }
         .main-title {
           text-align: center;
           font-weight: bold;
-          font-size: 13.5pt;
-          margin-bottom: 1.5mm;
-          letter-spacing: 0.5px;
+          font-size: 11.5pt;
+          margin-bottom: 1.2mm;
+          letter-spacing: 0.3px;
           text-transform: uppercase;
+          line-height: 1.15;
         }
         .sub-title {
           text-align: center;
           font-style: italic;
-          font-size: 9.5pt;
-          margin-bottom: 3.5mm;
+          font-size: 8.5pt;
+          margin-bottom: 1.5mm;
+          line-height: 1.1;
         }
 
         /* Purpose statement */
         .purpose-statement {
-          margin-bottom: 3.5mm;
-          line-height: 1.35;
+          margin-bottom: 1.5mm;
+          line-height: 1.2;
           text-align: justify;
-          font-size: 9.5pt;
+          font-size: 8.5pt;
         }
 
         /* Main Table Grid */
@@ -150,23 +153,25 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         }
         .main-table th, .main-table td {
           border: 1px solid #000000;
-          padding: 2mm 1.5mm;
-          font-size: 9pt;
+          padding: 0.6mm 1mm;
+          font-size: 8pt;
           box-sizing: border-box;
           word-break: break-word;
           overflow-wrap: anywhere;
           vertical-align: middle;
-          line-height: 1.25;
+          line-height: 1.1;
         }
         .main-table th {
           text-align: center;
           font-weight: bold;
           background-color: #ffffff;
-          padding: 2.5mm 1.5mm;
+          padding: 0.8mm 1mm;
         }
         .empty-row td {
-          height: 7.5mm;
-          min-height: 7.5mm;
+          height: 4mm !important;
+          min-height: 4mm !important;
+          padding: 0 1mm !important;
+          line-height: 1 !important;
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
@@ -188,12 +193,13 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
           border: 1.5px solid #000000;
           border-top: none;
           table-layout: fixed;
-          min-height: 38mm;
+          height: auto;
+          min-height: auto;
         }
         .sig-cell {
           width: 50%;
           vertical-align: top;
-          padding: 3mm 4mm;
+          padding: 1.5mm 2.5mm;
           box-sizing: border-box;
         }
         .sig-cell:first-child {
@@ -201,8 +207,9 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         }
         .sig-header {
           font-weight: bold;
-          margin-bottom: 12mm;
-          font-size: 9.5pt;
+          margin-bottom: 4.5mm;
+          font-size: 8.5pt;
+          line-height: 1.1;
         }
 
         @media print {
@@ -236,42 +243,42 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         <div className="sub-title">(MEMORANDUM OF RECEIPT)</div>
 
         {/* Top Info Grid with explicit column widths to prevent collapse */}
-        <table className="mr-top-info" style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <table className="mr-top-info" style={{ width: '100%', marginBottom: '6px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <colgroup>
-            <col style={{ width: '90px' }} />
+            <col style={{ width: '85px' }} />
             <col style={{ width: '280px' }} />
-            <col style={{ width: '30px' }} />
-            <col style={{ width: '90px' }} />
+            <col style={{ width: '25px' }} />
+            <col style={{ width: '85px' }} />
             <col style={{ width: '230px' }} />
           </colgroup>
           <tbody>
             <tr>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '3px 0' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '1.5px 0' }}>
                 Entity Name:
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '2px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '1.5px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.1 }}>
                 {data.entityName || '\u00A0'}
               </td>
               <td>&nbsp;</td>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '3px 0' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '1.5px 0' }}>
                 MR No. :
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '2px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '1.5px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.1 }}>
                 {data.mrNo || '\u00A0'}
               </td>
             </tr>
             <tr>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '6px 0 3px 0' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '3px 0 1.5px 0' }}>
                 Fund Cluster:
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '3px 4px 1.5px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.1 }}>
                 {formatFundCluster(data.fundCluster)}
               </td>
               <td>&nbsp;</td>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '6px 0 3px 0' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '3px 0 1.5px 0' }}>
                 Date :
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '3px 4px 1.5px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.1 }}>
                 {formatDisplayDate(data.date || getLocalDateString(), 'MM/DD/YYYY')}
               </td>
             </tr>
@@ -322,10 +329,10 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
 
             {/* Total Row */}
             <tr>
-              <td colSpan={5} className="text-right font-bold">
+              <td colSpan={5} className="text-right font-bold" style={{ padding: '0.6mm 1mm' }}>
                 Grand Total Value:
               </td>
-              <td className="text-right font-bold">
+              <td className="text-right font-bold" style={{ padding: '0.6mm 1mm' }}>
                 {grandTotalDisplay}
               </td>
             </tr>
@@ -339,40 +346,40 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
               {/* Issued By (Property Custodian) */}
               <td className="sig-cell">
                 <div className="sig-header">Issued / Released by:</div>
-                <table style={{ width: '85%', margin: '0 auto 12px auto', borderCollapse: 'collapse' }}>
+                <table style={{ width: '85%', margin: '0 auto 4px auto', borderCollapse: 'collapse' }}>
                   <tbody>
                     <tr>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', fontSize: '9.5pt', lineHeight: 1.25 }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 2px 2px 2px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', fontSize: '9pt', lineHeight: 1.15 }}>
                         {data.issuedByName || 'ARSENIO GEM A. GARCILLANOSA'}
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ border: 'none', textAlign: 'center', fontSize: '8pt', paddingTop: '4px', lineHeight: 1.2 }}>
+                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
                         Signature over Printed Name of Supply and/or<br />Property Custodian
                       </td>
                     </tr>
                   </tbody>
                 </table>
 
-                <table style={{ width: '100%', marginTop: '8px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                <table style={{ width: '100%', marginTop: '4px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <colgroup>
-                    <col style={{ width: '65px' }} />
+                    <col style={{ width: '60px' }} />
                     <col style={{ width: '220px' }} />
                   </colgroup>
                   <tbody>
                     <tr>
-                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '3px 0' }}>
+                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8pt', verticalAlign: 'middle', padding: '1.5px 0' }}>
                         Position:
                       </td>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '2px 4px 3px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.2 }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '1.5px 4px', verticalAlign: 'middle', fontSize: '8pt', lineHeight: 1.1 }}>
                         {data.issuedByPosition || 'SUPPLY OFFICER III / ADMIN OFFICER V'}
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '5px 0 3px 0' }}>
+                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8pt', verticalAlign: 'middle', padding: '3px 0 1.5px 0' }}>
                         Date:
                       </td>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '5px 4px 3px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.2 }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '3px 4px 1.5px 4px', verticalAlign: 'middle', fontSize: '8pt', lineHeight: 1.1 }}>
                         {data.issuedByDate || '\u00A0'}
                       </td>
                     </tr>
@@ -383,48 +390,48 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
               {/* Received By (End User) */}
               <td className="sig-cell">
                 <div className="sig-header">Received by:</div>
-                <table style={{ width: '85%', margin: '0 auto 12px auto', borderCollapse: 'collapse' }}>
+                <table style={{ width: '85%', margin: '0 auto 4px auto', borderCollapse: 'collapse' }}>
                   <tbody>
                     <tr>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', fontSize: '9.5pt', lineHeight: 1.25 }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 2px 2px 2px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', fontSize: '9pt', lineHeight: 1.15 }}>
                         {data.receivedByName || '\u00A0'}
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ border: 'none', textAlign: 'center', fontSize: '8pt', paddingTop: '4px', lineHeight: 1.2 }}>
+                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
                         Signature over Printed Name of End-User /<br />Accountable Officer
                       </td>
                     </tr>
                   </tbody>
                 </table>
 
-                <table style={{ width: '100%', marginTop: '8px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                <table style={{ width: '100%', marginTop: '4px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <colgroup>
-                    <col style={{ width: '65px' }} />
+                    <col style={{ width: '60px' }} />
                     <col style={{ width: '220px' }} />
                   </colgroup>
                   <tbody>
                     <tr>
-                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '3px 0' }}>
+                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8pt', verticalAlign: 'middle', padding: '1.5px 0' }}>
                         Position:
                       </td>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '2px 4px 3px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.2 }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '1.5px 4px', verticalAlign: 'middle', fontSize: '8pt', lineHeight: 1.1 }}>
                         {data.receivedByPosition || '\u00A0'}
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '5px 0 3px 0' }}>
+                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8pt', verticalAlign: 'middle', padding: '3px 0 1.5px 0' }}>
                         Office:
                       </td>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '5px 4px 3px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.2 }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '3px 4px 1.5px 4px', verticalAlign: 'middle', fontSize: '8pt', lineHeight: 1.1 }}>
                         {data.receivedByOffice || '\u00A0'}
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '5px 0 3px 0' }}>
+                      <td style={{ border: 'none', fontWeight: 'bold', fontSize: '8pt', verticalAlign: 'middle', padding: '3px 0 1.5px 0' }}>
                         Date:
                       </td>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '5px 4px 3px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.2 }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '3px 4px 1.5px 4px', verticalAlign: 'middle', fontSize: '8pt', lineHeight: 1.1 }}>
                         {data.receivedByDate || '\u00A0'}
                       </td>
                     </tr>

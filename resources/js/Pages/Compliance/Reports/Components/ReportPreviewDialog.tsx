@@ -96,8 +96,9 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
         if (!reportElement || isDownloading) return;
 
         const paperElement =
-            (reportElement.querySelector('.sc-container, .rsmi-container, .rpci-container, .mr-container') as HTMLElement) ||
-            reportElement;
+            (reportElement.querySelector(
+                '.sc-container, .rsmi-container, .rpci-container, .mr-container, .ris-container, .ics-container, .iar-container, .par-container, .po-container',
+            ) as HTMLElement) || reportElement;
 
         try {
             setIsDownloading(true);

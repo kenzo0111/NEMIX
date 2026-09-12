@@ -52,35 +52,37 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
         }
         .rpci-container {
             font-family: 'Times New Roman', Times, serif;
-            font-size: 9pt;
+            font-size: 8.5pt;
             background: #ffffff;
             color: #000000;
             width: 100%;
             max-width: 281mm;
             margin: 0 auto;
             box-sizing: border-box;
-            line-height: 1.25;
+            line-height: 1.15;
         }
         .header-appendix {
             text-align: right;
             font-style: italic;
-            font-size: 10.5pt;
-            margin-bottom: 2mm;
+            font-size: 9pt;
+            margin-bottom: 1mm;
             font-weight: bold;
+            line-height: 1.1;
         }
         .main-title {
             text-align: center;
             font-weight: bold;
-            font-size: 13.5pt;
-            margin-bottom: 1.5mm;
-            letter-spacing: 0.5px;
+            font-size: 11.5pt;
+            margin-bottom: 1.2mm;
+            letter-spacing: 0.3px;
             text-transform: uppercase;
+            line-height: 1.15;
         }
         .sub-title {
             text-align: center;
-            font-size: 9.5pt;
-            margin-bottom: 3.5mm;
-            line-height: 1.25;
+            font-size: 8.5pt;
+            margin-bottom: 1.5mm;
+            line-height: 1.1;
         }
         table {
             width: 100%;
@@ -92,38 +94,42 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
         }
         .main-table th, .main-table td {
             border: 1px solid #000000;
-            padding: 1.5mm 1mm;
+            padding: 0.6mm 1mm;
             word-break: break-word;
             overflow-wrap: anywhere;
             text-align: center;
-            font-size: 8.5pt;
+            font-size: 8pt;
             box-sizing: border-box;
             vertical-align: middle;
-            line-height: 1.25;
+            line-height: 1.1;
         }
         .main-table th {
             font-weight: bold;
             background-color: #ffffff;
-            padding: 2mm 1.5mm;
+            padding: 0.8mm 1mm;
         }
         .empty-row td {
-            height: 7mm;
-            min-height: 7mm;
+            height: 4mm !important;
+            min-height: 4mm !important;
+            padding: 0 1mm !important;
+            line-height: 1 !important;
         }
         .text-left { text-align: left !important; }
         .text-right { text-align: right !important; }
         .text-center { text-align: center !important; }
         
         .footer-table {
-            margin-top: 3.5mm;
+            margin-top: 1.5mm;
             width: 100%;
-            min-height: 35mm;
+            min-height: auto;
+            height: auto;
         }
         .footer-table td {
             width: 33.33%;
-            padding: 2mm 3mm;
+            padding: 1.5mm 2mm;
             vertical-align: top;
-            font-size: 8.5pt;
+            font-size: 8pt;
+            line-height: 1.1;
         }
         @media print {
             body { margin: 0; padding: 0; background: #fff; }
@@ -152,31 +158,31 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
 
         <div className="main-title">REPORT ON THE PHYSICAL COUNT OF INVENTORIES</div>
         <div className="sub-title">
-          <div style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 8px 2px 8px', minWidth: '280px', fontWeight: 'bold', fontSize: '9.5pt', textAlign: 'center' }}>
+          <div style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 6px 1.5px 6px', minWidth: '240px', fontWeight: 'bold', fontSize: '8.5pt', textAlign: 'center' }}>
             {data.inventory_type || '\u00A0'}
           </div>
-          <div style={{ marginTop: '2px', fontSize: '8.5pt', fontStyle: 'italic' }}>(Type of Inventory Item)</div>
-          <div style={{ marginTop: '6px' }}>
+          <div style={{ marginTop: '1px', fontSize: '7.5pt', fontStyle: 'italic' }}>(Type of Inventory Item)</div>
+          <div style={{ marginTop: '3px' }}>
             As at{' '}
-            <div style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 8px 2px 8px', minWidth: '180px', fontWeight: 'bold', fontSize: '9.5pt', textAlign: 'center' }}>
+            <div style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 6px 1.5px 6px', minWidth: '150px', fontWeight: 'bold', fontSize: '8.5pt', textAlign: 'center' }}>
               {formatDisplayDate(data.as_at_date, 'long') || data.as_at_date || '\u00A0'}
             </div>
           </div>
         </div>
 
         {/* Top Info Grid */}
-        <table className="rpci-top-info" style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <table className="rpci-top-info" style={{ width: '100%', marginBottom: '4px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <colgroup>
-            <col style={{ width: '90px' }} />
+            <col style={{ width: '85px' }} />
             <col style={{ width: '280px' }} />
             <col />
           </colgroup>
           <tbody>
             <tr>
-              <td style={{ fontWeight: 'bold', fontSize: '9.5pt', verticalAlign: 'middle', padding: '2px 0' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '1.5px 0' }}>
                 Fund Cluster:
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '2px 6px 3px 6px', verticalAlign: 'middle', fontSize: '9.5pt', lineHeight: 1.2 }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '1.5px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.1 }}>
                 {data.fund_cluster || '01 - Regular Agency Fund'}
               </td>
               <td>&nbsp;</td>
@@ -185,21 +191,21 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
         </table>
 
         {/* Accountability statement on a single seamless flex line */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', width: '100%', marginBottom: '12px', fontSize: '9pt', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', width: '100%', marginBottom: '6px', fontSize: '8.5pt', lineHeight: 1.15, whiteSpace: 'nowrap' }}>
           <span>For which</span>
-          <div style={{ flex: '1 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 4px 2px 4px', marginLeft: '4px', minWidth: '100px' }}>
+          <div style={{ flex: '1 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '3px', minWidth: '90px' }}>
             {data.accountable_officer || 'Arsenio Gem A. Garcillanosa'}
           </div>
           <span>,</span>
-          <div style={{ flex: '1 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 4px 2px 4px', marginLeft: '4px', minWidth: '100px' }}>
+          <div style={{ flex: '1 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '3px', minWidth: '90px' }}>
             {data.designation || 'Supply Custodian'}
           </div>
           <span>,</span>
-          <div style={{ flex: '1 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 4px 2px 4px', marginLeft: '4px', minWidth: '120px' }}>
+          <div style={{ flex: '1 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '3px', minWidth: '110px' }}>
             {data.entity_name || 'University of Camarines Norte'}
           </div>
-          <span style={{ marginLeft: '4px' }}>is accountable, having assumed such accountability on</span>
-          <div style={{ flex: '0 0 120px', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 4px 2px 4px', marginLeft: '4px', minWidth: '90px' }}>
+          <span style={{ marginLeft: '3px' }}>is accountable, having assumed such accountability on</span>
+          <div style={{ flex: '0 0 110px', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '3px', minWidth: '80px' }}>
             {formatDisplayDate(data.date_assumption, 'MM/DD/YYYY') || data.date_assumption || '\u00A0'}
           </div>
           <span>.</span>
@@ -254,16 +260,16 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
           <tbody>
             <tr>
               <td>
-                <div style={{ marginBottom: '10mm', fontWeight: 'bold' }}>Certified Correct by:</div>
+                <div style={{ marginBottom: '4.5mm', fontWeight: 'bold' }}>Certified Correct by:</div>
                 <table style={{ width: '90%', margin: '0 auto', borderCollapse: 'collapse' }}>
                   <tbody>
                     <tr>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', fontSize: '8.5pt', minHeight: '20px' }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 3px 2px 3px', fontWeight: 'bold', textAlign: 'center', fontSize: '8pt' }}>
                         {data.committee_chair_name || '\u00A0'}
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.2 }}>
+                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
                         Signature over Printed Name of Inventory Committee Chair and Members
                       </td>
                     </tr>
@@ -271,16 +277,16 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                 </table>
               </td>
               <td>
-                <div style={{ marginBottom: '10mm', fontWeight: 'bold' }}>Approved by:</div>
+                <div style={{ marginBottom: '4.5mm', fontWeight: 'bold' }}>Approved by:</div>
                 <table style={{ width: '90%', margin: '0 auto', borderCollapse: 'collapse' }}>
                   <tbody>
                     <tr>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', fontSize: '8.5pt', minHeight: '20px' }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 3px 2px 3px', fontWeight: 'bold', textAlign: 'center', fontSize: '8pt' }}>
                         {data.head_of_agency_name || '\u00A0'}
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.2 }}>
+                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
                         Signature over Printed Name of Head of Agency/Entity or Authorized Representative
                       </td>
                     </tr>
@@ -288,16 +294,16 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                 </table>
               </td>
               <td>
-                <div style={{ marginBottom: '10mm', fontWeight: 'bold' }}>Verified by:</div>
+                <div style={{ marginBottom: '4.5mm', fontWeight: 'bold' }}>Verified by:</div>
                 <table style={{ width: '90%', margin: '0 auto', borderCollapse: 'collapse' }}>
                   <tbody>
                     <tr>
-                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', fontSize: '8.5pt', minHeight: '20px' }}>
+                      <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 3px 2px 3px', fontWeight: 'bold', textAlign: 'center', fontSize: '8pt' }}>
                         {data.coa_representative_name || '\u00A0'}
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.2 }}>
+                      <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
                         Signature over Printed Name of COA Representative
                       </td>
                     </tr>

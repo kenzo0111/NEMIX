@@ -59,7 +59,7 @@ const formatDate = (dateString?: string) => {
 };
 
 const getDynamicNameStyle = (name?: string): React.CSSProperties => {
-  if (!name) return { fontSize: '9pt', whiteSpace: 'nowrap' };
+  if (!name) return { fontSize: '8.5pt', whiteSpace: 'nowrap' };
   const len = name.trim().length;
   if (len > 32) {
     return { fontSize: '6.5pt', whiteSpace: 'nowrap', display: 'inline-block' };
@@ -70,22 +70,22 @@ const getDynamicNameStyle = (name?: string): React.CSSProperties => {
   if (len > 18) {
     return { fontSize: '8pt', whiteSpace: 'nowrap', display: 'inline-block' };
   }
-  return { fontSize: '9pt', whiteSpace: 'nowrap', display: 'inline-block' };
+  return { fontSize: '8.5pt', whiteSpace: 'nowrap', display: 'inline-block' };
 };
 
 const getDynamicDesignationStyle = (designation?: string): React.CSSProperties => {
-  if (!designation) return { fontSize: '8pt', whiteSpace: 'nowrap' };
+  if (!designation) return { fontSize: '7.5pt', whiteSpace: 'nowrap' };
   const len = designation.trim().length;
   if (len > 32) {
-    return { fontSize: '6.5pt', whiteSpace: 'nowrap', display: 'inline-block', lineHeight: 1.1 };
+    return { fontSize: '6pt', whiteSpace: 'nowrap', display: 'inline-block', lineHeight: 1.1 };
   }
   if (len > 24) {
-    return { fontSize: '7pt', whiteSpace: 'nowrap', display: 'inline-block', lineHeight: 1.1 };
+    return { fontSize: '6.8pt', whiteSpace: 'nowrap', display: 'inline-block', lineHeight: 1.1 };
   }
   if (len > 16) {
-    return { fontSize: '7.5pt', whiteSpace: 'nowrap', display: 'inline-block', lineHeight: 1.1 };
+    return { fontSize: '7pt', whiteSpace: 'nowrap', display: 'inline-block', lineHeight: 1.1 };
   }
-  return { fontSize: '8pt', whiteSpace: 'nowrap', display: 'inline-block', lineHeight: 1.1 };
+  return { fontSize: '7.5pt', whiteSpace: 'nowrap', display: 'inline-block', lineHeight: 1.1 };
 };
 
 export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data }) => {
@@ -100,29 +100,33 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
       <style>{`
         @page {
             size: A4 portrait;
-            margin: 20px;
+            margin: 8mm;
         }
         .ris-container {
             font-family: 'Times New Roman', Times, serif;
-            font-size: 10pt;
+            font-size: 8.5pt;
             background: #fff;
             color: #000;
             width: 100%;
-            max-width: 210mm;
+            max-width: 194mm;
             margin: 0 auto;
             box-sizing: border-box;
+            line-height: 1.15;
         }
         .header-title {
             text-align: right;
             font-style: italic;
-            font-size: 12pt;
-            margin-bottom: 5px;
+            font-size: 9pt;
+            margin-bottom: 1mm;
+            line-height: 1.1;
         }
         .main-title {
             text-align: center;
             font-weight: bold;
-            font-size: 12pt;
-            margin-bottom: 15px;
+            font-size: 11.5pt;
+            margin-bottom: 1.2mm;
+            letter-spacing: 0.3px;
+            line-height: 1.15;
         }
         table {
             width: 100%;
@@ -130,41 +134,51 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
         }
         /* Info Table (Entity/Fund) */
         .info-table td {
-            padding: 3px 5px;
-            font-size: 9pt;
+            padding: 1.5px 3px;
+            font-size: 8.5pt;
             vertical-align: bottom;
+            line-height: 1.1;
         }
         .info-table .field {
             border-bottom: 1px solid #000;
-            min-width: 200px;
+            min-width: 160px;
             font-weight: bold;
-            padding: 0 4px 2px 4px;
-            line-height: 1.25;
+            padding: 0 3px 1px 3px;
+            line-height: 1.15;
             box-sizing: border-box;
         }
         
         /* Main Grid Table */
         .main-table {
-            margin-top: 10px;
+            margin-top: 3px;
             border: 1px solid #000;
             width: 100%;
         }
         .main-table th, .main-table td {
             border: 1px solid #000;
-            padding: 4px;
-            font-size: 9pt;
+            padding: 0.6mm 1mm;
+            font-size: 8pt;
+            line-height: 1.1;
         }
         .main-table th {
-            background-color: #f0f0f0; /* Matches original gray shade */
+            background-color: #f0f0f0;
             font-weight: bold;
             text-align: center;
+            padding: 0.8mm 1mm;
         }
         .main-table .section-header {
             font-style: italic;
-            background-color: #ffffff; /* White background for 'Requisition' header */
+            background-color: #ffffff;
         }
         .main-table td {
-            height: 20px; /* Minimum height for rows */
+            height: auto;
+        }
+        .main-table tr.empty-row td,
+        .empty-row td {
+            height: 4mm !important;
+            min-height: 4mm !important;
+            padding: 0 1mm !important;
+            line-height: 1 !important;
         }
         .text-center { text-align: center; }
         .text-left { text-align: left; }
@@ -183,10 +197,11 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
         }
         .sig-table th, .sig-table td {
             border: 1px solid #000;
-            padding: 4px 2px;
-            font-size: 9pt;
+            padding: 1.5px 2px;
+            font-size: 8pt;
             vertical-align: middle;
             overflow: hidden;
+            line-height: 1.1;
         }
         .sig-table th.sig-header {
             background-color: #ffffff !important;
@@ -202,7 +217,7 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
         
         /* Additional classes for inline styles */
         .info-table .entity-label { width: 80px; }
-        .info-table .spacer { width: 50px; }
+        .info-table .spacer { width: 40px; }
         .info-table .fund-label { width: 80px; }
         .division-cell { border-right: 1px solid #000; }
         .stock-no { width: 10%; }
@@ -213,13 +228,12 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
         .no { width: 5%; }
         .issue-quantity { width: 10%; }
         .remarks { width: 22%; }
-        .purpose-cell { text-align: left; padding: 5px; height: 50px; vertical-align: top; }
+        .purpose-cell { text-align: left; padding: 2.5px 4px; min-height: 20px; vertical-align: top; font-size: 8pt; line-height: 1.15; }
         .sig-empty { border: 1px solid #000; background-color: #fff; }
         
         @media print {
             body { margin: 0; padding: 0; }
             .ris-container { width: 100%; max-width: none; }
-            /* Ensure background colors print */
             .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
       `}</style>
@@ -302,7 +316,7 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
 
             {/* Empty Padding Rows */}
             {emptyRows.map((_, index) => (
-              <tr key={`empty-${index}`}>
+              <tr key={`empty-${index}`} className="empty-row">
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>

@@ -70,16 +70,17 @@ export const InventoryCustodianSlip: React.FC<InventoryCustodianSlipProps> = ({
   return (
     <>
       <style>{`
-        @page { size: A4; margin: 30px 25px 35px 25px; }
+        @page { size: A4; margin: 8mm; }
         .ics-container {
             font-family: 'Times New Roman', serif;
-            font-size: 11px;
+            font-size: 8.5pt;
             color: #000;
             background: #fff;
             width: 100%;
-            max-width: 210mm; /* A4 width */
+            max-width: 194mm;
             margin: 0 auto;
             box-sizing: border-box;
+            line-height: 1.15;
         }
 
         /* Utilities */
@@ -87,52 +88,59 @@ export const InventoryCustodianSlip: React.FC<InventoryCustodianSlipProps> = ({
         .bold { font-weight: bold; }
         
         /* Header */
-        .header { margin-bottom: 6px; overflow: hidden; }
+        .header { margin-bottom: 2px; overflow: hidden; }
         
         /* Meta Row (Entity/Fund) */
-        table.meta-row { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
-        table.meta-row td { border: none !important; padding: 2px 6px !important; vertical-align: middle !important; text-align: left !important; line-height: 1; font-size: 11px; }
+        table.meta-row { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+        table.meta-row td { border: none !important; padding: 1.5px 4px !important; vertical-align: middle !important; text-align: left !important; line-height: 1.1; font-size: 8.5pt; }
         .meta-left { width: 65%; }
-        .meta-right { width: 23%; text-align: right; }
-        .meta-sub { margin-top: 4px; display: block; }
+        .meta-right { width: 35%; text-align: right; }
+        .meta-sub { margin-top: 2px; display: block; }
 
         /* Main Table */
         table.main-table { width: 100%; border-collapse: collapse; margin-top: 0; }
-        .main-table th, .main-table td { border: 1px solid #000; padding: 4px 6px; vertical-align: top; word-break: break-word; font-size: 11px; }
-        .main-table th { text-align: center; font-weight: bold; background: #f2f2f2; }
-        .main-table td { text-align: center; height: 24px; }
+        .main-table th, .main-table td { border: 1px solid #000; padding: 0.6mm 1mm; vertical-align: middle; word-break: break-word; font-size: 8pt; line-height: 1.1; }
+        .main-table th { text-align: center; font-weight: bold; background: #f2f2f2; padding: 0.8mm 1mm; }
+        .main-table td { text-align: center; height: auto; }
+        .main-table tr.empty-row td,
+        .empty-row td {
+            height: 4mm !important;
+            min-height: 4mm !important;
+            padding: 0 1mm !important;
+            line-height: 1 !important;
+        }
         
         /* Column Widths */
         .qty { width: 6%; }
         .unit { width: 8%; }
         .unit-cost { width: 11%; }
         .total-cost { width: 11%; }
-        .description { width: 38%; text-align: left !important; padding-left: 8px !important; line-height: 1.35; }
+        .description { width: 38%; text-align: left !important; padding-left: 4px !important; line-height: 1.15; }
         .item-no { width: 13%; }
         .useful-life { width: 13%; }
 
         /* Not Found Message */
-        .not-found-msg { text-align: center; padding: 40px 20px; color: #666; }
+        .not-found-msg { text-align: center; padding: 20px 10px; color: #666; }
         
         /* Additional classes for inline styles */
-        .float-right { float: right; }
+        .float-right { float: right; font-size: 9pt; font-style: italic; }
         .clear-both { clear: both; }
-        .title { margin: 2px 0 6px 0; font-size: 1.5em; font-weight: bold; }
-        .not-found-main { font-size: 14px; margin-bottom: 10px; }
-        .not-found-sub { font-size: 12px; color: #999; }
+        .title { margin: 1px 0 3px 0; font-size: 11.5pt; font-weight: bold; letter-spacing: 0.3px; }
+        .not-found-main { font-size: 11pt; margin-bottom: 6px; }
+        .not-found-sub { font-size: 8.5pt; color: #999; }
         .description-header { text-align: center; }
-        .purpose-cell { padding: 12px 6px; }
+        .purpose-cell { padding: 4px 6px; }
         
         /* Signatures */
-        .signatures { width: 100%; margin-top: 8px; display: flex; }
-        .sig-block { width: 50%; padding: 0 10px; vertical-align: top; box-sizing: border-box; }
-        .sig-block:first-child { border-right: 1px solid #000; padding-right: 15px; }
-        .sig-block:last-child { padding-left: 15px; }
+        .signatures { width: 100%; margin-top: 4px; display: flex; }
+        .sig-block { width: 50%; padding: 0 8px; vertical-align: top; box-sizing: border-box; }
+        .sig-block:first-child { border-right: 1px solid #000; padding-right: 10px; }
+        .sig-block:last-child { padding-left: 10px; }
         
-        .sig-label { text-align: left; font-weight: bold; margin-bottom: 35px; font-size: 11px; }
-        .sig-line { width: 100%; border-bottom: 1px solid #000; margin-bottom: 3px; }
-        .sig-name { font-weight: bold; font-size: 11px; text-align: center; margin-bottom: 2px; text-transform: uppercase; }
-        .sig-subtext { font-size: 10px; line-height: 1.4; text-align: center; color: #c00; }
+        .sig-label { text-align: left; font-weight: bold; margin-bottom: 16px; font-size: 8.5pt; line-height: 1.1; }
+        .sig-line { width: 100%; border-bottom: 1px solid #000; margin-bottom: 2px; }
+        .sig-name { font-weight: bold; font-size: 8.5pt; text-align: center; margin-bottom: 1px; text-transform: uppercase; line-height: 1.15; }
+        .sig-subtext { font-size: 7pt; line-height: 1.15; text-align: center; color: #c00; }
         .sig-subtext.position { color: #000; }
 
         @media print {
@@ -210,7 +218,7 @@ export const InventoryCustodianSlip: React.FC<InventoryCustodianSlipProps> = ({
 
             {/* Render Empty Filling Rows */}
             {emptyRows.map((_, index) => (
-              <tr key={`empty-${index}`}>
+              <tr key={`empty-${index}`} className="empty-row">
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>

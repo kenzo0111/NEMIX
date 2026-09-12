@@ -1,6 +1,6 @@
 /* ==========================================================================
    Shared PDF & Document Stylesheet for Official Compliance Forms
-   Standardized layout and proportions for COA Official Forms:
+   Standardized compact layout and proportions for COA Official Forms:
    - MR: Memorandum Receipt for Property (Appendix 59-A)
    - RSMI: Report of Supplies and Materials Issued (Appendix 64)
    - RPCI: Report on the Physical Count of Inventories (Appendix 66)
@@ -11,10 +11,15 @@
 .mr-container,
 .rsmi-container,
 .rpci-container,
-.sc-container {
+.sc-container,
+.ris-container,
+.ics-container,
+.iar-container,
+.par-container,
+.po-container {
     font-family: 'Times New Roman', Times, serif;
-    font-size: 9.5pt;
-    line-height: 1.25;
+    font-size: 8.5pt;
+    line-height: 1.15;
     color: #000000;
     background: #ffffff;
     box-sizing: border-box;
@@ -25,7 +30,12 @@
 /* Specific paper widths for portrait vs landscape */
 .mr-container,
 .rsmi-container,
-.sc-container {
+.sc-container,
+.ris-container,
+.ics-container,
+.iar-container,
+.par-container,
+.po-container {
     max-width: 194mm;
 }
 
@@ -39,44 +49,46 @@
     text-align: right;
     font-style: italic;
     font-weight: bold;
-    font-size: 10.5pt;
-    margin-bottom: 2mm;
-    line-height: 1.2;
+    font-size: 9pt;
+    margin-bottom: 1mm;
+    line-height: 1.1;
 }
 
 .main-title {
     text-align: center;
     font-weight: bold;
-    font-size: 13.5pt;
-    letter-spacing: 0.5px;
+    font-size: 11.5pt;
+    letter-spacing: 0.3px;
     text-transform: uppercase;
-    margin-bottom: 1.5mm;
-    line-height: 1.25;
+    margin-bottom: 1.2mm;
+    line-height: 1.15;
 }
 
 .sub-title {
     text-align: center;
     font-style: italic;
-    font-size: 9.5pt;
-    margin-bottom: 3.5mm;
-    line-height: 1.25;
+    font-size: 8.5pt;
+    margin-bottom: 1.5mm;
+    line-height: 1.1;
 }
 
 /* Purpose & Acknowledgement Statements */
 .purpose-statement {
-    margin-bottom: 3.5mm;
-    line-height: 1.35;
+    margin-bottom: 1.5mm;
+    line-height: 1.2;
     text-align: justify;
-    font-size: 9.5pt;
+    font-size: 8.5pt;
 }
 
 /* 3. Top Info & Metadata Tables */
 .mr-top-info,
 .rsmi-top-info,
 .rpci-top-info,
-.sc-top-info {
+.sc-top-info,
+.info-table,
+.meta-row {
     width: 100%;
-    margin-bottom: 3.5mm;
+    margin-bottom: 1.5mm;
     border-collapse: collapse;
     table-layout: fixed;
 }
@@ -84,29 +96,34 @@
 .mr-top-info td,
 .rsmi-top-info td,
 .rpci-top-info td,
-.sc-top-info td {
-    padding: 1.5mm 1mm;
+.sc-top-info td,
+.info-table td,
+.meta-row td {
+    padding: 0.6mm 1mm;
     vertical-align: middle;
-    font-size: 9.5pt;
-    line-height: 1.25;
+    font-size: 8.5pt;
+    line-height: 1.1;
 }
 
 .mr-top-info .label,
 .rsmi-top-info .label,
 .rpci-top-info .label,
-.sc-top-info .label {
+.sc-top-info .label,
+.info-table .label {
     font-weight: bold;
 }
 
 .mr-top-info .value,
 .rsmi-top-info .value,
 .rpci-top-info .value,
-.sc-top-info .value {
+.sc-top-info .value,
+.info-table .field {
     border-bottom: 1px solid #000000;
 }
 
 /* 4. Official Main Tables */
-.main-table {
+.main-table,
+.items-table {
     width: 100%;
     border-collapse: collapse;
     border: 1.5px solid #000000;
@@ -114,35 +131,46 @@
     margin-bottom: 0;
 }
 
-.main-table th {
+.main-table th,
+.items-table th {
     border: 1px solid #000000;
-    padding: 2.5mm 1.5mm;
-    font-size: 9pt;
+    padding: 0.8mm 1mm;
+    font-size: 8pt;
     font-weight: bold;
     text-align: center;
     vertical-align: middle;
     background-color: #ffffff;
     box-sizing: border-box;
-    line-height: 1.25;
+    line-height: 1.1;
 }
 
-.main-table td {
+.main-table td,
+.items-table td {
     border: 1px solid #000000;
-    padding: 2mm 1.5mm;
-    font-size: 9pt;
+    padding: 0.6mm 1mm;
+    font-size: 8pt;
     box-sizing: border-box;
     word-break: break-word;
     overflow-wrap: anywhere;
     vertical-align: middle;
-    line-height: 1.25;
+    line-height: 1.1;
+    height: auto;
 }
 
-/* Preserve substantial row heights for realistic government form presence */
-.main-table tr.data-row td,
+/* Content-aware row height: rows expand naturally only when multiline content wraps */
+.main-table tr,
+.items-table tr {
+    height: auto;
+}
+
+/* Compact empty/placeholder rows to minimize unused space */
 .main-table tr.empty-row td,
+.items-table tr.empty-row td,
 .empty-row td {
-    height: 7.5mm !important;
-    min-height: 7.5mm !important;
+    height: 4mm !important;
+    min-height: 4mm !important;
+    padding: 0 1mm !important;
+    line-height: 1 !important;
 }
 
 /* Table Alignment Classes */
@@ -158,13 +186,14 @@
     border: 1.5px solid #000000;
     border-top: none;
     table-layout: fixed;
-    min-height: 38mm;
+    height: auto;
+    min-height: auto;
 }
 
 .sig-cell {
     width: 50%;
     vertical-align: top;
-    padding: 3mm 4mm;
+    padding: 1.5mm 2.5mm;
     box-sizing: border-box;
 }
 
@@ -174,38 +203,39 @@
 
 .sig-header {
     font-weight: bold;
-    font-size: 9.5pt;
-    margin-bottom: 12mm; /* Substantial room for handwritten signature */
+    font-size: 8.5pt;
+    margin-bottom: 4.5mm; /* Compact yet adequate room for signatures */
+    line-height: 1.1;
 }
 
 .sig-name-table {
     width: 85%;
-    margin: 0 auto 3mm auto;
+    margin: 0 auto 1.5mm auto;
     border-collapse: collapse;
 }
 
 .sig-name-cell {
     border: none;
     border-bottom: 1px solid #000000;
-    padding: 0 1mm 1.5mm 1mm;
+    padding: 0 1mm 1mm 1mm;
     font-weight: bold;
     text-align: center;
     text-transform: uppercase;
-    font-size: 10pt;
-    line-height: 1.2;
+    font-size: 9pt;
+    line-height: 1.15;
 }
 
 .sig-title-cell {
     border: none;
     text-align: center;
-    font-size: 8pt;
-    padding-top: 1mm;
-    line-height: 1.2;
+    font-size: 7.5pt;
+    padding-top: 0.8mm;
+    line-height: 1.1;
 }
 
 .sig-meta-table {
     width: 100%;
-    margin-top: 2mm;
+    margin-top: 1mm;
     border-collapse: collapse;
     table-layout: fixed;
 }
@@ -213,23 +243,24 @@
 .sig-meta-label {
     border: none;
     font-weight: bold;
-    font-size: 8.5pt;
+    font-size: 8pt;
     vertical-align: middle;
-    padding: 1.5mm 0;
+    padding: 0.8mm 0.5mm;
+    line-height: 1.1;
 }
 
 .sig-meta-value {
     border: none;
     border-bottom: 1px solid #000000;
-    padding: 1.5mm 1mm;
+    padding: 0.8mm 1mm;
     vertical-align: middle;
-    font-size: 8.5pt;
-    line-height: 1.2;
+    font-size: 8pt;
+    line-height: 1.1;
 }
 
 /* RSMI Footer / Recapitulation */
 .recap-section {
-    margin-top: 3.5mm;
+    margin-top: 1.5mm;
     width: 100%;
 }
 
@@ -240,24 +271,39 @@
     border-top: none;
 }
 
-.rsmi-footer-cell {
-    vertical-align: top;
-    padding: 3mm 4mm;
+.rsmi-footer-cell,
+.footer-cell {
+    vertical-align: top !important;
+    padding: 1.5mm 2.5mm !important;
+    font-size: 8pt;
+    min-height: auto;
+    height: auto;
+}
+
+.certify-text,
+.posted-text {
+    margin-bottom: 4.5mm;
     font-size: 8.5pt;
+    line-height: 1.1;
 }
 
 /* RPCI 3-Column Footer */
-.rpci-footer-table {
+.rpci-footer-table,
+.footer-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 3.5mm;
+    margin-top: 1.5mm;
+    min-height: auto;
+    height: auto;
 }
 
-.rpci-footer-cell {
+.rpci-footer-cell,
+.footer-table td {
     width: 33.33%;
     vertical-align: top;
-    padding: 2mm 3mm;
-    font-size: 8.5pt;
+    padding: 1.5mm 2mm;
+    font-size: 8pt;
+    line-height: 1.1;
 }
 
 /* 6. Off-Screen Rendering Container for High-Fidelity PDF Generation */

@@ -44,14 +44,14 @@ const formatFundCluster = (val?: string | null): string => {
   return val;
 };
 
-const getDynamicNameStyle = (name?: string, defaultSize = '9pt'): React.CSSProperties => {
+const getDynamicNameStyle = (name?: string, defaultSize = '8.5pt'): React.CSSProperties => {
   if (!name) return { fontSize: defaultSize, whiteSpace: 'nowrap' };
   const len = name.trim().length;
   if (len > 30) {
-    return { fontSize: '7pt', whiteSpace: 'nowrap' };
+    return { fontSize: '6.8pt', whiteSpace: 'nowrap' };
   }
   if (len > 22) {
-    return { fontSize: '8pt', whiteSpace: 'nowrap' };
+    return { fontSize: '7.5pt', whiteSpace: 'nowrap' };
   }
   return { fontSize: defaultSize, whiteSpace: 'nowrap' };
 };
@@ -74,28 +74,30 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         }
         .rsmi-container {
             font-family: 'Times New Roman', Times, serif;
-            font-size: 9.5pt;
+            font-size: 8.5pt;
             background: #ffffff;
             color: #000000;
             width: 100%;
             max-width: 194mm;
             margin: 0 auto;
             box-sizing: border-box;
-            line-height: 1.25;
+            line-height: 1.15;
         }
         .header-appendix {
             text-align: right;
             font-style: italic;
-            font-size: 10.5pt;
-            margin-bottom: 2mm;
+            font-size: 9pt;
+            margin-bottom: 1mm;
             font-weight: bold;
+            line-height: 1.1;
         }
         .main-title {
             text-align: center;
             font-weight: bold;
-            font-size: 13.5pt;
-            margin-bottom: 2.5mm;
-            letter-spacing: 0.5px;
+            font-size: 11.5pt;
+            margin-bottom: 1.2mm;
+            letter-spacing: 0.3px;
+            line-height: 1.15;
         }
 
         /* Main Table Grid */
@@ -107,23 +109,25 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         }
         .main-table th, .main-table td {
             border: 1px solid #000000;
-            padding: 2mm 1.5mm;
-            font-size: 9pt;
+            padding: 0.6mm 1mm;
+            font-size: 8pt;
             word-break: break-word;
             overflow-wrap: anywhere;
             box-sizing: border-box;
             vertical-align: middle;
-            line-height: 1.25;
+            line-height: 1.1;
         }
         .main-table th {
             text-align: center;
             font-weight: bold;
             background-color: #ffffff;
-            padding: 2.5mm 1.5mm;
+            padding: 0.8mm 1mm;
         }
         .empty-row td {
-            height: 7.5mm;
-            min-height: 7.5mm;
+            height: 4mm !important;
+            min-height: 4mm !important;
+            padding: 0 1mm !important;
+            line-height: 1 !important;
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
@@ -132,22 +136,26 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         .header-italic {
             font-style: italic;
             font-weight: normal !important;
-            padding: 2mm 1.5mm !important;
+            padding: 0.8mm 1mm !important;
+            line-height: 1.1;
         }
 
         /* Footer / Signatures */
         .footer-cell {
             vertical-align: top !important;
-            padding: 3mm 4mm !important;
-            min-height: 38mm;
+            padding: 1.5mm 2.5mm !important;
+            min-height: auto;
+            height: auto;
         }
         .certify-text {
-            margin-bottom: 12mm;
-            font-size: 9pt;
+            margin-bottom: 4.5mm;
+            font-size: 8pt;
+            line-height: 1.1;
         }
         .posted-text {
-            margin-bottom: 12mm;
-            font-size: 9pt;
+            margin-bottom: 4.5mm;
+            font-size: 8pt;
+            line-height: 1.1;
         }
 
         /* Ensure borders match precisely */
@@ -162,10 +170,6 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
                 break-inside: avoid;
             }
             .rsmi-signatures {
-                page-break-inside: avoid;
-                break-inside: avoid;
-            }
-            .recap-section {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
@@ -184,42 +188,42 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         <div className="main-title">REPORT OF SUPPLIES AND MATERIALS ISSUED</div>
 
         {/* Top Info with fixed pixel widths to prevent overlap */}
-        <table className="rsmi-top-info" style={{ width: '100%', marginBottom: '12px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <table className="rsmi-top-info" style={{ width: '100%', marginBottom: '6px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <colgroup>
-            <col style={{ width: '90px' }} />
+            <col style={{ width: '85px' }} />
             <col style={{ width: '280px' }} />
-            <col style={{ width: '30px' }} />
-            <col style={{ width: '90px' }} />
+            <col style={{ width: '25px' }} />
+            <col style={{ width: '85px' }} />
             <col style={{ width: '230px' }} />
           </colgroup>
           <tbody>
             <tr>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '3px 0' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '1.5px 0' }}>
                 Entity Name:
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '2px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '1.5px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.1 }}>
                 {data.entityName || '\u00A0'}
               </td>
               <td>&nbsp;</td>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '3px 0' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '1.5px 0' }}>
                 Serial No. :
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '2px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '1.5px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.1 }}>
                 {data.serialNo || '\u00A0'}
               </td>
             </tr>
             <tr>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '6px 0 3px 0' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '3px 0 1.5px 0' }}>
                 Fund Cluster:
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '3px 4px 1.5px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.1 }}>
                 {formatFundCluster(data.fundCluster)}
               </td>
               <td>&nbsp;</td>
-              <td style={{ fontWeight: 'bold', fontSize: '10pt', verticalAlign: 'middle', padding: '6px 0 3px 0' }}>
+              <td style={{ fontWeight: 'bold', fontSize: '8.5pt', verticalAlign: 'middle', padding: '3px 0 1.5px 0' }}>
                 Date :
               </td>
-              <td style={{ borderBottom: '1px solid #000000', padding: '6px 6px 3px 6px', verticalAlign: 'middle', fontSize: '10pt', lineHeight: 1.2 }}>
+              <td style={{ borderBottom: '1px solid #000000', padding: '3px 4px 1.5px 4px', verticalAlign: 'middle', fontSize: '8.5pt', lineHeight: 1.1 }}>
                 {formatDisplayDate(data.date, 'MM/DD/YYYY') || data.date || '\u00A0'}
               </td>
             </tr>
@@ -272,8 +276,8 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
 
             {/* Lower Section: Recapitulation Headers */}
             <tr className="border-bottom-bold">
-              <td colSpan={6} className="text-center font-bold">Recapitulation:</td>
-              <td colSpan={3} className="text-center font-bold">Recapitulation:</td>
+              <td colSpan={6} className="text-center font-bold" style={{ padding: '0.6mm 1mm' }}>Recapitulation:</td>
+              <td colSpan={3} className="text-center font-bold" style={{ padding: '0.6mm 1mm' }}>Recapitulation:</td>
             </tr>
             <tr>
               <td colSpan={3} className="text-center font-bold">Stock No.</td>
@@ -296,7 +300,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
 
             {/* Footer / Signatures */}
             <tr className="rsmi-signatures">
-              <td colSpan={9} style={{ padding: 0, border: 'none', borderTop: '1px solid #000000' }}>
+              <td colSpan={9} style={{ padding: 0, border: 'none', borderTop: '1.5px solid #000000' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <colgroup>
                     <col style={{ width: '50%' }} />
@@ -304,24 +308,24 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
                   </colgroup>
                   <tbody>
                     <tr>
-                      <td className="footer-cell" style={{ border: 'none', borderRight: '1.5px solid #000000', verticalAlign: 'top', padding: '8px 12px' }}>
+                      <td className="footer-cell" style={{ border: 'none', borderRight: '1.5px solid #000000', verticalAlign: 'top', padding: '3px 8px' }}>
                         <div className="certify-text">I hereby certify to the correctness of the above information.</div>
                         <table style={{ width: '85%', margin: '0 auto', borderCollapse: 'collapse' }}>
                           <tbody>
                             <tr>
-                              <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', lineHeight: 1.25, ...getDynamicNameStyle(data.supplyCustodianName, '9.5pt') }}>
+                              <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 2px 2px 2px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', lineHeight: 1.15, ...getDynamicNameStyle(data.supplyCustodianName, '8.5pt') }}>
                                 {data.supplyCustodianName || '\u00A0'}
                               </td>
                             </tr>
                             <tr>
-                              <td style={{ border: 'none', textAlign: 'center', fontSize: '8pt', paddingTop: '4px', lineHeight: 1.2 }}>
+                              <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
                                 Signature over Printed Name of Supply and/or<br/>Property Custodian
                               </td>
                             </tr>
                           </tbody>
                         </table>
                       </td>
-                      <td className="footer-cell" style={{ border: 'none', verticalAlign: 'top', padding: '8px 12px' }}>
+                      <td className="footer-cell" style={{ border: 'none', verticalAlign: 'top', padding: '3px 8px' }}>
                         <div className="posted-text">Posted by:</div>
                         <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                           <colgroup>
@@ -331,20 +335,20 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
                           </colgroup>
                           <tbody>
                             <tr>
-                              <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', lineHeight: 1.25, ...getDynamicNameStyle(data.accountingStaffName, '9pt') }}>
+                              <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 2px 2px 2px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', lineHeight: 1.15, ...getDynamicNameStyle(data.accountingStaffName, '8.5pt') }}>
                                 {data.accountingStaffName || '\u00A0'}
                               </td>
                               <td style={{ border: 'none' }}>&nbsp;</td>
-                              <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 4px 4px 4px', textAlign: 'center', fontSize: '9pt', lineHeight: 1.25, whiteSpace: 'nowrap' }}>
+                              <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 2px 2px 2px', textAlign: 'center', fontSize: '8pt', lineHeight: 1.15, whiteSpace: 'nowrap' }}>
                                 {formatDisplayDate(data.accountingDate, 'MM/DD/YYYY') || data.accountingDate || '\u00A0'}
                               </td>
                             </tr>
                             <tr>
-                              <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.15 }}>
+                              <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
                                 Signature over Printed Name of<br/>Designated Accounting Staff
                               </td>
                               <td style={{ border: 'none' }}>&nbsp;</td>
-                              <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '4px', lineHeight: 1.15, verticalAlign: 'top' }}>
+                              <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1, verticalAlign: 'top' }}>
                                 Date
                               </td>
                             </tr>

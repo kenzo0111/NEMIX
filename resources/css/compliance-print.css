@@ -5,6 +5,11 @@
    - RSMI: Report of Supplies and Materials Issued (Appendix 64)
    - RPCI: Report on the Physical Count of Inventories (Appendix 66)
    - Memorandum Receipt / MOR (Appendix 59-A)
+   - RIS: Requisition and Issue Slip (Appendix 63)
+   - ICS: Inventory Custodian Slip (Appendix 59)
+   - IAR: Inspection and Acceptance Report (Appendix 64)
+   - PAR: Property Acknowledgment Receipt (Appendix 71)
+   - PO: Purchase Order (Appendix 6.1)
    ========================================================================== */
 
 @media print {
@@ -120,7 +125,12 @@
     .sc-container,
     .rsmi-container,
     .rpci-container,
-    .mr-container {
+    .mr-container,
+    .ris-container,
+    .ics-container,
+    .iar-container,
+    .par-container,
+    .po-container {
         width: 100% !important;
         max-width: 100% !important;
         margin: 0 auto !important;
@@ -129,31 +139,122 @@
         page-break-inside: auto !important;
         break-inside: auto !important;
         background: #ffffff !important;
+        font-family: 'Times New Roman', Times, serif !important;
+        font-size: 8.5pt !important;
+        line-height: 1.15 !important;
     }
 
-    /* 6. Atomic Sections to Keep Intact */
+    /* 6. Compact Print Geometry */
+    .header-appendix,
+    .header-title {
+        font-size: 9pt !important;
+        margin-bottom: 1mm !important;
+        line-height: 1.1 !important;
+    }
+
+    .main-title {
+        font-size: 11.5pt !important;
+        margin-bottom: 1.2mm !important;
+        line-height: 1.15 !important;
+    }
+
+    .sub-title {
+        font-size: 8.5pt !important;
+        margin-bottom: 1.5mm !important;
+        line-height: 1.1 !important;
+    }
+
+    .mr-top-info,
+    .rsmi-top-info,
+    .rpci-top-info,
+    .sc-top-info,
+    .info-table,
+    .meta-row {
+        margin-bottom: 1.5mm !important;
+    }
+
+    .mr-top-info td,
+    .rsmi-top-info td,
+    .rpci-top-info td,
+    .sc-top-info td,
+    .info-table td,
+    .meta-row td {
+        padding: 0.6mm 1mm !important;
+        font-size: 8.5pt !important;
+        line-height: 1.1 !important;
+    }
+
+    .main-table th,
+    .items-table th {
+        padding: 0.8mm 1mm !important;
+        font-size: 8pt !important;
+        line-height: 1.1 !important;
+    }
+
+    .main-table td,
+    .items-table td {
+        padding: 0.6mm 1mm !important;
+        font-size: 8pt !important;
+        line-height: 1.1 !important;
+        height: auto !important;
+    }
+
+    .main-table tr,
+    .items-table tr {
+        height: auto !important;
+    }
+
+    .main-table tr.empty-row td,
+    .items-table tr.empty-row td,
+    .empty-row td {
+        height: 4mm !important;
+        min-height: 4mm !important;
+        padding: 0 1mm !important;
+        line-height: 1 !important;
+    }
+
+    .signatures-table,
+    .footer-table,
+    .rsmi-footer-table {
+        min-height: auto !important;
+        height: auto !important;
+    }
+
+    .sig-cell,
+    .footer-cell,
+    .rsmi-footer-cell,
+    .rpci-footer-cell {
+        padding: 1.5mm 2.5mm !important;
+        min-height: auto !important;
+        height: auto !important;
+    }
+
+    .sig-header,
+    .certify-text,
+    .posted-text {
+        margin-bottom: 4.5mm !important;
+        line-height: 1.1 !important;
+    }
+
+    /* 7. Atomic Sections to Keep Intact (Confined to small units to prevent premature page splits) */
     .report-header,
     .header-appendix,
     .header-title,
     .main-title,
     .sub-title,
-    .sc-header-block,
     .sc-top-info,
-    .sc-header-box,
     .rsmi-top-info,
-    .rsmi-signatures,
-    .recap-section,
     .rpci-top-info,
     .mr-top-info,
-    .signatures-table,
-    .signatures-section,
-    .footer-table,
+    .sig-cell,
+    .sig-block,
+    .signature-block,
     .footer-cell {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
     }
 
-    /* 7. Table Pagination */
+    /* 8. Table Pagination */
     table {
         page-break-inside: auto !important;
         break-inside: auto !important;
@@ -172,9 +273,11 @@
         break-inside: avoid !important;
     }
 
-    /* 8. Colors & Borders */
+    /* 9. Colors & Borders */
     .main-table th,
-    .main-table td {
+    .main-table td,
+    .items-table th,
+    .items-table td {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
