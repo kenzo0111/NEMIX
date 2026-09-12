@@ -95,11 +95,11 @@ export const RfidReceivingModal: React.FC<RfidReceivingModalProps> = ({
                     {/* TAG IDENTIFIED CARD */}
                     {matchedItem && (
                         <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-lg space-y-2">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
                                     Tag Identified
                                 </span>
-                                <span className="text-xs font-mono text-gray-600 font-semibold">
+                                <span className="min-w-0 text-xs font-mono text-gray-600 font-semibold break-all">
                                     RFID: {matchedItem.rfid_tag || scanInput}
                                 </span>
                             </div>

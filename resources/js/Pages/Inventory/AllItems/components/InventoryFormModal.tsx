@@ -269,11 +269,11 @@ export default function InventoryFormModal({
 
                         {/* Group 4: Baseline / Initial Stock & Supplier (Optional) */}
                         <div className="pt-3 border-t border-gray-100">
-                            <div className="flex items-center justify-between mb-2">
+                            <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
                                 <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider">
                                     {isEditing ? 'Current Stock & Valuation' : 'Initial Batch / Baseline (Optional)'}
                                 </h4>
-                                <span className="text-[11px] text-gray-500">
+                                <span className="min-w-0 text-[11px] text-gray-500 whitespace-normal">
                                     Subsequent deliveries are tracked in Receiving
                                 </span>
                             </div>
