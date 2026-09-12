@@ -20,6 +20,7 @@ class InventoryBatch extends Model
         'item_id',
         'receiving_id',
         'supplier_id',
+        'supplier_stock_no',
         'quantity_received',
         'quantity_remaining',
         'unit_cost',

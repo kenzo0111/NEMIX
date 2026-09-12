@@ -23,9 +23,16 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
                 </div>
             </td>
 
-            {/* Supplier */}
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
-                {receiving.supplier || 'N/A'}
+            {/* Supplier & Supplier Stock No */}
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-800 font-medium">{receiving.supplier || 'N/A'}</div>
+                {receiving.supplier_stock_no ? (
+                    <div className="text-[11px] font-mono text-gray-600 mt-0.5">
+                        <span className="bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
+                            {receiving.supplier_stock_no}
+                        </span>
+                    </div>
+                ) : null}
             </td>
 
             {/* Quantity Received */}

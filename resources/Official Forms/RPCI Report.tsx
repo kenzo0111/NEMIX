@@ -37,6 +37,19 @@ interface ReportPhysicalCountProps {
   data: RpciData;
 }
 
+const formatUnitValue = (val: any) => {
+  if (val === undefined || val === null || val === '') return '\u00A0';
+  if (typeof val === 'number') {
+    return `₱${val.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+  const str = String(val).trim();
+  const num = parseFloat(str.replace(/[^0-9.-]/g, ''));
+  if (!isNaN(num) && !str.startsWith('₱') && !str.startsWith('P')) {
+    return `₱${num.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+  return str;
+};
+
 export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }) => {
   const items = data.items || [];
   const targetRowCount = 6;
@@ -238,7 +251,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                 <td className="text-left">{item.description || '\u00A0'}</td>
                 <td>{item.stock_no || '\u00A0'}</td>
                 <td>{item.unit || '\u00A0'}</td>
-                <td className="text-right">{item.unit_value !== undefined && item.unit_value !== null && item.unit_value !== '' ? item.unit_value : '\u00A0'}</td>
+                <td className="text-right">{formatUnitValue(item.unit_value)}</td>
                 <td className="text-right">{item.balance_per_card !== undefined && item.balance_per_card !== null && item.balance_per_card !== '' ? item.balance_per_card : '\u00A0'}</td>
                 <td className="text-right">{item.on_hand_count !== undefined && item.on_hand_count !== null && item.on_hand_count !== '' ? item.on_hand_count : '\u00A0'}</td>
                 <td className="text-right">{item.shortage_qty || '\u00A0'}</td>

@@ -16,6 +16,7 @@ class Receiving extends Model
     protected $fillable = [
         'item_id',
         'supplier_id',
+        'supplier_stock_no',
         'quantity',
         'date_received',
         'created_by',
@@ -68,6 +69,14 @@ class Receiving extends Model
     public function getAmountAttribute(): float
     {
         return round((float) $this->quantity * (float) $this->unit_cost, 2);
+    }
+
+    public function getSupplierStockNoAttribute(): ?string
+    {
+        if (isset($this->attributes['supplier_stock_no']) && $this->attributes['supplier_stock_no'] !== null) {
+            return $this->attributes['supplier_stock_no'];
+        }
+        return $this->batch?->supplier_stock_no;
     }
 
     /**

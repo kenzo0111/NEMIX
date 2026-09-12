@@ -72,6 +72,18 @@ export const ReceivingDetailsModal: React.FC<ReceivingDetailsModalProps> = ({
                             </dd>
                         </div>
                         <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
+                            <dt className="font-semibold text-gray-500 uppercase tracking-wider">Supplier Stock No.</dt>
+                            <dd className="mt-1 font-mono text-gray-800 sm:col-span-2 sm:mt-0">
+                                {receiving.supplier_stock_no ? (
+                                    <span className="bg-gray-100 px-2 py-0.5 rounded border border-gray-200">
+                                        {receiving.supplier_stock_no}
+                                    </span>
+                                ) : (
+                                    <span className="text-gray-400 italic">Not recorded</span>
+                                )}
+                            </dd>
+                        </div>
+                        <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
                             <dt className="font-semibold text-gray-500 uppercase tracking-wider">Quantity Received</dt>
                             <dd className="mt-1 font-semibold text-gray-900 sm:col-span-2 sm:mt-0 font-mono">
                                 <span className="text-emerald-700 mr-1">+</span>

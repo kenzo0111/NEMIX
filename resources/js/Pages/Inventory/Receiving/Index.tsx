@@ -154,6 +154,7 @@ export default function ReceivingIndex({
     } = useForm<ReceivingFormData>({
         item_id: '',
         supplier_id: '',
+        supplier_stock_no: '',
         quantity: '',
         unit_cost: '',
         date_received: getLocalDateString(),
@@ -182,6 +183,7 @@ export default function ReceivingIndex({
         setFormData({
             item_id: '',
             supplier_id: '',
+            supplier_stock_no: '',
             quantity: '',
             unit_cost: '',
             date_received: getLocalDateString(),
@@ -201,6 +203,7 @@ export default function ReceivingIndex({
         setFormData({
             item_id: receiving.item_id || '',
             supplier_id: receiving.supplier_id || '',
+            supplier_stock_no: receiving.supplier_stock_no || '',
             quantity: receiving.quantity || '',
             unit_cost: receiving.unit_cost !== null && receiving.unit_cost !== undefined ? receiving.unit_cost : '',
             date_received: receiving.date || receiving.date_received || getLocalDateString(),

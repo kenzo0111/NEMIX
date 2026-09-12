@@ -696,4 +696,248 @@ class ItemMasterBatchArchitectureTest extends TestCase
         // Supplier B's batch 1 is untouched: 360.00
         $this->assertEquals(360.00, $this->supplierB->fresh()->contract_supplies_value);
     }
+
+    /**
+     * Requirement 4 & 5: Supplier Stock No is preserved per batch and returned in receiving history.
+     */
+    public function test_supplier_stock_no_is_preserved_per_batch_and_in_receiving_history(): void
+    {
+        $item = Item::create([
+            'name' => 'A4 Bond Paper 80 GSM',
+            'sku' => 'BOND-A4-80',
+            'unit_of_issue' => 'Ream',
+            'stock' => 0,
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        $batch1 = $this->receivingService->record([
+            'item_id' => $item->id,
+            'supplier_id' => $this->supplierA->id,
+            'supplier_stock_no' => 'COS-26-09-001-0001',
+            'quantity' => 330,
+            'unit_cost' => 50.00,
+            'date_received' => '2026-09-10',
+        ], $this->adminUser->id)['batch'];
+
+        $batch2 = $this->receivingService->record([
+            'item_id' => $item->id,
+            'supplier_id' => $this->supplierB->id,
+            'supplier_stock_no' => 'APC-26-09-001-0001',
+            'quantity' => 5000,
+            'unit_cost' => 15.00,
+            'date_received' => '2026-09-12',
+        ], $this->adminUser->id)['batch'];
+
+        $this->assertEquals('COS-26-09-001-0001', $batch1->fresh()->supplier_stock_no);
+        $this->assertEquals('APC-26-09-001-0001', $batch2->fresh()->supplier_stock_no);
+
+        // Fetch item details through controller show endpoint
+        $response = $this->actingAs($this->adminUser)->get(route('inventory.show', $item->id));
+        $response->assertOk();
+        $batchesData = $response->json('receiving_batches');
+        $this->assertCount(2, $batchesData);
+        $this->assertEquals('COS-26-09-001-0001', $batchesData[0]['supplier_stock_no']);
+        $this->assertEquals('APC-26-09-001-0001', $batchesData[1]['supplier_stock_no']);
+    }
+
+    /**
+     * Requirement 6, 7 & 8: RPCI selected supplier retrieves supplier-specific stock numbers & costs, without reuse.
+     */
+    public function test_rpci_supplier_selection_uses_supplier_specific_stock_numbers_and_costs(): void
+    {
+        $rpciService = app(\App\Services\Compliance\ComplianceReportDataService::class);
+
+        $item = Item::create([
+            'name' => 'A4 Bond Paper 80 GSM',
+            'sku' => 'BOND-A4-80',
+            'unit_of_issue' => 'Ream',
+            'stock' => 0,
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        // Batch from Supplier A (COS)
+        $this->receivingService->record([
+            'item_id' => $item->id,
+            'supplier_id' => $this->supplierA->id,
+            'supplier_stock_no' => 'COS-26-09-001-0001',
+            'quantity' => 330,
+            'unit_cost' => 50.00,
+            'date_received' => '2026-09-10',
+        ], $this->adminUser->id);
+
+        // Batch from Supplier B (APC)
+        $this->receivingService->record([
+            'item_id' => $item->id,
+            'supplier_id' => $this->supplierB->id,
+            'supplier_stock_no' => 'APC-26-09-001-0001',
+            'quantity' => 5000,
+            'unit_cost' => 15.00,
+            'date_received' => '2026-09-12',
+        ], $this->adminUser->id);
+
+        // 1. Query RPCI for Supplier A
+        $rpciA = $rpciService->getRpciRecords(['supplier_id' => $this->supplierA->id]);
+        $rowsA = collect($rpciA['items'])->where('article', 'A4 Bond Paper 80 GSM');
+        $this->assertCount(1, $rowsA);
+        $this->assertEquals('COS-26-09-001-0001', $rowsA->first()['stock_no']);
+        $this->assertEquals(50.00, $rowsA->first()['unit_value']);
+
+        // 2. Query RPCI for Supplier B
+        $rpciB = $rpciService->getRpciRecords(['supplier_id' => $this->supplierB->id]);
+        $rowsB = collect($rpciB['items'])->where('article', 'A4 Bond Paper 80 GSM');
+        $this->assertCount(1, $rowsB);
+        $this->assertEquals('APC-26-09-001-0001', $rowsB->first()['stock_no']);
+        $this->assertEquals(15.00, $rowsB->first()['unit_value']);
+
+        // 3. Confirm Supplier B RPCI does not reuse COS stock number
+        $this->assertNotEquals('COS-26-09-001-0001', $rowsB->first()['stock_no']);
+    }
+
+    /**
+     * Requirement 9: Multiple batches from same supplier are not silently merged in RPCI.
+     */
+    public function test_rpci_multiple_batches_from_same_supplier_render_separate_rows(): void
+    {
+        $rpciService = app(\App\Services\Compliance\ComplianceReportDataService::class);
+
+        $item = Item::create([
+            'name' => 'A4 Bond Paper 80 GSM',
+            'sku' => 'BOND-A4-80',
+            'unit_of_issue' => 'Ream',
+            'stock' => 0,
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        // Batch 1 from Supplier A
+        $this->receivingService->record([
+            'item_id' => $item->id,
+            'supplier_id' => $this->supplierA->id,
+            'supplier_stock_no' => 'COS-26-09-001-0001',
+            'quantity' => 300,
+            'unit_cost' => 50.00,
+            'date_received' => '2026-09-10',
+        ], $this->adminUser->id);
+
+        // Batch 2 from Supplier A with different stock number & price
+        $this->receivingService->record([
+            'item_id' => $item->id,
+            'supplier_id' => $this->supplierA->id,
+            'supplier_stock_no' => 'COS-26-10-001-0002',
+            'quantity' => 200,
+            'unit_cost' => 55.00,
+            'date_received' => '2026-10-01',
+        ], $this->adminUser->id);
+
+        $rpci = $rpciService->getRpciRecords(['supplier_id' => $this->supplierA->id]);
+        $rows = collect($rpci['items'])->where('article', 'A4 Bond Paper 80 GSM')->values();
+
+        $this->assertCount(2, $rows);
+        $this->assertEquals('COS-26-09-001-0001', $rows[0]['stock_no']);
+        $this->assertEquals(50.00, $rows[0]['unit_value']);
+        $this->assertEquals(300, $rows[0]['balance_per_card']);
+
+        $this->assertEquals('COS-26-10-001-0002', $rows[1]['stock_no']);
+        $this->assertEquals(55.00, $rows[1]['unit_value']);
+        $this->assertEquals(200, $rows[1]['balance_per_card']);
+    }
+
+    /**
+     * Requirement 10: Historical stock numbers remain unchanged when supplier details change.
+     */
+    public function test_historical_stock_numbers_remain_unchanged_when_supplier_details_change(): void
+    {
+        $item = Item::create([
+            'name' => 'Marker Whiteboard Black',
+            'sku' => 'MKR-WHT-BLK',
+            'unit_of_issue' => 'Piece',
+            'stock' => 0,
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        $batch = $this->receivingService->record([
+            'item_id' => $item->id,
+            'supplier_id' => $this->supplierA->id,
+            'supplier_stock_no' => 'HIST-COS-2026-001',
+            'quantity' => 100,
+            'unit_cost' => 45.00,
+            'date_received' => '2026-09-01',
+        ], $this->adminUser->id)['batch'];
+
+        // Change supplier name and details
+        $this->supplierA->update([
+            'name' => 'Renamed Corporation Global',
+        ]);
+
+        $batch->refresh();
+        $this->assertEquals('HIST-COS-2026-001', $batch->supplier_stock_no);
+
+        $rpci = app(\App\Services\Compliance\ComplianceReportDataService::class)
+            ->getRpciRecords(['supplier_id' => $this->supplierA->id]);
+        $row = collect($rpci['items'])->where('article', 'Marker Whiteboard Black')->first();
+        $this->assertEquals('HIST-COS-2026-001', $row['stock_no']);
+    }
+
+    /**
+     * Requirement 17: RPCI As-of date calculates historical book balance correctly.
+     */
+    public function test_rpci_as_of_date_returns_correct_historical_book_balance(): void
+    {
+        $rpciService = app(\App\Services\Compliance\ComplianceReportDataService::class);
+
+        $item = Item::create([
+            'name' => 'Specialty Parchment Paper',
+            'sku' => 'PAP-PARCH-01',
+            'unit_of_issue' => 'Ream',
+            'stock' => 0,
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        // Received 100 on Sept 1
+        $this->receivingService->record([
+            'item_id' => $item->id,
+            'supplier_id' => $this->supplierA->id,
+            'supplier_stock_no' => 'COS-PARCH-01',
+            'quantity' => 100,
+            'unit_cost' => 120.00,
+            'date_received' => '2026-09-01',
+        ], $this->adminUser->id);
+
+        // Issued 30 on Sept 10
+        $this->issuanceService->store([
+            'lines' => [
+                ['item_id' => $item->id, 'quantity' => 30],
+            ],
+            'recipient' => 'President Office',
+            'date_issued' => '2026-09-10',
+        ], $this->adminUser->id);
+
+        // Issued 20 on Sept 20
+        $this->issuanceService->store([
+            'lines' => [
+                ['item_id' => $item->id, 'quantity' => 20],
+            ],
+            'recipient' => 'VP Academic Affairs',
+            'date_issued' => '2026-09-20',
+        ], $this->adminUser->id);
+
+        // Query historical RPCI As-at Sept 5 (before any issuances): balance should be 100
+        $rpciSept5 = $rpciService->getRpciRecords([
+            'supplier_id' => $this->supplierA->id,
+            'as_at_date' => '2026-09-05',
+        ]);
+        $rowSept5 = collect($rpciSept5['items'])->where('article', 'Specialty Parchment Paper')->first();
+        $this->assertEquals(100, $rowSept5['balance_per_card']);
+
+        // Query historical RPCI As-at Sept 15 (after 1st issuance of 30): balance should be 70
+        $rpciSept15 = $rpciService->getRpciRecords([
+            'supplier_id' => $this->supplierA->id,
+            'as_at_date' => '2026-09-15',
+        ]);
+        $rowSept15 = collect($rpciSept15['items'])->where('article', 'Specialty Parchment Paper')->first();
+        $this->assertEquals(70, $rowSept15['balance_per_card']);
+
+        // Current balance (after both issuances): 50
+        $item->refresh();
+        $this->assertEquals(50, $item->stock);
+    }
 }

@@ -111,6 +111,32 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                 )}
             </div>
 
+            {/* Supplier Stock Number */}
+            <div>
+                <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        Supplier Stock No.
+                    </label>
+                    <span className="text-[11px] text-gray-500 font-medium">
+                        Preserved per batch (used in RPCI compliance report)
+                    </span>
+                </div>
+                <input
+                    type="text"
+                    value={data.supplier_stock_no || ''}
+                    onChange={(e) => setData('supplier_stock_no', e.target.value)}
+                    placeholder="e.g. APC-26-09-001-0001 or COS-26-09-001-0001"
+                    className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-mono font-medium focus:outline-none transition-colors ${
+                        errors.supplier_stock_no
+                            ? 'border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600'
+                            : 'border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900'
+                    }`}
+                />
+                {errors.supplier_stock_no && (
+                    <p className="mt-1 text-xs text-red-600 font-medium">{errors.supplier_stock_no}</p>
+                )}
+            </div>
+
             {/* Quantity, Unit Cost, and Amount */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Quantity */}

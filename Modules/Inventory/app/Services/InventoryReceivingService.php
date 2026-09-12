@@ -32,6 +32,7 @@ class InventoryReceivingService
         return DB::transaction(function () use ($data, $userId) {
             $itemId = (int) $data['item_id'];
             $supplierId = (int) $data['supplier_id'];
+            $supplierStockNo = !empty($data['supplier_stock_no']) ? trim((string) $data['supplier_stock_no']) : null;
             $quantity = (int) $data['quantity'];
             $unitCost = isset($data['unit_cost']) && $data['unit_cost'] !== '' ? (float) $data['unit_cost'] : 0.00;
             $dateReceived = $data['date_received'];
@@ -50,6 +51,7 @@ class InventoryReceivingService
             $receiving = Receiving::create([
                 'item_id' => $item->id,
                 'supplier_id' => $supplierId,
+                'supplier_stock_no' => $supplierStockNo,
                 'quantity' => $quantity,
                 'date_received' => $dateReceived,
                 'created_by' => $userId,
@@ -60,6 +62,7 @@ class InventoryReceivingService
                 'item_id' => $item->id,
                 'receiving_id' => $receiving->id,
                 'supplier_id' => $supplierId,
+                'supplier_stock_no' => $supplierStockNo,
                 'quantity_received' => $quantity,
                 'quantity_remaining' => $quantity,
                 'unit_cost' => $unitCost,
@@ -118,6 +121,10 @@ class InventoryReceivingService
             $newQuantity = (int) ($data['quantity'] ?? $oldQuantity);
             $newSupplierId = (int) ($data['supplier_id'] ?? $lockedReceiving->supplier_id);
             $newDate = $data['date_received'] ?? $lockedReceiving->date_received;
+            $hasStockNoKey = array_key_exists('supplier_stock_no', $data);
+            $newSupplierStockNo = $hasStockNoKey
+                ? (!empty($data['supplier_stock_no']) ? trim((string) $data['supplier_stock_no']) : null)
+                : ($batch->supplier_stock_no ?? $lockedReceiving->supplier_stock_no);
 
             if ($oldItemId === $newItemId) {
                 $item = Item::where('id', $oldItemId)->lockForUpdate()->firstOrFail();
@@ -147,6 +154,9 @@ class InventoryReceivingService
                     $batch->quantity_received = $newQuantity;
                     $batch->quantity_remaining = $newRemaining;
                     $batch->supplier_id = $newSupplierId;
+                    if ($hasStockNoKey) {
+                        $batch->supplier_stock_no = $newSupplierStockNo;
+                    }
                     if (isset($data['unit_cost']) && $data['unit_cost'] !== '') {
                         $batch->unit_cost = (float) $data['unit_cost'];
                     }
@@ -187,6 +197,9 @@ class InventoryReceivingService
                     $batch->quantity_received = $newQuantity;
                     $batch->quantity_remaining = $newQuantity;
                     $batch->supplier_id = $newSupplierId;
+                    if ($hasStockNoKey) {
+                        $batch->supplier_stock_no = $newSupplierStockNo;
+                    }
                     if (isset($data['unit_cost']) && $data['unit_cost'] !== '') {
                         $batch->unit_cost = (float) $data['unit_cost'];
                     }
@@ -198,12 +211,16 @@ class InventoryReceivingService
                 $this->balanceService->synchronizeItem($newItem);
             }
 
-            $lockedReceiving->update([
+            $updateFields = [
                 'item_id' => $newItemId,
                 'supplier_id' => $newSupplierId,
                 'quantity' => $newQuantity,
                 'date_received' => $newDate,
-            ]);
+            ];
+            if ($hasStockNoKey) {
+                $updateFields['supplier_stock_no'] = $newSupplierStockNo;
+            }
+            $lockedReceiving->update($updateFields);
 
             return $lockedReceiving;
         });

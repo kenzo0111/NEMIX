@@ -19,6 +19,7 @@ export interface ReceivingRecord {
     id: number;
     item_id: number;
     supplier_id: number;
+    supplier_stock_no?: string | null;
     item: string;
     sku: string;
     unit?: string;
@@ -34,6 +35,7 @@ export interface ReceivingRecord {
 export interface ReceivingFormData {
     item_id: number | '';
     supplier_id: number | '';
+    supplier_stock_no?: string;
     quantity: number | '';
     unit_cost?: number | string;
     date_received: string;

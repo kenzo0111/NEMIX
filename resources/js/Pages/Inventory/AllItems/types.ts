@@ -16,6 +16,7 @@ export interface ReceivingBatchRecord {
     id: number;
     supplier_id: number;
     supplier_name: string;
+    supplier_stock_no?: string | null;
     quantity_received: number;
     quantity_remaining: number;
     unit_cost: number;

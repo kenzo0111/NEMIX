@@ -375,8 +375,119 @@ class ComplianceReportDataService
         $supplierId = $filters['supplierId'] ?? $filters['supplier_id'] ?? null;
         $items = collect();
 
-        // 1. Live inventory items
-        if (class_exists(\Modules\Inventory\Models\Item::class)) {
+        $asOfDate = $this->normalizeDate(
+            $filters['as_at_date'] ?? $filters['asAtDate'] ?? $filters['date'] ?? $filters['endDate'] ?? $filters['end_date'] ?? null
+        );
+
+        // 1. Live inventory batches (authoritative supplier batch identity, stock number, and cost)
+        if (class_exists(\Modules\Inventory\Models\InventoryBatch::class)) {
+            $batchQuery = \Modules\Inventory\Models\InventoryBatch::query()
+                ->with(['item', 'supplier', 'allocations.issuanceItem.issuance'])
+                ->whereNull('deleted_at');
+
+            if ($supplierId) {
+                $batchQuery->where('supplier_id', $supplierId);
+            }
+
+            if ($asOfDate) {
+                $batchQuery->where('date_received', '<=', $asOfDate);
+            }
+
+            $batchQuery->orderBy('item_id', 'asc')
+                ->orderBy('date_received', 'asc')
+                ->orderBy('id', 'asc');
+
+            $batches = $batchQuery->get();
+
+            $batchItems = $batches->map(function ($batch) use ($asOfDate) {
+                if ($asOfDate) {
+                    $issuedUpToDate = (int) $batch->allocations->filter(function ($alloc) use ($asOfDate) {
+                        $issDate = $alloc->issuanceItem?->issuance?->date_issued;
+                        if (!$issDate) {
+                            return false;
+                        }
+                        $norm = $this->normalizeDate($issDate);
+                        return $norm && $norm <= $asOfDate;
+                    })->sum('quantity');
+
+                    $bookBalance = max(0, (int) $batch->quantity_received - $issuedUpToDate);
+                } else {
+                    $bookBalance = (int) $batch->quantity_remaining;
+                }
+
+                $item = $batch->item;
+                $unitCost = (float) $batch->unit_cost;
+                $stockNo = $batch->supplier_stock_no ?: ($item?->sku ?: '-');
+
+                return [
+                    'source' => 'live_batch',
+                    'item_id' => $batch->item_id,
+                    'batch_id' => $batch->id,
+                    'article' => $item?->name ?? '-',
+                    'description' => $item?->description ?? $item?->name ?? '-',
+                    'stock_no' => $stockNo,
+                    'supplier_stock_no' => $batch->supplier_stock_no,
+                    'supplier_id' => $batch->supplier_id,
+                    'supplier_name' => $batch->supplier?->name ?? 'Supplier',
+                    'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
+                    'unit_value' => $unitCost,
+                    'balance_per_card' => $bookBalance,
+                    'on_hand_count' => $bookBalance,
+                    'shortage_qty' => '',
+                    'shortage_value' => '',
+                    'remarks' => $item?->remarks ?? '',
+                    'quantity_received' => (int) $batch->quantity_received,
+                    'quantity_remaining' => (int) $batch->quantity_remaining,
+                ];
+            })->filter(function ($row) use ($supplierId) {
+                if ($supplierId) {
+                    return true;
+                }
+                return (int) ($row['balance_per_card'] ?? 0) > 0;
+            });
+
+            $items = $items->concat($batchItems);
+
+            // Fallback for items with no batches yet
+            if (class_exists(\Modules\Inventory\Models\Item::class)) {
+                $batchedItemIds = $batches->pluck('item_id')->unique()->toArray();
+                $unbatchedQuery = \Modules\Inventory\Models\Item::query();
+                if ($supplierId) {
+                    $unbatchedQuery->where('supplier_id', $supplierId);
+                }
+                if (!empty($batchedItemIds)) {
+                    $unbatchedQuery->whereNotIn('id', $batchedItemIds);
+                }
+                $unbatched = $unbatchedQuery->get()->filter(function ($item) use ($supplierId) {
+                    return (int) ($item->stock ?? 0) > 0 || $supplierId;
+                })->map(function ($item) {
+                    $stock = (int) ($item->stock ?? 0);
+                    $unitCost = (float) ($item->unit_cost ?? 0);
+                    return [
+                        'source' => 'live_item',
+                        'item_id' => $item->id,
+                        'batch_id' => null,
+                        'article' => $item->name ?? '-',
+                        'description' => $item->description ?? $item->name ?? '-',
+                        'stock_no' => $item->sku ?? '-',
+                        'supplier_stock_no' => null,
+                        'supplier_id' => $item->supplier_id,
+                        'supplier_name' => $item->supplier?->name ?? 'Supplier',
+                        'unit' => $item->unit_of_issue ?? $item->unit_measure ?? 'pc',
+                        'unit_value' => $unitCost,
+                        'balance_per_card' => $stock,
+                        'on_hand_count' => $stock,
+                        'shortage_qty' => '',
+                        'shortage_value' => '',
+                        'remarks' => $item->remarks ?? '',
+                        'quantity_received' => $stock,
+                        'quantity_remaining' => $stock,
+                    ];
+                });
+
+                $items = $items->concat($unbatched);
+            }
+        } elseif (class_exists(\Modules\Inventory\Models\Item::class)) {
             $query = \Modules\Inventory\Models\Item::query();
             if ($supplierId) {
                 $query->where('supplier_id', $supplierId);
@@ -386,9 +497,14 @@ class ComplianceReportDataService
                 $unitCost = (float) ($item->unit_cost ?? 0);
                 return [
                     'source' => 'live',
+                    'item_id' => $item->id,
+                    'batch_id' => null,
                     'article' => $item->name ?? '-',
                     'description' => $item->description ?? $item->name ?? '-',
                     'stock_no' => $item->sku ?? '-',
+                    'supplier_stock_no' => null,
+                    'supplier_id' => $item->supplier_id,
+                    'supplier_name' => $item->supplier?->name ?? 'Supplier',
                     'unit' => $item->unit_of_issue ?? $item->unit_measure ?? 'pc',
                     'unit_value' => $unitCost,
                     'balance_per_card' => $stock,
@@ -396,6 +512,8 @@ class ComplianceReportDataService
                     'shortage_qty' => '',
                     'shortage_value' => '',
                     'remarks' => $item->remarks ?? '',
+                    'quantity_received' => $stock,
+                    'quantity_remaining' => $stock,
                 ];
             });
 
