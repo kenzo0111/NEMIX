@@ -94,6 +94,30 @@ class InventoryIssuanceService
             $primaryItemId = $itemIds[0];
             $totalQuantity = array_sum($condensed);
 
+            $issuedByName = !empty($data['issued_by_name'])
+                ? $data['issued_by_name']
+                : (class_exists(SystemSetting::class) ? (SystemSetting::get('signatories.ris_issued_by_name') ?: 'Supply Custodian / Storekeeper') : 'Supply Custodian / Storekeeper');
+            $issuedByPosition = !empty($data['issued_by_position'])
+                ? $data['issued_by_position']
+                : (class_exists(SystemSetting::class) ? (SystemSetting::get('signatories.ris_issued_by_designation') ?: 'Administrative Aide VI / Storekeeper') : 'Administrative Aide VI / Storekeeper');
+            $approvedByName = !empty($data['approved_by'])
+                ? $data['approved_by']
+                : (class_exists(SystemSetting::class) ? (SystemSetting::get('signatories.ris_approved_by_name') ?: 'ARSENIO GEM A. GARCILLANOSA') : 'ARSENIO GEM A. GARCILLANOSA');
+            $approvedByDesignation = !empty($data['approved_by_designation'])
+                ? $data['approved_by_designation']
+                : (class_exists(SystemSetting::class) ? (SystemSetting::get('signatories.ris_approved_by_designation') ?: 'SUPPLY OFFICER III/ADMIN OFFICER V') : 'SUPPLY OFFICER III/ADMIN OFFICER V');
+
+            $signatorySnapshot = [
+                'issued_by' => [
+                    'name' => $issuedByName,
+                    'position' => $issuedByPosition,
+                ],
+                'approved_by' => [
+                    'name' => $approvedByName,
+                    'position' => $approvedByDesignation,
+                ],
+            ];
+
             // 5. Create Issuance parent record
             $issuance = Issuance::create([
                 'ris_number' => $risNumber,
@@ -104,8 +128,11 @@ class InventoryIssuanceService
                 'fund_cluster' => $data['fund_cluster'] ?? '01 - Regular Agency Fund',
                 'recipient_designation' => $data['recipient_designation'] ?? null,
                 'purpose' => $data['purpose'] ?? null,
-                'approved_by' => $data['approved_by'] ?? null,
-                'approved_by_designation' => $data['approved_by_designation'] ?? null,
+                'approved_by' => $approvedByName,
+                'approved_by_designation' => $approvedByDesignation,
+                'issued_by_name' => $issuedByName,
+                'issued_by_position' => $issuedByPosition,
+                'snapshot' => $signatorySnapshot,
                 'date_issued' => $normalizedDate,
                 'status' => 'Issued',
                 'issued_by' => $userId,
@@ -309,15 +336,36 @@ class InventoryIssuanceService
                 }
             }
 
-            // Update parent fields
+            // Update parent fields while preserving historical snapshot
+            $existingSnapshot = $lockedIssuance->snapshot ?? [];
+            $issuedByName = $data['issued_by_name'] ?? $lockedIssuance->issued_by_name;
+            $issuedByPosition = $data['issued_by_position'] ?? $lockedIssuance->issued_by_position;
+            $approvedByName = $data['approved_by'] ?? $lockedIssuance->approved_by;
+            $approvedByDesignation = $data['approved_by_designation'] ?? $lockedIssuance->approved_by_designation;
+
+            $updatedSnapshot = [
+                ...$existingSnapshot,
+                'issued_by' => [
+                    'name' => $issuedByName,
+                    'position' => $issuedByPosition,
+                ],
+                'approved_by' => [
+                    'name' => $approvedByName,
+                    'position' => $approvedByDesignation,
+                ],
+            ];
+
             $updateData = [
                 'recipient' => $data['recipient'],
                 'department' => $data['department'] ?? null,
                 'fund_cluster' => $data['fund_cluster'] ?? null,
                 'recipient_designation' => $data['recipient_designation'] ?? null,
                 'purpose' => $data['purpose'] ?? null,
-                'approved_by' => $data['approved_by'] ?? null,
-                'approved_by_designation' => $data['approved_by_designation'] ?? null,
+                'approved_by' => $approvedByName,
+                'approved_by_designation' => $approvedByDesignation,
+                'issued_by_name' => $issuedByName,
+                'issued_by_position' => $issuedByPosition,
+                'snapshot' => $updatedSnapshot,
                 'date_issued' => $normalizedDate,
                 'status' => $newStatus,
                 'item_id' => $primaryItemId,

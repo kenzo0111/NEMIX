@@ -21,6 +21,7 @@ export default function IssuanceIndex({
     const user = auth.user;
     const [collapsed, setCollapsed] = useState(false);
     const pageProps = usePage().props as any;
+    const systemSettings = (pageProps.systemSettings || {}) as Record<string, any>;
     const publicSettings = pageProps.system?.settings || {};
 
     // System Signatories & Institutions
@@ -28,18 +29,35 @@ export default function IssuanceIndex({
         (publicSettings['signatories_ris_oic_active']
             ? publicSettings['signatories_ris_oic_prefix'] || 'OIC, '
             : '') +
-        (publicSettings['signatories_ris_approved_by_name'] ||
+        (systemSettings?.approved_by_name ||
+            publicSettings['approved_by_name'] ||
+            publicSettings['signatories_ris_approved_by_name'] ||
             publicSettings['signatories.ris_approved_by_name'] ||
             'ARSENIO GEM A. GARCILLANOSA');
     const defaultApprovedByDesignation =
+        systemSettings?.approved_by_position ||
+        publicSettings['approved_by_position'] ||
         publicSettings['signatories_ris_approved_by_designation'] ||
         publicSettings['signatories.ris_approved_by_designation'] ||
         'SUPPLY OFFICER III/ADMIN OFFICER V';
-    const institutionName = publicSettings['institution_name'] || 'University of Camarines Norte';
+    const institutionName =
+        systemSettings?.entity_name ||
+        publicSettings['entity_name'] ||
+        publicSettings['institution_name'] ||
+        'University of Camarines Norte';
     const responsibilityCenterCode = publicSettings['institution_responsibility_center_code'] || '';
-    const defaultIssuedBy = publicSettings['signatories_ris_issued_by_name'] || 'Supply Custodian / Storekeeper';
+    const defaultIssuedBy =
+        systemSettings?.issued_by_name ||
+        publicSettings['issued_by_name'] ||
+        publicSettings['signatories_ris_issued_by_name'] ||
+        publicSettings['signatories.ris_issued_by_name'] ||
+        'Supply Custodian / Storekeeper';
     const defaultIssuedByDesignation =
-        publicSettings['signatories_ris_issued_by_designation'] || 'Administrative Aide VI';
+        systemSettings?.issued_by_position ||
+        publicSettings['issued_by_position'] ||
+        publicSettings['signatories_ris_issued_by_designation'] ||
+        publicSettings['signatories.ris_issued_by_designation'] ||
+        'Administrative Aide VI / Storekeeper';
 
     // Normalize pagination vs raw array
     const isPaginated = !Array.isArray(issuances) && issuances !== null && typeof issuances === 'object' && 'data' in issuances;
@@ -225,6 +243,8 @@ export default function IssuanceIndex({
                 divisions={divisions}
                 defaultApprovedBy={defaultApprovedBy}
                 defaultApprovedByDesignation={defaultApprovedByDesignation}
+                defaultIssuedBy={defaultIssuedBy}
+                defaultIssuedByDesignation={defaultIssuedByDesignation}
                 onSuccessNotification={handleSuccessNotification}
             />
 

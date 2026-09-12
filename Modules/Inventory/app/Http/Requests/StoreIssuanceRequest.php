@@ -30,6 +30,8 @@ class StoreIssuanceRequest extends FormRequest
             'purpose' => ['nullable', 'string', 'max:2000'],
             'approved_by' => ['nullable', 'string', 'max:255'],
             'approved_by_designation' => ['nullable', 'string', 'max:255'],
+            'issued_by_name' => ['nullable', 'string', 'max:255'],
+            'issued_by_position' => ['nullable', 'string', 'max:255'],
             'date_issued' => ['required', 'date'],
         ];
     }

@@ -60,8 +60,15 @@ class SystemSetting extends Model
      */
     public static function get(string $key, mixed $default = null): mixed
     {
-        // Support alias: entity_name -> institution.name
-        $lookupKey = ($key === 'entity_name' || $key === 'entity.name') ? 'institution.name' : $key;
+        // Support canonical aliases
+        $lookupKey = match ($key) {
+            'entity_name', 'entity.name' => 'institution.name',
+            'issued_by_name', 'issued_by' => 'signatories.ris_issued_by_name',
+            'issued_by_position', 'issued_by_designation' => 'signatories.ris_issued_by_designation',
+            'approved_by_name', 'approved_by' => 'signatories.ris_approved_by_name',
+            'approved_by_position', 'approved_by_designation' => 'signatories.ris_approved_by_designation',
+            default => $key,
+        };
 
         return Cache::remember(self::CACHE_KEY_PREFIX . $lookupKey, 86400, function () use ($lookupKey, $default) {
             $setting = static::where('key', $lookupKey)->first();
@@ -79,7 +86,14 @@ class SystemSetting extends Model
      */
     public static function set(string $key, mixed $value): void
     {
-        $lookupKey = ($key === 'entity_name' || $key === 'entity.name') ? 'institution.name' : $key;
+        $lookupKey = match ($key) {
+            'entity_name', 'entity.name' => 'institution.name',
+            'issued_by_name', 'issued_by' => 'signatories.ris_issued_by_name',
+            'issued_by_position', 'issued_by_designation' => 'signatories.ris_issued_by_designation',
+            'approved_by_name', 'approved_by' => 'signatories.ris_approved_by_name',
+            'approved_by_position', 'approved_by_designation' => 'signatories.ris_approved_by_designation',
+            default => $key,
+        };
         $setting = static::where('key', $lookupKey)->first();
 
         if ($setting) {
@@ -123,12 +137,28 @@ class SystemSetting extends Model
                 })
                 ->toArray();
 
-            // Provide centralized canonical aliases for Compliance forms
+            // Provide centralized canonical aliases for Compliance and Inventory Issuance
             if (isset($settings['institution_name'])) {
                 $settings['entity_name'] = $settings['institution_name'];
             }
             if (isset($settings['institution_default_fund_cluster'])) {
                 $settings['default_fund_cluster'] = $settings['institution_default_fund_cluster'];
+            }
+            if (isset($settings['signatories_ris_issued_by_name'])) {
+                $settings['issued_by_name'] = $settings['signatories_ris_issued_by_name'];
+                $settings['issued_by'] = $settings['signatories_ris_issued_by_name'];
+            }
+            if (isset($settings['signatories_ris_issued_by_designation'])) {
+                $settings['issued_by_position'] = $settings['signatories_ris_issued_by_designation'];
+                $settings['issued_by_designation'] = $settings['signatories_ris_issued_by_designation'];
+            }
+            if (isset($settings['signatories_ris_approved_by_name'])) {
+                $settings['approved_by_name'] = $settings['signatories_ris_approved_by_name'];
+                $settings['approved_by'] = $settings['signatories_ris_approved_by_name'];
+            }
+            if (isset($settings['signatories_ris_approved_by_designation'])) {
+                $settings['approved_by_position'] = $settings['signatories_ris_approved_by_designation'];
+                $settings['approved_by_designation'] = $settings['signatories_ris_approved_by_designation'];
             }
 
             return $settings;

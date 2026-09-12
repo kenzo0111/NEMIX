@@ -559,8 +559,14 @@ class InventoryController extends Controller
         $defaultApprovedByDesignation = class_exists(\App\Models\SystemSetting::class)
             ? \App\Models\SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V')
             : 'SUPPLY OFFICER III/ADMIN OFFICER V';
+        $defaultIssuedBy = class_exists(\App\Models\SystemSetting::class)
+            ? \App\Models\SystemSetting::get('signatories.ris_issued_by_name', 'Supply Custodian / Storekeeper')
+            : 'Supply Custodian / Storekeeper';
+        $defaultIssuedByDesignation = class_exists(\App\Models\SystemSetting::class)
+            ? \App\Models\SystemSetting::get('signatories.ris_issued_by_designation', 'Administrative Aide VI / Storekeeper')
+            : 'Administrative Aide VI / Storekeeper';
 
-        $transformed = $paginated->through(function ($issuance) use ($defaultApprovedBy, $defaultApprovedByDesignation) {
+        $transformed = $paginated->through(function ($issuance) use ($defaultApprovedBy, $defaultApprovedByDesignation, $defaultIssuedBy, $defaultIssuedByDesignation) {
             $dateFormatted = $issuance->date_issued ? $issuance->date_issued->format('Y-m-d') : '';
             $risNo = $issuance->ris_number ?: ('RIS-' . ($issuance->date_issued ? $issuance->date_issued->format('Y-m') : date('Y-m')) . '-' . str_pad($issuance->id, 4, '0', STR_PAD_LEFT));
 
@@ -626,6 +632,20 @@ class InventoryController extends Controller
                 $itemSummary = $itemName;
             }
 
+            $savedSnapshot = $issuance->snapshot ?? [];
+            $issuedByName = $issuance->issued_by_name
+                ?: ($savedSnapshot['issued_by']['name'] ?? null)
+                ?: $defaultIssuedBy;
+            $issuedByPosition = $issuance->issued_by_position
+                ?: ($savedSnapshot['issued_by']['position'] ?? null)
+                ?: $defaultIssuedByDesignation;
+            $approvedByName = $issuance->approved_by
+                ?: ($savedSnapshot['approved_by']['name'] ?? null)
+                ?: $defaultApprovedBy;
+            $approvedByDesignation = $issuance->approved_by_designation
+                ?: ($savedSnapshot['approved_by']['position'] ?? null)
+                ?: $defaultApprovedByDesignation;
+
             return [
                 'id' => $issuance->id,
                 'ris_number' => $risNo,
@@ -641,12 +661,16 @@ class InventoryController extends Controller
                 'fund_cluster' => $issuance->fund_cluster,
                 'recipient_designation' => $issuance->recipient_designation,
                 'purpose' => $issuance->purpose,
-                'approved_by' => $issuance->approved_by ?: $defaultApprovedBy,
-                'approved_by_designation' => $issuance->approved_by_designation ?: $defaultApprovedByDesignation,
+                'approved_by' => $approvedByName,
+                'approved_by_designation' => $approvedByDesignation,
                 'date' => $dateFormatted,
                 'date_issued' => $dateFormatted,
                 'status' => $issuance->status,
-                'issued_by' => $issuance->issuer ? $issuance->issuer->name : 'Supply Staff',
+                'issued_by' => $issuedByName,
+                'issued_by_name' => $issuedByName,
+                'issued_by_position' => $issuedByPosition,
+                'created_by_user_id' => $issuance->issued_by,
+                'creator_name' => $issuance->issuer ? $issuance->issuer->name : null,
                 'created_at' => $issuance->created_at ? $issuance->created_at->format('Y-m-d H:i:s') : '',
                 'items' => $itemsList,
                 'items_list' => $itemsList,
@@ -678,6 +702,12 @@ class InventoryController extends Controller
         $approvedByDesignation = $request->approved_by_designation ?: (class_exists(\App\Models\SystemSetting::class)
             ? \App\Models\SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V')
             : 'SUPPLY OFFICER III/ADMIN OFFICER V');
+        $issuedByName = $request->issued_by_name ?: (class_exists(\App\Models\SystemSetting::class)
+            ? \App\Models\SystemSetting::get('signatories.ris_issued_by_name', 'Supply Custodian / Storekeeper')
+            : 'Supply Custodian / Storekeeper');
+        $issuedByPosition = $request->issued_by_position ?: (class_exists(\App\Models\SystemSetting::class)
+            ? \App\Models\SystemSetting::get('signatories.ris_issued_by_designation', 'Administrative Aide VI / Storekeeper')
+            : 'Administrative Aide VI / Storekeeper');
 
         $data = [
             'recipient' => $request->recipient,
@@ -687,6 +717,8 @@ class InventoryController extends Controller
             'purpose' => $request->purpose,
             'approved_by' => $approvedBy,
             'approved_by_designation' => $approvedByDesignation,
+            'issued_by_name' => $issuedByName,
+            'issued_by_position' => $issuedByPosition,
             'date_issued' => $normalizedDate,
         ];
 
@@ -712,6 +744,8 @@ class InventoryController extends Controller
             'purpose' => ['nullable', 'string', 'max:2000'],
             'approved_by' => ['nullable', 'string', 'max:255'],
             'approved_by_designation' => ['nullable', 'string', 'max:255'],
+            'issued_by_name' => ['nullable', 'string', 'max:255'],
+            'issued_by_position' => ['nullable', 'string', 'max:255'],
             'date_issued' => ['required', 'date'],
             'status' => ['required', 'string', 'in:Pending,Issued,Cancelled'],
         ]);
@@ -740,6 +774,8 @@ class InventoryController extends Controller
             'purpose' => $request->purpose,
             'approved_by' => $request->approved_by,
             'approved_by_designation' => $request->approved_by_designation,
+            'issued_by_name' => $request->issued_by_name,
+            'issued_by_position' => $request->issued_by_position,
             'date_issued' => $normalizedDate,
             'status' => $request->status,
         ];

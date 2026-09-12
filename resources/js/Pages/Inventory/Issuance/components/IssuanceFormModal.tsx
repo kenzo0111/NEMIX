@@ -15,6 +15,8 @@ interface IssuanceFormModalProps {
     divisions?: DivisionGroup[];
     defaultApprovedBy: string;
     defaultApprovedByDesignation: string;
+    defaultIssuedBy: string;
+    defaultIssuedByDesignation: string;
     onSuccessNotification: (message: string) => void;
 }
 
@@ -25,6 +27,8 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
     divisions,
     defaultApprovedBy,
     defaultApprovedByDesignation,
+    defaultIssuedBy,
+    defaultIssuedByDesignation,
     onSuccessNotification,
 }) => {
     const divisionList = divisions && divisions.length > 0 ? divisions : FALLBACK_DIVISIONS;
@@ -38,8 +42,22 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
         purpose: '',
         approved_by: defaultApprovedBy,
         approved_by_designation: defaultApprovedByDesignation,
+        issued_by_name: defaultIssuedBy,
+        issued_by_position: defaultIssuedByDesignation,
         issuances: [{ item_id: '', quantity: '' }] as IssuanceLine[],
     });
+
+    React.useEffect(() => {
+        if (show) {
+            form.setData((prev) => ({
+                ...prev,
+                approved_by: defaultApprovedBy,
+                approved_by_designation: defaultApprovedByDesignation,
+                issued_by_name: defaultIssuedBy,
+                issued_by_position: defaultIssuedByDesignation,
+            }));
+        }
+    }, [show, defaultApprovedBy, defaultApprovedByDesignation, defaultIssuedBy, defaultIssuedByDesignation]);
 
     // Selected division option for react-select
     const selectedDivisionOption = useMemo(() => {
@@ -345,6 +363,28 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                 <input
                                     type="text"
                                     value={form.data.approved_by_designation}
+                                    readOnly
+                                    className="w-full h-10 px-3 bg-gray-100 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 cursor-not-allowed"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                    Issued By (Read-Only)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={form.data.issued_by_name}
+                                    readOnly
+                                    className="w-full h-10 px-3 bg-gray-100 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 cursor-not-allowed"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                    Issued By Designation (Read-Only)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={form.data.issued_by_position}
                                     readOnly
                                     className="w-full h-10 px-3 bg-gray-100 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 cursor-not-allowed"
                                 />

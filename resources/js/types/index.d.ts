@@ -191,6 +191,16 @@ export interface PublicInstitutionBranding {
     logoUrl?: string;
 }
 
+export interface SystemSettings {
+    entity_name: string;
+    default_fund_cluster?: string | null;
+    issued_by_name?: string | null;
+    issued_by_position?: string | null;
+    approved_by_name?: string | null;
+    approved_by_position?: string | null;
+    [key: string]: unknown;
+}
+
 export interface FlashMessages {
     success?: string | null;
     error?: string | null;
@@ -208,6 +218,7 @@ export type PageProps<
         capabilities?: AuthCapabilities;
     };
     branding?: PublicInstitutionBranding;
-    system?: SystemConfigurationState | null;
+    systemSettings?: SystemSettings;
+    system?: (SystemConfigurationState & { settings?: Record<string, any> }) | null;
     flash?: FlashMessages;
 };

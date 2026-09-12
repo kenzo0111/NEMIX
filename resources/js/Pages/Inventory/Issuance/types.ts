@@ -39,6 +39,8 @@ export interface IssuanceRecord {
     approved_by: string;
     approved_by_designation: string;
     issued_by: string;
+    issued_by_name?: string;
+    issued_by_position?: string;
     item?: string;
     sku?: string;
     total_quantity: number;
@@ -94,6 +96,7 @@ export interface IssuancePageProps {
         search?: string;
         recipient?: string;
     };
+    systemSettings?: import('@/types').SystemSettings;
     system?: {
         settings?: Record<string, any>;
     };

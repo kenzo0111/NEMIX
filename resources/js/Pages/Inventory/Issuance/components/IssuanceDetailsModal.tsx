@@ -180,8 +180,8 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                             <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
                                 Issued By
                             </span>
-                            <span className="font-semibold text-gray-900 block">{issuance.issued_by}</span>
-                            <span className="text-[11px] text-gray-500 block">Supply Custodian / Officer</span>
+                            <span className="font-semibold text-gray-900 block">{issuance.issued_by_name || issuance.issued_by}</span>
+                            <span className="text-[11px] text-gray-500 block">{issuance.issued_by_position || 'Supply Custodian / Storekeeper'}</span>
                         </div>
                     </div>
                 </div>

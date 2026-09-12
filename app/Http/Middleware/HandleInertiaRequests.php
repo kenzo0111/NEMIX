@@ -137,6 +137,12 @@ class HandleInertiaRequests extends Middleware
                 'capabilities' => $capabilities,
             ],
             'branding' => $publicBranding,
+            'systemSettings' => [
+                'entity_name' => $publicSettings['entity_name'] ?? 'University of Camarines Norte',
+                'default_fund_cluster' => $publicSettings['default_fund_cluster'] ?? '01 - Regular Agency Fund',
+                'issued_by_name' => $publicSettings['issued_by_name'] ?? 'Supply Custodian / Storekeeper',
+                'issued_by_position' => $publicSettings['issued_by_position'] ?? 'Administrative Aide VI / Storekeeper',
+            ],
             'system' => $user ? [
                 'mode' => $sysConfig->active_mode,
                 'previous_mode' => $sysConfig->previous_mode,

@@ -22,6 +22,9 @@ class Issuance extends Model
         'purpose',
         'approved_by',
         'approved_by_designation',
+        'issued_by_name',
+        'issued_by_position',
+        'snapshot',
         'date_issued',
         'status',
         'issued_by',
@@ -29,6 +32,7 @@ class Issuance extends Model
 
     protected $casts = [
         'date_issued' => 'date',
+        'snapshot' => 'array',
     ];
 
     public function items()
