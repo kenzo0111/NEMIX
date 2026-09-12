@@ -67,10 +67,16 @@ class UpdateSystemSettingsRequest extends FormRequest
                 'signatories.rpci_accountable_officer_designation' => 255,
                 'signatories.rpci_committee_chair' => 255,
                 'signatories.stock_card_custodian' => 255,
+                'signatories.mor_issued_by_name' => 255,
+                'signatories.mor_issued_by_designation' => 255,
+                'signatories.mor_issued_by_office' => 255,
                 'numbering.ris_prefix' => 30,
                 'numbering.rsmi_prefix' => 30,
                 'numbering.rpci_prefix' => 30,
                 'numbering.stock_card_prefix' => 30,
+                'numbering.mor_prefix' => 30,
+                'institution.default_fund_cluster' => 100,
+                'compliance.mor_appendix_number' => 50,
             ];
 
             foreach ($stringLimits as $key => $maxLen) {

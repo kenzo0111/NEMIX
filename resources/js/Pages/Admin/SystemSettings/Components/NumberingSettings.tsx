@@ -19,6 +19,7 @@ export default function NumberingSettings({
     const rsmiPrefix = settings['numbering.rsmi_prefix'] || 'RSMI-';
     const rpciPrefix = settings['numbering.rpci_prefix'] || 'RPCI-';
     const stockPrefix = settings['numbering.stock_card_prefix'] || 'STOCK-';
+    const morPrefix = settings['numbering.mor_prefix'] || 'MR-';
 
     const sequences = [
         {
@@ -52,6 +53,14 @@ export default function NumberingSettings({
             description: 'Bin-level physical stock card identifier',
             resetRule: 'Continuous',
             preview: `${stockPrefix}00542`,
+        },
+        {
+            key: 'numbering.mor_prefix' as const,
+            name: 'Memorandum Receipt for Property (MOR / MR)',
+            shortName: 'MOR / MR',
+            description: 'Property accountability acknowledgment (Appendix 59-A)',
+            resetRule: 'Annual',
+            preview: `${morPrefix}${currentYear}-0028`,
         },
     ];
 

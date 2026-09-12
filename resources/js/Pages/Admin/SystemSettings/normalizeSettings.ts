@@ -8,6 +8,7 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
     'institution.campus_address': 'Daet, Camarines Norte',
     'institution.responsibility_center_code': '01-101-00',
     'institution.logo_path': '/images/ucn-crest.png',
+    'institution.default_fund_cluster': '01 - Regular Agency Fund',
 
     // 2. Signatories
     'signatories.ris_approved_by_name': 'ARSENIO GEM A. GARCILLANOSA',
@@ -27,6 +28,12 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
     'signatories.rpci_committee_chair': 'Inspection Committee Chairman',
 
     'signatories.stock_card_custodian': 'Storekeeper / Property Custodian',
+
+    // 2.5 MOR / Memorandum Receipt
+    'signatories.mor_issued_by_name': 'ARSENIO GEM A. GARCILLANOSA',
+    'signatories.mor_issued_by_designation': 'SUPPLY OFFICER III / PROPERTY CUSTODIAN',
+    'signatories.mor_issued_by_office': 'Supply & Property Management Office (SPMO)',
+    'compliance.mor_appendix_number': 'Appendix 59-A',
 
     // 3. Inventory & Stock Rules
     'inventory.low_stock_threshold': 10,
@@ -51,6 +58,7 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
     'numbering.rsmi_prefix': 'RSMI-',
     'numbering.rpci_prefix': 'RPCI-',
     'numbering.stock_card_prefix': 'STOCK-',
+    'numbering.mor_prefix': 'MR-',
 
     // 5. RFID & Storage
     'rfid.scan_debounce_ms': 1200,
@@ -119,6 +127,7 @@ export function normalizeSystemSettings(
     assignString('institution.campus_address');
     assignString('institution.responsibility_center_code');
     assignString('institution.logo_path');
+    assignString('institution.default_fund_cluster');
 
     // Signatories
     assignString('signatories.ris_approved_by_name');
@@ -136,6 +145,12 @@ export function normalizeSystemSettings(
     assignString('signatories.rpci_committee_chair');
     assignString('signatories.stock_card_custodian');
 
+    // MOR Signatories
+    assignString('signatories.mor_issued_by_name');
+    assignString('signatories.mor_issued_by_designation');
+    assignString('signatories.mor_issued_by_office');
+    assignString('compliance.mor_appendix_number');
+
     // Inventory
     assignNumber('inventory.low_stock_threshold', 1, 1000);
     assignNumber('inventory.critical_stock_threshold', 0, 1000);
@@ -152,6 +167,7 @@ export function normalizeSystemSettings(
     assignString('numbering.rsmi_prefix');
     assignString('numbering.rpci_prefix');
     assignString('numbering.stock_card_prefix');
+    assignString('numbering.mor_prefix');
 
     // RFID
     assignNumber('rfid.scan_debounce_ms', 300, 10000);

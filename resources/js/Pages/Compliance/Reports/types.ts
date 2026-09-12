@@ -45,6 +45,8 @@ export interface ComplianceReport {
     endUser?: string | null;
     fundCluster?: string | null;
     fund_cluster?: string | null;
+    entity_name?: string | null;
+    entityName?: string | null;
     periodType?: ReportPeriodType;
     date?: string | null;
     dateValue?: string | null;
@@ -88,6 +90,10 @@ export interface ReportDatasetResponse {
     generatedDate: string;
     coverageLabel: string;
     title: string;
+    entityName?: string;
+    entity_name?: string;
+    fundCluster?: string;
+    fund_cluster?: string;
     summary: ReportDatasetSummary;
     rsmi?: {
         issuedItems: any[];

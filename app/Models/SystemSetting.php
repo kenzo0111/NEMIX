@@ -60,8 +60,11 @@ class SystemSetting extends Model
      */
     public static function get(string $key, mixed $default = null): mixed
     {
-        return Cache::remember(self::CACHE_KEY_PREFIX . $key, 86400, function () use ($key, $default) {
-            $setting = static::where('key', $key)->first();
+        // Support alias: entity_name -> institution.name
+        $lookupKey = ($key === 'entity_name' || $key === 'entity.name') ? 'institution.name' : $key;
+
+        return Cache::remember(self::CACHE_KEY_PREFIX . $lookupKey, 86400, function () use ($lookupKey, $default) {
+            $setting = static::where('key', $lookupKey)->first();
 
             if (! $setting) {
                 return $default;
@@ -76,7 +79,8 @@ class SystemSetting extends Model
      */
     public static function set(string $key, mixed $value): void
     {
-        $setting = static::where('key', $key)->first();
+        $lookupKey = ($key === 'entity_name' || $key === 'entity.name') ? 'institution.name' : $key;
+        $setting = static::where('key', $lookupKey)->first();
 
         if ($setting) {
             $setting->update([
@@ -111,13 +115,23 @@ class SystemSetting extends Model
     public static function getPublicSettings(): array
     {
         return Cache::remember(self::PUBLIC_CACHE_KEY, 86400, function () {
-            return static::where('is_public', true)
+            $settings = static::where('is_public', true)
                 ->get()
                 ->mapWithKeys(function (SystemSetting $setting) {
                     $cleanKey = str_replace(['.', '-'], '_', $setting->key);
                     return [$cleanKey => static::castValue($setting->value, $setting->data_type)];
                 })
                 ->toArray();
+
+            // Provide centralized canonical aliases for Compliance forms
+            if (isset($settings['institution_name'])) {
+                $settings['entity_name'] = $settings['institution_name'];
+            }
+            if (isset($settings['institution_default_fund_cluster'])) {
+                $settings['default_fund_cluster'] = $settings['institution_default_fund_cluster'];
+            }
+
+            return $settings;
         });
     }
 

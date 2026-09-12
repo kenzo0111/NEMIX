@@ -25,10 +25,15 @@ export default function InstitutionSettings({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {/* Full Institution Name */}
+                {/* Entity Name (Centralized Organization / Institution Setting) */}
                 <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
-                        <span>Full Institution Name</span>
+                        <span className="flex items-center gap-1.5">
+                            <span>Entity Name</span>
+                            <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-red-50 text-red-800 font-bold border border-red-200">
+                                Official COA Header
+                            </span>
+                        </span>
                         <span className="text-red-600 font-normal">*</span>
                     </label>
                     <input
@@ -43,7 +48,29 @@ export default function InstitutionSettings({
                     )}
                     <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-1">
                         <Info className="w-3 h-3 text-slate-400 shrink-0" />
-                        Official header title appearing on all generated reports.
+                        Centralized agency/entity title displayed on all Compliance forms (RIS, RSMI, RPCI, Stock Card, MOR).
+                    </p>
+                </div>
+
+                {/* Default Fund Cluster */}
+                <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
+                        <span>Default Fund Cluster</span>
+                        <span className="text-red-600 font-normal">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        value={settings['institution.default_fund_cluster'] || '01 - Regular Agency Fund'}
+                        onChange={(e) => onChange('institution.default_fund_cluster', e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                        placeholder="01 - Regular Agency Fund"
+                    />
+                    {errors['settings.institution.default_fund_cluster'] && (
+                        <p className="text-xs text-red-600 mt-1">{errors['settings.institution.default_fund_cluster']}</p>
+                    )}
+                    <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-1">
+                        <Info className="w-3 h-3 text-slate-400 shrink-0" />
+                        Default fund cluster auto-populated across newly generated compliance reports.
                     </p>
                 </div>
 

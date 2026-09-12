@@ -80,37 +80,57 @@ class SystemSettingController extends Controller
             foreach ($settingsData as $key => $val) {
                 $setting = SystemSetting::where('key', $key)->first();
 
-                if ($setting) {
-                    $oldVal = SystemSetting::castValue($setting->value, $setting->data_type);
+                if (! $setting) {
+                    // Create if valid known domain setting
+                    $category = explode('.', $key)[0] ?? 'general';
+                    $dataType = is_bool($val) ? 'boolean' : (is_int($val) ? 'integer' : (is_array($val) ? 'json' : 'string'));
+                    $label = ucwords(str_replace(['.', '_'], ' ', $key));
 
-                    // Normalize value based on type
-                    $encodedValue = match ($setting->data_type) {
-                        'integer' => json_encode((int) $val),
-                        'float' => json_encode((float) $val),
-                        'boolean' => json_encode(filter_var($val, FILTER_VALIDATE_BOOLEAN)),
-                        'json', 'array' => json_encode(is_array($val) ? $val : json_decode($val, true)),
-                        default => json_encode(trim((string) $val)),
-                    };
-
-                    $setting->update([
-                        'value' => $encodedValue,
+                    $setting = SystemSetting::create([
+                        'category' => $category,
+                        'key' => $key,
+                        'value' => json_encode($val),
+                        'data_type' => $dataType,
+                        'label' => $label,
+                        'description' => $label,
+                        'is_public' => true,
+                        'is_encrypted' => false,
                     ]);
 
                     $updatedKeys[] = $key;
+                    $auditDiffs[] = "{$key}: [NEW] → " . (is_array($val) ? json_encode($val) : (string) $val);
+                    continue;
+                }
 
-                    // Track audit diff (omitting any potentially sensitive keys)
-                    $isSensitive = str_contains(strtolower($key), 'secret') ||
-                                   str_contains(strtolower($key), 'password') ||
-                                   str_contains(strtolower($key), 'token');
+                $oldVal = SystemSetting::castValue($setting->value, $setting->data_type);
 
-                    if ($isSensitive) {
-                        $auditDiffs[] = "{$key}: [REDACTED]";
-                    } else {
-                        $oldDisplay = is_array($oldVal) ? json_encode($oldVal) : (is_bool($oldVal) ? ($oldVal ? 'true' : 'false') : (string) $oldVal);
-                        $newDisplay = is_array($val) ? json_encode($val) : (is_bool($val) ? ($val ? 'true' : 'false') : (string) $val);
-                        if ($oldDisplay !== $newDisplay) {
-                            $auditDiffs[] = "{$key}: {$oldDisplay} → {$newDisplay}";
-                        }
+                // Normalize value based on type
+                $encodedValue = match ($setting->data_type) {
+                    'integer' => json_encode((int) $val),
+                    'float' => json_encode((float) $val),
+                    'boolean' => json_encode(filter_var($val, FILTER_VALIDATE_BOOLEAN)),
+                    'json', 'array' => json_encode(is_array($val) ? $val : json_decode($val, true)),
+                    default => json_encode(trim((string) $val)),
+                };
+
+                $setting->update([
+                    'value' => $encodedValue,
+                ]);
+
+                $updatedKeys[] = $key;
+
+                // Track audit diff (omitting any potentially sensitive keys)
+                $isSensitive = str_contains(strtolower($key), 'secret') ||
+                               str_contains(strtolower($key), 'password') ||
+                               str_contains(strtolower($key), 'token');
+
+                if ($isSensitive) {
+                    $auditDiffs[] = "{$key}: [REDACTED]";
+                } else {
+                    $oldDisplay = is_array($oldVal) ? json_encode($oldVal) : (is_bool($oldVal) ? ($oldVal ? 'true' : 'false') : (string) $oldVal);
+                    $newDisplay = is_array($val) ? json_encode($val) : (is_bool($val) ? ($val ? 'true' : 'false') : (string) $val);
+                    if ($oldDisplay !== $newDisplay) {
+                        $auditDiffs[] = "{$key}: {$oldDisplay} → {$newDisplay}";
                     }
                 }
             }

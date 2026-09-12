@@ -10,6 +10,7 @@ export interface SystemSettings {
     'institution.campus_address': string;
     'institution.responsibility_center_code': string;
     'institution.logo_path': string;
+    'institution.default_fund_cluster': string;
 
     // 2. Signatories
     'signatories.ris_approved_by_name': string;
@@ -30,6 +31,12 @@ export interface SystemSettings {
 
     'signatories.stock_card_custodian': string;
 
+    // 2.5 MOR / Memorandum Receipt Signatories
+    'signatories.mor_issued_by_name': string;
+    'signatories.mor_issued_by_designation': string;
+    'signatories.mor_issued_by_office': string;
+    'compliance.mor_appendix_number': string;
+
     // 3. Inventory & Stock Rules
     'inventory.low_stock_threshold': number;
     'inventory.critical_stock_threshold': number;
@@ -41,6 +48,7 @@ export interface SystemSettings {
     'numbering.rsmi_prefix': string;
     'numbering.rpci_prefix': string;
     'numbering.stock_card_prefix': string;
+    'numbering.mor_prefix': string;
 
     // 5. RFID & Storage
     'rfid.scan_debounce_ms': number;

@@ -8,6 +8,7 @@ use App\Models\Compliance\RsmiMigratedRecord;
 use App\Models\Compliance\StockCardMigratedRecord;
 use App\Models\ComplianceMigratedRecord;
 use App\Models\ComplianceReport;
+use App\Models\SystemSetting;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,22 @@ class ComplianceReportDataService
     public function __construct()
     {
         $this->timezone = config('app.timezone', 'Asia/Manila');
+    }
+
+    /**
+     * Centralized system entity name from System Settings.
+     */
+    public function getSystemEntityName(): string
+    {
+        return \App\Models\SystemSetting::get('institution.name', 'University of Camarines Norte');
+    }
+
+    /**
+     * Default fund cluster configured in System Settings.
+     */
+    public function getDefaultFundCluster(): string
+    {
+        return \App\Models\SystemSetting::get('institution.default_fund_cluster', '01 - Regular Agency Fund');
     }
 
     /**
@@ -195,7 +212,7 @@ class ComplianceReportDataService
                                 'unitCost' => $unitCost,
                                 'amount' => $amount,
                                 'date' => $normDate,
-                                'entity_name' => 'University of Camarines Norte',
+                                'entity_name' => $this->getSystemEntityName(),
                                 'fund_cluster' => $fundCluster,
                             ];
                         });
@@ -217,7 +234,7 @@ class ComplianceReportDataService
                         'unitCost' => $unitCost,
                         'amount' => $amount,
                         'date' => $normDate,
-                        'entity_name' => 'University of Camarines Norte',
+                        'entity_name' => $this->getSystemEntityName(),
                         'fund_cluster' => $fundCluster,
                     ]];
                 });
@@ -254,8 +271,8 @@ class ComplianceReportDataService
                         'unitCost' => $cost,
                         'amount' => $amt,
                         'date' => $this->normalizeDate($rec->date ?? data_get($raw, 'date')),
-                        'entity_name' => $rec->entity_name ?? data_get($raw, 'entity_name') ?? 'University of Camarines Norte',
-                        'fund_cluster' => $rec->fund_cluster ?? data_get($raw, 'fund_cluster') ?? '01 - Regular Agency Fund',
+                        'entity_name' => $rec->entity_name ?? data_get($raw, 'entity_name') ?? $this->getSystemEntityName(),
+                        'fund_cluster' => $rec->fund_cluster ?? data_get($raw, 'fund_cluster') ?? $this->getDefaultFundCluster(),
                     ];
                 });
 
@@ -288,8 +305,8 @@ class ComplianceReportDataService
                         'unitCost' => $cost,
                         'amount' => $amt,
                         'date' => $this->normalizeDate($rec->date),
-                        'entity_name' => 'University of Camarines Norte',
-                        'fund_cluster' => '01 - Regular Agency Fund',
+                        'entity_name' => $this->getSystemEntityName(),
+                        'fund_cluster' => $this->getDefaultFundCluster(),
                     ];
                 });
 
@@ -343,8 +360,10 @@ class ComplianceReportDataService
                 'totalUnits' => $totalUnits,
                 'totalAmount' => $totalAmount,
             ],
-            'entityName' => $records->first()['entity_name'] ?? 'University of Camarines Norte',
-            'fundCluster' => $records->first()['fund_cluster'] ?? '01 - Regular Agency Fund',
+            'entityName' => $this->getSystemEntityName(),
+            'entity_name' => $this->getSystemEntityName(),
+            'fundCluster' => $records->first()['fund_cluster'] ?? $this->getDefaultFundCluster(),
+            'fund_cluster' => $records->first()['fund_cluster'] ?? $this->getDefaultFundCluster(),
         ];
     }
 
@@ -434,8 +453,10 @@ class ComplianceReportDataService
                 'totalQuantity' => $items->sum('balance_per_card'),
                 'totalValue' => $totalValue,
             ],
-            'entity_name' => 'University of Camarines Norte',
-            'fund_cluster' => '01 - Regular Agency Fund',
+            'entity_name' => $this->getSystemEntityName(),
+            'entityName' => $this->getSystemEntityName(),
+            'fund_cluster' => $this->getDefaultFundCluster(),
+            'fundCluster' => $this->getDefaultFundCluster(),
         ];
     }
 
@@ -454,6 +475,10 @@ class ComplianceReportDataService
                 're_order_point' => '-',
                 'entries' => [],
                 'summary' => ['recordCount' => 0, 'currentBalance' => 0],
+                'entity_name' => $this->getSystemEntityName(),
+                'entityName' => $this->getSystemEntityName(),
+                'fund_cluster' => $this->getDefaultFundCluster(),
+                'fundCluster' => $this->getDefaultFundCluster(),
             ];
         }
 
@@ -632,23 +657,26 @@ class ComplianceReportDataService
                 'receipt_qty' => '',
                 'issue_qty' => '',
                 'issue_office' => '',
-                'balance_qty' => $openingBalance > 0 ? $openingBalance : ($currentStock > 0 ? $currentStock : ''),
+                'balance_qty' => $openingBalance,
                 'days_to_consume' => '',
             ];
         }
 
         foreach ($sorted as $tx) {
-            $rQty = (int) ($tx['receipt_qty'] ?: 0);
-            $iQty = (int) ($tx['issue_qty'] ?: 0);
-            $runningBalance = $runningBalance + $rQty - $iQty;
+            if ($tx['receipt_qty']) {
+                $runningBalance += (int)$tx['receipt_qty'];
+            }
+            if ($tx['issue_qty']) {
+                $runningBalance -= (int)$tx['issue_qty'];
+            }
 
             $entries[] = [
                 'date' => $tx['date'] ?? '',
                 'reference' => $tx['reference'] ?? '',
                 'receipt_qty' => $tx['receipt_qty'] ?? '',
                 'issue_qty' => $tx['issue_qty'] ?? '',
-                'balance_qty' => isset($tx['balance_qty']) ? $tx['balance_qty'] : max(0, $runningBalance),
                 'issue_office' => $tx['issue_office'] ?? '',
+                'balance_qty' => $tx['balance_qty'] ?? max(0, $runningBalance),
                 'days_to_consume' => $tx['days_to_consume'] ?? '',
             ];
         }
@@ -664,8 +692,10 @@ class ComplianceReportDataService
                 'recordCount' => count($entries),
                 'currentBalance' => max(0, $runningBalance),
             ],
-            'entity_name' => 'University of Camarines Norte',
-            'fund_cluster' => '01 - Regular Agency Fund',
+            'entity_name' => $this->getSystemEntityName(),
+            'entityName' => $this->getSystemEntityName(),
+            'fund_cluster' => $this->getDefaultFundCluster(),
+            'fundCluster' => $this->getDefaultFundCluster(),
         ];
     }
 
@@ -698,19 +728,19 @@ class ComplianceReportDataService
                     if ($iss->items->isNotEmpty()) {
                         return $iss->items->map(function ($line) use ($iss, $dt, $recipient, $designation, $department) {
                             $item = $line->item;
-                            $qty = (int) ($line->quantity ?? 1);
+                            $qty = (int) $line->quantity;
                             $cost = (float) ($line->unit_cost ?? $item?->unit_cost ?? 0);
-                            $total = (float) ($line->amount ?? ($qty * $cost));
+                            $propNo = $line->property_number ?? $item?->sku ?? $line->id;
 
                             return [
                                 'source' => 'live',
                                 'quantity' => $qty,
                                 'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
-                                'description' => $item?->name ?? 'Property Item',
-                                'propertyNo' => $item?->sku ?? ('PROP-' . $iss->id),
+                                'description' => $item?->name ?? 'Inventory Item',
+                                'propertyNo' => (string) $propNo,
                                 'dateAcquired' => $this->normalizeDate($dt),
                                 'unitValue' => $cost,
-                                'totalValue' => $total,
+                                'totalValue' => $qty * $cost,
                                 'recipient' => $recipient,
                                 'designation' => $designation,
                                 'department' => $department,
@@ -721,17 +751,16 @@ class ComplianceReportDataService
                     $item = $iss->item;
                     $qty = (int) ($iss->quantity ?? 1);
                     $cost = (float) ($item?->unit_cost ?? 0);
-                    $total = $qty * $cost;
 
                     return [[
                         'source' => 'live',
                         'quantity' => $qty,
                         'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
-                        'description' => $item?->name ?? 'Property Item',
-                        'propertyNo' => $item?->sku ?? ('PROP-' . $iss->id),
+                        'description' => $item?->name ?? 'Inventory Item',
+                        'propertyNo' => (string) ($item?->sku ?? $iss->id),
                         'dateAcquired' => $this->normalizeDate($dt),
                         'unitValue' => $cost,
-                        'totalValue' => $total,
+                        'totalValue' => $qty * $cost,
                         'recipient' => $recipient,
                         'designation' => $designation,
                         'department' => $department,
@@ -741,26 +770,28 @@ class ComplianceReportDataService
             $records = $records->concat($issuances);
         }
 
-        // 2. Migrated MR records
+        // 2. Migrated Memorandum Receipt records
         if (Schema::hasTable('memorandum_receipt_migrated_records')) {
             $migrated = MemorandumReceiptMigratedRecord::query()
                 ->latest()
                 ->get()
                 ->filter(function ($rec) use ($endUserLower, $filters) {
-                    $raw = $rec->raw_data ?? [];
-                    $recip = strtolower((string)($rec->received_by ?? data_get($raw, 'recipient') ?? ''));
-                    if ($endUserLower && $recip !== $endUserLower) {
-                        return false;
+                    if ($endUserLower) {
+                        $matchUser = strtolower((string)$rec->received_by) === $endUserLower ||
+                                     strtolower((string)data_get($rec->raw_data, 'recipient')) === $endUserLower;
+                        if (! $matchUser) {
+                            return false;
+                        }
                     }
-                    $dt = $rec->date_received ?? data_get($raw, 'date');
+                    $dt = $rec->date_received ?? data_get($rec->raw_data, 'date');
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
                 })
                 ->map(function ($rec) {
                     $raw = $rec->raw_data ?? [];
-                    $qty = (int) (data_get($raw, 'quantity') ?? 1);
-                    $cost = (float) (data_get($raw, 'unit_cost') ?? 0);
-                    $desc = data_get($raw, 'item_name') ?? $rec->remarks ?? 'Property Item';
-                    $propNo = data_get($raw, 'property_no') ?? $rec->memorial_no ?? ('MR-HIST-' . $rec->id);
+                    $qty = (int) (data_get($raw, 'quantity') ?? data_get($raw, 'qty') ?? 1);
+                    $cost = (float) (data_get($raw, 'unit_cost') ?? data_get($raw, 'unit_value') ?? data_get($raw, 'cost') ?? 0);
+                    $propNo = data_get($raw, 'stock_no') ?? data_get($raw, 'property_no') ?? $rec->memorial_no ?? ('MR-HIST-' . $rec->id);
+                    $desc = data_get($raw, 'item_name') ?? data_get($raw, 'item') ?? data_get($raw, 'description') ?? $rec->remarks ?? 'Property Item';
 
                     return [
                         'source' => 'migration',
@@ -794,8 +825,14 @@ class ComplianceReportDataService
                 'totalQuantity' => $records->sum('quantity'),
                 'totalValue' => $totalVal,
             ],
-            'entityName' => 'University of Camarines Norte',
-            'fundCluster' => '01 - Regular Agency Fund',
+            'entityName' => $this->getSystemEntityName(),
+            'entity_name' => $this->getSystemEntityName(),
+            'fundCluster' => $this->getDefaultFundCluster(),
+            'fund_cluster' => $this->getDefaultFundCluster(),
+            'issuedByName' => SystemSetting::get('signatories.mor_issued_by_name', 'ARSENIO GEM A. GARCILLANOSA'),
+            'issuedByPosition' => SystemSetting::get('signatories.mor_issued_by_designation', 'SUPPLY OFFICER III / PROPERTY CUSTODIAN'),
+            'issuedByOffice' => SystemSetting::get('signatories.mor_issued_by_office', 'Supply & Property Management Office (SPMO)'),
+            'appendixNumber' => SystemSetting::get('compliance.mor_appendix_number', 'Appendix 59-A'),
         ];
     }
 
@@ -811,12 +848,18 @@ class ComplianceReportDataService
             : $this->generateUniqueReference($genDate);
 
         $coverageLabel = $this->buildCoverageLabel($filters);
+        $systemEntity = $this->getSystemEntityName();
+        $defaultFund = $this->getDefaultFundCluster();
 
         $dataset = [
             'type' => $type,
             'reference' => $reference,
             'generatedDate' => $genDate,
             'coverageLabel' => $coverageLabel,
+            'entity_name' => $systemEntity,
+            'entityName' => $systemEntity,
+            'fund_cluster' => $defaultFund,
+            'fundCluster' => $defaultFund,
             'filters' => $filters,
         ];
 
@@ -845,6 +888,8 @@ class ComplianceReportDataService
 
             case 'MR':
             case 'MOR':
+            case 'MEMORANDUM_RECEIPT':
+            case 'MEMORANDUM RECEIPT':
                 $data = $this->getMemorandumReceiptRecords($filters);
                 $dataset['mr'] = $data;
                 $dataset['summary'] = $data['summary'];

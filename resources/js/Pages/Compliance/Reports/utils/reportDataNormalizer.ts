@@ -53,6 +53,7 @@ export interface NormalizedReportData {
         issuedByOffice: string;
         issuedByDate: string;
         grandTotal?: number | string;
+        appendixNumber?: string;
     };
 }
 
@@ -105,21 +106,44 @@ export function normalizeReportPaperData(
         fallbackFormData?.title ||
         `${type} Report`;
 
-    const institutionName =
-        publicSettings['institution_name'] ||
-        payload?.entityName ||
+    // Check if this is a saved report with a preserved historical entity name snapshot
+    const savedEntityName =
         payload?.entity_name ||
-        snapshot?.entityName ||
+        payload?.entityName ||
         snapshot?.entity_name ||
-        'University of Camarines Norte';
+        snapshot?.entityName ||
+        snapshot?.rsmi?.entityName ||
+        snapshot?.rpci?.entity_name ||
+        snapshot?.stockCard?.entity_name ||
+        snapshot?.mr?.entityName;
 
-    const defaultFundCluster = formatFundClusterDisplay(
+    // Active centralized System Settings value
+    const currentSystemEntityName =
+        publicSettings['entity_name'] ||
+        publicSettings['institution_name'] ||
+        publicSettings['institution.name'];
+
+    // If viewing an existing saved historical report, preserve its snapshot.
+    // If previewing or newly generating a report, ALWAYS use the latest active System Setting.
+    const resolvedEntityName = isSavedReport
+        ? (savedEntityName || currentSystemEntityName || 'University of Camarines Norte')
+        : (currentSystemEntityName || dataset?.entityName || dataset?.entity_name || 'University of Camarines Norte');
+
+    const savedFundCluster =
         payload?.fundCluster ||
         payload?.fund_cluster ||
         snapshot?.fundCluster ||
-        snapshot?.fund_cluster ||
-        fallbackFormData?.fundCluster ||
-        '01 - Regular Agency Fund',
+        snapshot?.fund_cluster;
+
+    const currentSystemFundCluster =
+        publicSettings['default_fund_cluster'] ||
+        publicSettings['institution_default_fund_cluster'] ||
+        '01 - Regular Agency Fund';
+
+    const defaultFundCluster = formatFundClusterDisplay(
+        isSavedReport
+            ? (savedFundCluster || fallbackFormData?.fundCluster || currentSystemFundCluster)
+            : (fallbackFormData?.fundCluster || currentSystemFundCluster),
     );
 
     // 1. RSMI Normalization
@@ -147,11 +171,9 @@ export function normalizeReportPaperData(
             snapshot.recapitulation ||
             [];
 
-        const entityName =
-            rsmiSource.entityName ||
-            rsmiSource.entity_name ||
-            payload.entityName ||
-            institutionName;
+        const entityName = isSavedReport
+            ? (savedEntityName || rsmiSource.entityName || rsmiSource.entity_name || resolvedEntityName)
+            : resolvedEntityName;
 
         const fundCluster = formatFundClusterDisplay(
             rsmiSource.fundCluster ||
@@ -207,11 +229,9 @@ export function normalizeReportPaperData(
             snapshot.items ||
             [];
 
-        const entity_name =
-            rpciSource.entity_name ||
-            rpciSource.entityName ||
-            payload.entity_name ||
-            institutionName;
+        const entity_name = isSavedReport
+            ? (savedEntityName || rpciSource.entity_name || rpciSource.entityName || resolvedEntityName)
+            : resolvedEntityName;
 
         const fund_cluster = formatFundClusterDisplay(
             rpciSource.fund_cluster ||
@@ -267,11 +287,9 @@ export function normalizeReportPaperData(
             snapshot.entries ||
             [];
 
-        const entity_name =
-            scSource.entity_name ||
-            scSource.entityName ||
-            payload.entity_name ||
-            institutionName;
+        const entity_name = isSavedReport
+            ? (savedEntityName || scSource.entity_name || scSource.entityName || resolvedEntityName)
+            : resolvedEntityName;
 
         const fund_cluster = formatFundClusterDisplay(
             scSource.fund_cluster ||
@@ -342,11 +360,9 @@ export function normalizeReportPaperData(
             snapshot.items ||
             [];
 
-        const entityName =
-            mrSource.entityName ||
-            mrSource.entity_name ||
-            payload.entityName ||
-            institutionName;
+        const entityName = isSavedReport
+            ? (savedEntityName || mrSource.entityName || mrSource.entity_name || resolvedEntityName)
+            : resolvedEntityName;
 
         const fundCluster = formatFundClusterDisplay(
             mrSource.fundCluster ||
@@ -379,18 +395,35 @@ export function normalizeReportPaperData(
             payload.grandTotal ||
             0;
 
+        const appendixNumber =
+            publicSettings['compliance_mor_appendix_number'] ||
+            publicSettings['compliance.mor_appendix_number'] ||
+            payload.appendixNumber ||
+            snapshot?.appendixNumber ||
+            'Appendix 59-A';
+
         const issuedByName =
+            publicSettings['signatories_mor_issued_by_name'] ||
+            publicSettings['signatories.mor_issued_by_name'] ||
+            mrSource.issuedByName ||
             payload.issuedByName ||
             user?.name ||
             'ARSENIO GEM A. GARCILLANOSA';
 
         const issuedByPosition =
+            publicSettings['signatories_mor_issued_by_designation'] ||
+            publicSettings['signatories.mor_issued_by_designation'] ||
+            mrSource.issuedByPosition ||
             payload.issuedByPosition ||
             'SUPPLY OFFICER III / PROPERTY CUSTODIAN';
 
         const issuedByOffice =
+            publicSettings['signatories_mor_issued_by_office'] ||
+            publicSettings['signatories.mor_issued_by_office'] ||
+            publicSettings['institution_custodial_office'] ||
+            mrSource.issuedByOffice ||
             payload.issuedByOffice ||
-            'Supply & Property Division';
+            'Supply & Property Management Office (SPMO)';
 
         return {
             type: 'MR',
@@ -413,6 +446,7 @@ export function normalizeReportPaperData(
                 issuedByOffice,
                 issuedByDate: formattedDate,
                 grandTotal,
+                appendixNumber,
             },
         };
     }

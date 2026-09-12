@@ -202,7 +202,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
           </div>
           <span>,</span>
           <div style={{ flex: '1 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '3px', minWidth: '110px' }}>
-            {data.entity_name || 'University of Camarines Norte'}
+            {data.entity_name || '\u00A0'}
           </div>
           <span style={{ marginLeft: '3px' }}>is accountable, having assumed such accountability on</span>
           <div style={{ flex: '0 0 110px', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '3px', minWidth: '80px' }}>

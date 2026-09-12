@@ -75,7 +75,7 @@ class ComplianceReportController extends Controller
                     'department' => $record->center_code ?? $record->entity_name ?? data_get($raw, 'department'),
                     'responsibility_center_code' => $record->center_code ?? data_get($raw, 'responsibility_center_code'),
                     'center_code' => $record->center_code,
-                    'entity_name' => $record->entity_name ?? data_get($raw, 'entity_name') ?? 'University of Camarines Norte',
+                    'entity_name' => $record->entity_name ?? data_get($raw, 'entity_name') ?? \App\Models\SystemSetting::get('institution.name', 'University of Camarines Norte'),
                     'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no'),
                     'unit' => $record->unit ?? data_get($raw, 'unit') ?? 'pc',
                     'unit_cost' => $record->unit_cost ?? data_get($raw, 'unit_cost'),
@@ -93,7 +93,7 @@ class ComplianceReportController extends Controller
                         'fund_cluster' => $record->fund_cluster ?? data_get($raw, 'fund_cluster') ?? '01 - Regular Agency Fund',
                         'center_code' => $record->center_code,
                         'responsibility_center_code' => $record->center_code,
-                        'entity_name' => $record->entity_name ?? 'University of Camarines Norte',
+                        'entity_name' => $record->entity_name ?? \App\Models\SystemSetting::get('institution.name', 'University of Camarines Norte'),
                         'quantity_issued' => $record->quantity_issued,
                         'item_name' => $record->item,
                         'ris_no' => $record->ris_no ?? $record->serial_no,
@@ -148,7 +148,7 @@ class ComplianceReportController extends Controller
                     'designation' => data_get($raw, 'designation'),
                     'condition' => $record->condition,
                     'remarks' => $record->remarks ?? data_get($raw, 'remarks'),
-                    'entity_name' => $record->entity_name ?? data_get($raw, 'entity_name') ?? 'University of Camarines Norte',
+                    'entity_name' => $record->entity_name ?? data_get($raw, 'entity_name') ?? \App\Models\SystemSetting::get('institution.name', 'University of Camarines Norte'),
                     'fund_cluster' => $record->fund_cluster ?? data_get($raw, 'fund_cluster') ?? '01 - Regular Agency Fund',
                     'date' => $recordDate,
                     'status' => 'historical_migration',
@@ -355,6 +355,8 @@ class ComplianceReportController extends Controller
                         'selectedMonth' => $report->selected_month,
                         'selectedYear' => $report->selected_year,
                         'generatedDate' => $generatedDate,
+                        'entity_name' => $report->entity_name,
+                        'fund_cluster' => $report->fund_cluster,
                         'createdAt' => optional($report->created_at)->timezone($tz)->toIso8601String(),
                         'created_at' => optional($report->created_at)->timezone($tz)->toIso8601String(),
                     ];
@@ -509,6 +511,25 @@ class ComplianceReportController extends Controller
             $snapshot = $dataService->getReportDataset($synthFilters);
         }
 
+        $currentSystemEntity = \App\Models\SystemSetting::get('institution.name', 'University of Camarines Norte');
+        $currentSystemFundCluster = \App\Models\SystemSetting::get('institution.default_fund_cluster', '01 - Regular Agency Fund');
+
+        $activeEntityName = data_get($rawSnapshot, 'entity_name')
+            ?? data_get($rawSnapshot, 'entityName')
+            ?? data_get($rawPayload, 'entity_name')
+            ?? data_get($rawPayload, 'entityName')
+            ?? data_get($snapshot, 'entity_name')
+            ?? data_get($snapshot, 'entityName')
+            ?? $currentSystemEntity;
+
+        $activeFundCluster = data_get($rawSnapshot, 'fund_cluster')
+            ?? data_get($rawSnapshot, 'fundCluster')
+            ?? data_get($rawPayload, 'fund_cluster')
+            ?? data_get($rawPayload, 'fundCluster')
+            ?? data_get($snapshot, 'fund_cluster')
+            ?? data_get($snapshot, 'fundCluster')
+            ?? $currentSystemFundCluster;
+
         // Build fully populated, standardized payload
         $payload = is_array($rawPayload) ? $rawPayload : [];
         $payload['generatedDate'] = $generatedDate;
@@ -516,26 +537,60 @@ class ComplianceReportController extends Controller
         $payload['reference'] = $reference;
         $payload['title'] = $validated['title'];
         $payload['type'] = $validated['type'];
+        $payload['entity_name'] = $activeEntityName;
+        $payload['entityName'] = $activeEntityName;
+        $payload['fund_cluster'] = $activeFundCluster;
+        $payload['fundCluster'] = $activeFundCluster;
+
+        if (is_array($snapshot)) {
+            $snapshot['entity_name'] = $activeEntityName;
+            $snapshot['entityName'] = $activeEntityName;
+            $snapshot['fund_cluster'] = $activeFundCluster;
+            $snapshot['fundCluster'] = $activeFundCluster;
+        }
+
         $payload['snapshot'] = $snapshot;
         $payload['dataset'] = $snapshot;
 
         if ($type === 'RSMI') {
             $rsmiData = data_get($snapshot, 'rsmi') ?? $snapshot;
+            if (is_array($rsmiData)) {
+                $rsmiData['entityName'] = $activeEntityName;
+                $rsmiData['entity_name'] = $activeEntityName;
+                $rsmiData['fundCluster'] = $activeFundCluster;
+                $rsmiData['fund_cluster'] = $activeFundCluster;
+            }
             $payload['rsmi'] = $rsmiData;
             $payload['issuedItems'] = data_get($rsmiData, 'issuedItems', data_get($payload, 'issuedItems', []));
             $payload['recapitulationItems'] = data_get($rsmiData, 'recapitulationItems', data_get($payload, 'recapitulationItems', []));
             $payload['summary'] = data_get($rsmiData, 'summary', data_get($snapshot, 'summary', []));
-            $payload['entityName'] = data_get($rsmiData, 'entityName', data_get($payload, 'entityName'));
-            $payload['fundCluster'] = data_get($rsmiData, 'fundCluster', data_get($payload, 'fundCluster'));
+            $payload['entityName'] = $activeEntityName;
+            $payload['entity_name'] = $activeEntityName;
+            $payload['fundCluster'] = $activeFundCluster;
+            $payload['fund_cluster'] = $activeFundCluster;
         } elseif ($type === 'RPCI') {
             $rpciData = data_get($snapshot, 'rpci') ?? $snapshot;
+            if (is_array($rpciData)) {
+                $rpciData['entity_name'] = $activeEntityName;
+                $rpciData['entityName'] = $activeEntityName;
+                $rpciData['fund_cluster'] = $activeFundCluster;
+                $rpciData['fundCluster'] = $activeFundCluster;
+            }
             $payload['rpci'] = $rpciData;
             $payload['items'] = data_get($rpciData, 'items', data_get($payload, 'items', []));
             $payload['summary'] = data_get($rpciData, 'summary', data_get($snapshot, 'summary', []));
-            $payload['entity_name'] = data_get($rpciData, 'entity_name', data_get($payload, 'entity_name'));
-            $payload['fund_cluster'] = data_get($rpciData, 'fund_cluster', data_get($payload, 'fund_cluster'));
+            $payload['entity_name'] = $activeEntityName;
+            $payload['entityName'] = $activeEntityName;
+            $payload['fund_cluster'] = $activeFundCluster;
+            $payload['fundCluster'] = $activeFundCluster;
         } elseif ($type === 'STOCK_CARD' || $type === 'STOCKCARD') {
             $scData = data_get($snapshot, 'stockCard') ?? $snapshot;
+            if (is_array($scData)) {
+                $scData['entity_name'] = $activeEntityName;
+                $scData['entityName'] = $activeEntityName;
+                $scData['fund_cluster'] = $activeFundCluster;
+                $scData['fundCluster'] = $activeFundCluster;
+            }
             $payload['stockCard'] = $scData;
             $payload['entries'] = data_get($scData, 'entries', data_get($payload, 'entries', []));
             $payload['summary'] = data_get($scData, 'summary', data_get($snapshot, 'summary', []));
@@ -544,10 +599,18 @@ class ComplianceReportController extends Controller
             $payload['description'] = data_get($scData, 'description', data_get($payload, 'description'));
             $payload['re_order_point'] = data_get($scData, 're_order_point', data_get($payload, 're_order_point'));
             $payload['unit_of_measurement'] = data_get($scData, 'unit_of_measurement', data_get($payload, 'unit_of_measurement'));
-            $payload['entity_name'] = data_get($scData, 'entity_name', data_get($payload, 'entity_name'));
-            $payload['fund_cluster'] = data_get($scData, 'fund_cluster', data_get($payload, 'fund_cluster'));
+            $payload['entity_name'] = $activeEntityName;
+            $payload['entityName'] = $activeEntityName;
+            $payload['fund_cluster'] = $activeFundCluster;
+            $payload['fundCluster'] = $activeFundCluster;
         } elseif ($type === 'MR' || $type === 'MOR') {
             $mrData = data_get($snapshot, 'mr') ?? $snapshot;
+            if (is_array($mrData)) {
+                $mrData['entityName'] = $activeEntityName;
+                $mrData['entity_name'] = $activeEntityName;
+                $mrData['fundCluster'] = $activeFundCluster;
+                $mrData['fund_cluster'] = $activeFundCluster;
+            }
             $payload['mr'] = $mrData;
             $payload['items'] = data_get($mrData, 'items', data_get($payload, 'items', []));
             $payload['summary'] = data_get($mrData, 'summary', data_get($snapshot, 'summary', []));
@@ -555,8 +618,10 @@ class ComplianceReportController extends Controller
             $payload['receivedByPosition'] = data_get($mrData, 'receivedByPosition', data_get($payload, 'receivedByPosition'));
             $payload['receivedByOffice'] = data_get($mrData, 'receivedByOffice', data_get($payload, 'receivedByOffice'));
             $payload['grandTotal'] = data_get($mrData, 'grandTotal', data_get($payload, 'grandTotal'));
-            $payload['entityName'] = data_get($mrData, 'entityName', data_get($payload, 'entityName'));
-            $payload['fundCluster'] = data_get($mrData, 'fundCluster', data_get($payload, 'fundCluster'));
+            $payload['entityName'] = $activeEntityName;
+            $payload['entity_name'] = $activeEntityName;
+            $payload['fundCluster'] = $activeFundCluster;
+            $payload['fund_cluster'] = $activeFundCluster;
         }
 
         ComplianceReport::create([

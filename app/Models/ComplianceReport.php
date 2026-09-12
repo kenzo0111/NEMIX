@@ -38,4 +38,29 @@ class ComplianceReport extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function getEntityNameAttribute(): ?string
+    {
+        return data_get($this->payload, 'entity_name')
+            ?? data_get($this->payload, 'entityName')
+            ?? data_get($this->payload, 'snapshot.entity_name')
+            ?? data_get($this->payload, 'snapshot.entityName')
+            ?? data_get($this->payload, 'dataset.entity_name')
+            ?? data_get($this->payload, 'dataset.entityName');
+    }
+
+    public function getFundClusterAttribute(): ?string
+    {
+        return data_get($this->payload, 'fund_cluster')
+            ?? data_get($this->payload, 'fundCluster')
+            ?? data_get($this->payload, 'snapshot.fund_cluster')
+            ?? data_get($this->payload, 'snapshot.fundCluster');
+    }
+
+    public function getSnapshotDataAttribute(): array
+    {
+        return data_get($this->payload, 'snapshot')
+            ?? data_get($this->payload, 'dataset')
+            ?? [];
+    }
 }

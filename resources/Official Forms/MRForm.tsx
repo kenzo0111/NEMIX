@@ -14,6 +14,7 @@ export interface MrItem {
 }
 
 export interface MrData {
+  appendixNumber?: string;
   entityName?: string;
   fundCluster?: string;
   mrNo?: string;
@@ -236,7 +237,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
 
       <div className="mr-container">
         {/* Header Appendix */}
-        <div className="header-appendix">Appendix 59-A</div>
+        <div className="header-appendix">{data.appendixNumber || 'Appendix 59-A'}</div>
 
         {/* Form Title */}
         <div className="main-title">MEMORANDUM RECEIPT FOR PROPERTY</div>
