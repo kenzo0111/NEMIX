@@ -4,22 +4,41 @@ namespace App\Http\Controllers\Compliance;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use Modules\Inventory\Models\InventoryBatch;
+use Modules\Inventory\Models\Item;
+use Modules\Inventory\Services\InventoryValuationService;
 
 class ComplianceAnalyticsController extends Controller
 {
     public function index(Request $request): Response
     {
-        $items = class_exists(\Modules\Inventory\Models\Item::class)
-            ? \Modules\Inventory\Models\Item::query()->latest()->get()->map(function ($item) {
+        // Batch-level remaining valuations per item (if batches exist)
+        $batchItemValuations = [];
+        if (class_exists(InventoryBatch::class) && InventoryBatch::whereNull('deleted_at')->exists()) {
+            $batchItemValuations = InventoryBatch::whereNull('deleted_at')
+                ->where('quantity_remaining', '>', 0)
+                ->groupBy('item_id')
+                ->select('item_id', DB::raw('SUM(quantity_remaining * COALESCE(unit_cost, 0)) as total_val'))
+                ->pluck('total_val', 'item_id')
+                ->all();
+        }
+
+        $items = class_exists(Item::class)
+            ? Item::query()->latest()->get()->map(function ($item) use ($batchItemValuations) {
+                $itemAmount = isset($batchItemValuations[$item->id])
+                    ? (float) $batchItemValuations[$item->id]
+                    : ($item->amount !== null && (float) $item->amount > 0 ? (float) $item->amount : (float) $item->stock * (float) ($item->unit_cost ?? 0));
+
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
                     'sku' => $item->sku ?? 'No SKU',
                     'stock' => (int) $item->stock,
                     'unitCost' => (float) ($item->unit_cost ?? 0),
-                    'amount' => (float) ($item->amount ?? 0),
+                    'amount' => round($itemAmount, 2),
                     'status' => $item->status,
                     'unitOfIssue' => $item->unit_of_issue ?? 'Pcs',
                     'description' => $item->description,
@@ -27,30 +46,17 @@ class ComplianceAnalyticsController extends Controller
             })
             : collect();
 
-        $supplierItemValues = [];
-        if (class_exists(\Modules\Inventory\Models\Item::class)) {
-            \Modules\Inventory\Models\Item::all(['supplier_id', 'stock', 'unit_cost', 'amount'])->each(function ($item) use (&$supplierItemValues) {
-                if ($item->supplier_id === null) return;
-                $supplierId = (string) $item->supplier_id;
-                $itemAmount = $item->amount !== null ? (float) $item->amount : (float) $item->stock * (float) $item->unit_cost;
-                $supplierItemValues[$supplierId] = ($supplierItemValues[$supplierId] ?? 0) + $itemAmount;
-            });
-        }
-
-        $totalSupplierValue = 0;
-        if (class_exists(\Modules\Suppliers\Models\Supplier::class)) {
-            \Modules\Suppliers\Models\Supplier::all()->each(function ($supplier) use (&$totalSupplierValue, $supplierItemValues) {
-                $supplierId = (string) $supplier->id;
-                $totalSupplierValue += $supplierItemValues[$supplierId] ?? 0;
-            });
-        }
+        // Authoritative inventory valuation synchronized with Dashboard & InventoryValuationService
+        $totalInventoryValuation = class_exists(InventoryValuationService::class)
+            ? app(InventoryValuationService::class)->getCurrentInventoryValue()
+            : (float) $items->sum('amount');
 
         $stats = [
             'totalItems' => $items->count(),
             'totalStock' => (int) $items->sum('stock'),
             'lowStockAlerts' => (int) $items->where('status', 'Low Stock')->count(),
             'outOfStock' => (int) $items->where('status', 'Out of Stock')->count(),
-            'totalValue' => '₱' . number_format($totalSupplierValue > 0 ? $totalSupplierValue : (float) $items->sum('amount'), 2),
+            'totalValue' => '₱' . number_format($totalInventoryValuation, 2),
             'highestConsumable' => data_get($items->sortByDesc('stock')->first(), 'name', 'N/A'),
             'lowestConsumable' => data_get($items->sortBy('stock')->first(), 'name', 'N/A'),
         ];
