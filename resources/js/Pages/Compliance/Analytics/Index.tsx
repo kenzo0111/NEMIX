@@ -61,7 +61,7 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
     const modules = getSidebarModules('Compliance', 'Manage Analytics');
 
     return (
-        <div className="min-h-screen bg-gray-100/80 flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
+        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
             <Head title="Inventory Performance Analytics" />
 
             <Sidebar

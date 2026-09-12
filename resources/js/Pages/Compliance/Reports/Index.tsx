@@ -90,7 +90,7 @@ export default function ReportsIndex({
     };
 
     return (
-        <div className="min-h-screen bg-gray-100/80 flex font-sans text-gray-900 selection:bg-red-900 selection:text-white print:bg-white print:min-h-0 print:h-auto print:block">
+        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white print:bg-white print:min-h-0 print:h-auto print:block">
             <Head title="COA Compliance Reports & Official Forms" />
 
             <div className="print:hidden compliance-print-hide">

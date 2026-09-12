@@ -162,7 +162,7 @@ export default function IssuanceIndex({
     const modules = getSidebarModules('Inventory', 'Issuance');
 
     return (
-        <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900 overflow-x-hidden">
+        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 overflow-x-hidden selection:bg-red-900 selection:text-white">
             <Head title="Inventory - Stock Issuance" />
 
             <Sidebar

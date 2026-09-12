@@ -149,7 +149,7 @@ export default function Index({
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/70 flex font-sans text-slate-900 selection:bg-red-900 selection:text-white antialiased">
+        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-slate-900 selection:bg-red-900 selection:text-white antialiased">
             <Head title="System Settings & Policies — UCN SPMO" />
 
             {/* Persistent Sidebar */}

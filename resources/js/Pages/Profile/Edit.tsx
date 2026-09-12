@@ -61,7 +61,7 @@ export default function Edit({
     const [activeTab, setActiveTab] = useState<ProfileTab>('profile');
 
     return (
-        <div className="min-h-screen bg-slate-50 flex font-sans text-slate-900 selection:bg-red-900 selection:text-white">
+        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-slate-900 selection:bg-red-900 selection:text-white">
             <Head title="Profile & Account Settings — UCN SPMO" />
 
             {/* Persistent University Sidebar */}

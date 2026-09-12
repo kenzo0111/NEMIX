@@ -270,7 +270,7 @@ export default function ReceivingIndex({
     const modules = getSidebarModules('Inventory', 'Receiving');
 
     return (
-        <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900">
+        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
             <Head title="Inventory - Receiving" />
 
             <Sidebar

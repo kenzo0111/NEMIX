@@ -31,7 +31,7 @@ export default function Authenticated({
     };
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-[#F4F6F8]">
             {/* System Operating Mode Global Warning Banner */}
             {systemMode !== 'LIVE PRODUCTION' && (
                 <div className={`px-4 py-2 text-xs font-mono font-bold text-center flex items-center justify-center gap-2 shadow-xs border-b ${

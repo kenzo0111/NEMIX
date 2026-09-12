@@ -5,6 +5,29 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --app-background: #F4F6F8;
+    --surface: #FFFFFF;
+    --surface-muted: #F8FAFC;
+    --input-background: #FAFBFC;
+    --border-color: #E2E8F0;
+    --text-primary: #1F2937;
+    --text-secondary: #64748B;
+}
+
+body {
+    background-color: var(--app-background);
+    color: var(--text-primary);
+}
+
+@media print {
+    body {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+    }
+}
+
+
 .login-bg {
     background-image: url(/images/cnsc-campus-bg.jpg);
     background-size: cover;

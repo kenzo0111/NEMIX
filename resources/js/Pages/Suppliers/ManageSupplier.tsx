@@ -170,7 +170,7 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
         <>
             <Head title="Suppliers - Consumable Office Supplies" />
 
-            <div className="min-h-screen bg-gray-100/80 flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
+            <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
                 <Sidebar
                     modules={modules}
                     user={user}

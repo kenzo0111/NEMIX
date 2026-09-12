@@ -74,7 +74,7 @@ export default function AppLayout({
     const systemMode = system?.mode || 'LIVE PRODUCTION';
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans antialiased selection:bg-red-500 selection:text-white">
+        <div className="min-h-screen bg-[#F4F6F8] text-slate-900 flex flex-col font-sans antialiased selection:bg-red-500 selection:text-white">
             {title && <Head title={title} />}
 
             {/* Global System Mode Warning Bar */}
