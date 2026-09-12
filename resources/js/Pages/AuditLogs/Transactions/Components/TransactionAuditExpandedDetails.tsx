@@ -1,19 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     FileText,
     ArrowRight,
-    Code,
     CheckCircle2,
     Layers,
     Clock,
     User as UserIcon,
     Shield,
     Hash,
-    ChevronDown,
-    ChevronUp,
 } from 'lucide-react';
 import { TransactionAuditRecord, AuditChildEvent } from '../types';
 import { TransactionAuditStatus } from './TransactionAuditStatus';
+import { AuditMetadataDetails } from './AuditMetadataDetails';
+import {
+    getAuditSecondaryText,
+    formatAuditFieldLabel,
+    formatAuditValue,
+    isJsonString,
+    parseAuditMetadata,
+} from '../../utils/auditMetadata';
 
 interface TransactionAuditExpandedDetailsProps {
     record: TransactionAuditRecord;
@@ -24,15 +29,16 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
     record,
     formatDate,
 }) => {
-    const [showRawMetadata, setShowRawMetadata] = useState(false);
-
     const children = record.children || [];
     const reference = record.reference || record.resource_ref || '—';
-    const metadata = record.metadata || {};
+
+    // Extract clean secondary subtitle text (never raw JSON)
+    const secondaryText = useMemo(() => {
+        return getAuditSecondaryText(record);
+    }, [record]);
 
     // Group child events by affected record/item if identifiable, or provide clean listing
-    const affectedItemGroups = React.useMemo(() => {
-        // Check if metadata contains structured items or if children have subject items
+    const affectedItemGroups = useMemo(() => {
         const groups: Record<string, { title: string; subtitle?: string; events: AuditChildEvent[] }> = {};
 
         children.forEach((child) => {
@@ -41,10 +47,13 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
             let subtitle: string | undefined;
 
             const details = child.details || '';
-            const action = child.action || '';
 
             // Detect item-specific actions
-            if (child.subject_type === 'IssuanceItem' || child.subject_type === 'InventoryBatch' || child.subject_type === 'Item') {
+            if (
+                child.subject_type === 'IssuanceItem' ||
+                child.subject_type === 'InventoryBatch' ||
+                child.subject_type === 'Item'
+            ) {
                 const itemMatch = details.match(/['"]([^'"]+)['"]/);
                 if (itemMatch) {
                     groupKey = itemMatch[1];
@@ -75,7 +84,9 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
         return groups;
     }, [children]);
 
-    const hasItemGroups = Object.keys(affectedItemGroups).length > 0 && !(Object.keys(affectedItemGroups).length === 1 && affectedItemGroups['general']);
+    const hasItemGroups =
+        Object.keys(affectedItemGroups).length > 0 &&
+        !(Object.keys(affectedItemGroups).length === 1 && affectedItemGroups['general']);
 
     return (
         <div className="p-4 sm:p-5 bg-white border border-gray-200 rounded-lg shadow-2xs space-y-5 text-xs text-gray-800">
@@ -112,7 +123,10 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                             {reference}
                         </span>
                         {record.audit_group_id && (
-                            <span className="font-mono text-[10px] text-gray-500 block mt-0.5 truncate" title={record.audit_group_id}>
+                            <span
+                                className="font-mono text-[10px] text-gray-500 block mt-0.5 truncate"
+                                title={record.audit_group_id}
+                            >
                                 Group: {record.audit_group_id}
                             </span>
                         )}
@@ -158,23 +172,36 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                     </div>
                 </div>
 
-                {record.secondary_line && record.secondary_line !== record.details && (
+                {secondaryText && (
                     <div className="mt-2.5 px-3 py-1.5 bg-red-50/40 rounded border border-red-100 text-xs text-red-950 font-medium flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
-                        <span>{record.secondary_line}</span>
+                        <span>{secondaryText}</span>
                     </div>
                 )}
             </div>
 
-            {/* LEVEL 2: AFFECTED RECORDS / ITEMS */}
+            {/* PRIMARY TRANSACTION DETAILS & AUDIT METADATA (Requirements 1 - 7, 13 - 26) */}
+            <div className="pt-1">
+                <AuditMetadataDetails
+                    record={record}
+                    metadata={record.metadata}
+                    oldValues={record.old_values}
+                    newValues={record.new_values}
+                    actionDescription={record.details}
+                    eventKey={record.event_key}
+                    showSummaryBanner={true}
+                />
+            </div>
+
+            {/* LEVEL 2: AFFECTED RECORDS / ENTITY ALLOCATIONS (Optional grouping) */}
             {hasItemGroups ? (
-                <div>
+                <div className="pt-2 border-t border-gray-100">
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
                         <div className="p-1 bg-amber-50 text-amber-900 rounded border border-amber-100">
                             <Layers className="w-4 h-4" />
                         </div>
                         <span className="font-bold text-gray-900 uppercase tracking-wide text-[11px]">
-                            Level 2 • Affected Records & Entity Allocations
+                            Affected Records & Entity Allocations
                         </span>
                     </div>
 
@@ -201,7 +228,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                                                 <span className="font-medium text-gray-800 block">
                                                     {evt.label || evt.action}
                                                 </span>
-                                                {evt.details && (
+                                                {evt.details && !isJsonString(evt.details) && (
                                                     <span className="text-gray-500 text-[10px] block leading-tight mt-0.5">
                                                         {evt.details}
                                                     </span>
@@ -216,23 +243,40 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                 </div>
             ) : null}
 
-            {/* LEVEL 3: TECHNICAL EVENTS & BEFORE / AFTER CHANGES */}
-            <div>
-                <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1 bg-blue-50 text-blue-900 rounded border border-blue-100">
-                            <CheckCircle2 className="w-4 h-4" />
+            {/* LEVEL 3: TECHNICAL AUDIT TRAIL (Child events if present) */}
+            {children.length > 0 && (
+                <div className="pt-2 border-t border-gray-100">
+                    <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                        <div className="flex items-center gap-2">
+                            <div className="p-1 bg-blue-50 text-blue-900 rounded border border-blue-100">
+                                <CheckCircle2 className="w-4 h-4" />
+                            </div>
+                            <span className="font-bold text-gray-900 uppercase tracking-wide text-[11px]">
+                                Technical Audit Trail ({children.length} Events)
+                            </span>
                         </div>
-                        <span className="font-bold text-gray-900 uppercase tracking-wide text-[11px]">
-                            Level 3 • Technical Audit Trail ({children.length > 0 ? `${children.length} Events` : 'Primary Record Details'})
-                        </span>
                     </div>
-                </div>
 
-                {children.length > 0 ? (
                     <div className="pt-3 space-y-2.5">
                         {children.map((child, idx) => {
-                            const hasDiff = child.old_values && child.new_values && Object.keys(child.new_values).length > 0;
+                            const hasDiff =
+                                child.old_values &&
+                                child.new_values &&
+                                Object.keys(child.new_values).length > 0;
+
+                            // Format child details cleanly if it was stored as JSON
+                            let childDisplayDetails = child.details;
+                            if (child.details && isJsonString(child.details)) {
+                                const parsed = parseAuditMetadata(child.details);
+                                if (parsed) {
+                                    childDisplayDetails = Object.entries(parsed)
+                                        .map(
+                                            ([k, v]) =>
+                                                `${formatAuditFieldLabel(k)}: ${formatAuditValue(k, v).text}`
+                                        )
+                                        .join(' • ');
+                                }
+                            }
 
                             return (
                                 <div
@@ -259,9 +303,9 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                                         </span>
                                     </div>
 
-                                    {child.details && (
+                                    {childDisplayDetails && (
                                         <p className="text-xs text-gray-700 leading-relaxed font-sans pl-7">
-                                            {child.details}
+                                            {childDisplayDetails}
                                         </p>
                                     )}
 
@@ -269,31 +313,39 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                                     {hasDiff && (
                                         <div className="pl-7 pt-1">
                                             <div className="flex flex-wrap gap-2 text-[11px]">
-                                                {Object.entries(child.new_values || {}).map(([key, newVal]) => {
-                                                    const oldVal = child.old_values?.[key];
-                                                    const oldStr = typeof oldVal === 'object' ? JSON.stringify(oldVal) : String(oldVal ?? '—');
-                                                    const newStr = typeof newVal === 'object' ? JSON.stringify(newVal) : String(newVal ?? '—');
+                                                {Object.entries(child.new_values || {}).map(
+                                                    ([key, newVal]) => {
+                                                        const oldVal = child.old_values?.[key];
+                                                        const oldStr =
+                                                            typeof oldVal === 'object'
+                                                                ? JSON.stringify(oldVal)
+                                                                : String(oldVal ?? '—');
+                                                        const newStr =
+                                                            typeof newVal === 'object'
+                                                                ? JSON.stringify(newVal)
+                                                                : String(newVal ?? '—');
 
-                                                    if (oldStr === newStr) return null;
+                                                        if (oldStr === newStr) return null;
 
-                                                    return (
-                                                        <div
-                                                            key={key}
-                                                            className="flex items-center gap-1.5 px-2 py-1 bg-white rounded border border-gray-200 text-xs"
-                                                        >
-                                                            <span className="font-semibold text-gray-600">
-                                                                {key}:
-                                                            </span>
-                                                            <span className="px-1.5 py-0.5 bg-rose-50 text-rose-800 rounded border border-rose-100 font-medium line-through">
-                                                                {oldStr}
-                                                            </span>
-                                                            <ArrowRight className="w-3 h-3 text-gray-400" />
-                                                            <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-800 rounded border border-emerald-100 font-bold">
-                                                                {newStr}
-                                                            </span>
-                                                        </div>
-                                                    );
-                                                })}
+                                                        return (
+                                                            <div
+                                                                key={key}
+                                                                className="flex items-center gap-1.5 px-2 py-1 bg-white rounded border border-gray-200 text-xs"
+                                                            >
+                                                                <span className="font-semibold text-gray-600">
+                                                                    {formatAuditFieldLabel(key)}:
+                                                                </span>
+                                                                <span className="px-1.5 py-0.5 bg-rose-50 text-rose-800 rounded border border-rose-100 font-medium line-through">
+                                                                    {oldStr}
+                                                                </span>
+                                                                <ArrowRight className="w-3 h-3 text-gray-400" />
+                                                                <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-800 rounded border border-emerald-100 font-bold">
+                                                                    {newStr}
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    }
+                                                )}
                                             </div>
                                         </div>
                                     )}
@@ -301,71 +353,8 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                             );
                         })}
                     </div>
-                ) : (
-                    <div className="pt-3">
-                        <div className="p-3 bg-gray-50/60 rounded-md border border-gray-200">
-                            <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">
-                                Action Description
-                            </span>
-                            <p className="text-xs text-gray-800 leading-relaxed">
-                                {record.details || record.action}
-                            </p>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* TECHNICAL METADATA / RAW DETAILS ACCORDION */}
-            <div className="pt-2 border-t border-gray-100">
-                <button
-                    type="button"
-                    onClick={() => setShowRawMetadata(!showRawMetadata)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded transition-colors"
-                >
-                    <Code className="w-3.5 h-3.5 text-gray-500" />
-                    <span>{showRawMetadata ? 'Hide Forensic Technical Metadata' : 'View Forensic Technical Metadata'}</span>
-                    {showRawMetadata ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                </button>
-
-                {showRawMetadata && (
-                    <div className="mt-2.5 p-3 bg-slate-900 text-slate-100 rounded-md overflow-x-auto text-[11px] font-mono leading-relaxed space-y-2 shadow-inner">
-                        <div className="text-slate-400 text-[10px] uppercase font-bold border-b border-slate-800 pb-1 flex justify-between">
-                            <span>Sanitized Audit Object Payload</span>
-                            <span>Audit Group: {record.audit_group_id || 'Standalone'}</span>
-                        </div>
-                        <pre className="overflow-x-auto">
-                            {JSON.stringify(
-                                {
-                                    id: record.id,
-                                    audit_group_id: record.audit_group_id,
-                                    event_key: record.event_key,
-                                    action: record.action,
-                                    module: record.module,
-                                    reference: reference,
-                                    user_id: record.user_id,
-                                    user: record.user_name || record.user,
-                                    occurred_at: record.occurred_at,
-                                    metadata: metadata,
-                                    old_values: record.old_values,
-                                    new_values: record.new_values,
-                                    child_events_count: children.length,
-                                    child_events: children.map((c) => ({
-                                        id: c.id,
-                                        event_key: c.event_key,
-                                        action: c.action,
-                                        subject_type: c.subject_type,
-                                        subject_id: c.subject_id,
-                                        old_values: c.old_values,
-                                        new_values: c.new_values,
-                                    })),
-                                },
-                                null,
-                                2
-                            )}
-                        </pre>
-                    </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 };

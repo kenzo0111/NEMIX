@@ -292,6 +292,14 @@ class AuditLogsController extends Controller
                         default => 'recorded',
                     };
 
+                    $childMeta = $child->metadata;
+                    if (is_string($childMeta)) {
+                        $decodedMeta = json_decode($childMeta, true);
+                        if (json_last_error() === JSON_ERROR_NONE && is_array($decodedMeta)) {
+                            $childMeta = $decodedMeta;
+                        }
+                    }
+
                     return [
                         'id' => $child->id,
                         'event_key' => $childEventKey,
@@ -301,21 +309,79 @@ class AuditLogsController extends Controller
                         'subject_type' => $child->subject_type ? class_basename($child->subject_type) : null,
                         'subject_id' => $child->subject_id,
                         'result' => $childResult,
-                        'old_values' => $child->old_values,
-                        'new_values' => $child->new_values,
-                        'metadata' => $child->metadata,
+                        'old_values' => is_array($child->old_values) ? AuditLogFormatter::sanitizeValues($child->old_values) : $child->old_values,
+                        'new_values' => is_array($child->new_values) ? AuditLogFormatter::sanitizeValues($child->new_values) : $child->new_values,
+                        'metadata' => is_array($childMeta) ? AuditLogFormatter::sanitizeValues($childMeta) : $childMeta,
                         'occurred_at' => $child->created_at?->toIso8601String(),
                     ];
                 })->values()->all();
             }
 
+            // Safe parsing and normalization of metadata (Requirement 9, 10, 11)
+            $metadata = $trail->metadata;
+            if (is_string($metadata)) {
+                $decoded = json_decode($metadata, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $metadata = $decoded;
+                }
+            }
+
+            // If metadata is empty but details was stored as a JSON string (legacy records)
+            $rawDetails = $trail->details;
+            if (empty($metadata) && is_string($rawDetails)) {
+                $trimmedDetails = trim($rawDetails);
+                if (str_starts_with($trimmedDetails, '{') && str_ends_with($trimmedDetails, '}')) {
+                    $decoded = json_decode($trimmedDetails, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        $metadata = $decoded;
+                    }
+                }
+            }
+
+            $sanitizedMetadata = is_array($metadata) ? AuditLogFormatter::sanitizeValues($metadata) : $metadata;
+            $sanitizedOldValues = is_array($trail->old_values) ? AuditLogFormatter::sanitizeValues($trail->old_values) : $trail->old_values;
+            $sanitizedNewValues = is_array($trail->new_values) ? AuditLogFormatter::sanitizeValues($trail->new_values) : $trail->new_values;
+
+            // Safe human-readable action description
+            $displayDetails = $resolved['details'] ?: $trail->details;
+            if (is_string($displayDetails)) {
+                $trimmedDisplay = trim($displayDetails);
+                if (str_starts_with($trimmedDisplay, '{') && str_ends_with($trimmedDisplay, '}')) {
+                    $decodedDisplay = json_decode($trimmedDisplay, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decodedDisplay)) {
+                        if (!empty($decodedDisplay['ris_number'])) {
+                            $displayDetails = sprintf('Stock issuance record (%s)', $decodedDisplay['ris_number']);
+                        } elseif (!empty($decodedDisplay['receiving_reference'])) {
+                            $displayDetails = sprintf('Stock receiving record (%s)', $decodedDisplay['receiving_reference']);
+                        } else {
+                            $displayDetails = $actionTitle ?: 'Transaction details recorded';
+                        }
+                    }
+                }
+            }
+
             // Extract concise secondary line
             $secondaryLine = $trail->details;
-            if ($trail->metadata && !empty($trail->metadata['ris_number'])) {
-                $count = $trail->metadata['items_count'] ?? 1;
-                $secondaryLine = sprintf('%s • %d %s issued', $trail->metadata['ris_number'], $count, $count === 1 ? 'item' : 'items');
-            } elseif ($trail->metadata && !empty($trail->metadata['diffs'])) {
-                $diffCount = count($trail->metadata['diffs']);
+            if (is_string($secondaryLine)) {
+                $trimmedSec = trim($secondaryLine);
+                if (str_starts_with($trimmedSec, '{') && str_ends_with($trimmedSec, '}')) {
+                    $decodedSec = json_decode($trimmedSec, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decodedSec)) {
+                        if (!empty($decodedSec['ris_number'])) {
+                            $count = $decodedSec['items_count'] ?? 1;
+                            $secondaryLine = sprintf('%s • %d %s issued', $decodedSec['ris_number'], $count, $count === 1 ? 'item' : 'items');
+                        } else {
+                            $secondaryLine = $actionTitle;
+                        }
+                    }
+                }
+            }
+
+            if (is_array($sanitizedMetadata) && !empty($sanitizedMetadata['ris_number'])) {
+                $count = $sanitizedMetadata['items_count'] ?? 1;
+                $secondaryLine = sprintf('%s • %d %s issued', $sanitizedMetadata['ris_number'], $count, $count === 1 ? 'item' : 'items');
+            } elseif (is_array($sanitizedMetadata) && !empty($sanitizedMetadata['diffs'])) {
+                $diffCount = count($sanitizedMetadata['diffs']);
                 $secondaryLine = "Updated {$diffCount} configuration parameter" . ($diffCount === 1 ? '' : 's');
             }
 
@@ -331,7 +397,7 @@ class AuditLogsController extends Controller
                 'role' => $roleName,
                 'action' => $actionTitle,
                 'secondary_line' => $secondaryLine,
-                'details' => $resolved['details'] ?: $trail->details,
+                'details' => $displayDetails,
                 'module' => $moduleName,
                 'audit_status' => $auditStatus,
                 'status' => ucfirst($auditStatus),
@@ -340,9 +406,9 @@ class AuditLogsController extends Controller
                 'time' => $occurredAt,
                 'event_key' => $trail->event_key,
                 'children' => $formattedChildren,
-                'metadata' => $trail->metadata,
-                'old_values' => $trail->old_values,
-                'new_values' => $trail->new_values,
+                'metadata' => $sanitizedMetadata,
+                'old_values' => $sanitizedOldValues,
+                'new_values' => $sanitizedNewValues,
             ];
         });
 

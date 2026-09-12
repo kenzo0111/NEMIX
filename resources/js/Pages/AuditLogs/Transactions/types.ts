@@ -25,6 +25,89 @@ export interface AuditUser {
     email?: string | null;
 }
 
+export type AuditMetadataValue =
+    | string
+    | number
+    | boolean
+    | null
+    | string[]
+    | number[]
+    | Record<string, unknown>
+    | Record<string, unknown>[];
+
+export interface AuditMetadata {
+    [key: string]: AuditMetadataValue | undefined;
+}
+
+export interface IssuanceAuditMetadata {
+    issuance_id?: number;
+    ris_number?: string;
+    recipient?: string;
+    department?: string;
+    total_quantity?: number;
+    items_count?: number;
+    purpose?: string;
+    status?: string;
+    items?: Array<{
+        item_id?: number;
+        item_name?: string;
+        quantity?: number;
+        unit?: string;
+        unit_cost?: number;
+    }>;
+    [key: string]: AuditMetadataValue | undefined;
+}
+
+export interface ReceivingAuditMetadata {
+    receiving_id?: number;
+    receiving_reference?: string;
+    supplier?: string;
+    supplier_name?: string;
+    supplier_stock_no?: string;
+    item?: string;
+    item_name?: string;
+    quantity_received?: number;
+    quantity?: number;
+    unit_cost?: number;
+    batch_value?: number;
+    total_cost?: number;
+    batch_number?: string;
+    expiry_date?: string;
+    [key: string]: AuditMetadataValue | undefined;
+}
+
+export interface SupplierAuditMetadata {
+    supplier?: string;
+    supplier_id?: number;
+    name?: string;
+    tin?: string;
+    registration_number?: string;
+    contact_person?: string;
+    contact_number?: string;
+    status?: string;
+    category?: string;
+    [key: string]: AuditMetadataValue | undefined;
+}
+
+export interface ComplianceReportAuditMetadata {
+    report_type?: string;
+    report_reference?: string;
+    period?: string;
+    supplier?: string;
+    records_included?: number;
+    title?: string;
+    [key: string]: AuditMetadataValue | undefined;
+}
+
+export interface SystemSettingsAuditMetadata {
+    setting?: string;
+    updated_keys?: string[];
+    diffs?: Record<string, { old: unknown; new: unknown }>;
+    previous_value?: unknown;
+    new_value?: unknown;
+    [key: string]: AuditMetadataValue | undefined;
+}
+
 export interface AuditChildEvent {
     id: number;
     event_key: string;
@@ -34,7 +117,7 @@ export interface AuditChildEvent {
     subject_type?: string | null;
     subject_id?: number | string | null;
     result?: AuditResult;
-    metadata?: Record<string, unknown> | null;
+    metadata?: AuditMetadata | string | null;
     old_values?: Record<string, unknown> | null;
     new_values?: Record<string, unknown> | null;
     occurred_at: string;
@@ -66,7 +149,7 @@ export interface TransactionAuditRecord {
     time?: string | null;
 
     children?: AuditChildEvent[];
-    metadata?: Record<string, unknown> | null;
+    metadata?: AuditMetadata | string | null;
     old_values?: Record<string, unknown> | null;
     new_values?: Record<string, unknown> | null;
 }

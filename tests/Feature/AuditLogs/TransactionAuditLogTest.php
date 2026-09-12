@@ -269,4 +269,76 @@ class TransactionAuditLogTest extends TestCase
         $this->assertEquals(1, $summary['flagged']);
         $this->assertEquals(1, $summary['modules']);
     }
+
+    public function test_legacy_json_details_are_safely_normalized_for_inertia(): void
+    {
+        TransactionTrail::query()->delete();
+
+        $rawJson = json_encode([
+            'issuance_id' => 36,
+            'ris_number' => 'RIS-2026-09-0015',
+            'recipient' => 'JONARD GAN',
+            'department' => 'Research Services Division (RSD)',
+            'total_quantity' => 4065,
+            'items_count' => 2,
+        ]);
+
+        TransactionTrail::create([
+            'user_id' => $this->adminUser->id,
+            'module' => 'Inventory',
+            'action' => 'Created Stock Issuance',
+            'resource_ref' => 'RIS-2026-09-0015',
+            'details' => $rawJson,
+            'status' => 'Success',
+            'is_parent' => true,
+        ]);
+
+        $response = $this->actingAs($this->adminUser)->get('/audit-logs/transaction-trails');
+        $response->assertStatus(200);
+
+        $logs = $response->viewData('page')['props']['logs']['data'];
+        $this->assertCount(1, $logs);
+
+        $record = $logs[0];
+        // Details is converted to clean description, not raw JSON
+        $this->assertStringNotContainsString('{"issuance_id":36', $record['details']);
+        $this->assertEquals('RIS-2026-09-0015 • 2 items issued', $record['secondary_line']);
+
+        // Metadata is returned as an array/object, not a raw string
+        $this->assertIsArray($record['metadata']);
+        $this->assertEquals('RIS-2026-09-0015', $record['metadata']['ris_number']);
+        $this->assertEquals('JONARD GAN', $record['metadata']['recipient']);
+        $this->assertEquals(4065, $record['metadata']['total_quantity']);
+    }
+
+    public function test_sensitive_metadata_keys_are_redacted(): void
+    {
+        TransactionTrail::query()->delete();
+
+        TransactionTrail::create([
+            'user_id' => $this->adminUser->id,
+            'module' => 'Access Control',
+            'action' => 'Updated User Credentials',
+            'resource_ref' => 'USR-1',
+            'details' => 'User credentials updated',
+            'status' => 'Verified',
+            'is_parent' => true,
+            'metadata' => [
+                'user_id' => 1,
+                'email' => 'admin@test.edu.ph',
+                'password' => 'secret12345',
+                'api_key' => 'live_ak_xyz123',
+                'remember_token' => 'token_val',
+            ],
+        ]);
+
+        $response = $this->actingAs($this->adminUser)->get('/audit-logs/transaction-trails');
+        $response->assertStatus(200);
+
+        $record = $response->viewData('page')['props']['logs']['data'][0];
+        $this->assertEquals('[REDACTED]', $record['metadata']['password']);
+        $this->assertEquals('[REDACTED]', $record['metadata']['api_key']);
+        $this->assertEquals('[REDACTED]', $record['metadata']['remember_token']);
+        $this->assertEquals('admin@test.edu.ph', $record['metadata']['email']);
+    }
 }

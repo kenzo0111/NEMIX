@@ -3,6 +3,7 @@ import { Shield, ChevronDown, ChevronRight } from 'lucide-react';
 import { TransactionAuditRecord } from '../types';
 import { TransactionAuditStatus } from './TransactionAuditStatus';
 import { TransactionAuditExpandedDetails } from './TransactionAuditExpandedDetails';
+import { getAuditSecondaryText } from '../../utils/auditMetadata';
 
 interface TransactionAuditTableProps {
     records: TransactionAuditRecord[];
@@ -107,7 +108,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                         {records.map((record, index) => {
                             const isExpanded = expandedRowId === record.id;
                             const childrenCount = record.children?.length || 0;
-                            const secondaryText = record.secondary_line || record.details;
+                            const secondaryText = getAuditSecondaryText(record);
 
                             return (
                                 <React.Fragment key={record.id || index}>
