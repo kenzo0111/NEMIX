@@ -102,9 +102,9 @@ export interface ComplianceReportAuditMetadata {
 export interface SystemSettingsAuditMetadata {
     setting?: string;
     updated_keys?: string[];
-    diffs?: Record<string, { old: unknown; new: unknown }>;
-    previous_value?: unknown;
-    new_value?: unknown;
+    diffs?: Record<string, { old: AuditMetadataValue; new: AuditMetadataValue }>;
+    previous_value?: AuditMetadataValue;
+    new_value?: AuditMetadataValue;
     [key: string]: AuditMetadataValue | undefined;
 }
 
