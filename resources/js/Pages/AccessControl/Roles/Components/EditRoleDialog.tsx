@@ -116,8 +116,8 @@ export default function EditRoleDialog({
         <Modal show={isOpen} onClose={onClose} maxWidth="4xl">
             <div className="bg-white rounded-xl overflow-hidden flex flex-col max-h-[90vh]">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0 bg-white">
-                    <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 shrink-0 bg-white">
+                    <div className="flex items-center gap-3 min-w-0">
                         <div
                             className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
                                 isSystemRole
@@ -131,9 +131,9 @@ export default function EditRoleDialog({
                                 <Sliders className="w-5 h-5" />
                             )}
                         </div>
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <h3 className="text-base font-bold text-gray-900">
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="text-base font-bold text-gray-900 truncate">
                                     Edit Role & Permissions
                                 </h3>
                                 {isSystemRole ? (
@@ -146,7 +146,7 @@ export default function EditRoleDialog({
                                     </span>
                                 )}
                             </div>
-                            <p className="text-xs text-gray-500 mt-0.5">
+                            <p className="text-xs text-gray-500 mt-0.5 truncate">
                                 Configure title and granular capabilities for{' '}
                                 <strong className="text-gray-800 font-semibold">{role.name}</strong>.
                             </p>
@@ -155,7 +155,7 @@ export default function EditRoleDialog({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer shrink-0 ml-2"
                         aria-label="Close dialog"
                     >
                         <X className="w-5 h-5" />
@@ -166,7 +166,7 @@ export default function EditRoleDialog({
                 <form
                     id="edit-role-form"
                     onSubmit={handleSubmit}
-                    className="overflow-y-auto grow p-6 space-y-5 flex flex-col"
+                    className="overflow-y-auto grow p-4 sm:p-6 space-y-5 flex flex-col"
                 >
                     {/* Role Name Field */}
                     <div className="bg-gray-50/70 border border-gray-200/90 rounded-lg p-4">
@@ -240,19 +240,19 @@ export default function EditRoleDialog({
                 </form>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between px-6 py-3.5 border-t border-gray-200 shrink-0 gap-3 bg-gray-50/80 sticky bottom-0">
-                    <div className="text-xs text-gray-600">
+                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between px-4 sm:px-6 py-3 sm:py-3.5 border-t border-gray-200 shrink-0 gap-3 bg-gray-50/80 sticky bottom-0">
+                    <div className="text-xs text-gray-600 text-center sm:text-left">
                         <span className="font-semibold text-gray-900">
                             {data.permissions.length} of {totalSystemPermissionsCount}
                         </span>{' '}
                         permissions assigned
                     </div>
 
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer text-center"
                         >
                             Cancel
                         </button>
@@ -260,7 +260,7 @@ export default function EditRoleDialog({
                             type="submit"
                             form="edit-role-form"
                             disabled={processing || !data.name.trim()}
-                            className="px-4 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            className="w-full sm:w-auto px-4 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-center"
                         >
                             {processing ? 'Saving...' : 'Save Changes'}
                         </button>

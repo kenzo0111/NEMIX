@@ -65,23 +65,23 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                 <div className="h-1 bg-gradient-to-r from-amber-600 via-red-900 to-red-950 w-full shrink-0" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/80 bg-gradient-to-b from-gray-50/90 to-white shrink-0">
-                    <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200/80 bg-gradient-to-b from-gray-50/90 to-white shrink-0">
+                    <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-900 shadow-2xs shrink-0">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                             </svg>
                         </div>
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight truncate">
                                     Historical Data Migration Workspace
                                 </h3>
                                 <span className="px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-900 font-mono font-bold text-[10px] rounded-md tracking-wider">
                                     Legacy Ingestion
                                 </span>
                             </div>
-                            <p className="text-xs text-gray-500 font-medium mt-0.5">
+                            <p className="text-xs text-gray-500 font-medium mt-0.5 truncate">
                                 Extract, map, validate, and import legacy COA audit spreadsheets and documents into official database records.
                             </p>
                         </div>
@@ -91,7 +91,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                         type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                        className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer shrink-0 ml-2"
                         aria-label="Close modal"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +101,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                 </div>
 
                 {/* Content */}
-                <div className="p-6 overflow-y-auto flex-1 space-y-4 bg-gray-50/40">
+                <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-gray-50/40">
                     {/* Setup Controls Card */}
                     <div className="bg-white rounded-xl border border-gray-200/80 p-4.5 shadow-2xs space-y-3.5">
                         <div className="flex items-center justify-between pb-2 border-b border-gray-100">
@@ -341,12 +341,12 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between px-6 py-3.5 bg-gradient-to-b from-white to-gray-50 border-t border-gray-200/80 shrink-0">
+                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-gray-50 border-t border-gray-200/80 shrink-0">
                     <button
                         type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 shadow-2xs hover:border-gray-400 transition-all cursor-pointer"
+                        className="px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 shadow-2xs hover:border-gray-400 transition-all cursor-pointer w-full sm:w-auto text-center"
                     >
                         Cancel
                     </button>
@@ -355,7 +355,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                         type="button"
                         onClick={handleConfirm}
                         disabled={isSubmitting || validation.validCount === 0}
-                        className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-red-900 rounded-lg hover:bg-red-950 disabled:opacity-50 transition-all shadow-xs active:scale-[0.99] cursor-pointer"
+                        className="inline-flex items-center justify-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-red-900 rounded-lg hover:bg-red-950 disabled:opacity-50 transition-all shadow-xs active:scale-[0.99] cursor-pointer w-full sm:w-auto"
                     >
                         {isSubmitting ? (
                             <>

@@ -26,7 +26,7 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
         <div className="overflow-hidden">
             {/* Table Container */}
             <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full text-left border-collapse min-w-[800px]">
                     <thead className="bg-gray-50/80 border-b border-gray-200">
                         <tr>
                             <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
@@ -93,7 +93,7 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
 
             {/* Pagination Footer */}
             {totalRecords > 0 && (
-                <div className="px-6 lg:px-8 py-3.5 border-t border-gray-200/80 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div className="px-4 sm:px-6 lg:px-8 py-3.5 border-t border-gray-200/80 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
                     <span className="text-gray-500 font-medium">
                         Showing <span className="font-bold text-gray-800">{countOnPage}</span> of{' '}
                         <span className="font-bold text-gray-800">{totalRecords}</span> records

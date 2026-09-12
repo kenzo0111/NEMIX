@@ -111,7 +111,7 @@ export default function TransactionAuditIndex({
                 onToggleCollapse={() => setCollapsed(!collapsed)}
             />
 
-            <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
+            <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'} ml-0`}>
                 <PageHeader
                     title="Transaction Audit Logs"
                     description="Review recorded inventory, compliance, configuration, and administrative system activities."
@@ -121,7 +121,7 @@ export default function TransactionAuditIndex({
                     ]}
                 />
 
-                <div className="p-6 lg:p-8 space-y-5 max-w-[1600px] mx-auto pb-16">
+                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-5 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
                     {/* Institutional Header Banner */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white border border-gray-200/90 rounded-lg shadow-2xs">
                         <div className="flex items-center gap-2.5">

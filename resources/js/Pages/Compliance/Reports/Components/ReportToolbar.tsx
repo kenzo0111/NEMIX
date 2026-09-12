@@ -28,8 +28,8 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
     const selectedFilterOption = filterOptions.find((o) => o.value === selectedType) || filterOptions[0];
 
     return (
-        <div className="px-6 lg:px-8 py-5 border-b border-gray-200/80 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50">
-            <div>
+        <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-gray-50/50">
+            <div className="min-w-0">
                 <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">
                     Official COA Documents
                 </h3>
@@ -39,7 +39,7 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
             </div>
 
             {/* Filter Controls & Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 w-full lg:w-auto">
                 {/* Search Input */}
                 <div className="relative w-full sm:w-64">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">

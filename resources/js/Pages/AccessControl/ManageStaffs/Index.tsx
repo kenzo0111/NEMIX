@@ -281,9 +281,9 @@ export default function StaffManagementIndex({
             />
 
             <main
-                className={`flex-1 transition-all duration-300 ease-in-out ${
-                    collapsed ? 'ml-20' : 'ml-72'
-                }`}
+                className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${
+                    collapsed ? 'md:ml-20' : 'md:ml-72'
+                } ml-0`}
             >
                 <PageHeader
                     title="Staff Management"
@@ -291,7 +291,7 @@ export default function StaffManagementIndex({
                     breadcrumbs={[{ name: 'Access Control' }, { name: 'Manage Staffs' }]}
                 />
 
-                <div className="p-6 lg:p-8 space-y-5 max-w-[1600px] mx-auto pb-16">
+                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-5 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
                     {/* Transient Application Notification (Single Banner) */}
                     <StaffNotification
                         notification={notification}

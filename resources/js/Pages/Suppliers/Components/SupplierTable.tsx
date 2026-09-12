@@ -18,7 +18,7 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
         <div>
             {/* Table */}
             <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+                <table className="w-full text-left border-collapse min-w-[750px]">
                     <thead className="bg-gray-50/75 border-b border-gray-200">
                         <tr>
                             <th scope="col" className="px-6 py-3.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -60,7 +60,7 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
             </div>
 
             {/* Pagination */}
-            <div className="px-6 lg:px-8 py-3.5 border-t border-gray-200/80 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
+            <div className="px-4 sm:px-6 lg:px-8 py-3.5 border-t border-gray-200/80 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
                 <div>
                     Showing <span className="font-semibold text-gray-900">{totalCount === 0 ? 0 : `${startIndex}–${endIndex}`}</span> of{' '}
                     <span className="font-semibold text-gray-900">{totalCount}</span> records

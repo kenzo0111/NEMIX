@@ -47,7 +47,7 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50/60">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/60">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-red-50 text-red-950 flex items-center justify-center border border-red-100/80 shadow-xs shrink-0">
                             <Building2 className="w-5 h-5 text-red-900" />
@@ -75,7 +75,7 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                 </div>
 
                 {/* Content */}
-                <div className="p-6 space-y-5 text-xs max-h-[75vh] overflow-y-auto">
+                <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 text-xs max-h-[75vh] sm:max-h-[80vh] overflow-y-auto">
                     {/* Hero Business Identity Banner */}
                     <div className="bg-gradient-to-br from-gray-50 via-white to-gray-50/60 p-4 rounded-lg border border-gray-200/80 shadow-xs">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -220,11 +220,11 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 bg-gray-50/75 border-t border-gray-200 flex items-center justify-end gap-3">
+                <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/75 border-t border-gray-200 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 bg-white border border-gray-300 rounded-md text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-xs cursor-pointer"
+                        className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 rounded-md text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-xs cursor-pointer text-center"
                     >
                         Close
                     </button>
@@ -234,7 +234,7 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                             onClose();
                             onEdit(supplier);
                         }}
-                        className="px-4 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white rounded-md text-xs font-semibold transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
+                        className="w-full sm:w-auto px-4 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white rounded-md text-xs font-semibold transition-colors shadow-xs inline-flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                         <Edit3 className="w-3.5 h-3.5 text-amber-300" />
                         <span>Update Supplier</span>

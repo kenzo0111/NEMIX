@@ -22,7 +22,7 @@ export default function UnassignRFIDModal({
         <Modal show={show} onClose={onClose} maxWidth="sm">
             <div className="relative bg-white rounded-xl shadow-xl w-full overflow-hidden border border-slate-200 text-center">
                 <div className="h-1 w-full bg-red-900" />
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                     <div className="mx-auto flex items-center justify-center h-11 w-11 rounded-full bg-red-50 text-red-800 mb-3 border border-red-100">
                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
@@ -43,12 +43,12 @@ export default function UnassignRFIDModal({
                         <strong className="text-gray-900">{item.name}</strong>?
                     </p>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col-reverse sm:flex-row items-center gap-2.5 sm:gap-3">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={isProcessing}
-                            className="flex-1 py-2 px-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                            className="w-full sm:flex-1 py-2.5 px-3.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer disabled:opacity-50"
                         >
                             Cancel
                         </button>
@@ -56,7 +56,7 @@ export default function UnassignRFIDModal({
                             type="button"
                             onClick={onConfirm}
                             disabled={isProcessing}
-                            className="flex-1 py-2 px-3 bg-red-950 hover:bg-red-900 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
+                            className="w-full sm:flex-1 py-2.5 px-3.5 bg-red-950 hover:bg-red-900 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
                         >
                             {isProcessing ? 'Unassigning...' : 'Unassign RFID'}
                         </button>

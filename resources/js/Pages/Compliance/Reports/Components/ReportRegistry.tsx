@@ -18,7 +18,7 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
         <div className="overflow-hidden">
             {reports.length > 0 ? (
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                    <table className="w-full min-w-[750px] text-left border-collapse">
                         <thead className="bg-gray-50/80 border-b border-gray-200">
                             <tr>
                                 <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">

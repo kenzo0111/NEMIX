@@ -44,7 +44,7 @@ export default function StockAttentionTable({ items }: StockAttentionTableProps)
             <CardContent className="p-0">
                 {hasItems ? (
                     <div className="overflow-x-auto">
-                        <Table>
+                        <Table className="min-w-[650px]">
                             <TableHeader>
                                 <TableRow className="bg-gray-50/60 hover:bg-gray-50/60">
                                     <TableHead className="w-[40%] pl-6">Item Name & SKU</TableHead>

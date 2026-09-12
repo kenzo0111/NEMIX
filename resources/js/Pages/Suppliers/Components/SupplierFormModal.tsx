@@ -39,7 +39,7 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50/60">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/60">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-red-50 text-red-950 flex items-center justify-center border border-red-100/80 shadow-xs shrink-0">
                             {isCreate ? (
@@ -48,8 +48,8 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                 <Edit3 className="w-5 h-5 text-red-900" />
                             )}
                         </div>
-                        <div>
-                            <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">
+                        <div className="min-w-0">
+                            <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight truncate">
                                 {title}
                             </h3>
                             <p className="text-xs text-gray-500 font-medium mt-0.5">
@@ -63,7 +63,7 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                         type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="text-gray-400 hover:text-gray-700 hover:bg-gray-100 p-1.5 rounded-md disabled:opacity-50 transition-colors"
+                        className="text-gray-400 hover:text-gray-700 hover:bg-gray-100 p-1.5 rounded-md disabled:opacity-50 transition-colors shrink-0 ml-2"
                         aria-label="Close"
                     >
                         <X className="w-5 h-5" />
@@ -72,7 +72,7 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 
                 {/* Form */}
                 <form onSubmit={onSubmit}>
-                    <div className="p-6 space-y-5 text-xs max-h-[75vh] overflow-y-auto">
+                    <div className="p-4 sm:p-6 space-y-5 text-xs max-h-[75vh] overflow-y-auto">
                         {/* Section 1: Business Information */}
                         <div>
                             <div className="flex items-center gap-2 pb-2 mb-3.5 border-b border-gray-100">
@@ -99,7 +99,7 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                         }`}
                                     />
                                     {errors.name && (
-                                        <p className="mt-1 text-xs text-red-600 font-medium">{errors.name}</p>
+                                         <p className="mt-1 text-xs text-red-600 font-medium">{errors.name}</p>
                                     )}
                                 </div>
 
@@ -230,19 +230,19 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                     </div>
 
                     {/* Footer */}
-                    <div className="px-6 py-4 bg-gray-50/75 border-t border-gray-200 flex items-center justify-end gap-3">
+                    <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/75 border-t border-gray-200 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={isSubmitting}
-                            className="px-4 py-2 bg-white border border-gray-300 rounded-md text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-xs cursor-pointer"
+                            className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 rounded-md text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-xs cursor-pointer text-center"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="px-4 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white rounded-md text-xs font-semibold transition-colors shadow-xs disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                            className="w-full sm:w-auto px-4 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white rounded-md text-xs font-semibold transition-colors shadow-xs disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
                         >
                             {isSubmitting ? (
                                 <svg className="animate-spin h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none">

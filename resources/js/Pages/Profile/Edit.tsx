@@ -73,7 +73,7 @@ export default function Edit({
             />
 
             {/* Main Application Area */}
-            <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
+            <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'} ml-0`}>
                 {/* Unified Institutional Page Header */}
                 <PageHeader
                     title="Profile & Account Settings"
@@ -82,7 +82,7 @@ export default function Edit({
                 />
 
                 {/* Primary Content Container */}
-                <div className="p-6 lg:p-8 max-w-6xl mx-auto pb-16">
+                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 max-w-6xl mx-auto pb-16 min-w-0 w-full">
                     {/* Institutional Personnel Header */}
                     <PersonnelHeader profile={resolvedProfile} />
 

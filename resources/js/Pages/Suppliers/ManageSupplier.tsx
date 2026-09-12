@@ -178,17 +178,17 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
                     onToggleCollapse={() => setCollapsed(!collapsed)}
                 />
 
-                <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
+                <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
                     <PageHeader
                         title="Consumable Office Supplies Suppliers"
                         description="Maintain accredited suppliers of university office consumables."
                         breadcrumbs={[{ name: 'Suppliers' }, { name: 'Manage Supplier' }]}
                     />
 
-                    <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16">
+                    <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
                         <div className="bg-white rounded-lg shadow-xs border border-gray-200/80 overflow-hidden">
                             {/* Section Header */}
-                            <div className="px-6 lg:px-8 py-4 border-b border-gray-200/80 bg-gray-50/50">
+                            <div className="px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 border-b border-gray-200/80 bg-gray-50/50">
                                 <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">
                                     Supplier Registry
                                 </h3>

@@ -78,6 +78,7 @@ export default function Sidebar({
     const [expandedModule, setExpandedModule] = useState<string | null>(
         activeModuleTitle || null
     );
+    const [mobileOpen, setMobileOpen] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -87,6 +88,25 @@ export default function Sidebar({
             setExpandedModule(activeModuleTitle);
         }
     }, [activeModuleTitle, collapsed]);
+
+    // Listen for mobile sidebar events and close upon Inertia navigation
+    useEffect(() => {
+        const handleToggleMobile = () => setMobileOpen((prev) => !prev);
+        const handleCloseMobile = () => setMobileOpen(false);
+
+        window.addEventListener('toggle-nemix-mobile-sidebar', handleToggleMobile);
+        window.addEventListener('close-nemix-mobile-sidebar', handleCloseMobile);
+
+        const removeInertiaListener = router.on('navigate', () => {
+            setMobileOpen(false);
+        });
+
+        return () => {
+            window.removeEventListener('toggle-nemix-mobile-sidebar', handleToggleMobile);
+            window.removeEventListener('close-nemix-mobile-sidebar', handleCloseMobile);
+            removeInertiaListener();
+        };
+    }, []);
 
     const handleToggleSubmenu = (title: string) => {
         if (collapsed) {
@@ -116,15 +136,29 @@ export default function Sidebar({
 
     return (
         <>
+            {/* Mobile Backdrop */}
+            {mobileOpen && (
+                <div
+                    onClick={() => setMobileOpen(false)}
+                    className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs transition-opacity md:hidden"
+                    aria-label="Close navigation menu backdrop"
+                />
+            )}
+
             <aside
                 className={`
                     fixed inset-y-0 left-0 z-50 bg-red-950 border-r border-red-900/60
                     text-white shadow-xl transition-all duration-300 ease-in-out flex flex-col select-none overflow-x-hidden
-                    ${collapsed ? 'w-20' : 'w-72'} ${className}
+                    ${collapsed ? 'md:w-20' : 'md:w-72'}
+                    ${mobileOpen ? 'w-72 translate-x-0' : 'w-72 -translate-x-full md:translate-x-0'}
+                    ${className}
                 `}
             >
                 {/* University Institutional Header */}
-                <SidebarBrand collapsed={collapsed} />
+                <SidebarBrand
+                    collapsed={collapsed}
+                    onCloseMobile={() => setMobileOpen(false)}
+                />
 
                 {/* Main Navigation Body */}
                 <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-3 space-y-3 relative z-10 scrollbar-hide no-scrollbar">

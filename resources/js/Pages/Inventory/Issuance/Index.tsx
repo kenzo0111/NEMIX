@@ -172,14 +172,14 @@ export default function IssuanceIndex({
                 onToggleCollapse={() => setCollapsed(!collapsed)}
             />
 
-            <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
+            <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
                 <PageHeader
                     title="Inventory Management"
                     description="Stock distribution and issuance records"
                     breadcrumbs={[{ name: 'Inventory' }, { name: 'Issuance' }]}
                 />
 
-                <div className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden pb-16">
+                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden pb-16 min-w-0">
                     {/* Inline Notification Banner */}
                     {notification && (
                         <div

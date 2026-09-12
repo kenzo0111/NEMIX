@@ -30,8 +30,8 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
     return (
         <div className={`space-y-6 ${className}`}>
             {/* KPI Security Metrics Strip */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-                <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
                     <div className="flex items-center gap-2 text-slate-500 mb-1 text-[11px] font-semibold uppercase tracking-wider">
                         <Shield className="w-3.5 h-3.5 text-red-900" />
                         <span>Security Level</span>
@@ -43,7 +43,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                     <span className="text-[10px] text-slate-400 font-mono block mt-0.5">2-Step Email Verification</span>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
                     <div className="flex items-center gap-2 text-slate-500 mb-1 text-[11px] font-semibold uppercase tracking-wider">
                         <Laptop className="w-3.5 h-3.5 text-red-900" />
                         <span>Active Devices</span>
@@ -54,7 +54,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                     <span className="text-[10px] text-slate-400 font-mono block mt-0.5">Verified Sessions</span>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
                     <div className="flex items-center gap-2 text-slate-500 mb-1 text-[11px] font-semibold uppercase tracking-wider">
                         <Activity className="w-3.5 h-3.5 text-red-900" />
                         <span>Audit Records</span>
@@ -65,7 +65,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                     <span className="text-[10px] text-slate-400 font-mono block mt-0.5">Immutable System Ledger</span>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
                     <div className="flex items-center gap-2 text-slate-500 mb-1 text-[11px] font-semibold uppercase tracking-wider">
                         <KeyRound className="w-3.5 h-3.5 text-red-900" />
                         <span>Credentials</span>
@@ -83,7 +83,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                 {/* Top Accent Line */}
                 <div className="h-1 bg-red-900 w-full" />
 
-                <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-4">
+                <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-red-50 text-red-900 border border-red-100 flex items-center justify-center shrink-0">
                             <Laptop className="w-4 h-4" />
@@ -98,18 +98,18 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                         </div>
                     </div>
 
-                    <span className="text-xs font-mono font-medium text-slate-600 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200">
+                    <span className="text-xs font-mono font-medium text-slate-600 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 self-start sm:self-auto">
                         {activeSessions.length} {activeSessions.length === 1 ? 'Session' : 'Sessions'} Active
                     </span>
                 </div>
 
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                     {activeSessions.length > 0 ? (
                         <div className="divide-y divide-slate-100 border border-slate-200 rounded-lg overflow-hidden">
                             {activeSessions.map((session, idx) => (
                                 <div
                                     key={session.id || idx}
-                                    className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:bg-slate-50/70 transition-colors"
+                                    className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:bg-slate-50/70 transition-colors"
                                 >
                                     <div className="flex items-center gap-3.5 min-w-0">
                                         <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 shrink-0 border border-slate-200/80">
@@ -157,7 +157,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                 {/* Top Accent Line */}
                 <div className="h-1 bg-red-900 w-full" />
 
-                <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-4">
+                <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-red-50 text-red-900 border border-red-100 flex items-center justify-center shrink-0">
                             <Activity className="w-4 h-4" />
@@ -172,16 +172,16 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                         </div>
                     </div>
 
-                    <span className="text-xs font-mono font-medium text-slate-600 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200">
+                    <span className="text-xs font-mono font-medium text-slate-600 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 self-start sm:self-auto">
                         {loginHistory.length} {loginHistory.length === 1 ? 'Record' : 'Records'}
                     </span>
                 </div>
 
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                     {displayedHistory.length > 0 ? (
                         <div className="space-y-3">
                             <div className="w-full overflow-x-auto border border-slate-200 rounded-lg">
-                                <table className="min-w-full divide-y divide-slate-200 text-xs">
+                                <table className="min-w-[600px] w-full divide-y divide-slate-200 text-xs">
                                     <thead className="bg-slate-50">
                                         <tr>
                                             <th className="px-4 py-3 text-left font-semibold text-slate-700">Verification Status</th>

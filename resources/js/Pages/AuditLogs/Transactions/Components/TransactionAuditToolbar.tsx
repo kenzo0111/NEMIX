@@ -204,9 +204,9 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
                 </div>
 
                 {/* Filter Dropdowns */}
-                <div className="flex flex-wrap items-center gap-2.5">
+                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
                     {/* Module Select */}
-                    <div className="w-44">
+                    <div className="w-full sm:w-44">
                         <Select
                             options={moduleOptions}
                             value={selectedModuleOption}
@@ -219,7 +219,7 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
                     </div>
 
                     {/* Action Select */}
-                    <div className="w-48">
+                    <div className="w-full sm:w-48">
                         <Select
                             options={actionOptions}
                             value={selectedActionOption}
@@ -232,7 +232,7 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
                     </div>
 
                     {/* Date Preset Select */}
-                    <div className="w-36">
+                    <div className="w-full sm:w-36">
                         <Select
                             options={datePresetOptions}
                             value={selectedDateOption}

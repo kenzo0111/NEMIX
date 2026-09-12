@@ -33,11 +33,11 @@ export default function RoleTable({
             className="bg-white rounded-xl shadow-2xs border border-gray-200/90 overflow-hidden flex flex-col"
         >
             {/* Header with Search and Create Action */}
-            <div className="p-5 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
-                <div>
+            <div className="p-4 sm:p-5 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
+                <div className="min-w-0">
                     <h2
                         id="roles-heading"
-                        className="text-base font-bold text-gray-900"
+                        className="text-base font-bold text-gray-900 truncate"
                     >
                         Configured Roles
                     </h2>
@@ -46,8 +46,8 @@ export default function RoleTable({
                     </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3">
-                    <div className="relative min-w-[240px] flex-1 sm:flex-initial">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+                    <div className="relative w-full sm:w-64 min-w-0 flex-1 sm:flex-initial">
                         <input
                             type="text"
                             value={searchQuery}

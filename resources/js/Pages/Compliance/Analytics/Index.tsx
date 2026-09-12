@@ -71,14 +71,14 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
                 onToggleCollapse={() => setCollapsed(!collapsed)}
             />
 
-            <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
+            <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'} ml-0`}>
                 <PageHeader
                     title="Inventory Performance Analytics"
                     description="Institutional stock holding, inventory valuation, status distribution, and replenishment analysis"
                     breadcrumbs={[{ name: 'Compliance' }, { name: 'Manage Analytics' }]}
                 />
 
-                <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16">
+                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
                     {/* Compact Analytics Summary: Hero Banner + 4 KPI Cards */}
                     <AnalyticsSummary
                         stats={stats}

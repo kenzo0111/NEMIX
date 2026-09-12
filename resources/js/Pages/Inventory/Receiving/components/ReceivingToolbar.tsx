@@ -30,7 +30,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
         supplierOptions.find((o) => o.value === Number(supplierFilter)) || null;
 
     return (
-        <div className="px-6 lg:px-8 py-5 border-b border-gray-200/80 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50">
+        <div className="p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-50/50">
             <div>
                 <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">
                     Inventory Receiving Records
@@ -41,7 +41,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
             </div>
 
             {/* Filters Container & Actions */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 w-full xl:w-auto">
                 {/* Search Input */}
                 <div className="relative w-full sm:w-64">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">

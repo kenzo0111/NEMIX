@@ -103,9 +103,9 @@ export default function ReportsIndex({
             </div>
 
             <main
-                className={`flex-1 transition-all duration-300 ease-in-out ${
-                    collapsed ? 'ml-20' : 'ml-72'
-                } print:ml-0 print:overflow-visible print:h-auto print:p-0`}
+                className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${
+                    collapsed ? 'md:ml-20' : 'md:ml-72'
+                } ml-0 print:ml-0 print:overflow-visible print:h-auto print:p-0`}
             >
                 <div className="print:hidden compliance-print-hide">
                     <PageHeader
@@ -115,7 +115,7 @@ export default function ReportsIndex({
                     />
                 </div>
 
-                <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 print:p-0 print:m-0 print:space-y-0 print:h-auto">
+                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 print:p-0 print:m-0 print:space-y-0 print:h-auto min-w-0 w-full">
                     <div className="print:hidden space-y-6">
                         {/* Primary Official COA Documents Ledger Card */}
                         <div className="bg-white rounded-xl shadow-2xs border border-gray-200/80 overflow-hidden">

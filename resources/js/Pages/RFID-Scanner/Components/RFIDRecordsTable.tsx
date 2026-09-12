@@ -138,7 +138,7 @@ export default function RFIDRecordsTable({
     return (
         <div className="bg-white rounded-xl shadow-2xs border border-gray-200/90 overflow-hidden">
             {/* Header: Collapsible section */}
-            <div className="px-6 py-4 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-gray-50/80 via-white to-gray-50/80 border-b border-gray-200">
+            <div className="px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-gray-50/80 via-white to-gray-50/80 border-b border-gray-200">
                 <button
                     type="button"
                     onClick={() => setIsCollapsed(!isCollapsed)}
@@ -195,8 +195,8 @@ export default function RFIDRecordsTable({
             {!isCollapsed && (
                 <div>
                     {/* Compact Filter Toolbar */}
-                    <div className="px-6 py-3.5 bg-white border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
-                        <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 flex-1 max-w-sm">
+                    <div className="px-4 sm:px-6 py-3.5 bg-white border-b border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                        <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 flex-1 max-w-none sm:max-w-sm">
                             <div className="relative w-full">
                                 <input
                                     type="text"
@@ -218,14 +218,14 @@ export default function RFIDRecordsTable({
                             </div>
                             <button
                                 type="submit"
-                                className="px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors cursor-pointer shadow-2xs"
+                                className="px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors cursor-pointer shadow-2xs shrink-0"
                             >
                                 Search
                             </button>
                         </form>
 
                         {/* Segmented Filter Control */}
-                        <div className="inline-flex rounded-lg border border-gray-200/90 p-1 bg-gray-100/80 text-xs shadow-2xs">
+                        <div className="inline-flex rounded-lg border border-gray-200/90 p-1 bg-gray-100/80 text-xs shadow-2xs overflow-x-auto justify-between sm:justify-start">
                             <button
                                 type="button"
                                 onClick={() => handleServerFilterChange('all')}
@@ -273,7 +273,7 @@ export default function RFIDRecordsTable({
 
                     {/* Table View */}
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs divide-y divide-gray-200">
+                        <table className="w-full min-w-[760px] text-left text-xs divide-y divide-gray-200">
                             <thead>
                                 <tr className="bg-gray-50/60 text-gray-500 font-semibold text-[11px] border-b border-gray-200">
                                     <th className="py-3 px-6">Item Description</th>
@@ -391,7 +391,7 @@ export default function RFIDRecordsTable({
 
                     {/* Server-side Pagination footer if paginator present */}
                     {pagination && pagination.last_page > 1 && (
-                        <div className="px-6 py-3.5 bg-gray-50/70 border-t border-gray-200 flex items-center justify-between text-xs text-gray-600">
+                        <div className="px-4 sm:px-6 py-3.5 bg-gray-50/70 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600 text-center sm:text-left">
                             <div>
                                 Showing <span className="font-semibold text-gray-900">{pagination.from ?? 0}</span> to{' '}
                                 <span className="font-semibold text-gray-900">{pagination.to ?? 0}</span> of{' '}

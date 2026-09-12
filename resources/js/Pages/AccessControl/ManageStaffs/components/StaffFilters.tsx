@@ -70,9 +70,9 @@ export default function StaffFilters({
     return (
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white border border-gray-200/80 rounded-xl p-3.5 sm:p-4 shadow-2xs">
             {/* Search and Status Dropdown */}
-            <div className="flex flex-wrap items-center gap-2.5 flex-1">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 flex-1">
                 {/* Search Input */}
-                <div className="relative min-w-[240px] flex-1 sm:flex-initial">
+                <div className="relative w-full sm:w-64 min-w-0 flex-1 sm:flex-initial">
                     <input
                         type="text"
                         value={searchQuery}
@@ -110,7 +110,7 @@ export default function StaffFilters({
                     <button
                         type="button"
                         onClick={onResetFilters}
-                        className="px-3 py-2 text-xs font-semibold text-red-950 hover:bg-red-50 hover:border-red-900/50 border border-red-900/30 rounded-lg transition-colors cursor-pointer shadow-2xs"
+                        className="px-3 py-2 text-xs font-semibold text-red-950 hover:bg-red-50 hover:border-red-900/50 border border-red-900/30 rounded-lg transition-colors cursor-pointer shadow-2xs text-center"
                         title="Reset all filters"
                     >
                         Reset
@@ -119,7 +119,7 @@ export default function StaffFilters({
             </div>
 
             {/* Primary Action Button */}
-            <div className="flex items-center shrink-0">
+            <div className="flex items-center shrink-0 w-full sm:w-auto">
                 {canAddStaff ? (
                     <button
                         type="button"

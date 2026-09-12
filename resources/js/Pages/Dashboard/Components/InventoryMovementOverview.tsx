@@ -28,7 +28,7 @@ export default function InventoryMovementOverview({
     const endingBalance = movementSummary?.ending_balance ?? 0;
 
     return (
-        <section aria-label="Inventory Movement Overview" className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs">
+        <section aria-label="Inventory Movement Overview" className="bg-white border border-gray-200 rounded-lg p-4 sm:p-5 shadow-xs">
             {/* Header & Controls */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
                 <div>
@@ -108,8 +108,8 @@ export default function InventoryMovementOverview({
             </div>
 
             {/* Concise Period Movement Summary Row */}
-            <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-3 gap-4 text-center sm:text-left">
-                <div className="sm:border-r sm:border-gray-100 sm:pr-4">
+            <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center sm:text-left">
+                <div className="sm:border-r sm:border-gray-100 sm:pr-4 pb-2 sm:pb-0 border-b sm:border-b-0 border-gray-50">
                     <span className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
                         Total Received
                     </span>

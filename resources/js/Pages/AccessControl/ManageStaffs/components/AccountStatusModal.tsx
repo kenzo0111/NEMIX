@@ -32,9 +32,9 @@ export default function AccountStatusModal({
                     }`}
                 ></div>
 
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                     <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
                             <div
                                 className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
                                     isActive
@@ -48,11 +48,11 @@ export default function AccountStatusModal({
                                     <UserCheck className="w-5 h-5 text-emerald-700" />
                                 )}
                             </div>
-                            <div>
-                                <h3 className="text-base font-bold text-gray-900">
+                            <div className="min-w-0">
+                                <h3 className="text-base font-bold text-gray-900 truncate">
                                     {isActive ? 'Disable Staff Account' : 'Enable Staff Account'}
                                 </h3>
-                                <p className="text-xs text-gray-500 mt-0.5">
+                                <p className="text-xs text-gray-500 mt-0.5 truncate">
                                     Administrative access authorization update
                                 </p>
                             </div>
@@ -60,7 +60,7 @@ export default function AccountStatusModal({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                            className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer shrink-0 ml-2"
                             aria-label="Close modal"
                         >
                             <X className="w-5 h-5" />
@@ -87,12 +87,12 @@ export default function AccountStatusModal({
                     </div>
 
                     {/* Action buttons */}
-                    <div className="mt-6 flex items-center justify-end gap-2.5">
+                    <div className="mt-6 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={isProcessing}
-                            className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer text-center"
                         >
                             Cancel
                         </button>
@@ -100,7 +100,7 @@ export default function AccountStatusModal({
                             type="button"
                             onClick={onConfirm}
                             disabled={isProcessing}
-                            className={`px-5 py-2.5 text-white text-xs font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 uppercase font-mono tracking-wider cursor-pointer ${
+                            className={`w-full sm:w-auto px-5 py-2.5 text-white text-xs font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 uppercase font-mono tracking-wider cursor-pointer ${
                                 isActive
                                     ? 'bg-red-950 hover:bg-red-900 active:bg-red-950'
                                     : 'bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900'

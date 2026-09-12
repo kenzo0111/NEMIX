@@ -211,7 +211,7 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
                 </div>
 
                 {/* React-Select Dropdowns matching other modules */}
-                <div className="flex flex-wrap items-center gap-2.5">
+                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
                     {/* Role Filter */}
                     <div className="w-full sm:w-44">
                         <Select<OptionType>

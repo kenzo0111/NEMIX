@@ -113,15 +113,15 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
                 </div>
 
                 {/* Form Document View Area */}
-                <div className="p-6 overflow-y-auto bg-gray-100 flex justify-center">
-                    <div className="ris-print-area bg-white border border-gray-300 rounded shadow-sm w-full max-w-[210mm] p-4 overflow-x-auto print-zoom-fit">
+                <div className="p-3 sm:p-6 overflow-y-auto max-h-[80vh] bg-gray-100 flex justify-center">
+                    <div className="ris-print-area bg-white border border-gray-300 rounded shadow-sm w-full max-w-[210mm] p-2 sm:p-4 overflow-x-auto print-zoom-fit">
                         {/* Preserve exact RequisitionIssueSlip component layout */}
                         <RequisitionIssueSlip data={risData} />
                     </div>
                 </div>
 
                 {/* Modal Footer */}
-                <div className="ris-print-hide px-6 py-3.5 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-2.5 flex-shrink-0">
+                <div className="ris-print-hide px-4 sm:px-6 py-3.5 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-2.5 flex-shrink-0">
                     <button
                         type="button"
                         onClick={handlePrint}

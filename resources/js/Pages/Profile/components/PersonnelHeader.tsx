@@ -20,17 +20,17 @@ export default function PersonnelHeader({ profile }: Props) {
     const isVerified = Boolean(profile.email_verified_at);
 
     return (
-        <div className="bg-red-950 text-white rounded-lg border border-red-900 border-l-4 border-l-amber-500 p-5 sm:p-6 shadow-xs mb-6">
+        <div className="bg-red-950 text-white rounded-lg border border-red-900 border-l-4 border-l-amber-500 p-4 sm:p-5 lg:p-6 shadow-xs mb-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-start sm:items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3.5 sm:gap-4">
                     <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-red-900/90 text-amber-300 flex items-center justify-center font-bold font-serif text-lg sm:text-xl border border-red-800 shadow-xs shrink-0 select-none">
                         {initials}
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-1 min-w-0">
                         <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-red-900/80 border border-red-800 text-[11px] font-semibold text-amber-300 uppercase tracking-wide">
                             Supply & Property Management Office
                         </div>
-                        <h1 className="text-xl sm:text-2xl font-bold font-serif text-white tracking-tight">
+                        <h1 className="text-xl sm:text-2xl font-bold font-serif text-white tracking-tight break-words">
                             {profile.name}
                             {profile.username && (
                                 <span className="text-xs text-red-200/80 font-mono font-normal ml-2">
@@ -38,7 +38,7 @@ export default function PersonnelHeader({ profile }: Props) {
                                 </span>
                             )}
                         </h1>
-                        <p className="text-red-200/90 text-xs sm:text-sm max-w-2xl font-normal leading-relaxed">
+                        <p className="text-red-200/90 text-xs sm:text-sm max-w-2xl font-normal leading-relaxed break-words">
                             Official university personnel profile, security credentials, and system access activity for <strong className="text-white font-medium">{profile.email}</strong>.
                         </p>
                     </div>

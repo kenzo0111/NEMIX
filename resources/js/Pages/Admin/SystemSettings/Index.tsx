@@ -162,9 +162,9 @@ export default function Index({
 
             {/* Main Application Area */}
             <main
-                className={`flex-1 transition-all duration-300 ease-in-out ${
-                    collapsed ? 'ml-20' : 'ml-72'
-                }`}
+                className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${
+                    collapsed ? 'md:ml-20' : 'md:ml-72'
+                } ml-0`}
             >
                 {/* 1. PageHeader with Single Primary Save Controls */}
                 <PageHeader
@@ -175,7 +175,7 @@ export default function Index({
                         { name: 'System Settings' },
                     ]}
                     actions={
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                             {isDirty && (
                                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200/80 text-amber-800 text-xs font-medium">
                                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
@@ -213,7 +213,7 @@ export default function Index({
                 />
 
                 {/* Main Content Body */}
-                <div className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto pb-20">
+                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-7xl mx-auto pb-20 min-w-0 w-full">
                     {/* 2. Institutional Hero Banner */}
                     <SettingsHero userName={user?.name} />
 
@@ -227,7 +227,7 @@ export default function Index({
                     <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
                         <SettingsSectionHeader tab={currentTabMeta} />
 
-                        <div className="p-6 sm:p-8">
+                        <div className="p-4 sm:p-6 lg:p-8">
                             {activeTab === 'institution' && (
                                 <InstitutionSettings
                                     settings={data.settings}

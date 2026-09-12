@@ -13,8 +13,8 @@ export const SupplierToolbar: React.FC<SupplierToolbarProps> = ({
     onOpenCreateModal,
 }) => {
     return (
-        <div className="px-6 lg:px-8 py-4 bg-gray-50/40 border-b border-gray-200/80 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-3 flex-1 min-w-[280px]">
+        <div className="p-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 bg-gray-50/40 border-b border-gray-200/80 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 flex-1 min-w-0">
                 {/* Search Input */}
                 <div className="relative flex-grow sm:max-w-md w-full">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">

@@ -1,8 +1,13 @@
 import React from 'react';
+import { Menu } from 'lucide-react';
 import SystemModeBadge from '@/Components/SystemModeBadge';
 import { usePage } from '@inertiajs/react';
 
-export default function DashboardHeader() {
+interface DashboardHeaderProps {
+    onToggleSidebar?: () => void;
+}
+
+export default function DashboardHeader({ onToggleSidebar }: DashboardHeaderProps) {
     const system = (usePage().props as any).system;
     const systemMode = system?.mode || 'LIVE PRODUCTION';
 
@@ -16,12 +21,20 @@ export default function DashboardHeader() {
         weekday: 'long',
     });
 
+    const handleToggleMenu = () => {
+        if (onToggleSidebar) {
+            onToggleSidebar();
+        } else {
+            window.dispatchEvent(new CustomEvent('toggle-nemix-mobile-sidebar'));
+        }
+    };
+
     return (
-        <header className="sticky top-0 z-40 bg-white shadow-xs">
+        <header className="sticky top-0 z-30 bg-white shadow-xs">
             {/* Non-Production Mode Alert Notice */}
             {systemMode && systemMode !== 'LIVE PRODUCTION' && (
                 <div
-                    className={`px-6 py-2 text-xs font-semibold text-center flex items-center justify-center gap-2 border-b ${
+                    className={`px-4 sm:px-6 py-2 text-xs font-semibold text-center flex items-center justify-center gap-2 border-b ${
                         systemMode === 'MAINTENANCE MODE'
                             ? 'bg-amber-950 text-amber-200 border-amber-800'
                             : systemMode === 'STAGING SANDBOX'
@@ -45,22 +58,33 @@ export default function DashboardHeader() {
             )}
 
             {/* Single Merged Header Row */}
-            <div className="border-b border-gray-200 px-6 lg:px-8 py-3.5 flex items-center justify-between">
-                <div>
-                    <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[10px] font-bold text-red-900 uppercase tracking-widest">
-                            SPMO • Supply & Property Management Office
-                        </span>
+            <div className="border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-start gap-2 min-w-0 flex-1">
+                    <button
+                        type="button"
+                        onClick={handleToggleMenu}
+                        className="md:hidden p-1.5 -ml-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer shrink-0 mt-0.5"
+                        aria-label="Toggle navigation menu"
+                    >
+                        <Menu className="w-5 h-5" />
+                    </button>
+
+                    <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-0.5">
+                            <span className="text-[10px] font-bold text-red-900 uppercase tracking-widest truncate">
+                                SPMO • Supply & Property Management Office
+                            </span>
+                        </div>
+                        <h1 className="text-lg sm:text-xl font-bold text-gray-900 font-serif tracking-tight break-words">
+                            Supply & Inventory Management
+                        </h1>
+                        <p className="text-xs text-gray-500 font-medium mt-0.5 break-words">
+                            System-wide operational overview and real-time asset position
+                        </p>
                     </div>
-                    <h1 className="text-xl font-bold text-gray-900 font-serif tracking-tight">
-                        Supply & Inventory Management
-                    </h1>
-                    <p className="text-xs text-gray-500 font-medium mt-0.5">
-                        System-wide operational overview and real-time asset position
-                    </p>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 shrink-0 justify-between sm:justify-end">
                     <SystemModeBadge />
                     <div className="text-right hidden sm:block border-l border-gray-200 pl-4">
                         <span className="block text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">

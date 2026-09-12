@@ -96,7 +96,7 @@ export default function InventoryTable({
 
             {/* Pagination Footer */}
             {totalCount > 0 && (
-                <div className="px-6 py-4 border-t border-gray-200/80 bg-gray-50/50 flex flex-col sm:flex-row items-center sm:justify-between gap-3 text-xs text-gray-600">
+                <div className="px-4 sm:px-6 py-4 border-t border-gray-200/80 bg-gray-50/50 flex flex-col sm:flex-row items-center sm:justify-between gap-3 text-xs text-gray-600">
                     <div>
                         Showing <span className="font-semibold text-gray-900">{fromCount}</span>–<span className="font-semibold text-gray-900">{toCount}</span> of <span className="font-semibold text-gray-900">{totalCount}</span> items
                     </div>

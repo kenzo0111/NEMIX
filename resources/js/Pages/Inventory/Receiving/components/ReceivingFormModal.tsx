@@ -37,7 +37,7 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
                 <div className="h-1 bg-red-900 w-full" />
 
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50/50">
+                <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50/50">
                     <div>
                         <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">
                             {mode === 'edit' ? `Edit Receiving Record #${recordId}` : 'Record Receiving'}
@@ -52,7 +52,7 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
                         type="button"
                         onClick={onClose}
                         disabled={processing}
-                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-md hover:bg-gray-100 transition-colors disabled:opacity-50"
+                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-md hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer"
                         aria-label="Close modal"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +62,7 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
                 </div>
 
                 {/* Form Body */}
-                <div className="p-6">
+                <div className="p-4 sm:p-6 max-h-[80vh] overflow-y-auto">
                     <ReceivingForm
                         data={data}
                         setData={setData}

@@ -35,7 +35,7 @@ export default function InventoryToolbar({
     }));
 
     return (
-        <div className="px-6 lg:px-8 py-5 border-b border-gray-200/80 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50">
+        <div className="p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/50">
             <div>
                 <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">Inventory Master List</h3>
                 <p className="text-xs text-gray-500 font-medium mt-0.5">
@@ -44,7 +44,7 @@ export default function InventoryToolbar({
             </div>
 
             {/* Filter Controls & Actions */}
-            <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 w-full md:w-auto">
                 {/* Search Input */}
                 <div className="relative flex-grow sm:w-64">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
@@ -104,7 +104,7 @@ export default function InventoryToolbar({
                 <button
                     type="button"
                     onClick={onOpenCreateModal}
-                    className="bg-red-950 hover:bg-red-900 text-white font-semibold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase tracking-wider"
+                    className="w-full sm:w-auto bg-red-950 hover:bg-red-900 text-white font-semibold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase tracking-wider cursor-pointer"
                 >
                     <Plus className="w-4 h-4 text-amber-300" />
                     <span>Add Item</span>

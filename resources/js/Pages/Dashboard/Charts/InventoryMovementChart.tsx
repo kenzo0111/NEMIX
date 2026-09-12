@@ -53,7 +53,7 @@ export default function InventoryMovementChart({ data }: InventoryMovementChartP
     }
 
     return (
-        <ChartContainer config={chartConfig} className="h-64 w-full aspect-auto">
+        <ChartContainer config={chartConfig} className="h-64 sm:h-72 lg:h-80 w-full aspect-auto">
             <ComposedChart data={chartData} margin={{ top: 12, right: 12, left: -16, bottom: 0 }}>
                 <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis

@@ -135,14 +135,14 @@ export default function Index({
                 onToggleCollapse={() => setCollapsed(!collapsed)}
             />
 
-            <main className={`flex-1 transition-all duration-300 ease-in-out ${collapsed ? 'ml-20' : 'ml-72'}`}>
+            <main className={`flex-1 transition-all duration-300 ease-in-out min-w-0 ${collapsed ? 'md:ml-20' : 'md:ml-72'} ml-0`}>
                 <PageHeader
                     title="RFID Scanner"
                     description="Assign RFID identification tags to inventory items before receiving."
                     breadcrumbs={[{ name: 'RFID Scanner', href: '#' }]}
                 />
 
-                <div className="p-6 lg:p-8 space-y-6 max-w-[1500px] mx-auto pb-16">
+                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1500px] mx-auto pb-16 min-w-0 w-full">
                     {/* Optional Flash Notification */}
                     {flash?.success && (
                         <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs rounded-xl shadow-2xs">
@@ -158,7 +158,7 @@ export default function Index({
                     )}
 
                     {/* Operational Metric Overview Strip */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
                         {/* 1. Total Catalog Items */}
                         <div className="bg-white rounded-xl p-4 border border-gray-200/90 shadow-2xs flex items-center justify-between">
                             <div>
@@ -274,9 +274,9 @@ export default function Index({
                         </div>
                     ) : (
                         /* Main Two-Column Workflow Workspace */
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-w-0">
                             {/* LEFT COLUMN (5 cols): Selected Item and Item Search */}
-                            <div className="lg:col-span-5 bg-white rounded-xl p-6 shadow-2xs border border-gray-200/90 flex flex-col justify-between min-h-[420px]">
+                            <div className="lg:col-span-5 bg-white rounded-xl p-4 sm:p-6 shadow-2xs border border-gray-200/90 flex flex-col justify-between min-h-[420px] min-w-0">
                                 <div>
                                     <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
                                         <div className="flex items-center gap-2.5">

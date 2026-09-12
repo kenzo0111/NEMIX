@@ -106,7 +106,7 @@ export default function StaffTable({
             </div>
 
             {/* Table Footer */}
-            <div className="px-6 py-3.5 border-t border-gray-200 bg-gray-50/60 flex items-center justify-between text-xs text-gray-500">
+            <div className="px-4 sm:px-6 py-3.5 border-t border-gray-200 bg-gray-50/60 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
                 <span>
                     Showing <span className="font-semibold text-gray-800 tabular-nums">{staffs.length}</span> of{' '}
                     <span className="font-semibold text-gray-800 tabular-nums">{totalStaffCount}</span> staff accounts
