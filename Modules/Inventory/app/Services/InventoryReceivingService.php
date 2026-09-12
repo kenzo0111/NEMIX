@@ -9,12 +9,82 @@ use Modules\AuditLogs\Models\TransactionTrail;
 use Modules\Inventory\Models\InventoryBatch;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\Receiving;
+use Modules\Suppliers\Models\Supplier;
 
 class InventoryReceivingService
 {
     public function __construct(
         protected InventoryBalanceService $balanceService
     ) {}
+
+    /**
+     * Extracts a 3-letter uppercase acronym from a supplier's name.
+     */
+    public function generateSupplierAcronym(?Supplier $supplier): string
+    {
+        if (!$supplier || empty(trim((string) $supplier->name))) {
+            return 'GEN';
+        }
+
+        $name = trim((string) $supplier->name);
+        $words = preg_split('/[\s\-_]+/', $name);
+        $letters = [];
+        foreach ($words as $word) {
+            $cleaned = preg_replace('/[^A-Za-z0-9]/', '', $word);
+            if ($cleaned !== '') {
+                $letters[] = strtoupper(substr($cleaned, 0, 1));
+            }
+        }
+
+        if (count($letters) < 3 && !empty($words[0])) {
+            $cleanFirst = preg_replace('/[^A-Za-z0-9]/', '', $words[0]);
+            for ($i = 1; $i < strlen($cleanFirst) && count($letters) < 3; $i++) {
+                $letters[] = strtoupper(substr($cleanFirst, $i, 1));
+            }
+        }
+
+        while (count($letters) < 3) {
+            $letters[] = 'X';
+        }
+
+        return implode('', array_slice($letters, 0, 3));
+    }
+
+    /**
+     * Generates an automatic supplier stock number formatted as:
+     * {SUPPLIER_ACRONYM}-{YY}-{MM}-{ITEM_CODE_INDEX}-{SERIES}
+     * e.g., COS-26-09-001-0001
+     */
+    public function generateSupplierStockNo(int $supplierId, int $itemId, ?string $date = null): string
+    {
+        $supplier = Supplier::find($supplierId);
+        $acronym = $this->generateSupplierAcronym($supplier);
+
+        try {
+            $carbonDate = $date ? Carbon::parse($date) : Carbon::now();
+        } catch (\Throwable $e) {
+            $carbonDate = Carbon::now();
+        }
+
+        $yy = $carbonDate->format('y');
+        $mm = $carbonDate->format('m');
+        $itemPart = sprintf('%03d', $itemId % 1000);
+
+        $batchCount = InventoryBatch::where('supplier_id', $supplierId)
+            ->where('item_id', $itemId)
+            ->count();
+        $series = $batchCount + 1;
+
+        do {
+            $candidate = sprintf('%s-%s-%s-%s-%04d', $acronym, $yy, $mm, $itemPart, $series);
+            $exists = InventoryBatch::where('supplier_stock_no', $candidate)->exists()
+                || Receiving::where('supplier_stock_no', $candidate)->exists();
+            if (!$exists) {
+                return $candidate;
+            }
+            $series++;
+        } while (true);
+    }
 
     /**
      * Records an incoming receiving transaction and creates a new inventory batch.
@@ -32,10 +102,12 @@ class InventoryReceivingService
         return DB::transaction(function () use ($data, $userId) {
             $itemId = (int) $data['item_id'];
             $supplierId = (int) $data['supplier_id'];
-            $supplierStockNo = !empty($data['supplier_stock_no']) ? trim((string) $data['supplier_stock_no']) : null;
+            $dateReceived = $data['date_received'];
+            $supplierStockNo = !empty($data['supplier_stock_no'])
+                ? trim((string) $data['supplier_stock_no'])
+                : $this->generateSupplierStockNo($supplierId, $itemId, $dateReceived);
             $quantity = (int) $data['quantity'];
             $unitCost = isset($data['unit_cost']) && $data['unit_cost'] !== '' ? (float) $data['unit_cost'] : 0.00;
-            $dateReceived = $data['date_received'];
 
             $item = Item::where('id', $itemId)->lockForUpdate()->firstOrFail();
 
@@ -122,9 +194,13 @@ class InventoryReceivingService
             $newSupplierId = (int) ($data['supplier_id'] ?? $lockedReceiving->supplier_id);
             $newDate = $data['date_received'] ?? $lockedReceiving->date_received;
             $hasStockNoKey = array_key_exists('supplier_stock_no', $data);
-            $newSupplierStockNo = $hasStockNoKey
-                ? (!empty($data['supplier_stock_no']) ? trim((string) $data['supplier_stock_no']) : null)
-                : ($batch->supplier_stock_no ?? $lockedReceiving->supplier_stock_no);
+            $newSupplierStockNo = $hasStockNoKey && !empty($data['supplier_stock_no'])
+                ? trim((string) $data['supplier_stock_no'])
+                : ($batch?->supplier_stock_no ?: $lockedReceiving->supplier_stock_no);
+
+            if (empty($newSupplierStockNo)) {
+                $newSupplierStockNo = $this->generateSupplierStockNo($newSupplierId, $newItemId, $newDate);
+            }
 
             if ($oldItemId === $newItemId) {
                 $item = Item::where('id', $oldItemId)->lockForUpdate()->firstOrFail();

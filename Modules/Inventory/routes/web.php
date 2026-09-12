@@ -6,6 +6,7 @@ use Modules\Inventory\Http\Controllers\InventoryController;
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('inventories', InventoryController::class)->names('inventory');
     Route::get('inventory/receiving', [InventoryController::class, 'receiving'])->name('inventory.receiving');
+    Route::get('inventory/generate-supplier-stock-no', [InventoryController::class, 'generateSupplierStockNo'])->name('inventory.supplier-stock-no');
     Route::post('inventory/receiving', [InventoryController::class, 'storeReceiving'])->name('inventory.receiving.store');
     Route::put('inventory/receiving/{receiving}', [InventoryController::class, 'updateReceiving'])->name('inventory.receiving.update');
     Route::delete('inventory/receiving/{receiving}', [InventoryController::class, 'destroyReceiving'])->name('inventory.receiving.destroy');

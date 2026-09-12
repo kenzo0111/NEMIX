@@ -940,4 +940,69 @@ class ItemMasterBatchArchitectureTest extends TestCase
         $item->refresh();
         $this->assertEquals(50, $item->stock);
     }
+
+    /**
+     * Requirement: The supplier stock no will be automatic, not typed.
+     */
+    public function test_supplier_stock_no_is_generated_automatically_when_not_provided(): void
+    {
+        $item = Item::create([
+            'name' => 'Legal Paper Bond 70 GSM',
+            'sku' => 'BOND-LG-70',
+            'unit_of_issue' => 'Ream',
+            'stock' => 0,
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        // Receiving without providing supplier_stock_no (e.g. from automatic form submission)
+        $batch = $this->receivingService->record([
+            'item_id' => $item->id,
+            'supplier_id' => $this->supplierA->id, // "Crown Paper Supplies Corp." -> "CPS"
+            'quantity' => 100,
+            'unit_cost' => 180.00,
+            'date_received' => '2026-09-12',
+        ], $this->adminUser->id)['batch'];
+
+        $this->assertNotEmpty($batch->supplier_stock_no);
+        $this->assertStringStartsWith('CPS-26-09-', $batch->supplier_stock_no);
+
+        // Subsequent batch for same item and supplier increments series
+        $batch2 = $this->receivingService->record([
+            'item_id' => $item->id,
+            'supplier_id' => $this->supplierA->id,
+            'quantity' => 50,
+            'unit_cost' => 190.00,
+            'date_received' => '2026-09-15',
+        ], $this->adminUser->id)['batch'];
+
+        $this->assertNotEmpty($batch2->supplier_stock_no);
+        $this->assertNotEquals($batch->supplier_stock_no, $batch2->supplier_stock_no);
+        $this->assertStringStartsWith('CPS-26-09-', $batch2->supplier_stock_no);
+    }
+
+    /**
+     * Requirement: Endpoint returns automatic supplier stock number for real-time frontend prefill.
+     */
+    public function test_supplier_stock_no_api_endpoint_generates_preview(): void
+    {
+        $item = Item::create([
+            'name' => 'Marker Permanent Black',
+            'sku' => 'MRK-BLK',
+            'unit_of_issue' => 'Piece',
+            'stock' => 0,
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        $response = $this->actingAs($this->adminUser)->getJson(route('inventory.supplier-stock-no', [
+            'supplier_id' => $this->supplierB->id, // "Bicol School & Office Depot" -> "BSO"
+            'item_id' => $item->id,
+            'date_received' => '2026-09-12',
+        ]));
+
+        $response->assertOk();
+        $generated = $response->json('supplier_stock_no');
+        $this->assertNotEmpty($generated);
+        $this->assertStringStartsWith('BSO-26-09-', $generated);
+    }
 }
+

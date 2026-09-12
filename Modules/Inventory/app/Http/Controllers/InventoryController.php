@@ -520,6 +520,23 @@ class InventoryController extends Controller
         return redirect()->route('inventory.receiving')->with('success', 'Receiving record voided successfully.');
     }
 
+    public function generateSupplierStockNo(Request $request)
+    {
+        $supplierId = (int) $request->input('supplier_id');
+        $itemId = (int) $request->input('item_id');
+        $date = $request->input('date_received') ?: date('Y-m-d');
+
+        if (!$supplierId || !$itemId) {
+            return response()->json(['supplier_stock_no' => '']);
+        }
+
+        $stockNo = $this->receivingService->generateSupplierStockNo($supplierId, $itemId, $date);
+
+        return response()->json([
+            'supplier_stock_no' => $stockNo,
+        ]);
+    }
+
     public function issuance(Request $request)
     {
         $search = trim($request->input('search', ''));
