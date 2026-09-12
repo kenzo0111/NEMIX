@@ -122,55 +122,76 @@ class InventoryReceivingService
                 $unitCost = (float) $item->unit_cost;
             }
 
-            // 1. Create receiving header record
-            $receiving = Receiving::create([
-                'item_id' => $item->id,
-                'supplier_id' => $supplierId,
-                'supplier_stock_no' => $supplierStockNo,
-                'quantity' => $quantity,
-                'date_received' => $dateReceived,
-                'created_by' => $userId,
-            ]);
+            // 1. Create receiving header and batch within audit group
+            $reference = 'RR-' . ($data['supplier_stock_no'] ?? uniqid());
+            $groupId = 'RECEIVING:' . $supplierStockNo;
+            \Modules\AuditLogs\Support\AuditGroupContext::start($groupId, $supplierStockNo, 'Inventory', 'inventory.receiving.created');
 
-            // 2. Create inventory batch
-            $batch = InventoryBatch::create([
-                'item_id' => $item->id,
-                'receiving_id' => $receiving->id,
-                'supplier_id' => $supplierId,
-                'supplier_stock_no' => $supplierStockNo,
-                'quantity_received' => $quantity,
-                'quantity_remaining' => $quantity,
-                'unit_cost' => $unitCost,
-                'date_received' => $dateReceived,
-                'created_by' => $userId,
-            ]);
+            try {
+                $receiving = Receiving::create([
+                    'item_id' => $item->id,
+                    'supplier_id' => $supplierId,
+                    'supplier_stock_no' => $supplierStockNo,
+                    'quantity' => $quantity,
+                    'date_received' => $dateReceived,
+                    'created_by' => $userId,
+                ]);
 
-            // 3. If item had no supplier set, store as initial reference
-            if (!$item->supplier_id && $supplierId) {
-                $item->supplier_id = $supplierId;
+                // 2. Create inventory batch
+                $batch = InventoryBatch::create([
+                    'item_id' => $item->id,
+                    'receiving_id' => $receiving->id,
+                    'supplier_id' => $supplierId,
+                    'supplier_stock_no' => $supplierStockNo,
+                    'quantity_received' => $quantity,
+                    'quantity_remaining' => $quantity,
+                    'unit_cost' => $unitCost,
+                    'date_received' => $dateReceived,
+                    'created_by' => $userId,
+                ]);
+
+                // 3. If item had no supplier set, store as initial reference
+                if (!$item->supplier_id && $supplierId) {
+                    $item->supplier_id = $supplierId;
+                }
+
+                // 4. Update cached stock & valuation
+                $this->balanceService->synchronizeItem($item);
+            } finally {
+                \Modules\AuditLogs\Support\AuditGroupContext::stop();
             }
 
-            // 4. Update cached stock & valuation
-            $this->balanceService->synchronizeItem($item);
-
-            // 5. Audit trail
+            // 5. Audit trail (Top-Level Parent Business Event)
             if (class_exists(TransactionTrail::class)) {
+                $supplierName = class_exists(\Modules\Suppliers\Models\Supplier::class)
+                    ? (\Modules\Suppliers\Models\Supplier::find($supplierId)?->name ?? 'Supplier')
+                    : 'Supplier';
+                $secondaryLine = sprintf('%s • %s • %s units', $item->name, $supplierName, number_format($quantity));
+
                 TransactionTrail::create([
                     'user_id' => $userId,
                     'module' => 'Inventory',
-                    'action' => 'Received Inventory Batch',
+                    'action' => 'Recorded Receiving',
                     'resource_ref' => 'RR-' . $receiving->id,
-                    'details' => json_encode([
+                    'details' => $secondaryLine,
+                    'status' => 'Success',
+                    'audit_group_id' => $groupId,
+                    'is_parent' => true,
+                    'event_key' => 'inventory.receiving.created',
+                    'subject_type' => get_class($receiving),
+                    'subject_id' => (string) $receiving->id,
+                    'metadata' => [
                         'receiving_id' => $receiving->id,
                         'batch_id' => $batch->id,
                         'item_id' => $item->id,
                         'item_name' => $item->name,
                         'supplier_id' => $supplierId,
+                        'supplier_name' => $supplierName,
                         'quantity' => $quantity,
                         'unit_cost' => $unitCost,
                         'date_received' => $dateReceived,
-                    ]),
-                    'status' => 'completed',
+                        'supplier_stock_no' => $supplierStockNo,
+                    ],
                 ]);
             }
 

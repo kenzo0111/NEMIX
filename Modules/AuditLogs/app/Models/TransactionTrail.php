@@ -20,6 +20,24 @@ class TransactionTrail extends Model
         'resource_ref',
         'details',
         'status',
+        'audit_group_id',
+        'is_parent',
+        'event_key',
+        'subject_type',
+        'subject_id',
+        'old_values',
+        'new_values',
+        'metadata',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     */
+    protected $casts = [
+        'is_parent' => 'boolean',
+        'old_values' => 'array',
+        'new_values' => 'array',
+        'metadata' => 'array',
     ];
 
     /**
@@ -28,5 +46,32 @@ class TransactionTrail extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the child technical events associated with this business event group.
+     */
+    public function children()
+    {
+        return $this->hasMany(TransactionTrail::class, 'audit_group_id', 'audit_group_id')
+            ->where('is_parent', false)
+            ->whereNotNull('audit_group_id')
+            ->orderBy('id', 'asc');
+    }
+
+    /**
+     * Scope query to business-level transactions (parent rows or standalone events).
+     */
+    public function scopeBusinessEvents($query)
+    {
+        return $query->where('is_parent', true);
+    }
+
+    /**
+     * Scope query to technical child events.
+     */
+    public function scopeChildEvents($query)
+    {
+        return $query->where('is_parent', false);
     }
 }

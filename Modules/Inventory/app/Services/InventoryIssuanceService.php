@@ -118,70 +118,86 @@ class InventoryIssuanceService
                 ],
             ];
 
-            // 5. Create Issuance parent record
-            $issuance = Issuance::create([
-                'ris_number' => $risNumber,
-                'item_id' => $primaryItemId,
-                'quantity' => $totalQuantity,
-                'recipient' => $data['recipient'],
-                'department' => $data['department'] ?? null,
-                'fund_cluster' => $data['fund_cluster'] ?? '01 - Regular Agency Fund',
-                'recipient_designation' => $data['recipient_designation'] ?? null,
-                'purpose' => $data['purpose'] ?? null,
-                'approved_by' => $approvedByName,
-                'approved_by_designation' => $approvedByDesignation,
-                'issued_by_name' => $issuedByName,
-                'issued_by_position' => $issuedByPosition,
-                'snapshot' => $signatorySnapshot,
-                'date_issued' => $normalizedDate,
-                'status' => 'Issued',
-                'issued_by' => $userId,
-            ]);
+            // 5. Create Issuance parent record and children within audit group
+            $groupId = 'ISSUANCE:' . $risNumber;
+            \Modules\AuditLogs\Support\AuditGroupContext::start($groupId, $risNumber, 'Inventory', 'inventory.issuance.created');
 
-            // 6. Allocate batches via FIFO and create detail records
-            foreach ($condensed as $itemId => $qty) {
-                $item = $lockedItems->get($itemId);
-                $costingResult = $this->costingService->allocateFifo($item, $qty);
-
-                $issuanceItem = IssuanceItem::create([
-                    'issuance_id' => $issuance->id,
-                    'item_id' => $item->id,
-                    'quantity' => $qty,
-                    'unit_cost' => $costingResult['blended_unit_cost'],
-                    'amount' => $costingResult['total_amount'],
+            try {
+                $issuance = Issuance::create([
+                    'ris_number' => $risNumber,
+                    'item_id' => $primaryItemId,
+                    'quantity' => $totalQuantity,
+                    'recipient' => $data['recipient'],
+                    'department' => $data['department'] ?? null,
+                    'fund_cluster' => $data['fund_cluster'] ?? '01 - Regular Agency Fund',
+                    'recipient_designation' => $data['recipient_designation'] ?? null,
+                    'purpose' => $data['purpose'] ?? null,
+                    'approved_by' => $approvedByName,
+                    'approved_by_designation' => $approvedByDesignation,
+                    'issued_by_name' => $issuedByName,
+                    'issued_by_position' => $issuedByPosition,
+                    'snapshot' => $signatorySnapshot,
+                    'date_issued' => $normalizedDate,
+                    'status' => 'Issued',
+                    'issued_by' => $userId,
                 ]);
 
-                foreach ($costingResult['allocations'] as $alloc) {
-                    if ($alloc['batch']) {
-                        IssuanceBatchAllocation::create([
-                            'issuance_item_id' => $issuanceItem->id,
-                            'inventory_batch_id' => $alloc['batch']->id,
-                            'quantity' => $alloc['quantity'],
-                            'unit_cost' => $alloc['unit_cost'],
-                            'amount' => $alloc['amount'],
-                        ]);
-                    }
-                }
+                // 6. Allocate batches via FIFO and create detail records
+                foreach ($condensed as $itemId => $qty) {
+                    $item = $lockedItems->get($itemId);
+                    $costingResult = $this->costingService->allocateFifo($item, $qty);
 
-                $this->balanceService->synchronizeItem($item);
+                    $issuanceItem = IssuanceItem::create([
+                        'issuance_id' => $issuance->id,
+                        'item_id' => $item->id,
+                        'quantity' => $qty,
+                        'unit_cost' => $costingResult['blended_unit_cost'],
+                        'amount' => $costingResult['total_amount'],
+                    ]);
+
+                    foreach ($costingResult['allocations'] as $alloc) {
+                        if ($alloc['batch']) {
+                            IssuanceBatchAllocation::create([
+                                'issuance_item_id' => $issuanceItem->id,
+                                'inventory_batch_id' => $alloc['batch']->id,
+                                'quantity' => $alloc['quantity'],
+                                'unit_cost' => $alloc['unit_cost'],
+                                'amount' => $alloc['amount'],
+                            ]);
+                        }
+                    }
+
+                    $this->balanceService->synchronizeItem($item);
+                }
+            } finally {
+                \Modules\AuditLogs\Support\AuditGroupContext::stop();
             }
 
-            // 7. Audit log
+            // 7. Audit log (Top-Level Parent Business Event)
             if (class_exists(TransactionTrail::class)) {
+                $itemCount = count($condensed);
+                $secondaryLine = sprintf('%s • %d %s issued', $issuance->ris_number, $itemCount, $itemCount === 1 ? 'item' : 'items');
+
                 TransactionTrail::create([
                     'user_id' => $userId,
                     'module' => 'Inventory',
                     'action' => 'Created Stock Issuance',
                     'resource_ref' => $issuance->ris_number,
-                    'details' => json_encode([
+                    'details' => $secondaryLine,
+                    'status' => 'Success',
+                    'audit_group_id' => $groupId,
+                    'is_parent' => true,
+                    'event_key' => 'inventory.issuance.created',
+                    'subject_type' => get_class($issuance),
+                    'subject_id' => (string) $issuance->id,
+                    'metadata' => [
                         'issuance_id' => $issuance->id,
                         'ris_number' => $issuance->ris_number,
                         'recipient' => $issuance->recipient,
                         'department' => $issuance->department,
                         'total_quantity' => $totalQuantity,
-                        'items_count' => count($condensed),
-                    ]),
-                    'status' => 'completed',
+                        'items_count' => $itemCount,
+                    ],
                 ]);
             }
 

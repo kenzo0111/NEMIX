@@ -95,20 +95,54 @@ class EventServiceProvider extends ServiceProvider
             $original = $model->getOriginal();
             $formatted = AuditLogFormatter::formatForModel($model, $action, $changes, $original);
 
+            $inGroup = \Modules\AuditLogs\Support\AuditGroupContext::hasActiveGroup();
+            $groupId = $inGroup ? \Modules\AuditLogs\Support\AuditGroupContext::getGroupId() : null;
+            $isParent = !$inGroup;
+            $eventKey = AuditLogFormatter::deriveEventKey($model, $action, $changes);
+            $module = ($inGroup && \Modules\AuditLogs\Support\AuditGroupContext::getModule())
+                ? \Modules\AuditLogs\Support\AuditGroupContext::getModule()
+                : $formatted['module'];
+            $resourceRef = ($inGroup && \Modules\AuditLogs\Support\AuditGroupContext::getReference())
+                ? \Modules\AuditLogs\Support\AuditGroupContext::getReference()
+                : $formatted['resource_ref'];
+            $actionLabel = $inGroup
+                ? AuditLogFormatter::normalizeActivityLabel($formatted['action'], $eventKey)
+                : $formatted['action'];
+
+            $oldValues = null;
+            $newValues = null;
+            if ($action === 'Updated' && !empty($changes)) {
+                $oldValues = AuditLogFormatter::sanitizeValues(array_intersect_key($original, $changes));
+                $newValues = AuditLogFormatter::sanitizeValues($changes);
+            } elseif ($action === 'Created') {
+                $newValues = AuditLogFormatter::sanitizeValues($model->getAttributes());
+            }
+
             try {
                 TransactionTrail::create([
                     'user_id' => $user_id,
-                    'module' => $formatted['module'],
-                    'action' => $formatted['action'],
-                    'resource_ref' => $formatted['resource_ref'],
+                    'module' => $module,
+                    'action' => $actionLabel,
+                    'resource_ref' => $resourceRef,
                     'details' => $formatted['details'],
                     'status' => $formatted['status'],
+                    'audit_group_id' => $groupId,
+                    'is_parent' => $isParent,
+                    'event_key' => $eventKey,
+                    'subject_type' => get_class($model),
+                    'subject_id' => (string) $model->getKey(),
+                    'old_values' => $oldValues,
+                    'new_values' => $newValues,
+                    'metadata' => [
+                        'class' => class_basename($model),
+                        'id' => $model->getKey(),
+                    ],
                 ]);
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::error('Failed to create audit log entry: '.$e->getMessage(), [
                     'user_id' => $user_id,
-                    'module' => $formatted['module'] ?? class_basename($model),
-                    'action' => $formatted['action'] ?? $action,
+                    'module' => $module ?? class_basename($model),
+                    'action' => $actionLabel ?? $action,
                     'exception' => $e,
                 ]);
             }

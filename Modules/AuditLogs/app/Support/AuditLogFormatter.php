@@ -554,4 +554,154 @@ class AuditLogFormatter
             'status' => (string) $status,
         ];
     }
+
+    /**
+     * Derive a machine-readable, stable event key for a model and action.
+     */
+    public static function deriveEventKey(Model|string $model, string $action, array $changes = []): string
+    {
+        $className = is_object($model) ? class_basename($model) : class_basename((string) $model);
+        $actionLower = strtolower(trim($action));
+
+        return match ($className) {
+            'Issuance' => match ($actionLower) {
+                'updated' => 'inventory.issuance.updated',
+                'deleted' => 'inventory.issuance.deleted',
+                default => 'inventory.issuance.created',
+            },
+            'IssuanceItem' => match ($actionLower) {
+                'updated' => 'inventory.issuance_item.updated',
+                'deleted' => 'inventory.issuance_item.deleted',
+                default => 'inventory.issuance_item.created',
+            },
+            'IssuanceBatchAllocation' => match ($actionLower) {
+                'updated' => 'inventory.issuance_batch_allocation.updated',
+                'deleted' => 'inventory.issuance_batch_allocation.deleted',
+                default => 'inventory.issuance_batch_allocation.created',
+            },
+            'InventoryBatch' => match ($actionLower) {
+                'created' => 'inventory.batch.created',
+                'deleted' => 'inventory.batch.deleted',
+                default => 'inventory.batch.updated',
+            },
+            'Receiving' => match ($actionLower) {
+                'updated' => 'inventory.receiving.updated',
+                'deleted' => 'inventory.receiving.deleted',
+                default => 'inventory.receiving.created',
+            },
+            'Item' => match ($actionLower) {
+                'created' => 'inventory.item.created',
+                'deleted' => 'inventory.item.deleted',
+                default => array_key_exists('stock', $changes) ? 'inventory.stock.adjusted' : 'inventory.item.updated',
+            },
+            'Supplier' => match ($actionLower) {
+                'created' => 'supplier.created',
+                'deleted' => 'supplier.deleted',
+                default => 'supplier.updated',
+            },
+            'User' => match ($actionLower) {
+                'created' => 'access.user.created',
+                'deleted' => 'access.user.deleted',
+                default => 'access.user.updated',
+            },
+            'Role' => match ($actionLower) {
+                'created' => 'access.role.created',
+                'deleted' => 'access.role.deleted',
+                default => 'access.role.updated',
+            },
+            'Permission' => 'access.permission.modified',
+            'SystemSetting', 'SystemConfiguration' => 'system.settings.updated',
+            'ComplianceReport' => 'compliance.report.generated',
+            default => strtolower(Str::snake($className)) . '.' . $actionLower,
+        };
+    }
+
+    /**
+     * Normalize low-level technical activity labels into user-friendly business or technical activity strings.
+     */
+    public static function normalizeActivityLabel(string $action, ?string $eventKey = null): string
+    {
+        $trimmed = trim($action);
+
+        if ($eventKey) {
+            $mappedByKey = match ($eventKey) {
+                'inventory.issuance.created' => 'Created Stock Issuance',
+                'inventory.issuance.updated' => 'Updated Stock Issuance',
+                'inventory.issuance_item.created' => 'Added Issuance Item',
+                'inventory.issuance_batch_allocation.created' => 'Allocated Inventory Batch',
+                'inventory.batch.updated' => 'Updated Inventory Balance',
+                'inventory.batch.created' => 'Created Inventory Batch',
+                'inventory.stock.adjusted' => 'Adjusted Stock Balance',
+                'inventory.receiving.created' => 'Recorded Receiving',
+                'inventory.receiving.updated' => 'Updated Stock Receiving',
+                'system.settings.updated' => 'Updated System Settings',
+                'compliance.report.generated' => 'Generated Compliance Report',
+                default => null,
+            };
+
+            if ($mappedByKey) {
+                return $mappedByKey;
+            }
+        }
+
+        // Direct action string transformations
+        return match ($trimmed) {
+            'Created Issuance Batch Allocation' => 'Allocated Inventory Batch',
+            'Updated Inventory Batch' => 'Updated Inventory Balance',
+            'Adjusted Item Stock' => 'Adjusted Stock Balance',
+            'Created Issuance Item' => 'Added Issuance Item',
+            'Stock In Requisition' => 'Recorded Receiving',
+            'Issued Inventory Stock' => 'Created Stock Issuance',
+            'Received Inventory Batch' => 'Recorded Receiving',
+            default => static::humanizeAction($trimmed),
+        };
+    }
+
+    /**
+     * Recursively sanitize sensitive keys (passwords, tokens, API keys, secrets) from audit payloads.
+     */
+    public static function sanitizeValues(?array $values): ?array
+    {
+        if ($values === null) {
+            return null;
+        }
+
+        $sensitivePatterns = [
+            'password',
+            'password_confirmation',
+            'remember_token',
+            'token',
+            'secret',
+            'api_key',
+            'otp',
+            'auth',
+            'authorization',
+            'session',
+            'credential',
+        ];
+
+        $sanitized = [];
+
+        foreach ($values as $key => $val) {
+            $keyLower = strtolower((string) $key);
+            $isSensitive = false;
+
+            foreach ($sensitivePatterns as $pattern) {
+                if (str_contains($keyLower, $pattern)) {
+                    $isSensitive = true;
+                    break;
+                }
+            }
+
+            if ($isSensitive) {
+                $sanitized[$key] = '[REDACTED]';
+            } elseif (is_array($val)) {
+                $sanitized[$key] = static::sanitizeValues($val);
+            } else {
+                $sanitized[$key] = $val;
+            }
+        }
+
+        return $sanitized;
+    }
 }

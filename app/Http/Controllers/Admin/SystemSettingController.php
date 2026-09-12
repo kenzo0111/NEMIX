@@ -75,85 +75,98 @@ class SystemSettingController extends Controller
 
         $updatedKeys = [];
         $auditDiffs = [];
+        $groupId = 'settings:' . \Illuminate\Support\Str::uuid()->toString();
 
-        DB::transaction(function () use ($settingsData, &$updatedKeys, &$auditDiffs) {
-            foreach ($settingsData as $key => $val) {
-                $setting = SystemSetting::where('key', $key)->first();
+        \Modules\AuditLogs\Support\AuditGroupContext::start($groupId, 'CONFIG-BATCH', 'Administration', 'system.settings.updated');
 
-                if (! $setting) {
-                    // Create if valid known domain setting
-                    $category = explode('.', $key)[0] ?? 'general';
-                    $dataType = is_bool($val) ? 'boolean' : (is_int($val) ? 'integer' : (is_array($val) ? 'json' : 'string'));
-                    $label = ucwords(str_replace(['.', '_'], ' ', $key));
+        try {
+            DB::transaction(function () use ($settingsData, &$updatedKeys, &$auditDiffs) {
+                foreach ($settingsData as $key => $val) {
+                    $setting = SystemSetting::where('key', $key)->first();
 
-                    $setting = SystemSetting::create([
-                        'category' => $category,
-                        'key' => $key,
-                        'value' => json_encode($val),
-                        'data_type' => $dataType,
-                        'label' => $label,
-                        'description' => $label,
-                        'is_public' => true,
-                        'is_encrypted' => false,
+                    if (! $setting) {
+                        // Create if valid known domain setting
+                        $category = explode('.', $key)[0] ?? 'general';
+                        $dataType = is_bool($val) ? 'boolean' : (is_int($val) ? 'integer' : (is_array($val) ? 'json' : 'string'));
+                        $label = ucwords(str_replace(['.', '_'], ' ', $key));
+
+                        $setting = SystemSetting::create([
+                            'category' => $category,
+                            'key' => $key,
+                            'value' => json_encode($val),
+                            'data_type' => $dataType,
+                            'label' => $label,
+                            'description' => $label,
+                            'is_public' => true,
+                            'is_encrypted' => false,
+                        ]);
+
+                        $updatedKeys[] = $key;
+                        $auditDiffs[] = "{$key}: [NEW] → " . (is_array($val) ? json_encode($val) : (string) $val);
+                        continue;
+                    }
+
+                    $oldVal = SystemSetting::castValue($setting->value, $setting->data_type);
+
+                    // Normalize value based on type
+                    $encodedValue = match ($setting->data_type) {
+                        'integer' => json_encode((int) $val),
+                        'float' => json_encode((float) $val),
+                        'boolean' => json_encode(filter_var($val, FILTER_VALIDATE_BOOLEAN)),
+                        'json', 'array' => json_encode(is_array($val) ? $val : json_decode($val, true)),
+                        default => json_encode(trim((string) $val)),
+                    };
+
+                    $setting->update([
+                        'value' => $encodedValue,
                     ]);
 
                     $updatedKeys[] = $key;
-                    $auditDiffs[] = "{$key}: [NEW] → " . (is_array($val) ? json_encode($val) : (string) $val);
-                    continue;
-                }
 
-                $oldVal = SystemSetting::castValue($setting->value, $setting->data_type);
+                    // Track audit diff (omitting any potentially sensitive keys)
+                    $isSensitive = str_contains(strtolower($key), 'secret') ||
+                                   str_contains(strtolower($key), 'password') ||
+                                   str_contains(strtolower($key), 'token');
 
-                // Normalize value based on type
-                $encodedValue = match ($setting->data_type) {
-                    'integer' => json_encode((int) $val),
-                    'float' => json_encode((float) $val),
-                    'boolean' => json_encode(filter_var($val, FILTER_VALIDATE_BOOLEAN)),
-                    'json', 'array' => json_encode(is_array($val) ? $val : json_decode($val, true)),
-                    default => json_encode(trim((string) $val)),
-                };
-
-                $setting->update([
-                    'value' => $encodedValue,
-                ]);
-
-                $updatedKeys[] = $key;
-
-                // Track audit diff (omitting any potentially sensitive keys)
-                $isSensitive = str_contains(strtolower($key), 'secret') ||
-                               str_contains(strtolower($key), 'password') ||
-                               str_contains(strtolower($key), 'token');
-
-                if ($isSensitive) {
-                    $auditDiffs[] = "{$key}: [REDACTED]";
-                } else {
-                    $oldDisplay = is_array($oldVal) ? json_encode($oldVal) : (is_bool($oldVal) ? ($oldVal ? 'true' : 'false') : (string) $oldVal);
-                    $newDisplay = is_array($val) ? json_encode($val) : (is_bool($val) ? ($val ? 'true' : 'false') : (string) $val);
-                    if ($oldDisplay !== $newDisplay) {
-                        $auditDiffs[] = "{$key}: {$oldDisplay} → {$newDisplay}";
+                    if ($isSensitive) {
+                        $auditDiffs[] = "{$key}: [REDACTED]";
+                    } else {
+                        $oldDisplay = is_array($oldVal) ? json_encode($oldVal) : (is_bool($oldVal) ? ($oldVal ? 'true' : 'false') : (string) $oldVal);
+                        $newDisplay = is_array($val) ? json_encode($val) : (is_bool($val) ? ($val ? 'true' : 'false') : (string) $val);
+                        if ($oldDisplay !== $newDisplay) {
+                            $auditDiffs[] = "{$key}: {$oldDisplay} → {$newDisplay}";
+                        }
                     }
                 }
-            }
-        });
+            });
+        } finally {
+            \Modules\AuditLogs\Support\AuditGroupContext::stop();
+        }
 
         // Invalidate settings caches
         SystemSetting::clearSettingCache();
 
-        // Create transaction audit trail
+        // Create transaction audit trail (Parent Business Transaction)
         try {
             if (class_exists(TransactionTrail::class)) {
                 $user = $request->user();
-                $diffSummary = count($auditDiffs) > 0
-                    ? ' Changes: ' . implode('; ', array_slice($auditDiffs, 0, 5)) . (count($auditDiffs) > 5 ? '...' : '')
-                    : '';
+                $count = count($updatedKeys);
+                $secondaryLine = "Updated {$count} configuration parameter" . ($count === 1 ? '' : 's');
 
                 TransactionTrail::create([
                     'user_id' => $user?->id,
-                    'module' => 'System Settings',
-                    'action' => 'Consumables Settings Updated',
-                    'resource_ref' => 'CONFIG-BATCH-' . count($updatedKeys),
-                    'details' => "Updated " . count($updatedKeys) . " configuration parameter(s) by {$user?->name} ({$user?->email}). IP: " . $request->ip() . '.' . $diffSummary,
-                    'status' => 'Verified',
+                    'module' => 'Administration',
+                    'action' => 'Updated System Settings',
+                    'resource_ref' => 'CONFIG-BATCH-' . $count,
+                    'details' => $secondaryLine,
+                    'status' => 'Success',
+                    'audit_group_id' => $groupId,
+                    'is_parent' => true,
+                    'event_key' => 'system.settings.updated',
+                    'metadata' => [
+                        'updated_keys' => $updatedKeys,
+                        'diffs' => $auditDiffs,
+                    ],
                 ]);
             }
         } catch (\Throwable $e) {

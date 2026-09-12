@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Select, { SingleValue } from 'react-select';
-import { Search, RotateCcw, Calendar as CalendarIcon, X } from 'lucide-react';
+import { Search, RotateCcw, Calendar as CalendarIcon, X, Layers, ListFilter } from 'lucide-react';
 import { institutionalSelectStyles } from '@/styles/selectStyles';
 import { TransactionAuditFilters } from '../types';
 
@@ -47,6 +47,8 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
 
     const currentPreset = getDatePresetKey(filters.date_from, filters.date_to);
     const [showCustomDates, setShowCustomDates] = useState(currentPreset === 'custom');
+
+    const viewMode = filters.view_mode || 'business';
 
     // Module options
     const moduleOptions: OptionType[] = useMemo(() => [
@@ -170,16 +172,66 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
         });
     };
 
+    const handleToggleViewMode = (mode: 'business' | 'technical') => {
+        onFilterChange({
+            ...filters,
+            view_mode: mode,
+            page: 1,
+        });
+    };
+
     const hasActiveFilters = Boolean(
         filters.search ||
         filters.module ||
         filters.action ||
         filters.date_from ||
-        filters.date_to
+        filters.date_to ||
+        (filters.view_mode && filters.view_mode !== 'business')
     );
 
     return (
-        <div className="bg-white rounded-lg border border-gray-200/90 shadow-2xs p-4 space-y-3">
+        <div className="bg-white rounded-lg border border-gray-200/90 shadow-2xs p-4 space-y-3 w-full min-w-0">
+            {/* View Mode Toggle Strip & Search */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
+                <div className="flex items-center gap-1.5 p-1 bg-gray-100/80 rounded-md border border-gray-200/80 self-start sm:self-auto">
+                    <button
+                        type="button"
+                        onClick={() => handleToggleViewMode('business')}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded transition-colors ${
+                            viewMode === 'business'
+                                ? 'bg-white text-red-950 shadow-2xs border border-gray-200/80 font-bold'
+                                : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                        title="Show clean top-level business transactions with expandable details"
+                    >
+                        <Layers className="w-3.5 h-3.5 text-red-900" />
+                        <span>Business Events</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => handleToggleViewMode('technical')}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded transition-colors ${
+                            viewMode === 'technical'
+                                ? 'bg-white text-red-950 shadow-2xs border border-gray-200/80 font-bold'
+                                : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                        title="Show raw technical stream of all low-level system records"
+                    >
+                        <ListFilter className="w-3.5 h-3.5 text-gray-500" />
+                        <span>All Technical Events</span>
+                    </button>
+                </div>
+
+                <div className="text-[11px] text-gray-500 font-medium">
+                    {viewMode === 'business' ? (
+                        <span>Showing consolidated business transaction groups</span>
+                    ) : (
+                        <span>Showing complete low-level forensic event stream</span>
+                    )}
+                </div>
+            </div>
+
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 {/* Search Box */}
                 <div className="relative flex-1 min-w-[240px]">
@@ -188,7 +240,7 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
                         type="text"
                         value={search}
                         onChange={(e) => handleSearchChange(e.target.value)}
-                        placeholder="Search user, action, reference, details..."
+                        placeholder="Search user, action, RIS number, reference, item name..."
                         className="w-full pl-9 pr-8 py-2 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 font-medium placeholder-gray-400"
                     />
                     {search && (

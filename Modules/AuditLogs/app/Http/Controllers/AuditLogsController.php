@@ -158,16 +158,30 @@ class AuditLogsController extends Controller
         $action = $request->input('action');
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
+        $viewMode = $request->input('view_mode', 'business'); // 'business' or 'technical'
 
-        // Eager load user and user.roles to avoid N+1 queries
+        // Base query with ownership scoping
         $query = ResourceOwnershipPolicy::scopeQuery(
-            TransactionTrail::query()->with(['user.roles']),
+            TransactionTrail::query(),
             auth()->user(),
             'user_id'
         );
 
+        if ($viewMode === 'business') {
+            // Main business event view: show parent transactions or standalone events
+            $query->businessEvents()->with([
+                'user.roles',
+                'children' => function ($q) {
+                    $q->with('user.roles')->orderBy('id', 'asc');
+                },
+            ]);
+        } else {
+            // Technical view: show all raw individual events
+            $query->with(['user.roles']);
+        }
+
         if ($search !== '') {
-            $query->where(function ($q) use ($search) {
+            $query->where(function ($q) use ($search, $viewMode) {
                 $q->where('resource_ref', 'like', "%{$search}%")
                   ->orWhere('action', 'like', "%{$search}%")
                   ->orWhere('details', 'like', "%{$search}%")
@@ -177,6 +191,14 @@ class AuditLogsController extends Controller
                       $uq->where('name', 'like', "%{$search}%")
                          ->orWhere('email', 'like', "%{$search}%");
                   });
+
+                if ($viewMode === 'business') {
+                    $q->orWhereHas('children', function ($cq) use ($search) {
+                        $cq->where('action', 'like', "%{$search}%")
+                           ->orWhere('details', 'like', "%{$search}%")
+                           ->orWhere('resource_ref', 'like', "%{$search}%");
+                    });
+                }
             });
         }
 
@@ -222,7 +244,7 @@ class AuditLogsController extends Controller
             'modules' => $uniqueModulesCount,
         ];
 
-        // Paginate results (25 per page by default)
+        // Paginate results (25 business event groups per page by default)
         $paginated = $query->latest('created_at')
             ->paginate(25)
             ->withQueryString();
@@ -239,8 +261,9 @@ class AuditLogsController extends Controller
 
             $result = match (true) {
                 in_array($rawStatus, ['success', 'verified']) => 'success',
-                in_array($rawStatus, ['failed', 'error']) => 'failed',
-                default => null,
+                in_array($rawStatus, ['failed', 'error', 'flagged']) => 'failed',
+                in_array($rawStatus, ['warning']) => 'warning',
+                default => 'recorded',
             };
 
             $roleName = null;
@@ -251,23 +274,75 @@ class AuditLogsController extends Controller
             $userName = $trail->user ? $trail->user->name : ($trail->user_id ? 'Unknown User' : 'System Administrator');
             $occurredAt = $trail->created_at?->toIso8601String();
             $reference = $resolved['resource_ref'] ?: ($trail->resource_ref ?: ('TRX-' . $trail->id));
+            $actionTitle = $resolved['action'] ?: ($trail->action ?: 'Action unavailable');
+            $moduleName = $resolved['module'] ?: ($trail->module ?: 'Module unavailable');
+
+            // Format child technical events for expandable inspection
+            $formattedChildren = [];
+            if ($trail->relationLoaded('children') && $trail->children) {
+                $formattedChildren = $trail->children->map(function ($child) {
+                    $childResolved = AuditLogFormatter::resolveLogEntry($child);
+                    $childEventKey = $child->event_key ?: ('event.' . $child->id);
+                    $childLabel = AuditLogFormatter::normalizeActivityLabel($childResolved['action'] ?: $child->action, $childEventKey);
+
+                    $childRawStatus = strtolower(trim((string) ($child->status ?? 'logged')));
+                    $childResult = match (true) {
+                        in_array($childRawStatus, ['success', 'verified']) => 'success',
+                        in_array($childRawStatus, ['failed', 'error', 'flagged']) => 'failed',
+                        default => 'recorded',
+                    };
+
+                    return [
+                        'id' => $child->id,
+                        'event_key' => $childEventKey,
+                        'label' => $childLabel,
+                        'action' => $childResolved['action'] ?: $child->action,
+                        'details' => $childResolved['details'] ?: $child->details,
+                        'subject_type' => $child->subject_type ? class_basename($child->subject_type) : null,
+                        'subject_id' => $child->subject_id,
+                        'result' => $childResult,
+                        'old_values' => $child->old_values,
+                        'new_values' => $child->new_values,
+                        'metadata' => $child->metadata,
+                        'occurred_at' => $child->created_at?->toIso8601String(),
+                    ];
+                })->values()->all();
+            }
+
+            // Extract concise secondary line
+            $secondaryLine = $trail->details;
+            if ($trail->metadata && !empty($trail->metadata['ris_number'])) {
+                $count = $trail->metadata['items_count'] ?? 1;
+                $secondaryLine = sprintf('%s • %d %s issued', $trail->metadata['ris_number'], $count, $count === 1 ? 'item' : 'items');
+            } elseif ($trail->metadata && !empty($trail->metadata['diffs'])) {
+                $diffCount = count($trail->metadata['diffs']);
+                $secondaryLine = "Updated {$diffCount} configuration parameter" . ($diffCount === 1 ? '' : 's');
+            }
 
             return [
                 'id' => $trail->id,
+                'audit_group_id' => $trail->audit_group_id,
+                'is_parent' => (bool) $trail->is_parent,
                 'resource_ref' => $reference,
                 'reference' => $reference,
                 'user_id' => $trail->user_id,
                 'user_name' => $userName,
                 'user' => $userName,
                 'role' => $roleName,
-                'action' => $resolved['action'] ?: ($trail->action ?: 'Action unavailable'),
+                'action' => $actionTitle,
+                'secondary_line' => $secondaryLine,
                 'details' => $resolved['details'] ?: $trail->details,
-                'module' => $resolved['module'] ?: ($trail->module ?: 'Module unavailable'),
+                'module' => $moduleName,
                 'audit_status' => $auditStatus,
                 'status' => ucfirst($auditStatus),
                 'result' => $result,
                 'occurred_at' => $occurredAt,
                 'time' => $occurredAt,
+                'event_key' => $trail->event_key,
+                'children' => $formattedChildren,
+                'metadata' => $trail->metadata,
+                'old_values' => $trail->old_values,
+                'new_values' => $trail->new_values,
             ];
         });
 
@@ -276,6 +351,8 @@ class AuditLogsController extends Controller
             ->distinct()
             ->orderBy('module')
             ->pluck('module')
+            ->map(fn ($m) => AuditLogFormatter::resolveModuleName($m))
+            ->unique()
             ->values()
             ->all();
 
@@ -284,6 +361,8 @@ class AuditLogsController extends Controller
             ->distinct()
             ->orderBy('action')
             ->pluck('action')
+            ->map(fn ($a) => AuditLogFormatter::normalizeActivityLabel($a))
+            ->unique()
             ->values()
             ->all();
 
@@ -296,6 +375,7 @@ class AuditLogsController extends Controller
                 'action' => $action ?: null,
                 'date_from' => $dateFrom ?: null,
                 'date_to' => $dateTo ?: null,
+                'view_mode' => $viewMode,
             ],
             'availableModules' => $availableModules,
             'availableActions' => $availableActions,

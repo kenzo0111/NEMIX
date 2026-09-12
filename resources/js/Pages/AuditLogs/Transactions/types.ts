@@ -5,19 +5,53 @@ export type TransactionAuditStatus =
     | 'verified'
     | 'flagged';
 
+export type AuditResult =
+    | 'success'
+    | 'failed'
+    | 'warning'
+    | 'recorded';
+
 export type OperationResult =
     | 'success'
     | 'failed'
+    | 'warning'
+    | 'recorded'
     | null;
+
+export interface AuditUser {
+    id: number | null;
+    name: string;
+    role?: string | null;
+    email?: string | null;
+}
+
+export interface AuditChildEvent {
+    id: number;
+    event_key: string;
+    label: string;
+    action: string;
+    details?: string | null;
+    subject_type?: string | null;
+    subject_id?: number | string | null;
+    result?: AuditResult;
+    metadata?: Record<string, unknown> | null;
+    old_values?: Record<string, unknown> | null;
+    new_values?: Record<string, unknown> | null;
+    occurred_at: string;
+}
 
 export interface TransactionAuditRecord {
     id: number | string;
+    audit_group_id?: string | null;
+    is_parent?: boolean;
+    event_key?: string | null;
     user_id?: number | null;
     user_name?: string | null;
     user?: string | null;
     role?: string | null;
 
     action: string;
+    secondary_line?: string | null;
     module: string;
     details?: string | null;
 
@@ -26,10 +60,15 @@ export interface TransactionAuditRecord {
 
     audit_status: TransactionAuditStatus;
     status?: string | null;
-    result?: OperationResult;
+    result?: AuditResult | OperationResult;
 
     occurred_at?: string | null;
     time?: string | null;
+
+    children?: AuditChildEvent[];
+    metadata?: Record<string, unknown> | null;
+    old_values?: Record<string, unknown> | null;
+    new_values?: Record<string, unknown> | null;
 }
 
 export interface TransactionAuditSummary {
@@ -45,6 +84,7 @@ export interface TransactionAuditFilters {
     action?: string | null;
     date_from?: string | null;
     date_to?: string | null;
+    view_mode?: 'business' | 'technical';
     page?: number;
 }
 

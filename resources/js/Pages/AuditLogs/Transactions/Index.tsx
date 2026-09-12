@@ -66,7 +66,8 @@ export default function TransactionAuditIndex({
         filters.module ||
         filters.action ||
         filters.date_from ||
-        filters.date_to
+        filters.date_to ||
+        (filters.view_mode && filters.view_mode !== 'business')
     );
 
     const handleFilterChange = (newFilters: TransactionAuditFilters) => {
@@ -77,6 +78,7 @@ export default function TransactionAuditIndex({
         if (newFilters.action) queryParams.action = newFilters.action;
         if (newFilters.date_from) queryParams.date_from = newFilters.date_from;
         if (newFilters.date_to) queryParams.date_to = newFilters.date_to;
+        if (newFilters.view_mode && newFilters.view_mode !== 'business') queryParams.view_mode = newFilters.view_mode;
         if (newFilters.page && newFilters.page > 1) queryParams.page = newFilters.page;
 
         router.get(route('audit-logs.transaction-trails'), queryParams, {

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Shield, ChevronDown, ChevronRight, FileText, ArrowRight } from 'lucide-react';
+import { Shield, ChevronDown, ChevronRight } from 'lucide-react';
 import { TransactionAuditRecord } from '../types';
 import { TransactionAuditStatus } from './TransactionAuditStatus';
+import { TransactionAuditExpandedDetails } from './TransactionAuditExpandedDetails';
 
 interface TransactionAuditTableProps {
     records: TransactionAuditRecord[];
@@ -37,34 +38,6 @@ const formatDisplayDate = (isoString?: string | null): string => {
     }
 };
 
-/**
- * Checks if details string contains before/after change context (e.g. 'Live Production → Maintenance Mode')
- */
-const parseChangeContext = (text?: string | null): { before: string; after: string } | null => {
-    if (!text) return null;
-
-    if (text.includes('→')) {
-        const parts = text.split('→');
-        if (parts.length === 2) {
-            return {
-                before: parts[0].trim(),
-                after: parts[1].trim(),
-            };
-        }
-    }
-
-    // Check for 'from "A" to "B"' pattern
-    const fromToMatch = text.match(/from\s+['"]([^'"]+)['"]\s+to\s+['"]([^'"]+)['"]/i);
-    if (fromToMatch) {
-        return {
-            before: fromToMatch[1].trim(),
-            after: fromToMatch[2].trim(),
-        };
-    }
-
-    return null;
-};
-
 export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
     records,
     hasActiveFilters = false,
@@ -89,7 +62,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                 No transaction records match the selected filters.
                             </h4>
                             <p className="text-xs text-gray-500 mb-4 leading-relaxed">
-                                Please adjust your search keyword, module, action, or date range to inspect other records.
+                                Please adjust your search keyword, module, action, date range, or view mode to inspect other records.
                             </p>
                             {onResetFilters && (
                                 <button
@@ -107,7 +80,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                 No transaction audit records are available.
                             </h4>
                             <p className="text-xs text-gray-500 leading-relaxed">
-                                Recorded system transactions, inventory movements, and administrative activities will automatically appear here.
+                                Recorded business transactions, stock movements, and administrative activities will automatically appear here.
                             </p>
                         </>
                     )}
@@ -117,78 +90,90 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
     }
 
     return (
-        <div className="bg-white rounded-lg border border-gray-200/90 shadow-2xs overflow-hidden">
-            <div className="overflow-x-auto">
+        <div className="bg-white rounded-lg border border-gray-200/90 shadow-2xs overflow-hidden w-full min-w-0">
+            <div className="overflow-x-auto w-full">
                 <table className="w-full text-left border-collapse min-w-[760px]">
                     <thead>
                         <tr className="border-b border-gray-200 bg-gray-50/70 text-[11px] font-bold text-gray-600 uppercase tracking-wider">
-                            <th className="py-3 px-4 w-10"></th>
+                            <th className="py-3 px-3 w-12 text-center" aria-label="Expand or collapse row"></th>
                             <th className="py-3 px-4 w-1/4">User</th>
                             <th className="py-3 px-4 w-1/3">Activity</th>
                             <th className="py-3 px-4 w-1/6">Module</th>
-                            <th className="py-3 px-4 w-28">Status</th>
+                            <th className="py-3 px-4 w-28">Result</th>
                             <th className="py-3 px-4 w-44">Date & Time</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 text-xs">
                         {records.map((record, index) => {
                             const isExpanded = expandedRowId === record.id;
-                            const changeContext = parseChangeContext(record.details);
-                            const reference = record.reference || record.resource_ref;
+                            const childrenCount = record.children?.length || 0;
+                            const secondaryText = record.secondary_line || record.details;
 
                             return (
                                 <React.Fragment key={record.id || index}>
                                     <tr
                                         onClick={() => toggleRow(record.id)}
                                         className={`cursor-pointer transition-colors ${
-                                            isExpanded ? 'bg-red-50/30' : 'hover:bg-gray-50/80'
+                                            isExpanded ? 'bg-red-50/25' : 'hover:bg-gray-50/80'
                                         }`}
                                     >
-                                        {/* Expand Toggle */}
-                                        <td className="py-3.5 px-4 text-gray-400 text-center">
-                                            {isExpanded ? (
-                                                <ChevronDown className="w-4 h-4 text-red-900" />
-                                            ) : (
-                                                <ChevronRight className="w-4 h-4 text-gray-400" />
-                                            )}
+                                        {/* Expand Toggle Button with Accessibility */}
+                                        <td className="py-3 px-3 text-center">
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleRow(record.id);
+                                                }}
+                                                aria-expanded={isExpanded}
+                                                aria-label={isExpanded ? 'Collapse audit details' : 'View audit details'}
+                                                className="p-1 rounded hover:bg-gray-200/60 focus:outline-none focus:ring-1 focus:ring-red-900 transition-colors inline-flex items-center justify-center text-gray-500"
+                                            >
+                                                {isExpanded ? (
+                                                    <ChevronDown className="w-4 h-4 text-red-900" />
+                                                ) : (
+                                                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                                                )}
+                                            </button>
                                         </td>
 
-                                        {/* User & Role (No Avatar) */}
+                                        {/* USER */}
                                         <td className="py-3.5 px-4">
-                                            <div className="font-semibold text-gray-900">
-                                                {record.user_name || record.user || '—'}
+                                            <div className="font-semibold text-gray-900 leading-tight truncate">
+                                                {record.user_name || record.user || 'System Administrator'}
                                             </div>
-                                            <div className="text-[11px] text-gray-500 mt-0.5">
-                                                {record.role || '—'}
+                                            <div className="text-[11px] text-gray-500 mt-0.5 leading-tight truncate">
+                                                {record.role || 'System Role'}
                                             </div>
                                         </td>
 
-                                        {/* Activity & Details */}
+                                        {/* ACTIVITY (Primary bold title + Secondary subtitle) */}
                                         <td className="py-3.5 px-4">
-                                            <div className="font-semibold text-gray-900">
-                                                {record.action || 'Action unavailable'}
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-semibold text-gray-900 leading-tight">
+                                                    {record.action || 'Action unavailable'}
+                                                </span>
+                                                {childrenCount > 0 && (
+                                                    <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                                                        {childrenCount} {childrenCount === 1 ? 'event' : 'events'}
+                                                    </span>
+                                                )}
                                             </div>
-                                            {record.details && (
-                                                <div className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">
-                                                    {reference && (
-                                                        <span className="font-mono font-medium text-gray-700 mr-1.5">
-                                                            {reference}
-                                                            {record.details.toLowerCase().includes(reference.toLowerCase()) ? '' : ' •'}
-                                                        </span>
-                                                    )}
-                                                    {record.details}
+                                            {secondaryText && (
+                                                <div className="text-[11px] text-gray-500 mt-0.5 leading-tight line-clamp-1">
+                                                    {secondaryText}
                                                 </div>
                                             )}
                                         </td>
 
-                                        {/* Module */}
+                                        {/* MODULE (Normalized, Plain text) */}
                                         <td className="py-3.5 px-4">
                                             <span className="text-xs text-gray-700 font-medium">
-                                                {record.module || 'Module unavailable'}
+                                                {record.module || 'System'}
                                             </span>
                                         </td>
 
-                                        {/* Audit Status */}
+                                        {/* RESULT */}
                                         <td className="py-3.5 px-4">
                                             <TransactionAuditStatus
                                                 status={record.audit_status}
@@ -196,115 +181,20 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                             />
                                         </td>
 
-                                        {/* Date & Time (Standard font, no mono) */}
-                                        <td className="py-3.5 px-4 text-gray-600 font-medium">
+                                        {/* DATE & TIME */}
+                                        <td className="py-3.5 px-4 text-gray-600 font-medium whitespace-nowrap">
                                             {formatDisplayDate(record.occurred_at || record.time)}
                                         </td>
                                     </tr>
 
-                                    {/* Expanded Audit Details Panel */}
+                                    {/* EXPANDED DETAILS */}
                                     {isExpanded && (
-                                        <tr className="bg-gray-50/60">
-                                            <td colSpan={6} className="px-6 py-4 border-t border-gray-100">
-                                                <div className="p-4 bg-white border border-gray-200 rounded-md shadow-2xs space-y-3">
-                                                    <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-                                                        <div className="flex items-center gap-2">
-                                                            <FileText className="w-4 h-4 text-red-900" />
-                                                            <span className="text-xs font-bold text-gray-900 uppercase tracking-wide">
-                                                                Transaction Audit Details
-                                                            </span>
-                                                        </div>
-                                                        <span className="text-xs font-mono text-gray-500">
-                                                            ID: {record.id}
-                                                        </span>
-                                                    </div>
-
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
-                                                        <div>
-                                                            <span className="text-gray-500 text-[11px] block font-medium">
-                                                                Reference
-                                                            </span>
-                                                            <span className="font-mono font-semibold text-gray-900">
-                                                                {reference || '—'}
-                                                            </span>
-                                                        </div>
-
-                                                        <div>
-                                                            <span className="text-gray-500 text-[11px] block font-medium">
-                                                                Authorized User
-                                                            </span>
-                                                            <span className="font-semibold text-gray-900">
-                                                                {record.user_name || record.user || '—'}
-                                                            </span>
-                                                        </div>
-
-                                                        <div>
-                                                            <span className="text-gray-500 text-[11px] block font-medium">
-                                                                Assigned Role
-                                                            </span>
-                                                            <span className="font-medium text-gray-800">
-                                                                {record.role || 'Role unavailable'}
-                                                            </span>
-                                                        </div>
-
-                                                        <div>
-                                                            <span className="text-gray-500 text-[11px] block font-medium">
-                                                                Module
-                                                            </span>
-                                                            <span className="font-medium text-gray-900">
-                                                                {record.module || 'Module unavailable'}
-                                                            </span>
-                                                        </div>
-
-                                                        <div>
-                                                            <span className="text-gray-500 text-[11px] block font-medium">
-                                                                Action Performed
-                                                            </span>
-                                                            <span className="font-semibold text-gray-900">
-                                                                {record.action || 'Action unavailable'}
-                                                            </span>
-                                                        </div>
-
-                                                        <div>
-                                                            <span className="text-gray-500 text-[11px] block font-medium">
-                                                                Audit Timestamp
-                                                            </span>
-                                                            <span className="font-medium text-gray-700">
-                                                                {formatDisplayDate(record.occurred_at || record.time)}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Change Context / Before & After Visualization */}
-                                                    {changeContext && (
-                                                        <div className="pt-2 border-t border-gray-100">
-                                                            <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1.5">
-                                                                Recorded Change Context
-                                                            </span>
-                                                            <div className="flex flex-wrap items-center gap-2 p-2 bg-gray-50 rounded border border-gray-200 text-xs">
-                                                                <span className="px-2 py-1 bg-white border border-gray-200 rounded font-medium text-gray-700">
-                                                                    {changeContext.before}
-                                                                </span>
-                                                                <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
-                                                                <span className="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-950">
-                                                                    {changeContext.after}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Full Details Text */}
-                                                    {record.details && !changeContext && (
-                                                        <div className="pt-2 border-t border-gray-100">
-                                                            <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">
-                                                                Details
-                                                            </span>
-                                                            <p className="text-xs text-gray-700 leading-relaxed font-sans bg-gray-50/60 p-2.5 rounded border border-gray-200">
-                                                                {record.details}
-                                                            </p>
-                                                        </div>
-                                                    )}
-                                                </div>
+                                        <tr className="bg-gray-50/40">
+                                            <td colSpan={6} className="px-4 sm:px-6 py-4 border-t border-gray-100">
+                                                <TransactionAuditExpandedDetails
+                                                    record={record}
+                                                    formatDate={formatDisplayDate}
+                                                />
                                             </td>
                                         </tr>
                                     )}
