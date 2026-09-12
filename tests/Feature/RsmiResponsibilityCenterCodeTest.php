@@ -44,21 +44,30 @@ class RsmiResponsibilityCenterCodeTest extends TestCase
 
     public function test_extract_acronym_method_handles_all_prescribed_patterns(): void
     {
-        // 1. Target examples with parentheses and campuses
+        // 1. Target examples from user specifications
         $this->assertSame('CoTT', $this->dataService->extractAcronym('College of Trades and Technology (CoTT) - Jose Panganiban Campus'));
         $this->assertSame('CCMS', $this->dataService->extractAcronym('College of Computing and Multimedia Studies (CCMS) - Main Campus'));
         $this->assertSame('SPMO', $this->dataService->extractAcronym('Supply and Property Management Office (SPMO)'));
         $this->assertSame('CBPA', $this->dataService->extractAcronym('College of Business and Public Administration (CBPA) - Main Campus'));
 
-        // 2. Already only an acronym
+        // 2. Previously overflowing offices without parentheses
+        $this->assertSame('OVPAF', $this->dataService->extractAcronym('Office of the Vice President for Administration and Finance'));
+        $this->assertSame('CE', $this->dataService->extractAcronym('College of Engineering - Main Campus'));
+        $this->assertSame('CE', $this->dataService->extractAcronym('College of Engineering'));
+        $this->assertSame('ASD', $this->dataService->extractAcronym('Academic Services Division'));
+        $this->assertSame('ITSO', $this->dataService->extractAcronym('Information Technology Services Office'));
+
+        // 3. Already only an acronym or RCC numerical code
         $this->assertSame('CCMS', $this->dataService->extractAcronym('CCMS'));
         $this->assertSame('SPMO', $this->dataService->extractAcronym('SPMO'));
+        $this->assertSame('OVPAF', $this->dataService->extractAcronym('OVPAF'));
+        $this->assertSame('CE', $this->dataService->extractAcronym('CE'));
+        $this->assertSame('01-101-00', $this->dataService->extractAcronym('01-101-00'));
 
-        // 3. No acronym (safe fallback)
-        $this->assertSame('Library', $this->dataService->extractAcronym('Library'));
-        $this->assertSame('Admission Office', $this->dataService->extractAcronym('Admission Office'));
+        // 4. Single-word office names
+        $this->assertSame('LIB', $this->dataService->extractAcronym('Library'));
 
-        // 4. Null / empty / dash values
+        // 5. Null / empty / dash values
         $this->assertSame('-', $this->dataService->extractAcronym(null));
         $this->assertSame('-', $this->dataService->extractAcronym(''));
         $this->assertSame('-', $this->dataService->extractAcronym('   '));
@@ -83,6 +92,10 @@ class RsmiResponsibilityCenterCodeTest extends TestCase
             'RIS-2026-09-0008' => 'College of Computing and Multimedia Studies (CCMS) - Main Campus',
             'RIS-2026-09-0007' => 'Supply and Property Management Office (SPMO)',
             'RIS-2026-09-0027' => 'College of Business and Public Administration (CBPA) - Main Campus',
+            'RIS-2026-09-0011' => 'Office of the Vice President for Administration and Finance',
+            'RIS-2026-09-0012' => 'College of Engineering - Main Campus',
+            'RIS-2026-09-0013' => 'Academic Services Division',
+            'RIS-2026-09-0014' => 'Information Technology Services Office',
             'RIS-2026-09-0030' => 'Library',
         ];
 
@@ -119,7 +132,7 @@ class RsmiResponsibilityCenterCodeTest extends TestCase
         $dataset = $previewResponse->json();
         $issuedItems = $dataset['rsmi']['issuedItems'];
 
-        $this->assertCount(5, $issuedItems);
+        $this->assertCount(9, $issuedItems);
 
         // Map by RIS No.
         $itemMap = [];
@@ -143,12 +156,30 @@ class RsmiResponsibilityCenterCodeTest extends TestCase
         $this->assertSame('College of Business and Public Administration (CBPA) - Main Campus', $itemMap['RIS-2026-09-0027']['responsibility_center']['name']);
         $this->assertSame('CBPA', $itemMap['RIS-2026-09-0027']['responsibility_center']['code']);
 
-        $this->assertSame('Library', $itemMap['RIS-2026-09-0030']['responsibilityCenterCode']);
+        // Check the newly added departments without parentheses
+        $this->assertSame('OVPAF', $itemMap['RIS-2026-09-0011']['responsibilityCenterCode']);
+        $this->assertSame('Office of the Vice President for Administration and Finance', $itemMap['RIS-2026-09-0011']['responsibility_center']['name']);
+        $this->assertSame('OVPAF', $itemMap['RIS-2026-09-0011']['responsibility_center']['code']);
+
+        $this->assertSame('CE', $itemMap['RIS-2026-09-0012']['responsibilityCenterCode']);
+        $this->assertSame('College of Engineering - Main Campus', $itemMap['RIS-2026-09-0012']['responsibility_center']['name']);
+        $this->assertSame('CE', $itemMap['RIS-2026-09-0012']['responsibility_center']['code']);
+
+        $this->assertSame('ASD', $itemMap['RIS-2026-09-0013']['responsibilityCenterCode']);
+        $this->assertSame('Academic Services Division', $itemMap['RIS-2026-09-0013']['responsibility_center']['name']);
+        $this->assertSame('ASD', $itemMap['RIS-2026-09-0013']['responsibility_center']['code']);
+
+        $this->assertSame('ITSO', $itemMap['RIS-2026-09-0014']['responsibilityCenterCode']);
+        $this->assertSame('Information Technology Services Office', $itemMap['RIS-2026-09-0014']['responsibility_center']['name']);
+        $this->assertSame('ITSO', $itemMap['RIS-2026-09-0014']['responsibility_center']['code']);
+
+        $this->assertSame('LIB', $itemMap['RIS-2026-09-0030']['responsibilityCenterCode']);
         $this->assertSame('Library', $itemMap['RIS-2026-09-0030']['responsibility_center']['name']);
+        $this->assertSame('LIB', $itemMap['RIS-2026-09-0030']['responsibility_center']['code']);
 
         // Verify underlying database Issuances still retain original complete department names
-        $storedIssuance = Issuance::where('ris_number', 'RIS-2026-09-0009')->first();
-        $this->assertSame('College of Trades and Technology (CoTT) - Jose Panganiban Campus', $storedIssuance->department);
+        $storedIssuance = Issuance::where('ris_number', 'RIS-2026-09-0011')->first();
+        $this->assertSame('Office of the Vice President for Administration and Finance', $storedIssuance->department);
     }
 
     public function test_rsmi_saved_report_stores_both_full_name_and_acronym_code(): void

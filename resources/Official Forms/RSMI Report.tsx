@@ -138,10 +138,14 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         .text-right { text-align: right; }
         .text-left { text-align: left; }
         
-        .responsibility-center-code {
+        .responsibility-center-code,
+        .rsmi-responsibility-center-code {
             text-align: center !important;
             vertical-align: middle !important;
-            white-space: nowrap;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: clip !important;
+            box-sizing: border-box !important;
         }
 
         .header-italic {
@@ -244,14 +248,14 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         {/* Main 9-Column Grid Table */}
         <table className="main-table">
           <colgroup>
-             <col style={{width: '7%'}} />  {/* C1: RIS No. */}
-             <col style={{width: '18%'}} /> {/* C2: RCC */}
-             <col style={{width: '12%'}} /> {/* C3: Stock No. */}
-             <col style={{width: '23%'}} /> {/* C4: Item */}
+             <col style={{width: '8%'}} />  {/* C1: RIS No. */}
+             <col style={{width: '10%'}} /> {/* C2: RCC */}
+             <col style={{width: '14%'}} /> {/* C3: Stock No. */}
+             <col style={{width: '25%'}} /> {/* C4: Item */}
              <col style={{width: '6%'}} />  {/* C5: Unit */}
              <col style={{width: '8%'}} />  {/* C6: Qty Issued */}
              <col style={{width: '11%'}} /> {/* C7: Unit Cost */}
-             <col style={{width: '8%'}} />  {/* C8: Amount */}
+             <col style={{width: '11%'}} /> {/* C8: Amount */}
              <col style={{width: '7%'}} />  {/* C9: UACS */}
           </colgroup>
           <thead>
@@ -274,12 +278,19 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             {/* Upper Section: Main Items */}
             {paddedItems.map((item, idx) => {
               const isPaddedEmpty = !item.risNo && !item.itemDescription && !item.stockNo;
-              const displayCode = isPaddedEmpty ? '\u00A0' : (getResponsibilityCenterCode(item) || '\u00A0');
+              const rcc = item.responsibility_center?.code ??
+                item.responsibility_center?.acronym ??
+                item.responsibilityCenterCode ??
+                getResponsibilityCenterCode(item);
+              const displayCode = isPaddedEmpty ? '\u00A0' : (getResponsibilityCenterCode(rcc || item) || '\u00A0');
+              const fullName = typeof item.responsibility_center === 'object' ? item.responsibility_center?.name : undefined;
 
               return (
                 <tr key={`item-${idx}`} className={isPaddedEmpty ? 'empty-row' : ''}>
                   <td className="text-center">{item.risNo || '\u00A0'}</td>
-                  <td className="responsibility-center-code text-center">{displayCode}</td>
+                  <td className="responsibility-center-code text-center" title={fullName}>
+                    {displayCode}
+                  </td>
                   <td className="text-center">{item.stockNo || '\u00A0'}</td>
                   <td className="text-left">{item.itemDescription || '\u00A0'}</td>
                   <td className="text-center">{item.unit || '\u00A0'}</td>

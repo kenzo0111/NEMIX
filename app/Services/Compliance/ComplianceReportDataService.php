@@ -172,7 +172,66 @@ class ComplianceReportDataService
     }
 
     /**
-     * Extracts acronym from an office or department name (e.g. '... (CCMS) ...' -> 'CCMS').
+     * Canonical mapping of institutional offices to short acronyms.
+     */
+    protected static array $canonicalOfficeCodes = [
+        'office of the vice president for administration and finance' => 'OVPAF',
+        'office of the vice president for academic affairs' => 'OVPAA',
+        'office of the vice president for research and extension' => 'OVPRE',
+        'office of the president' => 'OP',
+        'college of engineering' => 'CE',
+        'college of arts and sciences' => 'CAS',
+        'college of business and public administration' => 'CBPA',
+        'college of computing and multimedia studies' => 'CCMS',
+        'college of education' => 'CoEd',
+        'college of fisheries, aquatic sciences, & technology' => 'CFAST',
+        'college of fisheries, aquatic sciences and technology' => 'CFAST',
+        'college of agriculture and natural resources' => 'CANR',
+        'college of trades and technology' => 'CoTT',
+        'graduate school' => 'GS',
+        'academic services division' => 'ASD',
+        'auxiliary services division' => 'ASD',
+        'information technology services office' => 'ITSO',
+        'supply and property management office' => 'SPMO',
+        'general services office' => 'GSO',
+        'library' => 'LIB',
+        'admission office' => 'AO',
+        'alumni affairs office' => 'AAO',
+        'center for equity, inclusivity and diversity' => 'CEID',
+        'culture and performing arts unit' => 'CPAU',
+        'electronic counseling services' => 'E-Counseling',
+        'extension services division' => 'ESD',
+        'fabrication and manufacturing research center' => 'FMRC',
+        'guidance and counseling office' => 'GCO',
+        'integrated sustainability and resilience office' => 'ISRO',
+        'intellectual property management office' => 'IPMO',
+        'legal affairs office' => 'LAO',
+        'medical and dental services' => 'MDS',
+        'national service training program office' => 'NSTP',
+        'national service training program' => 'NSTP',
+        'office of student services and development' => 'OSSD',
+        'planning and development office' => 'PDO',
+        'public information and community relations office' => 'PICRO',
+        'quality assurance office' => 'QAO',
+        'queen pineapple research and development institute' => 'QPRDI',
+        "registrar's office" => 'RO',
+        'registrars office' => 'RO',
+        'research services division' => 'RSD',
+        'sentro ng wika at kultura' => 'SWK',
+        'social policy research center' => 'SPRC',
+        'sports and development office' => 'SDO',
+        'student financial assistance unit' => 'SFAU',
+        'testing and evaluation' => 'TE',
+    ];
+
+    /**
+     * Extracts acronym from an office or department name.
+     * Priority:
+     * 1. Parenthetical acronym (e.g. '... (CCMS) ...' -> 'CCMS')
+     * 2. Already a code/acronym (single short token)
+     * 3. Canonical dictionary match
+     * 4. Algorithmic generation from significant words
+     * 5. '-' fallback
      */
     public function extractAcronym(?string $name): string
     {
@@ -184,14 +243,63 @@ class ComplianceReportDataService
             return '-';
         }
 
-        if (preg_match('/\(([^)]+)\)/', $trimmed, $matches)) {
+        // 1. Parentheses: e.g. "College of Computing and Multimedia Studies (CCMS) - Main Campus"
+        if (preg_match('/\(([A-Za-z0-9&\/ -]+)\)/', $trimmed, $matches)) {
             $extracted = trim($matches[1]);
-            if ($extracted !== '') {
+            if ($extracted !== '' && $extracted !== '-') {
                 return $extracted;
             }
         }
 
-        return $trimmed;
+        // Strip campus/location suffix
+        $stripped = preg_replace('/\s*-\s*(?:[A-Za-z\s]+)?Campus.*$/i', '', $trimmed);
+        $stripped = preg_replace('/\s*-\s*(Main|Jose Panganiban|Abaño|Mercedes|Labo).*$/i', '', $stripped);
+        $baseKey = strtolower(trim($stripped));
+
+        // 2. Canonical dictionary match (e.g. 'library' -> 'LIB', 'office of the vice president...' -> 'OVPAF')
+        if (isset(self::$canonicalOfficeCodes[$baseKey])) {
+            return self::$canonicalOfficeCodes[$baseKey];
+        }
+        if (isset(self::$canonicalOfficeCodes[strtolower($trimmed)])) {
+            return self::$canonicalOfficeCodes[strtolower($trimmed)];
+        }
+
+        // 3. Already a compact code (single token under 8 chars or standard format)
+        if (!str_contains($trimmed, ' ') && strlen($trimmed) <= 8) {
+            return $trimmed;
+        }
+        if (preg_match('/^\d{2}-\d{3}-\d{2}$/', $trimmed)) {
+            return $trimmed;
+        }
+
+        // 4. Algorithmic acronym generation from significant words
+        $stopWords = ['of', 'the', 'and', 'for', 'in', 'to', 'at', 'ng', 'mga', '&'];
+        $cleanWords = preg_replace('/[^\w\s-]/', ' ', $stripped);
+        $tokens = array_values(array_filter(preg_split('/\s+/', $cleanWords), function ($t) use ($stopWords) {
+            return $t !== '' && !in_array(strtolower($t), $stopWords, true);
+        }));
+
+        if (empty($tokens)) {
+            return '-';
+        }
+
+        if (count($tokens) === 1) {
+            $single = $tokens[0];
+            if (strlen($single) <= 4) {
+                return strtoupper($single);
+            }
+            if (strtolower($single) === 'library') {
+                return 'LIB';
+            }
+            return strlen($single) <= 6 ? strtoupper($single) : strtoupper(substr($single, 0, 3));
+        }
+
+        $acronym = '';
+        foreach ($tokens as $token) {
+            $acronym .= strtoupper($token[0]);
+        }
+
+        return $acronym !== '' ? $acronym : '-';
     }
 
     /**
