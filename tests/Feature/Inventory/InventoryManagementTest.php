@@ -131,7 +131,11 @@ class InventoryManagementTest extends TestCase
         $item = Item::where('name', 'Correction Tape 5mm')->first();
         $this->assertNotNull($item);
         $this->assertNotEmpty($item->sku);
-        $this->assertStringStartsWith('TSC-', $item->sku);
+        $this->assertStringStartsWith('ITEM-', $item->sku);
+
+        $batch = $item->batches()->first();
+        $this->assertNotNull($batch);
+        $this->assertStringStartsWith('TSC-', $batch->supplier_stock_no);
     }
 
     public function test_authoritative_status_and_amount_calculations(): void

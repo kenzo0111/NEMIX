@@ -55,7 +55,7 @@ class InventoryReceivingService
      * {SUPPLIER_ACRONYM}-{YY}-{MM}-{ITEM_CODE_INDEX}-{SERIES}
      * e.g., COS-26-09-001-0001
      */
-    public function generateSupplierStockNo(int $supplierId, int $itemId, ?string $date = null): string
+    public function generateSupplierStockNo(int $supplierId, ?int $itemId = null, ?string $date = null): string
     {
         $supplier = Supplier::find($supplierId);
         $acronym = $this->generateSupplierAcronym($supplier);
@@ -68,11 +68,14 @@ class InventoryReceivingService
 
         $yy = $carbonDate->format('y');
         $mm = $carbonDate->format('m');
-        $itemPart = sprintf('%03d', $itemId % 1000);
+        $effectiveItemId = ($itemId && $itemId > 0) ? $itemId : (((int) Item::max('id')) + 1);
+        $itemPart = sprintf('%03d', $effectiveItemId % 1000);
 
-        $batchCount = InventoryBatch::where('supplier_id', $supplierId)
-            ->where('item_id', $itemId)
-            ->count();
+        $batchQuery = InventoryBatch::where('supplier_id', $supplierId);
+        if ($itemId && $itemId > 0) {
+            $batchQuery->where('item_id', $itemId);
+        }
+        $batchCount = $batchQuery->count();
         $series = $batchCount + 1;
 
         do {

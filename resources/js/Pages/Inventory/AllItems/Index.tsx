@@ -195,6 +195,7 @@ export default function AllItemsIndex({
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
         name: '',
         supplier_id: '' as string | number,
+        supplier_stock_no: '',
         sku: '',
         stock: 0,
         unit_cost: '' as string | number,
@@ -211,6 +212,7 @@ export default function AllItemsIndex({
         setData({
             name: '',
             supplier_id: '',
+            supplier_stock_no: '',
             sku: '',
             stock: 0,
             unit_cost: '',
@@ -228,6 +230,7 @@ export default function AllItemsIndex({
         setData({
             name: item.name,
             supplier_id: item.supplier_id || '',
+            supplier_stock_no: (item.receiving_batches && item.receiving_batches[0]?.supplier_stock_no) || '',
             sku: item.sku || '',
             stock: item.stock,
             unit_cost: item.unit_cost !== null && item.unit_cost !== undefined ? String(item.unit_cost) : '',

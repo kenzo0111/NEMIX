@@ -1004,5 +1004,115 @@ class ItemMasterBatchArchitectureTest extends TestCase
         $this->assertNotEmpty($generated);
         $this->assertStringStartsWith('BSO-26-09-', $generated);
     }
+
+    /**
+     * Requirement: Endpoint returns automatic supplier stock number for new item master registration (before item_id exists).
+     */
+    public function test_supplier_stock_no_api_generates_preview_for_new_item_without_item_id(): void
+    {
+        // Supplier A (Camarines Office Supplies -> COS)
+        $responseA = $this->actingAs($this->adminUser)->getJson(route('inventory.supplier-stock-no', [
+            'supplier_id' => $this->supplierA->id,
+            'date_received' => '2026-09-10',
+        ]));
+
+        $responseA->assertOk();
+        $generatedA = $responseA->json('supplier_stock_no');
+        $this->assertNotEmpty($generatedA);
+        $this->assertStringStartsWith('CPS-26-09-', $generatedA);
+
+        // When switching preferred supplier to Supplier B (Bicol School & Office Depot -> BSO)
+        $responseB = $this->actingAs($this->adminUser)->getJson(route('inventory.supplier-stock-no', [
+            'supplier_id' => $this->supplierB->id,
+            'date_received' => '2026-09-10',
+        ]));
+
+        $responseB->assertOk();
+        $generatedB = $responseB->json('supplier_stock_no');
+        $this->assertNotEmpty($generatedB);
+        $this->assertStringStartsWith('BSO-26-09-', $generatedB);
+        $this->assertNotEquals($generatedA, $generatedB);
+    }
+
+    /**
+     * Requirement: Registering item master with initial stock stores supplier_stock_no on the batch,
+     * while the Item Master SKU remains strictly an internal code.
+     */
+    public function test_initial_stock_creates_batch_with_supplier_stock_no_and_leaves_item_sku_internal(): void
+    {
+        $response = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
+            'name' => 'A4 Bond Paper 80 GSM Premium',
+            'supplier_id' => $this->supplierA->id,
+            'supplier_stock_no' => 'COS-26-09-001-0001',
+            'stock' => 330,
+            'unit_cost' => 50.00,
+            'unit_of_issue' => 'Ream',
+            'description' => '80gsm white multipurpose paper',
+        ]);
+
+        $response->assertRedirect(route('inventory.index'));
+
+        $item = Item::where('name', 'A4 Bond Paper 80 GSM Premium')->first();
+        $this->assertNotNull($item);
+        // Item Master identity is internal and not the supplier stock number
+        $this->assertStringStartsWith('ITEM-', $item->sku);
+        $this->assertNotEquals('COS-26-09-001-0001', $item->sku);
+
+        // Supplier stock number belongs strictly to the initial inventory batch
+        $this->assertCount(1, $item->batches);
+        $batch = $item->batches->first();
+        $this->assertEquals($this->supplierA->id, $batch->supplier_id);
+        $this->assertEquals('COS-26-09-001-0001', $batch->supplier_stock_no);
+        $this->assertEquals(330, $batch->quantity_received);
+        $this->assertEquals(330, $batch->quantity_remaining);
+        $this->assertEquals(50.00, (float) $batch->unit_cost);
+    }
+
+    /**
+     * Requirement: Registering item master with initial stock = 0 creates Item Master without any fake batches.
+     */
+    public function test_zero_initial_stock_creates_item_master_without_receiving_batch(): void
+    {
+        $response = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
+            'name' => 'A4 Colored Paper Blue',
+            'stock' => 0,
+            'unit_of_issue' => 'Ream',
+            'description' => 'Blue paper',
+        ]);
+
+        $response->assertRedirect(route('inventory.index'));
+
+        $item = Item::where('name', 'A4 Colored Paper Blue')->first();
+        $this->assertNotNull($item);
+        $this->assertEquals(0, $item->stock);
+        $this->assertEquals('Out of Stock', $item->status);
+        // No fake receiving batch created
+        $this->assertCount(0, $item->batches);
+    }
+
+    /**
+     * Requirement: Recording initial stock > 0 requires supplier_id and positive unit_cost.
+     */
+    public function test_initial_stock_requires_supplier_and_positive_unit_cost(): void
+    {
+        // Missing supplier_id with stock > 0
+        $response1 = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
+            'name' => 'Correction Pen Red',
+            'stock' => 10,
+            'unit_cost' => 25.00,
+            'unit_of_issue' => 'Piece',
+        ]);
+        $response1->assertSessionHasErrors('supplier_id');
+
+        // Zero unit_cost with stock > 0
+        $response2 = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
+            'name' => 'Correction Pen Green',
+            'supplier_id' => $this->supplierA->id,
+            'stock' => 10,
+            'unit_cost' => 0,
+            'unit_of_issue' => 'Piece',
+        ]);
+        $response2->assertSessionHasErrors('unit_cost');
+    }
 }
 

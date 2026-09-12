@@ -36,45 +36,19 @@ class InventoryController extends Controller
 
     public function generateUniqueSku(?int $supplierId = null, ?string $name = null): string
     {
-        $acronym = 'GEN';
-        if ($supplierId) {
-            $supplier = Supplier::find($supplierId);
-            $supplierName = $supplier ? $supplier->name : '';
-            if (!empty($supplierName)) {
-                $words = preg_split('/\s+/', trim($supplierName));
-                $letters = [];
-                foreach (array_slice($words, 0, 3) as $word) {
-                    if ($word !== '') {
-                        $letters[] = strtoupper(substr($word, 0, 1));
-                    }
-                }
-                while (count($letters) < 3) {
-                    $letters[] = 'X';
-                }
-                $acronym = implode('', array_slice($letters, 0, 3));
+        $codePart = '';
+        if (!empty($name)) {
+            $clean = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $name));
+            if (strlen($clean) >= 2) {
+                $codePart = '-' . substr($clean, 0, 4);
             }
-        } elseif (!empty($name)) {
-            $words = preg_split('/\s+/', trim($name));
-            $letters = [];
-            foreach (array_slice($words, 0, 3) as $word) {
-                if ($word !== '') {
-                    $letters[] = strtoupper(substr($word, 0, 1));
-                }
-            }
-            while (count($letters) < 3) {
-                $letters[] = 'X';
-            }
-            $acronym = implode('', array_slice($letters, 0, 3));
         }
 
-        $year = date('y');
-        $month = date('m');
-
-        $count = Item::count();
+        $count = Item::withTrashed()->count();
         $index = $count + 1;
         do {
-            $sku = sprintf('%s-%s-%s-%03d-0001', $acronym, $year, $month, $index);
-            $exists = Item::where('sku', $sku)->exists();
+            $sku = sprintf('ITEM%s-%04d', $codePart, $index);
+            $exists = Item::withTrashed()->where('sku', $sku)->exists();
             if (!$exists) {
                 return $sku;
             }
@@ -237,6 +211,7 @@ class InventoryController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'supplier_id' => ['nullable', 'integer', 'exists:suppliers,id'],
+            'supplier_stock_no' => ['nullable', 'string', 'max:255'],
             'sku' => ['nullable', 'string', 'max:255'],
             'stock' => ['nullable', 'integer', 'min:0', 'max:1000000'],
             'unit_cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
@@ -257,6 +232,21 @@ class InventoryController extends Controller
         $stock = isset($validated['stock']) ? (int) $validated['stock'] : 0;
         $unitCost = isset($validated['unit_cost']) && $validated['unit_cost'] !== '' ? (float) $validated['unit_cost'] : 0.0;
         $supplierId = !empty($validated['supplier_id']) ? (int) $validated['supplier_id'] : null;
+
+        // Conditional validation based on initial stock:
+        if ($stock > 0) {
+            if (empty($supplierId)) {
+                throw ValidationException::withMessages([
+                    'supplier_id' => 'The preferred supplier field is required when recording initial stock.',
+                ]);
+            }
+
+            if ($unitCost <= 0) {
+                throw ValidationException::withMessages([
+                    'unit_cost' => 'The unit cost must be greater than 0 when recording initial stock.',
+                ]);
+            }
+        }
 
         return DB::transaction(function () use ($validated, $stock, $unitCost, $supplierId) {
             $sku = !empty($validated['sku']) ? trim($validated['sku']) : '';
@@ -279,12 +269,22 @@ class InventoryController extends Controller
 
             // If initial stock is recorded directly, preserve it in an initial batch
             if ($stock > 0) {
-                $batchSupplierId = $supplierId ?: null;
+                $supplierStockNo = !empty($validated['supplier_stock_no'])
+                    ? trim((string) $validated['supplier_stock_no'])
+                    : $this->receivingService->generateSupplierStockNo($supplierId, $item->id, date('Y-m-d'));
+
+                // Verify uniqueness of supplier_stock_no
+                $exists = InventoryBatch::where('supplier_stock_no', $supplierStockNo)->exists()
+                    || Receiving::where('supplier_stock_no', $supplierStockNo)->exists();
+                if ($exists) {
+                    $supplierStockNo = $this->receivingService->generateSupplierStockNo($supplierId, $item->id, date('Y-m-d'));
+                }
 
                 InventoryBatch::create([
                     'item_id' => $item->id,
                     'receiving_id' => null,
-                    'supplier_id' => $batchSupplierId,
+                    'supplier_id' => $supplierId,
+                    'supplier_stock_no' => $supplierStockNo,
                     'quantity_received' => $stock,
                     'quantity_remaining' => $stock,
                     'unit_cost' => $unitCost,
@@ -518,10 +518,10 @@ class InventoryController extends Controller
     public function generateSupplierStockNo(Request $request)
     {
         $supplierId = (int) $request->input('supplier_id');
-        $itemId = (int) $request->input('item_id');
+        $itemId = $request->filled('item_id') ? (int) $request->input('item_id') : null;
         $date = $request->input('date_received') ?: date('Y-m-d');
 
-        if (!$supplierId || !$itemId) {
+        if (!$supplierId) {
             return response()->json(['supplier_stock_no' => '']);
         }
 
