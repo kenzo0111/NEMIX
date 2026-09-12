@@ -172,6 +172,29 @@ class ComplianceReportDataService
     }
 
     /**
+     * Extracts acronym from an office or department name (e.g. '... (CCMS) ...' -> 'CCMS').
+     */
+    public function extractAcronym(?string $name): string
+    {
+        if (!$name) {
+            return '-';
+        }
+        $trimmed = trim($name);
+        if ($trimmed === '' || $trimmed === '-') {
+            return '-';
+        }
+
+        if (preg_match('/\(([^)]+)\)/', $trimmed, $matches)) {
+            $extracted = trim($matches[1]);
+            if ($extracted !== '') {
+                return $extracted;
+            }
+        }
+
+        return $trimmed;
+    }
+
+    /**
      * Authoritatively retrieves and formats RSMI records.
      */
     public function getRsmiRecords(array $filters): array
@@ -191,11 +214,12 @@ class ComplianceReportDataService
                     $rawDate = $issuance->date_issued ?? $issuance->created_at;
                     $normDate = $this->normalizeDate($rawDate);
                     $risNo = $issuance->ris_number ?: ($issuance->id ? sprintf('%04d', $issuance->id) : '-');
-                    $dept = $issuance->department ?? '-';
+                    $deptName = $issuance->department ?? '-';
+                    $deptCode = $this->extractAcronym($deptName);
                     $fundCluster = $issuance->fund_cluster ?? '01 - Regular Agency Fund';
 
                     if ($issuance->items->isNotEmpty()) {
-                        return $issuance->items->map(function ($line) use ($normDate, $risNo, $dept, $fundCluster) {
+                        return $issuance->items->map(function ($line) use ($normDate, $risNo, $deptName, $deptCode, $fundCluster) {
                             $item = $line->item;
                             $qty = (int) $line->quantity;
                             $unitCost = (float) ($line->unit_cost ?? $item?->unit_cost ?? 0);
@@ -204,7 +228,12 @@ class ComplianceReportDataService
                             return [
                                 'source' => 'live',
                                 'risNo' => $risNo,
-                                'responsibilityCenterCode' => $dept,
+                                'responsibilityCenterCode' => $deptCode,
+                                'responsibility_center' => [
+                                    'name' => $deptName,
+                                    'code' => $deptCode,
+                                    'acronym' => $deptCode,
+                                ],
                                 'stockNo' => $item?->sku ?? '-',
                                 'itemDescription' => $item?->name ?? '-',
                                 'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
@@ -226,7 +255,12 @@ class ComplianceReportDataService
                     return [[
                         'source' => 'live',
                         'risNo' => $risNo,
-                        'responsibilityCenterCode' => $dept,
+                        'responsibilityCenterCode' => $deptCode,
+                        'responsibility_center' => [
+                            'name' => $deptName,
+                            'code' => $deptCode,
+                            'acronym' => $deptCode,
+                        ],
                         'stockNo' => $item?->sku ?? '-',
                         'itemDescription' => $item?->name ?? '-',
                         'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
@@ -257,13 +291,19 @@ class ComplianceReportDataService
                     $cost = (float) ($rec->unit_cost ?? data_get($raw, 'unit_cost') ?? 0);
                     $amt = (float) ($rec->amount ?? data_get($raw, 'amount') ?? ($qty * $cost));
 
-                    $centerCode = $rec->center_code ?? data_get($raw, 'center_code') ?? data_get($raw, 'responsibility_center_code') ?? '-';
+                    $rawCenter = $rec->center_code ?? data_get($raw, 'center_code') ?? data_get($raw, 'responsibility_center_code') ?? '-';
+                    $centerCode = $this->extractAcronym($rawCenter);
                     $risNo = $rec->ris_no ?? $rec->serial_no ?? data_get($raw, 'ris_no') ?? ('RSMI-HIST-' . $rec->id);
 
                     return [
                         'source' => 'migration',
                         'risNo' => $risNo,
                         'responsibilityCenterCode' => $centerCode,
+                        'responsibility_center' => [
+                            'name' => $rawCenter,
+                            'code' => $centerCode,
+                            'acronym' => $centerCode,
+                        ],
                         'stockNo' => $rec->stock_no ?? data_get($raw, 'stock_no') ?? '-',
                         'itemDescription' => $rec->item ?? data_get($raw, 'item_name') ?? '-',
                         'unit' => $rec->unit ?? data_get($raw, 'unit') ?? 'pc',
@@ -294,10 +334,18 @@ class ComplianceReportDataService
                     $cost = (float) data_get($raw, 'unit_cost', 0);
                     $amt = (float) data_get($raw, 'amount', $qty * $cost);
 
+                    $rawDept = $rec->department ?? '-';
+                    $deptCode = $this->extractAcronym($rawDept);
+
                     return [
                         'source' => 'migration_legacy',
                         'risNo' => $rec->reference ?? ('RSMI-LEGACY-' . $rec->id),
-                        'responsibilityCenterCode' => $rec->department ?? '-',
+                        'responsibilityCenterCode' => $deptCode,
+                        'responsibility_center' => [
+                            'name' => $rawDept,
+                            'code' => $deptCode,
+                            'acronym' => $deptCode,
+                        ],
                         'stockNo' => data_get($raw, 'stock_no', '-'),
                         'itemDescription' => $rec->item_name ?? '-',
                         'unit' => data_get($raw, 'unit', 'pc'),
@@ -318,6 +366,11 @@ class ComplianceReportDataService
             return [
                 'risNo' => $r['risNo'],
                 'responsibilityCenterCode' => $r['responsibilityCenterCode'],
+                'responsibility_center' => $r['responsibility_center'] ?? [
+                    'name' => $r['responsibilityCenterCode'],
+                    'code' => $r['responsibilityCenterCode'],
+                    'acronym' => $r['responsibilityCenterCode'],
+                ],
                 'stockNo' => $r['stockNo'],
                 'itemDescription' => $r['itemDescription'],
                 'unit' => $r['unit'],

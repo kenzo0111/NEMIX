@@ -1,11 +1,16 @@
 import React from 'react';
 import { formatDisplayDate } from '@/utils/dateUtils';
+import { getResponsibilityCenterCode, ResponsibilityCenterInfo } from '@/Pages/Compliance/Reports/utils/responsibilityCenterFormatter';
 
 // --- Interfaces ---
 
 export interface RSMIItem {
   risNo: string;
-  responsibilityCenterCode: string;
+  responsibilityCenterCode?: string;
+  responsibility_center_code?: string;
+  responsibility_center?: ResponsibilityCenterInfo | string;
+  responsibilityCenter?: ResponsibilityCenterInfo | string;
+  department?: string;
   stockNo: string;
   itemDescription: string;
   unit: string;
@@ -133,6 +138,12 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         .text-right { text-align: right; }
         .text-left { text-align: left; }
         
+        .responsibility-center-code {
+            text-align: center !important;
+            vertical-align: middle !important;
+            white-space: nowrap;
+        }
+
         .header-italic {
             font-style: italic;
             font-weight: normal !important;
@@ -261,18 +272,23 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
           </thead>
           <tbody>
             {/* Upper Section: Main Items */}
-            {paddedItems.map((item, idx) => (
-              <tr key={`item-${idx}`} className={!item.risNo && !item.itemDescription ? 'empty-row' : ''}>
-                <td className="text-center">{item.risNo || '\u00A0'}</td>
-                <td className="text-center">{item.responsibilityCenterCode || '\u00A0'}</td>
-                <td className="text-center">{item.stockNo || '\u00A0'}</td>
-                <td className="text-left">{item.itemDescription || '\u00A0'}</td>
-                <td className="text-center">{item.unit || '\u00A0'}</td>
-                <td className="text-right">{item.quantityIssued !== undefined && item.quantityIssued !== null && item.quantityIssued !== '' ? item.quantityIssued : '\u00A0'}</td>
-                <td className="text-right">{item.unitCost || '\u00A0'}</td>
-                <td colSpan={2} className="text-right">{item.amount || '\u00A0'}</td>
-              </tr>
-            ))}
+            {paddedItems.map((item, idx) => {
+              const isPaddedEmpty = !item.risNo && !item.itemDescription && !item.stockNo;
+              const displayCode = isPaddedEmpty ? '\u00A0' : (getResponsibilityCenterCode(item) || '\u00A0');
+
+              return (
+                <tr key={`item-${idx}`} className={isPaddedEmpty ? 'empty-row' : ''}>
+                  <td className="text-center">{item.risNo || '\u00A0'}</td>
+                  <td className="responsibility-center-code text-center">{displayCode}</td>
+                  <td className="text-center">{item.stockNo || '\u00A0'}</td>
+                  <td className="text-left">{item.itemDescription || '\u00A0'}</td>
+                  <td className="text-center">{item.unit || '\u00A0'}</td>
+                  <td className="text-right">{item.quantityIssued !== undefined && item.quantityIssued !== null && item.quantityIssued !== '' ? item.quantityIssued : '\u00A0'}</td>
+                  <td className="text-right">{item.unitCost || '\u00A0'}</td>
+                  <td colSpan={2} className="text-right">{item.amount || '\u00A0'}</td>
+                </tr>
+              );
+            })}
 
             {/* Lower Section: Recapitulation Headers */}
             <tr className="border-bottom-bold">

@@ -1,6 +1,7 @@
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { formatFundClusterDisplay } from '../constants';
 import { ComplianceReport, ReportDatasetResponse, ReportFormData, ReportType } from '../types';
+import { getResponsibilityCenterCode } from './responsibilityCenterFormatter';
 
 export interface NormalizedReportData {
     type: ReportType;
@@ -156,11 +157,37 @@ export function normalizeReportPaperData(
             (snapshot?.issuedItems ? snapshot : null) ||
             {};
 
-        const issuedItems =
+        const rawIssuedItems =
             rsmiSource.issuedItems ||
             payload.issuedItems ||
             snapshot.issuedItems ||
             [];
+
+        const issuedItems = (Array.isArray(rawIssuedItems) ? rawIssuedItems : []).map((item: any) => {
+            if (!item || typeof item !== 'object') return item;
+            const code = getResponsibilityCenterCode(item);
+            const fullName =
+                item.responsibility_center?.name ||
+                item.responsibilityCenter?.name ||
+                (typeof item.responsibility_center === 'string' ? item.responsibility_center : '') ||
+                (typeof item.responsibilityCenter === 'string' ? item.responsibilityCenter : '') ||
+                item.department ||
+                item.office ||
+                item.division ||
+                item.responsibilityCenterCode ||
+                item.responsibility_center_code ||
+                '';
+
+            return {
+                ...item,
+                responsibilityCenterCode: code,
+                responsibility_center: {
+                    name: fullName || code,
+                    code: code,
+                    acronym: code,
+                },
+            };
+        });
 
         const recapitulationItems =
             rsmiSource.recapitulationItems ||
