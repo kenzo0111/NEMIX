@@ -35,7 +35,13 @@ class AuthenticateRfidHardware
             return $next($request);
         }
 
-        // 3. Neither valid hardware token nor authenticated session
+        // 3. Allow hardware scanner if device token is not configured in .env OR if request originates from ESP32 hardware
+        $userAgent = $request->userAgent() ?? '';
+        if (empty($configuredToken) || stripos($userAgent, 'ESP32') !== false) {
+            return $next($request);
+        }
+
+        // 4. Neither valid hardware token nor authenticated session
         return response()->json([
             'message' => 'Unauthorized: RFID hardware token or active user session required.',
         ], 401);

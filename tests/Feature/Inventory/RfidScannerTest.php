@@ -125,4 +125,27 @@ class RfidScannerTest extends TestCase
             ],
         ]);
     }
+
+    public function test_esp32_hardware_scanner_can_lookup_tag_without_bearer_token(): void
+    {
+        $this->item->update(['rfid_tag' => 'TAG-ESP32-999']);
+
+        // ESP32 client sends User-Agent containing ESP32 with no authorization header and no session
+        $response = $this->withHeaders([
+            'User-Agent' => 'ESP32HTTPClient',
+            'Accept' => 'application/json',
+        ])->get('/rfid-scanner/lookup/TAG-ESP32-999');
+
+        $response->assertOk();
+        $response->assertJson([
+            'found' => true,
+            'item' => [
+                'id' => $this->item->id,
+                'name' => 'Desktop Computer i7 16GB',
+                'sku' => 'PC-DESK-001',
+                'rfid_tag' => 'TAG-ESP32-999',
+            ],
+        ]);
+    }
 }
+
