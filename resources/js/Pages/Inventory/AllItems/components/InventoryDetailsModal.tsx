@@ -178,9 +178,6 @@ export default function InventoryDetailsModal({
                                             <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono">
                                                 Supplier
                                             </th>
-                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono">
-                                                Supplier Stock No.
-                                            </th>
                                             <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono text-right">
                                                 Received
                                             </th>
@@ -201,17 +198,17 @@ export default function InventoryDetailsModal({
                                                 <td className="px-4 py-2.5 font-mono text-gray-600">
                                                     {formatDisplayDate(batch.date_received, 'MM/DD/YYYY') || batch.date_received}
                                                 </td>
-                                                <td className="px-4 py-2.5 font-medium text-gray-800">
-                                                    {batch.supplier_name}
-                                                </td>
-                                                <td className="px-4 py-2.5 font-mono text-gray-700">
+                                                <td className="px-4 py-2.5 text-gray-800">
+                                                    <div className="font-medium text-gray-900 leading-tight">
+                                                        {batch.supplier_name}
+                                                    </div>
                                                     {batch.supplier_stock_no ? (
-                                                        <span className="bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
-                                                            {batch.supplier_stock_no}
-                                                        </span>
-                                                    ) : (
-                                                        <span className="text-gray-400 italic">Not recorded</span>
-                                                    )}
+                                                        <div className="mt-1">
+                                                            <span className="inline-block px-1.5 py-0.5 font-mono text-[11px] text-slate-700 bg-slate-100/90 rounded border border-slate-200/90 shadow-2xs">
+                                                                {batch.supplier_stock_no}
+                                                            </span>
+                                                        </div>
+                                                    ) : null}
                                                 </td>
                                                 <td className="px-4 py-2.5 text-right font-mono text-gray-700">
                                                     {formatNumber(batch.quantity_received)}
