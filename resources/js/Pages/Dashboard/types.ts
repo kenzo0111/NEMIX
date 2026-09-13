@@ -91,18 +91,35 @@ export interface ComplianceSummary {
     } | null;
 }
 
-export interface RecentActivity {
-    id: number | string;
-    user: string;
+export interface DashboardActivityActor {
+    id?: number | null;
+    name: string;
     role?: string;
-    module?: string;
-    action: string;
-    details?: string;
+}
+
+export interface DashboardActivity {
+    id: number | string;
+    event_key?: string;
+    title: string;
+    summary?: string | null;
+    reference?: string | null;
+    module: string;
+    occurred_at?: string;
+    time?: string;
+    timestamp?: string;
+    actor?: DashboardActivityActor | null;
+    context?: Record<string, unknown>;
+
+    // Backward compatibility fields for legacy components
+    user?: string;
+    role?: string;
+    action?: string;
+    details?: string | null;
     status?: string;
     badge?: string;
-    time: string;
-    timestamp?: string;
 }
+
+export type RecentActivity = DashboardActivity;
 
 export interface DashboardFilters {
     chartFilter?: string;
