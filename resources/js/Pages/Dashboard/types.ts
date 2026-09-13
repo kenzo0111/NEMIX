@@ -108,6 +108,7 @@ export interface DashboardActivity {
     time?: string;
     timestamp?: string;
     actor?: DashboardActivityActor | null;
+    group_id?: string | null;
     context?: Record<string, unknown>;
 
     // Backward compatibility fields for legacy components

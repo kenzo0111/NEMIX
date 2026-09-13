@@ -101,12 +101,16 @@ export function normalizeActivity(raw: unknown): DashboardActivity {
             eventKey = 'rfid.tag.assigned';
         } else if (actionLower.includes('setting') || actionLower.includes('config')) {
             eventKey = 'system.settings.updated';
+        } else if (actionLower.includes('memorandum') || actionLower.includes('receipt')) {
+            eventKey = 'compliance.mr.generated';
         } else if (actionLower.includes('rpci')) {
             eventKey = 'compliance.rpci.generated';
         } else if (actionLower.includes('rsmi')) {
             eventKey = 'compliance.rsmi.generated';
+        } else if (actionLower.includes('stock card')) {
+            eventKey = 'compliance.stock_card.generated';
         } else if (actionLower.includes('supplier')) {
-            eventKey = actionLower.includes('create') || actionLower.includes('new') ? 'supplier.created' : 'supplier.updated';
+            eventKey = actionLower.includes('create') || actionLower.includes('register') ? 'supplier.created' : 'supplier.updated';
         } else if (actionLower.includes('item')) {
             eventKey = actionLower.includes('create') || actionLower.includes('add') ? 'inventory.item.created' : 'inventory.item.updated';
         }
@@ -120,11 +124,11 @@ export function normalizeActivity(raw: unknown): DashboardActivity {
 
     // 4. Resolve Reference (Strip internal IDs like TRX- or internal primary keys)
     let reference: string | null = item.reference || item.resource_ref || null;
-    if (typeof reference === 'string' && (reference.startsWith('TRX-') || reference.startsWith('ID-') || reference.startsWith('CONFIG-BATCH-'))) {
+    if (typeof reference === 'string' && (reference.startsWith('TRX-') || reference.startsWith('ID-') || reference.startsWith('CONFIG-BATCH-') || reference.startsWith('AUTH-'))) {
         reference = null;
     }
 
-    // 5. Build Human-readable Summary & Context
+    // 5. Build Human-readable Natural Sentence Summary & Context
     let summary: string | null = null;
     const context: Record<string, unknown> = { ...(item.context || {}) };
 
@@ -136,22 +140,24 @@ export function normalizeActivity(raw: unknown): DashboardActivity {
 
         const itemsCount = metadata.items_count ? parseInt(String(metadata.items_count), 10) : 1;
         const totalQty = metadata.total_quantity !== undefined ? parseInt(String(metadata.total_quantity), 10) : null;
-        const recipient = metadata.recipient ? String(metadata.recipient) : null;
-        const department = metadata.department ? String(metadata.department) : null;
+        const recipient = metadata.recipient ? String(metadata.recipient).trim() : null;
+        const department = metadata.department ? String(metadata.department).trim() : null;
 
         if (department) context.department = department;
         if (recipient) context.recipient = recipient;
 
-        const parts: string[] = [];
-        parts.push(`${itemsCount} ${itemsCount === 1 ? 'item' : 'items'}`);
-        if (totalQty !== null && !isNaN(totalQty)) {
-            parts.push(`${formatQuantity(totalQty)} units`);
-        }
-        if (recipient) {
-            parts.push(recipient);
-        }
+        const itemUnitText = itemsCount === 1 ? '1 item' : `${itemsCount} items`;
+        const qtyText = totalQty !== null && !isNaN(totalQty) ? ` (${formatQuantity(totalQty)} units)` : '';
 
-        summary = parts.join(' • ');
+        if (recipient && department) {
+            summary = `Issued ${itemUnitText}${qtyText} to ${recipient}, ${department}.`;
+        } else if (recipient) {
+            summary = `Issued ${itemUnitText}${qtyText} to ${recipient}.`;
+        } else if (department) {
+            summary = `Issued ${itemUnitText}${qtyText} to ${department}.`;
+        } else {
+            summary = `Issued ${itemUnitText}${qtyText}.`;
+        }
     } else if (eventKey === 'inventory.receiving.created' || actionLower.includes('receiving')) {
         title = 'Recorded Inventory Receiving';
 
@@ -168,14 +174,17 @@ export function normalizeActivity(raw: unknown): DashboardActivity {
         }
 
         if (supplierName) context.supplier = supplierName;
-        if (itemName && reference !== itemName) context.entity = itemName;
+        if (itemName) context.entity = itemName;
+        if (stockNo) context.stock_no = stockNo;
 
         if (qty && supplierName) {
-            summary = `${formatQuantity(qty)} ${unit} received from ${supplierName}`;
+            summary = `Received ${formatQuantity(qty)} ${unit} from ${supplierName}.`;
         } else if (qty) {
-            summary = `${formatQuantity(qty)} ${unit} received into inventory`;
+            summary = `Received ${formatQuantity(qty)} ${unit} into inventory.`;
         } else if (supplierName) {
-            summary = `Received from ${supplierName}`;
+            summary = `Received from ${supplierName}.`;
+        } else {
+            summary = 'Inventory receiving recorded.';
         }
     } else if (eventKey === 'inventory.item.created' || (actionLower.includes('item') && actionLower.includes('add'))) {
         title = 'Registered Item Master';
@@ -186,46 +195,43 @@ export function normalizeActivity(raw: unknown): DashboardActivity {
         const stock = metadata.stock !== undefined ? parseInt(String(metadata.stock), 10) : null;
 
         if (unit && stock !== null && !isNaN(stock)) {
-            summary = `Initial stock: ${formatQuantity(stock)} ${String(unit).toLowerCase()}${stock > 1 ? 's' : ''}`;
+            summary = `Initial stock: ${formatQuantity(stock)} ${String(unit).toLowerCase()}${stock > 1 ? 's' : ''}.`;
         } else if (unit) {
-            summary = `Unit: ${unit}`;
+            summary = `Catalog item registered with unit: ${unit}.`;
         } else if (stock !== null && !isNaN(stock)) {
-            summary = `Initial stock: ${formatQuantity(stock)} units`;
+            summary = `Initial stock: ${formatQuantity(stock)} units.`;
+        } else {
+            summary = 'Item registered in inventory master catalog.';
         }
+    } else if (eventKey === 'compliance.mr.generated' || actionLower.includes('memorandum')) {
+        title = 'Generated Memorandum Receipt';
+        if (metadata.report_number) reference = String(metadata.report_number);
+        const recipient = metadata.recipient || (rawDetails.match(/Memorandum Receipt\s*[-–:]\s*([^'"]+)/i)?.[1]?.trim());
+        summary = recipient ? `Prepared for ${recipient}.` : 'Memorandum Receipt compliance documentation generated.';
     } else if (eventKey === 'compliance.rpci.generated' || actionLower.includes('rpci')) {
         title = 'Generated RPCI Report';
         if (metadata.report_number) reference = String(metadata.report_number);
-        summary = metadata.as_of ? `As of ${metadata.as_of}` : 'Semi-annual physical count report generated';
+        summary = metadata.as_of ? `Physical Count of Inventories as of ${metadata.as_of}.` : 'Physical count of inventories report generated.';
     } else if (eventKey === 'compliance.rsmi.generated' || actionLower.includes('rsmi')) {
         title = 'Generated RSMI Report';
         if (metadata.report_number) reference = String(metadata.report_number);
-        const count = metadata.issuances_count ? parseInt(String(metadata.issuances_count), 10) : null;
-        const month = metadata.month ? String(metadata.month) : null;
-        const parts: string[] = [];
-        if (month) parts.push(month);
-        if (count !== null) parts.push(`${count} issuance records included`);
-        summary = parts.length > 0 ? parts.join(' • ') : 'Monthly report of supplies and materials issued';
+        const month = metadata.month || (rawDetails.match(/(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}/i)?.[0]);
+        summary = month ? `${month} reporting period.` : 'Monthly report of supplies and materials issued.';
     } else if (eventKey === 'system.settings.updated' || actionLower.includes('setting')) {
         title = 'Updated System Settings';
         reference = null;
-        summary = 'Inventory stock thresholds and configuration updated';
+        summary = 'Inventory stock thresholds and configuration updated.';
     } else if (eventKey.startsWith('supplier.') || actionLower.includes('supplier')) {
-        const isCreated = actionLower.includes('create') || actionLower.includes('new');
+        const isCreated = actionLower.includes('create') || actionLower.includes('new') || actionLower.includes('register');
         title = isCreated ? 'Registered New Supplier' : 'Updated Supplier';
         const suppName = metadata.name || metadata.supplier_name || item.resource_ref;
         if (suppName) reference = String(suppName);
-        summary = isCreated ? 'New supplier registered in directory' : 'Supplier profile information updated';
+        summary = isCreated ? 'New supplier profile registered in directory.' : 'Supplier profile information updated.';
     } else if (eventKey === 'rfid.tag.assigned' || actionLower.includes('rfid')) {
         title = 'Assigned RFID Tag';
         const itemName = metadata.item_name || (metadata.item && metadata.item.name);
         if (itemName) reference = String(itemName);
-        const tag = metadata.new_tag || metadata.rfid_tag;
-        if (tag) {
-            const shortTag = String(tag).length > 16 ? `${String(tag).substring(0, 16)}...` : String(tag);
-            summary = `Tag EPC: ${shortTag}`;
-        } else {
-            summary = 'Electronic RFID tag tracking assigned';
-        }
+        summary = 'RFID tag assigned successfully.';
     }
 
     // Fallback if summary was not derived
@@ -233,24 +239,49 @@ export function normalizeActivity(raw: unknown): DashboardActivity {
         if (item.summary && !item.summary.startsWith('{') && !item.summary.startsWith('[')) {
             summary = item.summary;
         } else if (rawDetails && !rawDetails.startsWith('{') && !rawDetails.startsWith('[')) {
-            summary = rawDetails;
+            summary = rawDetails.endsWith('.') ? rawDetails : `${rawDetails}.`;
         } else {
-            summary = 'System activity recorded';
+            summary = 'System operational activity recorded.';
         }
     }
 
     // Defensive final pass: if summary still contains raw JSON characters, replace with clean text
     if (summary && (summary.startsWith('{') || summary.startsWith('['))) {
-        summary = 'System activity recorded';
+        summary = 'System operational activity recorded.';
     }
 
-    // 6. Resolve Actor
-    const actorName = item.actor?.name || item.user || 'System Administrator';
+    // 6. Resolve Actor (strip any "by " prefix)
+    let actorName = item.actor?.name || item.user || 'System Administrator';
+    if (actorName.toLowerCase().startsWith('by ')) {
+        actorName = actorName.substring(3).trim();
+    }
     const actorRole = item.actor?.role || item.role || 'Authorized Staff';
 
     // 7. Resolve Timestamps
-    const time = item.time || (item.occurred_at ? new Date(item.occurred_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : 'Recently');
-    const timestamp = item.timestamp || item.occurred_at || '';
+    let time = item.time;
+    let timestamp = item.timestamp || item.occurred_at || '';
+
+    if (!time && item.occurred_at) {
+        try {
+            const date = new Date(item.occurred_at);
+            const now = new Date();
+            const timePart = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            const isToday = date.toDateString() === now.toDateString();
+            const isThisYear = date.getFullYear() === now.getFullYear();
+
+            if (isToday) {
+                time = timePart;
+            } else if (isThisYear) {
+                const monthDay = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                time = `${monthDay} • ${timePart}`;
+            } else {
+                const fullDate = date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+                time = `${fullDate} • ${timePart}`;
+            }
+        } catch {
+            time = 'Recently';
+        }
+    }
 
     // 8. Resolve Module
     const module = normalizeModuleName(item.module);
@@ -263,13 +294,14 @@ export function normalizeActivity(raw: unknown): DashboardActivity {
         reference,
         module,
         occurred_at: item.occurred_at || '',
-        time,
+        time: time || 'Recently',
         timestamp,
         actor: {
             id: item.actor?.id,
             name: actorName,
             role: actorRole,
         },
+        group_id: item.group_id || item.audit_group_id || metadata.correlation_id || null,
         context,
         user: actorName,
         role: actorRole,
