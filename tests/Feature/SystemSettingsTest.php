@@ -116,8 +116,8 @@ class SystemSettingsTest extends TestCase
 
         $this->assertDatabaseHas('transaction_trails', [
             'user_id' => $this->adminUser->id,
-            'module' => 'System Settings',
-            'action' => 'Consumables Settings Updated',
+            'module' => 'Administration',
+            'action' => 'Updated System Settings',
         ]);
     }
 
