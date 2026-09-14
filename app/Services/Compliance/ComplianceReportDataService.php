@@ -303,6 +303,64 @@ class ComplianceReportDataService
     }
 
     /**
+     * Resolves the canonical Supplier Stock Number for an item, batch, or line allocation.
+     * Official compliance forms must strictly display the Supplier Stock Number.
+     * Never silently fall back to internal item_no / SKU.
+     */
+    public function resolveSupplierStockNo(?object $batch = null, ?object $item = null, ?int $itemId = null): ?string
+    {
+        // 1. Direct batch supplier stock number
+        if ($batch && !empty($batch->supplier_stock_no)) {
+            return trim((string) $batch->supplier_stock_no);
+        }
+
+        // 2. Check if item has loaded batches relation
+        if ($item && isset($item->batches) && $item->batches instanceof \Illuminate\Support\Collection && $item->batches->isNotEmpty()) {
+            $batchMatch = $item->batches->first(function ($b) {
+                return !empty($b->supplier_stock_no);
+            });
+            if ($batchMatch) {
+                return trim((string) $batchMatch->supplier_stock_no);
+            }
+        }
+
+        $targetItemId = $itemId ?: ($item?->id ?? $batch?->item_id ?? null);
+        if (!$targetItemId) {
+            return null;
+        }
+
+        // 3. Database query on inventory_batches
+        if (class_exists(\Modules\Inventory\Models\InventoryBatch::class)) {
+            $stockNo = \Modules\Inventory\Models\InventoryBatch::where('item_id', $targetItemId)
+                ->whereNotNull('supplier_stock_no')
+                ->where('supplier_stock_no', '!=', '')
+                ->orderBy('date_received', 'desc')
+                ->orderBy('id', 'desc')
+                ->value('supplier_stock_no');
+
+            if (!empty($stockNo)) {
+                return trim((string) $stockNo);
+            }
+        }
+
+        // 4. Database query on receivings
+        if (class_exists(\Modules\Inventory\Models\Receiving::class)) {
+            $stockNo = \Modules\Inventory\Models\Receiving::where('item_id', $targetItemId)
+                ->whereNotNull('supplier_stock_no')
+                ->where('supplier_stock_no', '!=', '')
+                ->orderBy('date_received', 'desc')
+                ->orderBy('id', 'desc')
+                ->value('supplier_stock_no');
+
+            if (!empty($stockNo)) {
+                return trim((string) $stockNo);
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Authoritatively retrieves and formats RSMI records.
      */
     public function getRsmiRecords(array $filters): array
@@ -311,7 +369,7 @@ class ComplianceReportDataService
 
         // 1. Live Issuances
         if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
-            $liveIssuances = \Modules\Inventory\Models\Issuance::with(['items.item', 'item', 'issuer'])
+            $liveIssuances = \Modules\Inventory\Models\Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches', 'issuer'])
                 ->latest()
                 ->get()
                 ->filter(function ($issuance) use ($filters) {
@@ -333,6 +391,11 @@ class ComplianceReportDataService
                             $unitCost = (float) ($line->unit_cost ?? $item?->unit_cost ?? 0);
                             $amount = (float) ($line->amount ?? ($qty * $unitCost));
 
+                            // Resolve Supplier Stock Number from allocation batch first, then line/item
+                            $allocBatch = $line->allocations->first()?->inventoryBatch;
+                            $supplierStockNo = $this->resolveSupplierStockNo($allocBatch, $item, $line->item_id);
+                            $officialStockNo = $supplierStockNo ?: '-';
+
                             return [
                                 'source' => 'live',
                                 'risNo' => $risNo,
@@ -342,7 +405,10 @@ class ComplianceReportDataService
                                     'code' => $deptCode,
                                     'acronym' => $deptCode,
                                 ],
-                                'stockNo' => $item?->sku ?? '-',
+                                'stockNo' => $officialStockNo,
+                                'stock_no' => $officialStockNo,
+                                'supplier_stock_no' => $supplierStockNo,
+                                'item_no' => $item?->sku,
                                 'itemDescription' => $item?->name ?? '-',
                                 'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
                                 'quantityIssued' => $qty,
@@ -360,6 +426,9 @@ class ComplianceReportDataService
                     $unitCost = (float) ($item?->unit_cost ?? 0);
                     $amount = $qty * $unitCost;
 
+                    $supplierStockNo = $this->resolveSupplierStockNo(null, $item, $issuance->item_id);
+                    $officialStockNo = $supplierStockNo ?: '-';
+
                     return [[
                         'source' => 'live',
                         'risNo' => $risNo,
@@ -369,7 +438,10 @@ class ComplianceReportDataService
                             'code' => $deptCode,
                             'acronym' => $deptCode,
                         ],
-                        'stockNo' => $item?->sku ?? '-',
+                        'stockNo' => $officialStockNo,
+                        'stock_no' => $officialStockNo,
+                        'supplier_stock_no' => $supplierStockNo,
+                        'item_no' => $item?->sku,
                         'itemDescription' => $item?->name ?? '-',
                         'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
                         'quantityIssued' => $qty,
@@ -471,6 +543,9 @@ class ComplianceReportDataService
 
         // Map into official issuedItems format
         $issuedItems = $records->values()->map(function ($r) {
+            $stockNo = $r['stockNo'] ?? '-';
+            $supplierStockNo = $r['supplier_stock_no'] ?? ($stockNo !== '-' ? $stockNo : null);
+
             return [
                 'risNo' => $r['risNo'],
                 'responsibilityCenterCode' => $r['responsibilityCenterCode'],
@@ -479,7 +554,10 @@ class ComplianceReportDataService
                     'code' => $r['responsibilityCenterCode'],
                     'acronym' => $r['responsibilityCenterCode'],
                 ],
-                'stockNo' => $r['stockNo'],
+                'stockNo' => $stockNo,
+                'stock_no' => $stockNo,
+                'supplier_stock_no' => $supplierStockNo,
+                'item_no' => $r['item_no'] ?? null,
                 'itemDescription' => $r['itemDescription'],
                 'unit' => $r['unit'],
                 'quantityIssued' => $r['quantityIssued'],
@@ -491,10 +569,14 @@ class ComplianceReportDataService
         // Recapitulation grouping
         $recapMap = [];
         foreach ($records as $r) {
-            $key = $r['stockNo'] . '|' . $r['unitCost'];
+            $stockNo = $r['stockNo'] ?? '-';
+            $supplierStockNo = $r['supplier_stock_no'] ?? ($stockNo !== '-' ? $stockNo : null);
+            $key = $stockNo . '|' . $r['unitCost'];
             if (!isset($recapMap[$key])) {
                 $recapMap[$key] = [
-                    'stockNo' => $r['stockNo'],
+                    'stockNo' => $stockNo,
+                    'stock_no' => $stockNo,
+                    'supplier_stock_no' => $supplierStockNo,
                     'quantity' => 0,
                     'unitCost' => $r['unitCost'] ? ('₱' . number_format($r['unitCost'], 2)) : '0.00',
                     'rawTotalCost' => 0,
@@ -578,7 +660,8 @@ class ComplianceReportDataService
 
                 $item = $batch->item;
                 $unitCost = (float) $batch->unit_cost;
-                $stockNo = $batch->supplier_stock_no ?: ($item?->sku ?: '-');
+                $supplierStockNo = $batch->supplier_stock_no ?: $this->resolveSupplierStockNo($batch, $item);
+                $stockNo = $supplierStockNo ?: '-';
 
                 return [
                     'source' => 'live_batch',
@@ -587,7 +670,8 @@ class ComplianceReportDataService
                     'article' => $item?->name ?? '-',
                     'description' => $item?->description ?? $item?->name ?? '-',
                     'stock_no' => $stockNo,
-                    'supplier_stock_no' => $batch->supplier_stock_no,
+                    'supplier_stock_no' => $supplierStockNo,
+                    'item_no' => $item?->sku,
                     'supplier_id' => $batch->supplier_id,
                     'supplier_name' => $batch->supplier?->name ?? 'Supplier',
                     'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
@@ -624,14 +708,18 @@ class ComplianceReportDataService
                 })->map(function ($item) {
                     $stock = (int) ($item->stock ?? 0);
                     $unitCost = (float) ($item->unit_cost ?? 0);
+                    $supplierStockNo = $this->resolveSupplierStockNo(null, $item);
+                    $stockNo = $supplierStockNo ?: '-';
+
                     return [
                         'source' => 'live_item',
                         'item_id' => $item->id,
                         'batch_id' => null,
                         'article' => $item->name ?? '-',
                         'description' => $item->description ?? $item->name ?? '-',
-                        'stock_no' => $item->sku ?? '-',
-                        'supplier_stock_no' => null,
+                        'stock_no' => $stockNo,
+                        'supplier_stock_no' => $supplierStockNo,
+                        'item_no' => $item->sku,
                         'supplier_id' => $item->supplier_id,
                         'supplier_name' => $item->supplier?->name ?? 'Supplier',
                         'unit' => $item->unit_of_issue ?? $item->unit_measure ?? 'pc',
@@ -656,14 +744,18 @@ class ComplianceReportDataService
             $liveItems = $query->get()->map(function ($item) {
                 $stock = (int) ($item->stock ?? 0);
                 $unitCost = (float) ($item->unit_cost ?? 0);
+                $supplierStockNo = $this->resolveSupplierStockNo(null, $item);
+                $stockNo = $supplierStockNo ?: '-';
+
                 return [
                     'source' => 'live',
                     'item_id' => $item->id,
                     'batch_id' => null,
                     'article' => $item->name ?? '-',
                     'description' => $item->description ?? $item->name ?? '-',
-                    'stock_no' => $item->sku ?? '-',
-                    'supplier_stock_no' => null,
+                    'stock_no' => $stockNo,
+                    'supplier_stock_no' => $supplierStockNo,
+                    'item_no' => $item->sku,
                     'supplier_id' => $item->supplier_id,
                     'supplier_name' => $item->supplier?->name ?? 'Supplier',
                     'unit' => $item->unit_of_issue ?? $item->unit_measure ?? 'pc',
@@ -960,9 +1052,14 @@ class ComplianceReportDataService
             ];
         }
 
+        $supplierStockNo = $this->resolveSupplierStockNo(null, $activeItem);
+        $stockNo = $supplierStockNo ?: '-';
+
         return [
             'item' => $activeItem?->name ?? $targetItemName,
-            'stock_no' => $activeItem?->sku ?? '-',
+            'stock_no' => $stockNo,
+            'supplier_stock_no' => $supplierStockNo,
+            'item_no' => $activeItem?->sku,
             'description' => $activeItem?->description ?? $activeItem?->name ?? $targetItemName,
             'unit_of_measurement' => $activeItem?->unit_of_issue ?? $activeItem?->unit_measure ?? 'Pieces',
             're_order_point' => (string) ($activeItem?->reorder_point ?? '-'),
@@ -989,7 +1086,7 @@ class ComplianceReportDataService
 
         // 1. Live issuances
         if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
-            $query = \Modules\Inventory\Models\Issuance::with(['items.item', 'item']);
+            $query = \Modules\Inventory\Models\Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches']);
             $issuances = $query->latest()->get()
                 ->filter(function ($iss) use ($endUserLower, $filters) {
                     if ($endUserLower && strtolower((string)$iss->recipient) !== $endUserLower) {
@@ -1009,7 +1106,12 @@ class ComplianceReportDataService
                             $item = $line->item;
                             $qty = (int) $line->quantity;
                             $cost = (float) ($line->unit_cost ?? $item?->unit_cost ?? 0);
-                            $propNo = $line->property_number ?? $item?->sku ?? $line->id;
+
+                            $allocBatch = $line->allocations->first()?->inventoryBatch;
+                            $supplierStockNo = $this->resolveSupplierStockNo($allocBatch, $item, $line->item_id);
+
+                            $serial = $line->serial_number ?? $line->serial_no ?? $line->property_number ?? $line->property_no ?? null;
+                            $propNo = $serial ?? $supplierStockNo ?? '-';
 
                             return [
                                 'source' => 'live',
@@ -1017,6 +1119,9 @@ class ComplianceReportDataService
                                 'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
                                 'description' => $item?->name ?? 'Inventory Item',
                                 'propertyNo' => (string) $propNo,
+                                'stock_no' => $supplierStockNo ?: '-',
+                                'supplier_stock_no' => $supplierStockNo,
+                                'item_no' => $item?->sku,
                                 'dateAcquired' => $this->normalizeDate($dt),
                                 'unitValue' => $cost,
                                 'totalValue' => $qty * $cost,
@@ -1030,13 +1135,19 @@ class ComplianceReportDataService
                     $item = $iss->item;
                     $qty = (int) ($iss->quantity ?? 1);
                     $cost = (float) ($item?->unit_cost ?? 0);
+                    $supplierStockNo = $this->resolveSupplierStockNo(null, $item, $iss->item_id);
+                    $serial = $iss->serial_number ?? $iss->serial_no ?? $iss->property_number ?? $iss->property_no ?? null;
+                    $propNo = $serial ?? $supplierStockNo ?? '-';
 
                     return [[
                         'source' => 'live',
                         'quantity' => $qty,
                         'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
                         'description' => $item?->name ?? 'Inventory Item',
-                        'propertyNo' => (string) ($item?->sku ?? $iss->id),
+                        'propertyNo' => (string) $propNo,
+                        'stock_no' => $supplierStockNo ?: '-',
+                        'supplier_stock_no' => $supplierStockNo,
+                        'item_no' => $item?->sku,
                         'dateAcquired' => $this->normalizeDate($dt),
                         'unitValue' => $cost,
                         'totalValue' => $qty * $cost,
@@ -1069,7 +1180,14 @@ class ComplianceReportDataService
                     $raw = $rec->raw_data ?? [];
                     $qty = (int) (data_get($raw, 'quantity') ?? data_get($raw, 'qty') ?? 1);
                     $cost = (float) (data_get($raw, 'unit_cost') ?? data_get($raw, 'unit_value') ?? data_get($raw, 'cost') ?? 0);
-                    $propNo = data_get($raw, 'stock_no') ?? data_get($raw, 'property_no') ?? $rec->memorial_no ?? ('MR-HIST-' . $rec->id);
+                    $propNo = data_get($raw, 'serial_no')
+                        ?? data_get($raw, 'serial_number')
+                        ?? data_get($raw, 'property_no')
+                        ?? data_get($raw, 'property_number')
+                        ?? data_get($raw, 'supplier_stock_no')
+                        ?? data_get($raw, 'stock_no')
+                        ?? $rec->memorial_no
+                        ?? ('MR-HIST-' . $rec->id);
                     $desc = data_get($raw, 'item_name') ?? data_get($raw, 'item') ?? data_get($raw, 'description') ?? $rec->remarks ?? 'Property Item';
 
                     return [
@@ -1078,6 +1196,9 @@ class ComplianceReportDataService
                         'unit' => data_get($raw, 'unit', 'pc'),
                         'description' => $desc,
                         'propertyNo' => $propNo,
+                        'stock_no' => data_get($raw, 'supplier_stock_no') ?? data_get($raw, 'stock_no') ?? '-',
+                        'supplier_stock_no' => data_get($raw, 'supplier_stock_no'),
+                        'item_no' => data_get($raw, 'item_no') ?? data_get($raw, 'sku'),
                         'dateAcquired' => $this->normalizeDate($rec->date_received ?? data_get($raw, 'date')),
                         'unitValue' => $cost,
                         'totalValue' => $qty * $cost,

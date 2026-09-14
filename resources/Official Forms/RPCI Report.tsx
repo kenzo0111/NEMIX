@@ -8,6 +8,8 @@ export interface InventoryItem {
   article?: string;
   description?: string;
   stock_no?: string;
+  supplier_stock_no?: string | null;
+  item_no?: string | null;
   unit?: string;
   unit_value?: number | string;
   balance_per_card?: number | string;
@@ -280,7 +282,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
               <tr key={idx}>
                 <td>{item.article || '\u00A0'}</td>
                 <td className="text-left">{item.description || '\u00A0'}</td>
-                <td>{item.stock_no || '\u00A0'}</td>
+                <td>{item.supplier_stock_no || item.stock_no || '\u00A0'}</td>
                 <td>{item.unit || '\u00A0'}</td>
                 <td className="text-right">{formatUnitValue(item.unit_value)}</td>
                 <td className="text-right">{item.balance_per_card !== undefined && item.balance_per_card !== null && item.balance_per_card !== '' ? item.balance_per_card : '\u00A0'}</td>

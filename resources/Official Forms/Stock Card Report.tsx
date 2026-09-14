@@ -19,6 +19,8 @@ export interface StockCardData {
   fund_cluster?: string;
   item?: string;
   stock_no?: string;
+  supplier_stock_no?: string | null;
+  item_no?: string | null;
   description?: string;
   re_order_point?: string;
   unit_of_measurement?: string;
@@ -176,7 +178,7 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
               <td style={{ textAlign: 'center', fontWeight: 'normal', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>Item:</td>
               <td style={{ textAlign: 'center', fontWeight: 'bold', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>{data.item || '\u00A0'}</td>
               <td style={{ textAlign: 'center', fontWeight: 'normal', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>Stock No.:</td>
-              <td style={{ textAlign: 'center', fontWeight: 'bold', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>{data.stock_no || '\u00A0'}</td>
+              <td style={{ textAlign: 'center', fontWeight: 'bold', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>{data.supplier_stock_no || data.stock_no || '\u00A0'}</td>
             </tr>
             <tr>
               <td style={{ textAlign: 'center', padding: '2px 4px', fontSize: '8pt', lineHeight: 1.1 }}>Description:</td>

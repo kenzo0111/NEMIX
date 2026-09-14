@@ -167,6 +167,9 @@ export function useReportGenerator(
             recapitulationItems: previewDataset.rsmi?.recapitulationItems,
             items: previewDataset.rpci?.items || previewDataset.mr?.items,
             entries: previewDataset.stockCard?.entries,
+            stock_no: previewDataset.stockCard?.stock_no,
+            supplier_stock_no: previewDataset.stockCard?.supplier_stock_no,
+            item_no: previewDataset.stockCard?.item_no,
         } : null;
 
         const payloadData: Record<string, any> = {
@@ -188,6 +191,9 @@ export function useReportGenerator(
             recapitulationItems: previewDataset?.rsmi?.recapitulationItems,
             items: previewDataset?.rpci?.items || previewDataset?.mr?.items,
             entries: previewDataset?.stockCard?.entries,
+            stock_no: previewDataset?.stockCard?.stock_no,
+            supplier_stock_no: previewDataset?.stockCard?.supplier_stock_no,
+            item_no: previewDataset?.stockCard?.item_no,
             entityName: previewDataset?.rsmi?.entityName || previewDataset?.rpci?.entity_name || previewDataset?.stockCard?.entity_name || previewDataset?.mr?.entityName,
             fundCluster: previewDataset?.rsmi?.fundCluster || previewDataset?.rpci?.fund_cluster || previewDataset?.stockCard?.fund_cluster || previewDataset?.mr?.fundCluster || formData.fundCluster || '01 - Regular Agency Fund',
             fund_cluster: previewDataset?.rsmi?.fundCluster || previewDataset?.rpci?.fund_cluster || previewDataset?.stockCard?.fund_cluster || previewDataset?.mr?.fundCluster || formData.fund_cluster || formData.fundCluster || '01 - Regular Agency Fund',

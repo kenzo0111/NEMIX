@@ -113,6 +113,8 @@ export interface ReportDatasetResponse {
     stockCard?: {
         item: string;
         stock_no: string;
+        supplier_stock_no?: string | null;
+        item_no?: string | null;
         description: string;
         unit_of_measurement: string;
         re_order_point: string;

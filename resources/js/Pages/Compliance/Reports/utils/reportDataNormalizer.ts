@@ -47,6 +47,8 @@ export interface NormalizedReportData {
         fund_cluster: string;
         item: string;
         stock_no: string;
+        supplier_stock_no?: string | null;
+        item_no?: string | null;
         description: string;
         re_order_point: string;
         unit_of_measurement: string;
@@ -192,8 +194,14 @@ export function normalizeReportPaperData(
                 item.responsibility_center_code ||
                 '';
 
+            const officialStockNo = item.supplier_stock_no || item.stock_no || item.stockNo || '-';
+
             return {
                 ...item,
+                stockNo: officialStockNo,
+                stock_no: officialStockNo,
+                supplier_stock_no: item.supplier_stock_no || (officialStockNo !== '-' ? officialStockNo : null),
+                item_no: item.item_no || item.sku || null,
                 responsibilityCenterCode: code,
                 responsibility_center: {
                     name: fullName || code,
@@ -203,7 +211,7 @@ export function normalizeReportPaperData(
             };
         });
 
-        const recapitulationItems =
+        const rawRecap =
             rsmiSource.recapitulationItems ||
             rsmiSource.recapitulation ||
             payload.recapitulationItems ||
@@ -211,6 +219,17 @@ export function normalizeReportPaperData(
             snapshot.recapitulationItems ||
             snapshot.recapitulation ||
             [];
+
+        const recapitulationItems = (Array.isArray(rawRecap) ? rawRecap : []).map((r: any) => {
+            if (!r || typeof r !== 'object') return r;
+            const officialStockNo = r.supplier_stock_no || r.stock_no || r.stockNo || '-';
+            return {
+                ...r,
+                stockNo: officialStockNo,
+                stock_no: officialStockNo,
+                supplier_stock_no: r.supplier_stock_no || (officialStockNo !== '-' ? officialStockNo : null),
+            };
+        });
 
         const entityName = isSavedReport
             ? (savedEntityName || rsmiSource.entityName || rsmiSource.entity_name || resolvedEntityName)
@@ -264,11 +283,22 @@ export function normalizeReportPaperData(
             (snapshot?.items ? snapshot : null) ||
             {};
 
-        const items =
+        const rawItems =
             rpciSource.items ||
             payload.items ||
             snapshot.items ||
             [];
+
+        const items = (Array.isArray(rawItems) ? rawItems : []).map((item: any) => {
+            if (!item || typeof item !== 'object') return item;
+            const officialStockNo = item.supplier_stock_no || item.stock_no || '-';
+            return {
+                ...item,
+                stock_no: officialStockNo,
+                supplier_stock_no: item.supplier_stock_no || (officialStockNo !== '-' ? officialStockNo : null),
+                item_no: item.item_no || item.sku || null,
+            };
+        });
 
         const entity_name = isSavedReport
             ? (savedEntityName || rpciSource.entity_name || rpciSource.entityName || resolvedEntityName)
@@ -426,9 +456,14 @@ export function normalizeReportPaperData(
             title;
 
         const stock_no =
+            scSource.supplier_stock_no ||
+            payload.supplier_stock_no ||
             scSource.stock_no ||
             payload.stock_no ||
             '-';
+
+        const supplier_stock_no = scSource.supplier_stock_no || payload.supplier_stock_no || (stock_no !== '-' ? stock_no : null);
+        const item_no = scSource.item_no || payload.item_no || null;
 
         const description =
             scSource.description ||
@@ -455,6 +490,8 @@ export function normalizeReportPaperData(
                 fund_cluster,
                 item,
                 stock_no,
+                supplier_stock_no,
+                item_no,
                 description,
                 re_order_point,
                 unit_of_measurement,
@@ -473,11 +510,32 @@ export function normalizeReportPaperData(
             (snapshot?.items ? snapshot : null) ||
             {};
 
-        const items =
+        const rawMrItems =
             mrSource.items ||
             payload.items ||
             snapshot.items ||
             [];
+
+        const items = (Array.isArray(rawMrItems) ? rawMrItems : []).map((item: any) => {
+            if (!item || typeof item !== 'object') return item;
+            const officialPropNo =
+                item.serial_no ||
+                item.serial_number ||
+                item.property_number ||
+                item.propertyNo ||
+                item.supplier_stock_no ||
+                item.stock_no ||
+                '-';
+            const supplierStockNo = item.supplier_stock_no || item.stock_no || (officialPropNo !== '-' ? officialPropNo : null);
+
+            return {
+                ...item,
+                propertyNo: officialPropNo,
+                stock_no: supplierStockNo || '-',
+                supplier_stock_no: supplierStockNo,
+                item_no: item.item_no || item.sku || null,
+            };
+        });
 
         const entityName = isSavedReport
             ? (savedEntityName || mrSource.entityName || mrSource.entity_name || resolvedEntityName)

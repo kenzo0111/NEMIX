@@ -14,6 +14,9 @@ export interface RSMIItem {
   responsibilityCenter?: ResponsibilityCenterInfo | string;
   department?: string;
   stockNo: string;
+  stock_no?: string;
+  supplier_stock_no?: string | null;
+  item_no?: string | null;
   itemDescription: string;
   unit: string;
   quantityIssued: number | string | null;
@@ -23,6 +26,8 @@ export interface RSMIItem {
 
 export interface RSMIRecapitulation {
   stockNo: string;
+  stock_no?: string;
+  supplier_stock_no?: string | null;
   quantity: number | string | null;
   unitCost: number | string | null;
   totalCost: number | string | null;
@@ -310,7 +315,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
                         </td>
                       </>
                     )}
-                    <td className="text-center">{item.stockNo || '\u00A0'}</td>
+                    <td className="text-center">{item.supplier_stock_no || item.stock_no || item.stockNo || '\u00A0'}</td>
                     <td className="text-left">{item.itemDescription || '\u00A0'}</td>
                     <td className="text-center">{item.unit || '\u00A0'}</td>
                     <td className="text-right">
@@ -352,8 +357,8 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
 
             {/* Lower Section: Recapitulation Rows */}
             {paddedRecap.map((r, idx) => (
-              <tr key={`recap-${idx}`} className={!r.stockNo && !r.quantity ? 'empty-row' : ''}>
-                <td colSpan={3} className="text-center">{r.stockNo || '\u00A0'}</td>
+              <tr key={`recap-${idx}`} className={!r.stockNo && !r.stock_no && !r.supplier_stock_no && !r.quantity ? 'empty-row' : ''}>
+                <td colSpan={3} className="text-center">{r.supplier_stock_no || r.stock_no || r.stockNo || '\u00A0'}</td>
                 <td colSpan={3} className="text-center">{r.quantity !== undefined && r.quantity !== null && r.quantity !== '' ? r.quantity : '\u00A0'}</td>
                 <td className="text-right">{r.unitCost || '\u00A0'}</td>
                 <td className="text-right">{r.totalCost || '\u00A0'}</td>

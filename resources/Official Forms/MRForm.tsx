@@ -9,6 +9,10 @@ export interface MrItem {
   unit?: string;
   description?: string;
   propertyNo?: string;
+  stock_no?: string;
+  supplier_stock_no?: string | null;
+  item_no?: string | null;
+  serial_no?: string | null;
   dateAcquired?: string;
   unitValue?: number | string;
   totalValue?: number | string;
@@ -292,7 +296,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
                 <td className="text-center">{item.quantity !== undefined && item.quantity !== null && item.quantity !== '' ? item.quantity : '\u00A0'}</td>
                 <td className="text-center">{item.unit || '\u00A0'}</td>
                 <td className="text-left">{renderDescription(item.description)}</td>
-                <td className="text-center">{item.propertyNo || '\u00A0'}</td>
+                <td className="text-center">{item.propertyNo || item.supplier_stock_no || item.stock_no || '\u00A0'}</td>
                 <td className="text-center">{formatDate(item.dateAcquired)}</td>
                 <td className="text-right">{formatCurrency(item.unitValue)}</td>
               </tr>
