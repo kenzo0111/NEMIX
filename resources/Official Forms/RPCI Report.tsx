@@ -353,13 +353,6 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                         {approvedByName || '\u00A0'}
                       </td>
                     </tr>
-                    {approvedByPosition && (
-                      <tr>
-                        <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '1px', lineHeight: 1.1 }}>
-                          {approvedByPosition}
-                        </td>
-                      </tr>
-                    )}
                     <tr>
                       <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
                         Signature over Printed Name of Head of Agency/Entity or Authorized Representative
