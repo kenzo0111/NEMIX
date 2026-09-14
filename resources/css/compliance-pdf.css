@@ -44,6 +44,10 @@
 }
 
 /* 2. Header & Title Hierarchy */
+.official-form-header {
+    margin-bottom: 1.5mm;
+}
+.official-form-appendix,
 .header-appendix,
 .header-title {
     text-align: right;
@@ -52,6 +56,31 @@
     font-size: 9pt;
     margin-bottom: 1mm;
     line-height: 1.1;
+}
+
+.official-form-appendix {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 8.5pt;
+    line-height: 1;
+}
+
+.official-form-title-row {
+    min-height: 8mm;
+    height: auto;
+    padding: 1mm 0;
+    line-height: 1.05;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.official-form-title {
+    font-size: 12pt;
+    font-weight: 700;
+    line-height: 1.05;
+    text-align: center;
+    margin: 0;
+    white-space: normal;
 }
 
 .main-title {
@@ -64,6 +93,13 @@
     line-height: 1.15;
 }
 
+.official-form-subtitle {
+    font-size: 9pt;
+    line-height: 1;
+    margin-top: 0.5mm;
+    text-align: center;
+}
+
 .sub-title {
     text-align: center;
     font-style: italic;
@@ -71,7 +107,6 @@
     margin-bottom: 1.5mm;
     line-height: 1.1;
 }
-
 /* Purpose & Acknowledgement Statements */
 .purpose-statement {
     margin-bottom: 1.5mm;

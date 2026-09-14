@@ -145,6 +145,11 @@
     }
 
     /* 6. Compact Print Geometry */
+    .official-form-header {
+        margin-bottom: 1.5mm !important;
+    }
+
+    .official-form-appendix,
     .header-appendix,
     .header-title {
         font-size: 9pt !important;
@@ -152,10 +157,32 @@
         line-height: 1.1 !important;
     }
 
+    .official-form-appendix {
+        font-size: 8.5pt !important;
+        line-height: 1 !important;
+    }
+
+    .official-form-title-row {
+        min-height: 8mm !important;
+        padding: 1mm 0 !important;
+        line-height: 1.05 !important;
+    }
+
+    .official-form-title {
+        font-size: 12pt !important;
+        line-height: 1.05 !important;
+    }
+
     .main-title {
         font-size: 11.5pt !important;
         margin-bottom: 1.2mm !important;
         line-height: 1.15 !important;
+    }
+
+    .official-form-subtitle {
+        font-size: 9pt !important;
+        line-height: 1 !important;
+        margin-top: 0.5mm !important;
     }
 
     .sub-title {

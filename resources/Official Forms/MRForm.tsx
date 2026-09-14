@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatDisplayDate, getLocalDateString } from '@/utils/dateUtils';
+import { SharedFormHeaderStyles } from './SharedFormHeaderStyles';
 
 // --- Interfaces ---
 
@@ -112,30 +113,6 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
           box-sizing: border-box;
           line-height: 1.15;
         }
-        .header-appendix {
-          text-align: right;
-          font-style: italic;
-          font-weight: bold;
-          font-size: 9pt;
-          margin-bottom: 1mm;
-          line-height: 1.1;
-        }
-        .main-title {
-          text-align: center;
-          font-weight: bold;
-          font-size: 11.5pt;
-          margin-bottom: 1.2mm;
-          letter-spacing: 0.3px;
-          text-transform: uppercase;
-          line-height: 1.15;
-        }
-        .sub-title {
-          text-align: center;
-          font-style: italic;
-          font-size: 8.5pt;
-          margin-bottom: 1.5mm;
-          line-height: 1.1;
-        }
 
         /* Purpose statement */
         .purpose-statement {
@@ -217,7 +194,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
           body { margin: 0; padding: 0; background: #fff; }
           .mr-container { width: 100%; max-width: none; margin: 0 auto; padding: 0; }
           .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .header-appendix, .main-title, .sub-title, .purpose-statement, .mr-top-info {
+          .official-form-header, .official-form-subtitle, .purpose-statement, .mr-top-info {
             page-break-inside: avoid;
             break-inside: avoid;
           }
@@ -235,13 +212,18 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         }
       `}</style>
 
+      <SharedFormHeaderStyles />
       <div className="mr-container">
-        {/* Header Appendix */}
-        <div className="header-appendix">{data.appendixNumber || 'Appendix 59-A'}</div>
+        <div className="official-form-header">
+          {/* Header Appendix */}
+          <div className="official-form-appendix">{data.appendixNumber || 'Appendix 59-A'}</div>
 
-        {/* Form Title */}
-        <div className="main-title">MEMORANDUM RECEIPT FOR PROPERTY</div>
-        <div className="sub-title">(MEMORANDUM OF RECEIPT)</div>
+          {/* Form Title */}
+          <div className="official-form-title-row">
+            <h1 className="official-form-title">MEMORANDUM RECEIPT FOR PROPERTY</h1>
+          </div>
+        </div>
+        <div className="official-form-subtitle">(MEMORANDUM OF RECEIPT)</div>
 
         {/* Top Info Grid with explicit column widths to prevent collapse */}
         <table className="mr-top-info" style={{ width: '100%', marginBottom: '6px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>

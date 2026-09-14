@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatDisplayDate } from '@/utils/dateUtils';
+import { SharedFormHeaderStyles } from './SharedFormHeaderStyles';
 
 // --- Interfaces ---
 
@@ -68,22 +69,7 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
             box-sizing: border-box;
             line-height: 1.15;
         }
-        .header-title {
-            text-align: right;
-            font-style: italic;
-            font-size: 9pt;
-            margin-bottom: 1mm;
-            font-weight: bold;
-            line-height: 1.1;
-        }
-        .main-title {
-            text-align: center;
-            font-weight: bold;
-            font-size: 11.5pt;
-            margin-bottom: 1.2mm;
-            letter-spacing: 0.3px;
-            line-height: 1.15;
-        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -126,7 +112,7 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
             body { margin: 0; padding: 0; background: #fff; }
             .sc-container { width: 100%; max-width: none; margin: 0 auto; padding: 0; }
             .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .header-title, .main-title, .sc-top-info, .sc-header-box {
+            .official-form-header, .sc-top-info, .sc-header-box {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
@@ -140,10 +126,14 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
         }
       `}</style>
 
+      <SharedFormHeaderStyles />
       <div className="sc-container">
-        <div className="header-title">Appendix 58</div>
-
-        <div className="main-title">STOCK CARD</div>
+        <div className="official-form-header">
+          <div className="official-form-appendix">Appendix 58</div>
+          <div className="official-form-title-row">
+            <h1 className="official-form-title">STOCK CARD</h1>
+          </div>
+        </div>
 
         {/* Top Info Grid with explicit column widths to prevent any layout collapse */}
         <table className="sc-top-info" style={{ width: '100%', marginBottom: '6px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { getResponsibilityCenterCode, ResponsibilityCenterInfo } from '@/Pages/Compliance/Reports/utils/responsibilityCenterFormatter';
+import { SharedFormHeaderStyles } from './SharedFormHeaderStyles';
 
 // --- Interfaces ---
 
@@ -88,22 +89,6 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             box-sizing: border-box;
             line-height: 1.15;
         }
-        .header-appendix {
-            text-align: right;
-            font-style: italic;
-            font-size: 9pt;
-            margin-bottom: 1mm;
-            font-weight: bold;
-            line-height: 1.1;
-        }
-        .main-title {
-            text-align: center;
-            font-weight: bold;
-            font-size: 11.5pt;
-            margin-bottom: 1.2mm;
-            letter-spacing: 0.3px;
-            line-height: 1.15;
-        }
 
         /* Main Table Grid */
         .main-table {
@@ -180,7 +165,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             body { margin: 0; padding: 0; background: #fff; }
             .rsmi-container { width: 100%; max-width: none; margin: 0 auto; padding: 0; }
             .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .header-appendix, .main-title, .rsmi-top-info {
+            .official-form-header, .rsmi-top-info {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
@@ -197,10 +182,14 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             }
         }
       `}</style>
-
+      <SharedFormHeaderStyles />
       <div className="rsmi-container">
-        <div className="header-appendix">Appendix 64</div>
-        <div className="main-title">REPORT OF SUPPLIES AND MATERIALS ISSUED</div>
+        <div className="official-form-header">
+          <div className="official-form-appendix">Appendix 64</div>
+          <div className="official-form-title-row">
+            <h1 className="official-form-title">REPORT OF SUPPLIES AND MATERIALS ISSUED</h1>
+          </div>
+        </div>
 
         {/* Top Info with fixed pixel widths to prevent overlap */}
         <table className="rsmi-top-info" style={{ width: '100%', marginBottom: '6px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>

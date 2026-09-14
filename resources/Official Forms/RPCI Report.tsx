@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatDisplayDate } from '@/utils/dateUtils';
+import { SharedFormHeaderStyles } from './SharedFormHeaderStyles';
 
 // --- Interfaces ---
 
@@ -122,29 +123,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
             box-sizing: border-box;
             line-height: 1.15;
         }
-        .header-appendix {
-            text-align: right;
-            font-style: italic;
-            font-size: 9pt;
-            margin-bottom: 1mm;
-            font-weight: bold;
-            line-height: 1.1;
-        }
-        .main-title {
-            text-align: center;
-            font-weight: bold;
-            font-size: 11.5pt;
-            margin-bottom: 1.2mm;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-            line-height: 1.15;
-        }
-        .sub-title {
-            text-align: center;
-            font-size: 8.5pt;
-            margin-bottom: 1.5mm;
-            line-height: 1.1;
-        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -196,7 +175,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
             body { margin: 0; padding: 0; background: #fff; }
             .rpci-container { width: 100%; max-width: none; margin: 0 auto; padding: 0; }
             .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .header-appendix, .main-title, .sub-title, .rpci-top-info {
+            .official-form-header, .official-form-subtitle, .rpci-top-info {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
@@ -214,11 +193,15 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
         }
       `}</style>
 
+      <SharedFormHeaderStyles />
       <div className="rpci-container">
-        <div className="header-appendix">Appendix 66</div>
-
-        <div className="main-title">REPORT ON THE PHYSICAL COUNT OF INVENTORIES</div>
-        <div className="sub-title">
+        <div className="official-form-header">
+          <div className="official-form-appendix">Appendix 66</div>
+          <div className="official-form-title-row">
+            <h1 className="official-form-title">REPORT ON THE PHYSICAL COUNT OF INVENTORIES</h1>
+          </div>
+        </div>
+        <div className="official-form-subtitle" style={{ marginBottom: '1.5mm' }}>
           <div style={{ display: 'inline-block', borderBottom: '1px solid #000000', padding: '0 6px 1.5px 6px', minWidth: '240px', fontWeight: 'bold', fontSize: '8.5pt', textAlign: 'center' }}>
             {data.inventory_type || '\u00A0'}
           </div>
