@@ -127,7 +127,12 @@ export default function SignatorySelect({
     // Custom Option Component: Displays Name, Designation, and an inline Delete button
     const CustomOption = (props: OptionProps<SignatoryOption, false>) => {
         const { data, isSelected } = props;
-        const sig = data.signatory;
+        const sig = data?.signatory;
+
+        // If synthetic creatable option (+ Add "..."), render default option component
+        if (!sig) {
+            return <components.Option {...props} />;
+        }
 
         const handleDelete = (e: React.MouseEvent) => {
             e.stopPropagation();
@@ -204,15 +209,19 @@ export default function SignatorySelect({
                 }
                 menuPosition="fixed"
                 filterOption={(candidate, input) => {
-                    if (!input) return true;
+                    if (!input || !input.trim()) return true;
                     const search = input.toLowerCase().trim();
-                    const nameMatch = candidate.data.signatory.name
+                    const labelMatch = (candidate.label || '')
                         .toLowerCase()
                         .includes(search);
-                    const desigMatch = candidate.data.signatory.designation
-                        ?.toLowerCase()
-                        .includes(search);
-                    return nameMatch || desigMatch;
+                    const sig = candidate.data?.signatory;
+                    const nameMatch = sig?.name
+                        ? sig.name.toLowerCase().includes(search)
+                        : false;
+                    const desigMatch = sig?.designation
+                        ? sig.designation.toLowerCase().includes(search)
+                        : false;
+                    return labelMatch || nameMatch || desigMatch;
                 }}
                 formatCreateLabel={(inputValue) => `+ Add "${inputValue}"`}
                 onCreateOption={(inputValue) => {
