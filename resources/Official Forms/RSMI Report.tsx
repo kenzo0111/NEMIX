@@ -65,7 +65,31 @@ const getDynamicNameStyle = (name?: string, defaultSize = '8.5pt'): React.CSSPro
 export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
   const items = data.issuedItems || [];
   const targetRowCount = 10;
-  const paddedItems = [...items, ...Array(Math.max(0, targetRowCount - items.length)).fill({})];
+
+  // Group items
+  const groupsMap = new Map<string, { risNo: string; displayCode: string; fullName?: string; items: RSMIItem[] }>();
+  items.forEach((item) => {
+      const rcObj = typeof item.responsibility_center === 'object' ? item.responsibility_center : undefined;
+      const rcc = rcObj?.code ??
+                  rcObj?.acronym ??
+                  item.responsibilityCenterCode ??
+                  getResponsibilityCenterCode(item);
+      const displayCode = getResponsibilityCenterCode(rcc || item) || '\u00A0';
+      const risNo = item.risNo || '\u00A0';
+      const fullName = typeof item.responsibility_center === 'object' ? item.responsibility_center?.name : undefined;
+
+      const key = `${risNo}__${displayCode}`;
+      if (!groupsMap.has(key)) {
+          groupsMap.set(key, {
+              risNo,
+              displayCode,
+              fullName,
+              items: []
+          });
+      }
+      groupsMap.get(key)!.items.push(item);
+  });
+  const groups = Array.from(groupsMap.values());
 
   const recap = data.recapitulationItems || [];
   const recapTargetCount = 3;
@@ -131,6 +155,11 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             overflow: hidden !important;
             text-overflow: clip !important;
             box-sizing: border-box !important;
+        }
+
+        .rsmi-group-cell {
+            text-align: center !important;
+            vertical-align: middle !important;
         }
 
         .header-italic {
@@ -265,30 +294,47 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
           </thead>
           <tbody>
             {/* Upper Section: Main Items */}
-            {paddedItems.map((item, idx) => {
-              const isPaddedEmpty = !item.risNo && !item.itemDescription && !item.stockNo;
-              const rcc = item.responsibility_center?.code ??
-                item.responsibility_center?.acronym ??
-                item.responsibilityCenterCode ??
-                getResponsibilityCenterCode(item);
-              const displayCode = isPaddedEmpty ? '\u00A0' : (getResponsibilityCenterCode(rcc || item) || '\u00A0');
-              const fullName = typeof item.responsibility_center === 'object' ? item.responsibility_center?.name : undefined;
+            {groups.map((group, groupIdx) => (
+              group.items.map((item, itemIdx) => {
+                const globalIdx = `${groupIdx}-${itemIdx}`;
+                return (
+                  <tr key={`item-${globalIdx}`}>
+                    {itemIdx === 0 && (
+                      <>
+                        <td className="text-center rsmi-group-cell" rowSpan={group.items.length}>
+                          {group.risNo}
+                        </td>
+                        <td className="responsibility-center-code text-center rsmi-group-cell" title={group.fullName} rowSpan={group.items.length}>
+                          {group.displayCode}
+                        </td>
+                      </>
+                    )}
+                    <td className="text-center">{item.stockNo || '\u00A0'}</td>
+                    <td className="text-left">{item.itemDescription || '\u00A0'}</td>
+                    <td className="text-center">{item.unit || '\u00A0'}</td>
+                    <td className="text-right">
+                      {item.quantityIssued !== undefined && item.quantityIssued !== null && item.quantityIssued !== '' ? item.quantityIssued : '\u00A0'}
+                    </td>
+                    <td className="text-right">{item.unitCost || '\u00A0'}</td>
+                    <td colSpan={2} className="text-right">{item.amount || '\u00A0'}</td>
+                  </tr>
+                );
+              })
+            ))}
 
-              return (
-                <tr key={`item-${idx}`} className={isPaddedEmpty ? 'empty-row' : ''}>
-                  <td className="text-center">{item.risNo || '\u00A0'}</td>
-                  <td className="responsibility-center-code text-center" title={fullName}>
-                    {displayCode}
-                  </td>
-                  <td className="text-center">{item.stockNo || '\u00A0'}</td>
-                  <td className="text-left">{item.itemDescription || '\u00A0'}</td>
-                  <td className="text-center">{item.unit || '\u00A0'}</td>
-                  <td className="text-right">{item.quantityIssued !== undefined && item.quantityIssued !== null && item.quantityIssued !== '' ? item.quantityIssued : '\u00A0'}</td>
-                  <td className="text-right">{item.unitCost || '\u00A0'}</td>
-                  <td colSpan={2} className="text-right">{item.amount || '\u00A0'}</td>
-                </tr>
-              );
-            })}
+            {/* Padded Empty Rows */}
+            {Array(Math.max(0, targetRowCount - items.length)).fill({}).map((_, idx) => (
+              <tr key={`padded-${idx}`} className="empty-row">
+                <td className="text-center">{'\u00A0'}</td>
+                <td className="responsibility-center-code text-center">{'\u00A0'}</td>
+                <td className="text-center">{'\u00A0'}</td>
+                <td className="text-left">{'\u00A0'}</td>
+                <td className="text-center">{'\u00A0'}</td>
+                <td className="text-right">{'\u00A0'}</td>
+                <td className="text-right">{'\u00A0'}</td>
+                <td colSpan={2} className="text-right">{'\u00A0'}</td>
+              </tr>
+            ))}
 
             {/* Lower Section: Recapitulation Headers */}
             <tr className="border-bottom-bold">
