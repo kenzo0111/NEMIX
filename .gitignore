@@ -22,3 +22,5 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/firmware/rfid-scanner/build/
+firmware/rfid-scanner/check_scanner.ps1

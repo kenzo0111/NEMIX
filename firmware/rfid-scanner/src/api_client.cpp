@@ -8,6 +8,10 @@ static bool connectToAp(const char* ssid, const char* password, int32_t channel 
     WiFi.persistent(false);
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
+
+    // Reduce peak TX current spikes on battery/boost converter (default is 19.5dBm)
+    WiFi.setTxPower(WIFI_POWER_13dBm);
+
     delay(200);
 
     if (channel > 0 && bssid != nullptr) {
