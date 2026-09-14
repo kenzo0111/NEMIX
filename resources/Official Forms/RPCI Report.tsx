@@ -329,9 +329,16 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                         {certifiedByName || '\u00A0'}
                       </td>
                     </tr>
+                    {certifiedByPosition && certifiedByPosition.trim().toLowerCase() !== 'inventory committee chair and members' && (
+                      <tr>
+                        <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '1px', lineHeight: 1.1 }}>
+                          {certifiedByPosition}
+                        </td>
+                      </tr>
+                    )}
                     <tr>
                       <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
-                        {certifiedByPosition || 'Inventory Committee Chair and Members'}
+                        Signature over Printed Name of Inventory Committee Chair and Members
                       </td>
                     </tr>
                   </tbody>
@@ -346,9 +353,16 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                         {approvedByName || '\u00A0'}
                       </td>
                     </tr>
+                    {approvedByPosition && (
+                      <tr>
+                        <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '1px', lineHeight: 1.1 }}>
+                          {approvedByPosition}
+                        </td>
+                      </tr>
+                    )}
                     <tr>
                       <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
-                        {approvedByPosition || '\u00A0'}
+                        Signature over Printed Name of Head of Agency/Entity or Authorized Representative
                       </td>
                     </tr>
                   </tbody>
@@ -363,9 +377,16 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                         {verifiedByName || '\u00A0'}
                       </td>
                     </tr>
+                    {verifiedByPosition && verifiedByPosition.trim().toLowerCase() !== 'coa representative' && (
+                      <tr>
+                        <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '1px', lineHeight: 1.1 }}>
+                          {verifiedByPosition}
+                        </td>
+                      </tr>
+                    )}
                     <tr>
                       <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
-                        {verifiedByPosition || 'COA Representative'}
+                        Signature over Printed Name of COA Representative
                       </td>
                     </tr>
                   </tbody>
