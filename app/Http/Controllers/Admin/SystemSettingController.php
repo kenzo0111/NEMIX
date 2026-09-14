@@ -61,6 +61,7 @@ class SystemSettingController extends Controller
         return Inertia::render('Admin/SystemSettings/Index', [
             'groupedSettings' => $groupedSettings,
             'telemetry' => $telemetry,
+            'signatories' => \App\Models\Signatory::orderBy('name')->get(),
         ]);
     }
 

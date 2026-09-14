@@ -2,6 +2,19 @@ import { PageProps, User } from '@/types';
 
 export type RfidMode = 'bin_association' | 'issuance_verification' | 'rpci_stocktake';
 
+export interface Signatory {
+    id: number;
+    name: string;
+    normalized_name?: string;
+    designation: string;
+    office?: string | null;
+    department?: string | null;
+    employee_no?: string | null;
+    is_active: boolean;
+    created_at?: string;
+    updated_at?: string;
+}
+
 export interface SystemSettings {
     // 1. Institution & Branding
     'institution.name': string;
@@ -15,29 +28,39 @@ export interface SystemSettings {
     // 2. Signatories
     'signatories.ris_approved_by_name': string;
     'signatories.ris_approved_by_designation': string;
+    'signatories.ris_approved_by_id'?: number | null;
     'signatories.ris_issued_by_name': string;
     'signatories.ris_issued_by_designation': string;
+    'signatories.ris_issued_by_id'?: number | null;
     'signatories.ris_oic_active': boolean;
     'signatories.ris_oic_prefix': string;
 
     'signatories.rsmi_certified_by_name': string;
     'signatories.rsmi_certified_by_designation': string;
+    'signatories.rsmi_certified_by_id'?: number | null;
     'signatories.rsmi_posted_by_name': string;
     'signatories.rsmi_posted_by_designation': string;
+    'signatories.rsmi_posted_by_id'?: number | null;
 
     'signatories.rpci_accountable_officer_name': string;
     'signatories.rpci_accountable_officer_designation': string;
+    'signatories.rpci_accountable_officer_id'?: number | null;
     'signatories.rpci_committee_chair': string;
+    'signatories.rpci_committee_chair_id'?: number | null;
     'signatories.rpci_certified_by_name': string;
     'signatories.rpci_certified_by_position': string;
+    'signatories.rpci_certified_by_id'?: number | null;
     'signatories.rpci_verified_by_name': string;
     'signatories.rpci_verified_by_position': string;
+    'signatories.rpci_verified_by_id'?: number | null;
 
     'signatories.stock_card_custodian': string;
+    'signatories.stock_card_custodian_id'?: number | null;
 
     // 2.5 MOR / Memorandum Receipt Signatories
     'signatories.mor_issued_by_name': string;
     'signatories.mor_issued_by_designation': string;
+    'signatories.mor_issued_by_id'?: number | null;
     'signatories.mor_issued_by_office': string;
     'compliance.mor_appendix_number': string;
 
@@ -99,6 +122,7 @@ export interface TelemetryData {
 export type SystemSettingsPageProps = PageProps<{
     groupedSettings: Record<string, SettingItem[]>;
     telemetry: TelemetryData | null;
+    signatories?: Signatory[];
 }>;
 
 export type TabId =

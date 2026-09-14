@@ -133,29 +133,52 @@ export function normalizeSystemSettings(
     assignString('institution.logo_path');
     assignString('institution.default_fund_cluster');
 
+    // Helper to safely assign optional numeric ID or null
+    const assignNullableId = (key: keyof SystemSettings) => {
+        if (key in flatValues) {
+            const val = flatValues[key];
+            if (val === null || val === undefined || val === '') {
+                (normalized[key] as any) = null;
+            } else {
+                const num = Number(val);
+                (normalized[key] as any) = !isNaN(num) && num > 0 ? num : null;
+            }
+        }
+    };
+
     // Signatories
     assignString('signatories.ris_approved_by_name');
     assignString('signatories.ris_approved_by_designation');
+    assignNullableId('signatories.ris_approved_by_id');
     assignString('signatories.ris_issued_by_name');
     assignString('signatories.ris_issued_by_designation');
+    assignNullableId('signatories.ris_issued_by_id');
     assignBool('signatories.ris_oic_active');
     assignString('signatories.ris_oic_prefix');
     assignString('signatories.rsmi_certified_by_name');
     assignString('signatories.rsmi_certified_by_designation');
+    assignNullableId('signatories.rsmi_certified_by_id');
     assignString('signatories.rsmi_posted_by_name');
     assignString('signatories.rsmi_posted_by_designation');
+    assignNullableId('signatories.rsmi_posted_by_id');
     assignString('signatories.rpci_accountable_officer_name');
     assignString('signatories.rpci_accountable_officer_designation');
+    assignNullableId('signatories.rpci_accountable_officer_id');
     assignString('signatories.rpci_committee_chair');
+    assignNullableId('signatories.rpci_committee_chair_id');
     assignString('signatories.rpci_certified_by_name');
     assignString('signatories.rpci_certified_by_position');
+    assignNullableId('signatories.rpci_certified_by_id');
     assignString('signatories.rpci_verified_by_name');
     assignString('signatories.rpci_verified_by_position');
+    assignNullableId('signatories.rpci_verified_by_id');
     assignString('signatories.stock_card_custodian');
+    assignNullableId('signatories.stock_card_custodian_id');
 
     // MOR Signatories
     assignString('signatories.mor_issued_by_name');
     assignString('signatories.mor_issued_by_designation');
+    assignNullableId('signatories.mor_issued_by_id');
     assignString('signatories.mor_issued_by_office');
     assignString('compliance.mor_appendix_number');
 

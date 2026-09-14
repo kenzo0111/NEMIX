@@ -1,17 +1,116 @@
-import React from 'react';
-import { SystemSettings } from '../types';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { SystemSettings, Signatory } from '../types';
+import SignatorySelect from './SignatorySelect';
+import AddSignatoryDialog from './AddSignatoryDialog';
 
 interface SignatorySettingsProps {
     settings: SystemSettings;
     onChange: <K extends keyof SystemSettings>(key: K, value: SystemSettings[K]) => void;
     errors?: Record<string, string>;
+    signatories: Signatory[];
+    onAddSignatory: (newSignatory: Signatory) => void;
+    onDeleteSignatory: (signatory: Signatory) => void;
+    onToast?: (type: 'success' | 'error' | 'info', message: string) => void;
 }
+
+type TargetFieldPair = {
+    nameKey: keyof SystemSettings;
+    designationKey?: keyof SystemSettings;
+    idKey?: keyof SystemSettings;
+};
 
 export default function SignatorySettings({
     settings,
     onChange,
     errors = {},
+    signatories = [],
+    onAddSignatory,
+    onDeleteSignatory,
+    onToast,
 }: SignatorySettingsProps) {
+    // Modal state for Add Signatory
+    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+    const [dialogInitialName, setDialogInitialName] = useState<string>('');
+    const [activeTarget, setActiveTarget] = useState<TargetFieldPair | null>(null);
+
+    // Open creation modal triggered from a specific field
+    const handleCreateSignatory = (
+        name: string,
+        target: TargetFieldPair
+    ) => {
+        setDialogInitialName(name);
+        setActiveTarget(target);
+        setIsDialogOpen(true);
+    };
+
+    // Callback when a new signatory is successfully created via modal
+    const handleSignatoryCreated = (newSignatory: Signatory) => {
+        onAddSignatory(newSignatory);
+
+        if (activeTarget) {
+            onChange(activeTarget.nameKey, newSignatory.name as any);
+            if (activeTarget.idKey) {
+                onChange(activeTarget.idKey, newSignatory.id as any);
+            }
+            if (activeTarget.designationKey) {
+                onChange(activeTarget.designationKey, newSignatory.designation as any);
+            }
+        }
+
+        if (onToast) {
+            onToast('success', `Signatory "${newSignatory.name}" added to directory.`);
+        }
+    };
+
+    // Callback when user requests deleting a signatory from directory
+    const handleDeleteSignatory = async (sig: Signatory) => {
+        if (
+            !window.confirm(
+                `Are you sure you want to remove "${sig.name}" from the signatories directory?`
+            )
+        ) {
+            return;
+        }
+
+        try {
+            await axios.delete(route('admin.signatories.destroy', sig.id));
+            onDeleteSignatory(sig);
+
+            // If deleted signatory is currently selected in any field, clear its ID
+            const allIdKeys: (keyof SystemSettings)[] = [
+                'signatories.ris_approved_by_id',
+                'signatories.ris_issued_by_id',
+                'signatories.rsmi_certified_by_id',
+                'signatories.rsmi_posted_by_id',
+                'signatories.rpci_accountable_officer_id',
+                'signatories.rpci_committee_chair_id',
+                'signatories.rpci_certified_by_id',
+                'signatories.rpci_verified_by_id',
+                'signatories.stock_card_custodian_id',
+                'signatories.mor_issued_by_id',
+            ];
+
+            allIdKeys.forEach((key) => {
+                if (settings[key] === sig.id) {
+                    onChange(key, null as any);
+                }
+            });
+
+            if (onToast) {
+                onToast('info', `Signatory "${sig.name}" removed from directory.`);
+            }
+        } catch (err: any) {
+            const msg =
+                err.response?.data?.message || 'Failed to remove signatory from directory.';
+            if (onToast) {
+                onToast('error', msg);
+            } else {
+                alert(msg);
+            }
+        }
+    };
+
     return (
         <div className="space-y-8">
             {/* SUBSECTION 1: REQUISITION & ISSUE SLIP */}
@@ -26,22 +125,45 @@ export default function SignatorySettings({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {/* Approving Officer Name */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
-                            Approving Officer Name
+                            Approving Officer
                         </label>
-                        <input
-                            type="text"
-                            value={settings['signatories.ris_approved_by_name']}
-                            onChange={(e) => onChange('signatories.ris_approved_by_name', e.target.value)}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
-                            placeholder="ARSENIO GEM A. GARCILLANOSA"
+                        <SignatorySelect
+                            valueName={settings['signatories.ris_approved_by_name']}
+                            valueId={settings['signatories.ris_approved_by_id']}
+                            signatories={signatories}
+                            hasError={Boolean(errors['settings.signatories.ris_approved_by_name'])}
+                            placeholder="Search or add approving officer..."
+                            onCreateSignatory={(name) =>
+                                handleCreateSignatory(name, {
+                                    nameKey: 'signatories.ris_approved_by_name',
+                                    designationKey: 'signatories.ris_approved_by_designation',
+                                    idKey: 'signatories.ris_approved_by_id',
+                                })
+                            }
+                            onDeleteSignatory={handleDeleteSignatory}
+                            onChange={(selected) => {
+                                if (!selected) {
+                                    onChange('signatories.ris_approved_by_name', '');
+                                    onChange('signatories.ris_approved_by_id', null);
+                                    onChange('signatories.ris_approved_by_designation', '');
+                                } else {
+                                    onChange('signatories.ris_approved_by_name', selected.name);
+                                    onChange('signatories.ris_approved_by_id', selected.id);
+                                    onChange('signatories.ris_approved_by_designation', selected.designation);
+                                }
+                            }}
                         />
                         {errors['settings.signatories.ris_approved_by_name'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.ris_approved_by_name']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.ris_approved_by_name']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Approving Officer Designation */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Approving Officer Designation
@@ -49,31 +171,58 @@ export default function SignatorySettings({
                         <input
                             type="text"
                             value={settings['signatories.ris_approved_by_designation']}
-                            onChange={(e) => onChange('signatories.ris_approved_by_designation', e.target.value)}
+                            onChange={(e) =>
+                                onChange('signatories.ris_approved_by_designation', e.target.value)
+                            }
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
                             placeholder="SUPPLY OFFICER III / ADMIN OFFICER V"
                         />
                         {errors['settings.signatories.ris_approved_by_designation'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.ris_approved_by_designation']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.ris_approved_by_designation']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Issuing Custodian Name */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
-                            Issuing Custodian Name
+                            Issuing Custodian
                         </label>
-                        <input
-                            type="text"
-                            value={settings['signatories.ris_issued_by_name']}
-                            onChange={(e) => onChange('signatories.ris_issued_by_name', e.target.value)}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
-                            placeholder="Supply Custodian / Storekeeper"
+                        <SignatorySelect
+                            valueName={settings['signatories.ris_issued_by_name']}
+                            valueId={settings['signatories.ris_issued_by_id']}
+                            signatories={signatories}
+                            hasError={Boolean(errors['settings.signatories.ris_issued_by_name'])}
+                            placeholder="Search or add issuing custodian..."
+                            onCreateSignatory={(name) =>
+                                handleCreateSignatory(name, {
+                                    nameKey: 'signatories.ris_issued_by_name',
+                                    designationKey: 'signatories.ris_issued_by_designation',
+                                    idKey: 'signatories.ris_issued_by_id',
+                                })
+                            }
+                            onDeleteSignatory={handleDeleteSignatory}
+                            onChange={(selected) => {
+                                if (!selected) {
+                                    onChange('signatories.ris_issued_by_name', '');
+                                    onChange('signatories.ris_issued_by_id', null);
+                                    onChange('signatories.ris_issued_by_designation', '');
+                                } else {
+                                    onChange('signatories.ris_issued_by_name', selected.name);
+                                    onChange('signatories.ris_issued_by_id', selected.id);
+                                    onChange('signatories.ris_issued_by_designation', selected.designation);
+                                }
+                            }}
                         />
                         {errors['settings.signatories.ris_issued_by_name'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.ris_issued_by_name']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.ris_issued_by_name']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Issuing Custodian Designation */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Issuing Custodian Designation
@@ -81,12 +230,16 @@ export default function SignatorySettings({
                         <input
                             type="text"
                             value={settings['signatories.ris_issued_by_designation']}
-                            onChange={(e) => onChange('signatories.ris_issued_by_designation', e.target.value)}
+                            onChange={(e) =>
+                                onChange('signatories.ris_issued_by_designation', e.target.value)
+                            }
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
                             placeholder="Administrative Aide VI / Storekeeper"
                         />
                         {errors['settings.signatories.ris_issued_by_designation'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.ris_issued_by_designation']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.ris_issued_by_designation']}
+                            </p>
                         )}
                     </div>
                 </div>
@@ -140,22 +293,45 @@ export default function SignatorySettings({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {/* Certified Correct By */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Certified Correct By (Supply Custodian)
                         </label>
-                        <input
-                            type="text"
-                            value={settings['signatories.rsmi_certified_by_name']}
-                            onChange={(e) => onChange('signatories.rsmi_certified_by_name', e.target.value)}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
-                            placeholder="ARSENIO GEM A. GARCILLANOSA"
+                        <SignatorySelect
+                            valueName={settings['signatories.rsmi_certified_by_name']}
+                            valueId={settings['signatories.rsmi_certified_by_id']}
+                            signatories={signatories}
+                            hasError={Boolean(errors['settings.signatories.rsmi_certified_by_name'])}
+                            placeholder="Search or add certifying officer..."
+                            onCreateSignatory={(name) =>
+                                handleCreateSignatory(name, {
+                                    nameKey: 'signatories.rsmi_certified_by_name',
+                                    designationKey: 'signatories.rsmi_certified_by_designation',
+                                    idKey: 'signatories.rsmi_certified_by_id',
+                                })
+                            }
+                            onDeleteSignatory={handleDeleteSignatory}
+                            onChange={(selected) => {
+                                if (!selected) {
+                                    onChange('signatories.rsmi_certified_by_name', '');
+                                    onChange('signatories.rsmi_certified_by_id', null);
+                                    onChange('signatories.rsmi_certified_by_designation', '');
+                                } else {
+                                    onChange('signatories.rsmi_certified_by_name', selected.name);
+                                    onChange('signatories.rsmi_certified_by_id', selected.id);
+                                    onChange('signatories.rsmi_certified_by_designation', selected.designation);
+                                }
+                            }}
                         />
                         {errors['settings.signatories.rsmi_certified_by_name'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rsmi_certified_by_name']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.rsmi_certified_by_name']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Certification Designation */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Certification Designation
@@ -163,31 +339,58 @@ export default function SignatorySettings({
                         <input
                             type="text"
                             value={settings['signatories.rsmi_certified_by_designation']}
-                            onChange={(e) => onChange('signatories.rsmi_certified_by_designation', e.target.value)}
+                            onChange={(e) =>
+                                onChange('signatories.rsmi_certified_by_designation', e.target.value)
+                            }
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
                             placeholder="Supply Officer III / SPMO Head"
                         />
                         {errors['settings.signatories.rsmi_certified_by_designation'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rsmi_certified_by_designation']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.rsmi_certified_by_designation']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Posted By (Accounting Representative) */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Posted By (Accounting Representative)
                         </label>
-                        <input
-                            type="text"
-                            value={settings['signatories.rsmi_posted_by_name']}
-                            onChange={(e) => onChange('signatories.rsmi_posted_by_name', e.target.value)}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
-                            placeholder="Accounting Representative / Bookkeeper"
+                        <SignatorySelect
+                            valueName={settings['signatories.rsmi_posted_by_name']}
+                            valueId={settings['signatories.rsmi_posted_by_id']}
+                            signatories={signatories}
+                            hasError={Boolean(errors['settings.signatories.rsmi_posted_by_name'])}
+                            placeholder="Search or add accounting representative..."
+                            onCreateSignatory={(name) =>
+                                handleCreateSignatory(name, {
+                                    nameKey: 'signatories.rsmi_posted_by_name',
+                                    designationKey: 'signatories.rsmi_posted_by_designation',
+                                    idKey: 'signatories.rsmi_posted_by_id',
+                                })
+                            }
+                            onDeleteSignatory={handleDeleteSignatory}
+                            onChange={(selected) => {
+                                if (!selected) {
+                                    onChange('signatories.rsmi_posted_by_name', '');
+                                    onChange('signatories.rsmi_posted_by_id', null);
+                                    onChange('signatories.rsmi_posted_by_designation', '');
+                                } else {
+                                    onChange('signatories.rsmi_posted_by_name', selected.name);
+                                    onChange('signatories.rsmi_posted_by_id', selected.id);
+                                    onChange('signatories.rsmi_posted_by_designation', selected.designation);
+                                }
+                            }}
                         />
                         {errors['settings.signatories.rsmi_posted_by_name'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rsmi_posted_by_name']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.rsmi_posted_by_name']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Accounting Designation */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Accounting Designation
@@ -195,12 +398,16 @@ export default function SignatorySettings({
                         <input
                             type="text"
                             value={settings['signatories.rsmi_posted_by_designation']}
-                            onChange={(e) => onChange('signatories.rsmi_posted_by_designation', e.target.value)}
+                            onChange={(e) =>
+                                onChange('signatories.rsmi_posted_by_designation', e.target.value)
+                            }
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
                             placeholder="Administrative Officer IV"
                         />
                         {errors['settings.signatories.rsmi_posted_by_designation'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rsmi_posted_by_designation']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.rsmi_posted_by_designation']}
+                            </p>
                         )}
                     </div>
                 </div>
@@ -220,22 +427,45 @@ export default function SignatorySettings({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {/* Accountable Officer Name */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
-                            Accountable Officer Name
+                            Accountable Officer
                         </label>
-                        <input
-                            type="text"
-                            value={settings['signatories.rpci_accountable_officer_name']}
-                            onChange={(e) => onChange('signatories.rpci_accountable_officer_name', e.target.value)}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
-                            placeholder="Arsenio Gem A. Garcillanosa"
+                        <SignatorySelect
+                            valueName={settings['signatories.rpci_accountable_officer_name']}
+                            valueId={settings['signatories.rpci_accountable_officer_id']}
+                            signatories={signatories}
+                            hasError={Boolean(errors['settings.signatories.rpci_accountable_officer_name'])}
+                            placeholder="Search or add accountable officer..."
+                            onCreateSignatory={(name) =>
+                                handleCreateSignatory(name, {
+                                    nameKey: 'signatories.rpci_accountable_officer_name',
+                                    designationKey: 'signatories.rpci_accountable_officer_designation',
+                                    idKey: 'signatories.rpci_accountable_officer_id',
+                                })
+                            }
+                            onDeleteSignatory={handleDeleteSignatory}
+                            onChange={(selected) => {
+                                if (!selected) {
+                                    onChange('signatories.rpci_accountable_officer_name', '');
+                                    onChange('signatories.rpci_accountable_officer_id', null);
+                                    onChange('signatories.rpci_accountable_officer_designation', '');
+                                } else {
+                                    onChange('signatories.rpci_accountable_officer_name', selected.name);
+                                    onChange('signatories.rpci_accountable_officer_id', selected.id);
+                                    onChange('signatories.rpci_accountable_officer_designation', selected.designation);
+                                }
+                            }}
                         />
                         {errors['settings.signatories.rpci_accountable_officer_name'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rpci_accountable_officer_name']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.rpci_accountable_officer_name']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Accountable Officer Designation */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Accountable Officer Designation
@@ -243,47 +473,93 @@ export default function SignatorySettings({
                         <input
                             type="text"
                             value={settings['signatories.rpci_accountable_officer_designation']}
-                            onChange={(e) => onChange('signatories.rpci_accountable_officer_designation', e.target.value)}
+                            onChange={(e) =>
+                                onChange('signatories.rpci_accountable_officer_designation', e.target.value)
+                            }
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
                             placeholder="Supply Custodian / Supply Officer III"
                         />
                         {errors['settings.signatories.rpci_accountable_officer_designation'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rpci_accountable_officer_designation']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.rpci_accountable_officer_designation']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Inventory Committee Chairman */}
                     <div className="space-y-1.5 md:col-span-2">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Inventory Committee Chairman
                         </label>
-                        <input
-                            type="text"
-                            value={settings['signatories.rpci_committee_chair']}
-                            onChange={(e) => onChange('signatories.rpci_committee_chair', e.target.value)}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
-                            placeholder="Inspection Committee Chairman"
+                        <SignatorySelect
+                            valueName={settings['signatories.rpci_committee_chair']}
+                            valueId={settings['signatories.rpci_committee_chair_id']}
+                            signatories={signatories}
+                            hasError={Boolean(errors['settings.signatories.rpci_committee_chair'])}
+                            placeholder="Search or add committee chair..."
+                            onCreateSignatory={(name) =>
+                                handleCreateSignatory(name, {
+                                    nameKey: 'signatories.rpci_committee_chair',
+                                    idKey: 'signatories.rpci_committee_chair_id',
+                                })
+                            }
+                            onDeleteSignatory={handleDeleteSignatory}
+                            onChange={(selected) => {
+                                if (!selected) {
+                                    onChange('signatories.rpci_committee_chair', '');
+                                    onChange('signatories.rpci_committee_chair_id', null);
+                                } else {
+                                    onChange('signatories.rpci_committee_chair', selected.name);
+                                    onChange('signatories.rpci_committee_chair_id', selected.id);
+                                }
+                            }}
                         />
                         {errors['settings.signatories.rpci_committee_chair'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rpci_committee_chair']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.rpci_committee_chair']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Certified Correct By - Name */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Certified Correct By - Name
                         </label>
-                        <input
-                            type="text"
-                            value={settings['signatories.rpci_certified_by_name']}
-                            onChange={(e) => onChange('signatories.rpci_certified_by_name', e.target.value)}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
-                            placeholder="Inspection Committee Chairman"
+                        <SignatorySelect
+                            valueName={settings['signatories.rpci_certified_by_name']}
+                            valueId={settings['signatories.rpci_certified_by_id']}
+                            signatories={signatories}
+                            hasError={Boolean(errors['settings.signatories.rpci_certified_by_name'])}
+                            placeholder="Search or add certification official..."
+                            onCreateSignatory={(name) =>
+                                handleCreateSignatory(name, {
+                                    nameKey: 'signatories.rpci_certified_by_name',
+                                    designationKey: 'signatories.rpci_certified_by_position',
+                                    idKey: 'signatories.rpci_certified_by_id',
+                                })
+                            }
+                            onDeleteSignatory={handleDeleteSignatory}
+                            onChange={(selected) => {
+                                if (!selected) {
+                                    onChange('signatories.rpci_certified_by_name', '');
+                                    onChange('signatories.rpci_certified_by_id', null);
+                                    onChange('signatories.rpci_certified_by_position', '');
+                                } else {
+                                    onChange('signatories.rpci_certified_by_name', selected.name);
+                                    onChange('signatories.rpci_certified_by_id', selected.id);
+                                    onChange('signatories.rpci_certified_by_position', selected.designation);
+                                }
+                            }}
                         />
                         {errors['settings.signatories.rpci_certified_by_name'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rpci_certified_by_name']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.rpci_certified_by_name']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Certified Correct By - Designation */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Certified Correct By - Designation
@@ -291,31 +567,58 @@ export default function SignatorySettings({
                         <input
                             type="text"
                             value={settings['signatories.rpci_certified_by_position']}
-                            onChange={(e) => onChange('signatories.rpci_certified_by_position', e.target.value)}
+                            onChange={(e) =>
+                                onChange('signatories.rpci_certified_by_position', e.target.value)
+                            }
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
                             placeholder="Inventory Committee Chair and Members"
                         />
                         {errors['settings.signatories.rpci_certified_by_position'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rpci_certified_by_position']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.rpci_certified_by_position']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Verified By - Name */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Verified By - Name
                         </label>
-                        <input
-                            type="text"
-                            value={settings['signatories.rpci_verified_by_name']}
-                            onChange={(e) => onChange('signatories.rpci_verified_by_name', e.target.value)}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
-                            placeholder="COA Representative"
+                        <SignatorySelect
+                            valueName={settings['signatories.rpci_verified_by_name']}
+                            valueId={settings['signatories.rpci_verified_by_id']}
+                            signatories={signatories}
+                            hasError={Boolean(errors['settings.signatories.rpci_verified_by_name'])}
+                            placeholder="Search or add verification official..."
+                            onCreateSignatory={(name) =>
+                                handleCreateSignatory(name, {
+                                    nameKey: 'signatories.rpci_verified_by_name',
+                                    designationKey: 'signatories.rpci_verified_by_position',
+                                    idKey: 'signatories.rpci_verified_by_id',
+                                })
+                            }
+                            onDeleteSignatory={handleDeleteSignatory}
+                            onChange={(selected) => {
+                                if (!selected) {
+                                    onChange('signatories.rpci_verified_by_name', '');
+                                    onChange('signatories.rpci_verified_by_id', null);
+                                    onChange('signatories.rpci_verified_by_position', '');
+                                } else {
+                                    onChange('signatories.rpci_verified_by_name', selected.name);
+                                    onChange('signatories.rpci_verified_by_id', selected.id);
+                                    onChange('signatories.rpci_verified_by_position', selected.designation);
+                                }
+                            }}
                         />
                         {errors['settings.signatories.rpci_verified_by_name'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rpci_verified_by_name']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.rpci_verified_by_name']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Verified By - Designation */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Verified By - Designation
@@ -323,12 +626,16 @@ export default function SignatorySettings({
                         <input
                             type="text"
                             value={settings['signatories.rpci_verified_by_position']}
-                            onChange={(e) => onChange('signatories.rpci_verified_by_position', e.target.value)}
+                            onChange={(e) =>
+                                onChange('signatories.rpci_verified_by_position', e.target.value)
+                            }
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
                             placeholder="COA Representative"
                         />
                         {errors['settings.signatories.rpci_verified_by_position'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rpci_verified_by_position']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.rpci_verified_by_position']}
+                            </p>
                         )}
                     </div>
                 </div>
@@ -351,15 +658,33 @@ export default function SignatorySettings({
                     <label className="text-xs font-semibold text-slate-700 block">
                         Stock Card Storekeeper / Custodian
                     </label>
-                    <input
-                        type="text"
-                        value={settings['signatories.stock_card_custodian']}
-                        onChange={(e) => onChange('signatories.stock_card_custodian', e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
-                        placeholder="Storekeeper / Property Custodian"
+                    <SignatorySelect
+                        valueName={settings['signatories.stock_card_custodian']}
+                        valueId={settings['signatories.stock_card_custodian_id']}
+                        signatories={signatories}
+                        hasError={Boolean(errors['settings.signatories.stock_card_custodian'])}
+                        placeholder="Search or add stock card custodian..."
+                        onCreateSignatory={(name) =>
+                            handleCreateSignatory(name, {
+                                nameKey: 'signatories.stock_card_custodian',
+                                idKey: 'signatories.stock_card_custodian_id',
+                            })
+                        }
+                        onDeleteSignatory={handleDeleteSignatory}
+                        onChange={(selected) => {
+                            if (!selected) {
+                                onChange('signatories.stock_card_custodian', '');
+                                onChange('signatories.stock_card_custodian_id', null);
+                            } else {
+                                onChange('signatories.stock_card_custodian', selected.name);
+                                onChange('signatories.stock_card_custodian_id', selected.id);
+                            }
+                        }}
                     />
                     {errors['settings.signatories.stock_card_custodian'] && (
-                        <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.stock_card_custodian']}</p>
+                        <p className="text-xs text-red-600 mt-1">
+                            {errors['settings.signatories.stock_card_custodian']}
+                        </p>
                     )}
                 </div>
             </div>
@@ -378,22 +703,45 @@ export default function SignatorySettings({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {/* Issued / Released By Name */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
-                            Issued / Released By Name (Property Custodian)
+                            Issued / Released By (Property Custodian)
                         </label>
-                        <input
-                            type="text"
-                            value={settings['signatories.mor_issued_by_name'] || ''}
-                            onChange={(e) => onChange('signatories.mor_issued_by_name', e.target.value)}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
-                            placeholder="ARSENIO GEM A. GARCILLANOSA"
+                        <SignatorySelect
+                            valueName={settings['signatories.mor_issued_by_name']}
+                            valueId={settings['signatories.mor_issued_by_id']}
+                            signatories={signatories}
+                            hasError={Boolean(errors['settings.signatories.mor_issued_by_name'])}
+                            placeholder="Search or add property custodian..."
+                            onCreateSignatory={(name) =>
+                                handleCreateSignatory(name, {
+                                    nameKey: 'signatories.mor_issued_by_name',
+                                    designationKey: 'signatories.mor_issued_by_designation',
+                                    idKey: 'signatories.mor_issued_by_id',
+                                })
+                            }
+                            onDeleteSignatory={handleDeleteSignatory}
+                            onChange={(selected) => {
+                                if (!selected) {
+                                    onChange('signatories.mor_issued_by_name', '');
+                                    onChange('signatories.mor_issued_by_id', null);
+                                    onChange('signatories.mor_issued_by_designation', '');
+                                } else {
+                                    onChange('signatories.mor_issued_by_name', selected.name);
+                                    onChange('signatories.mor_issued_by_id', selected.id);
+                                    onChange('signatories.mor_issued_by_designation', selected.designation);
+                                }
+                            }}
                         />
                         {errors['settings.signatories.mor_issued_by_name'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.mor_issued_by_name']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.mor_issued_by_name']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Issued By Designation */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Issued By Designation / Position
@@ -401,15 +749,20 @@ export default function SignatorySettings({
                         <input
                             type="text"
                             value={settings['signatories.mor_issued_by_designation'] || ''}
-                            onChange={(e) => onChange('signatories.mor_issued_by_designation', e.target.value)}
+                            onChange={(e) =>
+                                onChange('signatories.mor_issued_by_designation', e.target.value)
+                            }
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
                             placeholder="SUPPLY OFFICER III / PROPERTY CUSTODIAN"
                         />
                         {errors['settings.signatories.mor_issued_by_designation'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.mor_issued_by_designation']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.mor_issued_by_designation']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Issuing Office Title */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Issuing / Custodial Office Title
@@ -417,15 +770,20 @@ export default function SignatorySettings({
                         <input
                             type="text"
                             value={settings['signatories.mor_issued_by_office'] || ''}
-                            onChange={(e) => onChange('signatories.mor_issued_by_office', e.target.value)}
+                            onChange={(e) =>
+                                onChange('signatories.mor_issued_by_office', e.target.value)
+                            }
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
                             placeholder="Supply & Property Management Office (SPMO)"
                         />
                         {errors['settings.signatories.mor_issued_by_office'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.mor_issued_by_office']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.signatories.mor_issued_by_office']}
+                            </p>
                         )}
                     </div>
 
+                    {/* Form Appendix Header Number */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700 block">
                             Form Appendix Header Number
@@ -433,16 +791,28 @@ export default function SignatorySettings({
                         <input
                             type="text"
                             value={settings['compliance.mor_appendix_number'] || ''}
-                            onChange={(e) => onChange('compliance.mor_appendix_number', e.target.value)}
+                            onChange={(e) =>
+                                onChange('compliance.mor_appendix_number', e.target.value)
+                            }
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
                             placeholder="Appendix 59-A"
                         />
                         {errors['settings.compliance.mor_appendix_number'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['settings.compliance.mor_appendix_number']}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                                {errors['settings.compliance.mor_appendix_number']}
+                            </p>
                         )}
                     </div>
                 </div>
             </div>
+
+            {/* Modal Dialog for Adding Signatory */}
+            <AddSignatoryDialog
+                isOpen={isDialogOpen}
+                onClose={() => setIsDialogOpen(false)}
+                initialName={dialogInitialName}
+                onSuccess={handleSignatoryCreated}
+            />
         </div>
     );
 }

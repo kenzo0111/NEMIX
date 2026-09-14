@@ -61,6 +61,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/admin/system-settings', [SystemSettingController::class, 'update'])->name('system.settings.update');
     Route::post('/admin/system-settings/test-email', [SystemSettingController::class, 'testEmail'])->name('system.settings.test-email');
     Route::match(['get', 'post'], '/admin/system-settings/export-backup', [SystemSettingController::class, 'exportBackup'])->name('system.settings.backup');
+
+    // Centralized Signatories Directory
+    Route::get('/admin/signatories', [\App\Http\Controllers\Admin\SignatoryController::class, 'index'])->name('admin.signatories.index');
+    Route::post('/admin/signatories', [\App\Http\Controllers\Admin\SignatoryController::class, 'store'])->name('admin.signatories.store');
+    Route::delete('/admin/signatories/{signatory}', [\App\Http\Controllers\Admin\SignatoryController::class, 'destroy'])->name('admin.signatories.destroy');
 });
 
 // RFID Hardware Scanner API (Accessible by ESP32 & Web Live Sync)

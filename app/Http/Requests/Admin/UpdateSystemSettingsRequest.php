@@ -89,6 +89,15 @@ class UpdateSystemSettingsRequest extends FormRequest
                 }
             }
 
+            // Signatory ID validations
+            foreach ($settings as $key => $val) {
+                if (str_starts_with($key, 'signatories.') && str_ends_with($key, '_id')) {
+                    if (! is_null($val) && $val !== '' && (! is_numeric($val) || (int) $val < 1)) {
+                        $v->errors()->add("settings.{$key}", "The {$key} must be a valid signatory ID.");
+                    }
+                }
+            }
+
             // 2. Inventory Thresholds & Ranges
             if (array_key_exists('inventory.low_stock_threshold', $settings)) {
                 $val = $settings['inventory.low_stock_threshold'];

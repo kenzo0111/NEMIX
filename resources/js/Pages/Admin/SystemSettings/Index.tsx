@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 
 import {
+    Signatory,
     SystemSettings,
     SystemSettingsPageProps,
     TabId,
@@ -35,8 +36,26 @@ export default function Index({
     auth,
     groupedSettings,
     telemetry,
+    signatories: initialSignatories = [],
 }: SystemSettingsPageProps) {
     const user = auth?.user;
+
+    // Centralized Signatories directory state
+    const [signatoriesList, setSignatoriesList] = useState<Signatory[]>(
+        () => initialSignatories || []
+    );
+
+    const handleAddSignatory = (newSig: Signatory) => {
+        setSignatoriesList((prev) => {
+            const exists = prev.some((s) => s.id === newSig.id);
+            if (exists) return prev;
+            return [...prev, newSig].sort((a, b) => a.name.localeCompare(b.name));
+        });
+    };
+
+    const handleDeleteSignatory = (deletedSig: Signatory) => {
+        setSignatoriesList((prev) => prev.filter((s) => s.id !== deletedSig.id));
+    };
 
     // Sidebar collapse state
     const [collapsed, setCollapsed] = useState<boolean>(() => {
@@ -241,6 +260,10 @@ export default function Index({
                                     settings={data.settings}
                                     onChange={handleFieldChange}
                                     errors={errors}
+                                    signatories={signatoriesList}
+                                    onAddSignatory={handleAddSignatory}
+                                    onDeleteSignatory={handleDeleteSignatory}
+                                    onToast={showToast}
                                 />
                             )}
 
