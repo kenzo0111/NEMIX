@@ -28,6 +28,19 @@ export interface RpciData {
   items?: InventoryItem[];
 
   // Signatories
+  signatories?: {
+    certified_by?: { name?: string; position?: string };
+    approved_by?: { name?: string; position?: string };
+    verified_by?: { name?: string; position?: string };
+  };
+  certified_by_name?: string;
+  certified_by_position?: string;
+  approved_by_name?: string;
+  approved_by_position?: string;
+  verified_by_name?: string;
+  verified_by_position?: string;
+
+  // Compatibility aliases
   committee_chair_name?: string;
   head_of_agency_name?: string;
   coa_representative_name?: string;
@@ -55,6 +68,41 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
   const targetRowCount = 6;
   const emptyRowsCount = Math.max(0, targetRowCount - items.length);
   const emptyRows = Array.from({ length: emptyRowsCount });
+
+  const certifiedByName =
+    data.certified_by_name ||
+    data.signatories?.certified_by?.name ||
+    data.committee_chair_name ||
+    '';
+
+  const certifiedByPosition =
+    data.certified_by_position ||
+    data.signatories?.certified_by?.position ||
+    'Inventory Committee Chair and Members';
+
+  const approvedByName =
+    data.approved_by_name ||
+    data.signatories?.approved_by?.name ||
+    data.accountable_officer ||
+    data.head_of_agency_name ||
+    '';
+
+  const approvedByPosition =
+    data.approved_by_position ||
+    data.signatories?.approved_by?.position ||
+    data.designation ||
+    '';
+
+  const verifiedByName =
+    data.verified_by_name ||
+    data.signatories?.verified_by?.name ||
+    data.coa_representative_name ||
+    '';
+
+  const verifiedByPosition =
+    data.verified_by_position ||
+    data.signatories?.verified_by?.position ||
+    'COA Representative';
 
   return (
     <>
@@ -278,12 +326,12 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                   <tbody>
                     <tr>
                       <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 3px 2px 3px', fontWeight: 'bold', textAlign: 'center', fontSize: '8pt' }}>
-                        {data.committee_chair_name || '\u00A0'}
+                        {certifiedByName || '\u00A0'}
                       </td>
                     </tr>
                     <tr>
                       <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
-                        Signature over Printed Name of Inventory Committee Chair and Members
+                        {certifiedByPosition || 'Inventory Committee Chair and Members'}
                       </td>
                     </tr>
                   </tbody>
@@ -295,12 +343,12 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                   <tbody>
                     <tr>
                       <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 3px 2px 3px', fontWeight: 'bold', textAlign: 'center', fontSize: '8pt' }}>
-                        {data.head_of_agency_name || '\u00A0'}
+                        {approvedByName || '\u00A0'}
                       </td>
                     </tr>
                     <tr>
                       <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
-                        Signature over Printed Name of Head of Agency/Entity or Authorized Representative
+                        {approvedByPosition || '\u00A0'}
                       </td>
                     </tr>
                   </tbody>
@@ -312,12 +360,12 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                   <tbody>
                     <tr>
                       <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 3px 2px 3px', fontWeight: 'bold', textAlign: 'center', fontSize: '8pt' }}>
-                        {data.coa_representative_name || '\u00A0'}
+                        {verifiedByName || '\u00A0'}
                       </td>
                     </tr>
                     <tr>
                       <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
-                        Signature over Printed Name of COA Representative
+                        {verifiedByPosition || 'COA Representative'}
                       </td>
                     </tr>
                   </tbody>

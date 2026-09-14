@@ -27,6 +27,20 @@ export interface NormalizedReportData {
         accountable_officer: string;
         designation: string;
         items: any[];
+        signatories?: {
+            certified_by?: { name?: string; position?: string };
+            approved_by?: { name?: string; position?: string };
+            verified_by?: { name?: string; position?: string };
+        };
+        certified_by_name?: string;
+        certified_by_position?: string;
+        approved_by_name?: string;
+        approved_by_position?: string;
+        verified_by_name?: string;
+        verified_by_position?: string;
+        committee_chair_name?: string;
+        head_of_agency_name?: string;
+        coa_representative_name?: string;
     };
     stockCardData?: {
         entity_name: string;
@@ -268,18 +282,86 @@ export function normalizeReportPaperData(
             defaultFundCluster,
         );
 
-        const accountable_officer =
-            publicSettings['signatories_rpci_accountable_officer_name'] ||
-            rpciSource.accountable_officer ||
-            payload.accountable_officer ||
-            user?.name ||
-            'Supply Custodian';
+        const savedSignatories =
+            snapshot?.signatories ||
+            payload?.signatories ||
+            rpciSource?.signatories;
 
-        const designation =
-            publicSettings['signatories_rpci_accountable_officer_designation'] ||
-            rpciSource.designation ||
-            payload.designation ||
-            'Supply Officer III';
+        // Approved by is mapped strictly from Accountable Officer
+        const approvedByName = isSavedReport
+            ? (savedSignatories?.approved_by?.name ||
+               rpciSource.accountable_officer ||
+               payload.accountable_officer ||
+               user?.name ||
+               'Supply Custodian')
+            : (publicSettings['signatories_rpci_accountable_officer_name'] ||
+               publicSettings['rpci_accountable_officer_name'] ||
+               rpciSource.accountable_officer ||
+               payload.accountable_officer ||
+               user?.name ||
+               'Supply Custodian');
+
+        const approvedByPosition = isSavedReport
+            ? (savedSignatories?.approved_by?.position ||
+               rpciSource.designation ||
+               payload.designation ||
+               'Supply Officer III')
+            : (publicSettings['signatories_rpci_accountable_officer_designation'] ||
+               publicSettings['rpci_accountable_officer_designation'] ||
+               rpciSource.designation ||
+               payload.designation ||
+               'Supply Officer III');
+
+        const certifiedByName = isSavedReport
+            ? (savedSignatories?.certified_by?.name ??
+               rpciSource.certified_by_name ??
+               rpciSource.committee_chair_name ??
+               '')
+            : (publicSettings['signatories_rpci_certified_by_name'] ||
+               publicSettings['rpci_certified_by_name'] ||
+               publicSettings['signatories_rpci_committee_chair'] ||
+               publicSettings['rpci_committee_chair'] ||
+               '');
+
+        const certifiedByPosition = isSavedReport
+            ? (savedSignatories?.certified_by?.position ??
+               rpciSource.certified_by_position ??
+               'Inventory Committee Chair and Members')
+            : (publicSettings['signatories_rpci_certified_by_position'] ||
+               publicSettings['rpci_certified_by_position'] ||
+               'Inventory Committee Chair and Members');
+
+        const verifiedByName = isSavedReport
+            ? (savedSignatories?.verified_by?.name ??
+               rpciSource.verified_by_name ??
+               rpciSource.coa_representative_name ??
+               '')
+            : (publicSettings['signatories_rpci_verified_by_name'] ||
+               publicSettings['rpci_verified_by_name'] ||
+               '');
+
+        const verifiedByPosition = isSavedReport
+            ? (savedSignatories?.verified_by?.position ??
+               rpciSource.verified_by_position ??
+               'COA Representative')
+            : (publicSettings['signatories_rpci_verified_by_position'] ||
+               publicSettings['rpci_verified_by_position'] ||
+               'COA Representative');
+
+        const resolvedSignatories = {
+            certified_by: {
+                name: certifiedByName,
+                position: certifiedByPosition,
+            },
+            approved_by: {
+                name: approvedByName,
+                position: approvedByPosition,
+            },
+            verified_by: {
+                name: verifiedByName,
+                position: verifiedByPosition,
+            },
+        };
 
         return {
             type: 'RPCI',
@@ -291,9 +373,19 @@ export function normalizeReportPaperData(
                 as_at_date: formattedDate,
                 fund_cluster,
                 inventory_type: title || 'Report on Physical Count of Inventories',
-                accountable_officer,
-                designation,
+                accountable_officer: approvedByName,
+                designation: approvedByPosition,
                 items: Array.isArray(items) ? items : [],
+                signatories: resolvedSignatories,
+                certified_by_name: certifiedByName,
+                certified_by_position: certifiedByPosition,
+                approved_by_name: approvedByName,
+                approved_by_position: approvedByPosition,
+                verified_by_name: verifiedByName,
+                verified_by_position: verifiedByPosition,
+                committee_chair_name: certifiedByName,
+                head_of_agency_name: approvedByName,
+                coa_representative_name: verifiedByName,
             },
         };
     }

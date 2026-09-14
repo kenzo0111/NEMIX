@@ -161,6 +161,29 @@ class SystemSetting extends Model
                 $settings['approved_by_designation'] = $settings['signatories_ris_approved_by_designation'];
             }
 
+            // RPCI Signatories Aliases
+            if (isset($settings['signatories_rpci_accountable_officer_name'])) {
+                $settings['rpci_accountable_officer_name'] = $settings['signatories_rpci_accountable_officer_name'];
+            }
+            if (isset($settings['signatories_rpci_accountable_officer_designation'])) {
+                $settings['rpci_accountable_officer_designation'] = $settings['signatories_rpci_accountable_officer_designation'];
+            }
+            if (isset($settings['signatories_rpci_committee_chair'])) {
+                $settings['rpci_committee_chair'] = $settings['signatories_rpci_committee_chair'];
+            }
+            if (isset($settings['signatories_rpci_certified_by_name'])) {
+                $settings['rpci_certified_by_name'] = $settings['signatories_rpci_certified_by_name'];
+            }
+            if (isset($settings['signatories_rpci_certified_by_position'])) {
+                $settings['rpci_certified_by_position'] = $settings['signatories_rpci_certified_by_position'];
+            }
+            if (isset($settings['signatories_rpci_verified_by_name'])) {
+                $settings['rpci_verified_by_name'] = $settings['signatories_rpci_verified_by_name'];
+            }
+            if (isset($settings['signatories_rpci_verified_by_position'])) {
+                $settings['rpci_verified_by_position'] = $settings['signatories_rpci_verified_by_position'];
+            }
+
             return $settings;
         });
     }

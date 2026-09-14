@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { getLocalDateString } from '@/utils/dateUtils';
 import { ReportDatasetResponse, ReportFormData, ReportPeriodType, ReportType } from '../types';
@@ -9,6 +9,8 @@ export function useReportGenerator(
     migratedRecords: any[] = [],
     onSuccess?: () => void,
 ) {
+    const { props: pageProps } = usePage<any>();
+    const publicSettings = pageProps?.system?.settings || {};
     const today = getLocalDateString();
     const [currentStep, setCurrentStep] = useState<'configure' | 'preview'>('configure');
     const [isLoadingPreview, setIsLoadingPreview] = useState(false);
@@ -115,13 +117,52 @@ export function useReportGenerator(
         const genDate = formData.generatedDate || getLocalDateString();
         const coverageLabel = previewDataset?.coverageLabel || formData.date;
 
+        const rpciSignatories = formData.type === 'RPCI' ? {
+            certified_by: {
+                name: previewDataset?.rpci?.signatories?.certified_by?.name ||
+                      publicSettings['signatories_rpci_certified_by_name'] ||
+                      publicSettings['signatories_rpci_committee_chair'] ||
+                      publicSettings['rpci_certified_by_name'] ||
+                      publicSettings['rpci_committee_chair'] ||
+                      '',
+                position: previewDataset?.rpci?.signatories?.certified_by?.position ||
+                          publicSettings['signatories_rpci_certified_by_position'] ||
+                          publicSettings['rpci_certified_by_position'] ||
+                          'Inventory Committee Chair and Members',
+            },
+            approved_by: {
+                name: previewDataset?.rpci?.signatories?.approved_by?.name ||
+                      publicSettings['signatories_rpci_accountable_officer_name'] ||
+                      publicSettings['rpci_accountable_officer_name'] ||
+                      '',
+                position: previewDataset?.rpci?.signatories?.approved_by?.position ||
+                          publicSettings['signatories_rpci_accountable_officer_designation'] ||
+                          publicSettings['rpci_accountable_officer_designation'] ||
+                          '',
+            },
+            verified_by: {
+                name: previewDataset?.rpci?.signatories?.verified_by?.name ||
+                      publicSettings['signatories_rpci_verified_by_name'] ||
+                      publicSettings['rpci_verified_by_name'] ||
+                      '',
+                position: previewDataset?.rpci?.signatories?.verified_by?.position ||
+                          publicSettings['signatories_rpci_verified_by_position'] ||
+                          publicSettings['rpci_verified_by_position'] ||
+                          'COA Representative',
+            },
+        } : undefined;
+
         const snapshot = previewDataset ? {
             ...previewDataset,
             rsmi: previewDataset.rsmi,
-            rpci: previewDataset.rpci,
+            rpci: previewDataset.rpci ? {
+                ...previewDataset.rpci,
+                signatories: rpciSignatories,
+            } : previewDataset.rpci,
             stockCard: previewDataset.stockCard,
             mr: previewDataset.mr,
             summary: previewDataset.summary,
+            signatories: rpciSignatories || previewDataset.signatories,
             issuedItems: previewDataset.rsmi?.issuedItems,
             recapitulationItems: previewDataset.rsmi?.recapitulationItems,
             items: previewDataset.rpci?.items || previewDataset.mr?.items,
@@ -132,10 +173,14 @@ export function useReportGenerator(
             ...formData,
             generatedDate: genDate,
             coverageLabel,
+            signatories: rpciSignatories,
             snapshot: snapshot || undefined,
             dataset: snapshot || undefined,
             rsmi: previewDataset?.rsmi,
-            rpci: previewDataset?.rpci,
+            rpci: previewDataset?.rpci ? {
+                ...previewDataset.rpci,
+                signatories: rpciSignatories,
+            } : previewDataset?.rpci,
             stockCard: previewDataset?.stockCard,
             mr: previewDataset?.mr,
             summary: previewDataset?.summary,
@@ -156,6 +201,7 @@ export function useReportGenerator(
             periodType: formData.periodType || 'all',
             generatedDate: genDate,
             coverageLabel,
+            signatories: rpciSignatories,
             snapshot: snapshot || undefined,
             payload: payloadData,
         };

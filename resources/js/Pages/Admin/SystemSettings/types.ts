@@ -28,6 +28,10 @@ export interface SystemSettings {
     'signatories.rpci_accountable_officer_name': string;
     'signatories.rpci_accountable_officer_designation': string;
     'signatories.rpci_committee_chair': string;
+    'signatories.rpci_certified_by_name': string;
+    'signatories.rpci_certified_by_position': string;
+    'signatories.rpci_verified_by_name': string;
+    'signatories.rpci_verified_by_position': string;
 
     'signatories.stock_card_custodian': string;
 

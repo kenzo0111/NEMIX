@@ -267,6 +267,70 @@ export default function SignatorySettings({
                             <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rpci_committee_chair']}</p>
                         )}
                     </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-700 block">
+                            Certified Correct By - Name
+                        </label>
+                        <input
+                            type="text"
+                            value={settings['signatories.rpci_certified_by_name']}
+                            onChange={(e) => onChange('signatories.rpci_certified_by_name', e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            placeholder="Inspection Committee Chairman"
+                        />
+                        {errors['settings.signatories.rpci_certified_by_name'] && (
+                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rpci_certified_by_name']}</p>
+                        )}
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-700 block">
+                            Certified Correct By - Designation
+                        </label>
+                        <input
+                            type="text"
+                            value={settings['signatories.rpci_certified_by_position']}
+                            onChange={(e) => onChange('signatories.rpci_certified_by_position', e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            placeholder="Inventory Committee Chair and Members"
+                        />
+                        {errors['settings.signatories.rpci_certified_by_position'] && (
+                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rpci_certified_by_position']}</p>
+                        )}
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-700 block">
+                            Verified By - Name
+                        </label>
+                        <input
+                            type="text"
+                            value={settings['signatories.rpci_verified_by_name']}
+                            onChange={(e) => onChange('signatories.rpci_verified_by_name', e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            placeholder="COA Representative"
+                        />
+                        {errors['settings.signatories.rpci_verified_by_name'] && (
+                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rpci_verified_by_name']}</p>
+                        )}
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-700 block">
+                            Verified By - Designation
+                        </label>
+                        <input
+                            type="text"
+                            value={settings['signatories.rpci_verified_by_position']}
+                            onChange={(e) => onChange('signatories.rpci_verified_by_position', e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            placeholder="COA Representative"
+                        />
+                        {errors['settings.signatories.rpci_verified_by_position'] && (
+                            <p className="text-xs text-red-600 mt-1">{errors['settings.signatories.rpci_verified_by_position']}</p>
+                        )}
+                    </div>
                 </div>
             </div>
 

@@ -95,6 +95,7 @@ export interface ReportDatasetResponse {
     fundCluster?: string;
     fund_cluster?: string;
     summary: ReportDatasetSummary;
+    signatories?: any;
     rsmi?: {
         issuedItems: any[];
         recapitulationItems: any[];
@@ -107,6 +108,7 @@ export interface ReportDatasetResponse {
         summary: ReportDatasetSummary;
         entity_name?: string;
         fund_cluster?: string;
+        signatories?: any;
     };
     stockCard?: {
         item: string;

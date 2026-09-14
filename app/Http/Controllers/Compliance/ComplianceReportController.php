@@ -583,6 +583,64 @@ class ComplianceReportController extends Controller
             $payload['entityName'] = $activeEntityName;
             $payload['fund_cluster'] = $activeFundCluster;
             $payload['fundCluster'] = $activeFundCluster;
+
+            // Resolve and persist signatories snapshot for RPCI
+            $certifiedByName = data_get($rawSnapshot, 'signatories.certified_by.name')
+                ?? data_get($rawPayload, 'signatories.certified_by.name')
+                ?? data_get($rawPayload, 'certified_by_name')
+                ?? \App\Models\SystemSetting::get('signatories.rpci_certified_by_name')
+                ?: \App\Models\SystemSetting::get('signatories.rpci_committee_chair', '');
+
+            $certifiedByPosition = data_get($rawSnapshot, 'signatories.certified_by.position')
+                ?? data_get($rawPayload, 'signatories.certified_by.position')
+                ?? data_get($rawPayload, 'certified_by_position')
+                ?? \App\Models\SystemSetting::get('signatories.rpci_certified_by_position', 'Inventory Committee Chair and Members');
+
+            $approvedByName = data_get($rawSnapshot, 'signatories.approved_by.name')
+                ?? data_get($rawPayload, 'signatories.approved_by.name')
+                ?? data_get($rawPayload, 'accountable_officer')
+                ?? \App\Models\SystemSetting::get('signatories.rpci_accountable_officer_name', 'Arsenio Gem A. Garcillanosa');
+
+            $approvedByPosition = data_get($rawSnapshot, 'signatories.approved_by.position')
+                ?? data_get($rawPayload, 'signatories.approved_by.position')
+                ?? data_get($rawPayload, 'designation')
+                ?? \App\Models\SystemSetting::get('signatories.rpci_accountable_officer_designation', 'Supply Custodian / Supply Officer III');
+
+            $verifiedByName = data_get($rawSnapshot, 'signatories.verified_by.name')
+                ?? data_get($rawPayload, 'signatories.verified_by.name')
+                ?? data_get($rawPayload, 'verified_by_name')
+                ?? \App\Models\SystemSetting::get('signatories.rpci_verified_by_name', '');
+
+            $verifiedByPosition = data_get($rawSnapshot, 'signatories.verified_by.position')
+                ?? data_get($rawPayload, 'signatories.verified_by.position')
+                ?? data_get($rawPayload, 'verified_by_position')
+                ?? \App\Models\SystemSetting::get('signatories.rpci_verified_by_position', 'COA Representative');
+
+            $rpciSignatories = [
+                'certified_by' => [
+                    'name' => $certifiedByName ?: '',
+                    'position' => $certifiedByPosition ?: 'Inventory Committee Chair and Members',
+                ],
+                'approved_by' => [
+                    'name' => $approvedByName ?: '',
+                    'position' => $approvedByPosition ?: '',
+                ],
+                'verified_by' => [
+                    'name' => $verifiedByName ?: '',
+                    'position' => $verifiedByPosition ?: 'COA Representative',
+                ],
+            ];
+
+            $payload['signatories'] = $rpciSignatories;
+            if (is_array($snapshot)) {
+                $snapshot['signatories'] = $rpciSignatories;
+                $payload['snapshot'] = $snapshot;
+                $payload['dataset'] = $snapshot;
+            }
+            if (is_array($rpciData)) {
+                $rpciData['signatories'] = $rpciSignatories;
+                $payload['rpci'] = $rpciData;
+            }
         } elseif ($type === 'STOCK_CARD' || $type === 'STOCKCARD') {
             $scData = data_get($snapshot, 'stockCard') ?? $snapshot;
             if (is_array($scData)) {

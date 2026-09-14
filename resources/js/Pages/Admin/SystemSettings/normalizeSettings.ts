@@ -26,6 +26,10 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
     'signatories.rpci_accountable_officer_name': 'Arsenio Gem A. Garcillanosa',
     'signatories.rpci_accountable_officer_designation': 'Supply Custodian / Supply Officer III',
     'signatories.rpci_committee_chair': 'Inspection Committee Chairman',
+    'signatories.rpci_certified_by_name': '',
+    'signatories.rpci_certified_by_position': 'Inventory Committee Chair and Members',
+    'signatories.rpci_verified_by_name': '',
+    'signatories.rpci_verified_by_position': 'COA Representative',
 
     'signatories.stock_card_custodian': 'Storekeeper / Property Custodian',
 
@@ -143,6 +147,10 @@ export function normalizeSystemSettings(
     assignString('signatories.rpci_accountable_officer_name');
     assignString('signatories.rpci_accountable_officer_designation');
     assignString('signatories.rpci_committee_chair');
+    assignString('signatories.rpci_certified_by_name');
+    assignString('signatories.rpci_certified_by_position');
+    assignString('signatories.rpci_verified_by_name');
+    assignString('signatories.rpci_verified_by_position');
     assignString('signatories.stock_card_custodian');
 
     // MOR Signatories
