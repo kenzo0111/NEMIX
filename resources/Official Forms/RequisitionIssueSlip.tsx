@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatRisNumber } from '@/utils/risFormatter';
 import { formatDisplayDate } from '@/utils/dateUtils';
 
 // --- Interfaces ---
@@ -273,7 +274,7 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
                 Office : {data.office}
               </td>
               <td colSpan={4} className="text-left">
-                RIS No. : {data.ris_no}
+                RIS No. : {formatRisNumber(data.ris_no)}
               </td>
             </tr>
 

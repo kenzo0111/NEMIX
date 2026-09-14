@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatRisNumber } from '@/utils/risFormatter';
 import { IssuanceRecord } from '../types';
 import { IssuanceStatus } from './IssuanceStatus';
 import { formatDisplayDate } from '@/utils/dateUtils';
@@ -21,7 +22,7 @@ export const IssuanceRow: React.FC<IssuanceRowProps> = ({
         <tr className="hover:bg-red-50/20 transition-colors border-b border-gray-100 last:border-0 group">
             {/* RIS / Issuance Number */}
             <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-900 font-mono tracking-wide">
-                {issuance.ris_number}
+                {formatRisNumber(issuance.ris_number)}
             </td>
 
             {/* Recipient / Office (Normal text, no decorative circular avatars) */}

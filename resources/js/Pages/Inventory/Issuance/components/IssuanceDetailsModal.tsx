@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatRisNumber } from '@/utils/risFormatter';
 import Modal from '@/Components/Modal';
 import { IssuanceRecord } from '../types';
 import { IssuanceStatus } from './IssuanceStatus';
@@ -33,7 +34,7 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                             Issuance Record Details
                         </h3>
                         <p className="text-xs text-gray-500 font-mono">
-                            RIS Reference: <span className="font-bold text-red-950">{issuance.ris_number}</span>
+                            RIS Reference: <span className="font-bold text-red-950">{formatRisNumber(issuance.ris_number)}</span>
                         </p>
                     </div>
                     <button

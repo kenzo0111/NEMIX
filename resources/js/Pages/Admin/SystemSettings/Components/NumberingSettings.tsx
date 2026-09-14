@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatRisNumber } from '@/utils/risFormatter';
 import { SystemSettings } from '../types';
 
 interface NumberingSettingsProps {
@@ -28,7 +29,7 @@ export default function NumberingSettings({
             shortName: 'RIS',
             description: 'Individual supply issuance vouchers (Appendix 63)',
             resetRule: 'Annual',
-            preview: `${risPrefix}${currentYear}-${currentMonth}-0042`,
+            preview: formatRisNumber(`${risPrefix}${currentYear}-${currentMonth}-0042`),
         },
         {
             key: 'numbering.rsmi_prefix' as const,

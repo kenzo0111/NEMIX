@@ -1,4 +1,5 @@
 import { AuditMetadata, AuditMetadataValue, TransactionAuditRecord } from '../Transactions/types';
+import { formatRisNumber } from '@/utils/risFormatter';
 
 const SENSITIVE_PATTERNS = [
     'password',
@@ -597,7 +598,7 @@ export function getAuditSecondaryText(record: TransactionAuditRecord): string | 
     if (parsed) {
         if (parsed.ris_number) {
             const count = parsed.items_count ?? (Array.isArray(parsed.items) ? parsed.items.length : 1);
-            return `${parsed.ris_number} • ${count} ${count === 1 ? 'item' : 'items'} issued`;
+            return `${formatRisNumber(parsed.ris_number as string)} • ${count} ${count === 1 ? 'item' : 'items'} issued`;
         }
         if (parsed.receiving_reference) {
             return `Receiving reference: ${parsed.receiving_reference}`;

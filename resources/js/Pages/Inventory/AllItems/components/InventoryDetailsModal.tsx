@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatRisNumber } from '@/utils/risFormatter';
 import Modal from '@/Components/Modal';
 import { Link } from '@inertiajs/react';
 import { X, Edit3, Tag, Package, History, Layers } from 'lucide-react';
@@ -273,7 +274,7 @@ export default function InventoryDetailsModal({
                                                     {formatDisplayDate(iss.date_issued, 'MM/DD/YYYY') || iss.date_issued}
                                                 </td>
                                                 <td className="px-4 py-2 font-mono font-semibold text-gray-800">
-                                                    {iss.ris_number}
+                                                    {formatRisNumber(iss.ris_number)}
                                                 </td>
                                                 <td className="px-4 py-2 text-gray-700">
                                                     {iss.recipient}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatRisNumber } from '@/utils/risFormatter';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { getResponsibilityCenterCode, ResponsibilityCenterInfo } from '@/Pages/Compliance/Reports/utils/responsibilityCenterFormatter';
 import { SharedFormHeaderStyles } from './SharedFormHeaderStyles';
@@ -302,7 +303,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
                     {itemIdx === 0 && (
                       <>
                         <td className="text-center rsmi-group-cell" rowSpan={group.items.length}>
-                          {group.risNo}
+                          {formatRisNumber(group.risNo)}
                         </td>
                         <td className="responsibility-center-code text-center rsmi-group-cell" title={group.fullName} rowSpan={group.items.length}>
                           {group.displayCode}

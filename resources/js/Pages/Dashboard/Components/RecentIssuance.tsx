@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatRisNumber } from '@/utils/risFormatter';
 import { Link } from '@inertiajs/react';
 import { RecentIssuance as RecentIssuanceType } from '../types';
 import { ArrowUpRight, ExternalLink } from 'lucide-react';
@@ -43,7 +44,7 @@ export default function RecentIssuance({ issuances = [] }: RecentIssuanceProps) 
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-1.5">
                                         <span className="text-xs font-bold font-mono text-gray-900 group-hover:text-red-900 transition-colors">
-                                            {iss.ris_number}
+                                            {formatRisNumber(iss.ris_number)}
                                         </span>
                                     </div>
                                     <p className="text-[11px] text-gray-600 truncate mt-0.5">

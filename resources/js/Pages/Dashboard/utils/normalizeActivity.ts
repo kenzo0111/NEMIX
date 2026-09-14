@@ -1,4 +1,5 @@
 import { DashboardActivity } from '../types';
+import { formatRisNumber } from '@/utils/risFormatter';
 
 /**
  * Safely parse a JSON string into a structured object or return null.
@@ -135,7 +136,7 @@ export function normalizeActivity(raw: unknown): DashboardActivity {
     if (eventKey === 'inventory.issuance.created' || actionLower.includes('issuance')) {
         title = 'Created Stock Issuance';
         if (metadata.ris_number) {
-            reference = String(metadata.ris_number);
+            reference = formatRisNumber(String(metadata.ris_number));
         }
 
         const itemsCount = metadata.items_count ? parseInt(String(metadata.items_count), 10) : 1;

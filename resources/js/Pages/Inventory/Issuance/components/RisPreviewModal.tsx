@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatRisNumber } from '@/utils/risFormatter';
 import Modal from '@/Components/Modal';
 import { IssuanceRecord } from '../types';
 import { getFundClusterDisplay } from '../constants';
@@ -45,7 +46,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
         division: issuance.department || '',
         responsibility_center_code: responsibilityCenterCode || '',
         office: issuance.department || '',
-        ris_no: issuance.ris_number,
+        ris_no: formatRisNumber(issuance.ris_number),
         purpose: issuance.purpose || '',
         items: items.map((line) => ({
             stock_no: line.sku || line.stock_no || '',
@@ -80,7 +81,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
                             Requisition and Issue Slip
                         </h3>
                         <p className="text-xs text-gray-500 font-mono">
-                            RIS Reference: <span className="font-bold text-red-950">{issuance.ris_number}</span>
+                            RIS Reference: <span className="font-bold text-red-950">{formatRisNumber(issuance.ris_number)}</span>
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
