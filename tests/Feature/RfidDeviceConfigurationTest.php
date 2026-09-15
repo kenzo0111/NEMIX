@@ -76,9 +76,12 @@ class RfidDeviceConfigurationTest extends TestCase
             ->getJson('/api/hardware/rfid/config')
             ->assertOk()
             ->assertJsonPath('configuration.version', 2)
+            ->assertJsonPath('configuration.server_url', 'https://inventory.example.edu')
             ->assertJsonMissingPath('configuration.wifi_password')
             ->assertJsonMissingPath('configuration.device_token');
         $this->assertStringNotContainsString('correct horse battery staple', $response->getContent());
+        $this->assertStringNotContainsString('https:\/\/', $response->getContent());
+        $this->assertStringContainsString('https://inventory.example.edu', $response->getContent());
     }
 
     public function test_authenticated_version_gated_network_migration_and_heartbeat(): void
