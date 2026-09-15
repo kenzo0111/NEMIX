@@ -92,4 +92,74 @@ class CompliancePdfExportTest extends TestCase
         $response->assertHeader('content-type', 'application/pdf');
         $this->assertStringStartsWith('%PDF-', $response->getContent());
     }
+
+    public function test_can_export_inventory_custodian_slip_pdf_report()
+    {
+        $response = $this->postJson(route('compliance.reports.export_pdf'), [
+            'type' => 'ICS',
+            'periodType' => 'all',
+            'title' => 'ICS Test Report',
+            'reference' => 'ICS-2026-0001',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'application/pdf');
+        $this->assertStringStartsWith('%PDF-', $response->getContent());
+    }
+
+    public function test_can_export_property_acknowledgement_receipt_pdf_report()
+    {
+        $response = $this->postJson(route('compliance.reports.export_pdf'), [
+            'type' => 'PAR',
+            'periodType' => 'all',
+            'title' => 'PAR Test Report',
+            'reference' => 'PAR-2026-0001',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'application/pdf');
+        $this->assertStringStartsWith('%PDF-', $response->getContent());
+    }
+
+    public function test_can_export_requisition_issue_slip_pdf_report()
+    {
+        $response = $this->postJson(route('compliance.reports.export_pdf'), [
+            'type' => 'RIS',
+            'periodType' => 'all',
+            'title' => 'RIS Test Report',
+            'reference' => 'RIS-2026-0001',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'application/pdf');
+        $this->assertStringStartsWith('%PDF-', $response->getContent());
+    }
+
+    public function test_can_export_inspection_acceptance_report_pdf_report()
+    {
+        $response = $this->postJson(route('compliance.reports.export_pdf'), [
+            'type' => 'IAR',
+            'periodType' => 'all',
+            'title' => 'IAR Test Report',
+            'reference' => 'IAR-2026-0001',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'application/pdf');
+        $this->assertStringStartsWith('%PDF-', $response->getContent());
+    }
+
+    public function test_can_export_purchase_order_pdf_report()
+    {
+        $response = $this->postJson(route('compliance.reports.export_pdf'), [
+            'type' => 'PO',
+            'periodType' => 'all',
+            'title' => 'PO Test Report',
+            'reference' => 'PO-2026-0001',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'application/pdf');
+        $this->assertStringStartsWith('%PDF-', $response->getContent());
+    }
 }

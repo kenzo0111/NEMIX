@@ -15,7 +15,7 @@ class CompliancePdfController extends Controller
         $validated = $request->validate([
             'report_id' => ['nullable', 'integer'],
             'reportId' => ['nullable', 'integer'],
-            'type' => ['nullable', 'string', 'max:50'],
+            'type' => ['nullable', 'string', 'max:100'],
             'title' => ['nullable', 'string', 'max:255'],
             'reference' => ['nullable', 'string', 'max:100'],
             'itemName' => ['nullable', 'string', 'max:255'],
@@ -38,7 +38,7 @@ class CompliancePdfController extends Controller
             $reportModel = ComplianceReport::find($reportId);
         }
 
-        $type = strtoupper((string) ($validated['type'] ?? $reportModel?->type ?? 'RSMI'));
+        $type = strtoupper(str_replace([' ', '-'], '_', (string) ($validated['type'] ?? $reportModel?->type ?? 'RSMI')));
         $title = $validated['title'] ?? $reportModel?->title ?? 'Compliance Report';
         $reference = $validated['reference'] ?? $reportModel?->reference ?? 'REF-' . time();
 
@@ -87,8 +87,30 @@ class CompliancePdfController extends Controller
             case 'MR':
             case 'MOR':
             case 'MEMORANDUM_RECEIPT':
-            case 'MEMORANDUM RECEIPT':
                 return $this->generateMemorandumReceiptPdf($dataset, $fileName, $request);
+
+            case 'ICS':
+            case 'INVENTORY_CUSTODIAN_SLIP':
+                return $this->generateGenericPdf('compliance.pdf.inventory_custodian_slip', 'ics', $dataset, 'portrait', $fileName, $request);
+
+            case 'PAR':
+            case 'PROPERTY_ACKNOWLEDGEMENT_RECEIPT':
+            case 'PROPERTY_ACKNOWLEDGMENT_RECEIPT':
+                return $this->generateGenericPdf('compliance.pdf.property_acknowledgement_receipt', 'par', $dataset, 'portrait', $fileName, $request);
+
+            case 'RIS':
+            case 'REQUISITION_ISSUE_SLIP':
+            case 'REQUISITION_AND_ISSUE_SLIP':
+                return $this->generateGenericPdf('compliance.pdf.requisition_issue_slip', 'ris', $dataset, 'portrait', $fileName, $request);
+
+            case 'IAR':
+            case 'INSPECTION_ACCEPTANCE_REPORT':
+            case 'INSPECTION_AND_ACCEPTANCE_REPORT':
+                return $this->generateGenericPdf('compliance.pdf.inspection_acceptance_report', 'iar', $dataset, 'portrait', $fileName, $request);
+
+            case 'PO':
+            case 'PURCHASE_ORDER':
+                return $this->generateGenericPdf('compliance.pdf.purchase_order', 'po', $dataset, 'portrait', $fileName, $request);
 
             default:
                 return $this->generateRsmiPdf($dataset, $fileName, $request);
@@ -100,7 +122,6 @@ class CompliancePdfController extends Controller
         $rsmiData = data_get($dataset, 'rsmi') ?? $dataset;
         $forms = [];
 
-        // Check if yearly package or single month multi-form dataset
         if (!empty($dataset['yearly']['months']) && is_array($dataset['yearly']['months'])) {
             foreach ($dataset['yearly']['months'] as $monthData) {
                 if (!empty($monthData['forms']) && is_array($monthData['forms'])) {
@@ -125,7 +146,7 @@ class CompliancePdfController extends Controller
         ];
 
         $pdf = Pdf::loadView('compliance.pdf.rsmi', $viewData)
-            ->setPaper('A4', 'landscape')
+            ->setPaper('A4', 'portrait')
             ->setOption([
                 'isRemoteEnabled' => true,
                 'isHtml5ParserEnabled' => true,
@@ -288,7 +309,7 @@ class CompliancePdfController extends Controller
 
         $issuedByName = data_get($mrData, 'issuedByName')
             ?? data_get($mrData, 'issued_by_name')
-            ?? \App\Models\SystemSetting::get('signatories.mr_issued_by_name', 'Arsenio Gem A. Garcillanosa');
+            ?? \App\Models\SystemSetting::get('signatories.mr_issued_by_name', 'Arsenio Gem A. GARCILLANOSA');
 
         $issuedByPosition = data_get($mrData, 'issuedByPosition')
             ?? data_get($mrData, 'issued_by_position')
@@ -312,6 +333,32 @@ class CompliancePdfController extends Controller
 
         $pdf = Pdf::loadView('compliance.pdf.memorandum_receipt', $viewData)
             ->setPaper('A4', 'portrait')
+            ->setOption([
+                'isRemoteEnabled' => true,
+                'isHtml5ParserEnabled' => true,
+                'defaultFont' => 'DejaVu Sans',
+            ]);
+
+        if ($request->query('inline') === '1' || $request->input('inline') === true) {
+            return $pdf->stream($fileName);
+        }
+
+        return $pdf->download($fileName);
+    }
+
+    protected function generateGenericPdf(string $viewPath, string $dataKey, array $dataset, string $paperOrientation, string $fileName, Request $request)
+    {
+        $formGroup = data_get($dataset, $dataKey) ?? $dataset;
+        $items = data_get($formGroup, 'items') ?? data_get($dataset, 'items') ?? [];
+
+        $viewData = [
+            $dataKey => $formGroup,
+            'dataset' => $dataset,
+            'items' => $items,
+        ];
+
+        $pdf = Pdf::loadView($viewPath, $viewData)
+            ->setPaper('A4', $paperOrientation)
             ->setOption([
                 'isRemoteEnabled' => true,
                 'isHtml5ParserEnabled' => true,
