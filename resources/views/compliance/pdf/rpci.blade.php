@@ -42,20 +42,20 @@
         margin-bottom: 6px;
         border-collapse: collapse;
         table-layout: fixed;
-        font-size: 6pt;
-        line-height: 1.05;
+        font-size: 8.5pt;
+        line-height: 1.15;
     }
 
     .accountability-table td {
         vertical-align: bottom;
-        font-size: 6pt;
-        line-height: 1.05;
+        font-size: 8.5pt;
+        line-height: 1.15;
         padding: 0;
         white-space: nowrap;
     }
 
     .accountability-entity,
-    .accountability-date { font-size: 5.3pt !important; }
+    .accountability-date { font-size: 8.5pt !important; }
 
     .rpci-money { font-family: 'DejaVu Serif', serif; }
 
@@ -178,15 +178,15 @@
     {{-- Top Info Grid --}}
     <table class="rpci-top-info">
         <colgroup>
-            <col width="85" style="width: 85px;">
-            <col width="280" style="width: 280px;">
-            <col style="width: auto;">
+            <col width="8%" style="width: 8%;">
+            <col width="17%" style="width: 17%;">
+            <col width="75%" style="width: 75%;">
         </colgroup>
         <tbody>
             <tr>
-                <td style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Fund Cluster:</td>
-                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px; line-height: 1.1;">{{ $fundCluster }}</td>
-                <td></td>
+                <td width="8%" style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Fund Cluster:</td>
+                <td width="17%" style="border-bottom: 1px solid #000000; padding: 1.5px 4px; line-height: 1.1;">{{ $fundCluster }}</td>
+                <td width="75%"></td>
             </tr>
         </tbody>
     </table>
@@ -194,27 +194,27 @@
     {{-- Accountability Statement Table --}}
     <table class="accountability-table">
         <colgroup>
-            <col width="5%" style="width: 5%;">
-            <col width="14%" style="width: 14%;">
-            <col width="1%" style="width: 1%;">
+            <col width="4%" style="width: 4%;">
             <col width="16%" style="width: 16%;">
             <col width="1%" style="width: 1%;">
-            <col width="18%" style="width: 18%;">
-            <col width="32%" style="width: 32%;">
-            <col width="12%" style="width: 12%;">
+            <col width="20%" style="width: 20%;">
+            <col width="1%" style="width: 1%;">
+            <col width="23%" style="width: 23%;">
+            <col width="24%" style="width: 24%;">
+            <col width="10%" style="width: 10%;">
             <col width="1%" style="width: 1%;">
         </colgroup>
         <tbody>
             <tr>
-                <td style="white-space: nowrap;">For which</td>
-                <td style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $accountableOfficer }}</td>
-                <td style="text-align: center;">,</td>
-                <td style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $designation }}</td>
-                <td style="text-align: center;">,</td>
-                <td class="accountability-entity" style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $entityName }}</td>
-                <td style="white-space: nowrap; padding: 0 3px;">is accountable, having assumed such accountability on</td>
-                <td class="accountability-date" style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">@if(!empty($dateAssumptionDisplay)){{ $dateAssumptionDisplay }}@endif</td>
-                <td>.</td>
+                <td width="4%" style="white-space: nowrap;">For which</td>
+                <td width="16%" style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $accountableOfficer }}</td>
+                <td width="1%" style="text-align: center;">,</td>
+                <td width="20%" style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $designation }}</td>
+                <td width="1%" style="text-align: center;">,</td>
+                <td width="23%" class="accountability-entity" style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $entityName }}</td>
+                <td width="24%" style="white-space: nowrap; padding: 0 3px;">is accountable, having assumed such accountability on</td>
+                <td width="10%" class="accountability-date" style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">@if(!empty($dateAssumptionDisplay)){{ $dateAssumptionDisplay }}@endif</td>
+                <td width="1%">.</td>
             </tr>
         </tbody>
     </table>
