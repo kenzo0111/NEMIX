@@ -117,7 +117,7 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
         .header-title {
             text-align: right;
             font-style: italic;
-            font-size: 9pt;
+            font-size: 16pt;
             margin-bottom: 1mm;
             line-height: 1.1;
         }

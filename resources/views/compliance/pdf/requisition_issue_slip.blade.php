@@ -101,7 +101,7 @@
 @endphp
 
 <div class="report-page ris-container">
-    <div style="text-align: right; font-style: italic; font-size: 9pt; margin-bottom: 1mm;">Appendix 63</div>
+    <div style="text-align: right; font-style: italic; font-size: 16pt; margin-bottom: 1mm;">Appendix 63</div>
     <div class="official-title" style="margin-bottom: 1.2mm; letter-spacing: 0.3px; text-align: center; font-weight: bold; font-size: 11.5pt;">REQUISITION AND ISSUE SLIP</div>
 
     {{-- Top Info Table --}}
@@ -273,5 +273,4 @@
     </table>
 </div>
 @endsection
-
 

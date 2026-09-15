@@ -152,13 +152,15 @@
     .official-form-appendix,
     .header-appendix,
     .header-title {
-        font-size: 9pt !important;
+        font-size: 16pt !important;
+        font-style: italic !important;
         margin-bottom: 1mm !important;
         line-height: 1.1 !important;
     }
 
     .official-form-appendix {
-        font-size: 8.5pt !important;
+        font-size: 16pt !important;
+        font-style: italic !important;
         line-height: 1 !important;
     }
 
@@ -324,4 +326,3 @@
         break-before: auto !important;
     }
 }
-

@@ -62,7 +62,7 @@
 @section('content')
 <div class="report-page po-container">
     <div style="text-align: center; margin-bottom: 4px; position: relative;">
-        <div style="position: absolute; top: 0; right: 0; font-size: 9pt; font-weight: bold; font-style: italic;">Appendix 6.1</div>
+        <div style="position: absolute; top: 0; right: 0; font-size: 16pt; font-weight: bold; font-style: italic;">Appendix 6.1</div>
         <h1 style="font-size: 11.5pt; font-weight: bold; margin: 0 0 2px 0; letter-spacing: 0.3px;">PURCHASE ORDER</h1>
         <div style="font-size: 9.5pt; text-decoration: underline; font-weight: bold;">{{ data_get($po, 'entity_name') ?? data_get($po, 'entityName') ?? 'UNIVERSITY OF CAMARINES NORTE' }}</div>
         <div style="font-size: 8pt; font-style: italic; color: #444;">{{ data_get($po, 'entity_address') ?? 'lot 8, F. Pimentel' }}</div>
@@ -222,5 +222,4 @@
     </table>
 </div>
 @endsection
-
 

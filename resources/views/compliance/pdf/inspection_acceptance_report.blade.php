@@ -65,7 +65,7 @@
 
 @section('content')
 <div class="report-page iar-container">
-    <div style="text-align: right; font-style: italic; font-size: 9pt; margin-bottom: 1mm;">Appendix 64</div>
+    <div style="text-align: right; font-style: italic; font-size: 16pt; margin-bottom: 1mm;">Appendix 64</div>
     <div class="official-title" style="margin-bottom: 1.2mm; letter-spacing: 0.3px; text-align: center; font-weight: bold; font-size: 11.5pt;">INSPECTION AND ACCEPTANCE REPORT</div>
 
     {{-- Info Row (Entity/Fund) --}}
@@ -185,5 +185,4 @@
     </table>
 </div>
 @endsection
-
 

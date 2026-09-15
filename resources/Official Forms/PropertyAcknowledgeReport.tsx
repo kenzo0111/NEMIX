@@ -108,7 +108,7 @@ export const PropertyAcknowledgmentReceipt: React.FC<PropertyAcknowledgmentRecei
         .sign-line { border-top: 1px solid #000; width: 85%; margin: 2px auto 0; display: block; }
         
         /* Additional classes for inline styles */
-        .float-right { float: right; font-size: 9pt; font-style: italic; }
+        .float-right { float: right; font-size: 16pt; font-style: italic; }
         .clear-both { clear: both; }
         .title-margin { margin: 1px 0 3px 0; font-size: 11.5pt; font-weight: bold; letter-spacing: 0.3px; }
         .meta-margin { margin-bottom: 4px; }

@@ -79,7 +79,7 @@ export const InspectionAcceptanceReport: React.FC<InspectionAcceptanceReportProp
         }
 
         /* Titles */
-        .header-title { text-align: right; font-style: italic; font-size: 9pt; margin-bottom: 1mm; line-height: 1.1; }
+        .header-title { text-align: right; font-style: italic; font-size: 16pt; margin-bottom: 1mm; line-height: 1.1; }
         .main-title { text-align: center; font-weight: bold; font-size: 11.5pt; margin-bottom: 1.2mm; letter-spacing: 0.3px; line-height: 1.15; }
 
         /* Tables */

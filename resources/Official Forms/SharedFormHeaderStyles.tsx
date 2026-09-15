@@ -8,7 +8,8 @@ export const SharedFormHeaderStyles: React.FC = () => (
     .official-form-appendix {
       text-align: right;
       font-weight: 600;
-      font-size: 8.5pt;
+      font-style: italic;
+      font-size: 16pt;
       line-height: 1;
     }
     .official-form-title-row {

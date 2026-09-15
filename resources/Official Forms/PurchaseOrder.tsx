@@ -95,7 +95,7 @@ export const PurchaseOrder: React.FC<PurchaseOrderProps> = (props) => {
             box-sizing: border-box;
         }
         .po-doc { background: #fff; padding: 4px 6px; box-sizing: border-box; position: relative; }
-        .annex-label { position: absolute; top: 4px; right: 8px; font-size: 9pt; font-weight: 700; color: #000; font-style: italic; }
+        .annex-label { position: absolute; top: 4px; right: 8px; font-size: 16pt; font-weight: 700; color: #000; font-style: italic; }
         table { border-collapse: collapse; width: 100%; font-size: 8pt; }
         td { vertical-align: top; padding: 2px 3px; line-height: 1.1; }
         

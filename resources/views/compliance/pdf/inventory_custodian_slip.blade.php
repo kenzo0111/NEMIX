@@ -87,7 +87,7 @@
 
 @section('content')
 <div class="report-page ics-container">
-    <div style="margin-bottom: 2px; text-align: right; font-style: italic; font-weight: bold; font-size: 9pt;">
+    <div style="margin-bottom: 2px; text-align: right; font-style: italic; font-weight: bold; font-size: 16pt;">
         Appendix 59
     </div>
 
@@ -215,5 +215,4 @@
     </table>
 </div>
 @endsection
-
 

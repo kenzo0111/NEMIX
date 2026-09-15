@@ -20,7 +20,7 @@
     }
 
     .mr-header { margin-bottom: 1.5mm; width: 100%; }
-    .mr-appendix { text-align: right; font-weight: bold; font-size: 8.5pt; line-height: 1; }
+    .mr-appendix { text-align: right; font-weight: bold; font-style: italic; font-size: 16pt; line-height: 1; }
     .mr-title-row { min-height: 8mm; padding: 1mm 0; line-height: 1.05; text-align: center; }
     .mr-title { margin: 0; font-size: 12pt; font-weight: bold; line-height: 1.05; text-align: center; }
     .mr-subtitle { margin-top: 0.5mm; font-size: 9pt; line-height: 1; text-align: center; }

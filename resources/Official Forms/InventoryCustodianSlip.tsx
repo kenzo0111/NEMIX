@@ -123,7 +123,7 @@ export const InventoryCustodianSlip: React.FC<InventoryCustodianSlipProps> = ({
         .not-found-msg { text-align: center; padding: 20px 10px; color: #666; }
         
         /* Additional classes for inline styles */
-        .float-right { float: right; font-size: 9pt; font-style: italic; }
+        .float-right { float: right; font-size: 16pt; font-style: italic; }
         .clear-both { clear: both; }
         .title { margin: 1px 0 3px 0; font-size: 11.5pt; font-weight: bold; letter-spacing: 0.3px; }
         .not-found-main { font-size: 11pt; margin-bottom: 6px; }

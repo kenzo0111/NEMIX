@@ -20,7 +20,7 @@
     }
 
     .rpci-header { margin-bottom: 1.5mm; width: 100%; }
-    .rpci-appendix { text-align: right; font-weight: bold; font-size: 8.5pt; line-height: 1; }
+    .rpci-appendix { text-align: right; font-weight: bold; font-style: italic; font-size: 16pt; line-height: 1; }
     .rpci-title-row { min-height: 8mm; padding: 1mm 0; line-height: 1.05; text-align: center; }
     .rpci-title { margin: 0; font-size: 12pt; font-weight: bold; line-height: 1.05; text-align: center; }
 

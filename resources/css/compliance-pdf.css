@@ -53,15 +53,15 @@
     text-align: right;
     font-style: italic;
     font-weight: bold;
-    font-size: 9pt;
+    font-size: 16pt;
     margin-bottom: 1mm;
     line-height: 1.1;
 }
 
 .official-form-appendix {
-    font-style: normal;
+    font-style: italic;
     font-weight: 600;
-    font-size: 8.5pt;
+    font-size: 16pt;
     line-height: 1;
 }
 
