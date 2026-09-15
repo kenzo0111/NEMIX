@@ -70,6 +70,16 @@
         padding: 0.8mm 1mm;
     }
 
+    .rsmi-continuation-table {
+        margin-top: 0;
+        border-top: none;
+    }
+
+    .rsmi-continuation-table > tbody > tr:first-child > td,
+    .rsmi-continuation-table > thead > tr:first-child > th {
+        border-top: none;
+    }
+
     .empty-row td {
         height: 4mm !important;
         min-height: 4mm !important;
@@ -217,47 +227,57 @@
     {{-- Top Info Grid --}}
     <table class="rsmi-top-info">
         <colgroup>
-            <col width="52%" style="width: 52%;">
-            <col width="3.5%" style="width: 3.5%;">
-            <col width="44.5%" style="width: 44.5%;">
+            <col width="12%" style="width: 12%;">
+            <col width="40%" style="width: 40%;">
+            <col width="4%" style="width: 4%;">
+            <col width="12%" style="width: 12%;">
+            <col width="32%" style="width: 32%;">
         </colgroup>
         <tbody>
             <tr>
-                <td style="padding: 0;">
-                    <table class="rsmi-field-group"><tbody>
-                        <tr><td width="33%" class="rsmi-field-label">Entity Name:</td><td width="67%" class="rsmi-field-value">{{ $entityName }}</td></tr>
-                        <tr><td width="33%" class="rsmi-field-label">Fund Cluster:</td><td width="67%" class="rsmi-field-value">{{ $fundCluster }}</td></tr>
-                    </tbody></table>
-                </td>
-                <td></td>
-                <td style="padding: 0;">
-                    <table class="rsmi-field-group"><tbody>
-                        <tr><td width="33%" class="rsmi-field-label">Serial No. :</td><td width="67%" class="rsmi-field-value">{{ $serialNo }}</td></tr>
-                        <tr><td width="33%" class="rsmi-field-label">Date :</td><td width="67%" class="rsmi-field-value">{{ $displayDate }}</td></tr>
-                    </tbody></table>
-                </td>
+                <td width="12%" style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Entity Name:</td>
+                <td width="40%" style="border-bottom: 1px solid #000000; padding: 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $entityName }}</td>
+                <td width="4%">&nbsp;</td>
+                <td width="12%" style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Serial No. :</td>
+                <td width="32%" style="border-bottom: 1px solid #000000; padding: 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $serialNo }}</td>
+            </tr>
+            <tr>
+                <td width="12%" style="font-weight: bold; white-space: nowrap; padding: 3px 0 1.5px 0;">Fund Cluster:</td>
+                <td width="40%" style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $fundCluster }}</td>
+                <td width="4%">&nbsp;</td>
+                <td width="12%" style="font-weight: bold; white-space: nowrap; padding: 3px 0 1.5px 0;">Date :</td>
+                <td width="32%" style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $displayDate }}</td>
             </tr>
         </tbody>
     </table>
 
-    {{-- Main 9-Column Grid Table --}}
+    {{-- Main Grid Section Labels --}}
     <table class="main-table">
         <colgroup>
-            <col width="8%" style="width: 8%;">  {{-- C1: RIS No. --}}
-            <col width="10%" style="width: 10%;"> {{-- C2: RCC --}}
-            <col width="14%" style="width: 14%;"> {{-- C3: Stock No. --}}
-            <col width="25%" style="width: 25%;"> {{-- C4: Item --}}
-            <col width="6%" style="width: 6%;">  {{-- C5: Unit --}}
-            <col width="8%" style="width: 8%;">  {{-- C6: Qty Issued --}}
-            <col width="11%" style="width: 11%;"> {{-- C7: Unit Cost --}}
-            <col width="11%" style="width: 11%;"> {{-- C8: Amount --}}
-            <col width="7%" style="width: 7%;">  {{-- C9: UACS --}}
+            <col width="71%" style="width: 71%;">
+            <col width="29%" style="width: 29%;">
+        </colgroup>
+        <tbody>
+            <tr>
+                <td width="71%" class="header-italic text-center">To be filled up by the Supply and/or Property Division/Unit</td>
+                <td width="29%" class="header-italic text-center">To be filled up by the Accounting Division/Unit</td>
+            </tr>
+        </tbody>
+    </table>
+
+    {{-- Main Items Grid --}}
+    <table class="main-table rsmi-continuation-table">
+        <colgroup>
+            <col width="8%" style="width: 8%;">
+            <col width="10%" style="width: 10%;">
+            <col width="14%" style="width: 14%;">
+            <col width="25%" style="width: 25%;">
+            <col width="6%" style="width: 6%;">
+            <col width="8%" style="width: 8%;">
+            <col width="11%" style="width: 11%;">
+            <col width="18%" style="width: 18%;">
         </colgroup>
         <thead>
-            <tr>
-                <th width="71%" colspan="6" class="header-italic">To be filled up by the Supply and/or Property Division/Unit</th>
-                <th width="29%" colspan="3" class="header-italic">To be filled up by the Accounting Division/Unit</th>
-            </tr>
             <tr>
                 <th width="8%">RIS No.</th>
                 <th width="10%">Responsibility<br>Center Code</th>
@@ -266,7 +286,7 @@
                 <th width="6%">Unit</th>
                 <th width="8%">Quantity<br>Issued</th>
                 <th width="11%">Unit Cost</th>
-                <th width="18%" colspan="2">Amount</th>
+                <th width="18%">Amount</th>
             </tr>
         </thead>
         <tbody>
@@ -277,25 +297,25 @@
                     @php $totalRenderedRows++; @endphp
                     <tr>
                         @if($itemIdx === 0)
-                            <td class="text-center rsmi-group-cell" rowspan="{{ count($group['items']) }}">
+                            <td width="8%" class="text-center rsmi-group-cell" rowspan="{{ count($group['items']) }}">
                                 {{ data_get($group, 'risNo') ?: '' }}
                             </td>
-                            <td class="responsibility-center-code text-center rsmi-group-cell" rowspan="{{ count($group['items']) }}">
+                            <td width="10%" class="responsibility-center-code text-center rsmi-group-cell" rowspan="{{ count($group['items']) }}">
                                 {{ data_get($group, 'displayCode') ?: '' }}
                             </td>
                         @endif
-                        <td class="stock-no-cell">{{ data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? data_get($item, 'stockNo') ?? '' }}</td>
-                        <td class="text-left">{!! nl2br(e(data_get($item, 'itemDescription') ?? data_get($item, 'description') ?? data_get($item, 'item_name') ?? '')) !!}</td>
-                        <td class="text-center">{{ data_get($item, 'unit') ?? '' }}</td>
-                        <td class="text-right">
+                        <td width="14%" class="stock-no-cell">{{ data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? data_get($item, 'stockNo') ?? '' }}</td>
+                        <td width="25%" class="text-left">{!! nl2br(e(data_get($item, 'itemDescription') ?? data_get($item, 'description') ?? data_get($item, 'item_name') ?? '')) !!}</td>
+                        <td width="6%" class="text-center">{{ data_get($item, 'unit') ?? '' }}</td>
+                        <td width="8%" class="text-right">
                             @php $qty = data_get($item, 'quantityIssued') ?? data_get($item, 'quantity'); @endphp
                             {{ $qty !== null && $qty !== '' ? $qty : '' }}
                         </td>
-                        <td class="text-right">
+                        <td width="11%" class="text-right">
                             @php $uCost = data_get($item, 'unitCost') ?? data_get($item, 'unit_cost'); @endphp
                             <span class="rsmi-money">@if(is_numeric($uCost))₱{{ number_format((float)$uCost, 2) }}@else{{ $uCost ?? '' }}@endif</span>
                         </td>
-                        <td colspan="2" class="text-right">
+                        <td width="18%" class="text-right">
                             @php $amt = data_get($item, 'amount'); @endphp
                             <span class="rsmi-money">@if(is_numeric($amt))₱{{ number_format((float)$amt, 2) }}@else{{ $amt ?? '' }}@endif</span>
                         </td>
@@ -306,28 +326,49 @@
             {{-- Padded Empty Rows --}}
             @for($i = $totalRenderedRows; $i < $targetRowCount; $i++)
                 <tr class="empty-row">
-                    <td class="text-center">&nbsp;</td>
-                    <td class="responsibility-center-code text-center">&nbsp;</td>
-                    <td class="stock-no-cell">&nbsp;</td>
-                    <td class="text-left">&nbsp;</td>
-                    <td class="text-center">&nbsp;</td>
-                    <td class="text-right">&nbsp;</td>
-                    <td class="text-right">&nbsp;</td>
-                    <td colspan="2" class="text-right">&nbsp;</td>
+                    <td width="8%" class="text-center">&nbsp;</td>
+                    <td width="10%" class="responsibility-center-code text-center">&nbsp;</td>
+                    <td width="14%" class="stock-no-cell">&nbsp;</td>
+                    <td width="25%" class="text-left">&nbsp;</td>
+                    <td width="6%" class="text-center">&nbsp;</td>
+                    <td width="8%" class="text-right">&nbsp;</td>
+                    <td width="11%" class="text-right">&nbsp;</td>
+                    <td width="18%" class="text-right">&nbsp;</td>
                 </tr>
             @endfor
+        </tbody>
+    </table>
 
-            {{-- Lower Section: Recapitulation Headers --}}
+    {{-- Recapitulation Section Labels --}}
+    <table class="main-table rsmi-continuation-table">
+        <colgroup>
+            <col width="71%" style="width: 71%;">
+            <col width="29%" style="width: 29%;">
+        </colgroup>
+        <tbody>
             <tr class="border-bottom-bold">
-                <td colspan="6" class="text-center font-bold" style="padding: 0.6mm 1mm;">Recapitulation:</td>
-                <td colspan="3" class="text-center font-bold" style="padding: 0.6mm 1mm;">Recapitulation:</td>
+                <td width="71%" class="text-center font-bold" style="padding: 0.6mm 1mm;">Recapitulation:</td>
+                <td width="29%" class="text-center font-bold" style="padding: 0.6mm 1mm;">Recapitulation:</td>
             </tr>
+        </tbody>
+    </table>
+
+    {{-- Recapitulation Grid --}}
+    <table class="main-table rsmi-continuation-table">
+        <colgroup>
+            <col width="32%" style="width: 32%;">
+            <col width="39%" style="width: 39%;">
+            <col width="11%" style="width: 11%;">
+            <col width="11%" style="width: 11%;">
+            <col width="7%" style="width: 7%;">
+        </colgroup>
+        <tbody>
             <tr>
-                <td colspan="3" class="text-center font-bold">Stock No.</td>
-                <td colspan="3" class="text-center font-bold">Quantity</td>
-                <td class="text-center font-bold">Unit Cost</td>
-                <td class="text-center font-bold">Total Cost</td>
-                <td class="text-center font-bold">UACS Object Code</td>
+                <td width="32%" class="text-center font-bold">Stock No.</td>
+                <td width="39%" class="text-center font-bold">Quantity</td>
+                <td width="11%" class="text-center font-bold">Unit Cost</td>
+                <td width="11%" class="text-center font-bold">Total Cost</td>
+                <td width="7%" class="text-center font-bold">UACS Object Code</td>
             </tr>
 
             {{-- Lower Section: Recapitulation Rows --}}
@@ -341,21 +382,25 @@
                     $isEmptyRecap = empty($rStockNo) && empty($rQty) && empty($rUnitCost) && empty($rTotalCost);
                 @endphp
                 <tr class="{{ $isEmptyRecap ? 'empty-row' : '' }}">
-                    <td colspan="3" class="stock-no-cell">{{ $rStockNo ?? '' }}</td>
-                    <td colspan="3" class="text-center">{{ $rQty !== null && $rQty !== '' ? $rQty : '' }}</td>
-                    <td class="text-right">
+                    <td width="32%" class="stock-no-cell">{{ $rStockNo ?? '' }}</td>
+                    <td width="39%" class="text-center">{{ $rQty !== null && $rQty !== '' ? $rQty : '' }}</td>
+                    <td width="11%" class="text-right">
                         <span class="rsmi-money">@if(is_numeric($rUnitCost))₱{{ number_format((float)$rUnitCost, 2) }}@else{{ $rUnitCost ?? '' }}@endif</span>
                     </td>
-                    <td class="text-right">
+                    <td width="11%" class="text-right">
                         <span class="rsmi-money">@if(is_numeric($rTotalCost))₱{{ number_format((float)$rTotalCost, 2) }}@else{{ $rTotalCost ?? '' }}@endif</span>
                     </td>
-                    <td class="text-center">{{ $rUacs ?? '' }}</td>
+                    <td width="7%" class="text-center">{{ $rUacs ?? '' }}</td>
                 </tr>
             @endforeach
+        </tbody>
+    </table>
 
-            {{-- Footer / Signatures --}}
+    {{-- Footer / Signatures --}}
+    <table class="main-table rsmi-continuation-table">
+        <tbody>
             <tr class="rsmi-signatures">
-                <td colspan="9" style="padding: 0; border: none; border-top: 1.5px solid #000000;">
+                <td style="padding: 0; border: none;">
                     <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
                         <colgroup>
                             <col width="50%" style="width: 50%;">
@@ -363,7 +408,7 @@
                         </colgroup>
                         <tbody>
                             <tr>
-                                <td class="footer-cell" style="border: none; border-right: 1.5px solid #000000; vertical-align: top; padding: 3px 8px;">
+                                <td width="50%" class="footer-cell" style="border: none; border-right: 1.5px solid #000000; vertical-align: top; padding: 3px 8px;">
                                     <div class="certify-text">I hereby certify to the correctness of the above information.</div>
                                     <table style="width: 85%; margin: 0 auto; border-collapse: collapse;">
                                         <tbody>
@@ -380,7 +425,7 @@
                                         </tbody>
                                     </table>
                                 </td>
-                                <td class="footer-cell" style="border: none; vertical-align: top; padding: 3px 8px;">
+                                <td width="50%" class="footer-cell" style="border: none; vertical-align: top; padding: 3px 8px;">
                                     <div class="posted-text">Posted by:</div>
                                     <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
                                         <colgroup>
@@ -390,20 +435,20 @@
                                         </colgroup>
                                         <tbody>
                                             <tr>
-                                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; line-height: 1.15; {{ $getNameStyle($accountingStaffName, '8.5pt') }}">
+                                                <td width="68%" style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; line-height: 1.15; {{ $getNameStyle($accountingStaffName, '8.5pt') }}">
                                                     {{ $accountingStaffName }}
                                                 </td>
-                                                <td style="border: none;">&nbsp;</td>
-                                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; text-align: center; font-size: 8pt; line-height: 1.15; white-space: nowrap;">
+                                                <td width="4%" style="border: none;">&nbsp;</td>
+                                                <td width="28%" style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; text-align: center; font-size: 8pt; line-height: 1.15; white-space: nowrap;">
                                                     {{ $accountingDateDisplay }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td style="border: none; text-align: center; font-size: 7pt; padding-top: 2px; line-height: 1.1;">
+                                                <td width="68%" style="border: none; text-align: center; font-size: 7pt; padding-top: 2px; line-height: 1.1;">
                                                     <span style="white-space: nowrap;">Signature over Printed Name of</span><br><span style="white-space: nowrap;">Designated Accounting Staff</span>
                                                 </td>
-                                                <td style="border: none;">&nbsp;</td>
-                                                <td style="border: none; text-align: center; font-size: 7pt; padding-top: 2px; line-height: 1.1; vertical-align: top;">
+                                                <td width="4%" style="border: none;">&nbsp;</td>
+                                                <td width="28%" style="border: none; text-align: center; font-size: 7pt; padding-top: 2px; line-height: 1.1; vertical-align: top;">
                                                     Date
                                                 </td>
                                             </tr>
