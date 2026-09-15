@@ -48,12 +48,17 @@ export interface ComplianceReport {
     entity_name?: string | null;
     entityName?: string | null;
     periodType?: ReportPeriodType;
+    period_type?: ReportPeriodType;
     date?: string | null;
     dateValue?: string | null;
     startDate?: string | null;
+    start_date?: string | null;
     endDate?: string | null;
+    end_date?: string | null;
     selectedMonth?: number | null;
+    selected_month?: number | null;
     selectedYear?: number | null;
+    selected_year?: number | null;
     generatedDate?: string | null;
     createdAt?: string | null;
     created_at?: string | null;
