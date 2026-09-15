@@ -7,6 +7,7 @@ import AddSignatoryDialog from './AddSignatoryDialog';
 interface SignatorySettingsProps {
     settings: SystemSettings;
     onChange: <K extends keyof SystemSettings>(key: K, value: SystemSettings[K]) => void;
+    onBatchChange?: (updates: Partial<SystemSettings>) => void;
     errors?: Record<string, string>;
     signatories: Signatory[];
     onAddSignatory: (newSignatory: Signatory) => void;
@@ -14,15 +15,67 @@ interface SignatorySettingsProps {
     onToast?: (type: 'success' | 'error' | 'info', message: string) => void;
 }
 
-type TargetFieldPair = {
+export type TargetFieldPair = {
     nameKey: keyof SystemSettings;
     designationKey?: keyof SystemSettings;
     idKey?: keyof SystemSettings;
 };
 
+export const SIGNATORY_TARGET_FIELDS = {
+    ris_approved_by: {
+        nameKey: 'signatories.ris_approved_by_name' as const,
+        designationKey: 'signatories.ris_approved_by_designation' as const,
+        idKey: 'signatories.ris_approved_by_id' as const,
+    },
+    ris_issued_by: {
+        nameKey: 'signatories.ris_issued_by_name' as const,
+        designationKey: 'signatories.ris_issued_by_designation' as const,
+        idKey: 'signatories.ris_issued_by_id' as const,
+    },
+    rsmi_certified_by: {
+        nameKey: 'signatories.rsmi_certified_by_name' as const,
+        designationKey: 'signatories.rsmi_certified_by_designation' as const,
+        idKey: 'signatories.rsmi_certified_by_id' as const,
+    },
+    rsmi_posted_by: {
+        nameKey: 'signatories.rsmi_posted_by_name' as const,
+        designationKey: 'signatories.rsmi_posted_by_designation' as const,
+        idKey: 'signatories.rsmi_posted_by_id' as const,
+    },
+    rpci_accountable_officer: {
+        nameKey: 'signatories.rpci_accountable_officer_name' as const,
+        designationKey: 'signatories.rpci_accountable_officer_designation' as const,
+        idKey: 'signatories.rpci_accountable_officer_id' as const,
+    },
+    rpci_committee_chair: {
+        nameKey: 'signatories.rpci_committee_chair' as const,
+        idKey: 'signatories.rpci_committee_chair_id' as const,
+    },
+    rpci_certified_by: {
+        nameKey: 'signatories.rpci_certified_by_name' as const,
+        designationKey: 'signatories.rpci_certified_by_position' as const,
+        idKey: 'signatories.rpci_certified_by_id' as const,
+    },
+    rpci_verified_by: {
+        nameKey: 'signatories.rpci_verified_by_name' as const,
+        designationKey: 'signatories.rpci_verified_by_position' as const,
+        idKey: 'signatories.rpci_verified_by_id' as const,
+    },
+    stock_card_custodian: {
+        nameKey: 'signatories.stock_card_custodian' as const,
+        idKey: 'signatories.stock_card_custodian_id' as const,
+    },
+    mor_issued_by: {
+        nameKey: 'signatories.mor_issued_by_name' as const,
+        designationKey: 'signatories.mor_issued_by_designation' as const,
+        idKey: 'signatories.mor_issued_by_id' as const,
+    },
+} satisfies Record<string, TargetFieldPair>;
+
 export default function SignatorySettings({
     settings,
     onChange,
+    onBatchChange,
     errors = {},
     signatories = [],
     onAddSignatory,
@@ -44,18 +97,44 @@ export default function SignatorySettings({
         setIsDialogOpen(true);
     };
 
+    // Unified atomic handler for changing a signatory role
+    const handleSignatoryChange = (
+        target: TargetFieldPair,
+        selected: { name: string; designation: string; id: number | null } | null
+    ) => {
+        const updates: Partial<SystemSettings> = {
+            [target.nameKey]: selected ? selected.name : '',
+        };
+
+        const idKey = target.idKey;
+        if (idKey) {
+            (updates as Record<keyof SystemSettings, any>)[idKey] = selected ? selected.id : null;
+        }
+
+        const designationKey = target.designationKey;
+        if (designationKey) {
+            (updates as Record<keyof SystemSettings, any>)[designationKey] = selected ? selected.designation : '';
+        }
+
+        if (onBatchChange) {
+            onBatchChange(updates);
+        } else {
+            Object.entries(updates).forEach(([key, val]) => {
+                onChange(key as any, val as any);
+            });
+        }
+    };
+
     // Callback when a new signatory is successfully created via modal
     const handleSignatoryCreated = (newSignatory: Signatory) => {
         onAddSignatory(newSignatory);
 
         if (activeTarget) {
-            onChange(activeTarget.nameKey, newSignatory.name as any);
-            if (activeTarget.idKey) {
-                onChange(activeTarget.idKey, newSignatory.id as any);
-            }
-            if (activeTarget.designationKey) {
-                onChange(activeTarget.designationKey, newSignatory.designation as any);
-            }
+            handleSignatoryChange(activeTarget, {
+                id: newSignatory.id,
+                name: newSignatory.name,
+                designation: newSignatory.designation,
+            });
         }
 
         if (onToast) {
@@ -65,6 +144,54 @@ export default function SignatorySettings({
 
     // Callback when user requests deleting a signatory from directory
     const handleDeleteSignatory = async (sig: Signatory) => {
+        // Pre-check if this signatory is currently selected in any field in the form state
+        const allIdKeys: (keyof SystemSettings)[] = [
+            'signatories.ris_approved_by_id',
+            'signatories.ris_issued_by_id',
+            'signatories.rsmi_certified_by_id',
+            'signatories.rsmi_posted_by_id',
+            'signatories.rpci_accountable_officer_id',
+            'signatories.rpci_committee_chair_id',
+            'signatories.rpci_certified_by_id',
+            'signatories.rpci_verified_by_id',
+            'signatories.stock_card_custodian_id',
+            'signatories.mor_issued_by_id',
+        ];
+
+        const isCurrentlyAssignedById = allIdKeys.some(
+            (k) => Number(settings[k]) === sig.id
+        );
+
+        const allNameKeys: (keyof SystemSettings)[] = [
+            'signatories.ris_approved_by_name',
+            'signatories.ris_issued_by_name',
+            'signatories.rsmi_certified_by_name',
+            'signatories.rsmi_posted_by_name',
+            'signatories.rpci_accountable_officer_name',
+            'signatories.rpci_committee_chair',
+            'signatories.rpci_certified_by_name',
+            'signatories.rpci_verified_by_name',
+            'signatories.stock_card_custodian',
+            'signatories.mor_issued_by_name',
+        ];
+
+        const isCurrentlyAssignedByName = allNameKeys.some(
+            (k) =>
+                typeof settings[k] === 'string' &&
+                (settings[k] as string).trim().toLowerCase() ===
+                    sig.name.trim().toLowerCase()
+        );
+
+        if (isCurrentlyAssignedById || isCurrentlyAssignedByName) {
+            const msg = `Cannot remove "${sig.name}" because they are currently assigned to one or more roles in System Settings. Please reassign those roles first.`;
+            if (onToast) {
+                onToast('error', msg);
+            } else {
+                alert(msg);
+            }
+            return;
+        }
+
         if (
             !window.confirm(
                 `Are you sure you want to remove "${sig.name}" from the signatories directory?`
@@ -76,26 +203,6 @@ export default function SignatorySettings({
         try {
             await axios.delete(route('admin.signatories.destroy', sig.id));
             onDeleteSignatory(sig);
-
-            // If deleted signatory is currently selected in any field, clear its ID
-            const allIdKeys: (keyof SystemSettings)[] = [
-                'signatories.ris_approved_by_id',
-                'signatories.ris_issued_by_id',
-                'signatories.rsmi_certified_by_id',
-                'signatories.rsmi_posted_by_id',
-                'signatories.rpci_accountable_officer_id',
-                'signatories.rpci_committee_chair_id',
-                'signatories.rpci_certified_by_id',
-                'signatories.rpci_verified_by_id',
-                'signatories.stock_card_custodian_id',
-                'signatories.mor_issued_by_id',
-            ];
-
-            allIdKeys.forEach((key) => {
-                if (settings[key] === sig.id) {
-                    onChange(key, null as any);
-                }
-            });
 
             if (onToast) {
                 onToast('info', `Signatory "${sig.name}" removed from directory.`);
@@ -137,24 +244,12 @@ export default function SignatorySettings({
                             hasError={Boolean(errors['settings.signatories.ris_approved_by_name'])}
                             placeholder="Search or add approving officer..."
                             onCreateSignatory={(name) =>
-                                handleCreateSignatory(name, {
-                                    nameKey: 'signatories.ris_approved_by_name',
-                                    designationKey: 'signatories.ris_approved_by_designation',
-                                    idKey: 'signatories.ris_approved_by_id',
-                                })
+                                handleCreateSignatory(name, SIGNATORY_TARGET_FIELDS.ris_approved_by)
                             }
                             onDeleteSignatory={handleDeleteSignatory}
-                            onChange={(selected) => {
-                                if (!selected) {
-                                    onChange('signatories.ris_approved_by_name', '');
-                                    onChange('signatories.ris_approved_by_id', null);
-                                    onChange('signatories.ris_approved_by_designation', '');
-                                } else {
-                                    onChange('signatories.ris_approved_by_name', selected.name);
-                                    onChange('signatories.ris_approved_by_id', selected.id);
-                                    onChange('signatories.ris_approved_by_designation', selected.designation);
-                                }
-                            }}
+                            onChange={(selected) =>
+                                handleSignatoryChange(SIGNATORY_TARGET_FIELDS.ris_approved_by, selected)
+                            }
                         />
                         {errors['settings.signatories.ris_approved_by_name'] && (
                             <p className="text-xs text-red-600 mt-1">
@@ -196,24 +291,12 @@ export default function SignatorySettings({
                             hasError={Boolean(errors['settings.signatories.ris_issued_by_name'])}
                             placeholder="Search or add issuing custodian..."
                             onCreateSignatory={(name) =>
-                                handleCreateSignatory(name, {
-                                    nameKey: 'signatories.ris_issued_by_name',
-                                    designationKey: 'signatories.ris_issued_by_designation',
-                                    idKey: 'signatories.ris_issued_by_id',
-                                })
+                                handleCreateSignatory(name, SIGNATORY_TARGET_FIELDS.ris_issued_by)
                             }
                             onDeleteSignatory={handleDeleteSignatory}
-                            onChange={(selected) => {
-                                if (!selected) {
-                                    onChange('signatories.ris_issued_by_name', '');
-                                    onChange('signatories.ris_issued_by_id', null);
-                                    onChange('signatories.ris_issued_by_designation', '');
-                                } else {
-                                    onChange('signatories.ris_issued_by_name', selected.name);
-                                    onChange('signatories.ris_issued_by_id', selected.id);
-                                    onChange('signatories.ris_issued_by_designation', selected.designation);
-                                }
-                            }}
+                            onChange={(selected) =>
+                                handleSignatoryChange(SIGNATORY_TARGET_FIELDS.ris_issued_by, selected)
+                            }
                         />
                         {errors['settings.signatories.ris_issued_by_name'] && (
                             <p className="text-xs text-red-600 mt-1">
@@ -305,24 +388,12 @@ export default function SignatorySettings({
                             hasError={Boolean(errors['settings.signatories.rsmi_certified_by_name'])}
                             placeholder="Search or add certifying officer..."
                             onCreateSignatory={(name) =>
-                                handleCreateSignatory(name, {
-                                    nameKey: 'signatories.rsmi_certified_by_name',
-                                    designationKey: 'signatories.rsmi_certified_by_designation',
-                                    idKey: 'signatories.rsmi_certified_by_id',
-                                })
+                                handleCreateSignatory(name, SIGNATORY_TARGET_FIELDS.rsmi_certified_by)
                             }
                             onDeleteSignatory={handleDeleteSignatory}
-                            onChange={(selected) => {
-                                if (!selected) {
-                                    onChange('signatories.rsmi_certified_by_name', '');
-                                    onChange('signatories.rsmi_certified_by_id', null);
-                                    onChange('signatories.rsmi_certified_by_designation', '');
-                                } else {
-                                    onChange('signatories.rsmi_certified_by_name', selected.name);
-                                    onChange('signatories.rsmi_certified_by_id', selected.id);
-                                    onChange('signatories.rsmi_certified_by_designation', selected.designation);
-                                }
-                            }}
+                            onChange={(selected) =>
+                                handleSignatoryChange(SIGNATORY_TARGET_FIELDS.rsmi_certified_by, selected)
+                            }
                         />
                         {errors['settings.signatories.rsmi_certified_by_name'] && (
                             <p className="text-xs text-red-600 mt-1">
@@ -364,24 +435,12 @@ export default function SignatorySettings({
                             hasError={Boolean(errors['settings.signatories.rsmi_posted_by_name'])}
                             placeholder="Search or add accounting representative..."
                             onCreateSignatory={(name) =>
-                                handleCreateSignatory(name, {
-                                    nameKey: 'signatories.rsmi_posted_by_name',
-                                    designationKey: 'signatories.rsmi_posted_by_designation',
-                                    idKey: 'signatories.rsmi_posted_by_id',
-                                })
+                                handleCreateSignatory(name, SIGNATORY_TARGET_FIELDS.rsmi_posted_by)
                             }
                             onDeleteSignatory={handleDeleteSignatory}
-                            onChange={(selected) => {
-                                if (!selected) {
-                                    onChange('signatories.rsmi_posted_by_name', '');
-                                    onChange('signatories.rsmi_posted_by_id', null);
-                                    onChange('signatories.rsmi_posted_by_designation', '');
-                                } else {
-                                    onChange('signatories.rsmi_posted_by_name', selected.name);
-                                    onChange('signatories.rsmi_posted_by_id', selected.id);
-                                    onChange('signatories.rsmi_posted_by_designation', selected.designation);
-                                }
-                            }}
+                            onChange={(selected) =>
+                                handleSignatoryChange(SIGNATORY_TARGET_FIELDS.rsmi_posted_by, selected)
+                            }
                         />
                         {errors['settings.signatories.rsmi_posted_by_name'] && (
                             <p className="text-xs text-red-600 mt-1">
@@ -439,24 +498,12 @@ export default function SignatorySettings({
                             hasError={Boolean(errors['settings.signatories.rpci_accountable_officer_name'])}
                             placeholder="Search or add accountable officer..."
                             onCreateSignatory={(name) =>
-                                handleCreateSignatory(name, {
-                                    nameKey: 'signatories.rpci_accountable_officer_name',
-                                    designationKey: 'signatories.rpci_accountable_officer_designation',
-                                    idKey: 'signatories.rpci_accountable_officer_id',
-                                })
+                                handleCreateSignatory(name, SIGNATORY_TARGET_FIELDS.rpci_accountable_officer)
                             }
                             onDeleteSignatory={handleDeleteSignatory}
-                            onChange={(selected) => {
-                                if (!selected) {
-                                    onChange('signatories.rpci_accountable_officer_name', '');
-                                    onChange('signatories.rpci_accountable_officer_id', null);
-                                    onChange('signatories.rpci_accountable_officer_designation', '');
-                                } else {
-                                    onChange('signatories.rpci_accountable_officer_name', selected.name);
-                                    onChange('signatories.rpci_accountable_officer_id', selected.id);
-                                    onChange('signatories.rpci_accountable_officer_designation', selected.designation);
-                                }
-                            }}
+                            onChange={(selected) =>
+                                handleSignatoryChange(SIGNATORY_TARGET_FIELDS.rpci_accountable_officer, selected)
+                            }
                         />
                         {errors['settings.signatories.rpci_accountable_officer_name'] && (
                             <p className="text-xs text-red-600 mt-1">
@@ -498,21 +545,12 @@ export default function SignatorySettings({
                             hasError={Boolean(errors['settings.signatories.rpci_committee_chair'])}
                             placeholder="Search or add committee chair..."
                             onCreateSignatory={(name) =>
-                                handleCreateSignatory(name, {
-                                    nameKey: 'signatories.rpci_committee_chair',
-                                    idKey: 'signatories.rpci_committee_chair_id',
-                                })
+                                handleCreateSignatory(name, SIGNATORY_TARGET_FIELDS.rpci_committee_chair)
                             }
                             onDeleteSignatory={handleDeleteSignatory}
-                            onChange={(selected) => {
-                                if (!selected) {
-                                    onChange('signatories.rpci_committee_chair', '');
-                                    onChange('signatories.rpci_committee_chair_id', null);
-                                } else {
-                                    onChange('signatories.rpci_committee_chair', selected.name);
-                                    onChange('signatories.rpci_committee_chair_id', selected.id);
-                                }
-                            }}
+                            onChange={(selected) =>
+                                handleSignatoryChange(SIGNATORY_TARGET_FIELDS.rpci_committee_chair, selected)
+                            }
                         />
                         {errors['settings.signatories.rpci_committee_chair'] && (
                             <p className="text-xs text-red-600 mt-1">
@@ -533,24 +571,12 @@ export default function SignatorySettings({
                             hasError={Boolean(errors['settings.signatories.rpci_certified_by_name'])}
                             placeholder="Search or add certification official..."
                             onCreateSignatory={(name) =>
-                                handleCreateSignatory(name, {
-                                    nameKey: 'signatories.rpci_certified_by_name',
-                                    designationKey: 'signatories.rpci_certified_by_position',
-                                    idKey: 'signatories.rpci_certified_by_id',
-                                })
+                                handleCreateSignatory(name, SIGNATORY_TARGET_FIELDS.rpci_certified_by)
                             }
                             onDeleteSignatory={handleDeleteSignatory}
-                            onChange={(selected) => {
-                                if (!selected) {
-                                    onChange('signatories.rpci_certified_by_name', '');
-                                    onChange('signatories.rpci_certified_by_id', null);
-                                    onChange('signatories.rpci_certified_by_position', '');
-                                } else {
-                                    onChange('signatories.rpci_certified_by_name', selected.name);
-                                    onChange('signatories.rpci_certified_by_id', selected.id);
-                                    onChange('signatories.rpci_certified_by_position', selected.designation);
-                                }
-                            }}
+                            onChange={(selected) =>
+                                handleSignatoryChange(SIGNATORY_TARGET_FIELDS.rpci_certified_by, selected)
+                            }
                         />
                         {errors['settings.signatories.rpci_certified_by_name'] && (
                             <p className="text-xs text-red-600 mt-1">
@@ -592,24 +618,12 @@ export default function SignatorySettings({
                             hasError={Boolean(errors['settings.signatories.rpci_verified_by_name'])}
                             placeholder="Search or add verification official..."
                             onCreateSignatory={(name) =>
-                                handleCreateSignatory(name, {
-                                    nameKey: 'signatories.rpci_verified_by_name',
-                                    designationKey: 'signatories.rpci_verified_by_position',
-                                    idKey: 'signatories.rpci_verified_by_id',
-                                })
+                                handleCreateSignatory(name, SIGNATORY_TARGET_FIELDS.rpci_verified_by)
                             }
                             onDeleteSignatory={handleDeleteSignatory}
-                            onChange={(selected) => {
-                                if (!selected) {
-                                    onChange('signatories.rpci_verified_by_name', '');
-                                    onChange('signatories.rpci_verified_by_id', null);
-                                    onChange('signatories.rpci_verified_by_position', '');
-                                } else {
-                                    onChange('signatories.rpci_verified_by_name', selected.name);
-                                    onChange('signatories.rpci_verified_by_id', selected.id);
-                                    onChange('signatories.rpci_verified_by_position', selected.designation);
-                                }
-                            }}
+                            onChange={(selected) =>
+                                handleSignatoryChange(SIGNATORY_TARGET_FIELDS.rpci_verified_by, selected)
+                            }
                         />
                         {errors['settings.signatories.rpci_verified_by_name'] && (
                             <p className="text-xs text-red-600 mt-1">
@@ -665,21 +679,12 @@ export default function SignatorySettings({
                         hasError={Boolean(errors['settings.signatories.stock_card_custodian'])}
                         placeholder="Search or add stock card custodian..."
                         onCreateSignatory={(name) =>
-                            handleCreateSignatory(name, {
-                                nameKey: 'signatories.stock_card_custodian',
-                                idKey: 'signatories.stock_card_custodian_id',
-                            })
+                            handleCreateSignatory(name, SIGNATORY_TARGET_FIELDS.stock_card_custodian)
                         }
                         onDeleteSignatory={handleDeleteSignatory}
-                        onChange={(selected) => {
-                            if (!selected) {
-                                onChange('signatories.stock_card_custodian', '');
-                                onChange('signatories.stock_card_custodian_id', null);
-                            } else {
-                                onChange('signatories.stock_card_custodian', selected.name);
-                                onChange('signatories.stock_card_custodian_id', selected.id);
-                            }
-                        }}
+                        onChange={(selected) =>
+                            handleSignatoryChange(SIGNATORY_TARGET_FIELDS.stock_card_custodian, selected)
+                        }
                     />
                     {errors['settings.signatories.stock_card_custodian'] && (
                         <p className="text-xs text-red-600 mt-1">
@@ -715,24 +720,12 @@ export default function SignatorySettings({
                             hasError={Boolean(errors['settings.signatories.mor_issued_by_name'])}
                             placeholder="Search or add property custodian..."
                             onCreateSignatory={(name) =>
-                                handleCreateSignatory(name, {
-                                    nameKey: 'signatories.mor_issued_by_name',
-                                    designationKey: 'signatories.mor_issued_by_designation',
-                                    idKey: 'signatories.mor_issued_by_id',
-                                })
+                                handleCreateSignatory(name, SIGNATORY_TARGET_FIELDS.mor_issued_by)
                             }
                             onDeleteSignatory={handleDeleteSignatory}
-                            onChange={(selected) => {
-                                if (!selected) {
-                                    onChange('signatories.mor_issued_by_name', '');
-                                    onChange('signatories.mor_issued_by_id', null);
-                                    onChange('signatories.mor_issued_by_designation', '');
-                                } else {
-                                    onChange('signatories.mor_issued_by_name', selected.name);
-                                    onChange('signatories.mor_issued_by_id', selected.id);
-                                    onChange('signatories.mor_issued_by_designation', selected.designation);
-                                }
-                            }}
+                            onChange={(selected) =>
+                                handleSignatoryChange(SIGNATORY_TARGET_FIELDS.mor_issued_by, selected)
+                            }
                         />
                         {errors['settings.signatories.mor_issued_by_name'] && (
                             <p className="text-xs text-red-600 mt-1">

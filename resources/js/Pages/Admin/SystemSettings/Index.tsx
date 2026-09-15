@@ -121,15 +121,29 @@ export default function Index({
         return () => clearTimeout(timer);
     }, [toast]);
 
-    // Generic setting field change handler
+    // Generic setting field change handler with functional updater to avoid stale closures
     const handleFieldChange = <K extends keyof SystemSettings>(
         key: K,
         value: SystemSettings[K]
     ) => {
-        setData('settings', {
-            ...data.settings,
-            [key]: value,
-        });
+        setData((prev) => ({
+            ...prev,
+            settings: {
+                ...prev.settings,
+                [key]: value,
+            },
+        }));
+    };
+
+    // Atomic batch updates for related fields (e.g. signatory ID, name, designation)
+    const handleBatchChange = (updates: Partial<SystemSettings>) => {
+        setData((prev) => ({
+            ...prev,
+            settings: {
+                ...prev.settings,
+                ...updates,
+            },
+        }));
     };
 
     // Client-side cross-validation check
@@ -259,6 +273,7 @@ export default function Index({
                                 <SignatorySettings
                                     settings={data.settings}
                                     onChange={handleFieldChange}
+                                    onBatchChange={handleBatchChange}
                                     errors={errors}
                                     signatories={signatoriesList}
                                     onAddSignatory={handleAddSignatory}

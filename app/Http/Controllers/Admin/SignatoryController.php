@@ -76,6 +76,27 @@ class SignatoryController extends Controller
     {
         $this->authorizeSystemAdmin($request, 'system.settings.update');
 
+        // Safeguard: Check if currently assigned to any active role in system_settings
+        $idMatches = \App\Models\SystemSetting::where('category', 'signatories')
+            ->where('key', 'like', '%_id')
+            ->where('value', json_encode($signatory->id))
+            ->exists();
+
+        $nameMatches = \App\Models\SystemSetting::where('category', 'signatories')
+            ->where(function ($q) {
+                $q->where('key', 'like', '%_name')
+                    ->orWhere('key', 'signatories.rpci_committee_chair')
+                    ->orWhere('key', 'signatories.stock_card_custodian');
+            })
+            ->where('value', json_encode($signatory->name))
+            ->exists();
+
+        if ($idMatches || $nameMatches) {
+            return response()->json([
+                'message' => "Cannot remove \"{$signatory->name}\" because they are currently assigned to one or more active roles in System Settings. Please reassign those roles before removing this signatory.",
+            ], 422);
+        }
+
         $signatory->delete();
 
         return response()->json([

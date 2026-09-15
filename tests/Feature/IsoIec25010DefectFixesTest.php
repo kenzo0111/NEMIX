@@ -188,6 +188,36 @@ class IsoIec25010DefectFixesTest extends TestCase
             'created_by' => $this->adminUser->id,
         ]);
 
+        Receiving::create([
+            'item_id' => $itemA->id,
+            'supplier_id' => $this->supplier->id,
+            'supplier_stock_no' => 'PEN-BLK-005',
+            'quantity' => 100,
+            'unit_cost' => 10.00,
+            'date_received' => '2026-09-01',
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        Receiving::create([
+            'item_id' => $itemB->id,
+            'supplier_id' => $this->supplier->id,
+            'supplier_stock_no' => 'PAP-A4-80G',
+            'quantity' => 50,
+            'unit_cost' => 200.00,
+            'date_received' => '2026-09-01',
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        Receiving::create([
+            'item_id' => $itemC->id,
+            'supplier_id' => $this->supplier->id,
+            'supplier_stock_no' => 'MRK-BLU-002',
+            'quantity' => 20,
+            'unit_cost' => 35.00,
+            'date_received' => '2026-09-01',
+            'created_by' => $this->adminUser->id,
+        ]);
+
         $issuance = Issuance::create([
             'ris_number' => 'RIS-2026-09-0099',
             'item_id' => $itemA->id,

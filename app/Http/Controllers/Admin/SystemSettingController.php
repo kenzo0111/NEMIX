@@ -88,13 +88,19 @@ class SystemSettingController extends Controller
                     if (! $setting) {
                         // Create if valid known domain setting
                         $category = explode('.', $key)[0] ?? 'general';
-                        $dataType = is_bool($val) ? 'boolean' : (is_int($val) ? 'integer' : (is_array($val) ? 'json' : 'string'));
+                        $dataType = str_ends_with($key, '_id')
+                            ? 'integer'
+                            : (is_bool($val) ? 'boolean' : (is_int($val) ? 'integer' : (is_array($val) ? 'json' : 'string')));
                         $label = ucwords(str_replace(['.', '_'], ' ', $key));
+
+                        $encodedNewValue = (str_ends_with($key, '_id') || $dataType === 'integer')
+                            ? ((is_null($val) || $val === '') ? json_encode(null) : json_encode((int) $val))
+                            : (is_null($val) ? json_encode(null) : json_encode($val));
 
                         $setting = SystemSetting::create([
                             'category' => $category,
                             'key' => $key,
-                            'value' => json_encode($val),
+                            'value' => $encodedNewValue,
                             'data_type' => $dataType,
                             'label' => $label,
                             'description' => $label,
@@ -110,13 +116,18 @@ class SystemSettingController extends Controller
                     $oldVal = SystemSetting::castValue($setting->value, $setting->data_type);
 
                     // Normalize value based on type
-                    $encodedValue = match ($setting->data_type) {
-                        'integer' => json_encode((int) $val),
-                        'float' => json_encode((float) $val),
-                        'boolean' => json_encode(filter_var($val, FILTER_VALIDATE_BOOLEAN)),
-                        'json', 'array' => json_encode(is_array($val) ? $val : json_decode($val, true)),
-                        default => json_encode(trim((string) $val)),
-                    };
+                    if ($setting->data_type === 'integer' || str_ends_with($key, '_id')) {
+                        $encodedValue = (is_null($val) || $val === '') ? json_encode(null) : json_encode((int) $val);
+                    } elseif (is_null($val)) {
+                        $encodedValue = json_encode(null);
+                    } else {
+                        $encodedValue = match ($setting->data_type) {
+                            'float' => json_encode((float) $val),
+                            'boolean' => json_encode(filter_var($val, FILTER_VALIDATE_BOOLEAN)),
+                            'json', 'array' => json_encode(is_array($val) ? $val : json_decode($val, true)),
+                            default => json_encode(trim((string) $val)),
+                        };
+                    }
 
                     $setting->update([
                         'value' => $encodedValue,

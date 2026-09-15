@@ -49,12 +49,17 @@ export default function SignatorySelect({
 
     // Find current selected option by ID or name fallback
     const selectedOption: SignatoryOption | null = useMemo(() => {
-        if (valueId) {
-            const byId = options.find((opt) => opt.value === valueId);
+        const numericId =
+            valueId !== undefined && valueId !== null && Number(valueId) > 0
+                ? Number(valueId)
+                : null;
+
+        if (numericId !== null && !isNaN(numericId) && numericId > 0) {
+            const byId = options.find((opt) => Number(opt.value) === numericId);
             if (byId) return byId;
         }
 
-        if (valueName && valueName.trim()) {
+        if (valueName && typeof valueName === 'string' && valueName.trim()) {
             const trimmed = valueName.trim().toLowerCase();
             const byName = options.find(
                 (opt) => opt.label.trim().toLowerCase() === trimmed
@@ -175,6 +180,12 @@ export default function SignatorySelect({
                     {onDeleteSignatory && sig.id > 0 && (
                         <button
                             type="button"
+                            onMouseDown={(e) => {
+                                e.stopPropagation();
+                            }}
+                            onPointerDown={(e) => {
+                                e.stopPropagation();
+                            }}
                             onClick={handleDelete}
                             title={`Remove "${sig.name}" from directory`}
                             className={`p-1 rounded-md transition-colors ${
@@ -197,6 +208,8 @@ export default function SignatorySelect({
                 id={id}
                 value={selectedOption}
                 options={options}
+                getOptionValue={(option) => String(option.value)}
+                getOptionLabel={(option) => option.label}
                 isDisabled={isDisabled}
                 isClearable={true}
                 placeholder={placeholder}

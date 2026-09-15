@@ -115,8 +115,8 @@ class SystemSetting extends Model
         $decoded = is_string($rawJson) ? json_decode($rawJson, true) : $rawJson;
 
         return match ($dataType) {
-            'integer' => is_numeric($decoded) ? (int) $decoded : (int) $default,
-            'float' => is_numeric($decoded) ? (float) $decoded : (float) $default,
+            'integer' => is_numeric($decoded) ? (int) $decoded : (is_null($decoded) ? null : (is_null($default) ? null : (int) $default)),
+            'float' => is_numeric($decoded) ? (float) $decoded : (is_null($decoded) ? null : (is_null($default) ? null : (float) $default)),
             'boolean' => filter_var($decoded, FILTER_VALIDATE_BOOLEAN),
             'json', 'array' => is_array($decoded) ? $decoded : (is_array($default) ? $default : []),
             default => is_string($decoded) ? $decoded : (string) ($decoded ?? $default),

@@ -170,4 +170,130 @@ class SignatoryDirectoryTest extends TestCase
         $this->assertSame('ADMINISTRATIVE OFFICER V', SystemSetting::get('signatories.ris_approved_by_designation'));
         $this->assertSame($sig->id, SystemSetting::get('signatories.ris_approved_by_id'));
     }
+
+    public function test_cannot_delete_signatory_currently_assigned_in_system_settings(): void
+    {
+        $sig = Signatory::create([
+            'name' => 'ACTIVE ASSIGNED SIGNATORY',
+            'designation' => 'DIRECTOR IV',
+        ]);
+
+        // Assign to System Settings
+        $this->actingAs($this->adminUser)
+            ->post(route('system.settings.update'), [
+                'settings' => [
+                    'signatories.ris_approved_by_name' => $sig->name,
+                    'signatories.ris_approved_by_designation' => $sig->designation,
+                    'signatories.ris_approved_by_id' => $sig->id,
+                ],
+            ]);
+
+        // Attempt to delete should fail with 422
+        $response = $this->actingAs($this->adminUser)
+            ->deleteJson(route('admin.signatories.destroy', $sig->id));
+
+        $response->assertStatus(422);
+        $response->assertJsonPath(
+            'message',
+            "Cannot remove \"{$sig->name}\" because they are currently assigned to one or more active roles in System Settings. Please reassign those roles before removing this signatory."
+        );
+
+        $this->assertDatabaseHas('signatories', ['id' => $sig->id]);
+    }
+
+    public function test_system_settings_can_clear_signatory_id_to_null(): void
+    {
+        $sig = Signatory::create([
+            'name' => 'TEMPORARY SIGNATORY',
+            'designation' => 'AIDE',
+        ]);
+
+        // Assign
+        $this->actingAs($this->adminUser)
+            ->post(route('system.settings.update'), [
+                'settings' => [
+                    'signatories.ris_approved_by_name' => $sig->name,
+                    'signatories.ris_approved_by_designation' => $sig->designation,
+                    'signatories.ris_approved_by_id' => $sig->id,
+                ],
+            ]);
+
+        $this->assertSame($sig->id, SystemSetting::get('signatories.ris_approved_by_id'));
+
+        // Clear
+        $this->actingAs($this->adminUser)
+            ->post(route('system.settings.update'), [
+                'settings' => [
+                    'signatories.ris_approved_by_name' => '',
+                    'signatories.ris_approved_by_designation' => '',
+                    'signatories.ris_approved_by_id' => null,
+                ],
+            ]);
+
+        $this->assertNull(SystemSetting::get('signatories.ris_approved_by_id'));
+        $this->assertSame('', SystemSetting::get('signatories.ris_approved_by_name'));
+    }
+
+    public function test_system_settings_saves_all_signatory_selectors_consistently(): void
+    {
+        $sig1 = Signatory::create(['name' => 'ALBERTO DE VERA JR', 'designation' => 'STUDENT ASSISTANT']);
+        $sig2 = Signatory::create(['name' => 'JUAN DELA CRUZ', 'designation' => 'SUPPLY CUSTODIAN']);
+
+        $response = $this->actingAs($this->adminUser)
+            ->post(route('system.settings.update'), [
+                'settings' => [
+                    'signatories.ris_approved_by_name' => $sig1->name,
+                    'signatories.ris_approved_by_designation' => $sig1->designation,
+                    'signatories.ris_approved_by_id' => $sig1->id,
+
+                    'signatories.ris_issued_by_name' => $sig2->name,
+                    'signatories.ris_issued_by_designation' => $sig2->designation,
+                    'signatories.ris_issued_by_id' => $sig2->id,
+
+                    'signatories.rsmi_certified_by_name' => $sig1->name,
+                    'signatories.rsmi_certified_by_designation' => $sig1->designation,
+                    'signatories.rsmi_certified_by_id' => $sig1->id,
+
+                    'signatories.rsmi_posted_by_name' => $sig2->name,
+                    'signatories.rsmi_posted_by_designation' => $sig2->designation,
+                    'signatories.rsmi_posted_by_id' => $sig2->id,
+
+                    'signatories.rpci_accountable_officer_name' => $sig1->name,
+                    'signatories.rpci_accountable_officer_designation' => $sig1->designation,
+                    'signatories.rpci_accountable_officer_id' => $sig1->id,
+
+                    'signatories.rpci_committee_chair' => $sig2->name,
+                    'signatories.rpci_committee_chair_id' => $sig2->id,
+
+                    'signatories.rpci_certified_by_name' => $sig1->name,
+                    'signatories.rpci_certified_by_position' => $sig1->designation,
+                    'signatories.rpci_certified_by_id' => $sig1->id,
+
+                    'signatories.rpci_verified_by_name' => $sig2->name,
+                    'signatories.rpci_verified_by_position' => $sig2->designation,
+                    'signatories.rpci_verified_by_id' => $sig2->id,
+
+                    'signatories.stock_card_custodian' => $sig1->name,
+                    'signatories.stock_card_custodian_id' => $sig1->id,
+
+                    'signatories.mor_issued_by_name' => $sig2->name,
+                    'signatories.mor_issued_by_designation' => $sig2->designation,
+                    'signatories.mor_issued_by_id' => $sig2->id,
+                ],
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertSame($sig1->id, SystemSetting::get('signatories.ris_approved_by_id'));
+        $this->assertSame($sig2->id, SystemSetting::get('signatories.ris_issued_by_id'));
+        $this->assertSame($sig1->id, SystemSetting::get('signatories.rsmi_certified_by_id'));
+        $this->assertSame($sig2->id, SystemSetting::get('signatories.rsmi_posted_by_id'));
+        $this->assertSame($sig1->id, SystemSetting::get('signatories.rpci_accountable_officer_id'));
+        $this->assertSame($sig2->id, SystemSetting::get('signatories.rpci_committee_chair_id'));
+        $this->assertSame($sig1->id, SystemSetting::get('signatories.rpci_certified_by_id'));
+        $this->assertSame($sig2->id, SystemSetting::get('signatories.rpci_verified_by_id'));
+        $this->assertSame($sig1->id, SystemSetting::get('signatories.stock_card_custodian_id'));
+        $this->assertSame($sig2->id, SystemSetting::get('signatories.mor_issued_by_id'));
+    }
 }
