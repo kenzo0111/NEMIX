@@ -10,9 +10,13 @@
     }
 
     .par-container {
-        font-family: 'DejaVu Sans', 'Times-Roman', serif;
+        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
+        color: #000000;
+        background: #ffffff;
+        width: 100%;
+        margin: 0 auto;
     }
 
     .par-table {
@@ -75,7 +79,7 @@
         Appendix 71
     </div>
 
-    <div class="official-title" style="margin: 1px 0 3px 0; font-size: 11.5pt;">
+    <div class="official-title" style="margin: 1px 0 3px 0; font-size: 11.5pt; text-align: center; font-weight: bold; letter-spacing: 0.3px;">
         PROPERTY ACKNOWLEDGMENT RECEIPT
     </div>
 
@@ -138,7 +142,7 @@
                     <td class="text-center">{{ data_get($item, 'quantity') ?? '' }}</td>
                     <td class="text-center">{{ data_get($item, 'unit') ?? '' }}</td>
                     <td class="text-left">{!! nl2br(e(data_get($item, 'description') ?? data_get($item, 'item_name') ?? '')) !!}</td>
-                    <td class="text-center">{{ data_get($item, 'property_number') ?? data_get($item, 'propertyNo') ?? data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? '' }}</td>
+                    <td class="text-center" style="white-space: nowrap;">{{ data_get($item, 'property_number') ?? data_get($item, 'propertyNo') ?? data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? '' }}</td>
                     <td class="text-center">
                         {{ data_get($item, 'date_acquired') ? \Carbon\Carbon::parse(data_get($item, 'date_acquired'))->format('Y-m-d') : (data_get($item, 'dateAcquired') ? \Carbon\Carbon::parse(data_get($item, 'dateAcquired'))->format('Y-m-d') : '') }}
                     </td>
@@ -168,7 +172,7 @@
                     <div style="height: 16px;"></div>
                     <div class="sign-line"></div>
                     <div class="sig-name">
-                        {{ data_get($par, 'receivedByName') ?? "\u{00A0}" }}
+                        {{ data_get($par, 'receivedByName') ?? "&nbsp;" }}
                     </div>
                     <div class="small-caption">Signature over Printed Name of End User</div>
                     <div style="height: 2px;"></div>
@@ -198,4 +202,5 @@
     </table>
 </div>
 @endsection
+
 

@@ -10,7 +10,7 @@
     }
 
     .sc-container {
-        font-family: 'DejaVu Sans', 'Times-Roman', serif;
+        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
         color: #000000;
@@ -103,11 +103,11 @@
     {{-- Top Info Grid --}}
     <table class="sc-top-info">
         <colgroup>
-            <col style="width: 85px;">
-            <col style="width: 280px;">
-            <col style="width: 25px;">
-            <col style="width: 85px;">
-            <col style="width: 230px;">
+            <col style="width: 12%;">
+            <col style="width: 40%;">
+            <col style="width: 3%;">
+            <col style="width: 12%;">
+            <col style="width: 33%;">
         </colgroup>
         <tbody>
             <tr>
@@ -133,7 +133,7 @@
                 <td style="text-align: center;">Item:</td>
                 <td style="text-align: center; font-weight: bold;">{{ $itemTitle }}</td>
                 <td style="text-align: center;">Stock No.:</td>
-                <td style="text-align: center; font-weight: bold;">{{ $stockNo }}</td>
+                <td style="text-align: center; font-weight: bold; white-space: nowrap;">{{ $stockNo }}</td>
             </tr>
             <tr>
                 <td style="text-align: center;">Description:</td>
@@ -205,3 +205,4 @@
     </table>
 </div>
 @endsection
+

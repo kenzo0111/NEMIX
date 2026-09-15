@@ -10,7 +10,7 @@
     }
 
     .mr-container {
-        font-family: 'DejaVu Sans', 'Times-Roman', serif;
+        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
         color: #000000;
@@ -139,6 +139,14 @@
         }
     }
     $grandTotalVal = data_get($mrData, 'grandTotal') ?? $computedTotal;
+
+    $getNameStyle = function($name, $defaultSize = '9pt') {
+        if (!$name) return 'font-size: ' . $defaultSize . '; white-space: nowrap;';
+        $len = strlen(trim($name));
+        if ($len > 30) return 'font-size: 7.2pt; white-space: nowrap;';
+        if ($len > 22) return 'font-size: 8pt; white-space: nowrap;';
+        return 'font-size: ' . $defaultSize . '; white-space: nowrap;';
+    };
 @endphp
 
 <div class="report-page mr-container">
@@ -153,11 +161,11 @@
     {{-- Top Info Grid --}}
     <table class="mr-top-info">
         <colgroup>
-            <col style="width: 85px;">
-            <col style="width: 280px;">
-            <col style="width: 25px;">
-            <col style="width: 85px;">
-            <col style="width: 230px;">
+            <col style="width: 12%;">
+            <col style="width: 40%;">
+            <col style="width: 3%;">
+            <col style="width: 12%;">
+            <col style="width: 33%;">
         </colgroup>
         <tbody>
             <tr>
@@ -222,7 +230,7 @@
                     <td class="text-center">{{ $qty !== null && $qty !== '' ? $qty : '' }}</td>
                     <td class="text-center">{{ data_get($item, 'unit') ?? '' }}</td>
                     <td class="text-left">{!! nl2br(e(data_get($item, 'description') ?? data_get($item, 'item_name') ?? '')) !!}</td>
-                    <td class="text-center">{{ data_get($item, 'propertyNo') ?? data_get($item, 'property_number') ?? data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? '' }}</td>
+                    <td class="text-center" style="white-space: nowrap;">{{ data_get($item, 'propertyNo') ?? data_get($item, 'property_number') ?? data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? '' }}</td>
                     <td class="text-center">{{ $itemDateDisplay }}</td>
                     <td class="text-right">
                         @if(is_numeric($uVal))
@@ -258,7 +266,7 @@
                     <table style="width: 85%; margin: 0 auto 4px auto; border-collapse: collapse;">
                         <tbody>
                             <tr>
-                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; font-size: 8.5pt; line-height: 1.15;">
+                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; line-height: 1.15; {{ $getNameStyle($issuedName, '9pt') }}">
                                     {{ $issuedName }}
                                 </td>
                             </tr>
@@ -298,7 +306,7 @@
                     <table style="width: 85%; margin: 0 auto 4px auto; border-collapse: collapse;">
                         <tbody>
                             <tr>
-                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; font-size: 8.5pt; line-height: 1.15;">
+                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; line-height: 1.15; {{ $getNameStyle($receivedName, '9pt') }}">
                                     {{ $receivedName }}
                                 </td>
                             </tr>
@@ -342,3 +350,4 @@
     </table>
 </div>
 @endsection
+

@@ -10,7 +10,7 @@
     }
 
     .rpci-container {
-        font-family: 'DejaVu Sans', 'Times-Roman', serif;
+        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
         color: #000000;
@@ -35,7 +35,7 @@
     .accountability-statement {
         margin-bottom: 6px;
         font-size: 8.5pt;
-        line-height: 1.25;
+        line-height: 1.3;
     }
 
     .accountability-field {
@@ -164,9 +164,9 @@
     {{-- Top Info Grid --}}
     <table class="rpci-top-info">
         <colgroup>
-            <col style="width: 85px;">
-            <col style="width: 280px;">
-            <col>
+            <col style="width: 12%;">
+            <col style="width: 40%;">
+            <col style="width: 48%;">
         </colgroup>
         <tbody>
             <tr>
@@ -221,7 +221,7 @@
                 <tr class="{{ $isEmpty ? 'empty-row' : '' }}">
                     <td>{{ data_get($item, 'article') ?? '' }}</td>
                     <td class="text-left">{!! nl2br(e(data_get($item, 'description') ?? data_get($item, 'item_name') ?? '')) !!}</td>
-                    <td>{{ data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? '' }}</td>
+                    <td style="white-space: nowrap;">{{ data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? '' }}</td>
                     <td>{{ data_get($item, 'unit') ?? '' }}</td>
                     <td class="text-right">
                         @php $uVal = data_get($item, 'unit_value') ?? data_get($item, 'unit_cost'); @endphp
@@ -261,7 +261,7 @@
     <table class="footer-table">
         <tbody>
             <tr>
-                {{-- Certified Correct -- SHOW NAME ONLY --}}
+                {{-- Certified Correct --}}
                 <td>
                     <div style="margin-bottom: 4.5mm; font-weight: bold;">Certified Correct by:</div>
                     <table style="width: 90%; margin: 0 auto; border-collapse: collapse;">
@@ -329,3 +329,4 @@
     </table>
 </div>
 @endsection
+

@@ -10,9 +10,13 @@
     }
 
     .po-container {
-        font-family: 'DejaVu Sans', 'Times-Roman', serif;
+        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
+        color: #000000;
+        background: #ffffff;
+        width: 100%;
+        margin: 0 auto;
     }
 
     .po-table {
@@ -135,7 +139,7 @@
 
             @foreach($paddedItems as $item)
                 <tr class="{{ empty($item) ? 'empty-row' : '' }}">
-                    <td class="text-center">{{ data_get($item, 'stock_number') ?? data_get($item, 'stock_no') ?? data_get($item, 'supplier_stock_no') ?? '' }}</td>
+                    <td class="text-center" style="white-space: nowrap;">{{ data_get($item, 'stock_number') ?? data_get($item, 'stock_no') ?? data_get($item, 'supplier_stock_no') ?? '' }}</td>
                     <td class="text-center">{{ data_get($item, 'unit') ?? '' }}</td>
                     <td class="text-left">{!! nl2br(e(data_get($item, 'description') ?? data_get($item, 'item_name') ?? '')) !!}</td>
                     <td class="text-center">{{ data_get($item, 'quantity') ?? '' }}</td>
@@ -218,4 +222,5 @@
     </table>
 </div>
 @endsection
+
 

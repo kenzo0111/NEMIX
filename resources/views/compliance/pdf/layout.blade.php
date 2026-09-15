@@ -10,7 +10,7 @@
         }
 
         body {
-            font-family: 'DejaVu Sans', 'Times-Roman', serif;
+            font-family: 'Times-Roman', 'Times New Roman', Times, serif;
             font-size: 8.5pt;
             color: #000000;
             background-color: #ffffff;
@@ -83,3 +83,4 @@
     @yield('content')
 </body>
 </html>
+

@@ -10,9 +10,13 @@
     }
 
     .ics-container {
-        font-family: 'DejaVu Sans', 'Times-Roman', serif;
+        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
+        color: #000000;
+        background: #ffffff;
+        width: 100%;
+        margin: 0 auto;
     }
 
     .ics-table {
@@ -87,7 +91,7 @@
         Appendix 59
     </div>
 
-    <div class="official-title" style="margin: 1px 0 3px 0; font-size: 11.5pt;">
+    <div class="official-title" style="margin: 1px 0 3px 0; font-size: 11.5pt; text-align: center; font-weight: bold; letter-spacing: 0.3px;">
         INVENTORY CUSTODIAN SLIP
     </div>
 
@@ -161,7 +165,7 @@
                         @endif
                     </td>
                     <td class="text-left">{!! nl2br(e(data_get($item, 'description') ?? data_get($item, 'item_name') ?? '')) !!}</td>
-                    <td class="text-center">{{ data_get($item, 'itemNo') ?? data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? '' }}</td>
+                    <td class="text-center" style="white-space: nowrap;">{{ data_get($item, 'itemNo') ?? data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? '' }}</td>
                     <td class="text-center">{{ data_get($item, 'usefulLife') ?? data_get($item, 'useful_life') ?? '' }}</td>
                 </tr>
             @endforeach
@@ -192,7 +196,7 @@
                                 <td class="sig-block" style="padding-left: 10px;">
                                     <div class="sig-label">Received by:</div>
                                     <div class="sig-name">
-                                        {{ data_get($ics, 'receivedByName') ?? "\u{00A0}" }}
+                                        {{ data_get($ics, 'receivedByName') ?? "&nbsp;" }}
                                     </div>
                                     <div class="sig-subtext">Signature Over Printed Name</div>
                                     <div class="sig-subtext" style="padding-top: 2px;">
@@ -211,4 +215,5 @@
     </table>
 </div>
 @endsection
+
 

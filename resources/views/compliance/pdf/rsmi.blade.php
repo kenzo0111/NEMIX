@@ -10,7 +10,7 @@
     }
 
     .rsmi-container {
-        font-family: 'DejaVu Sans', 'Times-Roman', serif;
+        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
         color: #000000;
@@ -68,6 +68,26 @@
         font-weight: normal !important;
         padding: 0.8mm 1mm !important;
         line-height: 1.1;
+    }
+
+    .responsibility-center-code,
+    .rsmi-responsibility-center-code {
+        text-align: center !important;
+        vertical-align: middle !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+    }
+
+    .stock-no-cell {
+        text-align: center !important;
+        vertical-align: middle !important;
+        white-space: nowrap !important;
+    }
+
+    .rsmi-group-cell {
+        text-align: center !important;
+        vertical-align: middle !important;
     }
 
     .border-bottom-bold {
@@ -161,6 +181,14 @@
             $accountingDateDisplay = $rawAcctDate;
         }
     }
+
+    $getNameStyle = function($name, $defaultSize = '8.5pt') {
+        if (!$name) return 'font-size: ' . $defaultSize . '; white-space: nowrap;';
+        $len = strlen(trim($name));
+        if ($len > 30) return 'font-size: 6.8pt; white-space: nowrap;';
+        if ($len > 22) return 'font-size: 7.5pt; white-space: nowrap;';
+        return 'font-size: ' . $defaultSize . '; white-space: nowrap;';
+    };
 @endphp
 
 <div class="report-page rsmi-container">
@@ -174,11 +202,11 @@
     {{-- Top Info Grid --}}
     <table class="rsmi-top-info">
         <colgroup>
-            <col style="width: 85px;">
-            <col style="width: 280px;">
-            <col style="width: 25px;">
-            <col style="width: 85px;">
-            <col style="width: 230px;">
+            <col style="width: 12%;">
+            <col style="width: 40%;">
+            <col style="width: 3%;">
+            <col style="width: 12%;">
+            <col style="width: 33%;">
         </colgroup>
         <tbody>
             <tr>
@@ -235,14 +263,14 @@
                     @php $totalRenderedRows++; @endphp
                     <tr>
                         @if($itemIdx === 0)
-                            <td class="text-center" rowspan="{{ count($group['items']) }}">
+                            <td class="text-center rsmi-group-cell" rowspan="{{ count($group['items']) }}">
                                 {{ data_get($group, 'risNo') ?: '&nbsp;' }}
                             </td>
-                            <td class="text-center" rowspan="{{ count($group['items']) }}">
+                            <td class="responsibility-center-code text-center rsmi-group-cell" rowspan="{{ count($group['items']) }}">
                                 {!! data_get($group, 'displayCode') ?: '&nbsp;' !!}
                             </td>
                         @endif
-                        <td class="text-center">{{ data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? data_get($item, 'stockNo') ?? '' }}</td>
+                        <td class="stock-no-cell">{{ data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? data_get($item, 'stockNo') ?? '' }}</td>
                         <td class="text-left">{!! nl2br(e(data_get($item, 'itemDescription') ?? data_get($item, 'description') ?? data_get($item, 'item_name') ?? '')) !!}</td>
                         <td class="text-center">{{ data_get($item, 'unit') ?? '' }}</td>
                         <td class="text-right">
@@ -273,8 +301,8 @@
             @for($i = $totalRenderedRows; $i < $targetRowCount; $i++)
                 <tr class="empty-row">
                     <td class="text-center">&nbsp;</td>
-                    <td class="text-center">&nbsp;</td>
-                    <td class="text-center">&nbsp;</td>
+                    <td class="responsibility-center-code text-center">&nbsp;</td>
+                    <td class="stock-no-cell">&nbsp;</td>
                     <td class="text-left">&nbsp;</td>
                     <td class="text-center">&nbsp;</td>
                     <td class="text-right">&nbsp;</td>
@@ -307,7 +335,7 @@
                     $isEmptyRecap = empty($rStockNo) && empty($rQty) && empty($rUnitCost) && empty($rTotalCost);
                 @endphp
                 <tr class="{{ $isEmptyRecap ? 'empty-row' : '' }}">
-                    <td colspan="3" class="text-center">{{ $rStockNo ?? '' }}</td>
+                    <td colspan="3" class="stock-no-cell">{{ $rStockNo ?? '' }}</td>
                     <td colspan="3" class="text-center">{{ $rQty !== null && $rQty !== '' ? $rQty : '' }}</td>
                     <td class="text-right">
                         @if(is_numeric($rUnitCost))
@@ -342,7 +370,7 @@
                                     <table style="width: 85%; margin: 0 auto; border-collapse: collapse;">
                                         <tbody>
                                             <tr>
-                                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; font-size: 8.5pt; line-height: 1.15;">
+                                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; line-height: 1.15; {{ $getNameStyle($supplyCustodianName, '8.5pt') }}">
                                                     {{ $supplyCustodianName }}
                                                 </td>
                                             </tr>
@@ -364,7 +392,7 @@
                                         </colgroup>
                                         <tbody>
                                             <tr>
-                                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; font-size: 8.5pt; line-height: 1.15;">
+                                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; line-height: 1.15; {{ $getNameStyle($accountingStaffName, '8.5pt') }}">
                                                     {{ $accountingStaffName }}
                                                 </td>
                                                 <td style="border: none;">&nbsp;</td>
@@ -394,3 +422,4 @@
 </div>
 @endforeach
 @endsection
+

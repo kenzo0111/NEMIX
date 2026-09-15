@@ -10,9 +10,13 @@
     }
 
     .iar-container {
-        font-family: 'DejaVu Sans', 'Times-Roman', serif;
+        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
+        color: #000000;
+        background: #ffffff;
+        width: 100%;
+        margin: 0 auto;
     }
 
     .iar-table {
@@ -62,10 +66,10 @@
 @section('content')
 <div class="report-page iar-container">
     <div style="text-align: right; font-style: italic; font-size: 9pt; margin-bottom: 1mm;">Appendix 64</div>
-    <div class="official-title" style="margin-bottom: 1.2mm; letter-spacing: 0.3px;">INSPECTION AND ACCEPTANCE REPORT</div>
+    <div class="official-title" style="margin-bottom: 1.2mm; letter-spacing: 0.3px; text-align: center; font-weight: bold; font-size: 11.5pt;">INSPECTION AND ACCEPTANCE REPORT</div>
 
     {{-- Info Row (Entity/Fund) --}}
-    <table class="form-table" style="margin-bottom: 4px;">
+    <table class="form-table" style="width: 100%; border-collapse: collapse; margin-bottom: 4px;">
         <colgroup>
             <col style="width: 12%;">
             <col style="width: 52%;">
@@ -74,10 +78,10 @@
         </colgroup>
         <tbody>
             <tr>
-                <td class="form-label">Entity Name :</td>
-                <td class="form-value">{{ data_get($iar, 'entityName') ?? data_get($iar, 'entity_name') ?? 'UNIVERSITY OF CAMARINES NORTE' }}</td>
-                <td class="form-label">Fund Cluster :</td>
-                <td class="form-value">{{ data_get($iar, 'fundCluster') ?? data_get($iar, 'fund_cluster') ?? '01 - Regular Agency Fund' }}</td>
+                <td class="form-label" style="font-weight: bold; padding: 1.5px 0;">Entity Name :</td>
+                <td class="form-value" style="border-bottom: 1px solid #000000; padding: 1.5px 4px;">{{ data_get($iar, 'entityName') ?? data_get($iar, 'entity_name') ?? 'UNIVERSITY OF CAMARINES NORTE' }}</td>
+                <td class="form-label" style="font-weight: bold; padding: 1.5px 0;">Fund Cluster :</td>
+                <td class="form-value" style="border-bottom: 1px solid #000000; padding: 1.5px 4px;">{{ data_get($iar, 'fundCluster') ?? data_get($iar, 'fund_cluster') ?? '01 - Regular Agency Fund' }}</td>
             </tr>
         </tbody>
     </table>
@@ -123,7 +127,7 @@
         <tbody>
             @foreach($paddedItems as $item)
                 <tr class="{{ empty($item) ? 'empty-row' : '' }}">
-                    <td class="text-center">{{ data_get($item, 'stockNo') ?? data_get($item, 'stock_no') ?? data_get($item, 'supplier_stock_no') ?? '' }}</td>
+                    <td class="text-center" style="white-space: nowrap;">{{ data_get($item, 'stockNo') ?? data_get($item, 'stock_no') ?? data_get($item, 'supplier_stock_no') ?? '' }}</td>
                     <td class="text-left">{!! nl2br(e(data_get($item, 'description') ?? data_get($item, 'item_name') ?? '')) !!}</td>
                     <td class="text-center">{{ data_get($item, 'unit') ?? '' }}</td>
                     <td class="text-right">{{ data_get($item, 'quantity') ?? '' }}</td>
@@ -181,4 +185,5 @@
     </table>
 </div>
 @endsection
+
 

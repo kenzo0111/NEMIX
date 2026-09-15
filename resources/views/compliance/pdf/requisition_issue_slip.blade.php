@@ -10,16 +10,20 @@
     }
 
     .ris-container {
-        font-family: 'DejaVu Sans', 'Times-Roman', serif;
+        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
+        color: #000000;
+        background: #ffffff;
+        width: 100%;
+        margin: 0 auto;
     }
 
     .ris-table {
         width: 100%;
         border-collapse: collapse;
         table-layout: fixed;
-        border: 1px solid #000000;
+        border: 1.5px solid #000000;
     }
 
     .ris-table th,
@@ -61,13 +65,44 @@
         overflow: hidden;
         line-height: 1.1;
     }
+
+    .sig-cell {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: clip;
+        text-align: center;
+    }
 </style>
 @endsection
 
 @section('content')
+@php
+    $itemsList = $items ?? [];
+    $targetRows = 20;
+    $paddedItems = array_merge($itemsList, array_fill(0, max(0, $targetRows - count($itemsList)), []));
+
+    $getNameStyle = function($name, $defaultSize = '8.5pt') {
+        if (!$name) return 'font-size: ' . $defaultSize . '; white-space: nowrap;';
+        $len = strlen(trim($name));
+        if ($len > 32) return 'font-size: 6.5pt; white-space: nowrap; display: inline-block;';
+        if ($len > 24) return 'font-size: 7.5pt; white-space: nowrap; display: inline-block;';
+        if ($len > 18) return 'font-size: 8pt; white-space: nowrap; display: inline-block;';
+        return 'font-size: ' . $defaultSize . '; white-space: nowrap; display: inline-block;';
+    };
+
+    $getDesignationStyle = function($designation, $defaultSize = '7.5pt') {
+        if (!$designation) return 'font-size: ' . $defaultSize . '; white-space: nowrap;';
+        $len = strlen(trim($designation));
+        if ($len > 32) return 'font-size: 6pt; white-space: nowrap; display: inline-block; line-height: 1.1;';
+        if ($len > 24) return 'font-size: 6.8pt; white-space: nowrap; display: inline-block; line-height: 1.1;';
+        if ($len > 16) return 'font-size: 7pt; white-space: nowrap; display: inline-block; line-height: 1.1;';
+        return 'font-size: ' . $defaultSize . '; white-space: nowrap; display: inline-block; line-height: 1.1;';
+    };
+@endphp
+
 <div class="report-page ris-container">
     <div style="text-align: right; font-style: italic; font-size: 9pt; margin-bottom: 1mm;">Appendix 63</div>
-    <div class="official-title" style="margin-bottom: 1.2mm; letter-spacing: 0.3px;">REQUISITION AND ISSUE SLIP</div>
+    <div class="official-title" style="margin-bottom: 1.2mm; letter-spacing: 0.3px; text-align: center; font-weight: bold; font-size: 11.5pt;">REQUISITION AND ISSUE SLIP</div>
 
     {{-- Top Info Table --}}
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 4px;">
@@ -83,12 +118,6 @@
     </table>
 
     {{-- Main Content Table --}}
-    @php
-        $itemsList = $items ?? [];
-        $targetRows = 20;
-        $paddedItems = array_merge($itemsList, array_fill(0, max(0, $targetRows - count($itemsList)), []));
-    @endphp
-
     <table class="ris-table">
         <thead>
             {{-- Meta Headers --}}
@@ -129,7 +158,7 @@
         <tbody>
             @foreach($paddedItems as $item)
                 <tr class="{{ empty($item) ? 'empty-row' : '' }}">
-                    <td class="text-center">{{ data_get($item, 'stock_no') ?? data_get($item, 'stockNo') ?? data_get($item, 'supplier_stock_no') ?? '' }}</td>
+                    <td class="text-center" style="white-space: nowrap;">{{ data_get($item, 'stock_no') ?? data_get($item, 'stockNo') ?? data_get($item, 'supplier_stock_no') ?? '' }}</td>
                     <td class="text-center">{{ data_get($item, 'unit') ?? '' }}</td>
                     <td class="text-left">{!! nl2br(e(data_get($item, 'description') ?? data_get($item, 'item_name') ?? '')) !!}</td>
                     <td class="text-center">{{ data_get($item, 'quantity') ?? '' }}</td>
@@ -185,17 +214,49 @@
                             </tr>
                             <tr>
                                 <td style="border-left: none;">Printed Name :</td>
-                                <td class="text-center font-bold" style="font-size: 8.5pt;">{{ data_get($ris, 'requested_by_name') ?? "\u{00A0}" }}</td>
-                                <td class="text-center font-bold" style="font-size: 8.5pt;">{{ data_get($ris, 'approved_by_name') ?? 'ARSENIO GEM A. GARCILLANOSA' }}</td>
-                                <td class="text-center font-bold" style="font-size: 8.5pt;">{{ data_get($ris, 'issued_by_name') ?? '' }}</td>
-                                <td class="text-center font-bold" style="font-size: 8.5pt; border-right: none;">{{ data_get($ris, 'received_by_name') ?? "\u{00A0}" }}</td>
+                                <td class="sig-cell">
+                                    <span class="font-bold" style="{{ $getNameStyle(data_get($ris, 'requested_by_name')) }}">
+                                        {{ data_get($ris, 'requested_by_name') ?? "&nbsp;" }}
+                                    </span>
+                                </td>
+                                <td class="sig-cell">
+                                    <span class="font-bold" style="{{ $getNameStyle(data_get($ris, 'approved_by_name') ?? 'ARSENIO GEM A. GARCILLANOSA') }}">
+                                        {{ data_get($ris, 'approved_by_name') ?? 'ARSENIO GEM A. GARCILLANOSA' }}
+                                    </span>
+                                </td>
+                                <td class="sig-cell">
+                                    <span class="font-bold" style="{{ $getNameStyle(data_get($ris, 'issued_by_name')) }}">
+                                        {{ data_get($ris, 'issued_by_name') ?? "&nbsp;" }}
+                                    </span>
+                                </td>
+                                <td class="sig-cell" style="border-right: none;">
+                                    <span class="font-bold" style="{{ $getNameStyle(data_get($ris, 'received_by_name')) }}">
+                                        {{ data_get($ris, 'received_by_name') ?? "&nbsp;" }}
+                                    </span>
+                                </td>
                             </tr>
                             <tr>
                                 <td style="border-left: none;">Designation :</td>
-                                <td class="text-center" style="font-size: 7.5pt;">{{ data_get($ris, 'requested_by_designation') ?? '' }}</td>
-                                <td class="text-center" style="font-size: 7.5pt;">{{ data_get($ris, 'approved_by_designation') ?? 'SUPPLY OFFICER III/ADMIN OFFICER V' }}</td>
-                                <td class="text-center" style="font-size: 7.5pt;">{{ data_get($ris, 'issued_by_designation') ?? '' }}</td>
-                                <td class="text-center" style="font-size: 7.5pt; border-right: none;">{{ data_get($ris, 'received_by_designation') ?? '' }}</td>
+                                <td class="sig-cell">
+                                    <span style="{{ $getDesignationStyle(data_get($ris, 'requested_by_designation')) }}">
+                                        {{ data_get($ris, 'requested_by_designation') ?? '' }}
+                                    </span>
+                                </td>
+                                <td class="sig-cell">
+                                    <span style="{{ $getDesignationStyle(data_get($ris, 'approved_by_designation') ?? 'SUPPLY OFFICER III/ADMIN OFFICER V') }}">
+                                        {{ data_get($ris, 'approved_by_designation') ?? 'SUPPLY OFFICER III/ADMIN OFFICER V' }}
+                                    </span>
+                                </td>
+                                <td class="sig-cell">
+                                    <span style="{{ $getDesignationStyle(data_get($ris, 'issued_by_designation')) }}">
+                                        {{ data_get($ris, 'issued_by_designation') ?? '' }}
+                                    </span>
+                                </td>
+                                <td class="sig-cell" style="border-right: none;">
+                                    <span style="{{ $getDesignationStyle(data_get($ris, 'received_by_designation')) }}">
+                                        {{ data_get($ris, 'received_by_designation') ?? '' }}
+                                    </span>
+                                </td>
                             </tr>
                             <tr>
                                 <td style="border-left: none; border-bottom: none;">Date :</td>
@@ -212,4 +273,5 @@
     </table>
 </div>
 @endsection
+
 
