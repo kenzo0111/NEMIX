@@ -12,8 +12,8 @@ interface UseRfidScannerOptions {
 export function useRfidScanner({
     enabled,
     onScan,
-    pollIntervalMs = 1500,
-    maxConsecutiveFailures = 3,
+    pollIntervalMs = 300,
+    maxConsecutiveFailures = 10,
 }: UseRfidScannerOptions) {
     const [connectionState, setConnectionState] = useState<RFIDConnectionState>('connecting');
     const [isRetrying, setIsRetrying] = useState(false);
@@ -50,6 +50,7 @@ export function useRfidScanner({
         if (!enabled) return;
 
         const abortController = new AbortController();
+        const enabledAt = Date.now() / 1000;
 
         const pollLiveFeed = async () => {
             if (isFetchingRef.current) return;
@@ -58,6 +59,7 @@ export function useRfidScanner({
             try {
                 const response = await fetch('/rfid-scanner/live-feed', {
                     signal: abortController.signal,
+                    cache: 'no-store',
                     headers: { Accept: 'application/json' },
                 });
 
@@ -74,6 +76,11 @@ export function useRfidScanner({
                     const scanTs = Number(data.scan.timestamp);
                     if (lastScanTimestampRef.current === 0) {
                         lastScanTimestampRef.current = scanTs;
+                        // Ignore a stale cached scan, but do not lose a real scan that
+                        // arrived just after this scanner session was armed.
+                        if (scanTs >= enabledAt) {
+                            processRawScan(data.scan.tag);
+                        }
                     } else if (scanTs > lastScanTimestampRef.current) {
                         lastScanTimestampRef.current = scanTs;
                         processRawScan(data.scan.tag);

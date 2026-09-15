@@ -7,7 +7,24 @@
 NemixApiClient::NemixApiClient() {}
 void NemixApiClient::configure(const DeviceConfiguration& c){_baseUrl=c.serverUrl;_deviceId=c.deviceId;_token=c.deviceToken;}
 bool NemixApiClient::checkWifi(){return WiFi.status()==WL_CONNECTED;}
-int NemixApiClient::request(const String& method,const String& path,const String& json,String& response){if(!checkWifi()||!_baseUrl.length())return 0;HTTPClient http;WiFiClientSecure secure;bool begun=false;String url=_baseUrl+path;if(url.startsWith("https://")){secure.setCACert(API_TLS_ROOTS);begun=http.begin(secure,url);}else begun=http.begin(url);if(!begun)return 0;http.setTimeout(8000);http.addHeader("Accept","application/json");http.addHeader("Content-Type","application/json");http.addHeader("X-Device-ID",_deviceId);http.addHeader("X-Hardware-Token",_token);int code=method=="GET"?http.GET():http.POST(json);if(code>0)response=http.getString();http.end();return code;}
+int NemixApiClient::request(const String& method,const String& path,const String& json,String& response){
+    if(!checkWifi()){Serial.println(F("[API] ERROR: Request skipped because Wi-Fi is disconnected."));return 0;}
+    if(!_baseUrl.length()){Serial.println(F("[API] ERROR: Server URL is empty."));return 0;}
+    HTTPClient http;WiFiClientSecure secure;bool begun=false;String url=_baseUrl+path;
+    if(url.startsWith("https://")){
+        secure.setCACert(API_TLS_ROOTS);secure.setHandshakeTimeout(15);begun=http.begin(secure,url);
+    }else begun=http.begin(url);
+    if(!begun){Serial.printf("[API] ERROR: Could not initialize %s.\n",path.c_str());return 0;}
+    http.setTimeout(12000);http.addHeader("Accept","application/json");http.addHeader("Content-Type","application/json");
+    http.addHeader("X-Device-ID",_deviceId);http.addHeader("X-Hardware-Token",_token);
+    int code=method=="GET"?http.GET():http.POST(json);
+    if(code>0){response=http.getString();Serial.printf("[API] %s %s -> HTTP %d\n",method.c_str(),path.c_str(),code);}
+    else{
+        char tlsError[160]={0};secure.lastError(tlsError,sizeof(tlsError));
+        Serial.printf("[API] ERROR: %s %s failed: %s; TLS: %s\n",method.c_str(),path.c_str(),http.errorToString(code).c_str(),tlsError[0]?tlsError:"no TLS detail");
+    }
+    http.end();return code;
+}
 String NemixApiClient::jsonString(const String& j,const char* key,const String& fallback){String n="\""+String(key)+"\"";int p=j.indexOf(n);if(p<0)return fallback;p=j.indexOf(':',p+n.length());p=j.indexOf('"',p+1);if(p<0)return fallback;int e=j.indexOf('"',p+1);return e<0?fallback:j.substring(p+1,e);}
 long NemixApiClient::jsonLong(const String& j,const char* key,long fallback){String n="\""+String(key)+"\"";int p=j.indexOf(n);if(p<0)return fallback;p=j.indexOf(':',p+n.length())+1;while(p<j.length()&&isspace((unsigned char)j[p]))p++;int e=p;while(e<j.length()&&(isdigit((unsigned char)j[e])||j[e]=='-'))e++;return e==p?fallback:j.substring(p,e).toInt();}
 bool NemixApiClient::jsonBool(const String& j,const char* key,bool fallback){String n="\""+String(key)+"\"";int p=j.indexOf(n);if(p<0)return fallback;p=j.indexOf(':',p+n.length())+1;while(p<j.length()&&isspace((unsigned char)j[p]))p++;if(j.substring(p,p+4)=="true")return true;if(j.substring(p,p+5)=="false")return false;return fallback;}

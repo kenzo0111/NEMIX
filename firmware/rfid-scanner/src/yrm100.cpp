@@ -142,7 +142,7 @@ bool Yrm100Reader::readFrame(uint8_t& outType, uint8_t& outCmd, std::vector<uint
     return (actualChecksum == expectedChecksum);
 }
 
-std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs) {
+std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs, bool stopAfterFirst) {
     std::vector<RfidTag> foundTags;
 
     // Send Single Poll command: BB 00 22 00 00 22 7E
@@ -188,6 +188,10 @@ std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs) {
                         tag.rssiDbm = rssiDbm;
                         tag.pc = pc;
                         foundTags.push_back(tag);
+
+                        // Single-trigger mode only needs the first valid EPC. Returning here
+                        // avoids waiting out the full scan timeout after a tag is already read.
+                        if (stopAfterFirst) return foundTags;
                     }
                 }
             } else if (type == 0x01 && cmd == 0xFF) {

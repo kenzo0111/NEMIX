@@ -11,16 +11,25 @@ if (!(Test-Path $Esptool)) {
     $Esptool = "esptool.exe"
 }
 
-$MergedBin = "$BuildDir/rfid-scanner.ino.merged.bin"
+$BootloaderBin = "$BuildDir/rfid-scanner.ino.bootloader.bin"
+$PartitionsBin = "$BuildDir/rfid-scanner.ino.partitions.bin"
+$BootAppBin = "$BuildDir/boot_app0.bin"
+$ApplicationBin = "$BuildDir/rfid-scanner.ino.bin"
 
-if (!(Test-Path $MergedBin)) {
-    Write-Host "==> Compiling firmware..." -ForegroundColor Cyan
-    arduino-cli compile --fqbn esp32:esp32:esp32 --build-path $BuildDir firmware/rfid-scanner
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "Compilation failed! Aborting." -ForegroundColor Red
-        exit 1
-    }
+# Always rebuild so an old binary can never be flashed after source changes.
+Write-Host "==> Compiling current firmware sources..." -ForegroundColor Cyan
+arduino-cli compile --fqbn esp32:esp32:esp32 --build-path $BuildDir firmware/rfid-scanner
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Compilation failed! Aborting." -ForegroundColor Red
+    exit 1
 }
+
+$FirmwareImages = @(
+    "0x1000", $BootloaderBin,
+    "0x8000", $PartitionsBin,
+    "0xe000", $BootAppBin,
+    "0x10000", $ApplicationBin
+)
 
 Write-Host "=================================================================" -ForegroundColor Cyan
 Write-Host "  ESP32 UHF RFID Scanner Flasher - Port: $Port" -ForegroundColor Cyan
@@ -31,7 +40,8 @@ Write-Host "Checking if ESP32 is already in download mode (no-reset)..." -Foregr
 & $Esptool --chip esp32 --port $Port --baud $Baud --before no-reset chip-id 2>$null
 if ($LASTEXITCODE -eq 0) {
     Write-Host "==> ESP32 is in download mode! Flashing now..." -ForegroundColor Green
-    & $Esptool --chip esp32 --port $Port --baud $Baud --before no-reset --after hard-reset write-flash -z --flash-mode dio --flash-freq 80m --flash-size 4MB 0x0 $MergedBin
+    # Do not flash the merged 4 MB image: it overwrites the NVS credentials/token.
+    & $Esptool --chip esp32 --port $Port --baud $Baud --before no-reset --after hard-reset write-flash -z --flash-mode dio --flash-freq 80m --flash-size 4MB $FirmwareImages
     if ($LASTEXITCODE -eq 0) {
         Write-Host "`nSUCCESS! Firmware flashed successfully!" -ForegroundColor Green
         exit 0
@@ -45,7 +55,7 @@ Write-Host "TIP: Press and HOLD the physical 'BOOT' button on the board now!" -F
 $success = $false
 for ($attempt = 1; $attempt -le 5; $attempt++) {
     Write-Host "`n[Attempt $attempt/5] Connecting to $Port... (HOLD BOOT BUTTON)" -ForegroundColor Cyan
-    & $Esptool --chip esp32 --port $Port --baud $Baud --before default-reset --after hard-reset write-flash -z --flash-mode dio --flash-freq 80m --flash-size 4MB 0x0 $MergedBin
+    & $Esptool --chip esp32 --port $Port --baud $Baud --before default-reset --after hard-reset write-flash -z --flash-mode dio --flash-freq 80m --flash-size 4MB $FirmwareImages
     if ($LASTEXITCODE -eq 0) {
         $success = $true
         break
@@ -67,4 +77,3 @@ if ($success) {
     Write-Host " 5. Run this script again: .\\flash_firmware.ps1                 " -ForegroundColor Green
     Write-Host "=================================================================" -ForegroundColor Red
 }
-
