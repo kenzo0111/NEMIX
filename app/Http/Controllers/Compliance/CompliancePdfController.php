@@ -150,7 +150,7 @@ class CompliancePdfController extends Controller
             ->setOption([
                 'isRemoteEnabled' => true,
                 'isHtml5ParserEnabled' => true,
-                'defaultFont' => 'DejaVu Sans',
+                'defaultFont' => 'DejaVu Serif',
             ]);
 
         if ($request->query('inline') === '1' || $request->input('inline') === true) {

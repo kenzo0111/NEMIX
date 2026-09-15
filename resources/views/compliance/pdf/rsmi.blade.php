@@ -10,13 +10,14 @@
     }
 
     .rsmi-container {
-        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
+        font-family: 'DejaVu Serif', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
         color: #000000;
         background: #ffffff;
         width: 100%;
         margin: 0 auto;
+        box-sizing: border-box;
     }
 
     .rsmi-top-info {
@@ -45,6 +46,8 @@
         padding: 0.6mm 1mm;
         font-size: 8pt;
         word-wrap: break-word;
+        overflow-wrap: anywhere;
+        box-sizing: border-box;
         vertical-align: middle;
         line-height: 1.1;
     }
@@ -74,15 +77,15 @@
     .rsmi-responsibility-center-code {
         text-align: center !important;
         vertical-align: middle !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: clip !important;
+        word-wrap: break-word;
+        overflow-wrap: anywhere;
     }
 
     .stock-no-cell {
         text-align: center !important;
         vertical-align: middle !important;
-        white-space: nowrap !important;
+        word-wrap: break-word;
+        overflow-wrap: anywhere;
     }
 
     .rsmi-group-cell {
@@ -157,7 +160,7 @@
         if (!isset($groupsMap[$key])) {
             $groupsMap[$key] = [
                 'risNo' => $risNo,
-                'displayCode' => $rcc ?: '&nbsp;',
+                'displayCode' => $rcc ?: '',
                 'items' => [],
             ];
         }
@@ -204,24 +207,24 @@
         <colgroup>
             <col style="width: 12%;">
             <col style="width: 40%;">
-            <col style="width: 3%;">
+            <col style="width: 3.5%;">
             <col style="width: 12%;">
-            <col style="width: 33%;">
+            <col style="width: 32.5%;">
         </colgroup>
         <tbody>
             <tr>
-                <td style="font-weight: bold; padding: 1.5px 0;">Entity Name:</td>
-                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px;">{{ $entityName }}</td>
+                <td style="font-weight: bold; padding: 1.5px 0; white-space: nowrap;">Entity Name:</td>
+                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px; white-space: nowrap; overflow: hidden;">{{ $entityName }}</td>
                 <td>&nbsp;</td>
-                <td style="font-weight: bold; padding: 1.5px 0;">Serial No. :</td>
-                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px;">{{ $serialNo }}</td>
+                <td style="font-weight: bold; padding: 1.5px 0; white-space: nowrap;">Serial No. :</td>
+                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px; white-space: nowrap;">{{ $serialNo }}</td>
             </tr>
             <tr>
-                <td style="font-weight: bold; padding: 3px 0 1.5px 0;">Fund Cluster:</td>
-                <td style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px;">{{ $fundCluster }}</td>
+                <td style="font-weight: bold; padding: 3px 0 1.5px 0; white-space: nowrap;">Fund Cluster:</td>
+                <td style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; white-space: nowrap; overflow: hidden;">{{ $fundCluster }}</td>
                 <td>&nbsp;</td>
-                <td style="font-weight: bold; padding: 3px 0 1.5px 0;">Date :</td>
-                <td style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px;">{{ $displayDate }}</td>
+                <td style="font-weight: bold; padding: 3px 0 1.5px 0; white-space: nowrap;">Date :</td>
+                <td style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; white-space: nowrap;">{{ $displayDate }}</td>
             </tr>
         </tbody>
     </table>
@@ -264,10 +267,10 @@
                     <tr>
                         @if($itemIdx === 0)
                             <td class="text-center rsmi-group-cell" rowspan="{{ count($group['items']) }}">
-                                {{ data_get($group, 'risNo') ?: '&nbsp;' }}
+                                {{ data_get($group, 'risNo') ?: '' }}
                             </td>
                             <td class="responsibility-center-code text-center rsmi-group-cell" rowspan="{{ count($group['items']) }}">
-                                {!! data_get($group, 'displayCode') ?: '&nbsp;' !!}
+                                {!! data_get($group, 'displayCode') ?: '' !!}
                             </td>
                         @endif
                         <td class="stock-no-cell">{{ data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? data_get($item, 'stockNo') ?? '' }}</td>
@@ -376,7 +379,7 @@
                                             </tr>
                                             <tr>
                                                 <td style="border: none; text-align: center; font-size: 7pt; padding-top: 2px; line-height: 1.1;">
-                                                    Signature over Printed Name of Supply and/or<br>Property Custodian
+                                                    <span style="white-space: nowrap;">Signature over Printed Name of Supply and/or</span><br><span style="white-space: nowrap;">Property Custodian</span>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -386,9 +389,9 @@
                                     <div class="posted-text">Posted by:</div>
                                     <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
                                         <colgroup>
-                                            <col style="width: 68%;">
+                                            <col style="width: 70%;">
                                             <col style="width: 4%;">
-                                            <col style="width: 28%;">
+                                            <col style="width: 26%;">
                                         </colgroup>
                                         <tbody>
                                             <tr>
@@ -402,7 +405,7 @@
                                             </tr>
                                             <tr>
                                                 <td style="border: none; text-align: center; font-size: 7pt; padding-top: 2px; line-height: 1.1;">
-                                                    Signature over Printed Name of<br>Designated Accounting Staff
+                                                    <span style="white-space: nowrap;">Signature over Printed Name of</span><br><span style="white-space: nowrap;">Designated Accounting Staff</span>
                                                 </td>
                                                 <td style="border: none;">&nbsp;</td>
                                                 <td style="border: none; text-align: center; font-size: 7pt; padding-top: 2px; line-height: 1.1; vertical-align: top;">

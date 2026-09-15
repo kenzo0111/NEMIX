@@ -6,11 +6,12 @@
     <title>@yield('title', 'Official Compliance Report')</title>
     <style>
         @page {
+            size: A4 portrait;
             margin: 8mm;
         }
 
         body {
-            font-family: 'Times-Roman', 'Times New Roman', Times, serif;
+            font-family: 'DejaVu Serif', 'Times New Roman', Times, serif;
             font-size: 8.5pt;
             color: #000000;
             background-color: #ffffff;
