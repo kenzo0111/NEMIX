@@ -18,7 +18,7 @@ class UpdateRfidDeviceRequest extends FormRequest
     {
         return [
             'device_name' => ['required', 'string', 'max:100'],
-            'wifi_ssid' => ['required', 'string', 'max:32'],
+            'wifi_ssid' => ['nullable', 'string', 'max:32'],
             'wifi_password' => ['nullable', 'string', 'min:8', 'max:63'],
             'server_url' => ['required', 'url:http,https', 'max:2048'],
             'scan_mode' => ['required', Rule::in(['single', 'inventory'])],

@@ -42,7 +42,10 @@ class RfidDeviceController extends Controller
         $data = $request->validate(['current_version' => ['required', 'integer', 'min:0']]);
         $device = $this->device($request);
         $settings = $device->settings;
-        if ((int) $data['current_version'] >= $settings->configuration_version) {
+        if (
+            (int) $data['current_version'] >= $settings->configuration_version
+            || blank($settings->wifi_ssid)
+        ) {
             return response()->json(['success' => true, 'configuration_available' => false]);
         }
 

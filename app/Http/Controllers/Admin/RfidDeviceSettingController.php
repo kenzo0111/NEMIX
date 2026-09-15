@@ -51,8 +51,11 @@ class RfidDeviceSettingController extends Controller
             $version = max($device->config_version, $settings->configuration_version) + 1;
             $device->update(['device_name' => $data['device_name'], 'config_version' => $version]);
 
-            $settingsData = collect($data)->except(['device_name', 'wifi_password'])->all();
+            $settingsData = collect($data)->except(['device_name', 'wifi_password', 'wifi_ssid'])->all();
             $settingsData['configuration_version'] = $version;
+            if (filled($data['wifi_ssid'] ?? null)) {
+                $settingsData['wifi_ssid'] = $data['wifi_ssid'];
+            }
             if (filled($data['wifi_password'] ?? null)) {
                 $settingsData['wifi_password_encrypted'] = $data['wifi_password'];
             }

@@ -96,6 +96,32 @@ class RfidDeviceConfigurationTest extends TestCase
         $this->assertNotNull($device->fresh()->last_seen_at);
     }
 
+    public function test_blank_server_wifi_configuration_does_not_replace_locally_provisioned_credentials(): void
+    {
+        $token = 'test-device-token-with-sufficient-entropy';
+        $device = RfidDevice::create([
+            'device_uuid' => 'RFID-HH-LOCAL01',
+            'device_name' => 'Locally Provisioned Scanner',
+            'device_token_hash' => password_hash($token, PASSWORD_DEFAULT),
+            'config_version' => 1,
+        ]);
+        $device->settings()->create([
+            'server_url' => 'https://inventory.example.edu',
+            'scan_mode' => 'single', 'rf_power' => 20, 'scan_timeout' => 3000,
+            'heartbeat_interval' => 30, 'buzzer_enabled' => true,
+            'auto_reconnect' => true, 'configuration_version' => 1,
+        ]);
+
+        $this->withHeaders([
+            'X-Device-ID' => $device->device_uuid,
+            'X-Hardware-Token' => $token,
+        ])->postJson('/api/hardware/rfid/network-config', ['current_version' => 0])
+            ->assertOk()
+            ->assertJsonPath('configuration_available', false)
+            ->assertJsonMissingPath('wifi_ssid')
+            ->assertJsonMissingPath('wifi_password');
+    }
+
     public function test_wifi_password_is_encrypted_at_rest(): void
     {
         [$device] = $this->device();

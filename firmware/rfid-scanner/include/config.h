@@ -1,6 +1,6 @@
 #pragma once
 
-#define FIRMWARE_VERSION "2.0.3"
+#define FIRMWARE_VERSION "2.0.4"
 #define API_CONFIG_PATH "/api/hardware/rfid/config"
 #define API_NETWORK_CONFIG_PATH "/api/hardware/rfid/network-config"
 #define API_HEARTBEAT_PATH "/api/hardware/rfid/heartbeat"
