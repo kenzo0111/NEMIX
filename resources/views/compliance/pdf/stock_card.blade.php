@@ -20,6 +20,11 @@
         margin: 0 auto;
     }
 
+    .sc-header { margin-bottom: 1.5mm; width: 100%; }
+    .sc-appendix { text-align: right; font-weight: bold; font-size: 8.5pt; line-height: 1; }
+    .sc-title-row { min-height: 8mm; padding: 1mm 0; line-height: 1.05; text-align: center; }
+    .sc-title { margin: 0; font-size: 12pt; font-weight: bold; line-height: 1.05; text-align: center; }
+
     .sc-top-info {
         width: 100%;
         margin-bottom: 6px;
@@ -32,6 +37,10 @@
         font-size: 8.5pt;
         line-height: 1.1;
     }
+
+    .sc-field-group { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .sc-field-label { width: 33%; padding: 1.5px 0; font-weight: bold; white-space: nowrap; }
+    .sc-field-value { width: 67%; border-bottom: 1px solid #000000; padding: 1.5px 4px; font-size: 8pt !important; white-space: nowrap; }
 
     .main-table {
         width: 100%;
@@ -49,6 +58,7 @@
         overflow-wrap: anywhere;
         vertical-align: middle;
         line-height: 1.1;
+        box-sizing: border-box;
     }
 
     .main-table th {
@@ -99,29 +109,25 @@
 @endphp
 
 <div class="report-page sc-container">
-    <div class="official-form-header">
-        <div class="official-form-appendix">Appendix 58</div>
-        <div class="official-form-title-row">
-            <h1 class="official-form-title">STOCK CARD</h1>
+    <div class="sc-header">
+        <div class="sc-appendix">Appendix 58</div>
+        <div class="sc-title-row">
+            <h1 class="sc-title">STOCK CARD</h1>
         </div>
     </div>
 
     {{-- Top Info Grid with explicit column widths to prevent header wrapping --}}
     <table class="sc-top-info">
         <colgroup>
-            <col style="width: 85px;">
-            <col style="width: 280px;">
-            <col style="width: 25px;">
-            <col style="width: 85px;">
-            <col style="width: 230px;">
+            <col style="width: 52%;">
+            <col style="width: 3.5%;">
+            <col style="width: 44.5%;">
         </colgroup>
         <tbody>
             <tr>
-                <td style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Entity Name:</td>
-                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px; line-height: 1.1;">{{ $entityName }}</td>
+                <td style="padding: 0;"><table class="sc-field-group"><tbody><tr><td class="sc-field-label">Entity Name:</td><td class="sc-field-value">{{ $entityName }}</td></tr></tbody></table></td>
                 <td></td>
-                <td style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Fund Cluster:</td>
-                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px; line-height: 1.1;">{{ $fundCluster }}</td>
+                <td style="padding: 0;"><table class="sc-field-group"><tbody><tr><td class="sc-field-label">Fund Cluster:</td><td class="sc-field-value">{{ $fundCluster }}</td></tr></tbody></table></td>
             </tr>
         </tbody>
     </table>
@@ -139,7 +145,7 @@
                 <td style="text-align: center; font-weight: normal;">Item:</td>
                 <td style="text-align: center; font-weight: bold;">{{ $itemTitle }}</td>
                 <td style="text-align: center; font-weight: normal;">Stock No.:</td>
-                <td style="text-align: center; font-weight: bold; white-space: nowrap;">{{ $stockNo }}</td>
+                <td style="text-align: center; font-weight: bold;">{{ $stockNo }}</td>
             </tr>
             <tr>
                 <td style="text-align: center;">Description:</td>
@@ -211,5 +217,3 @@
     </table>
 </div>
 @endsection
-
-

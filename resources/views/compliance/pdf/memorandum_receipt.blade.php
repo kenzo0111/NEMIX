@@ -19,6 +19,12 @@
         margin: 0 auto;
     }
 
+    .mr-header { margin-bottom: 1.5mm; width: 100%; }
+    .mr-appendix { text-align: right; font-weight: bold; font-size: 8.5pt; line-height: 1; }
+    .mr-title-row { min-height: 8mm; padding: 1mm 0; line-height: 1.05; text-align: center; }
+    .mr-title { margin: 0; font-size: 12pt; font-weight: bold; line-height: 1.05; text-align: center; }
+    .mr-subtitle { margin-top: 0.5mm; font-size: 9pt; line-height: 1; text-align: center; }
+
     .mr-top-info {
         width: 100%;
         margin-bottom: 6px;
@@ -32,9 +38,14 @@
         line-height: 1.1;
     }
 
+    .mr-field-group { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .mr-field-group td { padding: 1.5px 0; }
+    .mr-field-group tr + tr td { padding-top: 3px; }
+    .mr-field-label { width: 33%; font-weight: bold; white-space: nowrap; }
+    .mr-field-value { width: 67%; border-bottom: 1px solid #000000; padding-left: 4px !important; font-size: 8pt !important; white-space: nowrap; }
+
     .purpose-statement {
-        margin-top: 1.5mm;
-        margin-bottom: 2.5mm;
+        margin-bottom: 1.5mm;
         line-height: 1.2;
         text-align: justify;
         font-size: 8.5pt;
@@ -151,37 +162,36 @@
 @endphp
 
 <div class="report-page mr-container">
-    <div class="official-form-header">
-        <div class="official-form-appendix">{{ $appendixNumber }}</div>
-        <div class="official-form-title-row">
-            <h1 class="official-form-title">MEMORANDUM RECEIPT FOR PROPERTY</h1>
+    <div class="mr-header">
+        <div class="mr-appendix">{{ $appendixNumber }}</div>
+        <div class="mr-title-row">
+            <h1 class="mr-title">MEMORANDUM RECEIPT FOR PROPERTY</h1>
         </div>
-        <div class="official-form-subtitle">(MEMORANDUM OF RECEIPT)</div>
+        <div class="mr-subtitle">(MEMORANDUM OF RECEIPT)</div>
     </div>
 
     {{-- Top Info Grid --}}
     <table class="mr-top-info">
         <colgroup>
-            <col style="width: 13%;">
-            <col style="width: 48%;">
-            <col style="width: 2%;">
-            <col style="width: 10%;">
-            <col style="width: 27%;">
+            <col style="width: 52%;">
+            <col style="width: 3.5%;">
+            <col style="width: 44.5%;">
         </colgroup>
         <tbody>
             <tr>
-                <td style="font-weight: bold; padding: 1.5px 0;">Entity Name:</td>
-                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px;">{{ $entityName }}</td>
-                <td>&nbsp;</td>
-                <td style="font-weight: bold; padding: 1.5px 0;">MR No. :</td>
-                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px;">{{ $mrNo }}</td>
-            </tr>
-            <tr>
-                <td style="font-weight: bold; padding: 3px 0 1.5px 0;">Fund Cluster:</td>
-                <td style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px;">{{ $fundCluster }}</td>
-                <td>&nbsp;</td>
-                <td style="font-weight: bold; padding: 3px 0 1.5px 0;">Date :</td>
-                <td style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px;">{{ $displayDate }}</td>
+                <td style="padding: 0;">
+                    <table class="mr-field-group"><tbody>
+                        <tr><td class="mr-field-label">Entity Name:</td><td class="mr-field-value">{{ $entityName }}</td></tr>
+                        <tr><td class="mr-field-label">Fund Cluster:</td><td class="mr-field-value">{{ $fundCluster }}</td></tr>
+                    </tbody></table>
+                </td>
+                <td></td>
+                <td style="padding: 0;">
+                    <table class="mr-field-group"><tbody>
+                        <tr><td class="mr-field-label">MR No. :</td><td class="mr-field-value">{{ $mrNo }}</td></tr>
+                        <tr><td class="mr-field-label">Date :</td><td class="mr-field-value">{{ $displayDate }}</td></tr>
+                    </tbody></table>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -275,7 +285,7 @@
                 {{-- Issued / Released by --}}
                 <td class="sig-cell" style="border-right: 1px solid #000000;">
                     <div class="sig-header">Issued / Released by:</div>
-                    <table style="width: 88%; margin: 0 auto 4px auto; border-collapse: collapse;">
+                    <table style="width: 85%; margin: 0 auto 4px auto; border-collapse: collapse;">
                         <tbody>
                             <tr>
                                 <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; line-height: 1.15; {{ $getNameStyle($issuedName, '9pt') }}">
@@ -292,7 +302,7 @@
 
                     <table style="width: 100%; margin-top: 4px; border-collapse: collapse; table-layout: fixed;">
                         <colgroup>
-                            <col style="width: 55px;">
+                            <col style="width: 60px;">
                             <col style="width: auto;">
                         </colgroup>
                         <tbody>
@@ -315,7 +325,7 @@
                 {{-- Received by --}}
                 <td class="sig-cell">
                     <div class="sig-header">Received by:</div>
-                    <table style="width: 88%; margin: 0 auto 4px auto; border-collapse: collapse;">
+                    <table style="width: 85%; margin: 0 auto 4px auto; border-collapse: collapse;">
                         <tbody>
                             <tr>
                                 <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; line-height: 1.15; {{ $getNameStyle($receivedName, '9pt') }}">
@@ -332,7 +342,7 @@
 
                     <table style="width: 100%; margin-top: 4px; border-collapse: collapse; table-layout: fixed;">
                         <colgroup>
-                            <col style="width: 55px;">
+                            <col style="width: 60px;">
                             <col style="width: auto;">
                         </colgroup>
                         <tbody>
@@ -362,5 +372,3 @@
     </table>
 </div>
 @endsection
-
-

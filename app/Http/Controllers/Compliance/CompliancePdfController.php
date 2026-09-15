@@ -123,7 +123,11 @@ class CompliancePdfController extends Controller
         $forms = [];
 
         if (!empty($dataset['yearly']['months']) && is_array($dataset['yearly']['months'])) {
-            foreach ($dataset['yearly']['months'] as $monthData) {
+            $months = collect($dataset['yearly']['months'])
+                ->sortBy(fn (array $monthData) => (int) ($monthData['month'] ?? 0))
+                ->values();
+
+            foreach ($months as $monthData) {
                 if (!empty($monthData['forms']) && is_array($monthData['forms'])) {
                     foreach ($monthData['forms'] as $form) {
                         $forms[] = $this->normalizeRsmiFormData($form, $dataset);

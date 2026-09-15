@@ -41,42 +41,7 @@
         .uppercase { text-transform: uppercase !important; }
         .italic { font-style: italic !important; }
 
-        /* Shared Official Form Header Styles matching SharedFormHeaderStyles.tsx */
-        .official-form-header {
-            margin-bottom: 1.5mm;
-            width: 100%;
-        }
-
-        .official-form-appendix {
-            text-align: right;
-            font-weight: bold;
-            font-size: 8.5pt;
-            line-height: 1;
-        }
-
-        .official-form-title-row {
-            min-height: 8mm;
-            padding: 1mm 0;
-            line-height: 1.05;
-            vertical-align: middle;
-            text-align: center;
-        }
-
-        .official-form-title {
-            font-size: 12pt;
-            font-weight: bold;
-            line-height: 1.05;
-            text-align: center;
-            margin: 0;
-            white-space: normal;
-        }
-
-        .official-form-subtitle {
-            font-size: 9pt;
-            line-height: 1;
-            margin-top: 0.5mm;
-            text-align: center;
-        }
+        /* Official-form geometry belongs to each form, not this document shell. */
     </style>
     @yield('styles')
 </head>
@@ -84,4 +49,3 @@
     @yield('content')
 </body>
 </html>
-

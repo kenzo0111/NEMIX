@@ -19,6 +19,11 @@
         margin: 0 auto;
     }
 
+    .rpci-header { margin-bottom: 1.5mm; width: 100%; }
+    .rpci-appendix { text-align: right; font-weight: bold; font-size: 8.5pt; line-height: 1; }
+    .rpci-title-row { min-height: 8mm; padding: 1mm 0; line-height: 1.05; text-align: center; }
+    .rpci-title { margin: 0; font-size: 12pt; font-weight: bold; line-height: 1.05; text-align: center; }
+
     .rpci-top-info {
         width: 100%;
         margin-bottom: 4px;
@@ -37,16 +42,20 @@
         margin-bottom: 6px;
         border-collapse: collapse;
         table-layout: fixed;
-        font-size: 8.5pt;
-        line-height: 1.15;
+        font-size: 6pt;
+        line-height: 1.05;
     }
 
     .accountability-table td {
         vertical-align: bottom;
-        font-size: 8.5pt;
-        line-height: 1.15;
+        font-size: 6pt;
+        line-height: 1.05;
         padding: 0;
+        white-space: nowrap;
     }
+
+    .accountability-entity,
+    .accountability-date { font-size: 5.3pt !important; }
 
     .main-table {
         width: 100%;
@@ -143,10 +152,10 @@
 @endphp
 
 <div class="report-page rpci-container">
-    <div class="official-form-header">
-        <div class="official-form-appendix">Appendix 66</div>
-        <div class="official-form-title-row">
-            <h1 class="official-form-title">REPORT ON THE PHYSICAL COUNT OF INVENTORIES</h1>
+    <div class="rpci-header">
+        <div class="rpci-appendix">Appendix 66</div>
+        <div class="rpci-title-row">
+            <h1 class="rpci-title">REPORT ON THE PHYSICAL COUNT OF INVENTORIES</h1>
         </div>
     </div>
 
@@ -183,15 +192,15 @@
     {{-- Accountability Statement Table --}}
     <table class="accountability-table">
         <colgroup>
-            <col style="width: 55px;">
-            <col style="width: 23%;">
-            <col style="width: 8px;">
+            <col style="width: 5%;">
+            <col style="width: 14%;">
+            <col style="width: 1%;">
             <col style="width: 16%;">
-            <col style="width: 8px;">
-            <col style="width: 22%;">
-            <col style="width: 275px;">
-            <col style="width: 90px;">
-            <col style="width: 8px;">
+            <col style="width: 1%;">
+            <col style="width: 18%;">
+            <col style="width: 32%;">
+            <col style="width: 12%;">
+            <col style="width: 1%;">
         </colgroup>
         <tbody>
             <tr>
@@ -200,9 +209,9 @@
                 <td style="text-align: center;">,</td>
                 <td style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $designation }}</td>
                 <td style="text-align: center;">,</td>
-                <td style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $entityName }}</td>
+                <td class="accountability-entity" style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $entityName }}</td>
                 <td style="white-space: nowrap; padding: 0 3px;">is accountable, having assumed such accountability on</td>
-                <td style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">@if(!empty($dateAssumptionDisplay)){{ $dateAssumptionDisplay }}@endif</td>
+                <td class="accountability-date" style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">@if(!empty($dateAssumptionDisplay)){{ $dateAssumptionDisplay }}@endif</td>
                 <td>.</td>
             </tr>
         </tbody>
@@ -355,5 +364,3 @@
     </table>
 </div>
 @endsection
-
-

@@ -20,6 +20,11 @@
         box-sizing: border-box;
     }
 
+    .rsmi-header { margin-bottom: 1.5mm; width: 100%; }
+    .rsmi-appendix { text-align: right; font-weight: bold; font-size: 8.5pt; line-height: 1; }
+    .rsmi-title-row { min-height: 8mm; padding: 1mm 0; line-height: 1.05; text-align: center; }
+    .rsmi-title { margin: 0; font-size: 12pt; font-weight: bold; line-height: 1.05; text-align: center; }
+
     .rsmi-top-info {
         width: 100%;
         margin-bottom: 6px;
@@ -32,6 +37,12 @@
         font-size: 8.5pt;
         line-height: 1.1;
     }
+
+    .rsmi-field-group { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .rsmi-field-group td { padding: 1.5px 0; }
+    .rsmi-field-group tr + tr td { padding-top: 3px; }
+    .rsmi-field-label { width: 33%; font-weight: bold; white-space: nowrap; }
+    .rsmi-field-value { width: 67%; border-bottom: 1px solid #000000; padding-left: 4px !important; font-size: 8pt !important; white-space: nowrap; }
 
     .main-table {
         width: 100%;
@@ -73,12 +84,11 @@
         line-height: 1.1;
     }
 
-    .responsibility-center-code,
-    .rsmi-responsibility-center-code {
+    .responsibility-center-code {
         text-align: center !important;
         vertical-align: middle !important;
-        word-wrap: break-word;
-        overflow-wrap: anywhere;
+        white-space: nowrap;
+        overflow: hidden;
     }
 
     .stock-no-cell {
@@ -189,42 +199,41 @@
         if (!$name) return 'font-size: ' . $defaultSize . '; white-space: nowrap;';
         $len = strlen(trim($name));
         if ($len > 30) return 'font-size: 6.8pt; white-space: nowrap;';
-        if ($len > 22) return 'font-size: 7.5pt; white-space: nowrap;';
+        if ($len > 18) return 'font-size: 7pt; white-space: nowrap;';
         return 'font-size: ' . $defaultSize . '; white-space: nowrap;';
     };
 @endphp
 
 <div class="report-page rsmi-container">
-    <div class="official-form-header">
-        <div class="official-form-appendix">Appendix 64</div>
-        <div class="official-form-title-row">
-            <h1 class="official-form-title">REPORT OF SUPPLIES AND MATERIALS ISSUED</h1>
+    <div class="rsmi-header">
+        <div class="rsmi-appendix">Appendix 64</div>
+        <div class="rsmi-title-row">
+            <h1 class="rsmi-title">REPORT OF SUPPLIES AND MATERIALS ISSUED</h1>
         </div>
     </div>
 
     {{-- Top Info Grid --}}
     <table class="rsmi-top-info">
         <colgroup>
-            <col style="width: 12%;">
-            <col style="width: 40%;">
+            <col style="width: 52%;">
             <col style="width: 3.5%;">
-            <col style="width: 12%;">
-            <col style="width: 32.5%;">
+            <col style="width: 44.5%;">
         </colgroup>
         <tbody>
             <tr>
-                <td style="font-weight: bold; padding: 1.5px 0; white-space: nowrap;">Entity Name:</td>
-                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px; white-space: nowrap; overflow: hidden;">{{ $entityName }}</td>
-                <td>&nbsp;</td>
-                <td style="font-weight: bold; padding: 1.5px 0; white-space: nowrap;">Serial No. :</td>
-                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px; white-space: nowrap;">{{ $serialNo }}</td>
-            </tr>
-            <tr>
-                <td style="font-weight: bold; padding: 3px 0 1.5px 0; white-space: nowrap;">Fund Cluster:</td>
-                <td style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; white-space: nowrap; overflow: hidden;">{{ $fundCluster }}</td>
-                <td>&nbsp;</td>
-                <td style="font-weight: bold; padding: 3px 0 1.5px 0; white-space: nowrap;">Date :</td>
-                <td style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; white-space: nowrap;">{{ $displayDate }}</td>
+                <td style="padding: 0;">
+                    <table class="rsmi-field-group"><tbody>
+                        <tr><td class="rsmi-field-label">Entity Name:</td><td class="rsmi-field-value">{{ $entityName }}</td></tr>
+                        <tr><td class="rsmi-field-label">Fund Cluster:</td><td class="rsmi-field-value">{{ $fundCluster }}</td></tr>
+                    </tbody></table>
+                </td>
+                <td></td>
+                <td style="padding: 0;">
+                    <table class="rsmi-field-group"><tbody>
+                        <tr><td class="rsmi-field-label">Serial No. :</td><td class="rsmi-field-value">{{ $serialNo }}</td></tr>
+                        <tr><td class="rsmi-field-label">Date :</td><td class="rsmi-field-value">{{ $displayDate }}</td></tr>
+                    </tbody></table>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -270,7 +279,7 @@
                                 {{ data_get($group, 'risNo') ?: '' }}
                             </td>
                             <td class="responsibility-center-code text-center rsmi-group-cell" rowspan="{{ count($group['items']) }}">
-                                {!! data_get($group, 'displayCode') ?: '' !!}
+                                {{ data_get($group, 'displayCode') ?: '' }}
                             </td>
                         @endif
                         <td class="stock-no-cell">{{ data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? data_get($item, 'stockNo') ?? '' }}</td>
@@ -389,9 +398,9 @@
                                     <div class="posted-text">Posted by:</div>
                                     <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
                                         <colgroup>
-                                            <col style="width: 70%;">
+                                            <col style="width: 68%;">
                                             <col style="width: 4%;">
-                                            <col style="width: 26%;">
+                                            <col style="width: 28%;">
                                         </colgroup>
                                         <tbody>
                                             <tr>
@@ -425,4 +434,3 @@
 </div>
 @endforeach
 @endsection
-
