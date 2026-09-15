@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\RfidDevice;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class RfidDeviceConfigurationTest extends TestCase
@@ -36,6 +38,35 @@ class RfidDeviceConfigurationTest extends TestCase
     {
         $this->device();
         $this->getJson('/api/hardware/rfid/config')->assertUnauthorized();
+    }
+
+    public function test_human_readable_esp32_identifier_can_be_registered(): void
+    {
+        [$device] = $this->device();
+
+        $this->assertSame('RFID-HH-TEST01', $device->device_uuid);
+        $this->assertDatabaseHas('rfid_devices', [
+            'device_uuid' => 'RFID-HH-TEST01',
+        ]);
+    }
+
+    public function test_admin_registration_endpoint_accepts_firmware_device_identifier(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::firstOrCreate(['name' => 'System Admin']));
+
+        $response = $this->actingAs($admin)->postJson('/admin/system-settings/rfid-devices', [
+            'device_uuid' => 'RFID-HH-0FF0A4',
+            'device_name' => 'Stockroom Scanner 1',
+            'server_url' => 'https://unc-nemix.com',
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('success', true)
+            ->assertJsonStructure(['device_token']);
+        $this->assertDatabaseHas('rfid_devices', [
+            'device_uuid' => 'RFID-HH-0FF0A4',
+        ]);
     }
 
     public function test_regular_configuration_never_exposes_wifi_or_tokens(): void

@@ -10,7 +10,9 @@ return new class extends Migration
     {
         Schema::create('rfid_devices', function (Blueprint $table) {
             $table->id();
-            $table->uuid('device_uuid')->unique();
+            // Human-readable hardware identifier derived from the ESP32 MAC,
+            // e.g. RFID-HH-0FF0A4. This is intentionally not a SQL UUID.
+            $table->string('device_uuid', 100)->unique();
             $table->string('device_name', 100);
             $table->string('device_token_hash');
             $table->string('firmware_version', 50)->nullable();
