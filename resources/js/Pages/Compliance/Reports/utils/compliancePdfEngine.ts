@@ -6,15 +6,85 @@
 import { getCompliancePdfConfig } from './printConfig';
 
 export interface ReportPdfMetadata {
+    id?: number | string | null;
+    report_id?: number | string | null;
     type?: string | null;
     reference?: string | null;
     title?: string | null;
+    periodType?: string | null;
+    selectedMonth?: number | null;
+    selectedYear?: number | null;
+    date?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    payload?: any;
 }
+
+export const downloadCompliancePdfFromBackend = async (
+    reportInfo: ReportPdfMetadata,
+): Promise<void> => {
+    const csrfToken =
+        (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ||
+        '';
+
+    const safeName = [reportInfo.type, reportInfo.reference, reportInfo.title]
+        .filter(Boolean)
+        .join('_')
+        .replace(/[^a-z0-9_-]+/gi, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_|_$/g, '');
+    const fileName = `${safeName || 'compliance_report'}.pdf`;
+
+    const requestBody = {
+        report_id: reportInfo.id || reportInfo.report_id || null,
+        type: reportInfo.type,
+        reference: reportInfo.reference,
+        title: reportInfo.title,
+        periodType: reportInfo.periodType,
+        selectedMonth: reportInfo.selectedMonth,
+        selectedYear: reportInfo.selectedYear,
+        date: reportInfo.date,
+        startDate: reportInfo.startDate,
+        endDate: reportInfo.endDate,
+        payload: reportInfo.payload,
+    };
+
+    const response = await fetch('/compliance/reports/export-pdf', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            Accept: 'application/pdf',
+        },
+        body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+        throw new Error(`PDF export failed with status ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+};
 
 export const generateCompliancePdf = async (
     paperElement: HTMLElement,
     reportInfo: ReportPdfMetadata,
 ): Promise<void> => {
+    try {
+        await downloadCompliancePdfFromBackend(reportInfo);
+        return;
+    } catch (e) {
+        console.warn('Backend PDF generation failed, falling back to canvas capture:', e);
+    }
+
     const config = getCompliancePdfConfig(reportInfo.type);
 
     // Dynamic import of jspdf and html2canvas for optimal code splitting
@@ -38,7 +108,6 @@ export const generateCompliancePdf = async (
     const targetPxWidth = Math.round(config.targetWidthMm * mmToPx);
 
     // Create an isolated, offscreen wrapper with exact physical print width
-    // This prevents screen/modal responsive flex constraints from distorting the captured output
     const wrapper = document.createElement('div');
     wrapper.className = 'compliance-pdf-render-wrapper';
     wrapper.style.position = 'fixed';
@@ -67,12 +136,10 @@ export const generateCompliancePdf = async (
     document.body.appendChild(wrapper);
 
     try {
-        // Ensure web fonts are rendered before canvas capture
         if (document.fonts && document.fonts.ready) {
             await document.fonts.ready;
         }
 
-        // Capture high-res canvas at 2.5x pixel ratio for crisp official text
         const canvas = await html2canvas(clone, {
             scale: 2.5,
             backgroundColor: '#ffffff',
@@ -97,7 +164,6 @@ export const generateCompliancePdf = async (
         const margin = config.marginMm;
         const printableHeight = config.targetHeightMm;
 
-        // If content fits within a single page, place it top-aligned with official margin
         if (totalContentHeightMm <= printableHeight) {
             const pageData = canvas.toDataURL('image/png');
             doc.addImage(
@@ -111,8 +177,6 @@ export const generateCompliancePdf = async (
                 'FAST',
             );
         } else {
-            // Multi-page document: slice the high-res canvas across pages cleanly
-            // This maintains 100% font scale and table width without compressing the document
             const pageHeightPx = Math.floor(printableHeight / mmPerPx);
             const totalPages = Math.ceil(canvasHeight / pageHeightPx);
 
@@ -163,7 +227,6 @@ export const generateCompliancePdf = async (
 
         doc.save(fileName);
     } finally {
-        // Clean up temporary DOM wrapper
         if (document.body.contains(wrapper)) {
             document.body.removeChild(wrapper);
         }

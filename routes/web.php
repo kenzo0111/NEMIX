@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\RfidDeviceSettingController;
 use App\Http\Controllers\Admin\SystemSettingController;
 use App\Http\Controllers\Compliance\ComplianceAnalyticsController;
 use App\Http\Controllers\Compliance\ComplianceMigrationController;
+use App\Http\Controllers\Compliance\CompliancePdfController;
 use App\Http\Controllers\Compliance\ComplianceReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Inventory\RfidScannerController;
@@ -29,6 +30,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/compliance/reports', [ComplianceReportController::class, 'index'])->name('compliance.reports');
     Route::post('/compliance/reports', [ComplianceReportController::class, 'store'])->name('compliance.reports.store');
     Route::post('/compliance/reports/preview-dataset', [ComplianceReportController::class, 'previewDataset'])->name('compliance.reports.preview_dataset');
+    Route::post('/compliance/reports/export-pdf', [CompliancePdfController::class, 'exportPdf'])->name('compliance.reports.export_pdf');
+    Route::get('/compliance/reports/export-pdf', [CompliancePdfController::class, 'exportPdf']);
     Route::put('/compliance/reports/{report}', [ComplianceReportController::class, 'update'])->name('compliance.reports.update');
     Route::delete('/compliance/reports/{report}', [ComplianceReportController::class, 'archive'])->name('compliance.reports.archive');
 

@@ -105,9 +105,17 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
         try {
             setIsDownloading(true);
             await generateCompliancePdf(paperElement, {
+                id: report.id,
                 type: report.type,
                 reference: report.reference,
                 title: report.title,
+                periodType: report.periodType || report.period_type,
+                selectedMonth: report.selectedMonth || report.selected_month,
+                selectedYear: report.selectedYear || report.selected_year,
+                date: report.date,
+                startDate: report.startDate || report.start_date,
+                endDate: report.endDate || report.end_date,
+                payload: report.payload,
             });
         } catch (error) {
             console.error('Failed to generate compliance PDF:', error);
