@@ -1,0 +1,22 @@
+PHPUnit 11.5.46 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.2.12
+Configuration: C:\Users\Ramil\Downloads\NEMIX\phpunit.xml
+
+...............................................................  63 / 273 ( 23%)
+............................................................... 126 / 273 ( 46%)
+............................................................... 189 / 273 ( 69%)
+............F.................................................. 252 / 273 ( 92%)
+.....................                                           273 / 273 (100%)
+
+Time: 00:45.627, Memory: 94.00 MB
+
+There was 1 failure:
+
+1) Tests\Feature\IsoIec25010DefectFixesTest::test_multi_item_rsmi_generates_distinct_lines_and_correct_totals
+Failed asserting that null is not null.
+
+C:\Users\Ramil\Downloads\NEMIX\tests\Feature\IsoIec25010DefectFixesTest.php:234
+
+FAILURES!
+Tests: 273, Assertions: 1682, Failures: 1.
