@@ -53,7 +53,7 @@ git push origin master
 # Step 3: Deploy to server and apply updates
 ssh root@157.230.253.79 "cd /var/www/NEMIX && git pull origin master"
 scp -r public/build root@157.230.253.79:/var/www/NEMIX/public/
-ssh root@157.230.253.79 "docker cp /var/www/NEMIX/public/build/. nemix-app-1:/var/www/html/public/build/ && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan migrate --force && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan optimize:clear && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan config:cache && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan route:cache && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan view:cache && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan queue:restart"
+ssh root@157.230.253.79 "chmod -R 755 /var/www/NEMIX/public/build && docker cp /var/www/NEMIX/public/build/. nemix-app-1:/var/www/html/public/build/ && docker exec nemix-app-1 chmod -R 755 /var/www/html/public/build && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan migrate --force && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan optimize:clear && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan config:cache && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan route:cache && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan view:cache && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan queue:restart"
 ```
 
 ---
