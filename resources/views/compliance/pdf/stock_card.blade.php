@@ -119,15 +119,19 @@
     {{-- Top Info Grid with explicit column widths to prevent header wrapping --}}
     <table class="sc-top-info">
         <colgroup>
-            <col width="52%" style="width: 52%;">
-            <col width="3.5%" style="width: 3.5%;">
-            <col width="44.5%" style="width: 44.5%;">
+            <col width="12%" style="width: 12%;">
+            <col width="40%" style="width: 40%;">
+            <col width="4%" style="width: 4%;">
+            <col width="12%" style="width: 12%;">
+            <col width="32%" style="width: 32%;">
         </colgroup>
         <tbody>
             <tr>
-                <td style="padding: 0;"><table class="sc-field-group"><tbody><tr><td width="33%" class="sc-field-label">Entity Name:</td><td width="67%" class="sc-field-value">{{ $entityName }}</td></tr></tbody></table></td>
-                <td></td>
-                <td style="padding: 0;"><table class="sc-field-group"><tbody><tr><td width="33%" class="sc-field-label">Fund Cluster:</td><td width="67%" class="sc-field-value">{{ $fundCluster }}</td></tr></tbody></table></td>
+                <td width="12%" style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Entity Name:</td>
+                <td width="40%" style="border-bottom: 1px solid #000000; padding: 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $entityName }}</td>
+                <td width="4%">&nbsp;</td>
+                <td width="12%" style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Fund Cluster:</td>
+                <td width="32%" style="border-bottom: 1px solid #000000; padding: 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $fundCluster }}</td>
             </tr>
         </tbody>
     </table>
