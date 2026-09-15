@@ -361,10 +361,406 @@ class ComplianceReportDataService
     }
 
     /**
+     * Builds dataset for a single month's RSMI reporting period.
+     */
+    public function buildMonthlyRsmiDataset(int $year, int $month, array $filters = []): array
+    {
+        $start = Carbon::create($year, $month, 1, 0, 0, 0, $this->timezone)->startOfDay();
+        $end = $start->copy()->endOfMonth()->endOfDay();
+
+        $monthName = $start->format('F');
+        $periodLabel = $monthName . ' 1–' . $end->day . ', ' . $year;
+        $periodStart = $start->format('Y-m-d');
+        $periodEnd = $end->format('Y-m-d');
+
+        $records = collect();
+
+        // 1. Live Issuances
+        if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
+            $liveIssuances = \Modules\Inventory\Models\Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches', 'issuer'])
+                ->latest()
+                ->get()
+                ->filter(function ($issuance) use ($periodStart, $periodEnd) {
+                    $dt = $this->normalizeDate($issuance->date_issued ?? $issuance->created_at);
+                    return $dt && $dt >= $periodStart && $dt <= $periodEnd;
+                })
+                ->flatMap(function ($issuance) {
+                    $rawDate = $issuance->date_issued ?? $issuance->created_at;
+                    $normDate = $this->normalizeDate($rawDate);
+                    $risNo = $issuance->ris_number ?: ($issuance->id ? sprintf('%04d', $issuance->id) : '-');
+                    $deptName = $issuance->department ?? '-';
+                    $deptCode = $this->extractAcronym($deptName);
+                    $fundCluster = $issuance->fund_cluster ?? '01 - Regular Agency Fund';
+
+                    if ($issuance->items->isNotEmpty()) {
+                        return $issuance->items->map(function ($line) use ($normDate, $risNo, $deptName, $deptCode, $fundCluster) {
+                            $item = $line->item;
+                            $qty = (int) $line->quantity;
+                            $unitCost = (float) ($line->unit_cost ?? $item?->unit_cost ?? 0);
+                            $amount = (float) ($line->amount ?? ($qty * $unitCost));
+
+                            $allocBatch = $line->allocations->first()?->inventoryBatch;
+                            $supplierStockNo = $this->resolveSupplierStockNo($allocBatch, $item, $line->item_id);
+                            $officialStockNo = $supplierStockNo ?: '-';
+
+                            return [
+                                'source' => 'live',
+                                'risNo' => $risNo,
+                                'responsibilityCenterCode' => $deptCode,
+                                'responsibility_center' => [
+                                    'name' => $deptName,
+                                    'code' => $deptCode,
+                                    'acronym' => $deptCode,
+                                ],
+                                'stockNo' => $officialStockNo,
+                                'stock_no' => $officialStockNo,
+                                'supplier_stock_no' => $supplierStockNo,
+                                'item_no' => $item?->sku,
+                                'itemDescription' => $item?->name ?? '-',
+                                'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
+                                'quantityIssued' => $qty,
+                                'unitCost' => $unitCost,
+                                'amount' => $amount,
+                                'date' => $normDate,
+                                'entity_name' => $this->getSystemEntityName(),
+                                'fund_cluster' => $fundCluster,
+                            ];
+                        });
+                    }
+
+                    $item = $issuance->item;
+                    $qty = (int) ($issuance->quantity ?? 0);
+                    $unitCost = (float) ($item?->unit_cost ?? 0);
+                    $amount = $qty * $unitCost;
+
+                    $supplierStockNo = $this->resolveSupplierStockNo(null, $item, $issuance->item_id);
+                    $officialStockNo = $supplierStockNo ?: '-';
+
+                    return [[
+                        'source' => 'live',
+                        'risNo' => $risNo,
+                        'responsibilityCenterCode' => $deptCode,
+                        'responsibility_center' => [
+                            'name' => $deptName,
+                            'code' => $deptCode,
+                            'acronym' => $deptCode,
+                        ],
+                        'stockNo' => $officialStockNo,
+                        'stock_no' => $officialStockNo,
+                        'supplier_stock_no' => $supplierStockNo,
+                        'item_no' => $item?->sku,
+                        'itemDescription' => $item?->name ?? '-',
+                        'unit' => $item?->unit_of_issue ?? $item?->unit_measure ?? 'pc',
+                        'quantityIssued' => $qty,
+                        'unitCost' => $unitCost,
+                        'amount' => $amount,
+                        'date' => $normDate,
+                        'entity_name' => $this->getSystemEntityName(),
+                        'fund_cluster' => $fundCluster,
+                    ]];
+                });
+
+            $records = $records->concat($liveIssuances);
+        }
+
+        // 2. Migrated RSMI Records
+        if (Schema::hasTable('rsmi_migrated_records')) {
+            $migrated = RsmiMigratedRecord::query()
+                ->latest()
+                ->get()
+                ->filter(function ($rec) use ($periodStart, $periodEnd) {
+                    $dt = $this->normalizeDate($rec->date ?? data_get($rec->raw_data, 'date'));
+                    return $dt && $dt >= $periodStart && $dt <= $periodEnd;
+                })
+                ->map(function ($rec) {
+                    $raw = $rec->raw_data ?? [];
+                    $qty = (int) ($rec->quantity_issued ?? data_get($raw, 'quantity') ?? 0);
+                    $cost = (float) ($rec->unit_cost ?? data_get($raw, 'unit_cost') ?? 0);
+                    $amt = (float) ($rec->amount ?? data_get($raw, 'amount') ?? ($qty * $cost));
+
+                    $rawCenter = $rec->center_code ?? data_get($raw, 'center_code') ?? data_get($raw, 'responsibility_center_code') ?? '-';
+                    $centerCode = $this->extractAcronym($rawCenter);
+                    $risNo = $rec->ris_no ?? $rec->serial_no ?? data_get($raw, 'ris_no') ?? ('RSMI-HIST-' . $rec->id);
+
+                    return [
+                        'source' => 'migration',
+                        'risNo' => $risNo,
+                        'responsibilityCenterCode' => $centerCode,
+                        'responsibility_center' => [
+                            'name' => $rawCenter,
+                            'code' => $centerCode,
+                            'acronym' => $centerCode,
+                        ],
+                        'stockNo' => $rec->stock_no ?? data_get($raw, 'stock_no') ?? '-',
+                        'itemDescription' => $rec->item ?? data_get($raw, 'item_name') ?? '-',
+                        'unit' => $rec->unit ?? data_get($raw, 'unit') ?? 'pc',
+                        'quantityIssued' => $qty,
+                        'unitCost' => $cost,
+                        'amount' => $amt,
+                        'date' => $this->normalizeDate($rec->date ?? data_get($raw, 'date')),
+                        'entity_name' => $rec->entity_name ?? data_get($raw, 'entity_name') ?? $this->getSystemEntityName(),
+                        'fund_cluster' => $rec->fund_cluster ?? data_get($raw, 'fund_cluster') ?? $this->getDefaultFundCluster(),
+                    ];
+                });
+
+            $records = $records->concat($migrated);
+        }
+
+        // 3. Legacy compliance migrated records
+        if (Schema::hasTable('compliance_migrated_records')) {
+            $legacy = ComplianceMigratedRecord::query()
+                ->where('form_type', 'RSMI')
+                ->latest()
+                ->get()
+                ->filter(function ($rec) use ($periodStart, $periodEnd) {
+                    $dt = $this->normalizeDate($rec->date);
+                    return $dt && $dt >= $periodStart && $dt <= $periodEnd;
+                })
+                ->map(function ($rec) {
+                    $raw = $rec->payload ?? [];
+                    $qty = (int) ($rec->quantity ?? 0);
+                    $cost = (float) data_get($raw, 'unit_cost', 0);
+                    $amt = (float) data_get($raw, 'amount', $qty * $cost);
+
+                    $rawDept = $rec->department ?? '-';
+                    $deptCode = $this->extractAcronym($rawDept);
+
+                    return [
+                        'source' => 'migration_legacy',
+                        'risNo' => $rec->reference ?? ('RSMI-LEGACY-' . $rec->id),
+                        'responsibilityCenterCode' => $deptCode,
+                        'responsibility_center' => [
+                            'name' => $rawDept,
+                            'code' => $deptCode,
+                            'acronym' => $deptCode,
+                        ],
+                        'stockNo' => data_get($raw, 'stock_no', '-'),
+                        'itemDescription' => $rec->item_name ?? '-',
+                        'unit' => data_get($raw, 'unit', 'pc'),
+                        'quantityIssued' => $qty,
+                        'unitCost' => $cost,
+                        'amount' => $amt,
+                        'date' => $this->normalizeDate($rec->date),
+                        'entity_name' => $this->getSystemEntityName(),
+                        'fund_cluster' => $this->getDefaultFundCluster(),
+                    ];
+                });
+
+            $records = $records->concat($legacy);
+        }
+
+        if ($records->isEmpty()) {
+            return [
+                'month' => $month,
+                'month_name' => $monthName,
+                'period_label' => $periodLabel,
+                'period_start' => $periodStart,
+                'period_end' => $periodEnd,
+                'has_records' => false,
+                'record_count' => 0,
+                'total_units' => 0,
+                'total_amount' => 0,
+                'forms' => [],
+            ];
+        }
+
+        // Map into official issuedItems format
+        $issuedItems = $records->values()->map(function ($r) {
+            $stockNo = $r['stockNo'] ?? '-';
+            $supplierStockNo = $r['supplier_stock_no'] ?? ($stockNo !== '-' ? $stockNo : null);
+            $rawCost = (float) ($r['unitCost'] ?? 0);
+            $rawAmt = (float) ($r['amount'] ?? 0);
+
+            return [
+                'risNo' => $r['risNo'],
+                'responsibilityCenterCode' => $r['responsibilityCenterCode'],
+                'responsibility_center' => $r['responsibility_center'] ?? [
+                    'name' => $r['responsibilityCenterCode'],
+                    'code' => $r['responsibilityCenterCode'],
+                    'acronym' => $r['responsibilityCenterCode'],
+                ],
+                'stockNo' => $stockNo,
+                'stock_no' => $stockNo,
+                'supplier_stock_no' => $supplierStockNo,
+                'item_no' => $r['item_no'] ?? null,
+                'itemDescription' => $r['itemDescription'],
+                'unit' => $r['unit'],
+                'quantityIssued' => (int) $r['quantityIssued'],
+                'unitCost' => '₱' . number_format($rawCost, 2),
+                'amount' => '₱' . number_format($rawAmt, 2),
+                'rawUnitCost' => $rawCost,
+                'rawAmount' => $rawAmt,
+                'date' => $r['date'],
+            ];
+        })->toArray();
+
+        // Paginate issued items into forms (max 10 items per official Appendix 64 form page)
+        $itemChunks = array_chunk($issuedItems, 10);
+        $forms = [];
+        $custodianName = SystemSetting::get('signatories.rsmi_certified_by_name', 'Supply Custodian');
+        $accountingStaff = SystemSetting::get('signatories.rsmi_posted_by_name', 'Accounting Staff');
+        $fundCluster = $records->first()['fund_cluster'] ?? $this->getDefaultFundCluster();
+
+        foreach ($itemChunks as $idx => $chunk) {
+            $seqNo = $idx + 1;
+            $serialNo = sprintf('%04d-%02d-%03d', $year, $month, $seqNo);
+
+            // Compute recapitulation specifically for this form chunk
+            $recapMap = [];
+            foreach ($chunk as $item) {
+                $stockNo = $item['stockNo'] ?? '-';
+                $supplierStockNo = $item['supplier_stock_no'] ?? ($stockNo !== '-' ? $stockNo : null);
+                $rawCost = (float) ($item['rawUnitCost'] ?? 0);
+                $key = $stockNo . '|' . $rawCost;
+
+                if (!isset($recapMap[$key])) {
+                    $recapMap[$key] = [
+                        'stockNo' => $stockNo,
+                        'stock_no' => $stockNo,
+                        'supplier_stock_no' => $supplierStockNo,
+                        'quantity' => 0,
+                        'unitCost' => '₱' . number_format($rawCost, 2),
+                        'rawTotalCost' => 0,
+                        'totalCost' => '0.00',
+                        'uacsObjectCode' => '',
+                    ];
+                }
+                $recapMap[$key]['quantity'] += (int) $item['quantityIssued'];
+                $recapMap[$key]['rawTotalCost'] += (float) ($item['rawAmount'] ?? 0);
+                $recapMap[$key]['totalCost'] = '₱' . number_format($recapMap[$key]['rawTotalCost'], 2);
+            }
+
+            $forms[] = [
+                'serialNo' => $serialNo,
+                'serial_no' => $serialNo,
+                'periodLabel' => $periodLabel,
+                'period_label' => $periodLabel,
+                'date' => $periodLabel,
+                'entityName' => $this->getSystemEntityName(),
+                'fundCluster' => $fundCluster,
+                'issuedItems' => $chunk,
+                'recapitulationItems' => array_values($recapMap),
+                'supplyCustodianName' => $custodianName,
+                'accountingStaffName' => $accountingStaff,
+                'accountingDate' => $periodEnd,
+            ];
+        }
+
+        $totalUnits = (int) $records->sum('quantityIssued');
+        $totalAmount = (float) $records->sum('amount');
+
+        return [
+            'month' => $month,
+            'month_name' => $monthName,
+            'period_label' => $periodLabel,
+            'period_start' => $periodStart,
+            'period_end' => $periodEnd,
+            'has_records' => true,
+            'record_count' => count($issuedItems),
+            'total_units' => $totalUnits,
+            'total_amount' => $totalAmount,
+            'forms' => $forms,
+        ];
+    }
+
+    /**
      * Authoritatively retrieves and formats RSMI records.
      */
     public function getRsmiRecords(array $filters): array
     {
+        $periodType = $filters['periodType'] ?? $filters['period_type'] ?? 'all';
+
+        if ($periodType === 'yearly') {
+            $year = (int) ($filters['selectedYear'] ?? $filters['selected_year'] ?? now($this->timezone)->year);
+            $months = [];
+            $allIssuedItems = [];
+            $allRecapItems = [];
+            $totalForms = 0;
+            $activeMonths = 0;
+            $totalUnits = 0;
+            $totalAmount = 0;
+
+            for ($m = 1; $m <= 12; $m++) {
+                $mReport = $this->buildMonthlyRsmiDataset($year, $m, $filters);
+                $months[] = $mReport;
+
+                if ($mReport['has_records']) {
+                    $activeMonths++;
+                    $totalForms += count($mReport['forms']);
+                    $totalUnits += $mReport['total_units'];
+                    $totalAmount += $mReport['total_amount'];
+
+                    foreach ($mReport['forms'] as $f) {
+                        $allIssuedItems = array_merge($allIssuedItems, $f['issuedItems']);
+                        $allRecapItems = array_merge($allRecapItems, $f['recapitulationItems']);
+                    }
+                }
+            }
+
+            return [
+                'period_format' => 'yearly',
+                'periodType' => 'yearly',
+                'year' => $year,
+                'issuedItems' => $allIssuedItems,
+                'recapitulationItems' => $allRecapItems,
+                'recapitulation' => $allRecapItems,
+                'summary' => [
+                    'recordCount' => count($allIssuedItems),
+                    'totalUnits' => $totalUnits,
+                    'totalAmount' => $totalAmount,
+                    'totalForms' => $totalForms,
+                    'activeMonths' => $activeMonths,
+                ],
+                'yearly' => [
+                    'year' => $year,
+                    'total_forms' => $totalForms,
+                    'active_months' => $activeMonths,
+                    'months' => $months,
+                ],
+                'entityName' => $this->getSystemEntityName(),
+                'entity_name' => $this->getSystemEntityName(),
+                'fundCluster' => $this->getDefaultFundCluster(),
+                'fund_cluster' => $this->getDefaultFundCluster(),
+            ];
+        }
+
+        if ($periodType === 'monthly') {
+            $year = (int) ($filters['selectedYear'] ?? $filters['selected_year'] ?? now($this->timezone)->year);
+            $month = (int) ($filters['selectedMonth'] ?? $filters['selected_month'] ?? now($this->timezone)->month);
+
+            $mReport = $this->buildMonthlyRsmiDataset($year, $month, $filters);
+
+            $allIssuedItems = [];
+            $allRecapItems = [];
+            foreach ($mReport['forms'] as $f) {
+                $allIssuedItems = array_merge($allIssuedItems, $f['issuedItems']);
+                $allRecapItems = array_merge($allRecapItems, $f['recapitulationItems']);
+            }
+
+            return [
+                'period_format' => 'monthly',
+                'periodType' => 'monthly',
+                'year' => $year,
+                'month' => $month,
+                'issuedItems' => $allIssuedItems,
+                'recapitulationItems' => $allRecapItems,
+                'recapitulation' => $allRecapItems,
+                'forms' => $mReport['forms'],
+                'summary' => [
+                    'recordCount' => $mReport['record_count'],
+                    'totalUnits' => $mReport['total_units'],
+                    'totalAmount' => $mReport['total_amount'],
+                    'totalForms' => count($mReport['forms']),
+                ],
+                'monthly' => $mReport,
+                'entityName' => $this->getSystemEntityName(),
+                'entity_name' => $this->getSystemEntityName(),
+                'fundCluster' => $this->getDefaultFundCluster(),
+                'fund_cluster' => $this->getDefaultFundCluster(),
+            ];
+        }
+
+        // Default / All / Specific / Range handling
         $records = collect();
 
         // 1. Live Issuances
@@ -391,7 +787,6 @@ class ComplianceReportDataService
                             $unitCost = (float) ($line->unit_cost ?? $item?->unit_cost ?? 0);
                             $amount = (float) ($line->amount ?? ($qty * $unitCost));
 
-                            // Resolve Supplier Stock Number from allocation batch first, then line/item
                             $allocBatch = $line->allocations->first()?->inventoryBatch;
                             $supplierStockNo = $this->resolveSupplierStockNo($allocBatch, $item, $line->item_id);
                             $officialStockNo = $supplierStockNo ?: '-';
@@ -541,7 +936,6 @@ class ComplianceReportDataService
             $records = $records->concat($legacy);
         }
 
-        // Map into official issuedItems format
         $issuedItems = $records->values()->map(function ($r) {
             $stockNo = $r['stockNo'] ?? '-';
             $supplierStockNo = $r['supplier_stock_no'] ?? ($stockNo !== '-' ? $stockNo : null);
@@ -566,7 +960,6 @@ class ComplianceReportDataService
             ];
         })->toArray();
 
-        // Recapitulation grouping
         $recapMap = [];
         foreach ($records as $r) {
             $stockNo = $r['stockNo'] ?? '-';
@@ -590,18 +983,41 @@ class ComplianceReportDataService
         }
 
         $recapitulationItems = array_values($recapMap);
-
         $totalUnits = $records->sum('quantityIssued');
         $totalAmount = $records->sum('amount');
+
+        $itemChunks = array_chunk($issuedItems, 10);
+        $forms = [];
+        $genDateStr = $this->buildCoverageLabel($filters);
+
+        foreach ($itemChunks as $idx => $chunk) {
+            $seqNo = $idx + 1;
+            $forms[] = [
+                'serialNo' => sprintf('RSMI-%03d', $seqNo),
+                'serial_no' => sprintf('RSMI-%03d', $seqNo),
+                'periodLabel' => $genDateStr,
+                'period_label' => $genDateStr,
+                'date' => $genDateStr,
+                'entityName' => $this->getSystemEntityName(),
+                'fundCluster' => $records->first()['fund_cluster'] ?? $this->getDefaultFundCluster(),
+                'issuedItems' => $chunk,
+                'recapitulationItems' => $recapitulationItems,
+                'supplyCustodianName' => SystemSetting::get('signatories.rsmi_certified_by_name', 'Supply Custodian'),
+                'accountingStaffName' => SystemSetting::get('signatories.rsmi_posted_by_name', 'Accounting Staff'),
+                'accountingDate' => now($this->timezone)->format('Y-m-d'),
+            ];
+        }
 
         return [
             'issuedItems' => $issuedItems,
             'recapitulationItems' => $recapitulationItems,
             'recapitulation' => $recapitulationItems,
+            'forms' => $forms,
             'summary' => [
                 'recordCount' => count($issuedItems),
                 'totalUnits' => $totalUnits,
                 'totalAmount' => $totalAmount,
+                'totalForms' => count($forms),
             ],
             'entityName' => $this->getSystemEntityName(),
             'entity_name' => $this->getSystemEntityName(),
@@ -1251,8 +1667,13 @@ class ComplianceReportDataService
         $systemEntity = $this->getSystemEntityName();
         $defaultFund = $this->getDefaultFundCluster();
 
+        $periodType = $filters['periodType'] ?? $filters['period_type'] ?? 'all';
+
         $dataset = [
             'type' => $type,
+            'periodType' => $periodType,
+            'period_type' => $periodType,
+            'period_format' => $periodType,
             'reference' => $reference,
             'generatedDate' => $genDate,
             'coverageLabel' => $coverageLabel,
@@ -1268,6 +1689,15 @@ class ComplianceReportDataService
                 $data = $this->getRsmiRecords($filters);
                 $dataset['rsmi'] = $data;
                 $dataset['summary'] = $data['summary'];
+                if (!empty($data['yearly'])) {
+                    $dataset['yearly'] = $data['yearly'];
+                }
+                if (!empty($data['monthly'])) {
+                    $dataset['monthly'] = $data['monthly'];
+                }
+                if (!empty($data['forms'])) {
+                    $dataset['forms'] = $data['forms'];
+                }
                 $dataset['title'] = $filters['title'] ?? 'RSMI - Supplies and Materials Issued';
                 break;
 

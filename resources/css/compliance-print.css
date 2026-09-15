@@ -313,4 +313,15 @@
     ::-webkit-scrollbar {
         display: none !important;
     }
+
+    /* Page Breaks for Multi-Form / Yearly Packages */
+    .rsmi-yearly-page-break {
+        page-break-before: always !important;
+        break-before: page !important;
+    }
+    .rsmi-yearly-page-break:first-child {
+        page-break-before: auto !important;
+        break-before: auto !important;
+    }
 }
+

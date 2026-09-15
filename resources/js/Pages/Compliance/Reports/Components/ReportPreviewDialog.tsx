@@ -11,6 +11,8 @@ import {
 } from '../utils/printConfig';
 import { generateCompliancePdf } from '../utils/compliancePdfEngine';
 
+import { RsmiYearlyPreview } from './RsmiYearlyPreview';
+
 const RSMIFormPaper = lazy(() =>
     import('../../../../../Official Forms/RSMI Report').then((m) => ({ default: m.RSMIFormPaper })),
 );
@@ -126,12 +128,35 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
             );
         }
 
-        if (report.type === 'RSMI' && normalized.rsmiData) {
-            return (
-                <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
-                    <RSMIFormPaper data={normalized.rsmiData} />
-                </Suspense>
-            );
+        if (report.type === 'RSMI') {
+            if (normalized.isYearlyPackage && normalized.yearlyRsmiData) {
+                return <RsmiYearlyPreview yearlyData={normalized.yearlyRsmiData} />;
+            }
+
+            if (normalized.rsmiData?.forms && normalized.rsmiData.forms.length > 0) {
+                return (
+                    <div className="space-y-8 print:space-y-0">
+                        {normalized.rsmiData.forms.map((form: any, idx: number) => (
+                            <div
+                                key={`rsmi-page-${idx}`}
+                                className="rsmi-yearly-page-break print:break-before-page print:page-break-before-always mb-8 print:mb-0"
+                            >
+                                <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
+                                    <RSMIFormPaper data={form} />
+                                </Suspense>
+                            </div>
+                        ))}
+                    </div>
+                );
+            }
+
+            if (normalized.rsmiData) {
+                return (
+                    <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading form template...</div>}>
+                        <RSMIFormPaper data={normalized.rsmiData} />
+                    </Suspense>
+                );
+            }
         }
 
         if (report.type === 'RPCI' && normalized.rpciData) {

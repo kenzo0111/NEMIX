@@ -75,6 +75,41 @@ export interface ReportRecord {
     [key: string]: any;
 }
 
+export interface RsmiFormDataset {
+    serialNo: string;
+    serial_no?: string;
+    periodLabel: string;
+    period_label?: string;
+    date: string;
+    entityName: string;
+    fundCluster: string;
+    issuedItems: any[];
+    recapitulationItems: any[];
+    supplyCustodianName: string;
+    accountingStaffName: string;
+    accountingDate: string;
+}
+
+export interface RsmiMonthReport {
+    month: number;
+    month_name: string;
+    period_label: string;
+    period_start: string;
+    period_end: string;
+    has_records: boolean;
+    record_count: number;
+    total_units: number;
+    total_amount: number;
+    forms: RsmiFormDataset[];
+}
+
+export interface RsmiYearReport {
+    year: number;
+    total_forms: number;
+    active_months: number;
+    months: RsmiMonthReport[];
+}
+
 export interface ReportDatasetSummary {
     recordCount: number;
     totalUnits?: number;
@@ -82,6 +117,8 @@ export interface ReportDatasetSummary {
     totalAmount?: number;
     totalValue?: number;
     currentBalance?: number;
+    totalForms?: number;
+    activeMonths?: number;
 }
 
 export interface ReportDatasetResponse {
@@ -96,12 +133,16 @@ export interface ReportDatasetResponse {
     fund_cluster?: string;
     summary: ReportDatasetSummary;
     signatories?: any;
+    yearly?: RsmiYearReport;
+    period_format?: string;
     rsmi?: {
         issuedItems: any[];
         recapitulationItems: any[];
         summary: ReportDatasetSummary;
         entityName?: string;
         fundCluster?: string;
+        forms?: RsmiFormDataset[];
+        yearly?: RsmiYearReport;
     };
     rpci?: {
         items: any[];

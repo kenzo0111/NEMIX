@@ -8,6 +8,9 @@ export interface NormalizedReportData {
     reference: string;
     generatedDate: string;
     title: string;
+    isYearlyPackage?: boolean;
+    yearlyRsmiData?: any;
+    rsmiForms?: any[];
     rsmiData?: {
         entityName: string;
         fundCluster: string;
@@ -18,6 +21,7 @@ export interface NormalizedReportData {
         supplyCustodianName: string;
         accountingStaffName: string;
         accountingDate: string;
+        forms?: any[];
     };
     rpciData?: {
         entity_name: string;
@@ -173,13 +177,37 @@ export function normalizeReportPaperData(
             (snapshot?.issuedItems ? snapshot : null) ||
             {};
 
-        const rawIssuedItems =
-            rsmiSource.issuedItems ||
-            payload.issuedItems ||
-            snapshot.issuedItems ||
-            [];
+        const yearlySource =
+            dataset?.yearly ||
+            snapshot?.yearly ||
+            payload?.yearly ||
+            rsmiSource?.yearly ||
+            ((report?.periodType === 'yearly' || dataset?.period_format === 'yearly' || fallbackFormData?.periodType === 'yearly') ? (snapshot || payload || dataset) : null);
 
-        const issuedItems = (Array.isArray(rawIssuedItems) ? rawIssuedItems : []).map((item: any) => {
+        const entityName = isSavedReport
+            ? (savedEntityName || rsmiSource.entityName || rsmiSource.entity_name || resolvedEntityName)
+            : resolvedEntityName;
+
+        const fundCluster = formatFundClusterDisplay(
+            rsmiSource.fundCluster ||
+            rsmiSource.fund_cluster ||
+            payload.fundCluster ||
+            fallbackFormData?.fundCluster ||
+            defaultFundCluster,
+        );
+
+        const supplyCustodianName =
+            publicSettings['signatories_rsmi_certified_by_name'] ||
+            payload.supplyCustodianName ||
+            user?.name ||
+            'Supply Custodian';
+
+        const accountingStaffName =
+            publicSettings['signatories_rsmi_posted_by_name'] ||
+            payload.accountingStaffName ||
+            'Accounting Staff';
+
+        const normalizeSingleItem = (item: any) => {
             if (!item || typeof item !== 'object') return item;
             const code = getResponsibilityCenterCode(item);
             const fullName =
@@ -209,7 +237,75 @@ export function normalizeReportPaperData(
                     acronym: code,
                 },
             };
-        });
+        };
+
+        const normalizeRecap = (r: any) => {
+            if (!r || typeof r !== 'object') return r;
+            const officialStockNo = r.supplier_stock_no || r.stock_no || r.stockNo || '-';
+            return {
+                ...r,
+                stockNo: officialStockNo,
+                stock_no: officialStockNo,
+                supplier_stock_no: r.supplier_stock_no || (officialStockNo !== '-' ? officialStockNo : null),
+            };
+        };
+
+        const normalizeForm = (f: any) => {
+            if (!f || typeof f !== 'object') return f;
+            const rawIssued = f.issuedItems || f.items || [];
+            const rawRecap = f.recapitulationItems || f.recapitulation || [];
+
+            return {
+                serialNo: f.serialNo || f.serial_no || reference,
+                serial_no: f.serialNo || f.serial_no || reference,
+                date: f.date || f.periodLabel || f.period_label || formattedDate,
+                periodLabel: f.periodLabel || f.period_label || f.date || formattedDate,
+                period_label: f.periodLabel || f.period_label || f.date || formattedDate,
+                entityName: f.entityName || f.entity_name || entityName,
+                fundCluster: formatFundClusterDisplay(f.fundCluster || f.fund_cluster || fundCluster),
+                issuedItems: (Array.isArray(rawIssued) ? rawIssued : []).map(normalizeSingleItem),
+                recapitulationItems: (Array.isArray(rawRecap) ? rawRecap : []).map(normalizeRecap),
+                supplyCustodianName: f.supplyCustodianName || supplyCustodianName,
+                accountingStaffName: f.accountingStaffName || accountingStaffName,
+                accountingDate: f.accountingDate || formattedDate,
+            };
+        };
+
+        // Check if yearly report package dataset exists
+        if (yearlySource && Array.isArray(yearlySource.months)) {
+            const normalizedMonths = yearlySource.months.map((m: any) => {
+                const rawForms = m.forms || [];
+                const normForms = (Array.isArray(rawForms) ? rawForms : []).map(normalizeForm);
+                return {
+                    ...m,
+                    forms: normForms,
+                };
+            });
+
+            const yearlyData = {
+                year: yearlySource.year || fallbackFormData?.selectedYear || new Date().getFullYear(),
+                total_forms: yearlySource.total_forms || 0,
+                active_months: yearlySource.active_months || 0,
+                months: normalizedMonths,
+            };
+
+            return {
+                type: 'RSMI',
+                reference,
+                generatedDate: formattedDate,
+                title,
+                isYearlyPackage: true,
+                yearlyRsmiData: yearlyData,
+            };
+        }
+
+        const rawIssuedItems =
+            rsmiSource.issuedItems ||
+            payload.issuedItems ||
+            snapshot.issuedItems ||
+            [];
+
+        const issuedItems = (Array.isArray(rawIssuedItems) ? rawIssuedItems : []).map(normalizeSingleItem);
 
         const rawRecap =
             rsmiSource.recapitulationItems ||
@@ -220,39 +316,12 @@ export function normalizeReportPaperData(
             snapshot.recapitulation ||
             [];
 
-        const recapitulationItems = (Array.isArray(rawRecap) ? rawRecap : []).map((r: any) => {
-            if (!r || typeof r !== 'object') return r;
-            const officialStockNo = r.supplier_stock_no || r.stock_no || r.stockNo || '-';
-            return {
-                ...r,
-                stockNo: officialStockNo,
-                stock_no: officialStockNo,
-                supplier_stock_no: r.supplier_stock_no || (officialStockNo !== '-' ? officialStockNo : null),
-            };
-        });
+        const recapitulationItems = (Array.isArray(rawRecap) ? rawRecap : []).map(normalizeRecap);
 
-        const entityName = isSavedReport
-            ? (savedEntityName || rsmiSource.entityName || rsmiSource.entity_name || resolvedEntityName)
-            : resolvedEntityName;
-
-        const fundCluster = formatFundClusterDisplay(
-            rsmiSource.fundCluster ||
-            rsmiSource.fund_cluster ||
-            payload.fundCluster ||
-            fallbackFormData?.fundCluster ||
-            defaultFundCluster,
-        );
-
-        const supplyCustodianName =
-            publicSettings['signatories_rsmi_certified_by_name'] ||
-            payload.supplyCustodianName ||
-            user?.name ||
-            'Supply Custodian';
-
-        const accountingStaffName =
-            publicSettings['signatories_rsmi_posted_by_name'] ||
-            payload.accountingStaffName ||
-            'Accounting Staff';
+        const rawForms = rsmiSource.forms || snapshot.forms || payload.forms || [];
+        const forms = (Array.isArray(rawForms) && rawForms.length > 0)
+            ? rawForms.map(normalizeForm)
+            : undefined;
 
         return {
             type: 'RSMI',
@@ -269,6 +338,7 @@ export function normalizeReportPaperData(
                 supplyCustodianName,
                 accountingStaffName,
                 accountingDate: formattedDate,
+                forms,
             },
         };
     }
