@@ -119,10 +119,31 @@ export interface TelemetryData {
     cached_at: string | null;
 }
 
+export interface RfidDeviceConfiguration {
+    id: number;
+    device_uuid: string;
+    device_name: string;
+    firmware_version: string | null;
+    status: 'online' | 'offline';
+    ip_address: string | null;
+    last_seen_at: string | null;
+    config_version: number;
+    wifi_ssid: string | null;
+    server_url: string;
+    scan_mode: 'single' | 'inventory';
+    rf_power: number;
+    scan_timeout: number;
+    heartbeat_interval: number;
+    buzzer_enabled: boolean;
+    auto_reconnect: boolean;
+    has_wifi_password: boolean;
+}
+
 export type SystemSettingsPageProps = PageProps<{
     groupedSettings: Record<string, SettingItem[]>;
     telemetry: TelemetryData | null;
     signatories?: Signatory[];
+    rfidDevices?: RfidDeviceConfiguration[];
 }>;
 
 export type TabId =

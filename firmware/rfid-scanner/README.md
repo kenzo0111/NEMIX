@@ -126,7 +126,21 @@ arduino-cli monitor -p COMx -c baudrate=115200
 
 ---
 
-## 7. Future Laravel API Communication Architecture
+## 7. Provisioning and configuration
+
+This firmware contains no Wi-Fi credentials, API URL, or device token in source. On a fresh boot it derives a stable ID from the ESP32 eFuse MAC and opens `RFID-SETUP-xxx`. Connect a phone or laptop to that access point and browse to `http://192.168.4.1` to enter the network, server URL, device ID, and the one-time token created in **System Settings → RFID**.
+
+Configuration is stored in the `rfid-config` Preferences/NVS namespace. Active and pending records use separate keys and a commit marker. A pending Wi-Fi change must connect within 15 seconds before it replaces the active configuration; otherwise the prior network is restored. Holding the GPIO 27 trigger for eight seconds opens the portal without deleting the identity or scanner settings.
+
+The normal configuration endpoint excludes Wi-Fi credentials. A separate authenticated, version-gated network migration endpoint supplies them only to the matching device. All device calls send `X-Device-ID` and `X-Hardware-Token`; neither value is printed to Serial.
+
+The loop keeps RFID button handling alive during network failures. Reconnection uses exponential backoff and a setup AP becomes available after a prolonged outage. Heartbeats report firmware, IP, RSSI, uptime, readiness, and the committed configuration version.
+
+### Production TLS
+
+The firmware validates HTTPS servers against the public root CAs used by the production Google and Cloudflare certificate chains. It synchronizes the ESP32 clock with NTP immediately after Wi-Fi connects so certificate validity dates can be checked. No insecure TLS fallback is enabled. If the production host changes to a certificate chain anchored by another CA, add that public root to `include/tls_roots.h` before deployment.
+
+## 8. Laravel API Communication Architecture
 
 The firmware will bridge physical RFID tag detections with the Laravel application:
 

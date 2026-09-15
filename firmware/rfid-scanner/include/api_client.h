@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include "config_manager.h"
 
 struct ItemLookupResult {
     bool success;
@@ -13,18 +14,21 @@ struct ItemLookupResult {
 
 class NemixApiClient {
 public:
-    NemixApiClient(const char* baseUrl, const char* lookupPath, const char* token = "");
-
-    void beginWifi(const char* ssid, const char* password);
+    NemixApiClient();
+    void configure(const DeviceConfiguration& config);
     bool checkWifi();
-
-    // Query Laravel's /rfid-scanner/lookup/{tag} endpoint
-    ItemLookupResult lookupTag(const String& epc);
+    ItemLookupResult submitScan(const String& epc, int rssi);
+    bool sendHeartbeat(uint32_t uptimeSeconds, bool scannerReady, uint32_t& serverVersion);
+    bool fetchConfiguration(DeviceConfiguration& candidate);
+    bool fetchNetworkConfiguration(DeviceConfiguration& candidate, uint32_t currentVersion);
+    bool reportConfigurationStatus(uint32_t version, const char* status, const String& message = "");
 
 private:
     String _baseUrl;
-    String _lookupPath;
+    String _deviceId;
     String _token;
-
-    void processRequest(HTTPClient& http, ItemLookupResult& result);
+    int request(const String& method, const String& path, const String& json, String& response);
+    static String jsonString(const String& json, const char* key, const String& fallback = "");
+    static long jsonLong(const String& json, const char* key, long fallback);
+    static bool jsonBool(const String& json, const char* key, bool fallback);
 };

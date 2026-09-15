@@ -23,6 +23,7 @@ public:
 
     // Query reader version string
     String getVersion(uint32_t timeoutMs = 300);
+    bool setTransmitPower(uint8_t dbm, uint32_t timeoutMs = 300);
 
 private:
     HardwareSerial& _serial;

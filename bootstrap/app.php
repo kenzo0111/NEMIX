@@ -7,6 +7,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -29,7 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             $status = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
             if ($status >= 400) {
                 $request = request();
-                $params = $request->except(['password', 'password_confirmation', 'secret', 'token', '_token']);
+                $params = $request->except(['password', 'password_confirmation', 'wifi_password', 'wifi_password_encrypted', 'device_token', 'secret', 'token', '_token']);
 
                 try {
                     \Illuminate\Support\Facades\Log::channel('security')->error('API/HTTP Error Occurred', [
@@ -62,6 +63,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 if ($request->expectsJson()) {
                     return response()->json(['message' => $friendlyMessage], 422);
                 }
+
                 return back()->with('error', $friendlyMessage);
             }
 
@@ -74,6 +76,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 if ($request->expectsJson()) {
                     return response()->json(['message' => $friendlyMessage], 422);
                 }
+
                 return back()->withErrors(['rfid_tag' => $friendlyMessage]);
             }
         });

@@ -1,22 +1,17 @@
 #pragma once
 
-// ============================================================================
-// Network & Laravel Backend API Configuration
-// ============================================================================
+#define FIRMWARE_VERSION "2.0.0"
+#define API_CONFIG_PATH "/api/hardware/rfid/config"
+#define API_NETWORK_CONFIG_PATH "/api/hardware/rfid/network-config"
+#define API_HEARTBEAT_PATH "/api/hardware/rfid/heartbeat"
+#define API_CONFIG_STATUS_PATH "/api/hardware/rfid/config/status"
+#define API_SCAN_PATH "/api/hardware/rfid/scan"
 
-// --- Wi-Fi Credentials ---
-#define WIFI_SSID           "PLDTHOMEFIBR46PRK"
-#define WIFI_PASSWORD       "balceresidences2003#"
-#define WIFI_CONNECT_TIMEOUT_MS 15000
-
-// --- Laravel API Configuration (DigitalOcean Droplet) ---
-#define API_BASE_URL        "https://unc-nemix.com"
-
-// Tag Lookup Endpoint: GET {API_BASE_URL}/rfid-scanner/lookup/{EPC}
-#define API_LOOKUP_PATH     "/rfid-scanner/lookup/"
-
-// Device Identification
-#define SCANNER_DEVICE_ID   "NEMIX-SCANNER-01"
-
-// API Bearer Token (if your route requires auth; leave empty "" if public)
-#define API_BEARER_TOKEN    ""
+#define WIFI_CONNECT_TIMEOUT_MS 15000UL
+#define WIFI_FAILURE_SETUP_MS 180000UL
+#define WIFI_RECONNECT_MIN_MS 2000UL
+#define WIFI_RECONNECT_MAX_MS 60000UL
+#define RECOVERY_HOLD_MS 8000UL
+#define DEFAULT_SCAN_TIMEOUT_MS 3000UL
+#define DEFAULT_HEARTBEAT_INTERVAL 30UL
+#define DEFAULT_RF_POWER 20

@@ -1,144 +1,18 @@
 #include "../include/api_client.h"
+#include "../include/config.h"
+#include "../include/tls_roots.h"
 #include <WiFiClientSecure.h>
+#include <ctype.h>
 
-NemixApiClient::NemixApiClient(const char* baseUrl, const char* lookupPath, const char* token)
-    : _baseUrl(baseUrl), _lookupPath(lookupPath), _token(token) {}
-
-static bool connectToAp(const char* ssid, const char* password, int32_t channel = 0, const uint8_t* bssid = nullptr) {
-    WiFi.persistent(false);
-    WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
-
-    // Reduce peak TX current spikes on battery/boost converter (default is 19.5dBm)
-    WiFi.setTxPower(WIFI_POWER_13dBm);
-
-    delay(200);
-
-    if (channel > 0 && bssid != nullptr) {
-        Serial.printf("[WIFI] Direct 2.4GHz lock on Ch:%d (%02X:%02X:%02X:%02X:%02X:%02X)...\n",
-                      channel, bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
-        WiFi.begin(ssid, password, channel, bssid);
-    } else {
-        Serial.printf("[WIFI] Standard connection to '%s'...\n", ssid);
-        WiFi.begin(ssid, password);
-    }
-
-    Serial.print(F("[WIFI] Connecting"));
-    unsigned long start = millis();
-    while (WiFi.status() != WL_CONNECTED && (millis() - start) < 14000) {
-        delay(500);
-        Serial.print('.');
-    }
-    Serial.println();
-
-    return (WiFi.status() == WL_CONNECTED);
-}
-
-void NemixApiClient::beginWifi(const char* ssid, const char* password) {
-    if (String(ssid) == "YOUR_WIFI_SSID" || strlen(ssid) == 0) {
-        Serial.println(F("[WIFI] Wi-Fi credentials not configured. Running in offline mode."));
-        return;
-    }
-
-    Serial.printf("[WIFI] Connecting to '%s'...\n", ssid);
-
-    // 1. Direct lock on the router's 2.4GHz BSSID (bypasses 5GHz band-steering rejections)
-    const uint8_t bssid_main[6] = {0x84, 0x3C, 0x99, 0x0F, 0x40, 0xFA};
-    bool connected = connectToAp(ssid, password, 7, bssid_main);
-
-    // 2. Fallback to Extender 2.4GHz BSSID if main router rejects
-    if (!connected) {
-        const uint8_t bssid_ext[6] = {0x86, 0x3C, 0x99, 0x1F, 0x40, 0xFA};
-        Serial.println(F("[WIFI] Attempting direct lock on extender (2.4GHz)..."));
-        connected = connectToAp("PLDTHOMEFIBR46PRK_EXT", password, 7, bssid_ext);
-    }
-
-    // 3. General standard scan fallback
-    if (!connected) {
-        Serial.println(F("[WIFI] Attempting general connection..."));
-        connected = connectToAp(ssid, password, 0, nullptr);
-    }
-
-    if (connected) {
-        Serial.printf("[WIFI] Connected! IP: %s | RSSI: %d dBm | Gateway: %s\n",
-                      WiFi.localIP().toString().c_str(),
-                      WiFi.RSSI(),
-                      WiFi.gatewayIP().toString().c_str());
-    } else {
-        Serial.printf("[WIFI] Connection timed out (Status: %d). Continuing in offline serial mode.\n",
-                      WiFi.status());
-    }
-}
-
-bool NemixApiClient::checkWifi() {
-    return (WiFi.status() == WL_CONNECTED);
-}
-
-ItemLookupResult NemixApiClient::lookupTag(const String& epc) {
-    ItemLookupResult result;
-    result.success = false;
-    result.httpCode = 0;
-    result.found = false;
-    result.rawJson = "";
-
-    if (WiFi.status() != WL_CONNECTED) {
-        Serial.println(F("[API] Wi-Fi not connected. Skipping API lookup."));
-        return result;
-    }
-
-    String url = _baseUrl + _lookupPath + epc;
-    Serial.printf("[API] GET Request -> %s\n", url.c_str());
-
-    HTTPClient http;
-    bool beginOk = false;
-
-    if (url.startsWith("https://")) {
-        WiFiClientSecure client;
-        client.setInsecure(); // Allow Cloudflare / Let's Encrypt SSL
-        beginOk = http.begin(client, url);
-        if (beginOk) {
-            processRequest(http, result);
-        }
-    } else {
-        beginOk = http.begin(url);
-        if (beginOk) {
-            processRequest(http, result);
-        }
-    }
-
-    if (!beginOk) {
-        Serial.println(F("[API] Failed to initialize HTTP client connection."));
-    }
-
-    return result;
-}
-
-void NemixApiClient::processRequest(HTTPClient& http, ItemLookupResult& result) {
-    http.addHeader("Accept", "application/json");
-    if (_token.length() > 0) {
-        http.addHeader("Authorization", "Bearer " + _token);
-    }
-    http.setTimeout(8000);
-
-    int httpCode = http.GET();
-    result.httpCode = httpCode;
-
-    if (httpCode > 0) {
-        result.success = true;
-        result.rawJson = http.getString();
-        result.found = (httpCode == 200);
-
-        Serial.printf("[API] HTTP Response Code: %d\n", httpCode);
-        if (httpCode == 200) {
-            Serial.printf("[API] Matched Item Data: %s\n", result.rawJson.c_str());
-        } else if (httpCode == 302) {
-            Serial.println(F("[API] Note: Route redirected to /login (Protected by auth middleware)."));
-        } else {
-            Serial.printf("[API] Response: %s\n", result.rawJson.c_str());
-        }
-    } else {
-        Serial.printf("[API] Request failed, error: %s\n", http.errorToString(httpCode).c_str());
-    }
-
-    http.end();
-}
+NemixApiClient::NemixApiClient() {}
+void NemixApiClient::configure(const DeviceConfiguration& c){_baseUrl=c.serverUrl;_deviceId=c.deviceId;_token=c.deviceToken;}
+bool NemixApiClient::checkWifi(){return WiFi.status()==WL_CONNECTED;}
+int NemixApiClient::request(const String& method,const String& path,const String& json,String& response){if(!checkWifi()||!_baseUrl.length())return 0;HTTPClient http;WiFiClientSecure secure;bool begun=false;String url=_baseUrl+path;if(url.startsWith("https://")){secure.setCACert(API_TLS_ROOTS);begun=http.begin(secure,url);}else begun=http.begin(url);if(!begun)return 0;http.setTimeout(8000);http.addHeader("Accept","application/json");http.addHeader("Content-Type","application/json");http.addHeader("X-Device-ID",_deviceId);http.addHeader("X-Hardware-Token",_token);int code=method=="GET"?http.GET():http.POST(json);if(code>0)response=http.getString();http.end();return code;}
+String NemixApiClient::jsonString(const String& j,const char* key,const String& fallback){String n="\""+String(key)+"\"";int p=j.indexOf(n);if(p<0)return fallback;p=j.indexOf(':',p+n.length());p=j.indexOf('"',p+1);if(p<0)return fallback;int e=j.indexOf('"',p+1);return e<0?fallback:j.substring(p+1,e);}
+long NemixApiClient::jsonLong(const String& j,const char* key,long fallback){String n="\""+String(key)+"\"";int p=j.indexOf(n);if(p<0)return fallback;p=j.indexOf(':',p+n.length())+1;while(p<j.length()&&isspace((unsigned char)j[p]))p++;int e=p;while(e<j.length()&&(isdigit((unsigned char)j[e])||j[e]=='-'))e++;return e==p?fallback:j.substring(p,e).toInt();}
+bool NemixApiClient::jsonBool(const String& j,const char* key,bool fallback){String n="\""+String(key)+"\"";int p=j.indexOf(n);if(p<0)return fallback;p=j.indexOf(':',p+n.length())+1;while(p<j.length()&&isspace((unsigned char)j[p]))p++;if(j.substring(p,p+4)=="true")return true;if(j.substring(p,p+5)=="false")return false;return fallback;}
+ItemLookupResult NemixApiClient::submitScan(const String& epc,int rssi){ItemLookupResult r{false,0,false,""};String body="{\"epc\":\""+epc+"\",\"rssi\":"+String(rssi)+"}";r.httpCode=request("POST",API_SCAN_PATH,body,r.rawJson);r.success=r.httpCode>0;r.found=r.httpCode==200;return r;}
+bool NemixApiClient::sendHeartbeat(uint32_t uptime,bool ready,uint32_t& version){String response;String body="{\"firmware_version\":\"" FIRMWARE_VERSION "\",\"ip_address\":\""+WiFi.localIP().toString()+"\",\"configuration_version\":"+String(version)+",\"wifi_rssi\":"+String(WiFi.RSSI())+",\"uptime\":"+String(uptime)+",\"scanner_ready\":"+(ready?"true":"false")+"}";if(request("POST",API_HEARTBEAT_PATH,body,response)!=200)return false;version=(uint32_t)jsonLong(response,"server_configuration_version",version);return true;}
+bool NemixApiClient::fetchConfiguration(DeviceConfiguration& c){String response;if(request("GET",API_CONFIG_PATH,"",response)!=200)return false;long version=jsonLong(response,"version",c.configVersion);if(version<=(long)c.configVersion)return false;c.serverUrl=jsonString(response,"server_url",c.serverUrl);c.scanMode=jsonString(response,"scan_mode",c.scanMode);c.rfPower=(uint8_t)jsonLong(response,"rf_power",c.rfPower);c.scanTimeout=(uint32_t)jsonLong(response,"scan_timeout",c.scanTimeout);c.heartbeatInterval=(uint32_t)jsonLong(response,"heartbeat_interval",c.heartbeatInterval);c.buzzerEnabled=jsonBool(response,"buzzer_enabled",c.buzzerEnabled);c.autoReconnect=jsonBool(response,"auto_reconnect",c.autoReconnect);c.configVersion=(uint32_t)version;return true;}
+bool NemixApiClient::fetchNetworkConfiguration(DeviceConfiguration& c,uint32_t currentVersion){String response;String body="{\"current_version\":"+String(currentVersion)+"}";if(request("POST",API_NETWORK_CONFIG_PATH,body,response)!=200||!jsonBool(response,"configuration_available",false))return false;c.wifiSsid=jsonString(response,"wifi_ssid",c.wifiSsid);c.wifiPassword=jsonString(response,"wifi_password",c.wifiPassword);return true;}
+bool NemixApiClient::reportConfigurationStatus(uint32_t version,const char* status,const String& message){String response;String body="{\"version\":"+String(version)+",\"status\":\""+String(status)+"\",\"message\":\""+message+"\"}";return request("POST",API_CONFIG_STATUS_PATH,body,response)==200;}

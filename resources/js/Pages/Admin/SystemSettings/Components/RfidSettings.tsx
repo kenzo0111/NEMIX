@@ -1,104 +1,96 @@
-import React from 'react';
-import { SystemSettings } from '../types';
-import { Info, Radio } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import axios from 'axios';
+import { RfidDeviceConfiguration, SystemSettings } from '../types';
+import { Info, Radio, Save, Wifi, Plus, Activity } from 'lucide-react';
 
-interface RfidSettingsProps {
+interface Props {
     settings: SystemSettings;
     onChange: <K extends keyof SystemSettings>(key: K, value: SystemSettings[K]) => void;
     errors?: Record<string, string>;
+    devices: RfidDeviceConfiguration[];
+    onToast: (type: 'success' | 'error' | 'info', message: string) => void;
 }
 
-export default function RfidSettings({
-    settings,
-    onChange,
-    errors = {},
-}: RfidSettingsProps) {
-    return (
-        <div className="space-y-6">
-            <div>
-                <h3 className="text-sm font-bold text-slate-900 font-serif">
-                    RFID Scanner Configuration
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                    Operational parameters for the stockroom UHF RFID antenna and scanning terminals.
-                </p>
-            </div>
+export default function RfidSettings({ settings, onChange, errors = {}, devices, onToast }: Props) {
+    const [selectedId, setSelectedId] = useState<number | null>(devices[0]?.id ?? null);
+    const selected = useMemo(() => devices.find((d) => d.id === selectedId), [devices, selectedId]);
+    const [draft, setDraft] = useState<Partial<RfidDeviceConfiguration> & { wifi_password?: string }>({});
+    const [busy, setBusy] = useState(false);
+    const [oneTimeToken, setOneTimeToken] = useState<string | null>(null);
+    const [registration, setRegistration] = useState({ device_uuid: '', device_name: '', server_url: window.location.origin });
+    const value = <K extends keyof RfidDeviceConfiguration>(key: K) => (draft[key] ?? selected?.[key]) as RfidDeviceConfiguration[K];
+    const set = (key: string, next: unknown) => setDraft((old) => ({ ...old, [key]: next }));
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Active Operating Mode */}
-                <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
-                        <span>Operational Mode</span>
-                        <span className="text-red-600 font-normal">*</span>
-                    </label>
-                    <select
-                        value={settings['rfid.active_mode']}
-                        onChange={(e) =>
-                            onChange('rfid.active_mode', e.target.value as any)
-                        }
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white shadow-2xs hover:border-slate-300"
-                    >
-                        <option value="bin_association">
-                            Bin / Shelf Tag Association (Supported)
-                        </option>
-                        <option value="issuance_verification" disabled>
-                            Consumable Issuance Verification (Planned)
-                        </option>
-                        <option value="rpci_stocktake" disabled>
-                            RPCI Physical Inventory Stocktaking (Planned)
-                        </option>
-                    </select>
-                    {errors['settings.rfid.active_mode'] && (
-                        <p className="text-xs text-red-600 mt-1">{errors['settings.rfid.active_mode']}</p>
-                    )}
-                    <p className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
-                        <Info className="w-3 h-3 text-slate-400 shrink-0" />
-                        Pairs RFID transponder tags with physical inventory catalog items.
-                    </p>
-                </div>
+    const saveDevice = async () => {
+        if (!selected) return;
+        setBusy(true);
+        try {
+            const payload = {
+                device_name: value('device_name'), wifi_ssid: value('wifi_ssid') || '',
+                wifi_password: draft.wifi_password || '', server_url: value('server_url'),
+                scan_mode: value('scan_mode'), rf_power: Number(value('rf_power')),
+                scan_timeout: Number(value('scan_timeout')), heartbeat_interval: Number(value('heartbeat_interval')),
+                buzzer_enabled: Boolean(value('buzzer_enabled')), auto_reconnect: Boolean(value('auto_reconnect')),
+            };
+            const response = await axios.put(route('system.settings.rfid-devices.update', { device: selected.id }), payload);
+            onToast('success', `${response.data.message} Version ${response.data.version}.`);
+            setDraft({});
+        } catch (error: any) { onToast('error', error.response?.data?.message || 'Unable to save scanner configuration.'); }
+        finally { setBusy(false); }
+    };
 
-                {/* Scan Delay Debounce */}
-                <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
-                        <span>Scan Delay (Debounce)</span>
-                        <span className="text-red-600 font-normal">*</span>
-                    </label>
-                    <div className="relative">
-                        <input
-                            type="number"
-                            min="300"
-                            max="10000"
-                            step="100"
-                            value={settings['rfid.scan_debounce_ms']}
-                            onChange={(e) =>
-                                onChange(
-                                    'rfid.scan_debounce_ms',
-                                    parseInt(e.target.value, 10) || 1200
-                                )
-                            }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-semibold text-slate-900 bg-white shadow-2xs hover:border-slate-300"
-                        />
-                        <span className="absolute right-3.5 top-2.5 text-xs text-slate-500 font-medium">
-                            ms
-                        </span>
-                    </div>
-                    {errors['settings.rfid.scan_debounce_ms'] && (
-                        <p className="text-xs text-red-600 mt-1">{errors['settings.rfid.scan_debounce_ms']}</p>
-                    )}
-                    <p className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
-                        <Info className="w-3 h-3 text-slate-400 shrink-0" />
-                        Cooldown delay (300–10,000 ms) preventing duplicate scans when a tag lingers in the antenna beam.
-                    </p>
-                </div>
-            </div>
+    const testDevice = async () => {
+        if (!selected) return;
+        setBusy(true);
+        try { const r = await axios.post(route('system.settings.rfid-devices.test', { device: selected.id })); onToast('success', r.data.message); }
+        catch (error: any) { onToast('error', error.response?.data?.message || 'The scanner is not responding.'); }
+        finally { setBusy(false); }
+    };
 
-            {/* Status note */}
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
-                <Radio className="w-4 h-4 text-red-900 shrink-0" />
-                <span className="text-xs text-slate-600">
-                    Active hardware transport integrates with WebUSB/Serial and keyboard wedge transponder readers.
-                </span>
+    const registerDevice = async () => {
+        setBusy(true);
+        try {
+            const r = await axios.post(route('system.settings.rfid-devices.store'), registration);
+            setOneTimeToken(r.data.device_token);
+            onToast('info', `Device registered. Copy this one-time token into the setup portal now:\n${r.data.device_token}`);
+        } catch (error: any) { onToast('error', error.response?.data?.message || 'Unable to register device.'); }
+        finally { setBusy(false); }
+    };
+
+    const fieldClass = 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm bg-white';
+    return <div className="space-y-8">
+        <div><h3 className="text-sm font-bold text-slate-900 font-serif">RFID Scanner Configuration</h3><p className="text-xs text-slate-500 mt-0.5">Manage warehouse behavior and versioned handheld scanner configuration.</p></div>
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <label className="space-y-1.5 text-xs font-semibold text-slate-700">Warehouse operating mode<select value={settings['rfid.active_mode']} onChange={(e) => onChange('rfid.active_mode', e.target.value as any)} className={fieldClass}><option value="bin_association">Bin / Shelf Tag Association</option><option value="issuance_verification">Issuance Verification</option><option value="rpci_stocktake">RPCI Stocktaking</option></select>{errors['settings.rfid.active_mode'] && <span className="text-red-600">{errors['settings.rfid.active_mode']}</span>}</label>
+            <label className="space-y-1.5 text-xs font-semibold text-slate-700">Browser scan debounce (ms)<input type="number" min="300" max="10000" value={settings['rfid.scan_debounce_ms']} onChange={(e) => onChange('rfid.scan_debounce_ms', Number(e.target.value))} className={fieldClass}/><span className="flex gap-1 font-normal text-slate-500"><Info className="w-3 h-3"/>This setting controls the web console; handheld settings are below.</span></label>
+        </section>
+
+        {devices.length === 0 ? <section className="rounded-xl border border-dashed border-slate-300 p-5 space-y-4">
+            <div className="flex items-center gap-2 font-semibold text-sm"><Plus className="w-4 h-4 text-red-900"/>Register the first handheld scanner</div>
+            <p className="text-xs text-slate-500">Enter the device ID shown by its setup hotspot. The token is displayed once and must be entered in the local setup portal.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3"><input className={fieldClass} placeholder="RFID-HH-A1B2C3" value={registration.device_uuid} onChange={e=>setRegistration({...registration,device_uuid:e.target.value})}/><input className={fieldClass} placeholder="Stockroom Scanner 1" value={registration.device_name} onChange={e=>setRegistration({...registration,device_name:e.target.value})}/><input className={fieldClass} placeholder="https://inventory.example.edu" value={registration.server_url} onChange={e=>setRegistration({...registration,server_url:e.target.value})}/></div>
+            <button type="button" disabled={busy} onClick={registerDevice} className="px-4 py-2 rounded-xl bg-red-900 text-white text-xs font-semibold">Register Device</button>
+            {oneTimeToken && <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs"><strong className="block text-amber-900 mb-2">One-time device token — copy it now</strong><code className="break-all select-all text-slate-900">{oneTimeToken}</code><p className="mt-2 text-amber-800">For security, this token cannot be retrieved after you leave this page.</p></div>}
+        </section> : <section className="space-y-5">
+            <details className="rounded-xl border border-slate-200 p-4">
+                <summary className="cursor-pointer text-xs font-semibold text-slate-700">Register another handheld scanner</summary>
+                <div className="mt-4 space-y-3"><div className="grid grid-cols-1 md:grid-cols-3 gap-3"><input className={fieldClass} placeholder="RFID-HH-A1B2C3" value={registration.device_uuid} onChange={e=>setRegistration({...registration,device_uuid:e.target.value})}/><input className={fieldClass} placeholder="Stockroom Scanner 2" value={registration.device_name} onChange={e=>setRegistration({...registration,device_name:e.target.value})}/><input className={fieldClass} placeholder="https://inventory.example.edu" value={registration.server_url} onChange={e=>setRegistration({...registration,server_url:e.target.value})}/></div><button type="button" disabled={busy} onClick={registerDevice} className="px-4 py-2 rounded-xl bg-red-900 text-white text-xs font-semibold">Register Device</button>{oneTimeToken && <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs"><strong className="block text-amber-900 mb-2">One-time device token — copy it now</strong><code className="break-all select-all">{oneTimeToken}</code></div>}</div>
+            </details>
+            <div className="flex flex-wrap items-center justify-between gap-3"><select className={`${fieldClass} max-w-sm`} value={selectedId ?? ''} onChange={e=>{setSelectedId(Number(e.target.value));setDraft({});}}>{devices.map(d=><option key={d.id} value={d.id}>{d.device_name} — {d.device_uuid}</option>)}</select><span className={`px-3 py-1 rounded-full text-xs font-semibold ${selected?.status==='online'?'bg-emerald-100 text-emerald-800':'bg-slate-100 text-slate-600'}`}><Activity className="inline w-3 h-3 mr-1"/>{selected?.status}</span></div>
+            <div className="rounded-xl bg-slate-50 border border-slate-200 p-4 grid grid-cols-2 lg:grid-cols-5 gap-4 text-xs"><div><span className="text-slate-500">Device ID</span><strong className="block mt-1">{selected?.device_uuid}</strong></div><div><span className="text-slate-500">Firmware</span><strong className="block mt-1">{selected?.firmware_version || 'Not reported'}</strong></div><div><span className="text-slate-500">Last seen</span><strong className="block mt-1">{selected?.last_seen_at ? new Date(selected.last_seen_at).toLocaleString() : 'Never'}</strong></div><div><span className="text-slate-500">IP address</span><strong className="block mt-1">{selected?.ip_address || '—'}</strong></div><div><span className="text-slate-500">Config version</span><strong className="block mt-1">{selected?.config_version}</strong></div></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <label className="text-xs font-semibold">Device name<input className={fieldClass} value={value('device_name') || ''} onChange={e=>set('device_name',e.target.value)}/></label>
+                <label className="text-xs font-semibold">Wi-Fi SSID<input className={fieldClass} value={value('wifi_ssid') || ''} onChange={e=>set('wifi_ssid',e.target.value)}/></label>
+                <label className="text-xs font-semibold">Wi-Fi password<input type="password" autoComplete="new-password" className={fieldClass} value={draft.wifi_password || ''} placeholder={selected?.has_wifi_password?'•••••••• (leave blank to keep)':'Enter password'} onChange={e=>set('wifi_password',e.target.value)}/></label>
+                <label className="text-xs font-semibold">Server URL<input className={fieldClass} value={value('server_url') || ''} onChange={e=>set('server_url',e.target.value)}/></label>
+                <label className="text-xs font-semibold">Scan mode<select className={fieldClass} value={value('scan_mode') || 'single'} onChange={e=>set('scan_mode',e.target.value)}><option value="single">Single trigger</option><option value="inventory">Inventory window</option></select></label>
+                <label className="text-xs font-semibold">RF power (0–26 dBm)<input type="number" min="0" max="26" className={fieldClass} value={value('rf_power') ?? 20} onChange={e=>set('rf_power',Number(e.target.value))}/></label>
+                <label className="text-xs font-semibold">Scan timeout (100–30,000 ms)<input type="number" min="100" max="30000" className={fieldClass} value={value('scan_timeout') ?? 3000} onChange={e=>set('scan_timeout',Number(e.target.value))}/></label>
+                <label className="text-xs font-semibold">Heartbeat interval (10–3,600 sec)<input type="number" min="10" max="3600" className={fieldClass} value={value('heartbeat_interval') ?? 30} onChange={e=>set('heartbeat_interval',Number(e.target.value))}/></label>
             </div>
-        </div>
-    );
+            <div className="flex flex-wrap gap-5 text-xs"><label><input type="checkbox" checked={Boolean(value('buzzer_enabled'))} onChange={e=>set('buzzer_enabled',e.target.checked)} className="mr-2"/>Buzzer enabled</label><label><input type="checkbox" checked={Boolean(value('auto_reconnect'))} onChange={e=>set('auto_reconnect',e.target.checked)} className="mr-2"/>Auto reconnect</label></div>
+            <div className="flex gap-3"><button type="button" disabled={busy} onClick={saveDevice} className="px-4 py-2 rounded-xl bg-red-900 text-white text-xs font-semibold flex gap-2"><Save className="w-4 h-4"/>Save & Apply Configuration</button><button type="button" disabled={busy} onClick={testDevice} className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold flex gap-2"><Wifi className="w-4 h-4"/>Test Connection</button></div>
+        </section>}
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3"><Radio className="w-4 h-4 text-red-900"/><span className="text-xs text-slate-600">GPIO 16, 17, 26, and trigger GPIO 27 remain fixed in firmware and cannot be changed remotely.</span></div>
+    </div>;
 }

@@ -37,6 +37,7 @@ export default function Index({
     groupedSettings,
     telemetry,
     signatories: initialSignatories = [],
+    rfidDevices = [],
 }: SystemSettingsPageProps) {
     const user = auth?.user;
 
@@ -303,6 +304,8 @@ export default function Index({
                                     settings={data.settings}
                                     onChange={handleFieldChange}
                                     errors={errors}
+                                    devices={rfidDevices}
+                                    onToast={showToast}
                                 />
                             )}
 

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccessControl\ManageRolePermissionController;
 use App\Http\Controllers\AccessControl\ManageStaffController;
+use App\Http\Controllers\Admin\RfidDeviceSettingController;
 use App\Http\Controllers\Admin\SystemSettingController;
 use App\Http\Controllers\Compliance\ComplianceAnalyticsController;
 use App\Http\Controllers\Compliance\ComplianceMigrationController;
@@ -60,6 +61,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/system-settings', [SystemSettingController::class, 'index'])->name('system.settings.index');
     Route::post('/admin/system-settings', [SystemSettingController::class, 'update'])->name('system.settings.update');
     Route::post('/admin/system-settings/test-email', [SystemSettingController::class, 'testEmail'])->name('system.settings.test-email');
+    Route::post('/admin/system-settings/rfid-devices', [RfidDeviceSettingController::class, 'store'])->name('system.settings.rfid-devices.store');
+    Route::put('/admin/system-settings/rfid-devices/{device}', [RfidDeviceSettingController::class, 'update'])->name('system.settings.rfid-devices.update');
+    Route::post('/admin/system-settings/rfid-devices/{device}/test', [RfidDeviceSettingController::class, 'test'])->name('system.settings.rfid-devices.test');
     Route::match(['get', 'post'], '/admin/system-settings/export-backup', [SystemSettingController::class, 'exportBackup'])->name('system.settings.backup');
 
     // Centralized Signatories Directory

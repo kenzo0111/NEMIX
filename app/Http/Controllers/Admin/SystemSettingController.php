@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSystemSettingsRequest;
+use App\Models\RfidDevice;
 use App\Models\SystemConfiguration;
 use App\Models\SystemSetting;
 use Illuminate\Http\RedirectResponse;
@@ -62,6 +63,25 @@ class SystemSettingController extends Controller
             'groupedSettings' => $groupedSettings,
             'telemetry' => $telemetry,
             'signatories' => \App\Models\Signatory::orderBy('name')->get(),
+            'rfidDevices' => RfidDevice::with('settings')->get()->map(fn (RfidDevice $device) => [
+                'id' => $device->id,
+                'device_uuid' => $device->device_uuid,
+                'device_name' => $device->device_name,
+                'firmware_version' => $device->firmware_version,
+                'status' => $device->isOnline() ? 'online' : 'offline',
+                'ip_address' => $device->ip_address,
+                'last_seen_at' => $device->last_seen_at?->toIso8601String(),
+                'config_version' => $device->config_version,
+                'wifi_ssid' => $device->settings?->wifi_ssid,
+                'server_url' => $device->settings?->server_url,
+                'scan_mode' => $device->settings?->scan_mode,
+                'rf_power' => $device->settings?->rf_power,
+                'scan_timeout' => $device->settings?->scan_timeout,
+                'heartbeat_interval' => $device->settings?->heartbeat_interval,
+                'buzzer_enabled' => $device->settings?->buzzer_enabled,
+                'auto_reconnect' => $device->settings?->auto_reconnect,
+                'has_wifi_password' => filled($device->settings?->wifi_password_encrypted),
+            ]),
         ]);
     }
 
@@ -76,7 +96,7 @@ class SystemSettingController extends Controller
 
         $updatedKeys = [];
         $auditDiffs = [];
-        $groupId = 'settings:' . \Illuminate\Support\Str::uuid()->toString();
+        $groupId = 'settings:'.\Illuminate\Support\Str::uuid()->toString();
 
         \Modules\AuditLogs\Support\AuditGroupContext::start($groupId, 'CONFIG-BATCH', 'Administration', 'system.settings.updated');
 
@@ -109,7 +129,8 @@ class SystemSettingController extends Controller
                         ]);
 
                         $updatedKeys[] = $key;
-                        $auditDiffs[] = "{$key}: [NEW] → " . (is_array($val) ? json_encode($val) : (string) $val);
+                        $auditDiffs[] = "{$key}: [NEW] → ".(is_array($val) ? json_encode($val) : (string) $val);
+
                         continue;
                     }
 
@@ -163,13 +184,13 @@ class SystemSettingController extends Controller
             if (class_exists(TransactionTrail::class)) {
                 $user = $request->user();
                 $count = count($updatedKeys);
-                $secondaryLine = "Updated {$count} configuration parameter" . ($count === 1 ? '' : 's');
+                $secondaryLine = "Updated {$count} configuration parameter".($count === 1 ? '' : 's');
 
                 TransactionTrail::create([
                     'user_id' => $user?->id,
                     'module' => 'Administration',
                     'action' => 'Updated System Settings',
-                    'resource_ref' => 'CONFIG-BATCH-' . $count,
+                    'resource_ref' => 'CONFIG-BATCH-'.$count,
                     'details' => $secondaryLine,
                     'status' => 'Success',
                     'audit_group_id' => $groupId,
@@ -182,7 +203,7 @@ class SystemSettingController extends Controller
                 ]);
             }
         } catch (\Throwable $e) {
-            Log::error('Failed to log transaction trail for system settings: ' . $e->getMessage());
+            Log::error('Failed to log transaction trail for system settings: '.$e->getMessage());
         }
 
         return back()->with('success', 'System settings saved successfully.');
@@ -203,7 +224,7 @@ class SystemSettingController extends Controller
 
         try {
             Mail::raw(
-                "This is an automated diagnostic test from the NEMIX Consumable Supply & Inventory Management System (SPMO - University of Camarines Norte). Your SMTP mail transport is operational!\n\nSent at: " . now()->toDateTimeString() . ' (PST)',
+                "This is an automated diagnostic test from the NEMIX Consumable Supply & Inventory Management System (SPMO - University of Camarines Norte). Your SMTP mail transport is operational!\n\nSent at: ".now()->toDateTimeString().' (PST)',
                 function ($message) use ($recipient) {
                     $message->to($recipient)
                         ->subject('NEMIX SPMO: SMTP Email System Test');
@@ -212,8 +233,9 @@ class SystemSettingController extends Controller
 
             return back()->with('success', "Diagnostic test email dispatched successfully to {$recipient}.");
         } catch (\Throwable $e) {
-            Log::error('SMTP Diagnostic Test Failed: ' . $e->getMessage());
-            return back()->with('error', 'SMTP Connection Failed: ' . $e->getMessage());
+            Log::error('SMTP Diagnostic Test Failed: '.$e->getMessage());
+
+            return back()->with('error', 'SMTP Connection Failed: '.$e->getMessage());
         }
     }
 
@@ -231,7 +253,7 @@ class SystemSettingController extends Controller
         ];
 
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        $filename = 'nemix_settings_backup_' . date('Y_m_d_His') . '.json';
+        $filename = 'nemix_settings_backup_'.date('Y_m_d_His').'.json';
 
         return response($json, 200, [
             'Content-Type' => 'application/json',

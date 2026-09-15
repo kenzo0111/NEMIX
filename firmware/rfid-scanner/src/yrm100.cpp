@@ -222,3 +222,13 @@ String Yrm100Reader::getVersion(uint32_t timeoutMs) {
     }
     return "Unknown";
 }
+
+bool Yrm100Reader::setTransmitPower(uint8_t dbm, uint32_t timeoutMs) {
+    if (dbm > 26) return false;
+    uint16_t centiDbm = static_cast<uint16_t>(dbm) * 100;
+    uint8_t payload[2] = { static_cast<uint8_t>(centiDbm >> 8), static_cast<uint8_t>(centiDbm & 0xFF) };
+    sendFrame(0x00, 0xB6, payload, 2);
+    uint8_t type=0, cmd=0; std::vector<uint8_t> response;
+    return readFrame(type, cmd, response, timeoutMs) && type == 0x01 && cmd == 0xB6 &&
+        !response.empty() && response[0] == 0x00;
+}
