@@ -78,10 +78,6 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
     data.committee_chair_name ||
     '';
 
-  const certifiedByPosition =
-    data.certified_by_position ||
-    data.signatories?.certified_by?.position ||
-    'Inventory Committee Chair and Members';
 
   const approvedByName =
     data.approved_by_name ||
@@ -314,13 +310,6 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
                         {certifiedByName || '\u00A0'}
                       </td>
                     </tr>
-                    {certifiedByPosition && certifiedByPosition.trim().toLowerCase() !== 'inventory committee chair and members' && (
-                      <tr>
-                        <td style={{ border: 'none', textAlign: 'center', fontSize: '7.5pt', paddingTop: '1px', lineHeight: 1.1 }}>
-                          {certifiedByPosition}
-                        </td>
-                      </tr>
-                    )}
                     <tr>
                       <td style={{ border: 'none', textAlign: 'center', fontSize: '7pt', paddingTop: '2px', lineHeight: 1.1 }}>
                         Signature over Printed Name of Inventory Committee Chair and Members
