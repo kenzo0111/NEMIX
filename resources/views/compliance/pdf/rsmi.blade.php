@@ -10,7 +10,7 @@
     }
 
     .rsmi-container {
-        font-family: 'DejaVu Serif', 'Times New Roman', Times, serif;
+        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
         color: #000000;
@@ -106,6 +106,8 @@
     .border-bottom-bold {
         border-bottom: 1.5px solid #000000 !important;
     }
+
+    .rsmi-money { font-family: 'DejaVu Serif', serif; }
 
     .footer-cell {
         vertical-align: top !important;
@@ -215,23 +217,23 @@
     {{-- Top Info Grid --}}
     <table class="rsmi-top-info">
         <colgroup>
-            <col style="width: 52%;">
-            <col style="width: 3.5%;">
-            <col style="width: 44.5%;">
+            <col width="52%" style="width: 52%;">
+            <col width="3.5%" style="width: 3.5%;">
+            <col width="44.5%" style="width: 44.5%;">
         </colgroup>
         <tbody>
             <tr>
                 <td style="padding: 0;">
                     <table class="rsmi-field-group"><tbody>
-                        <tr><td class="rsmi-field-label">Entity Name:</td><td class="rsmi-field-value">{{ $entityName }}</td></tr>
-                        <tr><td class="rsmi-field-label">Fund Cluster:</td><td class="rsmi-field-value">{{ $fundCluster }}</td></tr>
+                        <tr><td width="33%" class="rsmi-field-label">Entity Name:</td><td width="67%" class="rsmi-field-value">{{ $entityName }}</td></tr>
+                        <tr><td width="33%" class="rsmi-field-label">Fund Cluster:</td><td width="67%" class="rsmi-field-value">{{ $fundCluster }}</td></tr>
                     </tbody></table>
                 </td>
                 <td></td>
                 <td style="padding: 0;">
                     <table class="rsmi-field-group"><tbody>
-                        <tr><td class="rsmi-field-label">Serial No. :</td><td class="rsmi-field-value">{{ $serialNo }}</td></tr>
-                        <tr><td class="rsmi-field-label">Date :</td><td class="rsmi-field-value">{{ $displayDate }}</td></tr>
+                        <tr><td width="33%" class="rsmi-field-label">Serial No. :</td><td width="67%" class="rsmi-field-value">{{ $serialNo }}</td></tr>
+                        <tr><td width="33%" class="rsmi-field-label">Date :</td><td width="67%" class="rsmi-field-value">{{ $displayDate }}</td></tr>
                     </tbody></table>
                 </td>
             </tr>
@@ -241,30 +243,30 @@
     {{-- Main 9-Column Grid Table --}}
     <table class="main-table">
         <colgroup>
-            <col style="width: 8%;">  {{-- C1: RIS No. --}}
-            <col style="width: 10%;"> {{-- C2: RCC --}}
-            <col style="width: 14%;"> {{-- C3: Stock No. --}}
-            <col style="width: 25%;"> {{-- C4: Item --}}
-            <col style="width: 6%;">  {{-- C5: Unit --}}
-            <col style="width: 8%;">  {{-- C6: Qty Issued --}}
-            <col style="width: 11%;"> {{-- C7: Unit Cost --}}
-            <col style="width: 11%;"> {{-- C8: Amount --}}
-            <col style="width: 7%;">  {{-- C9: UACS --}}
+            <col width="8%" style="width: 8%;">  {{-- C1: RIS No. --}}
+            <col width="10%" style="width: 10%;"> {{-- C2: RCC --}}
+            <col width="14%" style="width: 14%;"> {{-- C3: Stock No. --}}
+            <col width="25%" style="width: 25%;"> {{-- C4: Item --}}
+            <col width="6%" style="width: 6%;">  {{-- C5: Unit --}}
+            <col width="8%" style="width: 8%;">  {{-- C6: Qty Issued --}}
+            <col width="11%" style="width: 11%;"> {{-- C7: Unit Cost --}}
+            <col width="11%" style="width: 11%;"> {{-- C8: Amount --}}
+            <col width="7%" style="width: 7%;">  {{-- C9: UACS --}}
         </colgroup>
         <thead>
             <tr>
-                <th colspan="6" class="header-italic">To be filled up by the Supply and/or Property Division/Unit</th>
-                <th colspan="3" class="header-italic">To be filled up by the Accounting Division/Unit</th>
+                <th width="71%" colspan="6" class="header-italic">To be filled up by the Supply and/or Property Division/Unit</th>
+                <th width="29%" colspan="3" class="header-italic">To be filled up by the Accounting Division/Unit</th>
             </tr>
             <tr>
-                <th>RIS No.</th>
-                <th>Responsibility<br>Center Code</th>
-                <th>Stock No.</th>
-                <th>Item</th>
-                <th>Unit</th>
-                <th>Quantity<br>Issued</th>
-                <th>Unit Cost</th>
-                <th colspan="2">Amount</th>
+                <th width="8%">RIS No.</th>
+                <th width="10%">Responsibility<br>Center Code</th>
+                <th width="14%">Stock No.</th>
+                <th width="25%">Item</th>
+                <th width="6%">Unit</th>
+                <th width="8%">Quantity<br>Issued</th>
+                <th width="11%">Unit Cost</th>
+                <th width="18%" colspan="2">Amount</th>
             </tr>
         </thead>
         <tbody>
@@ -291,19 +293,11 @@
                         </td>
                         <td class="text-right">
                             @php $uCost = data_get($item, 'unitCost') ?? data_get($item, 'unit_cost'); @endphp
-                            @if(is_numeric($uCost))
-                                ₱{{ number_format((float)$uCost, 2) }}
-                            @else
-                                {{ $uCost ?? '' }}
-                            @endif
+                            <span class="rsmi-money">@if(is_numeric($uCost))₱{{ number_format((float)$uCost, 2) }}@else{{ $uCost ?? '' }}@endif</span>
                         </td>
                         <td colspan="2" class="text-right">
                             @php $amt = data_get($item, 'amount'); @endphp
-                            @if(is_numeric($amt))
-                                ₱{{ number_format((float)$amt, 2) }}
-                            @else
-                                {{ $amt ?? '' }}
-                            @endif
+                            <span class="rsmi-money">@if(is_numeric($amt))₱{{ number_format((float)$amt, 2) }}@else{{ $amt ?? '' }}@endif</span>
                         </td>
                     </tr>
                 @endforeach
@@ -350,18 +344,10 @@
                     <td colspan="3" class="stock-no-cell">{{ $rStockNo ?? '' }}</td>
                     <td colspan="3" class="text-center">{{ $rQty !== null && $rQty !== '' ? $rQty : '' }}</td>
                     <td class="text-right">
-                        @if(is_numeric($rUnitCost))
-                            ₱{{ number_format((float)$rUnitCost, 2) }}
-                        @else
-                            {{ $rUnitCost ?? '' }}
-                        @endif
+                        <span class="rsmi-money">@if(is_numeric($rUnitCost))₱{{ number_format((float)$rUnitCost, 2) }}@else{{ $rUnitCost ?? '' }}@endif</span>
                     </td>
                     <td class="text-right">
-                        @if(is_numeric($rTotalCost))
-                            ₱{{ number_format((float)$rTotalCost, 2) }}
-                        @else
-                            {{ $rTotalCost ?? '' }}
-                        @endif
+                        <span class="rsmi-money">@if(is_numeric($rTotalCost))₱{{ number_format((float)$rTotalCost, 2) }}@else{{ $rTotalCost ?? '' }}@endif</span>
                     </td>
                     <td class="text-center">{{ $rUacs ?? '' }}</td>
                 </tr>
@@ -372,8 +358,8 @@
                 <td colspan="9" style="padding: 0; border: none; border-top: 1.5px solid #000000;">
                     <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
                         <colgroup>
-                            <col style="width: 50%;">
-                            <col style="width: 50%;">
+                            <col width="50%" style="width: 50%;">
+                            <col width="50%" style="width: 50%;">
                         </colgroup>
                         <tbody>
                             <tr>
@@ -398,9 +384,9 @@
                                     <div class="posted-text">Posted by:</div>
                                     <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
                                         <colgroup>
-                                            <col style="width: 68%;">
-                                            <col style="width: 4%;">
-                                            <col style="width: 28%;">
+                                            <col width="68%" style="width: 68%;">
+                                            <col width="4%" style="width: 4%;">
+                                            <col width="28%" style="width: 28%;">
                                         </colgroup>
                                         <tbody>
                                             <tr>

@@ -243,6 +243,23 @@ class CompliancePdfController extends Controller
             ?? data_get($rpciData, 'signatories.verified_by.position')
             ?? \App\Models\SystemSetting::get('signatories.rpci_verified_by_position', 'COA Representative');
 
+        // Mirror the browser normalizer so Preview/Print and Download PDF consume
+        // the same official header values, including historical saved reports.
+        $rpciData['inventory_type'] = data_get($rpciData, 'inventory_type')
+            ?? data_get($dataset, 'title')
+            ?? 'RPCI - Physical Count of Inventories';
+        $rpciData['as_at_date'] = data_get($rpciData, 'as_at_date')
+            ?? data_get($dataset, 'generatedDate')
+            ?? date('Y-m-d');
+        $rpciData['accountable_officer'] = $approvedByName;
+        $rpciData['designation'] = $approvedByPosition;
+        $rpciData['entity_name'] = data_get($rpciData, 'entity_name')
+            ?? data_get($dataset, 'entity_name')
+            ?? data_get($dataset, 'entityName');
+        $rpciData['fund_cluster'] = data_get($rpciData, 'fund_cluster')
+            ?? data_get($dataset, 'fund_cluster')
+            ?? data_get($dataset, 'fundCluster');
+
         $viewData = [
             'rpci' => $rpciData,
             'dataset' => $dataset,
@@ -297,6 +314,21 @@ class CompliancePdfController extends Controller
     protected function generateMemorandumReceiptPdf(array $dataset, string $fileName, Request $request)
     {
         $mrData = data_get($dataset, 'mr') ?? $dataset;
+
+        // The TSX preview normalizer promotes these report-level values into the
+        // MR form. Do the same before rendering the DomPDF replica.
+        $mrData['mrNo'] = data_get($mrData, 'mrNo')
+            ?? data_get($mrData, 'mr_no')
+            ?? data_get($dataset, 'reference');
+        $mrData['date'] = data_get($mrData, 'date')
+            ?? data_get($dataset, 'generatedDate')
+            ?? date('Y-m-d');
+        $mrData['issuedByDate'] = data_get($mrData, 'issuedByDate')
+            ?? data_get($mrData, 'issued_by_date')
+            ?? $mrData['date'];
+        $mrData['receivedByDate'] = data_get($mrData, 'receivedByDate')
+            ?? data_get($mrData, 'received_by_date')
+            ?? $mrData['date'];
 
         $receivedByName = data_get($mrData, 'receivedByName')
             ?? data_get($mrData, 'received_by_name')

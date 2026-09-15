@@ -10,7 +10,7 @@
     }
 
     .rpci-container {
-        font-family: 'DejaVu Serif', 'Times New Roman', Times, serif;
+        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
         color: #000000;
@@ -56,6 +56,8 @@
 
     .accountability-entity,
     .accountability-date { font-size: 5.3pt !important; }
+
+    .rpci-money { font-family: 'DejaVu Serif', serif; }
 
     .main-table {
         width: 100%;
@@ -176,8 +178,8 @@
     {{-- Top Info Grid --}}
     <table class="rpci-top-info">
         <colgroup>
-            <col style="width: 85px;">
-            <col style="width: 280px;">
+            <col width="85" style="width: 85px;">
+            <col width="280" style="width: 280px;">
             <col style="width: auto;">
         </colgroup>
         <tbody>
@@ -192,15 +194,15 @@
     {{-- Accountability Statement Table --}}
     <table class="accountability-table">
         <colgroup>
-            <col style="width: 5%;">
-            <col style="width: 14%;">
-            <col style="width: 1%;">
-            <col style="width: 16%;">
-            <col style="width: 1%;">
-            <col style="width: 18%;">
-            <col style="width: 32%;">
-            <col style="width: 12%;">
-            <col style="width: 1%;">
+            <col width="5%" style="width: 5%;">
+            <col width="14%" style="width: 14%;">
+            <col width="1%" style="width: 1%;">
+            <col width="16%" style="width: 16%;">
+            <col width="1%" style="width: 1%;">
+            <col width="18%" style="width: 18%;">
+            <col width="32%" style="width: 32%;">
+            <col width="12%" style="width: 12%;">
+            <col width="1%" style="width: 1%;">
         </colgroup>
         <tbody>
             <tr>
@@ -220,34 +222,34 @@
     {{-- Main RPCI Table --}}
     <table class="main-table">
         <colgroup>
-            <col style="width: 8%;">  {{-- Article --}}
-            <col style="width: 20%;"> {{-- Description --}}
-            <col style="width: 12%;"> {{-- Stock Number --}}
-            <col style="width: 6%;">  {{-- Unit of Measure --}}
-            <col style="width: 8%;">  {{-- Unit Value --}}
-            <col style="width: 8%;">  {{-- Balance Per Card --}}
-            <col style="width: 8%;">  {{-- On Hand Per Count --}}
-            <col style="width: 7%;">  {{-- Shortage Qty --}}
-            <col style="width: 7%;">  {{-- Shortage Value --}}
-            <col style="width: 16%;"> {{-- Remarks --}}
+            <col width="8%" style="width: 8%;">  {{-- Article --}}
+            <col width="20%" style="width: 20%;"> {{-- Description --}}
+            <col width="12%" style="width: 12%;"> {{-- Stock Number --}}
+            <col width="6%" style="width: 6%;">  {{-- Unit of Measure --}}
+            <col width="8%" style="width: 8%;">  {{-- Unit Value --}}
+            <col width="8%" style="width: 8%;">  {{-- Balance Per Card --}}
+            <col width="8%" style="width: 8%;">  {{-- On Hand Per Count --}}
+            <col width="7%" style="width: 7%;">  {{-- Shortage Qty --}}
+            <col width="7%" style="width: 7%;">  {{-- Shortage Value --}}
+            <col width="16%" style="width: 16%;"> {{-- Remarks --}}
         </colgroup>
         <thead>
             <tr>
-                <th rowspan="2">Article</th>
-                <th rowspan="2">Description</th>
-                <th rowspan="2">Stock Number</th>
-                <th rowspan="2">Unit of<br>Measure</th>
-                <th rowspan="2">Unit Value</th>
-                <th>Balance Per Card</th>
-                <th>On Hand Per Count</th>
-                <th colspan="2">Shortage/Overage</th>
-                <th rowspan="2">Remarks</th>
+                <th width="8%" rowspan="2">Article</th>
+                <th width="20%" rowspan="2">Description</th>
+                <th width="12%" rowspan="2">Stock Number</th>
+                <th width="6%" rowspan="2">Unit of<br>Measure</th>
+                <th width="8%" rowspan="2">Unit Value</th>
+                <th width="8%">Balance Per Card</th>
+                <th width="8%">On Hand Per Count</th>
+                <th width="14%" colspan="2">Shortage/Overage</th>
+                <th width="16%" rowspan="2">Remarks</th>
             </tr>
             <tr>
                 <th>(Quantity)</th>
                 <th>(Quantity)</th>
-                <th>Quantity</th>
-                <th>Value</th>
+                <th width="7%">Quantity</th>
+                <th width="7%">Value</th>
             </tr>
         </thead>
         <tbody>
@@ -260,11 +262,7 @@
                     <td>{{ data_get($item, 'unit') ?? '' }}</td>
                     <td class="text-right">
                         @php $uVal = data_get($item, 'unit_value') ?? data_get($item, 'unit_cost'); @endphp
-                        @if(is_numeric($uVal))
-                            ₱{{ number_format((float)$uVal, 2) }}
-                        @else
-                            {{ $uVal ?? '' }}
-                        @endif
+                        <span class="rpci-money">@if(is_numeric($uVal))₱{{ number_format((float)$uVal, 2) }}@else{{ $uVal ?? '' }}@endif</span>
                     </td>
                     <td class="text-right">
                         @php $bCard = data_get($item, 'balance_per_card') ?? data_get($item, 'quantity'); @endphp
@@ -280,11 +278,7 @@
                     </td>
                     <td class="text-right">
                         @php $sVal = data_get($item, 'shortage_value'); @endphp
-                        @if(is_numeric($sVal))
-                            ₱{{ number_format((float)$sVal, 2) }}
-                        @else
-                            {{ $sVal ?? '' }}
-                        @endif
+                        <span class="rpci-money">@if(is_numeric($sVal))₱{{ number_format((float)$sVal, 2) }}@else{{ $sVal ?? '' }}@endif</span>
                     </td>
                     <td class="text-left">{{ data_get($item, 'remarks') ?? '' }}</td>
                 </tr>

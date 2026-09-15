@@ -10,7 +10,7 @@
     }
 
     .sc-container {
-        font-family: 'DejaVu Serif', 'Times New Roman', Times, serif;
+        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
         color: #000000;
@@ -119,15 +119,15 @@
     {{-- Top Info Grid with explicit column widths to prevent header wrapping --}}
     <table class="sc-top-info">
         <colgroup>
-            <col style="width: 52%;">
-            <col style="width: 3.5%;">
-            <col style="width: 44.5%;">
+            <col width="52%" style="width: 52%;">
+            <col width="3.5%" style="width: 3.5%;">
+            <col width="44.5%" style="width: 44.5%;">
         </colgroup>
         <tbody>
             <tr>
-                <td style="padding: 0;"><table class="sc-field-group"><tbody><tr><td class="sc-field-label">Entity Name:</td><td class="sc-field-value">{{ $entityName }}</td></tr></tbody></table></td>
+                <td style="padding: 0;"><table class="sc-field-group"><tbody><tr><td width="33%" class="sc-field-label">Entity Name:</td><td width="67%" class="sc-field-value">{{ $entityName }}</td></tr></tbody></table></td>
                 <td></td>
-                <td style="padding: 0;"><table class="sc-field-group"><tbody><tr><td class="sc-field-label">Fund Cluster:</td><td class="sc-field-value">{{ $fundCluster }}</td></tr></tbody></table></td>
+                <td style="padding: 0;"><table class="sc-field-group"><tbody><tr><td width="33%" class="sc-field-label">Fund Cluster:</td><td width="67%" class="sc-field-value">{{ $fundCluster }}</td></tr></tbody></table></td>
             </tr>
         </tbody>
     </table>
@@ -135,17 +135,17 @@
     {{-- Boxed Header Info Table --}}
     <table class="main-table sc-header-box" style="border-bottom: none;">
         <colgroup>
-            <col style="width: 14%;">
-            <col style="width: 38%;">
-            <col style="width: 16%;">
-            <col style="width: 32%;">
+            <col width="14%" style="width: 14%;">
+            <col width="38%" style="width: 38%;">
+            <col width="16%" style="width: 16%;">
+            <col width="32%" style="width: 32%;">
         </colgroup>
         <tbody>
             <tr>
-                <td style="text-align: center; font-weight: normal;">Item:</td>
-                <td style="text-align: center; font-weight: bold;">{{ $itemTitle }}</td>
-                <td style="text-align: center; font-weight: normal;">Stock No.:</td>
-                <td style="text-align: center; font-weight: bold;">{{ $stockNo }}</td>
+                <td width="14%" style="text-align: center; font-weight: normal;">Item:</td>
+                <td width="38%" style="text-align: center; font-weight: bold;">{{ $itemTitle }}</td>
+                <td width="16%" style="text-align: center; font-weight: normal;">Stock No.:</td>
+                <td width="32%" style="text-align: center; font-weight: bold;">{{ $stockNo }}</td>
             </tr>
             <tr>
                 <td style="text-align: center;">Description:</td>
@@ -164,26 +164,26 @@
     {{-- Main Ledger Table --}}
     <table class="main-table">
         <colgroup>
-            <col style="width: 11%;"> {{-- Date --}}
-            <col style="width: 15%;"> {{-- Reference --}}
-            <col style="width: 10%;"> {{-- Receipt Qty --}}
-            <col style="width: 10%;"> {{-- Issue Qty --}}
-            <col style="width: 26%;"> {{-- Issue Office --}}
-            <col style="width: 11%;"> {{-- Balance Qty --}}
-            <col style="width: 17%;"> {{-- Days to Consume --}}
+            <col width="11%" style="width: 11%;"> {{-- Date --}}
+            <col width="15%" style="width: 15%;"> {{-- Reference --}}
+            <col width="10%" style="width: 10%;"> {{-- Receipt Qty --}}
+            <col width="10%" style="width: 10%;"> {{-- Issue Qty --}}
+            <col width="26%" style="width: 26%;"> {{-- Issue Office --}}
+            <col width="11%" style="width: 11%;"> {{-- Balance Qty --}}
+            <col width="17%" style="width: 17%;"> {{-- Days to Consume --}}
         </colgroup>
         <thead>
             <tr>
-                <th rowspan="2">Date</th>
-                <th rowspan="2">Reference</th>
-                <th rowspan="2">Receipt<br>Qty.</th>
-                <th colspan="2">Issue</th>
-                <th rowspan="2">Balance<br>Qty.</th>
-                <th rowspan="2">No. of Days<br>to Consume</th>
+                <th width="11%" rowspan="2">Date</th>
+                <th width="15%" rowspan="2">Reference</th>
+                <th width="10%" rowspan="2">Receipt<br>Qty.</th>
+                <th width="36%" colspan="2">Issue</th>
+                <th width="11%" rowspan="2">Balance<br>Qty.</th>
+                <th width="17%" rowspan="2">No. of Days<br>to Consume</th>
             </tr>
             <tr>
-                <th>Qty.</th>
-                <th>Office</th>
+                <th width="10%">Qty.</th>
+                <th width="26%">Office</th>
             </tr>
         </thead>
         <tbody>

@@ -10,7 +10,7 @@
     }
 
     .mr-container {
-        font-family: 'DejaVu Serif', 'Times-Roman', Times, serif;
+        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
         color: #000000;
@@ -104,6 +104,8 @@
         font-size: 8.5pt;
         line-height: 1.1;
     }
+
+    .mr-money { font-family: 'DejaVu Serif', serif; }
 </style>
 @endsection
 
@@ -173,23 +175,23 @@
     {{-- Top Info Grid --}}
     <table class="mr-top-info">
         <colgroup>
-            <col style="width: 52%;">
-            <col style="width: 3.5%;">
-            <col style="width: 44.5%;">
+            <col width="52%" style="width: 52%;">
+            <col width="3.5%" style="width: 3.5%;">
+            <col width="44.5%" style="width: 44.5%;">
         </colgroup>
         <tbody>
             <tr>
                 <td style="padding: 0;">
                     <table class="mr-field-group"><tbody>
-                        <tr><td class="mr-field-label">Entity Name:</td><td class="mr-field-value">{{ $entityName }}</td></tr>
-                        <tr><td class="mr-field-label">Fund Cluster:</td><td class="mr-field-value">{{ $fundCluster }}</td></tr>
+                        <tr><td width="33%" class="mr-field-label">Entity Name:</td><td width="67%" class="mr-field-value">{{ $entityName }}</td></tr>
+                        <tr><td width="33%" class="mr-field-label">Fund Cluster:</td><td width="67%" class="mr-field-value">{{ $fundCluster }}</td></tr>
                     </tbody></table>
                 </td>
                 <td></td>
                 <td style="padding: 0;">
                     <table class="mr-field-group"><tbody>
-                        <tr><td class="mr-field-label">MR No. :</td><td class="mr-field-value">{{ $mrNo }}</td></tr>
-                        <tr><td class="mr-field-label">Date :</td><td class="mr-field-value">{{ $displayDate }}</td></tr>
+                        <tr><td width="33%" class="mr-field-label">MR No. :</td><td width="67%" class="mr-field-value">{{ $mrNo }}</td></tr>
+                        <tr><td width="33%" class="mr-field-label">Date :</td><td width="67%" class="mr-field-value">{{ $displayDate }}</td></tr>
                     </tbody></table>
                 </td>
             </tr>
@@ -204,21 +206,21 @@
     {{-- Main Items Table --}}
     <table class="main-table">
         <colgroup>
-            <col style="width: 6%;">  {{-- Qty --}}
-            <col style="width: 7%;">  {{-- Unit --}}
-            <col style="width: 36%;"> {{-- Description --}}
-            <col style="width: 21%;"> {{-- Property No --}}
-            <col style="width: 14%;"> {{-- Date Acquired --}}
-            <col style="width: 16%;"> {{-- Unit Value --}}
+            <col width="6%" style="width: 6%;">  {{-- Qty --}}
+            <col width="7%" style="width: 7%;">  {{-- Unit --}}
+            <col width="36%" style="width: 36%;"> {{-- Description --}}
+            <col width="21%" style="width: 21%;"> {{-- Property No --}}
+            <col width="14%" style="width: 14%;"> {{-- Date Acquired --}}
+            <col width="16%" style="width: 16%;"> {{-- Unit Value --}}
         </colgroup>
         <thead>
             <tr>
-                <th>Qty.</th>
-                <th>Unit</th>
-                <th>Description / Item Name</th>
-                <th>Property No. / Serial No.</th>
-                <th>Date Acquired</th>
-                <th>Unit Value / Cost</th>
+                <th width="6%">Qty.</th>
+                <th width="7%">Unit</th>
+                <th width="36%">Description / Item Name</th>
+                <th width="21%">Property No. / Serial No.</th>
+                <th width="14%">Date Acquired</th>
+                <th width="16%">Unit Value / Cost</th>
             </tr>
         </thead>
         <tbody>
@@ -254,11 +256,7 @@
                         <td class="text-center">{{ data_get($item, 'propertyNo') ?? data_get($item, 'property_number') ?? data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? '' }}</td>
                         <td class="text-center">{{ $itemDateDisplay }}</td>
                         <td class="text-right">
-                            @if(is_numeric($uVal))
-                                ₱{{ number_format((float)$uVal, 2) }}
-                            @else
-                                {{ $uVal ?? '' }}
-                            @endif
+                            <span class="mr-money">@if(is_numeric($uVal))₱{{ number_format((float)$uVal, 2) }}@else{{ $uVal ?? '' }}@endif</span>
                         </td>
                     </tr>
                 @endif
@@ -268,11 +266,7 @@
             <tr>
                 <td colspan="5" class="text-right font-bold" style="padding: 0.6mm 1.5mm;">Grand Total Value:</td>
                 <td class="text-right font-bold" style="padding: 0.6mm 1.5mm;">
-                    @if(is_numeric($grandTotalVal))
-                        ₱{{ number_format((float)$grandTotalVal, 2) }}
-                    @else
-                        {{ $grandTotalVal }}
-                    @endif
+                    <span class="mr-money">@if(is_numeric($grandTotalVal))₱{{ number_format((float)$grandTotalVal, 2) }}@else{{ $grandTotalVal }}@endif</span>
                 </td>
             </tr>
         </tbody>
@@ -302,18 +296,18 @@
 
                     <table style="width: 100%; margin-top: 4px; border-collapse: collapse; table-layout: fixed;">
                         <colgroup>
-                            <col style="width: 60px;">
+                            <col width="60" style="width: 60px;">
                             <col style="width: auto;">
                         </colgroup>
                         <tbody>
                             <tr>
-                                <td style="border: none; font-weight: bold; font-size: 8pt; vertical-align: middle; padding: 1.5px 0;">Position:</td>
+                                <td width="60" style="border: none; font-weight: bold; font-size: 8pt; vertical-align: middle; padding: 1.5px 0;">Position:</td>
                                 <td style="border: none; border-bottom: 1px solid #000000; padding: 1.5px 4px; vertical-align: middle; font-size: 8pt; line-height: 1.1;">
                                     {{ $issuedPos }}
                                 </td>
                             </tr>
                             <tr>
-                                <td style="border: none; font-weight: bold; font-size: 8pt; vertical-align: middle; padding: 3px 0 1.5px 0;">Date:</td>
+                                <td width="60" style="border: none; font-weight: bold; font-size: 8pt; vertical-align: middle; padding: 3px 0 1.5px 0;">Date:</td>
                                 <td style="border: none; border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; vertical-align: middle; font-size: 8pt; line-height: 1.1;">
                                     {{ $issuedDateDisplay }}
                                 </td>
@@ -342,24 +336,24 @@
 
                     <table style="width: 100%; margin-top: 4px; border-collapse: collapse; table-layout: fixed;">
                         <colgroup>
-                            <col style="width: 60px;">
+                            <col width="60" style="width: 60px;">
                             <col style="width: auto;">
                         </colgroup>
                         <tbody>
                             <tr>
-                                <td style="border: none; font-weight: bold; font-size: 8pt; vertical-align: middle; padding: 1.5px 0;">Position:</td>
+                                <td width="60" style="border: none; font-weight: bold; font-size: 8pt; vertical-align: middle; padding: 1.5px 0;">Position:</td>
                                 <td style="border: none; border-bottom: 1px solid #000000; padding: 1.5px 4px; vertical-align: middle; font-size: 8pt; line-height: 1.1;">
                                     {{ $receivedPos }}
                                 </td>
                             </tr>
                             <tr>
-                                <td style="border: none; font-weight: bold; font-size: 8pt; vertical-align: middle; padding: 3px 0 1.5px 0;">Office:</td>
+                                <td width="60" style="border: none; font-weight: bold; font-size: 8pt; vertical-align: middle; padding: 3px 0 1.5px 0;">Office:</td>
                                 <td style="border: none; border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; vertical-align: middle; font-size: 8pt; line-height: 1.1; white-space: normal; overflow-wrap: break-word;">
                                     {{ $receivedOff }}
                                 </td>
                             </tr>
                             <tr>
-                                <td style="border: none; font-weight: bold; font-size: 8pt; vertical-align: middle; padding: 3px 0 1.5px 0;">Date:</td>
+                                <td width="60" style="border: none; font-weight: bold; font-size: 8pt; vertical-align: middle; padding: 3px 0 1.5px 0;">Date:</td>
                                 <td style="border: none; border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; vertical-align: middle; font-size: 8pt; line-height: 1.1;">
                                     {{ $receivedDateDisplay }}
                                 </td>
