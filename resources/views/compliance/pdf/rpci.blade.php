@@ -10,7 +10,7 @@
     }
 
     .rpci-container {
-        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
+        font-family: 'DejaVu Serif', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
         color: #000000;
@@ -32,17 +32,20 @@
         line-height: 1.1;
     }
 
-    .accountability-statement {
+    .accountability-table {
+        width: 100%;
         margin-bottom: 6px;
+        border-collapse: collapse;
+        table-layout: fixed;
         font-size: 8.5pt;
-        line-height: 1.3;
+        line-height: 1.15;
     }
 
-    .accountability-field {
-        display: inline-block;
-        border-bottom: 1px solid #000000;
-        padding: 0 4px;
-        font-weight: bold;
+    .accountability-table td {
+        vertical-align: bottom;
+        font-size: 8.5pt;
+        line-height: 1.15;
+        padding: 0;
     }
 
     .main-table {
@@ -150,13 +153,13 @@
     {{-- Subtitle / Type of Inventory Item --}}
     <div style="text-align: center; margin-bottom: 1.5mm; line-height: 1.15;">
         <div style="display: inline-block; border-bottom: 1px solid #000000; padding: 0 6px 1.5px 6px; min-width: 240px; font-weight: bold; font-size: 8.5pt; text-align: center;">
-            {{ $inventoryType ?: '&nbsp;' }}
+            @if(!empty($inventoryType)){{ $inventoryType }}@endif
         </div>
         <div style="margin-top: 1px; font-size: 7.5pt; font-style: italic;">(Type of Inventory Item)</div>
         <div style="margin-top: 3px; font-size: 8.5pt;">
             As at 
             <div style="display: inline-block; border-bottom: 1px solid #000000; padding: 0 6px 1.5px 6px; min-width: 150px; font-weight: bold; font-size: 8.5pt; text-align: center;">
-                {{ $asAtDateDisplay ?: '&nbsp;' }}
+                @if(!empty($asAtDateDisplay)){{ $asAtDateDisplay }}@endif
             </div>
         </div>
     </div>
@@ -164,23 +167,46 @@
     {{-- Top Info Grid --}}
     <table class="rpci-top-info">
         <colgroup>
-            <col style="width: 12%;">
-            <col style="width: 40%;">
-            <col style="width: 48%;">
+            <col style="width: 85px;">
+            <col style="width: 280px;">
+            <col style="width: auto;">
         </colgroup>
         <tbody>
             <tr>
-                <td style="font-weight: bold; padding: 1.5px 0;">Fund Cluster:</td>
-                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px;">{{ $fundCluster }}</td>
-                <td>&nbsp;</td>
+                <td style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Fund Cluster:</td>
+                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px; line-height: 1.1;">{{ $fundCluster }}</td>
+                <td></td>
             </tr>
         </tbody>
     </table>
 
-    {{-- Accountability Statement --}}
-    <div class="accountability-statement">
-        For which <span class="accountability-field">{{ $accountableOfficer }}</span>, <span class="accountability-field">{{ $designation }}</span>, <span class="accountability-field">{{ $entityName }}</span> is accountable, having assumed such accountability on <span class="accountability-field">{{ $dateAssumptionDisplay ?: '&nbsp;' }}</span>.
-    </div>
+    {{-- Accountability Statement Table --}}
+    <table class="accountability-table">
+        <colgroup>
+            <col style="width: 55px;">
+            <col style="width: 23%;">
+            <col style="width: 8px;">
+            <col style="width: 16%;">
+            <col style="width: 8px;">
+            <col style="width: 22%;">
+            <col style="width: 275px;">
+            <col style="width: 90px;">
+            <col style="width: 8px;">
+        </colgroup>
+        <tbody>
+            <tr>
+                <td style="white-space: nowrap;">For which</td>
+                <td style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $accountableOfficer }}</td>
+                <td style="text-align: center;">,</td>
+                <td style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $designation }}</td>
+                <td style="text-align: center;">,</td>
+                <td style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $entityName }}</td>
+                <td style="white-space: nowrap; padding: 0 3px;">is accountable, having assumed such accountability on</td>
+                <td style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">@if(!empty($dateAssumptionDisplay)){{ $dateAssumptionDisplay }}@endif</td>
+                <td>.</td>
+            </tr>
+        </tbody>
+    </table>
 
     {{-- Main RPCI Table --}}
     <table class="main-table">
@@ -268,7 +294,7 @@
                         <tbody>
                             <tr>
                                 <td style="border: none; border-bottom: 1px solid #000000; padding: 0 3px 2px 3px; font-weight: bold; text-align: center; font-size: 8pt; text-transform: uppercase;">
-                                    {{ $certName ?: '&nbsp;' }}
+                                    @if(!empty($certName)){{ $certName }}@endif
                                 </td>
                             </tr>
                             <tr>
@@ -306,7 +332,7 @@
                         <tbody>
                             <tr>
                                 <td style="border: none; border-bottom: 1px solid #000000; padding: 0 3px 2px 3px; font-weight: bold; text-align: center; font-size: 8pt; text-transform: uppercase;">
-                                    {{ $verName ?: '&nbsp;' }}
+                                    @if(!empty($verName)){{ $verName }}@endif
                                 </td>
                             </tr>
                             @if(!empty($verPos) && strtolower(trim($verPos)) !== 'coa representative')
@@ -329,4 +355,5 @@
     </table>
 </div>
 @endsection
+
 

@@ -10,12 +10,13 @@
     }
 
     .sc-container {
-        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
+        font-family: 'DejaVu Serif', 'Times New Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
         color: #000000;
         background: #ffffff;
         width: 100%;
+        max-width: 194mm;
         margin: 0 auto;
     }
 
@@ -45,6 +46,7 @@
         padding: 0.6mm 1mm;
         font-size: 8pt;
         word-wrap: break-word;
+        overflow-wrap: anywhere;
         vertical-align: middle;
         line-height: 1.1;
     }
@@ -68,6 +70,10 @@
         padding: 0 1mm !important;
         line-height: 1 !important;
     }
+
+    .text-center { text-align: center !important; }
+    .text-left { text-align: left !important; }
+    .text-right { text-align: right !important; }
 </style>
 @endsection
 
@@ -100,22 +106,22 @@
         </div>
     </div>
 
-    {{-- Top Info Grid --}}
+    {{-- Top Info Grid with explicit column widths to prevent header wrapping --}}
     <table class="sc-top-info">
         <colgroup>
-            <col style="width: 12%;">
-            <col style="width: 40%;">
-            <col style="width: 3%;">
-            <col style="width: 12%;">
-            <col style="width: 33%;">
+            <col style="width: 85px;">
+            <col style="width: 280px;">
+            <col style="width: 25px;">
+            <col style="width: 85px;">
+            <col style="width: 230px;">
         </colgroup>
         <tbody>
             <tr>
-                <td style="font-weight: bold; padding: 1.5px 0;">Entity Name:</td>
-                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px;">{{ $entityName }}</td>
-                <td>&nbsp;</td>
-                <td style="font-weight: bold; padding: 1.5px 0;">Fund Cluster:</td>
-                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px;">{{ $fundCluster }}</td>
+                <td style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Entity Name:</td>
+                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px; line-height: 1.1;">{{ $entityName }}</td>
+                <td></td>
+                <td style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Fund Cluster:</td>
+                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px; line-height: 1.1;">{{ $fundCluster }}</td>
             </tr>
         </tbody>
     </table>
@@ -130,9 +136,9 @@
         </colgroup>
         <tbody>
             <tr>
-                <td style="text-align: center;">Item:</td>
+                <td style="text-align: center; font-weight: normal;">Item:</td>
                 <td style="text-align: center; font-weight: bold;">{{ $itemTitle }}</td>
-                <td style="text-align: center;">Stock No.:</td>
+                <td style="text-align: center; font-weight: normal;">Stock No.:</td>
                 <td style="text-align: center; font-weight: bold; white-space: nowrap;">{{ $stockNo }}</td>
             </tr>
             <tr>
@@ -144,7 +150,7 @@
             <tr>
                 <td style="text-align: center; line-height: 1.1;">Unit of<br>Measurement:</td>
                 <td style="text-align: center;">{{ $unitOfMeasurement }}</td>
-                <td colspan="2" style="background-color: #ffffff;">&nbsp;</td>
+                <td colspan="2" style="background-color: #ffffff;"></td>
             </tr>
         </tbody>
     </table>
@@ -205,4 +211,5 @@
     </table>
 </div>
 @endsection
+
 

@@ -10,7 +10,7 @@
     }
 
     .mr-container {
-        font-family: 'Times-Roman', 'Times New Roman', Times, serif;
+        font-family: 'DejaVu Serif', 'Times-Roman', Times, serif;
         font-size: 8.5pt;
         line-height: 1.15;
         color: #000000;
@@ -33,7 +33,8 @@
     }
 
     .purpose-statement {
-        margin-bottom: 1.5mm;
+        margin-top: 1.5mm;
+        margin-bottom: 2.5mm;
         line-height: 1.2;
         text-align: justify;
         font-size: 8.5pt;
@@ -104,7 +105,7 @@
     $mrNo = data_get($mrData, 'mrNo') ?? data_get($mrData, 'mr_no') ?? data_get($dataset, 'reference') ?? '';
     
     $fundCluster = data_get($mrData, 'fundCluster') ?? data_get($mrData, 'fund_cluster') ?? '01 - Regular Agency Fund';
-    if ($fundCluster === '01' || $fundCluster === 'General Fund' || $fundCluster === 'Regular Agency Fund') {
+    if (!$fundCluster || $fundCluster === '01' || $fundCluster === 'General Fund' || $fundCluster === 'Regular Agency Fund') {
         $fundCluster = '01 - Regular Agency Fund';
     }
 
@@ -141,11 +142,11 @@
     $grandTotalVal = data_get($mrData, 'grandTotal') ?? $computedTotal;
 
     $getNameStyle = function($name, $defaultSize = '9pt') {
-        if (!$name) return 'font-size: ' . $defaultSize . '; white-space: nowrap;';
+        if (!$name) return 'font-size: ' . $defaultSize . ';';
         $len = strlen(trim($name));
-        if ($len > 30) return 'font-size: 7.2pt; white-space: nowrap;';
-        if ($len > 22) return 'font-size: 8pt; white-space: nowrap;';
-        return 'font-size: ' . $defaultSize . '; white-space: nowrap;';
+        if ($len > 35) return 'font-size: 7.5pt;';
+        if ($len > 28) return 'font-size: 8pt;';
+        return 'font-size: ' . $defaultSize . ';';
     };
 @endphp
 
@@ -161,11 +162,11 @@
     {{-- Top Info Grid --}}
     <table class="mr-top-info">
         <colgroup>
-            <col style="width: 12%;">
-            <col style="width: 40%;">
-            <col style="width: 3%;">
-            <col style="width: 12%;">
-            <col style="width: 33%;">
+            <col style="width: 13%;">
+            <col style="width: 48%;">
+            <col style="width: 2%;">
+            <col style="width: 10%;">
+            <col style="width: 27%;">
         </colgroup>
         <tbody>
             <tr>
@@ -226,26 +227,37 @@
                     }
                     $uVal = data_get($item, 'unitValue') ?? data_get($item, 'unit_cost');
                 @endphp
-                <tr class="{{ $isEmpty ? 'empty-row' : '' }}">
-                    <td class="text-center">{{ $qty !== null && $qty !== '' ? $qty : '' }}</td>
-                    <td class="text-center">{{ data_get($item, 'unit') ?? '' }}</td>
-                    <td class="text-left">{!! nl2br(e(data_get($item, 'description') ?? data_get($item, 'item_name') ?? '')) !!}</td>
-                    <td class="text-center" style="white-space: nowrap;">{{ data_get($item, 'propertyNo') ?? data_get($item, 'property_number') ?? data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? '' }}</td>
-                    <td class="text-center">{{ $itemDateDisplay }}</td>
-                    <td class="text-right">
-                        @if(is_numeric($uVal))
-                            ₱{{ number_format((float)$uVal, 2) }}
-                        @else
-                            {{ $uVal ?? '' }}
-                        @endif
-                    </td>
-                </tr>
+                @if($isEmpty)
+                    <tr class="empty-row">
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                @else
+                    <tr>
+                        <td class="text-center">{{ $qty !== null && $qty !== '' ? $qty : '' }}</td>
+                        <td class="text-center">{{ data_get($item, 'unit') ?? '' }}</td>
+                        <td class="text-left">{!! nl2br(e(data_get($item, 'description') ?? data_get($item, 'item_name') ?? '')) !!}</td>
+                        <td class="text-center">{{ data_get($item, 'propertyNo') ?? data_get($item, 'property_number') ?? data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? '' }}</td>
+                        <td class="text-center">{{ $itemDateDisplay }}</td>
+                        <td class="text-right">
+                            @if(is_numeric($uVal))
+                                ₱{{ number_format((float)$uVal, 2) }}
+                            @else
+                                {{ $uVal ?? '' }}
+                            @endif
+                        </td>
+                    </tr>
+                @endif
             @endforeach
 
             {{-- Grand Total Row --}}
             <tr>
-                <td colspan="5" class="text-right font-bold" style="padding: 0.6mm 1mm;">Grand Total Value:</td>
-                <td class="text-right font-bold" style="padding: 0.6mm 1mm;">
+                <td colspan="5" class="text-right font-bold" style="padding: 0.6mm 1.5mm;">Grand Total Value:</td>
+                <td class="text-right font-bold" style="padding: 0.6mm 1.5mm;">
                     @if(is_numeric($grandTotalVal))
                         ₱{{ number_format((float)$grandTotalVal, 2) }}
                     @else
@@ -263,7 +275,7 @@
                 {{-- Issued / Released by --}}
                 <td class="sig-cell" style="border-right: 1px solid #000000;">
                     <div class="sig-header">Issued / Released by:</div>
-                    <table style="width: 85%; margin: 0 auto 4px auto; border-collapse: collapse;">
+                    <table style="width: 88%; margin: 0 auto 4px auto; border-collapse: collapse;">
                         <tbody>
                             <tr>
                                 <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; line-height: 1.15; {{ $getNameStyle($issuedName, '9pt') }}">
@@ -280,8 +292,8 @@
 
                     <table style="width: 100%; margin-top: 4px; border-collapse: collapse; table-layout: fixed;">
                         <colgroup>
-                            <col style="width: 60px;">
-                            <col style="width: 220px;">
+                            <col style="width: 55px;">
+                            <col style="width: auto;">
                         </colgroup>
                         <tbody>
                             <tr>
@@ -303,7 +315,7 @@
                 {{-- Received by --}}
                 <td class="sig-cell">
                     <div class="sig-header">Received by:</div>
-                    <table style="width: 85%; margin: 0 auto 4px auto; border-collapse: collapse;">
+                    <table style="width: 88%; margin: 0 auto 4px auto; border-collapse: collapse;">
                         <tbody>
                             <tr>
                                 <td style="border: none; border-bottom: 1px solid #000000; padding: 0 2px 2px 2px; font-weight: bold; text-align: center; text-transform: uppercase; line-height: 1.15; {{ $getNameStyle($receivedName, '9pt') }}">
@@ -320,8 +332,8 @@
 
                     <table style="width: 100%; margin-top: 4px; border-collapse: collapse; table-layout: fixed;">
                         <colgroup>
-                            <col style="width: 60px;">
-                            <col style="width: 220px;">
+                            <col style="width: 55px;">
+                            <col style="width: auto;">
                         </colgroup>
                         <tbody>
                             <tr>
@@ -332,7 +344,7 @@
                             </tr>
                             <tr>
                                 <td style="border: none; font-weight: bold; font-size: 8pt; vertical-align: middle; padding: 3px 0 1.5px 0;">Office:</td>
-                                <td style="border: none; border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; vertical-align: middle; font-size: 8pt; line-height: 1.1;">
+                                <td style="border: none; border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; vertical-align: middle; font-size: 8pt; line-height: 1.1; white-space: normal; overflow-wrap: break-word;">
                                     {{ $receivedOff }}
                                 </td>
                             </tr>
@@ -350,4 +362,5 @@
     </table>
 </div>
 @endsection
+
 
