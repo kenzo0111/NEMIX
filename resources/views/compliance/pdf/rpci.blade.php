@@ -13,28 +13,58 @@
         font-family: 'DejaVu Sans', 'Times-Roman', serif;
         font-size: 8.5pt;
         line-height: 1.15;
+        color: #000000;
+        background: #ffffff;
+        width: 100%;
+        margin: 0 auto;
     }
 
-    .rpci-table {
+    .rpci-top-info {
         width: 100%;
+        margin-bottom: 4px;
         border-collapse: collapse;
         table-layout: fixed;
-        border: 1.5px solid #000000;
     }
 
-    .rpci-table th,
-    .rpci-table td {
+    .rpci-top-info td {
+        vertical-align: middle;
+        font-size: 8.5pt;
+        line-height: 1.1;
+    }
+
+    .accountability-statement {
+        margin-bottom: 6px;
+        font-size: 8.5pt;
+        line-height: 1.25;
+    }
+
+    .accountability-field {
+        display: inline-block;
+        border-bottom: 1px solid #000000;
+        padding: 0 4px;
+        font-weight: bold;
+    }
+
+    .main-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1.5px solid #000000;
+        table-layout: fixed;
+    }
+
+    .main-table th,
+    .main-table td {
         border: 1px solid #000000;
         padding: 0.6mm 1mm;
         font-size: 8pt;
+        word-wrap: break-word;
+        text-align: center;
         vertical-align: middle;
         line-height: 1.1;
-        word-wrap: break-word;
     }
 
-    .rpci-table th {
+    .main-table th {
         font-weight: bold;
-        text-align: center;
         background-color: #ffffff;
         padding: 0.8mm 1mm;
     }
@@ -49,6 +79,9 @@
     .footer-table {
         margin-top: 1.5mm;
         width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        page-break-inside: avoid;
     }
 
     .footer-table td {
@@ -62,28 +95,74 @@
 @endsection
 
 @section('content')
+@php
+    $rpciData = $rpci ?? $dataset ?? [];
+    $inventoryType = data_get($rpciData, 'inventory_type') ?? data_get($rpciData, 'inventoryType') ?? '';
+    
+    $rawAsAtDate = data_get($rpciData, 'as_at_date') ?? data_get($rpciData, 'date');
+    $asAtDateDisplay = '';
+    if ($rawAsAtDate) {
+        try {
+            $asAtDateDisplay = \Carbon\Carbon::parse($rawAsAtDate)->format('F d, Y');
+        } catch (\Throwable $e) {
+            $asAtDateDisplay = $rawAsAtDate;
+        }
+    }
+
+    $fundCluster = data_get($rpciData, 'fund_cluster') ?? data_get($rpciData, 'fundCluster') ?? '01 - Regular Agency Fund';
+    if ($fundCluster === '01' || $fundCluster === 'General Fund' || $fundCluster === 'Regular Agency Fund') {
+        $fundCluster = '01 - Regular Agency Fund';
+    }
+
+    $accountableOfficer = data_get($rpciData, 'accountable_officer') ?? 'Arsenio Gem A. Garcillanosa';
+    $designation = data_get($rpciData, 'designation') ?? 'Supply Custodian';
+    $entityName = data_get($rpciData, 'entity_name') ?? data_get($rpciData, 'entityName') ?? 'UNIVERSITY OF CAMARINES NORTE';
+    
+    $rawDateAssumption = data_get($rpciData, 'date_assumption');
+    $dateAssumptionDisplay = '';
+    if ($rawDateAssumption) {
+        try {
+            $dateAssumptionDisplay = \Carbon\Carbon::parse($rawDateAssumption)->format('m/d/Y');
+        } catch (\Throwable $e) {
+            $dateAssumptionDisplay = $rawDateAssumption;
+        }
+    }
+
+    $itemsList = $items ?? data_get($rpciData, 'items') ?? [];
+    $targetRowCount = 6;
+    $paddedItems = array_merge($itemsList, array_fill(0, max(0, $targetRowCount - count($itemsList)), []));
+
+    // Signatories resolution
+    $certName = strtoupper((string)($certifiedByName ?? data_get($rpciData, 'certified_by_name') ?? data_get($rpciData, 'signatories.certified_by.name') ?? ''));
+    $apprName = strtoupper((string)($approvedByName ?? data_get($rpciData, 'approved_by_name') ?? data_get($rpciData, 'signatories.approved_by.name') ?? $accountableOfficer));
+    $verName = strtoupper((string)($verifiedByName ?? data_get($rpciData, 'verified_by_name') ?? data_get($rpciData, 'signatories.verified_by.name') ?? ''));
+    $verPos = $verifiedByPosition ?? data_get($rpciData, 'verified_by_position') ?? data_get($rpciData, 'signatories.verified_by.position') ?? '';
+@endphp
+
 <div class="report-page rpci-container">
-    <div class="official-header">
-        <div class="official-appendix">Appendix 66</div>
-        <div class="official-title">REPORT ON THE PHYSICAL COUNT OF INVENTORIES</div>
+    <div class="official-form-header">
+        <div class="official-form-appendix">Appendix 66</div>
+        <div class="official-form-title-row">
+            <h1 class="official-form-title">REPORT ON THE PHYSICAL COUNT OF INVENTORIES</h1>
+        </div>
     </div>
 
-    {{-- Subtitle / Purpose Line --}}
-    <div style="text-align: center; font-size: 8.5pt; margin-bottom: 1.5mm; line-height: 1.2;">
+    {{-- Subtitle / Type of Inventory Item --}}
+    <div style="text-align: center; margin-bottom: 1.5mm; line-height: 1.15;">
         <div style="display: inline-block; border-bottom: 1px solid #000000; padding: 0 6px 1.5px 6px; min-width: 240px; font-weight: bold; font-size: 8.5pt; text-align: center;">
-            {{ data_get($rpci, 'inventory_type') ?? data_get($rpci, 'inventoryType') ?? 'Inventory Items' }}
+            {{ $inventoryType ?: '&nbsp;' }}
         </div>
         <div style="margin-top: 1px; font-size: 7.5pt; font-style: italic;">(Type of Inventory Item)</div>
-        <div style="margin-top: 3px;">
+        <div style="margin-top: 3px; font-size: 8.5pt;">
             As at 
             <div style="display: inline-block; border-bottom: 1px solid #000000; padding: 0 6px 1.5px 6px; min-width: 150px; font-weight: bold; font-size: 8.5pt; text-align: center;">
-                {{ data_get($rpci, 'as_at_date') ? \Carbon\Carbon::parse(data_get($rpci, 'as_at_date'))->format('F d, Y') : (data_get($rpci, 'date') ? \Carbon\Carbon::parse(data_get($rpci, 'date'))->format('F d, Y') : '') }}
+                {{ $asAtDateDisplay ?: '&nbsp;' }}
             </div>
         </div>
     </div>
 
     {{-- Top Info Grid --}}
-    <table class="form-table" style="margin-bottom: 4px;">
+    <table class="rpci-top-info">
         <colgroup>
             <col style="width: 85px;">
             <col style="width: 280px;">
@@ -91,31 +170,20 @@
         </colgroup>
         <tbody>
             <tr>
-                <td class="form-label">Fund Cluster:</td>
-                <td class="form-value">{{ data_get($rpci, 'fund_cluster') ?? data_get($rpci, 'fundCluster') ?? '01 - Regular Agency Fund' }}</td>
+                <td style="font-weight: bold; padding: 1.5px 0;">Fund Cluster:</td>
+                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px;">{{ $fundCluster }}</td>
                 <td>&nbsp;</td>
             </tr>
         </tbody>
     </table>
 
     {{-- Accountability Statement --}}
-    <div style="margin-bottom: 6px; font-size: 8.5pt; line-height: 1.15;">
-        For which <span style="border-bottom: 1px solid #000; padding: 0 4px; font-weight: bold;">{{ data_get($rpci, 'accountable_officer') ?? 'Arsenio Gem A. Garcillanosa' }}</span>, <span style="border-bottom: 1px solid #000; padding: 0 4px; font-weight: bold;">{{ data_get($rpci, 'designation') ?? 'Supply Custodian' }}</span>, <span style="border-bottom: 1px solid #000; padding: 0 4px; font-weight: bold;">{{ data_get($rpci, 'entity_name') ?? 'UNIVERSITY OF CAMARINES NORTE' }}</span> is accountable, having assumed such accountability on <span style="border-bottom: 1px solid #000; padding: 0 4px; font-weight: bold;">{{ data_get($rpci, 'date_assumption') ? \Carbon\Carbon::parse(data_get($rpci, 'date_assumption'))->format('m/d/Y') : '' }}</span>.
+    <div class="accountability-statement">
+        For which <span class="accountability-field">{{ $accountableOfficer }}</span>, <span class="accountability-field">{{ $designation }}</span>, <span class="accountability-field">{{ $entityName }}</span> is accountable, having assumed such accountability on <span class="accountability-field">{{ $dateAssumptionDisplay ?: '&nbsp;' }}</span>.
     </div>
 
     {{-- Main RPCI Table --}}
-    @php
-        $itemsList = $items ?? [];
-        $targetRows = 6;
-        $paddedItems = array_merge($itemsList, array_fill(0, max(0, $targetRows - count($itemsList)), []));
-
-        $certifiedByName = data_get($rpci, 'certified_by_name') ?? data_get($rpci, 'signatories.certified_by.name') ?? data_get($rpci, 'committee_chair_name') ?? $certifiedByName ?? '';
-        $approvedByName = data_get($rpci, 'approved_by_name') ?? data_get($rpci, 'signatories.approved_by.name') ?? data_get($rpci, 'accountable_officer') ?? $approvedByName ?? 'ARSENIO GEM A. GARCILLANOSA';
-        $verifiedByName = data_get($rpci, 'verified_by_name') ?? data_get($rpci, 'signatories.verified_by.name') ?? data_get($rpci, 'coa_representative_name') ?? $verifiedByName ?? '';
-        $verifiedByPosition = data_get($rpci, 'verified_by_position') ?? data_get($rpci, 'signatories.verified_by.position') ?? $verifiedByPosition ?? '';
-    @endphp
-
-    <table class="rpci-table">
+    <table class="main-table">
         <colgroup>
             <col style="width: 8%;">  {{-- Article --}}
             <col style="width: 20%;"> {{-- Description --}}
@@ -149,26 +217,38 @@
         </thead>
         <tbody>
             @foreach($paddedItems as $item)
-                <tr class="{{ empty($item) ? 'empty-row' : '' }}">
-                    <td class="text-center">{{ data_get($item, 'article') ?? '' }}</td>
+                @php $isEmpty = empty($item); @endphp
+                <tr class="{{ $isEmpty ? 'empty-row' : '' }}">
+                    <td>{{ data_get($item, 'article') ?? '' }}</td>
                     <td class="text-left">{!! nl2br(e(data_get($item, 'description') ?? data_get($item, 'item_name') ?? '')) !!}</td>
-                    <td class="text-center">{{ data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? '' }}</td>
-                    <td class="text-center">{{ data_get($item, 'unit') ?? '' }}</td>
+                    <td>{{ data_get($item, 'supplier_stock_no') ?? data_get($item, 'stock_no') ?? '' }}</td>
+                    <td>{{ data_get($item, 'unit') ?? '' }}</td>
                     <td class="text-right">
-                        @if(is_numeric(data_get($item, 'unit_value') ?? data_get($item, 'unit_cost')))
-                            ₱{{ number_format((float)(data_get($item, 'unit_value') ?? data_get($item, 'unit_cost')), 2) }}
+                        @php $uVal = data_get($item, 'unit_value') ?? data_get($item, 'unit_cost'); @endphp
+                        @if(is_numeric($uVal))
+                            ₱{{ number_format((float)$uVal, 2) }}
                         @else
-                            {{ data_get($item, 'unit_value') ?? data_get($item, 'unit_cost') ?? '' }}
+                            {{ $uVal ?? '' }}
                         @endif
                     </td>
-                    <td class="text-right">{{ data_get($item, 'balance_per_card') ?? data_get($item, 'quantity') ?? '' }}</td>
-                    <td class="text-right">{{ data_get($item, 'on_hand_count') ?? data_get($item, 'physical_count') ?? '' }}</td>
-                    <td class="text-right">{{ data_get($item, 'shortage_qty') ?? data_get($item, 'variance') ?? '' }}</td>
                     <td class="text-right">
-                        @if(is_numeric(data_get($item, 'shortage_value')))
-                            ₱{{ number_format((float)data_get($item, 'shortage_value'), 2) }}
+                        @php $bCard = data_get($item, 'balance_per_card') ?? data_get($item, 'quantity'); @endphp
+                        {{ $bCard !== null && $bCard !== '' ? $bCard : '' }}
+                    </td>
+                    <td class="text-right">
+                        @php $oHand = data_get($item, 'on_hand_count') ?? data_get($item, 'physical_count'); @endphp
+                        {{ $oHand !== null && $oHand !== '' ? $oHand : '' }}
+                    </td>
+                    <td class="text-right">
+                        @php $sQty = data_get($item, 'shortage_qty') ?? data_get($item, 'variance'); @endphp
+                        {{ $sQty !== null && $sQty !== '' ? $sQty : '' }}
+                    </td>
+                    <td class="text-right">
+                        @php $sVal = data_get($item, 'shortage_value'); @endphp
+                        @if(is_numeric($sVal))
+                            ₱{{ number_format((float)$sVal, 2) }}
                         @else
-                            {{ data_get($item, 'shortage_value') ?? '' }}
+                            {{ $sVal ?? '' }}
                         @endif
                     </td>
                     <td class="text-left">{{ data_get($item, 'remarks') ?? '' }}</td>
@@ -181,13 +261,14 @@
     <table class="footer-table">
         <tbody>
             <tr>
+                {{-- Certified Correct -- SHOW NAME ONLY --}}
                 <td>
                     <div style="margin-bottom: 4.5mm; font-weight: bold;">Certified Correct by:</div>
                     <table style="width: 90%; margin: 0 auto; border-collapse: collapse;">
                         <tbody>
                             <tr>
-                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 3px 2px 3px; font-weight: bold; text-align: center; font-size: 8pt;">
-                                    {{ $certifiedByName ?: "\u{00A0}" }}
+                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 3px 2px 3px; font-weight: bold; text-align: center; font-size: 8pt; text-transform: uppercase;">
+                                    {{ $certName ?: '&nbsp;' }}
                                 </td>
                             </tr>
                             <tr>
@@ -198,13 +279,15 @@
                         </tbody>
                     </table>
                 </td>
+
+                {{-- Approved by --}}
                 <td>
                     <div style="margin-bottom: 4.5mm; font-weight: bold;">Approved by:</div>
                     <table style="width: 90%; margin: 0 auto; border-collapse: collapse;">
                         <tbody>
                             <tr>
-                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 3px 2px 3px; font-weight: bold; text-align: center; font-size: 8pt;">
-                                    {{ $approvedByName ?: 'ARSENIO GEM A. GARCILLANOSA' }}
+                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 3px 2px 3px; font-weight: bold; text-align: center; font-size: 8pt; text-transform: uppercase;">
+                                    {{ $apprName ?: 'ARSENIO GEM A. GARCILLANOSA' }}
                                 </td>
                             </tr>
                             <tr>
@@ -215,19 +298,21 @@
                         </tbody>
                     </table>
                 </td>
+
+                {{-- Verified by --}}
                 <td>
                     <div style="margin-bottom: 4.5mm; font-weight: bold;">Verified by:</div>
                     <table style="width: 90%; margin: 0 auto; border-collapse: collapse;">
                         <tbody>
                             <tr>
-                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 3px 2px 3px; font-weight: bold; text-align: center; font-size: 8pt;">
-                                    {{ $verifiedByName ?: "\u{00A0}" }}
+                                <td style="border: none; border-bottom: 1px solid #000000; padding: 0 3px 2px 3px; font-weight: bold; text-align: center; font-size: 8pt; text-transform: uppercase;">
+                                    {{ $verName ?: '&nbsp;' }}
                                 </td>
                             </tr>
-                            @if(!empty($verifiedByPosition) && strtolower(trim($verifiedByPosition)) !== 'coa representative')
+                            @if(!empty($verPos) && strtolower(trim($verPos)) !== 'coa representative')
                                 <tr>
                                     <td style="border: none; text-align: center; font-size: 7.5pt; padding-top: 1px; line-height: 1.1;">
-                                        {{ $verifiedByPosition }}
+                                        {{ $verPos }}
                                     </td>
                                 </tr>
                             @endif
@@ -244,4 +329,3 @@
     </table>
 </div>
 @endsection
-

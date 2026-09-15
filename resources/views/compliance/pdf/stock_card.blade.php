@@ -13,30 +13,53 @@
         font-family: 'DejaVu Sans', 'Times-Roman', serif;
         font-size: 8.5pt;
         line-height: 1.15;
+        color: #000000;
+        background: #ffffff;
+        width: 100%;
+        margin: 0 auto;
     }
 
-    .sc-table {
+    .sc-top-info {
         width: 100%;
+        margin-bottom: 6px;
         border-collapse: collapse;
         table-layout: fixed;
-        border: 1.5px solid #000000;
     }
 
-    .sc-table th,
-    .sc-table td {
+    .sc-top-info td {
+        vertical-align: middle;
+        font-size: 8.5pt;
+        line-height: 1.1;
+    }
+
+    .main-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1.5px solid #000000;
+        table-layout: fixed;
+    }
+
+    .main-table th,
+    .main-table td {
         border: 1px solid #000000;
         padding: 0.6mm 1mm;
         font-size: 8pt;
+        word-wrap: break-word;
         vertical-align: middle;
         line-height: 1.1;
-        word-wrap: break-word;
     }
 
-    .sc-table th {
+    .main-table th {
         font-weight: bold;
         text-align: center;
         background-color: #ffffff;
         padding: 0.8mm 1mm;
+    }
+
+    .sc-header-box td {
+        padding: 2px 4px;
+        font-size: 8pt;
+        line-height: 1.1;
     }
 
     .empty-row td {
@@ -49,34 +72,56 @@
 @endsection
 
 @section('content')
+@php
+    $scData = $stockCard ?? $dataset ?? [];
+    $entityName = data_get($scData, 'entity_name') ?? data_get($scData, 'entityName') ?? 'UNIVERSITY OF CAMARINES NORTE';
+    
+    $fundCluster = data_get($scData, 'fund_cluster') ?? data_get($scData, 'fundCluster') ?? '01 - Regular Agency Fund';
+    if ($fundCluster === '01' || $fundCluster === 'General Fund' || $fundCluster === 'Regular Agency Fund') {
+        $fundCluster = '01 - Regular Agency Fund';
+    }
+
+    $itemTitle = data_get($scData, 'item') ?? data_get($scData, 'item_name') ?? '';
+    $stockNo = data_get($scData, 'supplier_stock_no') ?? data_get($scData, 'stock_no') ?? '';
+    $description = data_get($scData, 'description') ?? '';
+    $reOrderPoint = data_get($scData, 're_order_point') ?? data_get($scData, 'reorder_point') ?? '';
+    $unitOfMeasurement = data_get($scData, 'unit_of_measurement') ?? data_get($scData, 'unit') ?? '';
+
+    $entriesList = $entries ?? data_get($scData, 'entries') ?? [];
+    $targetRowCount = 12;
+    $paddedEntries = array_merge($entriesList, array_fill(0, max(0, $targetRowCount - count($entriesList)), []));
+@endphp
+
 <div class="report-page sc-container">
-    <div class="official-header">
-        <div class="official-appendix">Appendix 58</div>
-        <div class="official-title">STOCK CARD</div>
+    <div class="official-form-header">
+        <div class="official-form-appendix">Appendix 58</div>
+        <div class="official-form-title-row">
+            <h1 class="official-form-title">STOCK CARD</h1>
+        </div>
     </div>
 
     {{-- Top Info Grid --}}
-    <table class="form-table" style="margin-bottom: 6px;">
+    <table class="sc-top-info">
         <colgroup>
-            <col style="width: 15%;">
-            <col style="width: 40%;">
-            <col style="width: 5%;">
-            <col style="width: 15%;">
-            <col style="width: 25%;">
+            <col style="width: 85px;">
+            <col style="width: 280px;">
+            <col style="width: 25px;">
+            <col style="width: 85px;">
+            <col style="width: 230px;">
         </colgroup>
         <tbody>
             <tr>
-                <td class="form-label">Entity Name:</td>
-                <td class="form-value">{{ data_get($stockCard, 'entity_name') ?? data_get($dataset, 'entity_name') ?? 'UNIVERSITY OF CAMARINES NORTE' }}</td>
+                <td style="font-weight: bold; padding: 1.5px 0;">Entity Name:</td>
+                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px;">{{ $entityName }}</td>
                 <td>&nbsp;</td>
-                <td class="form-label">Fund Cluster:</td>
-                <td class="form-value">{{ data_get($stockCard, 'fund_cluster') ?? data_get($dataset, 'fund_cluster') ?? '01 - Regular Agency Fund' }}</td>
+                <td style="font-weight: bold; padding: 1.5px 0;">Fund Cluster:</td>
+                <td style="border-bottom: 1px solid #000000; padding: 1.5px 4px;">{{ $fundCluster }}</td>
             </tr>
         </tbody>
     </table>
 
     {{-- Boxed Header Info Table --}}
-    <table class="sc-table" style="border-bottom: none; margin-bottom: 0;">
+    <table class="main-table sc-header-box" style="border-bottom: none;">
         <colgroup>
             <col style="width: 14%;">
             <col style="width: 38%;">
@@ -86,38 +131,32 @@
         <tbody>
             <tr>
                 <td style="text-align: center;">Item:</td>
-                <td style="text-align: center; font-weight: bold;">{{ data_get($stockCard, 'item') ?? data_get($stockCard, 'item_name') ?? '' }}</td>
+                <td style="text-align: center; font-weight: bold;">{{ $itemTitle }}</td>
                 <td style="text-align: center;">Stock No.:</td>
-                <td style="text-align: center; font-weight: bold;">{{ data_get($stockCard, 'supplier_stock_no') ?? data_get($stockCard, 'stock_no') ?? '' }}</td>
+                <td style="text-align: center; font-weight: bold;">{{ $stockNo }}</td>
             </tr>
             <tr>
                 <td style="text-align: center;">Description:</td>
-                <td style="text-align: center;">{{ data_get($stockCard, 'description') ?? data_get($stockCard, 'item') ?? '' }}</td>
+                <td style="text-align: center;">{{ $description }}</td>
                 <td style="text-align: center;">Re-order Point:</td>
-                <td style="text-align: center;">{{ data_get($stockCard, 're_order_point') ?? '' }}</td>
+                <td style="text-align: center;">{{ $reOrderPoint }}</td>
             </tr>
             <tr>
                 <td style="text-align: center; line-height: 1.1;">Unit of<br>Measurement:</td>
-                <td style="text-align: center;">{{ data_get($stockCard, 'unit_of_measurement') ?? data_get($stockCard, 'unit') ?? 'pc' }}</td>
+                <td style="text-align: center;">{{ $unitOfMeasurement }}</td>
                 <td colspan="2" style="background-color: #ffffff;">&nbsp;</td>
             </tr>
         </tbody>
     </table>
 
-    {{-- Main Stock Card Ledger Table --}}
-    @php
-        $entriesList = $entries ?? [];
-        $targetRows = 12;
-        $paddedEntries = array_merge($entriesList, array_fill(0, max(0, $targetRows - count($entriesList)), []));
-    @endphp
-
-    <table class="sc-table">
+    {{-- Main Ledger Table --}}
+    <table class="main-table">
         <colgroup>
             <col style="width: 11%;"> {{-- Date --}}
             <col style="width: 15%;"> {{-- Reference --}}
             <col style="width: 10%;"> {{-- Receipt Qty --}}
             <col style="width: 10%;"> {{-- Issue Qty --}}
-            <col style="width: 26%;"> {{-- Office --}}
+            <col style="width: 26%;"> {{-- Issue Office --}}
             <col style="width: 11%;"> {{-- Balance Qty --}}
             <col style="width: 17%;"> {{-- Days to Consume --}}
         </colgroup>
@@ -137,13 +176,28 @@
         </thead>
         <tbody>
             @foreach($paddedEntries as $entry)
-                <tr class="{{ empty($entry) ? 'empty-row' : '' }}">
-                    <td class="text-center">{{ data_get($entry, 'date') ? \Carbon\Carbon::parse(data_get($entry, 'date'))->format('m/d/Y') : '' }}</td>
+                @php
+                    $isEmpty = empty($entry);
+                    $rawDate = data_get($entry, 'date');
+                    $dateDisplay = '';
+                    if ($rawDate) {
+                        try {
+                            $dateDisplay = \Carbon\Carbon::parse($rawDate)->format('m/d/Y');
+                        } catch (\Throwable $e) {
+                            $dateDisplay = $rawDate;
+                        }
+                    }
+                    $receiptQty = data_get($entry, 'receipt_qty');
+                    $issueQty = data_get($entry, 'issue_qty');
+                    $balanceQty = data_get($entry, 'balance_qty');
+                @endphp
+                <tr class="{{ $isEmpty ? 'empty-row' : '' }}">
+                    <td class="text-center">{{ $dateDisplay }}</td>
                     <td class="text-center">{{ data_get($entry, 'reference') ?? '' }}</td>
-                    <td class="text-center">{{ data_get($entry, 'receipt_qty') ?? '' }}</td>
-                    <td class="text-center">{{ data_get($entry, 'issue_qty') ?? '' }}</td>
+                    <td class="text-center">{{ $receiptQty !== null && $receiptQty !== '' ? $receiptQty : '' }}</td>
+                    <td class="text-center">{{ $issueQty !== null && $issueQty !== '' ? $issueQty : '' }}</td>
                     <td class="text-center">{{ data_get($entry, 'issue_office') ?? data_get($entry, 'department') ?? '' }}</td>
-                    <td class="text-center">{{ data_get($entry, 'balance_qty') ?? '' }}</td>
+                    <td class="text-center">{{ $balanceQty !== null && $balanceQty !== '' ? $balanceQty : '' }}</td>
                     <td class="text-center">{{ data_get($entry, 'days_to_consume') ?? '' }}</td>
                 </tr>
             @endforeach
@@ -151,4 +205,3 @@
     </table>
 </div>
 @endsection
-
