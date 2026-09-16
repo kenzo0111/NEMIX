@@ -18,6 +18,8 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/*.json
+*.bundle
 /vendor
 Homestead.json
 Homestead.yaml
