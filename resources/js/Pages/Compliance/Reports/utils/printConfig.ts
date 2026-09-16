@@ -30,12 +30,12 @@ export const REPORT_PDF_CONFIG: Record<string, CompliancePdfConfig> = {
     },
     RSMI: {
         paper: 'a4',
-        orientation: 'portrait',
+        orientation: 'landscape',
         marginMm: 8,
-        pageWidthMm: 210,
-        pageHeightMm: 297,
-        targetWidthMm: 194,
-        targetHeightMm: 281,
+        pageWidthMm: 297,
+        pageHeightMm: 210,
+        targetWidthMm: 281,
+        targetHeightMm: 194,
     },
     RPCI: {
         paper: 'a4',
@@ -88,7 +88,7 @@ export const REPORT_PRINT_CONFIGS: Record<string, CompliancePrintConfig> = {
         margin: '8mm',
     },
     RSMI: {
-        orientation: 'portrait',
+        orientation: 'landscape',
         paperSize: 'A4',
         margin: '8mm',
     },

@@ -105,7 +105,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
     <>
       <style>{`
         @page {
-            size: A4 portrait;
+            size: A4 landscape;
             margin: 8mm;
         }
         .rsmi-container {
@@ -114,7 +114,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             background: #ffffff;
             color: #000000;
             width: 100%;
-            max-width: 194mm;
+            max-width: 281mm;
             margin: 0 auto;
             box-sizing: border-box;
             line-height: 1.15;

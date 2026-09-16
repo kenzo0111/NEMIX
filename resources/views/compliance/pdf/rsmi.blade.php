@@ -5,7 +5,7 @@
 @section('styles')
 <style>
     @page {
-        size: A4 portrait;
+        size: A4 landscape;
         margin: 8mm;
     }
 
@@ -16,6 +16,7 @@
         color: #000000;
         background: #ffffff;
         width: 100%;
+        max-width: 281mm;
         margin: 0 auto;
         box-sizing: border-box;
     }

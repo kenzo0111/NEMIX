@@ -150,7 +150,7 @@ class CompliancePdfController extends Controller
         ];
 
         $pdf = Pdf::loadView('compliance.pdf.rsmi', $viewData)
-            ->setPaper('A4', 'portrait')
+            ->setPaper('A4', 'landscape')
             ->setOption([
                 'isRemoteEnabled' => true,
                 'isHtml5ParserEnabled' => true,
