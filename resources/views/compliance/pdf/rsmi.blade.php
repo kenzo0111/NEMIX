@@ -39,6 +39,11 @@
         line-height: 1.1;
     }
 
+    .rsmi-top-info .rsmi-info-label {
+        text-align: right;
+        padding-right: 1mm !important;
+    }
+
     .rsmi-field-group { width: 100%; border-collapse: collapse; table-layout: fixed; }
     .rsmi-field-group td { padding: 1.5px 0; }
     .rsmi-field-group tr + tr td { padding-top: 3px; }
@@ -236,17 +241,17 @@
         </colgroup>
         <tbody>
             <tr>
-                <td width="12%" style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Entity Name:</td>
+                <td width="12%" class="rsmi-info-label" style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Entity Name:</td>
                 <td width="40%" style="border-bottom: 1px solid #000000; padding: 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $entityName }}</td>
                 <td width="4%">&nbsp;</td>
-                <td width="12%" style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Serial No. :</td>
+                <td width="12%" class="rsmi-info-label" style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Serial No. :</td>
                 <td width="32%" style="border-bottom: 1px solid #000000; padding: 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $serialNo }}</td>
             </tr>
             <tr>
-                <td width="12%" style="font-weight: bold; white-space: nowrap; padding: 3px 0 1.5px 0;">Fund Cluster:</td>
+                <td width="12%" class="rsmi-info-label" style="font-weight: bold; white-space: nowrap; padding: 3px 0 1.5px 0;">Fund Cluster:</td>
                 <td width="40%" style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $fundCluster }}</td>
                 <td width="4%">&nbsp;</td>
-                <td width="12%" style="font-weight: bold; white-space: nowrap; padding: 3px 0 1.5px 0;">Date :</td>
+                <td width="12%" class="rsmi-info-label" style="font-weight: bold; white-space: nowrap; padding: 3px 0 1.5px 0;">Date :</td>
                 <td width="32%" style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $displayDate }}</td>
             </tr>
         </tbody>
