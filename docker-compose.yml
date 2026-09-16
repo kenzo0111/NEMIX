@@ -18,8 +18,8 @@ services:
       - DB_HOST=db
       - DB_PORT=${DB_PORT:-5432}
       - DB_DATABASE=${DB_DATABASE:-laravel}
-      - DB_USERNAME=${DB_USERNAME:-sail}
-      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - DB_USERNAME=${DB_USERNAME:?Set DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD}
 
   queue:
     build:
@@ -38,27 +38,26 @@ services:
       - DB_HOST=db
       - DB_PORT=${DB_PORT:-5432}
       - DB_DATABASE=${DB_DATABASE:-laravel}
-      - DB_USERNAME=${DB_USERNAME:-sail}
-      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - DB_USERNAME=${DB_USERNAME:?Set DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD}
 
   db:
     image: postgres:13
     environment:
       POSTGRES_DB: ${DB_DATABASE:-laravel}
-      POSTGRES_USER: ${DB_USERNAME:-sail}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-    ports:
-      - "127.0.0.1:5433:5432"
+      POSTGRES_USER: ${DB_USERNAME:?Set DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4
+    profiles: ["admin"]
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-}
     ports:
-      - "5050:80"
+      - "127.0.0.1:5050:80"
     depends_on:
       - db
 

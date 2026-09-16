@@ -8,8 +8,8 @@ use App\Notifications\PasswordChangeOtpNotification;
 use App\Notifications\PasswordChangedSecurityNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -45,10 +45,10 @@ class PasswordChangeOtpController extends Controller
             ], 429);
         }
 
-        // Validate current password and new password rules
+        // Validate identity; the future password is supplied only after OTP verification.
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', Password::defaults(), 'confirmed'],
+            'password' => ['sometimes', Password::defaults(), 'confirmed'],
         ]);
 
         // Invalidate any existing unverified OTP requests for this user
@@ -62,12 +62,11 @@ class PasswordChangeOtpController extends Controller
         $expiresAt = now()->addMinutes(5);
         $resendAvailableAt = now()->addSeconds(60);
 
-        // Store encrypted pending password (never plaintext) and hashed OTP
+        // Store only the OTP hash; no recoverable future password is retained.
         $changeRequest = PasswordChangeRequest::create([
             'user_id' => $user->id,
             'token' => $token,
             'otp_hash' => Hash::make($otp),
-            'pending_password' => Crypt::encryptString($validated['password']),
             'expires_at' => $expiresAt,
             'attempts' => 0,
             'max_attempts' => 5,
@@ -85,10 +84,9 @@ class PasswordChangeOtpController extends Controller
         try {
             $user->notify(new PasswordChangeOtpNotification($otp, 5));
         } catch (\Throwable $e) {
-            Log::error('Failed to send password change OTP: ' . $e->getMessage(), [
+            Log::error('Failed to send password change OTP', [
                 'user_id' => $user->id,
-                'email' => $user->email,
-                'exception' => $e,
+                'exception_type' => get_class($e),
             ]);
 
             // Clean up request and revert rate limiter hit so invalid state is not persisted
@@ -137,7 +135,7 @@ class PasswordChangeOtpController extends Controller
             ->where('token', $request->token)
             ->first();
 
-        if (! $changeRequest || $changeRequest->is_used || empty($changeRequest->pending_password)) {
+        if (! $changeRequest || $changeRequest->is_used) {
             return response()->json([
                 'message' => 'Verification request not found or has already been used. Please start over.',
                 'errors' => [
@@ -194,19 +192,24 @@ class PasswordChangeOtpController extends Controller
             ], 422);
         }
 
-        // OTP is valid! Decrypt and apply the new password
-        $rawNewPassword = Crypt::decryptString($changeRequest->pending_password);
+        // Apply only the password submitted with the verified, single-use OTP.
+        $request->validate(['password' => ['required', Password::defaults(), 'confirmed']]);
+        $changed = DB::transaction(function () use ($changeRequest, $request, $user): bool {
+            $claimed = PasswordChangeRequest::whereKey($changeRequest->id)
+                ->where('is_used', false)
+                ->where('attempts', '<', $changeRequest->max_attempts)
+                ->where('expires_at', '>', now())
+                ->delete();
+            if ($claimed !== 1) {
+                return false;
+            }
+            $user->update(['password' => Hash::make($request->input('password'))]);
 
-        $user->update([
-            'password' => Hash::make($rawNewPassword),
-        ]);
-
-        // Invalidate the request and wipe temporary encrypted storage
-        $changeRequest->update([
-            'is_used' => true,
-            'used_at' => now(),
-            'pending_password' => null,
-        ]);
+            return true;
+        });
+        if (! $changed) {
+            return response()->json(['message' => 'Verification request has expired or already been used.'], 422);
+        }
 
         // Clear rate limiter upon successful password change
         RateLimiter::clear('password-otp-request:' . $user->id);
@@ -215,7 +218,7 @@ class PasswordChangeOtpController extends Controller
         try {
             $user->notify(new PasswordChangedSecurityNotification($request->ip()));
         } catch (\Throwable $e) {
-            Log::warning('Failed to send password changed notification email: ' . $e->getMessage());
+            Log::warning('Failed to send password changed notification email', ['exception_type' => get_class($e)]);
         }
 
         return response()->json([
@@ -247,7 +250,7 @@ class PasswordChangeOtpController extends Controller
             ->where('is_used', false)
             ->first();
 
-        if (! $changeRequest || empty($changeRequest->pending_password)) {
+        if (! $changeRequest) {
             return response()->json([
                 'message' => 'Active verification request not found. Please initiate a new password change.',
                 'errors' => [
@@ -301,10 +304,9 @@ class PasswordChangeOtpController extends Controller
         try {
             $user->notify(new PasswordChangeOtpNotification($newOtp, 5));
         } catch (\Throwable $e) {
-            Log::error('Failed to resend password change OTP: ' . $e->getMessage(), [
+            Log::error('Failed to resend password change OTP', [
                 'user_id' => $user->id,
-                'email' => $user->email,
-                'exception' => $e,
+                'exception_type' => get_class($e),
             ]);
 
             return response()->json([

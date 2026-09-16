@@ -20,13 +20,8 @@ class RfidScannerController extends Controller
 {
     public function index(Request $request): Response
     {
-        // Enforce rfid.view permission if permission exists
         $user = $request->user();
-        if ($user && method_exists($user, 'hasPermissionTo') && method_exists($user, 'hasRole')) {
-            if (!$user->hasRole('System Admin') && $user->can('rfid.view') === false && $user->getAllPermissions()->pluck('name')->contains('rfid.view')) {
-                abort(403, 'Unauthorized. Missing rfid.view permission.');
-            }
-        }
+        abort_unless($user && ($user->hasAnyRole(['System Admin', 'System Administrator']) || $user->can('rfid.view')), 403);
 
         $validated = $request->validate([
             'item_id' => ['nullable', 'integer', 'exists:items,id'],
@@ -132,18 +127,16 @@ class RfidScannerController extends Controller
         $rfidTag = trim($validated['rfid_tag']);
         $user = $request->user();
 
-        // Enforce rfid.assign / rfid.replace permission check
-        if ($user && method_exists($user, 'hasPermissionTo') && method_exists($user, 'hasRole')) {
-            if (!$user->hasRole('System Admin') && $user->can('rfid.assign') === false && $user->getAllPermissions()->pluck('name')->contains('rfid.assign')) {
-                abort(403, 'Unauthorized. Missing rfid.assign permission.');
-            }
-        }
+        abort_unless($user && ($user->hasAnyRole(['System Admin', 'System Administrator']) || $user->can('rfid.assign')), 403);
 
         try {
             return DB::transaction(function () use ($request, $itemId, $rfidTag, $user) {
                 // Lock inventory item for concurrent safety
                 $item = Item::lockForUpdate()->findOrFail($itemId);
                 ResourceOwnershipPolicy::authorize($user, $item, 'created_by');
+                if ($item->rfid_tag && $item->rfid_tag !== $rfidTag) {
+                    abort_unless($user->hasAnyRole(['System Admin', 'System Administrator']) || $user->can('rfid.replace'), 403);
+                }
 
                 // Authoritative uniqueness validation including soft-deleted items
                 $existing = Item::withTrashed()
@@ -254,12 +247,7 @@ class RfidScannerController extends Controller
         $itemId = (int) $validated['item_id'];
         $user = $request->user();
 
-        // Enforce rfid.unassign permission check
-        if ($user && method_exists($user, 'hasPermissionTo') && method_exists($user, 'hasRole')) {
-            if (!$user->hasRole('System Admin') && $user->can('rfid.unassign') === false && $user->getAllPermissions()->pluck('name')->contains('rfid.unassign')) {
-                abort(403, 'Unauthorized. Missing rfid.unassign permission.');
-            }
-        }
+        abort_unless($user && ($user->hasAnyRole(['System Admin', 'System Administrator']) || $user->can('rfid.unassign')), 403);
 
         return DB::transaction(function () use ($itemId, $user) {
             $item = Item::lockForUpdate()->findOrFail($itemId);

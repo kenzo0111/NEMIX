@@ -38,7 +38,17 @@ class ComplianceMigrationController extends Controller
         $validated = $request->validate([
             'form_type' => [$forcedFormType ? 'nullable' : 'required', 'string', 'max:50'],
             'source' => ['nullable', 'string', 'max:100'],
-            'records' => ['required', 'array', 'min:1'],
+            'records' => ['required', 'array', 'min:1', 'max:500'],
+            'records.*' => ['required', 'array'],
+            'records.*.reference' => ['nullable', 'string', 'max:150'],
+            'records.*.item_name' => ['nullable', 'string', 'max:255'],
+            'records.*.item' => ['nullable', 'string', 'max:255'],
+            'records.*.unit' => ['nullable', 'string', 'max:100'],
+            'records.*.quantity' => ['nullable', 'numeric', 'between:0,1000000000'],
+            'records.*.quantity_issued' => ['nullable', 'numeric', 'between:0,1000000000'],
+            'records.*.issue_qty' => ['nullable', 'numeric', 'between:0,1000000000'],
+            'records.*.unit_cost' => ['nullable', 'numeric', 'between:0,1000000000000'],
+            'records.*.amount' => ['nullable', 'numeric', 'between:0,1000000000000'],
         ]);
 
         $rawFormType = $forcedFormType ?: ($validated['form_type'] ?? 'RSMI');

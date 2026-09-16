@@ -78,22 +78,16 @@ docker compose exec app php artisan storage:link
 
 ---
 
-## 5. Live Database Access (pgAdmin Web Interface)
+## 5. Restricted Database Administration
 
-The database management interface runs via Docker container on port `5050`:
+PostgreSQL has no host port mapping. pgAdmin is disabled by default and binds only to the server loopback interface when started with `docker compose --profile admin up -d pgadmin`. Set unique `DB_USERNAME`, `DB_PASSWORD`, `PGADMIN_DEFAULT_EMAIL`, and `PGADMIN_DEFAULT_PASSWORD` in the server environment before starting Docker. Existing default credentials and any previously published production credentials require rotation.
 
-* **URL:** `http://157.230.253.79:5050`
-* **pgAdmin Login Email:** `admin@example.com` (or `PGADMIN_DEFAULT_EMAIL` in `.env`)
-* **pgAdmin Login Password:** `admin` (or `PGADMIN_DEFAULT_PASSWORD` in `.env`)
+From an authorized workstation, establish `ssh -L 5050:127.0.0.1:5050 root@<server>` and open `http://127.0.0.1:5050` locally. In pgAdmin register host `db`, port `5432`, and the database credentials from the server environment. Do not publish either database service through Cloudflare or a public host port.
 
-### How to Register the Database Server inside pgAdmin:
-1. Click **Add New Server**
-2. **General Tab:**
-   * Name: `NEMIX DB`
-3. **Connection Tab:**
-   * Host name / address: `db`
-   * Port: `5432`
-   * Maintenance database: `laravel`
-   * Username: `sail`
-   * Password: `password`
+## 6. Origin Firewall Rollout
 
+Before tightening ingress, confirm the current administrator IP and an active SSH session. Add an allow rule for TCP 22 from the administrator IP, then verify a second SSH connection. Permit TCP 80/443 only from the current Cloudflare published IPv4 and IPv6 ranges; automate range updates and verify the web application through Cloudflare. Deny public TCP 5050 and 5432, then verify both ports from an external host. Keep a recovery console available while applying these rules. Do not change the firewall based on an old static CIDR list.
+
+Set `TRUSTED_PROXIES` to only the directly connected reverse proxy addresses or CIDRs. For this Cloudflare-direct origin, run `python3 ops/sync_cloudflare_proxies.py` and rebuild Laravel's config cache; rerun it when Cloudflare publishes range changes. Confirm direct origin traffic cannot provide trusted `X-Forwarded-*` metadata. Deploy the updated ESP32 firmware and provision each scanner's unique signing secret before enabling the HMAC-only API; previously issued reusable tokens must be rotated.
+
+For production, set `APP_ENV=production`, `APP_DEBUG=false`, `SESSION_SECURE_COOKIE=true`, and `SESSION_HTTP_ONLY=true`. Keep the application key and all database, mail, and scanner credentials only in the server environment. Use a shared cache backend for HMAC nonce replay protection. After deployment, check `docker compose ps`, verify Laravel can query PostgreSQL through host `db`, and confirm externally that ports 5050 and 5432 are closed.

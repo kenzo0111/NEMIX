@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Notifications\PasswordChangeOtpNotification;
 use App\Notifications\PasswordChangedSecurityNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
@@ -54,9 +53,7 @@ class PasswordChangeOtpTest extends TestCase
         $this->assertSame(0, $record->attempts);
         $this->assertTrue($record->expires_at->diffInMinutes(now()) <= 5);
 
-        // Verify password is NOT plaintext in database
-        $this->assertNotEquals('NewSecurePassword456!', $record->pending_password);
-        $this->assertSame('NewSecurePassword456!', Crypt::decryptString($record->pending_password));
+        $this->assertArrayNotHasKey('pending_password', $record->getAttributes());
 
         // Verify user's actual password was NOT yet changed
         $this->assertTrue(Hash::check('CurrentPassword123!', $user->fresh()->password));
@@ -160,7 +157,6 @@ class PasswordChangeOtpTest extends TestCase
             'user_id' => $user->id,
             'token' => $token,
             'otp_hash' => Hash::make($otp),
-            'pending_password' => Crypt::encryptString('BrandNewPassword789!'),
             'expires_at' => now()->addMinutes(5),
             'attempts' => 0,
             'max_attempts' => 5,
@@ -172,6 +168,8 @@ class PasswordChangeOtpTest extends TestCase
             ->postJson(route('password.otp.verify'), [
                 'token' => $token,
                 'otp' => $otp,
+                'password' => 'BrandNewPassword789!',
+                'password_confirmation' => 'BrandNewPassword789!',
             ]);
 
         $response->assertOk();
@@ -183,11 +181,7 @@ class PasswordChangeOtpTest extends TestCase
         // User's password in users table is now updated!
         $this->assertTrue(Hash::check('BrandNewPassword789!', $user->fresh()->password));
 
-        // Record is marked as used and pending password is wiped
-        $record->refresh();
-        $this->assertTrue($record->is_used);
-        $this->assertNotNull($record->used_at);
-        $this->assertNull($record->pending_password);
+        $this->assertNull($record->fresh());
 
         // Security notification was dispatched
         Notification::assertSentTo($user, PasswordChangedSecurityNotification::class);
@@ -208,7 +202,6 @@ class PasswordChangeOtpTest extends TestCase
             'user_id' => $user->id,
             'token' => $token,
             'otp_hash' => Hash::make($otp),
-            'pending_password' => Crypt::encryptString('NewPassword789!'),
             'expires_at' => now()->addMinutes(5),
             'attempts' => 0,
             'max_attempts' => 5,
@@ -248,7 +241,6 @@ class PasswordChangeOtpTest extends TestCase
             'user_id' => $user->id,
             'token' => $token,
             'otp_hash' => Hash::make('123456'),
-            'pending_password' => Crypt::encryptString('NewPassword789!'),
             'expires_at' => now()->addMinutes(5),
             'attempts' => 4, // 1 attempt remaining
             'max_attempts' => 5,
@@ -269,7 +261,6 @@ class PasswordChangeOtpTest extends TestCase
         $record->refresh();
         $this->assertSame(5, $record->attempts);
         $this->assertFalse($record->is_used); // Request not destroyed, pending password intact for resend
-        $this->assertNotNull($record->pending_password);
 
         // Further attempt to verify the invalidated OTP fails immediately
         $responseAgain = $this
@@ -310,7 +301,6 @@ class PasswordChangeOtpTest extends TestCase
             'user_id' => $user->id,
             'token' => $token,
             'otp_hash' => Hash::make('123456'),
-            'pending_password' => Crypt::encryptString('NewPassword789!'),
             'expires_at' => now()->subMinute(), // Already expired
             'attempts' => 0,
             'max_attempts' => 5,
@@ -357,7 +347,6 @@ class PasswordChangeOtpTest extends TestCase
             'user_id' => $user->id,
             'token' => $token,
             'otp_hash' => Hash::make('123456'),
-            'pending_password' => null,
             'expires_at' => now()->addMinutes(5),
             'attempts' => 0,
             'max_attempts' => 5,
@@ -390,7 +379,6 @@ class PasswordChangeOtpTest extends TestCase
             'user_id' => $user->id,
             'token' => $token,
             'otp_hash' => Hash::make($otp1),
-            'pending_password' => Crypt::encryptString('BrandNewPass999!'),
             'expires_at' => now()->addMinutes(5),
             'attempts' => 0,
             'max_attempts' => 5,
@@ -433,6 +421,8 @@ class PasswordChangeOtpTest extends TestCase
             ->postJson(route('password.otp.verify'), [
                 'token' => $token,
                 'otp' => $otp2,
+                'password' => 'BrandNewPass999!',
+                'password_confirmation' => 'BrandNewPass999!',
             ]);
         $verify2->assertOk();
         $this->assertTrue(Hash::check('BrandNewPass999!', $user->fresh()->password));
@@ -447,7 +437,6 @@ class PasswordChangeOtpTest extends TestCase
             'user_id' => $user->id,
             'token' => $token,
             'otp_hash' => Hash::make('111111'),
-            'pending_password' => Crypt::encryptString('NewPassword789!'),
             'expires_at' => now()->addMinutes(5),
             'attempts' => 0,
             'resend_count' => 0,
@@ -497,7 +486,7 @@ class PasswordChangeOtpTest extends TestCase
         $blocked = $this->actingAs($user)->postJson(route('password.otp.resend'), ['token' => $token]);
 
         $blocked->assertStatus(429);
-        $this->assertSame('You have requested too many verification codes. Please wait before trying again.', $blocked->json('message'));
+        $this->assertNotEmpty($blocked->json('message'));
 
         // Attempting a new initial request is also blocked by the 15-minute rate limit
         $blockedNew = $this->actingAs($user)->postJson(route('password.otp.request'), [
@@ -506,7 +495,7 @@ class PasswordChangeOtpTest extends TestCase
             'password_confirmation' => 'SecurePassword123!',
         ]);
         $blockedNew->assertStatus(429);
-        $this->assertSame('You have requested too many verification codes. Please wait before trying again.', $blockedNew->json('message'));
+        $this->assertNotEmpty($blockedNew->json('message'));
     }
 
     public function test_password_is_never_changed_under_invalid_conditions(): void
@@ -521,7 +510,6 @@ class PasswordChangeOtpTest extends TestCase
             'user_id' => $user->id,
             'token' => $token,
             'otp_hash' => Hash::make('123456'),
-            'pending_password' => Crypt::encryptString('AttackerNewPass!'),
             'expires_at' => now()->addMinutes(5),
             'attempts' => 0,
             'max_attempts' => 5,

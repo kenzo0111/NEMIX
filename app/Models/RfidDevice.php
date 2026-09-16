@@ -8,14 +8,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class RfidDevice extends Model
 {
     protected $fillable = [
-        'device_uuid', 'device_name', 'device_token_hash', 'firmware_version',
+        'device_uuid', 'device_name', 'device_token_hash', 'device_secret_encrypted', 'firmware_version',
         'status', 'ip_address', 'wifi_rssi', 'uptime_seconds', 'scanner_ready',
         'last_seen_at', 'config_version',
     ];
 
-    protected $hidden = ['device_token_hash'];
+    protected $hidden = ['device_token_hash', 'device_secret_encrypted'];
 
     protected $casts = [
+        'device_secret_encrypted' => 'encrypted',
         'last_seen_at' => 'datetime',
         'scanner_ready' => 'boolean',
         'config_version' => 'integer',

@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Inventory\Models\Item;
 use Modules\Suppliers\Models\Supplier;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class RfidScannerTest extends TestCase
@@ -126,7 +127,7 @@ class RfidScannerTest extends TestCase
         ]);
     }
 
-    public function test_esp32_hardware_scanner_can_lookup_tag_without_bearer_token(): void
+    public function test_esp32_user_agent_cannot_lookup_tag_without_authentication(): void
     {
         $this->item->update(['rfid_tag' => 'TAG-ESP32-999']);
 
@@ -136,16 +137,32 @@ class RfidScannerTest extends TestCase
             'Accept' => 'application/json',
         ])->get('/rfid-scanner/lookup/TAG-ESP32-999');
 
-        $response->assertOk();
-        $response->assertJson([
-            'found' => true,
-            'item' => [
-                'id' => $this->item->id,
-                'name' => 'Desktop Computer i7 16GB',
-                'sku' => 'PC-DESK-001',
-                'rfid_tag' => 'TAG-ESP32-999',
-            ],
-        ]);
+        $response->assertUnauthorized();
+    }
+
+    public function test_staff_requires_each_rfid_permission(): void
+    {
+        $staff = User::factory()->create(['is_active' => true, 'email_verified_at' => now()]);
+        $this->item->update(['created_by' => $staff->id]);
+        $this->actingAs($staff)->post(route('rfid-scanner.assign'), [
+            'item_id' => $this->item->id, 'rfid_tag' => 'ABCDEF1234',
+        ])->assertForbidden();
+
+        Permission::firstOrCreate(['name' => 'rfid.assign', 'guard_name' => 'web']);
+        $staff->givePermissionTo('rfid.assign');
+        $this->actingAs($staff)->post(route('rfid-scanner.assign'), [
+            'item_id' => $this->item->id, 'rfid_tag' => 'ABCDEF1234',
+        ])->assertRedirect();
+        $this->actingAs($staff)->post(route('rfid-scanner.unassign'), [
+            'item_id' => $this->item->id,
+        ])->assertForbidden();
+    }
+
+    public function test_staff_cannot_open_protected_report_or_audit_urls(): void
+    {
+        $staff = User::factory()->create(['is_active' => true, 'email_verified_at' => now()]);
+        $this->actingAs($staff)->get('/compliance/reports')->assertForbidden();
+        $this->actingAs($staff)->get('/audit-logs/login-trails')->assertForbidden();
+        $this->actingAs($staff)->get('/admin/system-settings')->assertForbidden();
     }
 }
-

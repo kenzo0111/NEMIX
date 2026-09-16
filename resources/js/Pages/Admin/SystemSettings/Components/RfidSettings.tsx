@@ -47,12 +47,41 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
         finally { setBusy(false); }
     };
 
+    const rotateDevice = async () => {
+        if (!selected || !window.confirm('Rotate this scanner secret? The scanner must be provisioned with the new secret before it can connect again.')) return;
+        setBusy(true);
+        try {
+            const r = await axios.post(route('system.settings.rfid-devices.rotate', { device: selected.id }));
+            setOneTimeToken(r.data.device_token);
+            onToast('info', 'Scanner secret rotated. Copy the new secret into the scanner setup portal.');
+        } catch (error: any) { onToast('error', error.response?.data?.message || 'Unable to rotate scanner secret.'); }
+        finally { setBusy(false); }
+    };
+
+    const toggleDevice = async () => {
+        if (!selected) return;
+        setBusy(true);
+        try {
+            await axios.patch(route('system.settings.rfid-devices.enabled', { device: selected.id }), { enabled: selected.status === 'disabled' });
+            window.location.reload();
+        } catch (error: any) { onToast('error', error.response?.data?.message || 'Unable to change scanner access.'); setBusy(false); }
+    };
+
+    const revokeDevice = async () => {
+        if (!selected || !window.confirm('Revoke this scanner? Its current signing secret will be erased. Reusing the scanner requires rotation and provisioning.')) return;
+        setBusy(true);
+        try {
+            await axios.post(route('system.settings.rfid-devices.revoke', { device: selected.id }));
+            window.location.reload();
+        } catch (error: any) { onToast('error', error.response?.data?.message || 'Unable to revoke scanner.'); setBusy(false); }
+    };
+
     const registerDevice = async () => {
         setBusy(true);
         try {
             const r = await axios.post(route('system.settings.rfid-devices.store'), registration);
             setOneTimeToken(r.data.device_token);
-            onToast('info', `Device registered. Copy this one-time token into the setup portal now:\n${r.data.device_token}`);
+            onToast('info', 'Device registered. Copy the one-time signing secret into the setup portal now.');
         } catch (error: any) { onToast('error', error.response?.data?.message || 'Unable to register device.'); }
         finally { setBusy(false); }
     };
@@ -89,7 +118,8 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
                 <label className="text-xs font-semibold">Heartbeat interval (10–3,600 sec)<input type="number" min="10" max="3600" className={fieldClass} value={value('heartbeat_interval') ?? 30} onChange={e=>set('heartbeat_interval',Number(e.target.value))}/></label>
             </div>
             <div className="flex flex-wrap gap-5 text-xs"><label><input type="checkbox" checked={Boolean(value('buzzer_enabled'))} onChange={e=>set('buzzer_enabled',e.target.checked)} className="mr-2"/>Buzzer enabled</label><label><input type="checkbox" checked={Boolean(value('auto_reconnect'))} onChange={e=>set('auto_reconnect',e.target.checked)} className="mr-2"/>Auto reconnect</label></div>
-            <div className="flex gap-3"><button type="button" disabled={busy} onClick={saveDevice} className="px-4 py-2 rounded-xl bg-red-900 text-white text-xs font-semibold flex gap-2"><Save className="w-4 h-4"/>Save & Apply Configuration</button><button type="button" disabled={busy} onClick={testDevice} className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold flex gap-2"><Wifi className="w-4 h-4"/>Test Connection</button></div>
+            <div className="flex flex-wrap gap-3"><button type="button" disabled={busy} onClick={saveDevice} className="px-4 py-2 rounded-xl bg-red-900 text-white text-xs font-semibold flex gap-2"><Save className="w-4 h-4"/>Save & Apply Configuration</button><button type="button" disabled={busy} onClick={testDevice} className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold flex gap-2"><Wifi className="w-4 h-4"/>Test Connection</button><button type="button" disabled={busy} onClick={rotateDevice} className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold">Rotate Secret</button><button type="button" disabled={busy} onClick={toggleDevice} className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold">{selected?.status === 'disabled' ? 'Enable Scanner' : 'Disable Scanner'}</button><button type="button" disabled={busy} onClick={revokeDevice} className="px-4 py-2 rounded-xl border border-red-300 text-red-800 text-xs font-semibold">Revoke Scanner</button></div>
+            {oneTimeToken && <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs"><strong className="block text-amber-900 mb-2">One-time signing secret — copy it now</strong><code className="break-all select-all">{oneTimeToken}</code></div>}
         </section>}
         <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3"><Radio className="w-4 h-4 text-red-900"/><span className="text-xs text-slate-600">GPIO 16, 17, 26, and trigger GPIO 27 remain fixed in firmware and cannot be changed remotely.</span></div>
     </div>;

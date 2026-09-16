@@ -62,8 +62,8 @@ class SecurityAuditLogger
             ) {
                 $this->logSecurityWarning('Suspicious request pattern detected', $request, [
                     'matched_pattern' => $pattern,
-                    'path' => $decodedPath,
-                    'query' => $decodedQuery,
+                    'route' => $request->route()?->getName(),
+                    'query_present' => $decodedQuery !== '',
                 ]);
                 break;
             }
@@ -112,7 +112,7 @@ class SecurityAuditLogger
             'event' => 'UNUSUAL_TRAFFIC',
             'ip' => $request->ip(),
             'method' => $request->method(),
-            'url' => $request->fullUrl(),
+            'route' => $request->route()?->getName(),
             'user_agent' => $request->userAgent(),
             'user_id' => $request->user()?->id,
         ], $extraContext);

@@ -481,7 +481,7 @@ class IsoIec25010DefectFixesTest extends TestCase
      * TEST 7 — RFID Authorized Request
      * With correct token: Expected: 200.
      */
-    public function test_rfid_authorized_request_with_bearer_token_returns_200(): void
+    public function test_rfid_legacy_bearer_token_cannot_access_lookup(): void
     {
         $item = Item::create([
             'name' => 'RFID Tagged Laptop',
@@ -504,23 +504,10 @@ class IsoIec25010DefectFixesTest extends TestCase
             ->getJson('/rfid-scanner/lookup/TAG-HARDWARE-001')
             ->assertStatus(401);
 
-        // With valid token
+        // Legacy bearer tokens no longer authenticate the web polling API.
         $response = $this->withHeaders(['Authorization' => 'Bearer ' . $validToken])
             ->getJson('/rfid-scanner/lookup/TAG-HARDWARE-001');
-
-        $response->assertOk();
-        $response->assertJson([
-            'found' => true,
-            'item' => [
-                'id' => $item->id,
-                'name' => 'RFID Tagged Laptop',
-                'sku' => 'LAP-TAG-001',
-                'rfid_tag' => 'TAG-HARDWARE-001',
-                'stock' => 1,
-            ],
-        ]);
-        $this->assertArrayNotHasKey('created_by', $response->json('item'));
-        $this->assertArrayNotHasKey('supplier_id', $response->json('item'));
+        $response->assertUnauthorized();
     }
 
     /**
@@ -853,4 +840,3 @@ class IsoIec25010DefectFixesTest extends TestCase
         $this->assertDatabaseHas('issuance_items', ['id' => $issuanceItem->id]);
     }
 }
-

@@ -67,6 +67,9 @@ return [
 
     'timezone' => env('APP_TIMEZONE', 'Asia/Manila'),
 
+    // Only operator-provisioned reverse proxy CIDRs are trusted.
+    'trusted_proxies' => env('TRUSTED_PROXIES', ''),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
@@ -126,4 +129,3 @@ return [
     'force_https' => (bool) env('FORCE_HTTPS', false),
 
 ];
-

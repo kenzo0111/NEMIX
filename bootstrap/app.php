@@ -12,7 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->trustProxies(at: '*');
+        // Supply only the reverse proxy addresses controlled by the operator.
+        // Direct origin clients must never be trusted to set Forwarded headers.
+        $middleware->trustProxies(at: array_filter(array_map('trim', explode(',', (string) config('app.trusted_proxies', '')))));
 
         $middleware->append(\App\Http\Middleware\EnforceHttpsAndSecurityHeaders::class);
         $middleware->append(\App\Http\Middleware\SecurityAuditLogger::class);
@@ -30,19 +32,15 @@ return Application::configure(basePath: dirname(__DIR__))
             $status = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
             if ($status >= 400) {
                 $request = request();
-                $params = $request->except(['password', 'password_confirmation', 'wifi_password', 'wifi_password_encrypted', 'device_token', 'secret', 'token', '_token']);
-
                 try {
                     \Illuminate\Support\Facades\Log::channel('security')->error('API/HTTP Error Occurred', [
                         'event' => 'API_ERROR',
                         'status_code' => $status,
                         'exception' => get_class($e),
-                        'message' => $e->getMessage(),
-                        'url' => $request->fullUrl(),
+                        'route' => $request->route()?->getName(),
                         'method' => $request->method(),
                         'ip' => $request->ip(),
                         'user_id' => $request->user()?->id,
-                        'params' => $params,
                         'file' => $e->getFile().':'.$e->getLine(),
                     ]);
                 } catch (\Throwable $loggingError) {

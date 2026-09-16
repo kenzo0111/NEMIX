@@ -7,6 +7,7 @@ use App\Models\RfidDevice;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Modules\Inventory\Models\Item;
 
 class RfidDeviceController extends Controller
@@ -33,7 +34,7 @@ class RfidDeviceController extends Controller
                 'buzzer_enabled' => $settings->buzzer_enabled,
                 'auto_reconnect' => $settings->auto_reconnect,
             ],
-        ], 200, [], JSON_UNESCAPED_SLASHES);
+        ], 200, ['Cache-Control' => 'no-store'], JSON_UNESCAPED_SLASHES);
     }
 
     /** Authenticated, version-gated Wi-Fi migration payload. Never used by browser APIs. */
@@ -46,8 +47,12 @@ class RfidDeviceController extends Controller
             (int) $data['current_version'] >= $settings->configuration_version
             || blank($settings->wifi_ssid)
         ) {
-            return response()->json(['success' => true, 'configuration_available' => false], 200, [], JSON_UNESCAPED_SLASHES);
+            return response()->json(['success' => true, 'configuration_available' => false], 200, ['Cache-Control' => 'no-store'], JSON_UNESCAPED_SLASHES);
         }
+
+        Log::channel('security')->info('RFID network configuration delivered', [
+            'device_id' => $device->id, 'ip' => $request->ip(), 'version' => $settings->configuration_version,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -55,7 +60,7 @@ class RfidDeviceController extends Controller
             'version' => $settings->configuration_version,
             'wifi_ssid' => $settings->wifi_ssid,
             'wifi_password' => $settings->wifi_password_encrypted,
-        ], 200, [], JSON_UNESCAPED_SLASHES);
+        ], 200, ['Cache-Control' => 'no-store'], JSON_UNESCAPED_SLASHES);
     }
 
     public function heartbeat(Request $request): JsonResponse

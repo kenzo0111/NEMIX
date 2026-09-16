@@ -3,20 +3,55 @@
 #include "../include/tls_roots.h"
 #include <WiFiClientSecure.h>
 #include <ctype.h>
+#include <mbedtls/md.h>
+#include <mbedtls/sha256.h>
+#include <time.h>
+
+static String hexBytes(const unsigned char* bytes, size_t length) {
+    const char* digits = "0123456789abcdef";
+    String result;
+    result.reserve(length * 2);
+    for (size_t i = 0; i < length; ++i) {
+        result += digits[bytes[i] >> 4];
+        result += digits[bytes[i] & 15];
+    }
+    return result;
+}
 
 NemixApiClient::NemixApiClient() {}
 void NemixApiClient::configure(const DeviceConfiguration& c){_baseUrl=c.serverUrl;_deviceId=c.deviceId;_token=c.deviceToken;}
 bool NemixApiClient::checkWifi(){return WiFi.status()==WL_CONNECTED;}
 int NemixApiClient::request(const String& method,const String& path,const String& json,String& response){
     if(!checkWifi()){Serial.println(F("[API] ERROR: Request skipped because Wi-Fi is disconnected."));return 0;}
-    if(!_baseUrl.length()){Serial.println(F("[API] ERROR: Server URL is empty."));return 0;}
+    if(!_baseUrl.startsWith("https://")){Serial.println(F("[API] ERROR: HTTPS server URL required."));return 0;}
+    time_t now = time(nullptr);
+    if (now < 1700000000 || !_deviceId.length() || !_token.length()) {
+        Serial.println(F("[API] ERROR: Clock or device identity unavailable."));return 0;
+    }
     HTTPClient http;WiFiClientSecure secure;bool begun=false;String url=_baseUrl+path;
-    if(url.startsWith("https://")){
-        secure.setCACert(API_TLS_ROOTS);secure.setHandshakeTimeout(15);begun=http.begin(secure,url);
-    }else begun=http.begin(url);
+    secure.setCACert(API_TLS_ROOTS);secure.setHandshakeTimeout(15);begun=http.begin(secure,url);
     if(!begun){Serial.printf("[API] ERROR: Could not initialize %s.\n",path.c_str());return 0;}
     http.setTimeout(12000);http.addHeader("Accept","application/json");http.addHeader("Content-Type","application/json");
-    http.addHeader("X-Device-ID",_deviceId);http.addHeader("X-Hardware-Token",_token);
+    unsigned char nonceBytes[16];
+    for (int i = 0; i < 16; i += 4) {
+        uint32_t value = esp_random();
+        memcpy(nonceBytes + i, &value, 4);
+    }
+    String nonce = hexBytes(nonceBytes, sizeof(nonceBytes));
+    String timestamp = String((unsigned long)now);
+    unsigned char bodyDigest[32];
+    mbedtls_sha256((const unsigned char*)json.c_str(), json.length(), bodyDigest, 0);
+    String canonical = timestamp + "\n" + nonce + "\n" + method + "\n" + path + "\n" + hexBytes(bodyDigest, sizeof(bodyDigest));
+    unsigned char signature[32];
+    const mbedtls_md_info_t* sha256 = mbedtls_md_info_from_type(MBEDTLS_MD_SHA256);
+    if (!sha256 || mbedtls_md_hmac(sha256, (const unsigned char*)_token.c_str(), _token.length(),
+        (const unsigned char*)canonical.c_str(), canonical.length(), signature) != 0) {
+        http.end();return 0;
+    }
+    http.addHeader("X-Device-ID",_deviceId);
+    http.addHeader("X-Timestamp",timestamp);
+    http.addHeader("X-Nonce",nonce);
+    http.addHeader("X-Signature",hexBytes(signature,sizeof(signature)));
     int code=method=="GET"?http.GET():http.POST(json);
     if(code>0){response=http.getString();Serial.printf("[API] %s %s -> HTTP %d\n",method.c_str(),path.c_str(),code);}
     else{

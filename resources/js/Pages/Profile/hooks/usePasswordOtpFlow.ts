@@ -127,8 +127,6 @@ export function usePasswordOtpFlow({ userEmail }: UsePasswordOtpFlowOptions = {}
         try {
             const response = await axios.post(route('password.otp.request'), {
                 current_password: currentPassword,
-                password: newPassword,
-                password_confirmation: confirmPassword,
             });
 
             if (response.data?.success) {
@@ -262,6 +260,8 @@ export function usePasswordOtpFlow({ userEmail }: UsePasswordOtpFlowOptions = {}
             const response = await axios.post(route('password.otp.verify'), {
                 token: otpToken,
                 otp: enteredOtp,
+                password: newPassword,
+                password_confirmation: confirmPassword,
             });
 
             if (response.data?.success) {

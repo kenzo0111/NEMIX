@@ -42,6 +42,11 @@ export function useHistoricalMigration(migratedRecords: any[] = [], onSuccess?: 
 
     const processFile = async (file: File) => {
         const lowerName = file.name.toLowerCase();
+        const extension = lowerName.split('.').pop();
+        if (!extension || !['xlsx', 'xls', 'csv', 'pdf', 'docx'].includes(extension) || file.size > 10 * 1024 * 1024) {
+            setStatusMessage('Choose an XLSX, XLS, CSV, PDF, or DOCX file no larger than 10 MB.');
+            return;
+        }
         setFileName(file.name);
         setIsExtracting(true);
         setStatusMessage('Initializing document parsers...');
@@ -139,6 +144,11 @@ export function useHistoricalMigration(migratedRecords: any[] = [], onSuccess?: 
                 success: false,
                 message: 'No valid records to migrate. Please fix errors before confirming.',
             });
+            return;
+        }
+
+        if (payloadRecords.length > 500) {
+            onComplete?.({ success: false, message: 'Import up to 500 records at a time.' });
             return;
         }
 

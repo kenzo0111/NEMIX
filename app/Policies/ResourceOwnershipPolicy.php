@@ -17,15 +17,15 @@ class ResourceOwnershipPolicy
         }
 
         // System Admin role bypasses ownership restrictions
-        if (method_exists($user, 'hasRole') && $user->hasRole('System Admin')) {
+        if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['System Admin', 'System Administrator'])) {
             return true;
         }
 
         $ownerId = $model->getAttribute($ownerColumn);
 
-        // If resource has no owner assigned (legacy records), default to allowing access
+        // Ownerless legacy records require an administrator.
         if ($ownerId === null) {
-            return true;
+            return false;
         }
 
         return (int) $ownerId === (int) $user->id;
@@ -50,13 +50,10 @@ class ResourceOwnershipPolicy
             return $query->whereRaw('1 = 0');
         }
 
-        if (method_exists($user, 'hasRole') && $user->hasRole('System Admin')) {
+        if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['System Admin', 'System Administrator'])) {
             return $query;
         }
 
-        return $query->where(function ($q) use ($user, $ownerColumn) {
-            $q->where($ownerColumn, $user->id)
-              ->orWhereNull($ownerColumn);
-        });
+        return $query->where($ownerColumn, $user->id);
     }
 }

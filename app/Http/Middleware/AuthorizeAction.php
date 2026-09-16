@@ -15,10 +15,6 @@ class AuthorizeAction
 
     public function handle(Request $request, Closure $next): Response
     {
-        if (in_array($request->method(), ['GET', 'HEAD'], true)) {
-            return $next($request);
-        }
-
         $user = $request->user();
         $route = $request->route();
 
@@ -32,8 +28,13 @@ class AuthorizeAction
             return $next($request);
         }
 
+        if ($routeName === 'dashboard') {
+            return $next($request);
+        }
+
         // Fast-path: System Admin bypasses all checks without permission creation
-        if (method_exists($user, 'isSystemAdmin') ? $user->isSystemAdmin() : $user->hasRole('System Admin')) {
+        if ((method_exists($user, 'isSystemAdmin') && $user->isSystemAdmin())
+            || $user->hasAnyRole(['System Admin', 'System Administrator'])) {
             return $next($request);
         }
 
@@ -62,11 +63,27 @@ class AuthorizeAction
             'sanctum.',
             'telescope.',
             'profile.',
+            'account.settings',
         ]);
     }
 
     private function routePermissionName(string $routeName): string
     {
+        $rfidPermissions = [
+            'rfid-scanner.index' => 'rfid.view',
+            'rfid-scanner.status' => 'rfid.view',
+            'rfid-scanner.lookup' => 'rfid.view',
+            'rfid-scanner.live-feed' => 'rfid.view',
+            'rfid-scanner.assign' => 'rfid.assign',
+            'rfid-scanner.unassign' => 'rfid.unassign',
+            'audit-logs.login-trails' => 'audit-logs.view-global',
+            'audit-logs.transaction-trails' => 'audit-logs.view-global',
+        ];
+
+        if (isset($rfidPermissions[$routeName])) {
+            return $rfidPermissions[$routeName];
+        }
+
         return 'route:' . $routeName;
     }
 

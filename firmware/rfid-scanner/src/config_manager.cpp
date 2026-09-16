@@ -48,7 +48,7 @@ void ConfigManager::rollbackPendingConfiguration() {
 }
 bool ConfigManager::hasPendingConfiguration() { Preferences p; if(!p.begin(NAMESPACE,true)) return false; bool v=p.getBool("p_valid",false); p.end(); return v; }
 bool ConfigManager::validateConfiguration(const DeviceConfiguration& c, bool requireNetwork) const {
-    bool modeOk=c.scanMode=="single"||c.scanMode=="inventory"; bool urlOk=c.serverUrl.startsWith("https://")||c.serverUrl.startsWith("http://");
+    bool modeOk=c.scanMode=="single"||c.scanMode=="inventory"; bool urlOk=c.serverUrl.startsWith("https://");
     return c.deviceId.length()>0&&c.deviceToken.length()>0&&urlOk&&(!requireNetwork||(c.wifiSsid.length()>0&&c.wifiSsid.length()<=32))&&modeOk&&c.rfPower<=26&&c.scanTimeout>=100&&c.scanTimeout<=30000&&c.heartbeatInterval>=10&&c.heartbeatInterval<=3600;
 }
 bool ConfigManager::applyConfiguration(const DeviceConfiguration& c) const { return validateConfiguration(c,true); }

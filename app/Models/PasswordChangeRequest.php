@@ -26,7 +26,6 @@ class PasswordChangeRequest extends Model
         'user_id',
         'token',
         'otp_hash',
-        'pending_password',
         'expires_at',
         'attempts',
         'max_attempts',
@@ -45,7 +44,6 @@ class PasswordChangeRequest extends Model
      */
     protected $hidden = [
         'otp_hash',
-        'pending_password',
     ];
 
     /**
@@ -95,7 +93,7 @@ class PasswordChangeRequest extends Model
      */
     public function canResend(): bool
     {
-        if ($this->is_used || empty($this->pending_password)) {
+        if ($this->is_used) {
             return false;
         }
 

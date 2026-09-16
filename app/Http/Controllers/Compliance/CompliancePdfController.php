@@ -152,7 +152,7 @@ class CompliancePdfController extends Controller
         $pdf = Pdf::loadView('compliance.pdf.rsmi', $viewData)
             ->setPaper('A4', 'landscape')
             ->setOption([
-                'isRemoteEnabled' => true,
+                'isRemoteEnabled' => false,
                 'isHtml5ParserEnabled' => true,
                 'defaultFont' => 'DejaVu Serif',
             ]);
@@ -274,7 +274,7 @@ class CompliancePdfController extends Controller
         $pdf = Pdf::loadView('compliance.pdf.rpci', $viewData)
             ->setPaper('A4', 'landscape')
             ->setOption([
-                'isRemoteEnabled' => true,
+                'isRemoteEnabled' => false,
                 'isHtml5ParserEnabled' => true,
                 'defaultFont' => 'DejaVu Sans',
             ]);
@@ -299,7 +299,7 @@ class CompliancePdfController extends Controller
         $pdf = Pdf::loadView('compliance.pdf.stock_card', $viewData)
             ->setPaper('A4', 'portrait')
             ->setOption([
-                'isRemoteEnabled' => true,
+                'isRemoteEnabled' => false,
                 'isHtml5ParserEnabled' => true,
                 'defaultFont' => 'DejaVu Sans',
             ]);
@@ -370,7 +370,7 @@ class CompliancePdfController extends Controller
         $pdf = Pdf::loadView('compliance.pdf.memorandum_receipt', $viewData)
             ->setPaper('A4', 'portrait')
             ->setOption([
-                'isRemoteEnabled' => true,
+                'isRemoteEnabled' => false,
                 'isHtml5ParserEnabled' => true,
                 'defaultFont' => 'DejaVu Sans',
             ]);
@@ -396,7 +396,7 @@ class CompliancePdfController extends Controller
         $pdf = Pdf::loadView($viewPath, $viewData)
             ->setPaper('A4', $paperOrientation)
             ->setOption([
-                'isRemoteEnabled' => true,
+                'isRemoteEnabled' => false,
                 'isHtml5ParserEnabled' => true,
                 'defaultFont' => 'DejaVu Sans',
             ]);

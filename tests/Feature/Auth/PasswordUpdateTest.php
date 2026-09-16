@@ -41,7 +41,6 @@ class PasswordUpdateTest extends TestCase
             'user_id' => $user->id,
             'token' => 'test-put-token',
             'otp_hash' => Hash::make('123456'),
-            'pending_password' => \Illuminate\Support\Facades\Crypt::encryptString('new-password123'),
             'expires_at' => now()->addMinutes(10),
             'is_used' => false,
         ]);
@@ -52,6 +51,8 @@ class PasswordUpdateTest extends TestCase
             ->put('/password', [
                 'token' => 'test-put-token',
                 'otp' => '123456',
+                'password' => 'new-password123',
+                'password_confirmation' => 'new-password123',
             ]);
 
         $response
@@ -59,7 +60,7 @@ class PasswordUpdateTest extends TestCase
             ->assertRedirect('/profile');
 
         $this->assertTrue(Hash::check('new-password123', $user->refresh()->password));
-        $this->assertTrue($record->fresh()->is_used);
+        $this->assertNull($record->fresh());
     }
 
     public function test_correct_password_must_be_provided_to_update_password(): void

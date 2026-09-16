@@ -20,7 +20,7 @@ class UpdateRfidDeviceRequest extends FormRequest
             'device_name' => ['required', 'string', 'max:100'],
             'wifi_ssid' => ['nullable', 'string', 'max:32'],
             'wifi_password' => ['nullable', 'string', 'min:8', 'max:63'],
-            'server_url' => ['required', 'url:http,https', 'max:2048'],
+            'server_url' => ['required', 'url:https', 'max:2048'],
             'scan_mode' => ['required', Rule::in(['single', 'inventory'])],
             'rf_power' => ['required', 'integer', 'between:0,26'],
             'scan_timeout' => ['required', 'integer', 'between:100,30000'],
