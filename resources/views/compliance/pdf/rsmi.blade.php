@@ -39,11 +39,6 @@
         line-height: 1.1;
     }
 
-    .rsmi-top-info .rsmi-info-label {
-        text-align: right;
-        padding-right: 1mm !important;
-    }
-
     .rsmi-field-group { width: 100%; border-collapse: collapse; table-layout: fixed; }
     .rsmi-field-group td { padding: 1.5px 0; }
     .rsmi-field-group tr + tr td { padding-top: 3px; }
@@ -233,26 +228,26 @@
     {{-- Top Info Grid --}}
     <table class="rsmi-top-info">
         <colgroup>
-            <col width="12%" style="width: 12%;">
-            <col width="40%" style="width: 40%;">
+            <col width="7%" style="width: 7%;">
+            <col width="45%" style="width: 45%;">
             <col width="4%" style="width: 4%;">
-            <col width="12%" style="width: 12%;">
-            <col width="32%" style="width: 32%;">
+            <col width="7%" style="width: 7%;">
+            <col width="37%" style="width: 37%;">
         </colgroup>
         <tbody>
             <tr>
-                <td width="12%" class="rsmi-info-label" style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Entity Name:</td>
-                <td width="40%" style="border-bottom: 1px solid #000000; padding: 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $entityName }}</td>
+                <td width="7%" style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Entity Name:</td>
+                <td width="45%" style="border-bottom: 1px solid #000000; padding: 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $entityName }}</td>
                 <td width="4%">&nbsp;</td>
-                <td width="12%" class="rsmi-info-label" style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Serial No. :</td>
-                <td width="32%" style="border-bottom: 1px solid #000000; padding: 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $serialNo }}</td>
+                <td width="7%" style="font-weight: bold; white-space: nowrap; padding: 1.5px 0;">Serial No. :</td>
+                <td width="37%" style="border-bottom: 1px solid #000000; padding: 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $serialNo }}</td>
             </tr>
             <tr>
-                <td width="12%" class="rsmi-info-label" style="font-weight: bold; white-space: nowrap; padding: 3px 0 1.5px 0;">Fund Cluster:</td>
-                <td width="40%" style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $fundCluster }}</td>
+                <td width="7%" style="font-weight: bold; white-space: nowrap; padding: 3px 0 1.5px 0;">Fund Cluster:</td>
+                <td width="45%" style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $fundCluster }}</td>
                 <td width="4%">&nbsp;</td>
-                <td width="12%" class="rsmi-info-label" style="font-weight: bold; white-space: nowrap; padding: 3px 0 1.5px 0;">Date :</td>
-                <td width="32%" style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $displayDate }}</td>
+                <td width="7%" style="font-weight: bold; white-space: nowrap; padding: 3px 0 1.5px 0;">Date :</td>
+                <td width="37%" style="border-bottom: 1px solid #000000; padding: 3px 4px 1.5px 4px; font-size: 8.5pt; line-height: 1.1;">{{ $displayDate }}</td>
             </tr>
         </tbody>
     </table>
