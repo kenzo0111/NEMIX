@@ -33,6 +33,30 @@ class CompliancePdfExportTest extends TestCase
         $this->assertStringStartsWith('%PDF-', $response->getContent());
     }
 
+    public function test_rsmi_pdf_displays_ris_number_without_its_prefix()
+    {
+        $form = [
+            'issuedItems' => [
+                [
+                    'risNo' => 'RIS-2026-09-0028',
+                    'responsibilityCenterCode' => 'CCMS',
+                    'stockNo' => 'NBS-26-09-032-0010',
+                    'itemDescription' => 'Toner Cartridge',
+                    'unit' => 'piece',
+                    'quantityIssued' => 2,
+                    'unitCost' => 350,
+                    'amount' => 700,
+                ],
+            ],
+            'recapitulationItems' => [],
+        ];
+
+        $html = view('compliance.pdf.rsmi', ['forms' => [$form]])->render();
+
+        $this->assertStringContainsString('2026-09-0028', $html);
+        $this->assertStringNotContainsString('RIS-2026-09-0028', $html);
+    }
+
     public function test_can_export_yearly_rsmi_pdf_report()
     {
         $response = $this->postJson(route('compliance.reports.export_pdf'), [

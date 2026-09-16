@@ -299,7 +299,7 @@
                     <tr>
                         @if($itemIdx === 0)
                             <td width="8%" class="text-center rsmi-group-cell" rowspan="{{ count($group['items']) }}">
-                                {{ data_get($group, 'risNo') ?: '' }}
+                                {{ preg_replace('/^RIS-/i', '', (string) (data_get($group, 'risNo') ?: '')) }}
                             </td>
                             <td width="10%" class="responsibility-center-code text-center rsmi-group-cell" rowspan="{{ count($group['items']) }}">
                                 {{ data_get($group, 'displayCode') ?: '' }}
