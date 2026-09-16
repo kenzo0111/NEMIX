@@ -14,7 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Supply only the reverse proxy addresses controlled by the operator.
         // Direct origin clients must never be trusted to set Forwarded headers.
-        $middleware->trustProxies(at: array_filter(array_map('trim', explode(',', (string) config('app.trusted_proxies', '')))));
+        // This callback runs before Laravel's config repository is available.
+        $middleware->trustProxies(at: array_filter(array_map('trim', explode(',', (string) getenv('TRUSTED_PROXIES')))));
 
         $middleware->append(\App\Http\Middleware\EnforceHttpsAndSecurityHeaders::class);
         $middleware->append(\App\Http\Middleware\SecurityAuditLogger::class);
