@@ -136,7 +136,7 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                                                 {line.item || line.item_name}
                                             </td>
                                             <td className="px-3 py-2.5 font-mono text-gray-500">
-                                                {line.sku || line.stock_no || '—'}
+                                                {line.stock_no || '—'}
                                             </td>
                                             <td className="px-3 py-2.5 font-mono font-bold text-gray-800 text-right">
                                                 {line.quantity} {line.unit || 'pcs'}

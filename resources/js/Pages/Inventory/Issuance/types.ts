@@ -19,6 +19,14 @@ export interface IssuanceItemDetail {
     item_name?: string;
     sku: string;
     stock_no?: string;
+    allocations?: {
+        batch_id: number;
+        supplier_stock_no?: string | null;
+        supplier: string;
+        quantity: number;
+        unit_cost: number;
+        amount: number;
+    }[];
     quantity: number;
     unit_cost: number;
     amount: number;

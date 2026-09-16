@@ -152,6 +152,42 @@ class InventoryIssuanceSignatoryTest extends TestCase
         $this->assertSame($this->adminUser->id, $matched['created_by_user_id']);
     }
 
+    public function test_issuance_form_receives_supplier_stock_numbers_for_each_allocated_batch(): void
+    {
+        $this->item->batches()->firstOrFail()->update([
+            'supplier_stock_no' => 'SUP-STP-001',
+            'quantity_received' => 2,
+            'quantity_remaining' => 2,
+        ]);
+        InventoryBatch::create([
+            'item_id' => $this->item->id,
+            'supplier_id' => $this->supplier->id,
+            'supplier_stock_no' => 'SUP-STP-002',
+            'quantity_received' => 3,
+            'quantity_remaining' => 3,
+            'unit_cost' => 150.00,
+            'date_received' => '2026-01-02',
+            'created_by' => $this->adminUser->id,
+        ]);
+        $this->item->update(['stock' => 5]);
+
+        $this->actingAs($this->adminUser)->post(route('inventory.issuance.store'), [
+            'recipient' => 'Dr. Jane Smith',
+            'department' => 'College of Education',
+            'date_issued' => '2026-09-12',
+            'issuances' => [['item_id' => $this->item->id, 'quantity' => 5]],
+        ])->assertRedirect(route('inventory.issuance'));
+
+        $response = $this->actingAs($this->adminUser)->get(route('inventory.issuance'));
+        $response->assertOk();
+        $line = $response->original->getData()['page']['props']['issuances']['data'][0]['items'][0];
+
+        $this->assertSame('STP-001', $line['sku']);
+        $this->assertSame('SUP-STP-001, SUP-STP-002', $line['stock_no']);
+        $this->assertSame(['SUP-STP-001', 'SUP-STP-002'], array_column($line['allocations'], 'supplier_stock_no'));
+        $this->assertSame([2, 3], array_column($line['allocations'], 'quantity'));
+    }
+
     public function test_changing_system_settings_later_preserves_historical_issuance_snapshot(): void
     {
         // 1. Initial system settings

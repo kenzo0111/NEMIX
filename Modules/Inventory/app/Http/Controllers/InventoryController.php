@@ -594,12 +594,14 @@ class InventoryController extends Controller
                     $batchAllocations = $line->allocations ? $line->allocations->map(function ($al) {
                         return [
                             'batch_id' => $al->inventory_batch_id,
+                            'supplier_stock_no' => $al->inventoryBatch?->supplier_stock_no,
                             'supplier' => $al->inventoryBatch?->supplier?->name ?? 'Supplier',
                             'quantity' => (int) $al->quantity,
                             'unit_cost' => (float) $al->unit_cost,
                             'amount' => (float) $al->amount,
                         ];
                     })->values()->all() : [];
+                    $stockNumbers = collect($batchAllocations)->pluck('supplier_stock_no')->filter()->unique()->values();
 
                     return [
                         'id' => $line->id,
@@ -607,7 +609,7 @@ class InventoryController extends Controller
                         'item' => $itemName,
                         'item_name' => $itemName,
                         'sku' => $sku,
-                        'stock_no' => $sku,
+                        'stock_no' => $stockNumbers->implode(', ') ?: '-',
                         'quantity' => (int) $line->quantity,
                         'unit_cost' => (float) $line->unit_cost,
                         'amount' => (float) $line->amount,
@@ -636,7 +638,7 @@ class InventoryController extends Controller
                         'item' => $itemName,
                         'item_name' => $itemName,
                         'sku' => $sku,
-                        'stock_no' => $sku,
+                        'stock_no' => '-',
                         'quantity' => $qty,
                         'unit_cost' => $unitCost,
                         'amount' => $amt,

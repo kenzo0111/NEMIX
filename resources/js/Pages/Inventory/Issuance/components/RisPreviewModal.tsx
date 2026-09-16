@@ -48,15 +48,33 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
         office: issuance.department || '',
         ris_no: formatRisNumber(issuance.ris_number),
         purpose: issuance.purpose || '',
-        items: items.map((line) => ({
-            stock_no: line.sku || line.stock_no || '',
-            unit: line.unit || 'pcs',
-            description: line.item || line.item_name,
-            quantity: line.quantity,
-            stock_available: true,
-            issue_quantity: line.quantity,
-            remarks: '',
-        })),
+        items: items.flatMap((line) => {
+            const allocations = line.allocations || [];
+            const rows = allocations.map((allocation) => ({
+                stock_no: allocation.supplier_stock_no || '-',
+                unit: line.unit || 'pcs',
+                description: line.item || line.item_name,
+                quantity: allocation.quantity,
+                stock_available: true,
+                issue_quantity: allocation.quantity,
+                remarks: '',
+            }));
+            const unallocatedQuantity = line.quantity - allocations.reduce((total, allocation) => total + allocation.quantity, 0);
+
+            if (unallocatedQuantity > 0 || rows.length === 0) {
+                rows.push({
+                    stock_no: rows.length === 0 ? line.stock_no || '-' : '-',
+                    unit: line.unit || 'pcs',
+                    description: line.item || line.item_name,
+                    quantity: rows.length === 0 ? line.quantity : unallocatedQuantity,
+                    stock_available: true,
+                    issue_quantity: rows.length === 0 ? line.quantity : unallocatedQuantity,
+                    remarks: '',
+                });
+            }
+
+            return rows;
+        }),
         requested_by_name: issuance.recipient,
         requested_by_designation: issuance.recipient_designation,
         requested_by_date: issuance.date_issued || issuance.date,
