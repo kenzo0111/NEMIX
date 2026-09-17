@@ -34,8 +34,8 @@ class PasswordChangeOtpNotification extends Notification
         $formattedOtp = implode(' ', str_split($this->otp));
 
         $otpBlock = new \Illuminate\Support\HtmlString(
-            '<table class="otp-card" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin: 22px 0; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-align: center; width: 100%;">' .
-            '<tr><td class="otp-cell" style="padding: 24px 16px; text-align: center;">' .
+            '<table class="otp-card" align="center" width="380" cellpadding="0" cellspacing="0" role="presentation" style="margin: 24px auto; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-align: center; width: 100%; max-width: 380px;">' .
+            '<tr><td class="otp-cell" style="padding: 24px 20px; text-align: center;">' .
             '<div class="otp-label" style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #64748b; margin-bottom: 8px;">Your Verification Code</div>' .
             '<div class="otp-code" style="font-family: \'SFMono-Regular\', Consolas, \'Liberation Mono\', Menlo, Courier, monospace, sans-serif; font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #800000; line-height: 1.2; margin: 10px 0;">' . e($formattedOtp) . '</div>' .
             '<div class="otp-note" style="font-size: 13px; color: #64748b; margin-top: 8px;">This single-use code expires in ' . (int)$this->expiresInMinutes . ' minutes.</div>' .
@@ -43,7 +43,7 @@ class PasswordChangeOtpNotification extends Notification
         );
 
         $securityNotice = new \Illuminate\Support\HtmlString(
-            '<table class="callout callout-security" width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td class="callout-cell callout-security" style="background-color: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #dc2626; border-radius: 6px; padding: 12px 16px; font-size: 14px; color: #991b1b; line-height: 1.5;"><strong>Security Advisory:</strong> If you did not request this password change, please contact the SPMO System Administrator immediately. Your password will not be changed unless this code is verified.</td></tr></table>'
+            '<table class="notice notice-security callout callout-security" width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td class="notice-cell notice-security callout-cell callout-security" style="background-color: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #dc2626; border-radius: 6px; padding: 12px 18px; font-size: 14px; color: #991b1b; line-height: 1.5;"><strong>Security Advisory:</strong> If you did not request this password change, please contact the SPMO System Administrator immediately. Your password will not be changed unless this code is verified.</td></tr></table>'
         );
 
         $mail = (new MailMessage)

@@ -1,7 +1,7 @@
 <x-mail::message>
 {{-- Notification Title --}}
 @isset($title)
-<h1 class="email-title" style="font-size: 22px; font-weight: 700; color: #800000; margin: 0 0 16px 0; line-height: 1.3;">
+<h1 class="email-title" style="font-size: 21px; font-weight: 700; color: #800000; margin: 0 0 18px 0; line-height: 1.35;">
 {{ $title }}
 </h1>
 @endisset

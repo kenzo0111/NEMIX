@@ -44,7 +44,7 @@ class StaffRegistrationInvitation extends Notification
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line('You have been authorized and invited to register your account for the UCN Supply & Property Management Office System.')
             ->action('Accept Invitation', $registrationUrl)
-            ->line(new \Illuminate\Support\HtmlString('<table class="callout callout-warning" width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td class="callout-cell callout-warning" style="background-color: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #ca8a04; border-radius: 6px; padding: 12px 16px; font-size: 14px; color: #92400e; line-height: 1.5;"><strong>Notice:</strong> This invitation link will expire in 60 minutes.</td></tr></table>'))
+            ->line(new \Illuminate\Support\HtmlString('<table class="notice notice-warning callout callout-warning" width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td class="notice-cell notice-warning callout-cell callout-warning" style="background-color: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #ca8a04; border-radius: 6px; padding: 12px 18px; font-size: 14px; color: #92400e; line-height: 1.5;"><strong>Notice:</strong> This invitation link will expire in 60 minutes.</td></tr></table>'))
             ->line('If you were not expecting this invitation, you may safely ignore this email.')
             ->salutation("Supply & Property Management Office\nUniversity of Camarines Norte");
     }

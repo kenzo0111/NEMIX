@@ -74,7 +74,7 @@ class AppServiceProvider extends ServiceProvider
                 ->greeting('Hello '.$notifiable->name.',')
                 ->line('We received a request to reset the password associated with your UCN Supply & Property Management Office account.')
                 ->action('Reset My Password', $resetUrl)
-                ->line(new \Illuminate\Support\HtmlString('<table class="callout callout-warning" width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td class="callout-cell callout-warning" style="background-color: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #ca8a04; border-radius: 6px; padding: 12px 16px; font-size: 14px; color: #92400e; line-height: 1.5;"><strong>Notice:</strong> This password reset link will expire in 60 minutes.</td></tr></table>'))
+                ->line(new \Illuminate\Support\HtmlString('<table class="notice notice-warning callout callout-warning" width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td class="notice-cell notice-warning callout-cell callout-warning" style="background-color: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #ca8a04; border-radius: 6px; padding: 12px 18px; font-size: 14px; color: #92400e; line-height: 1.5;"><strong>Notice:</strong> This password reset link will expire in 60 minutes.</td></tr></table>'))
                 ->line('If you did not request a password reset, you may safely ignore this email. Your password will remain unchanged.')
                 ->line('For your security, do not forward or share this email or password reset link with anyone.')
                 ->salutation("Supply & Property Management Office\nUniversity of Camarines Norte");
@@ -91,7 +91,7 @@ class AppServiceProvider extends ServiceProvider
                 ->line('This is an automated notification from the UCN Supply and Property Management Office (SPMO) System.')
                 ->line('Please verify your email address to complete your account setup.')
                 ->action('Verify Email Address', $url)
-                ->line(new \Illuminate\Support\HtmlString('<table class="callout callout-info" width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td class="callout-cell callout-info" style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #2563eb; border-radius: 6px; padding: 12px 16px; font-size: 14px; color: #1e40af; line-height: 1.5;"><strong>Notice:</strong> For security purposes, this verification link will expire in 60 minutes.</td></tr></table>'))
+                ->line(new \Illuminate\Support\HtmlString('<table class="notice notice-info callout callout-info" width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td class="notice-cell notice-info callout-cell callout-info" style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #2563eb; border-radius: 6px; padding: 12px 18px; font-size: 14px; color: #1e40af; line-height: 1.5;"><strong>Notice:</strong> For security purposes, this verification link will expire in 60 minutes.</td></tr></table>'))
                 ->line('If you did not request this verification or believe it was sent in error, please disregard this email.')
                 ->salutation("Supply & Property Management Office (SPMO)\nUniversity of Camarines Norte");
         });

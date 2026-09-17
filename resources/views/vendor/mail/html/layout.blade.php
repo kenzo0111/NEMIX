@@ -7,30 +7,48 @@
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
 <style type="text/css">
-@media only screen and (max-width: 620px) {
+@media only screen and (max-width: 600px) {
     .wrapper {
-        padding: 12px 0 20px !important;
+        padding: 12px 0 24px !important;
+    }
+    .content,
+    .inner-body,
+    .header,
+    .footer {
+        width: 100% !important;
+        max-width: 100% !important;
     }
     .inner-body {
-        width: 100% !important;
         border-radius: 0 !important;
         border-left: none !important;
         border-right: none !important;
     }
     .footer {
-        width: 100% !important;
-        padding: 16px 12px !important;
+        padding: 16px 14px 24px !important;
     }
     .content-cell {
-        padding: 24px 18px !important;
+        padding: 22px 20px !important;
     }
     .header {
         border-radius: 0 !important;
-        padding: 14px 18px !important;
+        padding: 16px 20px !important;
+    }
+    .otp-card {
+        width: 100% !important;
+        max-width: 100% !important;
     }
     .otp-code {
         font-size: 26px !important;
         letter-spacing: 5px !important;
+    }
+    .event-label {
+        width: auto !important;
+        display: block !important;
+        padding-bottom: 2px !important;
+    }
+    .event-value {
+        display: block !important;
+        padding-bottom: 8px !important;
     }
 }
 
@@ -46,23 +64,28 @@
 </style>
 {!! $head ?? '' !!}
 </head>
-<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+<body style="margin: 0; padding: 0; background-color: #f6f7f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
 
-<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f8fafc; width: 100%; margin: 0; padding: 24px 0 36px;">
+<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f6f7f9; width: 100%; margin: 0; padding: 28px 0 40px;">
 <tr>
-<td align="center" style="padding: 0;">
-<table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="width: 100%; margin: 0; padding: 0;">
+<td align="center" style="padding: 0 12px;">
+<!--[if (gte mso 9)|(IE)]>
+<table width="820" align="center" cellpadding="0" cellspacing="0" border="0" role="presentation">
+<tr>
+<td>
+<![endif]-->
+<table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="width: 90%; max-width: 820px; margin: 0 auto; padding: 0;">
 
 <!-- Email Card -->
 <tr>
-<td class="body" width="100%" cellpadding="0" cellspacing="0" align="center" style="border: hidden !important; padding: 0 12px;">
-<table class="inner-body" align="center" width="600" cellpadding="0" cellspacing="0" role="presentation" style="width: 600px; max-width: 600px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin: 0 auto; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+<td class="body" width="100%" cellpadding="0" cellspacing="0" align="center" style="border: hidden !important; padding: 0;">
+<table class="inner-body" align="center" width="820" cellpadding="0" cellspacing="0" role="presentation" style="width: 100%; max-width: 820px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin: 0 auto; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);">
 
 {!! $header ?? '' !!}
 
 <!-- Body content -->
 <tr>
-<td class="content-cell" style="padding: 32px 36px 28px; text-align: left;">
+<td class="content-cell" style="padding: 34px 42px; text-align: left;">
 {!! Illuminate\Mail\Markdown::parse($slot) !!}
 
 {!! $subcopy ?? '' !!}
@@ -74,6 +97,11 @@
 
 {!! $footer ?? '' !!}
 </table>
+<!--[if (gte mso 9)|(IE)]>
+</td>
+</tr>
+</table>
+<![endif]-->
 </td>
 </tr>
 </table>
