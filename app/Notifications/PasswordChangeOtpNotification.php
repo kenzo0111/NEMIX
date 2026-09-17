@@ -5,6 +5,7 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
 class PasswordChangeOtpNotification extends Notification
 {
@@ -31,30 +32,40 @@ class PasswordChangeOtpNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $formattedOtp = implode(' ', str_split($this->otp));
+        $digits = str_split($this->otp);
+        $tds = '';
+        foreach ($digits as $digit) {
+            $tds .= '<td align="center" valign="middle" class="otp-box" style="width: 46px; height: 52px; background-color: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 700; color: #111827; text-align: center; vertical-align: middle;">' . e($digit) . '</td>';
+        }
 
-        $otpBlock = new \Illuminate\Support\HtmlString(
-            '<table class="otp-card" align="center" width="380" cellpadding="0" cellspacing="0" role="presentation" style="margin: 24px auto; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-align: center; width: 100%; max-width: 380px;">' .
-            '<tr><td class="otp-cell" style="padding: 24px 20px; text-align: center;">' .
-            '<div class="otp-label" style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #64748b; margin-bottom: 8px;">Your Verification Code</div>' .
-            '<div class="otp-code" style="font-family: \'SFMono-Regular\', Consolas, \'Liberation Mono\', Menlo, Courier, monospace, sans-serif; font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #800000; line-height: 1.2; margin: 10px 0;">' . e($formattedOtp) . '</div>' .
-            '<div class="otp-note" style="font-size: 13px; color: #64748b; margin-top: 8px;">This single-use code expires in ' . (int)$this->expiresInMinutes . ' minutes.</div>' .
+        $otpTable = new HtmlString(
+            '<table align="center" cellpadding="0" cellspacing="0" border="0" role="presentation" class="otp-card" style="margin: 22px auto; border-collapse: separate; border-spacing: 8px;">' .
+            '<tr>' . $tds . '</tr>' .
+            '</table>'
+        );
+
+        $expirationNotice = new HtmlString(
+            '<table class="notice notice-expiration callout callout-expiration" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin: 20px 0; background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; width: 100%;">' .
+            '<tr><td class="notice-cell notice-expiration callout-cell callout-expiration" style="padding: 12px 16px; vertical-align: middle;">' .
+            '<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="width: 100%; margin: 0;"><tr>' .
+            '<td style="width: 20px; vertical-align: middle; padding-right: 10px;"><img src="https://ucn-nemix.com/images/mail/icon-clock.png" width="16" height="16" alt="Clock" style="width: 16px; height: 16px; display: block; border: 0;"></td>' .
+            '<td style="vertical-align: middle; font-size: 13px; font-weight: 500; color: #991b1b; line-height: 1.4;">This code will expire in ' . (int)$this->expiresInMinutes . ' minutes.</td>' .
+            '</tr></table>' .
             '</td></tr></table>'
         );
 
-        $securityNotice = new \Illuminate\Support\HtmlString(
-            '<table class="notice notice-security callout callout-security" width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td class="notice-cell notice-security callout-cell callout-security" style="background-color: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #dc2626; border-radius: 6px; padding: 12px 18px; font-size: 14px; color: #991b1b; line-height: 1.5;">Never share this code. If you did not request a password change, contact your system administrator.</td></tr></table>'
-        );
-
         $mail = (new MailMessage)
-            ->subject('[UCN SPMO] Password Verification Code');
+            ->subject('[UCN SPMO] Password Change Verification');
 
-        $mail->viewData['title'] = 'Password Verification Code';
+        $mail->viewData['title'] = 'Password Change Verification Code';
+        $mail->viewData['icon'] = 'shield';
 
         return $mail
             ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('Use this code to confirm your password change.')
-            ->line($otpBlock)
-            ->line($securityNotice);
+            ->line('Use the verification code below to proceed with your password change.')
+            ->line($otpTable)
+            ->line($expirationNotice)
+            ->line('If you did not request this code, you may safely ignore this email.')
+            ->line('For your security, do not share this code with anyone.');
     }
 }

@@ -1,8 +1,8 @@
 @props(['url'])
 @php
     $institutionName = 'University of Camarines Norte';
-    $officeName = 'Supply & Property Management Office';
-    $productionBaseUrl = 'https://unc-nemix.com';
+    $officeName = 'SUPPLY & PROPERTY MANAGEMENT OFFICE';
+    $productionBaseUrl = 'https://ucn-nemix.com';
     $fallbackLogoUrl = $productionBaseUrl . '/images/ucnlogo.png';
     $logoUrl = $fallbackLogoUrl;
 
@@ -14,7 +14,7 @@
             }
             $dbOffice = \App\Models\SystemSetting::get('institution.custodial_office');
             if (!empty($dbOffice)) {
-                $officeName = $dbOffice;
+                $officeName = strtoupper($dbOffice);
             }
             $dbLogo = \App\Models\SystemSetting::get('institution.logo_path');
             if (!empty($dbLogo)) {
@@ -31,6 +31,9 @@
                     }
                 } else {
                     $cleanPath = ltrim($dbLogo, '/');
+                    if ($cleanPath === 'images/ucn-crest.png' || empty($cleanPath)) {
+                        $cleanPath = 'images/ucnlogo.png';
+                    }
                     $appUrl = config('app.url');
                     $appHost = parse_url((string) $appUrl, PHP_URL_HOST);
                     $appScheme = parse_url((string) $appUrl, PHP_URL_SCHEME);
@@ -57,20 +60,31 @@
     }
 @endphp
 <tr>
-<td class="header" style="background-color: #ffffff; border-top: 3px solid #800000; border-bottom: 1px solid #e2e8f0; border-radius: 8px 8px 0 0; padding: 24px 32px; text-align: left;">
-    <table cellpadding="0" cellspacing="0" border="0" align="left" style="margin: 0; width: 100%;">
+<td class="header" style="background-color: #ffffff; border-top: 3px solid #9B111E; border-bottom: 1px solid #f1f5f9; padding: 22px 32px; text-align: left;">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" role="presentation" style="width: 100%; margin: 0;">
         <tr>
-            <td style="width: 50px; vertical-align: middle; padding-right: 18px;">
-                <a href="{{ $headerLinkUrl }}" target="_blank" style="display: block; text-decoration: none;">
-                    <img src="{{ $logoUrl }}" class="logo" alt="University of Camarines Norte" width="50" style="width: 50px; max-width: 50px; height: auto; display: block; border: 0;">
-                </a>
+            <td class="header-left" style="vertical-align: middle; text-align: left;">
+                <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="margin: 0;">
+                    <tr>
+                        <td style="width: 54px; vertical-align: middle; padding-right: 16px;">
+                            <a href="{{ $headerLinkUrl }}" target="_blank" rel="noopener" style="display: block; text-decoration: none;">
+                                <img src="{{ $logoUrl }}" class="logo" alt="University of Camarines Norte" width="52" style="width: 52px; max-width: 52px; height: auto; display: block; border: 0;">
+                            </a>
+                        </td>
+                        <td style="vertical-align: middle; text-align: left; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                            <div class="header-institution" style="font-size: 16px; font-weight: 700; color: #9B111E; line-height: 1.25; margin: 0; letter-spacing: -0.01em;">
+                                {{ $institutionName }}
+                            </div>
+                            <div class="header-office" style="margin-top: 3px; font-size: 11px; font-weight: 600; color: #6b7280; line-height: 1.3; text-transform: uppercase; letter-spacing: 0.06em;">
+                                {{ $officeName }}
+                            </div>
+                        </td>
+                    </tr>
+                </table>
             </td>
-            <td style="vertical-align: middle; text-align: left; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-                <div class="header-institution" style="font-size: 15px; font-weight: 700; color: #1e293b; line-height: 1.3; letter-spacing: -0.01em; margin: 0;">
-                    {{ $institutionName }}
-                </div>
-                <div class="header-office" style="margin-top: 3px; font-size: 11px; font-weight: 600; color: #64748b; line-height: 1.3; text-transform: uppercase; letter-spacing: 0.05em;">
-                    {{ $officeName }}
+            <td class="header-values" align="right" style="vertical-align: middle; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; white-space: nowrap; padding-left: 16px;">
+                <div style="font-size: 11px; font-weight: 500; color: #94a3b8; line-height: 1.35;">
+                    Reliable<br>Accountable<br>Service-Driven
                 </div>
             </td>
         </tr>

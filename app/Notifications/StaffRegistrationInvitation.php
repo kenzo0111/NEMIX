@@ -3,9 +3,9 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
 class StaffRegistrationInvitation extends Notification
 {
@@ -35,15 +35,28 @@ class StaffRegistrationInvitation extends Notification
             'email' => $notifiable->getEmailForPasswordReset(),
         ], false);
 
+        $expirationNotice = new HtmlString(
+            '<table class="notice notice-expiration callout callout-expiration" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin: 20px 0; background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; width: 100%;">' .
+            '<tr><td class="notice-cell notice-expiration callout-cell callout-expiration" style="padding: 12px 16px; vertical-align: middle;">' .
+            '<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="width: 100%; margin: 0;"><tr>' .
+            '<td style="width: 20px; vertical-align: middle; padding-right: 10px;"><img src="https://ucn-nemix.com/images/mail/icon-clock.png" width="16" height="16" alt="Clock" style="width: 16px; height: 16px; display: block; border: 0;"></td>' .
+            '<td style="vertical-align: middle; font-size: 13px; font-weight: 500; color: #991b1b; line-height: 1.4;">This invitation link will expire in 60 minutes.</td>' .
+            '</tr></table>' .
+            '</td></tr></table>'
+        );
+
         $mail = (new MailMessage)
             ->subject('[UCN SPMO] Staff Account Invitation');
 
         $mail->viewData['title'] = 'Staff Account Invitation';
+        $mail->viewData['icon'] = 'user';
 
         return $mail
             ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('You have been invited to create your Supply & Property Management Office account.')
+            ->line('You have been invited to register your account for the UCN Supply & Property Management Office System.')
             ->action('Accept Invitation', $registrationUrl)
-            ->line('This invitation link expires in 60 minutes. If you were not expecting it, you can ignore this email.');
+            ->line($expirationNotice)
+            ->line('If you were not expecting this invitation, you may safely ignore this email.')
+            ->line('For any concerns, please contact the SPMO administrator.');
     }
 }

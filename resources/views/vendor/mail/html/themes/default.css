@@ -89,11 +89,11 @@ img {
 .content {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
-    -premailer-width: 820px;
+    -premailer-width: 780px;
     margin: 0 auto;
     padding: 0;
     width: 90%;
-    max-width: 820px;
+    max-width: 780px;
 }
 
 /* Header */
@@ -137,16 +137,15 @@ img {
 .inner-body {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
-    -premailer-width: 820px;
+    -premailer-width: 780px;
     background-color: #ffffff;
-    border-color: #e4e4e7;
-    border-radius: 8px;
+    border-color: #e5e7eb;
+    border-radius: 6px;
     border-width: 1px;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
     margin: 0 auto;
     padding: 0;
     width: 100%;
-    max-width: 820px;
+    max-width: 780px;
 }
 
 .inner-body a {

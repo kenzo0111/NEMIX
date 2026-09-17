@@ -16,6 +16,7 @@
 /public/build
 /public/hot
 /public/storage
+/public/previews
 /storage/*.key
 /storage/pail
 /storage/*.json
