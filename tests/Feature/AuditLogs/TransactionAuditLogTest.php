@@ -48,6 +48,22 @@ class TransactionAuditLogTest extends TestCase
         );
     }
 
+    public function test_staff_with_transaction_audit_permission_can_view_transaction_audit_logs(): void
+    {
+        $staffRole = Role::firstOrCreate(['name' => 'Property Staff', 'guard_name' => 'web']);
+        $permission = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'route:audit-logs.transaction-trails', 'guard_name' => 'web']);
+        $staffRole->givePermissionTo($permission);
+
+        $staffUser = User::factory()->create([
+            'name' => 'Property Staff User',
+            'email' => 'staff@test.edu.ph',
+        ]);
+        $staffUser->assignRole($staffRole);
+
+        $response = $this->actingAs($staffUser)->get('/audit-logs/transaction-trails');
+        $response->assertStatus(200);
+    }
+
     public function test_returns_empty_when_no_records_exist_without_fakes(): void
     {
         TransactionTrail::query()->delete();

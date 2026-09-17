@@ -17,7 +17,13 @@ class AuditLogsController extends Controller
      */
     public function loginTrails(Request $request)
     {
-        abort_unless($request->user()?->hasAnyRole(['System Admin', 'System Administrator']) || $request->user()?->can('audit-logs.view-global'), 403);
+        abort_unless(
+            $request->user()?->hasAnyRole(['System Admin', 'System Administrator'])
+            || $request->user()?->can('audit-logs.login-trails')
+            || $request->user()?->can('route:audit-logs.login-trails')
+            || $request->user()?->can('audit-logs.view-global'),
+            403
+        );
         $search = trim((string) $request->input('search', ''));
         $role = $request->input('role');
         $status = $request->input('status');
@@ -154,7 +160,13 @@ class AuditLogsController extends Controller
      */
     public function manageTransactions(Request $request)
     {
-        abort_unless($request->user()?->hasAnyRole(['System Admin', 'System Administrator']) || $request->user()?->can('audit-logs.view-global'), 403);
+        abort_unless(
+            $request->user()?->hasAnyRole(['System Admin', 'System Administrator'])
+            || $request->user()?->can('audit-logs.transaction-trails')
+            || $request->user()?->can('route:audit-logs.transaction-trails')
+            || $request->user()?->can('audit-logs.view-global'),
+            403
+        );
         $search = trim((string) $request->input('search', ''));
         $module = $request->input('module');
         $action = $request->input('action');

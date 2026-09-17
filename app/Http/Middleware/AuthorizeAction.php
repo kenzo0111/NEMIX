@@ -42,7 +42,8 @@ class AuthorizeAction
         $this->ensurePermissionExists($permissionName);
 
         if (\App\Services\AccessControl\PermissionResolver::hasPermission($user, $permissionName)
-            || \App\Services\AccessControl\PermissionResolver::hasPermission($user, $routeName)) {
+            || \App\Services\AccessControl\PermissionResolver::hasPermission($user, $routeName)
+            || \App\Services\AccessControl\PermissionResolver::hasPermission($user, 'route:' . $routeName)) {
             return $next($request);
         }
 
@@ -73,8 +74,8 @@ class AuthorizeAction
             'rfid-scanner.live-feed' => 'rfid.view',
             'rfid-scanner.assign' => 'rfid.assign',
             'rfid-scanner.unassign' => 'rfid.unassign',
-            'audit-logs.login-trails' => 'audit-logs.view-global',
-            'audit-logs.transaction-trails' => 'audit-logs.view-global',
+            'audit-logs.login-trails' => 'audit-logs.login-trails',
+            'audit-logs.transaction-trails' => 'audit-logs.transaction-trails',
         ];
 
         if (isset($rfidPermissions[$routeName])) {

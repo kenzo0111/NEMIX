@@ -78,22 +78,76 @@ const PERMISSION_ALIASES: Record<string, string[]> = {
         'access-control.role-permission',
         'route:access-control.role-permission',
     ],
+
+    // Audit Logs
+    'audit-logs.view-global': [
+        'audit-logs.view-global',
+        'audit-logs.login-trails',
+        'route:audit-logs.login-trails',
+        'audit-logs.transaction-trails',
+        'route:audit-logs.transaction-trails',
+    ],
+    'audit-logs.transaction-trails': [
+        'audit-logs.transaction-trails',
+        'route:audit-logs.transaction-trails',
+        'audit-logs.view-global',
+    ],
+    'audit-logs.login-trails': [
+        'audit-logs.login-trails',
+        'route:audit-logs.login-trails',
+        'audit-logs.view-global',
+    ],
+
+    // RFID Hardware & Scanner
+    'rfid.view': [
+        'rfid.view',
+        'rfid-scanner.index',
+        'route:rfid-scanner.index',
+        'rfid-scanner.status',
+        'route:rfid-scanner.status',
+        'rfid-scanner.lookup',
+        'route:rfid-scanner.lookup',
+        'rfid-scanner.live-feed',
+        'route:rfid-scanner.live-feed',
+    ],
+    'rfid.assign': [
+        'rfid.assign',
+        'rfid-scanner.assign',
+        'route:rfid-scanner.assign',
+    ],
+    'rfid.unassign': [
+        'rfid.unassign',
+        'rfid-scanner.unassign',
+        'route:rfid-scanner.unassign',
+    ],
 };
 
 function getPermissionAliases(perm: string): string[] {
     const trimmed = perm.trim();
+    const matches: string[] = [trimmed];
+
     if (PERMISSION_ALIASES[trimmed]) {
-        return PERMISSION_ALIASES[trimmed];
+        matches.push(...PERMISSION_ALIASES[trimmed]);
     }
 
-    const matches = [trimmed];
     for (const [standard, aliases] of Object.entries(PERMISSION_ALIASES)) {
         if (aliases.includes(trimmed)) {
             matches.push(standard, ...aliases);
         }
     }
 
-    return Array.from(new Set(matches));
+    // Bidirectional route prefix resolution
+    const expanded: string[] = [];
+    for (const match of matches) {
+        expanded.push(match);
+        if (match.startsWith('route:')) {
+            expanded.push(match.substring(6));
+        } else {
+            expanded.push('route:' + match);
+        }
+    }
+
+    return Array.from(new Set(expanded));
 }
 
 export interface UseAuthorizationReturn {

@@ -54,7 +54,17 @@ class ResourceOwnershipPolicy
             return $query;
         }
 
-        if (method_exists($user, 'can') && ($user->can('inventory.index') || $user->can('route:inventory.index') || $user->can('suppliers.index') || $user->can('route:suppliers.index'))) {
+        if (method_exists($user, 'can') && (
+            $user->can('inventory.index') ||
+            $user->can('route:inventory.index') ||
+            $user->can('suppliers.index') ||
+            $user->can('route:suppliers.index') ||
+            $user->can('audit-logs.view-global') ||
+            $user->can('audit-logs.transaction-trails') ||
+            $user->can('route:audit-logs.transaction-trails') ||
+            $user->can('audit-logs.login-trails') ||
+            $user->can('route:audit-logs.login-trails')
+        )) {
             return $query;
         }
 

@@ -99,6 +99,48 @@ class PermissionResolver
             'access-control.role-permission',
             'route:access-control.role-permission',
         ],
+
+        // Audit Logs
+        'audit-logs.view-global' => [
+            'audit-logs.view-global',
+            'audit-logs.login-trails',
+            'route:audit-logs.login-trails',
+            'audit-logs.transaction-trails',
+            'route:audit-logs.transaction-trails',
+        ],
+        'audit-logs.transaction-trails' => [
+            'audit-logs.transaction-trails',
+            'route:audit-logs.transaction-trails',
+            'audit-logs.view-global',
+        ],
+        'audit-logs.login-trails' => [
+            'audit-logs.login-trails',
+            'route:audit-logs.login-trails',
+            'audit-logs.view-global',
+        ],
+
+        // RFID Hardware & Scanner
+        'rfid.view' => [
+            'rfid.view',
+            'rfid-scanner.index',
+            'route:rfid-scanner.index',
+            'rfid-scanner.status',
+            'route:rfid-scanner.status',
+            'rfid-scanner.lookup',
+            'route:rfid-scanner.lookup',
+            'rfid-scanner.live-feed',
+            'route:rfid-scanner.live-feed',
+        ],
+        'rfid.assign' => [
+            'rfid.assign',
+            'rfid-scanner.assign',
+            'route:rfid-scanner.assign',
+        ],
+        'rfid.unassign' => [
+            'rfid.unassign',
+            'rfid-scanner.unassign',
+            'route:rfid-scanner.unassign',
+        ],
     ];
 
     /**
@@ -131,19 +173,31 @@ class PermissionResolver
     {
         $ability = trim($ability);
 
+        $matches = [$ability];
+
         if (isset(self::PERMISSION_ALIASES[$ability])) {
-            return self::PERMISSION_ALIASES[$ability];
+            $matches = array_merge($matches, self::PERMISSION_ALIASES[$ability]);
         }
 
         // Check reverse lookup if an alias was provided directly
-        $matches = [$ability];
         foreach (self::PERMISSION_ALIASES as $standard => $aliases) {
             if (in_array($ability, $aliases, true)) {
                 $matches = array_merge($matches, [$standard], $aliases);
             }
         }
 
-        return array_values(array_unique($matches));
+        // Automatic route prefix bidirectional resolution
+        $expanded = [];
+        foreach ($matches as $match) {
+            $expanded[] = $match;
+            if (str_starts_with($match, 'route:')) {
+                $expanded[] = substr($match, 6);
+            } else {
+                $expanded[] = 'route:' . $match;
+            }
+        }
+
+        return array_values(array_unique($expanded));
     }
 
     /**

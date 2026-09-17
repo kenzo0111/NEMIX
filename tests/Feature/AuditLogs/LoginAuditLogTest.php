@@ -48,6 +48,22 @@ class LoginAuditLogTest extends TestCase
         );
     }
 
+    public function test_staff_with_login_audit_permission_can_view_login_audit_logs(): void
+    {
+        $staffRole = Role::firstOrCreate(['name' => 'Property Staff', 'guard_name' => 'web']);
+        $permission = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'route:audit-logs.login-trails', 'guard_name' => 'web']);
+        $staffRole->givePermissionTo($permission);
+
+        $staffUser = User::factory()->create([
+            'name' => 'Property Staff User',
+            'email' => 'staff@test.edu.ph',
+        ]);
+        $staffUser->assignRole($staffRole);
+
+        $response = $this->actingAs($staffUser)->get('/audit-logs/login-trails');
+        $response->assertStatus(200);
+    }
+
     public function test_returns_empty_when_no_records_exist_without_fakes(): void
     {
         $response = $this->actingAs($this->adminUser)->get('/audit-logs/login-trails');
