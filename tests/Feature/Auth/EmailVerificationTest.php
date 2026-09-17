@@ -82,16 +82,17 @@ class EmailVerificationTest extends TestCase
         $response->assertSessionHas('error');
     }
 
-    public function test_email_verification_notification_mail_matches_invitation_format(): void
+    public function test_email_verification_notification_has_a_clear_action_and_expiration(): void
     {
         $user = User::factory()->unverified()->create(['name' => 'Juan Dela Cruz']);
 
         $notification = new \App\Notifications\VerifyEmailNotification();
         $mail = $notification->toMail($user);
 
-        $this->assertEquals('[SPMO System] Automated Email Verification Request', $mail->subject);
+        $this->assertEquals('Verify your email address', $mail->subject);
         $this->assertStringContainsString('Hello Juan Dela Cruz,', $mail->greeting);
-        $this->assertContains('This is an automated notification from the UCN Supply and Property Management Office (SPMO) System.', $mail->introLines);
-        $this->assertStringContainsString('Supply & Property Management Office (SPMO)', $mail->salutation);
+        $this->assertContains('Verify your email address to finish setting up your account.', $mail->introLines);
+        $this->assertSame('Verify Email Address', $mail->actionText);
+        $this->assertContains('This link expires in 60 minutes. If you did not request it, you can ignore this email.', $mail->outroLines);
     }
 }

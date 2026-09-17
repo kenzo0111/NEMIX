@@ -197,7 +197,7 @@ class SystemSettingsTest extends TestCase
 
     public function test_smtp_diagnostic_email_failure_does_not_leak_technical_details_or_credentials(): void
     {
-        \Illuminate\Support\Facades\Mail::shouldReceive('raw')
+        \Illuminate\Support\Facades\Notification::shouldReceive('send')
             ->once()
             ->andThrow(new \RuntimeException('Connection refused to smtp.internal-node.cluster:587 with password super_secret_credential'));
 

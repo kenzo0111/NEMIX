@@ -46,21 +46,18 @@ class PasswordChangedSecurityNotification extends Notification
         );
 
         $securityAlert = new \Illuminate\Support\HtmlString(
-            '<table class="notice notice-security callout callout-security" width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td class="notice-cell notice-security callout-cell callout-security" style="background-color: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #dc2626; border-radius: 6px; padding: 12px 18px; font-size: 14px; color: #991b1b; line-height: 1.5;"><strong>Important:</strong> If you did NOT authorize this change, please immediately contact your System Administrator to secure your account.</td></tr></table>'
+            '<table class="notice notice-security callout callout-security" width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td class="notice-cell notice-security callout-cell callout-security" style="background-color: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #dc2626; border-radius: 6px; padding: 12px 18px; font-size: 14px; color: #991b1b; line-height: 1.5;">If you did not make this change, contact your system administrator immediately.</td></tr></table>'
         );
 
         $mail = (new MailMessage)
-            ->subject('[SPMO Security] Account Password Changed Successfully');
+            ->subject('Your password was changed');
 
-        $mail->viewData['title'] = 'Password Changed Successfully';
+        $mail->viewData['title'] = 'Your password was changed';
 
         return $mail
             ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('This is a security alert from the UCN Supply and Property Management Office (SPMO) System.')
-            ->line('The password for your account was recently changed with the details below:')
+            ->line('The password for your account was changed.')
             ->line($eventTable)
-            ->line($securityAlert)
-            ->line('If you made this change, no further action is required.')
-            ->salutation("Supply & Property Management Office\nUniversity of Camarines Norte");
+            ->line($securityAlert);
     }
 }

@@ -43,20 +43,18 @@ class PasswordChangeOtpNotification extends Notification
         );
 
         $securityNotice = new \Illuminate\Support\HtmlString(
-            '<table class="notice notice-security callout callout-security" width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td class="notice-cell notice-security callout-cell callout-security" style="background-color: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #dc2626; border-radius: 6px; padding: 12px 18px; font-size: 14px; color: #991b1b; line-height: 1.5;"><strong>Security Advisory:</strong> If you did not request this password change, please contact the SPMO System Administrator immediately. Your password will not be changed unless this code is verified.</td></tr></table>'
+            '<table class="notice notice-security callout callout-security" width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td class="notice-cell notice-security callout-cell callout-security" style="background-color: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #dc2626; border-radius: 6px; padding: 12px 18px; font-size: 14px; color: #991b1b; line-height: 1.5;">Never share this code. If you did not request a password change, contact your system administrator.</td></tr></table>'
         );
 
         $mail = (new MailMessage)
-            ->subject('[SPMO Security] Password Verification Code');
+            ->subject('Your password verification code');
 
         $mail->viewData['title'] = 'Password Verification Code';
 
         return $mail
             ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('A request was initiated in Account Settings to update your account password.')
+            ->line('Use this code to confirm your password change.')
             ->line($otpBlock)
-            ->line($securityNotice)
-            ->line('For your security, never share this verification code with anyone.')
-            ->salutation("Supply & Property Management Office\nUniversity of Camarines Norte");
+            ->line($securityNotice);
     }
 }

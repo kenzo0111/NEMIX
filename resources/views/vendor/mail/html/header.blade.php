@@ -24,19 +24,19 @@
     }
 @endphp
 <tr>
-<td class="header" style="background-color: #ffffff; border-top: 3px solid #800000; border-bottom: 1px solid #e2e8f0; border-radius: 8px 8px 0 0; padding: 20px 34px; text-align: left;">
+<td class="header" style="background-color: #ffffff; border-top: 3px solid #800000; border-bottom: 1px solid #e2e8f0; border-radius: 8px 8px 0 0; padding: 16px 32px; text-align: left;">
     <table cellpadding="0" cellspacing="0" border="0" align="left" style="margin: 0; width: 100%;">
         <tr>
-            <td style="width: 52px; vertical-align: middle; padding-right: 18px;">
+            <td style="width: 40px; vertical-align: middle; padding-right: 14px;">
                 <a href="{{ $url ?? config('app.url') }}" target="_blank" style="display: block; text-decoration: none;">
-                    <img src="{{ $logoUrl }}" class="logo" alt="UCN Logo" width="52" style="width: 52px; max-width: 52px; height: auto; display: block; border: 0;">
+                    <img src="{{ $logoUrl }}" class="logo" alt="" width="40" style="width: 40px; max-width: 40px; height: auto; display: block; border: 0;">
                 </a>
             </td>
             <td style="vertical-align: middle; text-align: left; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-                <div class="header-institution" style="font-size: 16px; font-weight: 700; color: #1e293b; line-height: 1.3; margin: 0; letter-spacing: -0.01em;">
+                <div class="header-institution" style="font-size: 14px; font-weight: 700; color: #1e293b; line-height: 1.3; margin: 0;">
                     {{ $institutionName }}
                 </div>
-                <div class="header-office" style="margin-top: 3px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #800000; line-height: 1.25;">
+                <div class="header-office" style="margin-top: 2px; font-size: 11px; font-weight: 500; color: #64748b; line-height: 1.3;">
                     {{ $officeName }}
                 </div>
             </td>

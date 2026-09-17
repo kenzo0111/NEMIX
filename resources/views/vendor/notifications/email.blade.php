@@ -1,7 +1,7 @@
 <x-mail::message>
 {{-- Notification Title --}}
 @isset($title)
-<h1 class="email-title" style="font-size: 21px; font-weight: 700; color: #800000; margin: 0 0 18px 0; line-height: 1.35;">
+<h1 class="email-title" style="font-size: 21px; font-weight: 700; color: #1e293b; margin: 0 0 20px 0; line-height: 1.35;">
 {{ $title }}
 </h1>
 @endisset
@@ -40,26 +40,20 @@
 
 {{-- Salutation --}}
 @if (! empty($salutation))
-<div style="margin-top: 24px; font-size: 14px; color: #475569; line-height: 1.5;">
+<div style="margin-top: 20px; font-size: 13px; color: #64748b; line-height: 1.5;">
 {!! nl2br(e($salutation)) !!}
 </div>
 @else
-<div style="margin-top: 24px; font-size: 14px; color: #475569; line-height: 1.5;">
-Regards,<br>
-<strong>Supply & Property Management Office</strong><br>
-University of Camarines Norte
+<div style="margin-top: 20px; font-size: 13px; color: #64748b; line-height: 1.5;">
+Supply &amp; Property Management Office
 </div>
 @endif
 
 {{-- Subcopy / Fallback Link --}}
 @isset($actionText)
 <x-slot:subcopy>
-<p style="font-size: 12px; color: #64748b; line-height: 1.5; margin: 0 0 6px 0;">
-    Having trouble with the button? Copy and paste the following link into your browser:
-</p>
-<div class="subcopy-box" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; margin-top: 6px; word-break: break-all;">
-    <a href="{{ $actionUrl }}" target="_blank" rel="noopener" class="subcopy-link" style="color: #475569; font-size: 12px; line-height: 1.5; text-decoration: underline; word-break: break-all;">{{ $displayableActionUrl }}</a>
-</div>
+<p style="font-size: 12px; color: #64748b; line-height: 1.5; margin: 0 0 6px 0;">Button not working? Copy this link into your browser:</p>
+<a href="{{ $actionUrl }}" target="_blank" rel="noopener" class="subcopy-link" style="color: #64748b; font-size: 12px; line-height: 1.5; text-decoration: underline; word-break: break-all;">{{ $displayableActionUrl }}</a>
 </x-slot:subcopy>
 @endisset
 </x-mail::message>

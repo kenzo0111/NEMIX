@@ -9,7 +9,7 @@
 <style type="text/css">
 @media only screen and (max-width: 600px) {
     .wrapper {
-        padding: 12px 0 24px !important;
+        padding: 0 0 16px !important;
     }
     .content,
     .inner-body,
@@ -23,15 +23,12 @@
         border-left: none !important;
         border-right: none !important;
     }
-    .footer {
-        padding: 16px 14px 24px !important;
-    }
     .content-cell {
-        padding: 22px 20px !important;
+        padding: 22px 18px !important;
     }
     .header {
         border-radius: 0 !important;
-        padding: 16px 20px !important;
+        padding: 14px 18px !important;
     }
     .otp-card {
         width: 100% !important;
@@ -66,26 +63,26 @@
 </head>
 <body style="margin: 0; padding: 0; background-color: #f6f7f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
 
-<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f6f7f9; width: 100%; margin: 0; padding: 28px 0 40px;">
+<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f6f7f9; width: 100%; margin: 0; padding: 16px 0 24px;">
 <tr>
-<td align="center" style="padding: 0 12px;">
+<td align="center" style="padding: 0 8px;">
 <!--[if (gte mso 9)|(IE)]>
 <table width="820" align="center" cellpadding="0" cellspacing="0" border="0" role="presentation">
 <tr>
 <td>
 <![endif]-->
-<table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="width: 90%; max-width: 820px; margin: 0 auto; padding: 0;">
+<table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="width: 100%; max-width: 820px; margin: 0 auto; padding: 0;">
 
 <!-- Email Card -->
 <tr>
 <td class="body" width="100%" cellpadding="0" cellspacing="0" align="center" style="border: hidden !important; padding: 0;">
-<table class="inner-body" align="center" width="820" cellpadding="0" cellspacing="0" role="presentation" style="width: 100%; max-width: 820px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin: 0 auto; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);">
+<table class="inner-body" align="center" width="820" cellpadding="0" cellspacing="0" role="presentation" style="width: 100%; max-width: 820px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin: 0 auto;">
 
 {!! $header ?? '' !!}
 
 <!-- Body content -->
 <tr>
-<td class="content-cell" style="padding: 34px 42px; text-align: left;">
+<td class="content-cell" style="padding: 28px 32px; text-align: left;">
 {!! Illuminate\Mail\Markdown::parse($slot) !!}
 
 {!! $subcopy ?? '' !!}
