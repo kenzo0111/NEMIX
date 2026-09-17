@@ -7,7 +7,7 @@ services:
       - "80:80"
     volumes:
       - .:/var/www/html
-      - /var/www/html/vendor
+      - vendor_data:/var/www/html/vendor
       - /var/www/html/node_modules
       - /var/www/html/public/build
     depends_on:
@@ -30,7 +30,7 @@ services:
     command: php artisan queue:work --tries=3 --timeout=90
     volumes:
       - .:/var/www/html
-      - /var/www/html/vendor
+      - vendor_data:/var/www/html/vendor
     depends_on:
       - db
       - app
@@ -66,3 +66,5 @@ services:
 
 volumes:
   db_data:
+  vendor_data:
+
