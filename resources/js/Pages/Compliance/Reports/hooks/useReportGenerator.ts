@@ -158,7 +158,7 @@ export function useReportGenerator(
                 publicSettings['signatories_rsmi_certified_by_name'] ||
                 publicSettings['rsmi_certified_by_name'] ||
                 publicSettings['rsmi_custodian_name'] ||
-                user?.name ||
+                pageProps?.auth?.user?.name ||
                 'Supply Custodian',
             supplyCustodianDesignation:
                 previewDataset?.rsmi?.supplyCustodianDesignation ||

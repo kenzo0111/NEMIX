@@ -148,6 +148,11 @@ export interface ReportDatasetResponse {
         fundCluster?: string;
         forms?: RsmiFormDataset[];
         yearly?: RsmiYearReport;
+        supplyCustodianName?: string;
+        supplyCustodianDesignation?: string;
+        accountingStaffName?: string;
+        accountingStaffDesignation?: string;
+        [key: string]: any;
     };
     rpci?: {
         items: any[];
@@ -155,6 +160,16 @@ export interface ReportDatasetResponse {
         entity_name?: string;
         fund_cluster?: string;
         signatories?: any;
+        accountable_officer?: string;
+        accountable_officer_name?: string;
+        accountable_officer_designation?: string;
+        designation?: string;
+        certified_by_name?: string;
+        certified_by_position?: string;
+        verified_by_name?: string;
+        verified_by_position?: string;
+        committee_chair?: string;
+        [key: string]: any;
     };
     stockCard?: {
         item: string;
@@ -168,6 +183,9 @@ export interface ReportDatasetResponse {
         summary: ReportDatasetSummary;
         entity_name?: string;
         fund_cluster?: string;
+        custodian?: string;
+        custodian_name?: string;
+        [key: string]: any;
     };
     mr?: {
         items: any[];
@@ -178,6 +196,11 @@ export interface ReportDatasetResponse {
         summary: ReportDatasetSummary;
         entityName?: string;
         fundCluster?: string;
+        issuedByName?: string;
+        issuedByPosition?: string;
+        issuedByOffice?: string;
+        appendixNumber?: string;
+        [key: string]: any;
     };
     filters: Record<string, any>;
 }
