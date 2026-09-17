@@ -44,12 +44,76 @@ class SystemSetting extends Model
     }
 
     /**
+     * Map canonical aliases to their underlying database keys.
+     */
+    public static function getCanonicalKey(string $key): string
+    {
+        return match ($key) {
+            'entity_name', 'entity.name' => 'institution.name',
+            'issued_by_name', 'issued_by' => 'signatories.ris_issued_by_name',
+            'issued_by_position', 'issued_by_designation' => 'signatories.ris_issued_by_designation',
+            'approved_by_name', 'approved_by' => 'signatories.ris_approved_by_name',
+            'approved_by_position', 'approved_by_designation' => 'signatories.ris_approved_by_designation',
+            // RSMI Aliases
+            'signatories.rsmi_custodian_name', 'rsmi_custodian_name' => 'signatories.rsmi_certified_by_name',
+            'signatories.rsmi_custodian_designation', 'rsmi_custodian_designation' => 'signatories.rsmi_certified_by_designation',
+            'signatories.rsmi_accounting_name', 'rsmi_accounting_name' => 'signatories.rsmi_posted_by_name',
+            'signatories.rsmi_accounting_designation', 'rsmi_accounting_designation' => 'signatories.rsmi_posted_by_designation',
+            // MOR / MR Aliases
+            'signatories.mr_issued_by_name', 'mr_issued_by_name' => 'signatories.mor_issued_by_name',
+            'signatories.mr_issued_by_position', 'mr_issued_by_position', 'mr_issued_by_designation' => 'signatories.mor_issued_by_designation',
+            'signatories.mr_issued_by_office', 'mr_issued_by_office' => 'signatories.mor_issued_by_office',
+            default => $key,
+        };
+    }
+
+    /**
+     * Return all known aliases that resolve to a given canonical database key.
+     */
+    public static function getAliasesForKey(string $key): array
+    {
+        $map = [
+            'institution.name' => ['entity_name', 'entity.name'],
+            'signatories.ris_issued_by_name' => ['issued_by_name', 'issued_by'],
+            'signatories.ris_issued_by_designation' => ['issued_by_position', 'issued_by_designation'],
+            'signatories.ris_approved_by_name' => ['approved_by_name', 'approved_by'],
+            'signatories.ris_approved_by_designation' => ['approved_by_position', 'approved_by_designation'],
+            'signatories.rsmi_certified_by_name' => ['signatories.rsmi_custodian_name', 'rsmi_custodian_name'],
+            'signatories.rsmi_certified_by_designation' => ['signatories.rsmi_custodian_designation', 'rsmi_custodian_designation'],
+            'signatories.rsmi_posted_by_name' => ['signatories.rsmi_accounting_name', 'rsmi_accounting_name'],
+            'signatories.rsmi_posted_by_designation' => ['signatories.rsmi_accounting_designation', 'rsmi_accounting_designation'],
+            'signatories.mor_issued_by_name' => ['signatories.mr_issued_by_name', 'mr_issued_by_name'],
+            'signatories.mor_issued_by_designation' => ['signatories.mr_issued_by_position', 'mr_issued_by_position', 'mr_issued_by_designation'],
+            'signatories.mor_issued_by_office' => ['signatories.mr_issued_by_office', 'mr_issued_by_office'],
+        ];
+
+        return $map[$key] ?? [];
+    }
+
+    /**
      * Clear all cached settings.
      */
     public static function clearSettingCache(?string $key = null): void
     {
         if ($key) {
+            $lookupKey = static::getCanonicalKey($key);
             Cache::forget(self::CACHE_KEY_PREFIX . $key);
+            Cache::forget(self::CACHE_KEY_PREFIX . $lookupKey);
+            foreach (static::getAliasesForKey($lookupKey) as $alias) {
+                Cache::forget(self::CACHE_KEY_PREFIX . $alias);
+            }
+        } else {
+            try {
+                $allKeys = static::pluck('key');
+                foreach ($allKeys as $k) {
+                    Cache::forget(self::CACHE_KEY_PREFIX . $k);
+                    foreach (static::getAliasesForKey($k) as $alias) {
+                        Cache::forget(self::CACHE_KEY_PREFIX . $alias);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Ignore DB error during early boot/migrations
+            }
         }
         Cache::forget(self::PUBLIC_CACHE_KEY);
         Cache::forget(self::ALL_CACHE_KEY);
@@ -60,15 +124,7 @@ class SystemSetting extends Model
      */
     public static function get(string $key, mixed $default = null): mixed
     {
-        // Support canonical aliases
-        $lookupKey = match ($key) {
-            'entity_name', 'entity.name' => 'institution.name',
-            'issued_by_name', 'issued_by' => 'signatories.ris_issued_by_name',
-            'issued_by_position', 'issued_by_designation' => 'signatories.ris_issued_by_designation',
-            'approved_by_name', 'approved_by' => 'signatories.ris_approved_by_name',
-            'approved_by_position', 'approved_by_designation' => 'signatories.ris_approved_by_designation',
-            default => $key,
-        };
+        $lookupKey = static::getCanonicalKey($key);
 
         return Cache::remember(self::CACHE_KEY_PREFIX . $lookupKey, 86400, function () use ($lookupKey, $default) {
             $setting = static::where('key', $lookupKey)->first();
@@ -86,21 +142,29 @@ class SystemSetting extends Model
      */
     public static function set(string $key, mixed $value): void
     {
-        $lookupKey = match ($key) {
-            'entity_name', 'entity.name' => 'institution.name',
-            'issued_by_name', 'issued_by' => 'signatories.ris_issued_by_name',
-            'issued_by_position', 'issued_by_designation' => 'signatories.ris_issued_by_designation',
-            'approved_by_name', 'approved_by' => 'signatories.ris_approved_by_name',
-            'approved_by_position', 'approved_by_designation' => 'signatories.ris_approved_by_designation',
-            default => $key,
-        };
+        $lookupKey = static::getCanonicalKey($key);
         $setting = static::where('key', $lookupKey)->first();
 
         if ($setting) {
             $setting->update([
                 'value' => json_encode($value),
             ]);
+        } else {
+            $category = explode('.', $lookupKey)[0] ?? 'general';
+            $dataType = is_int($value) ? 'integer' : (is_bool($value) ? 'boolean' : (is_array($value) ? 'json' : 'string'));
+            $label = ucwords(str_replace(['.', '_'], ' ', $lookupKey));
+            static::create([
+                'category' => $category,
+                'key' => $lookupKey,
+                'value' => json_encode($value),
+                'data_type' => $dataType,
+                'label' => $label,
+                'description' => $label,
+                'is_public' => true,
+                'is_encrypted' => false,
+            ]);
         }
+        static::clearSettingCache($lookupKey);
     }
 
     /**
@@ -182,6 +246,46 @@ class SystemSetting extends Model
             }
             if (isset($settings['signatories_rpci_verified_by_position'])) {
                 $settings['rpci_verified_by_position'] = $settings['signatories_rpci_verified_by_position'];
+            }
+
+            // RSMI Signatories Aliases
+            if (isset($settings['signatories_rsmi_certified_by_name'])) {
+                $settings['rsmi_certified_by_name'] = $settings['signatories_rsmi_certified_by_name'];
+                $settings['rsmi_custodian_name'] = $settings['signatories_rsmi_certified_by_name'];
+            }
+            if (isset($settings['signatories_rsmi_certified_by_designation'])) {
+                $settings['rsmi_certified_by_designation'] = $settings['signatories_rsmi_certified_by_designation'];
+                $settings['rsmi_custodian_designation'] = $settings['signatories_rsmi_certified_by_designation'];
+            }
+            if (isset($settings['signatories_rsmi_posted_by_name'])) {
+                $settings['rsmi_posted_by_name'] = $settings['signatories_rsmi_posted_by_name'];
+                $settings['rsmi_accounting_name'] = $settings['signatories_rsmi_posted_by_name'];
+            }
+            if (isset($settings['signatories_rsmi_posted_by_designation'])) {
+                $settings['rsmi_posted_by_designation'] = $settings['signatories_rsmi_posted_by_designation'];
+                $settings['rsmi_accounting_designation'] = $settings['signatories_rsmi_posted_by_designation'];
+            }
+
+            // Stock Card Custodian Alias
+            if (isset($settings['signatories_stock_card_custodian'])) {
+                $settings['stock_card_custodian'] = $settings['signatories_stock_card_custodian'];
+            }
+
+            // MOR / MR Signatories Aliases
+            if (isset($settings['signatories_mor_issued_by_name'])) {
+                $settings['mor_issued_by_name'] = $settings['signatories_mor_issued_by_name'];
+                $settings['mr_issued_by_name'] = $settings['signatories_mor_issued_by_name'];
+            }
+            if (isset($settings['signatories_mor_issued_by_designation'])) {
+                $settings['mor_issued_by_designation'] = $settings['signatories_mor_issued_by_designation'];
+                $settings['mr_issued_by_position'] = $settings['signatories_mor_issued_by_designation'];
+            }
+            if (isset($settings['signatories_mor_issued_by_office'])) {
+                $settings['mor_issued_by_office'] = $settings['signatories_mor_issued_by_office'];
+                $settings['mr_issued_by_office'] = $settings['signatories_mor_issued_by_office'];
+            }
+            if (isset($settings['compliance_mor_appendix_number'])) {
+                $settings['mor_appendix_number'] = $settings['compliance_mor_appendix_number'];
             }
 
             return $settings;

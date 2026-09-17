@@ -131,8 +131,8 @@
         }
     }
 
-    $issuedName = strtoupper((string)($issuedByName ?? data_get($mrData, 'issuedByName') ?? data_get($mrData, 'issued_by_name') ?? 'ARSENIO GEM A. GARCILLANOSA'));
-    $issuedPos = $issuedByPosition ?? data_get($mrData, 'issuedByPosition') ?? data_get($mrData, 'issued_by_position') ?? 'SUPPLY OFFICER III / PROPERTY CUSTODIAN';
+    $issuedName = strtoupper((string)($issuedByName ?? data_get($mrData, 'issuedByName') ?? data_get($mrData, 'issued_by_name') ?? \App\Models\SystemSetting::get('signatories.mor_issued_by_name', '')));
+    $issuedPos = $issuedByPosition ?? data_get($mrData, 'issuedByPosition') ?? data_get($mrData, 'issued_by_position') ?? \App\Models\SystemSetting::get('signatories.mor_issued_by_designation', 'SUPPLY OFFICER III / PROPERTY CUSTODIAN');
     $issuedDateDisplay = data_get($mrData, 'issuedByDate') ?? data_get($mrData, 'issued_by_date') ?? $displayDate;
 
     $receivedName = strtoupper((string)($receivedByName ?? data_get($mrData, 'receivedByName') ?? data_get($mrData, 'received_by_name') ?? ''));

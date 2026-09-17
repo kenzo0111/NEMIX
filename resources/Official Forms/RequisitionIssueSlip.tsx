@@ -375,8 +375,8 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
                         </span>
                       </td>
                       <td className="sig-cell">
-                        <span className="font-bold" style={getDynamicNameStyle(data.approved_by_name || 'ARSENIO GEM A. GARCILLANOSA')}>
-                          {data.approved_by_name || 'ARSENIO GEM A. GARCILLANOSA'}
+                        <span className="font-bold" style={getDynamicNameStyle(data.approved_by_name)}>
+                          {data.approved_by_name || '\u00A0'}
                         </span>
                       </td>
                       <td className="sig-cell">
@@ -400,8 +400,8 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
                         </span>
                       </td>
                       <td className="sig-cell">
-                        <span style={getDynamicDesignationStyle(data.approved_by_designation || 'SUPPLY OFFICER III/ADMIN OFFICER V')}>
-                          {data.approved_by_designation || 'SUPPLY OFFICER III/ADMIN OFFICER V'}
+                        <span style={getDynamicDesignationStyle(data.approved_by_designation)}>
+                          {data.approved_by_designation || '\u00A0'}
                         </span>
                       </td>
                       <td className="sig-cell">

@@ -195,8 +195,8 @@
     $recapTargetCount = 3;
     $paddedRecap = array_merge($recap, array_fill(0, max(0, $recapTargetCount - count($recap)), []));
 
-    $supplyCustodianName = strtoupper((string)(data_get($form, 'supplyCustodianName') ?? 'ALBERTO DE VERA JR'));
-    $accountingStaffName = strtoupper((string)(data_get($form, 'accountingStaffName') ?? 'ALBERTO DE VERA JR'));
+    $supplyCustodianName = strtoupper((string)(data_get($form, 'supplyCustodianName') ?? data_get($form, 'supply_custodian_name') ?? \App\Models\SystemSetting::get('signatories.rsmi_certified_by_name', '')));
+    $accountingStaffName = strtoupper((string)(data_get($form, 'accountingStaffName') ?? data_get($form, 'accounting_staff_name') ?? \App\Models\SystemSetting::get('signatories.rsmi_posted_by_name', '')));
     
     $rawAcctDate = data_get($form, 'accountingDate') ?? $rawDate;
     $accountingDateDisplay = '';

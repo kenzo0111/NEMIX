@@ -691,8 +691,10 @@ class ComplianceReportDataService
         // Paginate issued items into forms (max 10 items per official Appendix 64 form page)
         $itemChunks = array_chunk($issuedItems, 10);
         $forms = [];
-        $custodianName = SystemSetting::get('signatories.rsmi_certified_by_name', 'Supply Custodian');
-        $accountingStaff = SystemSetting::get('signatories.rsmi_posted_by_name', 'Accounting Staff');
+        $custodianName = (string) (SystemSetting::get('signatories.rsmi_certified_by_name') ?: 'Supply Custodian');
+        $custodianDesignation = (string) (SystemSetting::get('signatories.rsmi_certified_by_designation') ?: 'Supply Custodian');
+        $accountingStaff = (string) (SystemSetting::get('signatories.rsmi_posted_by_name') ?: 'Accounting Staff');
+        $accountingStaffDesignation = (string) (SystemSetting::get('signatories.rsmi_posted_by_designation') ?: 'Accounting Staff');
         $fundCluster = $records->first()['fund_cluster'] ?? $this->getDefaultFundCluster();
 
         foreach ($itemChunks as $idx => $chunk) {
@@ -735,7 +737,13 @@ class ComplianceReportDataService
                 'issuedItems' => $chunk,
                 'recapitulationItems' => array_values($recapMap),
                 'supplyCustodianName' => $custodianName,
+                'supplyCustodianDesignation' => $custodianDesignation,
+                'supply_custodian_name' => $custodianName,
+                'supply_custodian_designation' => $custodianDesignation,
                 'accountingStaffName' => $accountingStaff,
+                'accountingStaffDesignation' => $accountingStaffDesignation,
+                'accounting_staff_name' => $accountingStaff,
+                'accounting_staff_designation' => $accountingStaffDesignation,
                 'accountingDate' => $periodEnd,
             ];
         }
@@ -754,6 +762,10 @@ class ComplianceReportDataService
             'total_units' => $totalUnits,
             'total_amount' => $totalAmount,
             'forms' => $forms,
+            'supplyCustodianName' => $custodianName,
+            'supplyCustodianDesignation' => $custodianDesignation,
+            'accountingStaffName' => $accountingStaff,
+            'accountingStaffDesignation' => $accountingStaffDesignation,
         ];
     }
 
@@ -815,6 +827,14 @@ class ComplianceReportDataService
                 'entity_name' => $this->getSystemEntityName(),
                 'fundCluster' => $this->getDefaultFundCluster(),
                 'fund_cluster' => $this->getDefaultFundCluster(),
+                'supplyCustodianName' => (string) (SystemSetting::get('signatories.rsmi_certified_by_name') ?: 'Supply Custodian'),
+                'supplyCustodianDesignation' => (string) (SystemSetting::get('signatories.rsmi_certified_by_designation') ?: 'Supply Custodian'),
+                'accountingStaffName' => (string) (SystemSetting::get('signatories.rsmi_posted_by_name') ?: 'Accounting Staff'),
+                'accountingStaffDesignation' => (string) (SystemSetting::get('signatories.rsmi_posted_by_designation') ?: 'Accounting Staff'),
+                'supply_custodian_name' => (string) (SystemSetting::get('signatories.rsmi_certified_by_name') ?: 'Supply Custodian'),
+                'supply_custodian_designation' => (string) (SystemSetting::get('signatories.rsmi_certified_by_designation') ?: 'Supply Custodian'),
+                'accounting_staff_name' => (string) (SystemSetting::get('signatories.rsmi_posted_by_name') ?: 'Accounting Staff'),
+                'accounting_staff_designation' => (string) (SystemSetting::get('signatories.rsmi_posted_by_designation') ?: 'Accounting Staff'),
             ];
         }
 
@@ -851,6 +871,14 @@ class ComplianceReportDataService
                 'entity_name' => $this->getSystemEntityName(),
                 'fundCluster' => $this->getDefaultFundCluster(),
                 'fund_cluster' => $this->getDefaultFundCluster(),
+                'supplyCustodianName' => $mReport['supplyCustodianName'] ?? (string) (SystemSetting::get('signatories.rsmi_certified_by_name') ?: 'Supply Custodian'),
+                'supplyCustodianDesignation' => $mReport['supplyCustodianDesignation'] ?? (string) (SystemSetting::get('signatories.rsmi_certified_by_designation') ?: 'Supply Custodian'),
+                'accountingStaffName' => $mReport['accountingStaffName'] ?? (string) (SystemSetting::get('signatories.rsmi_posted_by_name') ?: 'Accounting Staff'),
+                'accountingStaffDesignation' => $mReport['accountingStaffDesignation'] ?? (string) (SystemSetting::get('signatories.rsmi_posted_by_designation') ?: 'Accounting Staff'),
+                'supply_custodian_name' => $mReport['supplyCustodianName'] ?? (string) (SystemSetting::get('signatories.rsmi_certified_by_name') ?: 'Supply Custodian'),
+                'supply_custodian_designation' => $mReport['supplyCustodianDesignation'] ?? (string) (SystemSetting::get('signatories.rsmi_certified_by_designation') ?: 'Supply Custodian'),
+                'accounting_staff_name' => $mReport['accountingStaffName'] ?? (string) (SystemSetting::get('signatories.rsmi_posted_by_name') ?: 'Accounting Staff'),
+                'accounting_staff_designation' => $mReport['accountingStaffDesignation'] ?? (string) (SystemSetting::get('signatories.rsmi_posted_by_designation') ?: 'Accounting Staff'),
             ];
         }
 
@@ -1092,6 +1120,11 @@ class ComplianceReportDataService
         $forms = [];
         $genDateStr = $this->buildCoverageLabel($filters);
 
+        $custodianName = (string) (SystemSetting::get('signatories.rsmi_certified_by_name') ?: 'Supply Custodian');
+        $custodianDesignation = (string) (SystemSetting::get('signatories.rsmi_certified_by_designation') ?: 'Supply Custodian');
+        $accountingStaff = (string) (SystemSetting::get('signatories.rsmi_posted_by_name') ?: 'Accounting Staff');
+        $accountingStaffDesignation = (string) (SystemSetting::get('signatories.rsmi_posted_by_designation') ?: 'Accounting Staff');
+
         foreach ($itemChunks as $idx => $chunk) {
             $seqNo = $idx + 1;
             $forms[] = [
@@ -1104,8 +1137,14 @@ class ComplianceReportDataService
                 'fundCluster' => $records->first()['fund_cluster'] ?? $this->getDefaultFundCluster(),
                 'issuedItems' => $chunk,
                 'recapitulationItems' => $recapitulationItems,
-                'supplyCustodianName' => SystemSetting::get('signatories.rsmi_certified_by_name', 'Supply Custodian'),
-                'accountingStaffName' => SystemSetting::get('signatories.rsmi_posted_by_name', 'Accounting Staff'),
+                'supplyCustodianName' => $custodianName,
+                'supplyCustodianDesignation' => $custodianDesignation,
+                'supply_custodian_name' => $custodianName,
+                'supply_custodian_designation' => $custodianDesignation,
+                'accountingStaffName' => $accountingStaff,
+                'accountingStaffDesignation' => $accountingStaffDesignation,
+                'accounting_staff_name' => $accountingStaff,
+                'accounting_staff_designation' => $accountingStaffDesignation,
                 'accountingDate' => now($this->timezone)->format('Y-m-d'),
             ];
         }
@@ -1125,6 +1164,14 @@ class ComplianceReportDataService
             'entity_name' => $this->getSystemEntityName(),
             'fundCluster' => $records->first()['fund_cluster'] ?? $this->getDefaultFundCluster(),
             'fund_cluster' => $records->first()['fund_cluster'] ?? $this->getDefaultFundCluster(),
+            'supplyCustodianName' => $custodianName,
+            'supplyCustodianDesignation' => $custodianDesignation,
+            'accountingStaffName' => $accountingStaff,
+            'accountingStaffDesignation' => $accountingStaffDesignation,
+            'supply_custodian_name' => $custodianName,
+            'supply_custodian_designation' => $custodianDesignation,
+            'accounting_staff_name' => $accountingStaff,
+            'accounting_staff_designation' => $accountingStaffDesignation,
         ];
     }
 
@@ -1338,6 +1385,29 @@ class ComplianceReportDataService
             return ((float)($it['balance_per_card'] ?? 0)) * ((float)($it['unit_value'] ?? 0));
         });
 
+        $accountableOfficer = (string) (SystemSetting::get('signatories.rpci_accountable_officer_name') ?: '');
+        $designation = (string) (SystemSetting::get('signatories.rpci_accountable_officer_designation') ?: 'Supply Custodian / Supply Officer III');
+        $certifiedByName = (string) (SystemSetting::get('signatories.rpci_certified_by_name') ?: SystemSetting::get('signatories.rpci_committee_chair') ?: '');
+        $certifiedByPosition = (string) (SystemSetting::get('signatories.rpci_certified_by_position') ?: 'Inventory Committee Chair and Members');
+        $verifiedByName = (string) (SystemSetting::get('signatories.rpci_verified_by_name') ?: '');
+        $verifiedByPosition = (string) (SystemSetting::get('signatories.rpci_verified_by_position') ?: 'COA Representative');
+        $committeeChair = (string) (SystemSetting::get('signatories.rpci_committee_chair') ?: '');
+
+        $rpciSignatories = [
+            'certified_by' => [
+                'name' => $certifiedByName,
+                'position' => $certifiedByPosition,
+            ],
+            'approved_by' => [
+                'name' => $accountableOfficer,
+                'position' => $designation,
+            ],
+            'verified_by' => [
+                'name' => $verifiedByName,
+                'position' => $verifiedByPosition,
+            ],
+        ];
+
         return [
             'items' => $items->values()->toArray(),
             'summary' => [
@@ -1349,6 +1419,18 @@ class ComplianceReportDataService
             'entityName' => $this->getSystemEntityName(),
             'fund_cluster' => $this->getDefaultFundCluster(),
             'fundCluster' => $this->getDefaultFundCluster(),
+            'accountable_officer' => $accountableOfficer,
+            'accountable_officer_name' => $accountableOfficer,
+            'designation' => $designation,
+            'accountable_officer_designation' => $designation,
+            'certified_by_name' => $certifiedByName,
+            'certified_by_position' => $certifiedByPosition,
+            'approved_by_name' => $accountableOfficer,
+            'approved_by_position' => $designation,
+            'verified_by_name' => $verifiedByName,
+            'verified_by_position' => $verifiedByPosition,
+            'committee_chair' => $committeeChair,
+            'signatories' => $rpciSignatories,
         ];
     }
 
@@ -1604,6 +1686,8 @@ class ComplianceReportDataService
             'entityName' => $this->getSystemEntityName(),
             'fund_cluster' => $this->getDefaultFundCluster(),
             'fundCluster' => $this->getDefaultFundCluster(),
+            'custodian' => (string) (SystemSetting::get('signatories.stock_card_custodian') ?: ''),
+            'custodian_name' => (string) (SystemSetting::get('signatories.stock_card_custodian') ?: ''),
         ];
     }
 
@@ -1768,10 +1852,14 @@ class ComplianceReportDataService
             'entity_name' => $this->getSystemEntityName(),
             'fundCluster' => $this->getDefaultFundCluster(),
             'fund_cluster' => $this->getDefaultFundCluster(),
-            'issuedByName' => SystemSetting::get('signatories.mor_issued_by_name', 'ARSENIO GEM A. GARCILLANOSA'),
-            'issuedByPosition' => SystemSetting::get('signatories.mor_issued_by_designation', 'SUPPLY OFFICER III / PROPERTY CUSTODIAN'),
-            'issuedByOffice' => SystemSetting::get('signatories.mor_issued_by_office', 'Supply & Property Management Office (SPMO)'),
-            'appendixNumber' => SystemSetting::get('compliance.mor_appendix_number', 'Appendix 59-A'),
+            'issuedByName' => (string) (SystemSetting::get('signatories.mor_issued_by_name') ?: 'ARSENIO GEM A. GARCILLANOSA'),
+            'issuedByPosition' => (string) (SystemSetting::get('signatories.mor_issued_by_designation') ?: 'SUPPLY OFFICER III / PROPERTY CUSTODIAN'),
+            'issuedByOffice' => (string) (SystemSetting::get('signatories.mor_issued_by_office') ?: 'Supply & Property Management Office (SPMO)'),
+            'appendixNumber' => (string) (SystemSetting::get('compliance.mor_appendix_number') ?: 'Appendix 59-A'),
+            'issued_by_name' => (string) (SystemSetting::get('signatories.mor_issued_by_name') ?: 'ARSENIO GEM A. GARCILLANOSA'),
+            'issued_by_position' => (string) (SystemSetting::get('signatories.mor_issued_by_designation') ?: 'SUPPLY OFFICER III / PROPERTY CUSTODIAN'),
+            'issued_by_office' => (string) (SystemSetting::get('signatories.mor_issued_by_office') ?: 'Supply & Property Management Office (SPMO)'),
+            'appendix_number' => (string) (SystemSetting::get('compliance.mor_appendix_number') ?: 'Appendix 59-A'),
         ];
     }
 

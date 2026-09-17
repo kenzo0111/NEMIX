@@ -274,7 +274,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
 
         {/* Purpose Statement */}
         <div className="purpose-statement">
-          I hereby acknowledge to have received from <strong>{data.issuedByName || 'ARSENIO GEM A. GARCILLANOSA'}</strong>, {data.issuedByPosition || 'SUPPLY OFFICER III / PROPERTY CUSTODIAN'}, the following property for which I am responsible, subject to the provisions of law, and which will be used in <strong>{data.receivedByOffice || data.purpose || 'Official Business'}</strong>:
+          I hereby acknowledge to have received from <strong>{data.issuedByName || '\u00A0'}</strong>{data.issuedByPosition ? `, ${data.issuedByPosition}` : ''}, the following property for which I am responsible, subject to the provisions of law, and which will be used in <strong>{data.receivedByOffice || data.purpose || 'Official Business'}</strong>:
         </div>
 
         {/* Main Items Table */}
@@ -337,7 +337,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
                   <tbody>
                     <tr>
                       <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '0 2px 2px 2px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', fontSize: '9pt', lineHeight: 1.15 }}>
-                        {data.issuedByName || 'ARSENIO GEM A. GARCILLANOSA'}
+                        {data.issuedByName || '\u00A0'}
                       </td>
                     </tr>
                     <tr>
@@ -359,7 +359,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
                         Position:
                       </td>
                       <td style={{ border: 'none', borderBottom: '1px solid #000000', padding: '1.5px 4px', verticalAlign: 'middle', fontSize: '8pt', lineHeight: 1.1 }}>
-                        {data.issuedByPosition || 'SUPPLY OFFICER III / ADMIN OFFICER V'}
+                        {data.issuedByPosition || '\u00A0'}
                       </td>
                     </tr>
                     <tr>

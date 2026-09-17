@@ -550,6 +550,43 @@ class ComplianceReportController extends Controller
                 $rsmiData['fundCluster'] = $activeFundCluster;
                 $rsmiData['fund_cluster'] = $activeFundCluster;
             }
+
+            $custodianName = data_get($rawSnapshot, 'supplyCustodianName')
+                ?? data_get($rawSnapshot, 'supply_custodian_name')
+                ?? data_get($rawPayload, 'supplyCustodianName')
+                ?? data_get($rawPayload, 'supply_custodian_name')
+                ?? \App\Models\SystemSetting::get('signatories.rsmi_certified_by_name', 'Supply Custodian');
+
+            $custodianDesignation = data_get($rawSnapshot, 'supplyCustodianDesignation')
+                ?? data_get($rawSnapshot, 'supply_custodian_designation')
+                ?? data_get($rawPayload, 'supplyCustodianDesignation')
+                ?? data_get($rawPayload, 'supply_custodian_designation')
+                ?? \App\Models\SystemSetting::get('signatories.rsmi_certified_by_designation', 'Supply Custodian');
+
+            $accountingStaff = data_get($rawSnapshot, 'accountingStaffName')
+                ?? data_get($rawSnapshot, 'accounting_staff_name')
+                ?? data_get($rawPayload, 'accountingStaffName')
+                ?? data_get($rawPayload, 'accounting_staff_name')
+                ?? \App\Models\SystemSetting::get('signatories.rsmi_posted_by_name', 'Accounting Staff');
+
+            $accountingStaffDesignation = data_get($rawSnapshot, 'accountingStaffDesignation')
+                ?? data_get($rawSnapshot, 'accounting_staff_designation')
+                ?? data_get($rawPayload, 'accountingStaffDesignation')
+                ?? data_get($rawPayload, 'accounting_staff_designation')
+                ?? \App\Models\SystemSetting::get('signatories.rsmi_posted_by_designation', 'Accounting Staff');
+
+            $payload['supplyCustodianName'] = $custodianName;
+            $payload['supplyCustodianDesignation'] = $custodianDesignation;
+            $payload['accountingStaffName'] = $accountingStaff;
+            $payload['accountingStaffDesignation'] = $accountingStaffDesignation;
+
+            if (is_array($rsmiData)) {
+                $rsmiData['supplyCustodianName'] = $custodianName;
+                $rsmiData['supplyCustodianDesignation'] = $custodianDesignation;
+                $rsmiData['accountingStaffName'] = $accountingStaff;
+                $rsmiData['accountingStaffDesignation'] = $accountingStaffDesignation;
+            }
+
             $payload['rsmi'] = $rsmiData;
             $payload['issuedItems'] = data_get($rsmiData, 'issuedItems', data_get($payload, 'issuedItems', []));
             $payload['recapitulationItems'] = data_get($rsmiData, 'recapitulationItems', data_get($payload, 'recapitulationItems', []));
@@ -589,7 +626,7 @@ class ComplianceReportController extends Controller
             $approvedByName = data_get($rawSnapshot, 'signatories.approved_by.name')
                 ?? data_get($rawPayload, 'signatories.approved_by.name')
                 ?? data_get($rawPayload, 'accountable_officer')
-                ?? \App\Models\SystemSetting::get('signatories.rpci_accountable_officer_name', 'Arsenio Gem A. Garcillanosa');
+                ?? \App\Models\SystemSetting::get('signatories.rpci_accountable_officer_name', '');
 
             $approvedByPosition = data_get($rawSnapshot, 'signatories.approved_by.position')
                 ?? data_get($rawPayload, 'signatories.approved_by.position')
@@ -659,6 +696,43 @@ class ComplianceReportController extends Controller
                 $mrData['fundCluster'] = $activeFundCluster;
                 $mrData['fund_cluster'] = $activeFundCluster;
             }
+
+            $morIssuedByName = data_get($rawSnapshot, 'issuedByName')
+                ?? data_get($rawSnapshot, 'issued_by_name')
+                ?? data_get($rawPayload, 'issuedByName')
+                ?? data_get($rawPayload, 'issued_by_name')
+                ?? \App\Models\SystemSetting::get('signatories.mor_issued_by_name', 'ARSENIO GEM A. GARCILLANOSA');
+
+            $morIssuedByPosition = data_get($rawSnapshot, 'issuedByPosition')
+                ?? data_get($rawSnapshot, 'issued_by_position')
+                ?? data_get($rawPayload, 'issuedByPosition')
+                ?? data_get($rawPayload, 'issued_by_position')
+                ?? \App\Models\SystemSetting::get('signatories.mor_issued_by_designation', 'SUPPLY OFFICER III / PROPERTY CUSTODIAN');
+
+            $morIssuedByOffice = data_get($rawSnapshot, 'issuedByOffice')
+                ?? data_get($rawSnapshot, 'issued_by_office')
+                ?? data_get($rawPayload, 'issuedByOffice')
+                ?? data_get($rawPayload, 'issued_by_office')
+                ?? \App\Models\SystemSetting::get('signatories.mor_issued_by_office', 'Supply & Property Management Office (SPMO)');
+
+            $morAppendixNumber = data_get($rawSnapshot, 'appendixNumber')
+                ?? data_get($rawSnapshot, 'appendix_number')
+                ?? data_get($rawPayload, 'appendixNumber')
+                ?? data_get($rawPayload, 'appendix_number')
+                ?? \App\Models\SystemSetting::get('compliance.mor_appendix_number', 'Appendix 59-A');
+
+            $payload['issuedByName'] = $morIssuedByName;
+            $payload['issuedByPosition'] = $morIssuedByPosition;
+            $payload['issuedByOffice'] = $morIssuedByOffice;
+            $payload['appendixNumber'] = $morAppendixNumber;
+
+            if (is_array($mrData)) {
+                $mrData['issuedByName'] = $morIssuedByName;
+                $mrData['issuedByPosition'] = $morIssuedByPosition;
+                $mrData['issuedByOffice'] = $morIssuedByOffice;
+                $mrData['appendixNumber'] = $morAppendixNumber;
+            }
+
             $payload['mr'] = $mrData;
             $payload['items'] = data_get($mrData, 'items', data_get($payload, 'items', []));
             $payload['summary'] = data_get($mrData, 'summary', data_get($snapshot, 'summary', []));

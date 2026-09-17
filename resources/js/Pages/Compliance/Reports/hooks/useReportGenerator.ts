@@ -152,17 +152,80 @@ export function useReportGenerator(
             },
         } : undefined;
 
+        const rsmiSignatories = formData.type === 'RSMI' ? {
+            supplyCustodianName:
+                previewDataset?.rsmi?.supplyCustodianName ||
+                publicSettings['signatories_rsmi_certified_by_name'] ||
+                publicSettings['rsmi_certified_by_name'] ||
+                publicSettings['rsmi_custodian_name'] ||
+                user?.name ||
+                'Supply Custodian',
+            supplyCustodianDesignation:
+                previewDataset?.rsmi?.supplyCustodianDesignation ||
+                publicSettings['signatories_rsmi_certified_by_designation'] ||
+                publicSettings['rsmi_certified_by_designation'] ||
+                publicSettings['rsmi_custodian_designation'] ||
+                'Supply Custodian',
+            accountingStaffName:
+                previewDataset?.rsmi?.accountingStaffName ||
+                publicSettings['signatories_rsmi_posted_by_name'] ||
+                publicSettings['rsmi_posted_by_name'] ||
+                publicSettings['rsmi_accounting_name'] ||
+                'Accounting Staff',
+            accountingStaffDesignation:
+                previewDataset?.rsmi?.accountingStaffDesignation ||
+                publicSettings['signatories_rsmi_posted_by_designation'] ||
+                publicSettings['rsmi_posted_by_designation'] ||
+                publicSettings['rsmi_accounting_designation'] ||
+                'Accounting Staff',
+        } : undefined;
+
+        const morSignatories = (formData.type === 'MR' || (formData.type as string) === 'MOR') ? {
+            issuedByName:
+                previewDataset?.mr?.issuedByName ||
+                publicSettings['signatories_mor_issued_by_name'] ||
+                publicSettings['signatories.mor_issued_by_name'] ||
+                publicSettings['mor_issued_by_name'] ||
+                publicSettings['mr_issued_by_name'] ||
+                'ARSENIO GEM A. GARCILLANOSA',
+            issuedByPosition:
+                previewDataset?.mr?.issuedByPosition ||
+                publicSettings['signatories_mor_issued_by_designation'] ||
+                publicSettings['signatories.mor_issued_by_designation'] ||
+                publicSettings['mor_issued_by_designation'] ||
+                publicSettings['mr_issued_by_position'] ||
+                'SUPPLY OFFICER III / PROPERTY CUSTODIAN',
+            issuedByOffice:
+                previewDataset?.mr?.issuedByOffice ||
+                publicSettings['signatories_mor_issued_by_office'] ||
+                publicSettings['signatories.mor_issued_by_office'] ||
+                publicSettings['mor_issued_by_office'] ||
+                publicSettings['mr_issued_by_office'] ||
+                'Supply & Property Management Office (SPMO)',
+            appendixNumber:
+                previewDataset?.mr?.appendixNumber ||
+                publicSettings['compliance_mor_appendix_number'] ||
+                publicSettings['compliance.mor_appendix_number'] ||
+                'Appendix 59-A',
+        } : undefined;
+
         const snapshot = previewDataset ? {
             ...previewDataset,
-            rsmi: previewDataset.rsmi,
+            rsmi: previewDataset.rsmi ? {
+                ...previewDataset.rsmi,
+                ...rsmiSignatories,
+            } : previewDataset.rsmi,
             rpci: previewDataset.rpci ? {
                 ...previewDataset.rpci,
                 signatories: rpciSignatories,
             } : previewDataset.rpci,
             stockCard: previewDataset.stockCard,
-            mr: previewDataset.mr,
+            mr: previewDataset.mr ? {
+                ...previewDataset.mr,
+                ...morSignatories,
+            } : previewDataset.mr,
             summary: previewDataset.summary,
-            signatories: rpciSignatories || previewDataset.signatories,
+            signatories: rpciSignatories || rsmiSignatories || morSignatories || previewDataset.signatories,
             issuedItems: previewDataset.rsmi?.issuedItems,
             recapitulationItems: previewDataset.rsmi?.recapitulationItems,
             items: previewDataset.rpci?.items || previewDataset.mr?.items,
@@ -170,23 +233,33 @@ export function useReportGenerator(
             stock_no: previewDataset.stockCard?.stock_no,
             supplier_stock_no: previewDataset.stockCard?.supplier_stock_no,
             item_no: previewDataset.stockCard?.item_no,
+            ...rsmiSignatories,
+            ...morSignatories,
         } : null;
 
         const payloadData: Record<string, any> = {
             ...formData,
             generatedDate: genDate,
             coverageLabel,
-            signatories: rpciSignatories,
+            signatories: rpciSignatories || rsmiSignatories || morSignatories,
             snapshot: snapshot || undefined,
             dataset: snapshot || undefined,
-            rsmi: previewDataset?.rsmi,
+            rsmi: previewDataset?.rsmi ? {
+                ...previewDataset.rsmi,
+                ...rsmiSignatories,
+            } : previewDataset?.rsmi,
             rpci: previewDataset?.rpci ? {
                 ...previewDataset.rpci,
                 signatories: rpciSignatories,
             } : previewDataset?.rpci,
             stockCard: previewDataset?.stockCard,
-            mr: previewDataset?.mr,
+            mr: previewDataset?.mr ? {
+                ...previewDataset.mr,
+                ...morSignatories,
+            } : previewDataset?.mr,
             summary: previewDataset?.summary,
+            ...rsmiSignatories,
+            ...morSignatories,
             issuedItems: previewDataset?.rsmi?.issuedItems,
             recapitulationItems: previewDataset?.rsmi?.recapitulationItems,
             items: previewDataset?.rpci?.items || previewDataset?.mr?.items,

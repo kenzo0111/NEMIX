@@ -187,13 +187,35 @@ class CompliancePdfController extends Controller
 
         $supplyCustodianName = data_get($form, 'supplyCustodianName')
             ?? data_get($form, 'supply_custodian_name')
+            ?? data_get($parentDataset, 'supplyCustodianName')
+            ?? data_get($parentDataset, 'supply_custodian_name')
             ?? data_get($parentDataset, 'signatories.supply_custodian.name')
-            ?? \App\Models\SystemSetting::get('signatories.rsmi_custodian_name', 'ALBERTO DE VERA JR');
+            ?? \App\Models\SystemSetting::get('signatories.rsmi_certified_by_name')
+            ?? \App\Models\SystemSetting::get('signatories.rsmi_custodian_name', 'Supply Custodian');
+
+        $supplyCustodianDesignation = data_get($form, 'supplyCustodianDesignation')
+            ?? data_get($form, 'supply_custodian_designation')
+            ?? data_get($parentDataset, 'supplyCustodianDesignation')
+            ?? data_get($parentDataset, 'supply_custodian_designation')
+            ?? data_get($parentDataset, 'signatories.supply_custodian.designation')
+            ?? \App\Models\SystemSetting::get('signatories.rsmi_certified_by_designation')
+            ?? \App\Models\SystemSetting::get('signatories.rsmi_custodian_designation', 'Supply Custodian');
 
         $accountingStaffName = data_get($form, 'accountingStaffName')
             ?? data_get($form, 'accounting_staff_name')
+            ?? data_get($parentDataset, 'accountingStaffName')
+            ?? data_get($parentDataset, 'accounting_staff_name')
             ?? data_get($parentDataset, 'signatories.accounting_staff.name')
-            ?? \App\Models\SystemSetting::get('signatories.rsmi_accounting_name', 'ALBERTO DE VERA JR');
+            ?? \App\Models\SystemSetting::get('signatories.rsmi_posted_by_name')
+            ?? \App\Models\SystemSetting::get('signatories.rsmi_accounting_name', 'Accounting Staff');
+
+        $accountingStaffDesignation = data_get($form, 'accountingStaffDesignation')
+            ?? data_get($form, 'accounting_staff_designation')
+            ?? data_get($parentDataset, 'accountingStaffDesignation')
+            ?? data_get($parentDataset, 'accounting_staff_designation')
+            ?? data_get($parentDataset, 'signatories.accounting_staff.designation')
+            ?? \App\Models\SystemSetting::get('signatories.rsmi_posted_by_designation')
+            ?? \App\Models\SystemSetting::get('signatories.rsmi_accounting_designation', 'Accounting Staff');
 
         $accountingDate = data_get($form, 'accountingDate')
             ?? data_get($form, 'accounting_date')
@@ -210,7 +232,9 @@ class CompliancePdfController extends Controller
             'issuedItems' => $issuedItems,
             'recapitulationItems' => $recapitulationItems,
             'supplyCustodianName' => strtoupper((string) $supplyCustodianName),
+            'supplyCustodianDesignation' => (string) $supplyCustodianDesignation,
             'accountingStaffName' => strtoupper((string) $accountingStaffName),
+            'accountingStaffDesignation' => (string) $accountingStaffDesignation,
             'accountingDate' => $accountingDate,
         ];
     }
@@ -228,7 +252,7 @@ class CompliancePdfController extends Controller
         $approvedByName = data_get($rpciData, 'approved_by_name')
             ?? data_get($rpciData, 'signatories.approved_by.name')
             ?? data_get($rpciData, 'accountable_officer')
-            ?? \App\Models\SystemSetting::get('signatories.rpci_accountable_officer_name', 'Arsenio Gem A. Garcillanosa');
+            ?? \App\Models\SystemSetting::get('signatories.rpci_accountable_officer_name', '');
 
         $approvedByPosition = data_get($rpciData, 'approved_by_position')
             ?? data_get($rpciData, 'signatories.approved_by.position')
@@ -345,15 +369,25 @@ class CompliancePdfController extends Controller
 
         $issuedByName = data_get($mrData, 'issuedByName')
             ?? data_get($mrData, 'issued_by_name')
-            ?? \App\Models\SystemSetting::get('signatories.mr_issued_by_name', 'Arsenio Gem A. GARCILLANOSA');
+            ?? data_get($dataset, 'issuedByName')
+            ?? data_get($dataset, 'issued_by_name')
+            ?? \App\Models\SystemSetting::get('signatories.mor_issued_by_name')
+            ?? \App\Models\SystemSetting::get('signatories.mr_issued_by_name', 'ARSENIO GEM A. GARCILLANOSA');
 
         $issuedByPosition = data_get($mrData, 'issuedByPosition')
             ?? data_get($mrData, 'issued_by_position')
-            ?? \App\Models\SystemSetting::get('signatories.mr_issued_by_position', 'Supply Officer III');
+            ?? data_get($dataset, 'issuedByPosition')
+            ?? data_get($dataset, 'issued_by_position')
+            ?? \App\Models\SystemSetting::get('signatories.mor_issued_by_designation')
+            ?? \App\Models\SystemSetting::get('signatories.mr_issued_by_position', 'SUPPLY OFFICER III / PROPERTY CUSTODIAN');
 
         $issuedByOffice = data_get($mrData, 'issuedByOffice')
             ?? data_get($mrData, 'issued_by_office')
-            ?? \App\Models\SystemSetting::get('institution.name', 'University of Camarines Norte');
+            ?? data_get($dataset, 'issuedByOffice')
+            ?? data_get($dataset, 'issued_by_office')
+            ?? \App\Models\SystemSetting::get('signatories.mor_issued_by_office')
+            ?? \App\Models\SystemSetting::get('signatories.mr_issued_by_office')
+            ?? \App\Models\SystemSetting::get('institution.custodial_office', 'Supply & Property Management Office (SPMO)');
 
         $viewData = [
             'mr' => $mrData,

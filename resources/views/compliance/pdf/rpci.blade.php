@@ -128,9 +128,9 @@
         $fundCluster = '01 - Regular Agency Fund';
     }
 
-    $accountableOfficer = data_get($rpciData, 'accountable_officer') ?? 'Arsenio Gem A. Garcillanosa';
-    $designation = data_get($rpciData, 'designation') ?? 'Supply Custodian';
-    $entityName = data_get($rpciData, 'entity_name') ?? data_get($rpciData, 'entityName') ?? 'UNIVERSITY OF CAMARINES NORTE';
+    $accountableOfficer = data_get($rpciData, 'accountable_officer') ?? data_get($rpciData, 'accountable_officer_name') ?? \App\Models\SystemSetting::get('signatories.rpci_accountable_officer_name', '');
+    $designation = data_get($rpciData, 'designation') ?? data_get($rpciData, 'accountable_officer_designation') ?? \App\Models\SystemSetting::get('signatories.rpci_accountable_officer_designation', 'Supply Custodian / Supply Officer III');
+    $entityName = data_get($rpciData, 'entity_name') ?? data_get($rpciData, 'entityName') ?? \App\Models\SystemSetting::get('institution.name', 'UNIVERSITY OF CAMARINES NORTE');
     
     $rawDateAssumption = data_get($rpciData, 'date_assumption');
     $dateAssumptionDisplay = '';
@@ -147,10 +147,31 @@
     $paddedItems = array_merge($itemsList, array_fill(0, max(0, $targetRowCount - count($itemsList)), []));
 
     // Signatories resolution
-    $certName = strtoupper((string)($certifiedByName ?? data_get($rpciData, 'certified_by_name') ?? data_get($rpciData, 'signatories.certified_by.name') ?? ''));
-    $apprName = strtoupper((string)($approvedByName ?? data_get($rpciData, 'approved_by_name') ?? data_get($rpciData, 'signatories.approved_by.name') ?? $accountableOfficer));
-    $verName = strtoupper((string)($verifiedByName ?? data_get($rpciData, 'verified_by_name') ?? data_get($rpciData, 'signatories.verified_by.name') ?? ''));
-    $verPos = $verifiedByPosition ?? data_get($rpciData, 'verified_by_position') ?? data_get($rpciData, 'signatories.verified_by.position') ?? '';
+    $certName = strtoupper((string)(
+        (!empty($certifiedByName) ? $certifiedByName : null)
+        ?? data_get($rpciData, 'certified_by_name')
+        ?? data_get($rpciData, 'signatories.certified_by.name')
+        ?? \App\Models\SystemSetting::get('signatories.rpci_certified_by_name')
+        ?: \App\Models\SystemSetting::get('signatories.rpci_committee_chair', '')
+    ));
+    $apprName = strtoupper((string)(
+        (!empty($approvedByName) ? $approvedByName : null)
+        ?? data_get($rpciData, 'approved_by_name')
+        ?? data_get($rpciData, 'signatories.approved_by.name')
+        ?? (!empty($accountableOfficer) ? $accountableOfficer : null)
+        ?? \App\Models\SystemSetting::get('signatories.rpci_approved_by_name')
+        ?: \App\Models\SystemSetting::get('signatories.rpci_accountable_officer_name', '')
+    ));
+    $verName = strtoupper((string)(
+        (!empty($verifiedByName) ? $verifiedByName : null)
+        ?? data_get($rpciData, 'verified_by_name')
+        ?? data_get($rpciData, 'signatories.verified_by.name')
+        ?? \App\Models\SystemSetting::get('signatories.rpci_verified_by_name', '')
+    ));
+    $verPos = (!empty($verifiedByPosition) ? $verifiedByPosition : null)
+        ?? data_get($rpciData, 'verified_by_position')
+        ?? data_get($rpciData, 'signatories.verified_by.position')
+        ?? \App\Models\SystemSetting::get('signatories.rpci_verified_by_position', '');
 @endphp
 
 <div class="report-page rpci-container">
@@ -316,7 +337,7 @@
                         <tbody>
                             <tr>
                                 <td style="border: none; border-bottom: 1px solid #000000; padding: 0 3px 2px 3px; font-weight: bold; text-align: center; font-size: 8pt; text-transform: uppercase;">
-                                    {{ $apprName ?: 'ARSENIO GEM A. GARCILLANOSA' }}
+                                    @if(!empty($apprName)){{ $apprName }}@endif
                                 </td>
                             </tr>
                             <tr>

@@ -19,7 +19,9 @@ export interface NormalizedReportData {
         issuedItems: any[];
         recapitulationItems: any[];
         supplyCustodianName: string;
+        supplyCustodianDesignation?: string;
         accountingStaffName: string;
+        accountingStaffDesignation?: string;
         accountingDate: string;
         forms?: any[];
     };
@@ -196,16 +198,79 @@ export function normalizeReportPaperData(
             defaultFundCluster,
         );
 
-        const supplyCustodianName =
-            publicSettings['signatories_rsmi_certified_by_name'] ||
-            payload.supplyCustodianName ||
-            user?.name ||
-            'Supply Custodian';
+        const supplyCustodianName = isSavedReport
+            ? (rsmiSource.supplyCustodianName ||
+               rsmiSource.supply_custodian_name ||
+               payload.supplyCustodianName ||
+               payload.supply_custodian_name ||
+               snapshot.supplyCustodianName ||
+               publicSettings['signatories_rsmi_certified_by_name'] ||
+               publicSettings['rsmi_certified_by_name'] ||
+               publicSettings['rsmi_custodian_name'] ||
+               user?.name ||
+               'Supply Custodian')
+            : (publicSettings['signatories_rsmi_certified_by_name'] ||
+               publicSettings['rsmi_certified_by_name'] ||
+               publicSettings['rsmi_custodian_name'] ||
+               rsmiSource.supplyCustodianName ||
+               rsmiSource.supply_custodian_name ||
+               payload.supplyCustodianName ||
+               user?.name ||
+               'Supply Custodian');
 
-        const accountingStaffName =
-            publicSettings['signatories_rsmi_posted_by_name'] ||
-            payload.accountingStaffName ||
-            'Accounting Staff';
+        const supplyCustodianDesignation = isSavedReport
+            ? (rsmiSource.supplyCustodianDesignation ||
+               rsmiSource.supply_custodian_designation ||
+               payload.supplyCustodianDesignation ||
+               payload.supply_custodian_designation ||
+               snapshot.supplyCustodianDesignation ||
+               publicSettings['signatories_rsmi_certified_by_designation'] ||
+               publicSettings['rsmi_certified_by_designation'] ||
+               publicSettings['rsmi_custodian_designation'] ||
+               'Supply Custodian')
+            : (publicSettings['signatories_rsmi_certified_by_designation'] ||
+               publicSettings['rsmi_certified_by_designation'] ||
+               publicSettings['rsmi_custodian_designation'] ||
+               rsmiSource.supplyCustodianDesignation ||
+               rsmiSource.supply_custodian_designation ||
+               payload.supplyCustodianDesignation ||
+               'Supply Custodian');
+
+        const accountingStaffName = isSavedReport
+            ? (rsmiSource.accountingStaffName ||
+               rsmiSource.accounting_staff_name ||
+               payload.accountingStaffName ||
+               payload.accounting_staff_name ||
+               snapshot.accountingStaffName ||
+               publicSettings['signatories_rsmi_posted_by_name'] ||
+               publicSettings['rsmi_posted_by_name'] ||
+               publicSettings['rsmi_accounting_name'] ||
+               'Accounting Staff')
+            : (publicSettings['signatories_rsmi_posted_by_name'] ||
+               publicSettings['rsmi_posted_by_name'] ||
+               publicSettings['rsmi_accounting_name'] ||
+               rsmiSource.accountingStaffName ||
+               rsmiSource.accounting_staff_name ||
+               payload.accountingStaffName ||
+               'Accounting Staff');
+
+        const accountingStaffDesignation = isSavedReport
+            ? (rsmiSource.accountingStaffDesignation ||
+               rsmiSource.accounting_staff_designation ||
+               payload.accountingStaffDesignation ||
+               payload.accounting_staff_designation ||
+               snapshot.accountingStaffDesignation ||
+               publicSettings['signatories_rsmi_posted_by_designation'] ||
+               publicSettings['rsmi_posted_by_designation'] ||
+               publicSettings['rsmi_accounting_designation'] ||
+               'Accounting Staff')
+            : (publicSettings['signatories_rsmi_posted_by_designation'] ||
+               publicSettings['rsmi_posted_by_designation'] ||
+               publicSettings['rsmi_accounting_designation'] ||
+               rsmiSource.accountingStaffDesignation ||
+               rsmiSource.accounting_staff_designation ||
+               payload.accountingStaffDesignation ||
+               'Accounting Staff');
 
         const normalizeSingleItem = (item: any) => {
             if (!item || typeof item !== 'object') return item;
@@ -265,8 +330,10 @@ export function normalizeReportPaperData(
                 fundCluster: formatFundClusterDisplay(f.fundCluster || f.fund_cluster || fundCluster),
                 issuedItems: (Array.isArray(rawIssued) ? rawIssued : []).map(normalizeSingleItem),
                 recapitulationItems: (Array.isArray(rawRecap) ? rawRecap : []).map(normalizeRecap),
-                supplyCustodianName: f.supplyCustodianName || supplyCustodianName,
-                accountingStaffName: f.accountingStaffName || accountingStaffName,
+                supplyCustodianName: f.supplyCustodianName || f.supply_custodian_name || supplyCustodianName,
+                supplyCustodianDesignation: f.supplyCustodianDesignation || f.supply_custodian_designation || supplyCustodianDesignation,
+                accountingStaffName: f.accountingStaffName || f.accounting_staff_name || accountingStaffName,
+                accountingStaffDesignation: f.accountingStaffDesignation || f.accounting_staff_designation || accountingStaffDesignation,
                 accountingDate: f.accountingDate || formattedDate,
             };
         };
@@ -336,7 +403,9 @@ export function normalizeReportPaperData(
                 issuedItems: Array.isArray(issuedItems) ? issuedItems : [],
                 recapitulationItems: Array.isArray(recapitulationItems) ? recapitulationItems : [],
                 supplyCustodianName,
+                supplyCustodianDesignation,
                 accountingStaffName,
+                accountingStaffDesignation,
                 accountingDate: formattedDate,
                 forms,
             },
@@ -642,35 +711,75 @@ export function normalizeReportPaperData(
             payload.grandTotal ||
             0;
 
-        const appendixNumber =
-            publicSettings['compliance_mor_appendix_number'] ||
-            publicSettings['compliance.mor_appendix_number'] ||
-            payload.appendixNumber ||
-            snapshot?.appendixNumber ||
-            'Appendix 59-A';
+        const appendixNumber = isSavedReport
+            ? (snapshot?.appendixNumber ||
+               payload.appendixNumber ||
+               mrSource.appendixNumber ||
+               publicSettings['compliance_mor_appendix_number'] ||
+               'Appendix 59-A')
+            : (publicSettings['compliance_mor_appendix_number'] ||
+               publicSettings['compliance.mor_appendix_number'] ||
+               publicSettings['mor_appendix_number'] ||
+               mrSource.appendixNumber ||
+               payload.appendixNumber ||
+               'Appendix 59-A');
 
-        const issuedByName =
-            publicSettings['signatories_mor_issued_by_name'] ||
-            publicSettings['signatories.mor_issued_by_name'] ||
-            mrSource.issuedByName ||
-            payload.issuedByName ||
-            user?.name ||
-            'ARSENIO GEM A. GARCILLANOSA';
+        const issuedByName = isSavedReport
+            ? (mrSource.issuedByName ||
+               mrSource.issued_by_name ||
+               payload.issuedByName ||
+               payload.issued_by_name ||
+               snapshot?.issuedByName ||
+               publicSettings['signatories_mor_issued_by_name'] ||
+               publicSettings['mor_issued_by_name'] ||
+               user?.name ||
+               'ARSENIO GEM A. GARCILLANOSA')
+            : (publicSettings['signatories_mor_issued_by_name'] ||
+               publicSettings['signatories.mor_issued_by_name'] ||
+               publicSettings['mor_issued_by_name'] ||
+               publicSettings['mr_issued_by_name'] ||
+               mrSource.issuedByName ||
+               mrSource.issued_by_name ||
+               payload.issuedByName ||
+               user?.name ||
+               'ARSENIO GEM A. GARCILLANOSA');
 
-        const issuedByPosition =
-            publicSettings['signatories_mor_issued_by_designation'] ||
-            publicSettings['signatories.mor_issued_by_designation'] ||
-            mrSource.issuedByPosition ||
-            payload.issuedByPosition ||
-            'SUPPLY OFFICER III / PROPERTY CUSTODIAN';
+        const issuedByPosition = isSavedReport
+            ? (mrSource.issuedByPosition ||
+               mrSource.issued_by_position ||
+               payload.issuedByPosition ||
+               payload.issued_by_position ||
+               snapshot?.issuedByPosition ||
+               publicSettings['signatories_mor_issued_by_designation'] ||
+               publicSettings['mor_issued_by_designation'] ||
+               'SUPPLY OFFICER III / PROPERTY CUSTODIAN')
+            : (publicSettings['signatories_mor_issued_by_designation'] ||
+               publicSettings['signatories.mor_issued_by_designation'] ||
+               publicSettings['mor_issued_by_designation'] ||
+               publicSettings['mr_issued_by_position'] ||
+               mrSource.issuedByPosition ||
+               mrSource.issued_by_position ||
+               payload.issuedByPosition ||
+               'SUPPLY OFFICER III / PROPERTY CUSTODIAN');
 
-        const issuedByOffice =
-            publicSettings['signatories_mor_issued_by_office'] ||
-            publicSettings['signatories.mor_issued_by_office'] ||
-            publicSettings['institution_custodial_office'] ||
-            mrSource.issuedByOffice ||
-            payload.issuedByOffice ||
-            'Supply & Property Management Office (SPMO)';
+        const issuedByOffice = isSavedReport
+            ? (mrSource.issuedByOffice ||
+               mrSource.issued_by_office ||
+               payload.issuedByOffice ||
+               payload.issued_by_office ||
+               snapshot?.issuedByOffice ||
+               publicSettings['signatories_mor_issued_by_office'] ||
+               publicSettings['mor_issued_by_office'] ||
+               'Supply & Property Management Office (SPMO)')
+            : (publicSettings['signatories_mor_issued_by_office'] ||
+               publicSettings['signatories.mor_issued_by_office'] ||
+               publicSettings['mor_issued_by_office'] ||
+               publicSettings['mr_issued_by_office'] ||
+               publicSettings['institution_custodial_office'] ||
+               mrSource.issuedByOffice ||
+               mrSource.issued_by_office ||
+               payload.issuedByOffice ||
+               'Supply & Property Management Office (SPMO)');
 
         return {
             type: 'MR',
