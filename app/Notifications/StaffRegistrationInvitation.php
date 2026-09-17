@@ -36,7 +36,7 @@ class StaffRegistrationInvitation extends Notification
         ], false);
 
         $mail = (new MailMessage)
-            ->subject('Your staff account invitation');
+            ->subject('[UCN SPMO] Staff Account Invitation');
 
         $mail->viewData['title'] = 'Staff Account Invitation';
 

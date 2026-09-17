@@ -66,7 +66,7 @@ class AppServiceProvider extends ServiceProvider
             ], false));
 
             $mail = (new MailMessage)
-                ->subject('Reset your password');
+                ->subject('[UCN SPMO] Password Reset Request');
 
             $mail->viewData['title'] = 'Reset your password';
 
@@ -79,7 +79,7 @@ class AppServiceProvider extends ServiceProvider
 
         VerifyEmail::toMailUsing(function (object $notifiable, string $url): MailMessage {
             $mail = (new MailMessage)
-                ->subject('Verify your email address');
+                ->subject('[UCN SPMO] Verify Email Address');
 
             $mail->viewData['title'] = 'Verify Your Email Address';
 

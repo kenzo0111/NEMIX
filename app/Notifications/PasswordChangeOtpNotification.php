@@ -47,7 +47,7 @@ class PasswordChangeOtpNotification extends Notification
         );
 
         $mail = (new MailMessage)
-            ->subject('Your password verification code');
+            ->subject('[UCN SPMO] Password Verification Code');
 
         $mail->viewData['title'] = 'Password Verification Code';
 

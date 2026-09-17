@@ -18,7 +18,7 @@ class DiagnosticTestNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $mail = (new MailMessage)
-            ->subject('Email delivery test');
+            ->subject('[UCN SPMO] Email Delivery Test');
 
         $mail->viewData['title'] = 'Email delivery test';
 

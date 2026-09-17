@@ -31,7 +31,7 @@ class VerifyEmailNotification extends Notification
         $verificationUrl = $this->verificationUrl($notifiable);
 
         $mail = (new MailMessage)
-            ->subject('Verify your email address');
+            ->subject('[UCN SPMO] Verify Email Address');
 
         $mail->viewData['title'] = 'Verify Your Email Address';
 

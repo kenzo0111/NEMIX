@@ -125,7 +125,7 @@ img {
     border-top: 3px solid #800000;
     border-bottom: 1px solid #e2e8f0;
     border-radius: 8px 8px 0 0;
-    padding: 16px 32px;
+    padding: 24px 32px;
     text-align: left;
 }
 
@@ -136,7 +136,7 @@ img {
 
 .header-institution {
     color: #1e293b;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: -0.01em;
     line-height: 1.3;
@@ -145,9 +145,11 @@ img {
 .header-office {
     color: #64748b;
     font-size: 11px;
-    font-weight: 500;
-    line-height: 1.25;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    line-height: 1.3;
     margin-top: 3px;
+    text-transform: uppercase;
 }
 
 /* Logo */
@@ -155,9 +157,9 @@ img {
 .logo {
     display: block;
     height: auto;
-    max-height: 40px;
-    max-width: 40px;
-    width: 40px;
+    max-height: 50px;
+    max-width: 50px;
+    width: 50px;
 }
 
 /* Body Card */
@@ -216,40 +218,30 @@ img {
     border-radius: 6px;
     color: #ffffff !important;
     display: inline-block;
-    font-size: 15px;
-    font-weight: 700;
-    line-height: 20px;
-    min-height: 44px;
-    overflow: hidden;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    padding: 12px 22px;
     text-align: center;
     text-decoration: none !important;
 }
 
 .button-blue,
 .button-primary {
-    background-color: #800000;
-    border-bottom: 12px solid #800000;
-    border-left: 22px solid #800000;
-    border-right: 22px solid #800000;
-    border-top: 12px solid #800000;
+    background-color: #8B0000;
+    border: 1px solid #8B0000;
 }
 
 .button-green,
 .button-success {
     background-color: #16a34a;
-    border-bottom: 12px solid #16a34a;
-    border-left: 22px solid #16a34a;
-    border-right: 22px solid #16a34a;
-    border-top: 12px solid #16a34a;
+    border: 1px solid #16a34a;
 }
 
 .button-red,
 .button-error {
     background-color: #dc2626;
-    border-bottom: 12px solid #dc2626;
-    border-left: 22px solid #dc2626;
-    border-right: 22px solid #dc2626;
-    border-top: 12px solid #dc2626;
+    border: 1px solid #dc2626;
 }
 
 /* Callout Panels */

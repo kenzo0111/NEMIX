@@ -89,7 +89,7 @@ class EmailVerificationTest extends TestCase
         $notification = new \App\Notifications\VerifyEmailNotification();
         $mail = $notification->toMail($user);
 
-        $this->assertEquals('Verify your email address', $mail->subject);
+        $this->assertEquals('[UCN SPMO] Verify Email Address', $mail->subject);
         $this->assertStringContainsString('Hello Juan Dela Cruz,', $mail->greeting);
         $this->assertContains('Verify your email address to finish setting up your account.', $mail->introLines);
         $this->assertSame('Verify Email Address', $mail->actionText);

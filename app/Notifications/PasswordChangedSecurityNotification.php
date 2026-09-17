@@ -50,7 +50,7 @@ class PasswordChangedSecurityNotification extends Notification
         );
 
         $mail = (new MailMessage)
-            ->subject('Your password was changed');
+            ->subject('[UCN SPMO] Security Alert: Password Changed');
 
         $mail->viewData['title'] = 'Your password was changed';
 
