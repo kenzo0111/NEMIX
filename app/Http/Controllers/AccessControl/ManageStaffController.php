@@ -34,7 +34,7 @@ class ManageStaffController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'role' => $user->roles->first()?->name ?? 'Unassigned',
+                'role' => $user->isSystemAdmin() ? 'System Admin' : ($user->roles->first()?->name ?? 'No Role'),
                 'status' => $user->is_active ? 'Active' : 'Disabled',
                 'email_verified' => ! is_null($user->email_verified_at),
                 'is_system_admin' => $user->isSystemAdmin(),
@@ -80,7 +80,7 @@ class ManageStaffController extends Controller
             'is_active' => false,
         ]);
 
-        $user->assignRole($validated['role']);
+        $user->syncRoles([$validated['role']]);
         PermissionResolver::clearPermissionCache();
 
         $mailSent = true;

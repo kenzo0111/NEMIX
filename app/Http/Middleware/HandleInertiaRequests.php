@@ -34,7 +34,9 @@ class HandleInertiaRequests extends Middleware
 
         if ($user) {
             $user->loadMissing('roles');
-            $primaryRole = $user->roles->first()?->name ?? (is_string($user->role ?? null) ? $user->role : 'Supply Officer');
+            $primaryRole = $isSystemAdmin
+                ? 'System Admin'
+                : ($user->roles->first()?->name ?? (is_string($user->role ?? null) ? $user->role : 'Supply Officer'));
             $userArray = [
                 'id' => $user->id,
                 'name' => $user->name,

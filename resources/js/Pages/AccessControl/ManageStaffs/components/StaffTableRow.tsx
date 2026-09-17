@@ -83,7 +83,7 @@ export default function StaffTableRow({
                 {targetIsSystemAdmin ? (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-red-50 text-red-950 border border-red-200/80">
                         <Shield className="w-3 h-3 text-red-900 shrink-0" />
-                        {staff.role}
+                        {staff.is_system_admin ? 'System Admin' : staff.role}
                     </span>
                 ) : isAuditor ? (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200/80">
