@@ -22,7 +22,7 @@ class ComplianceReportController extends Controller
         // Bounded, lightweight items and suppliers for report configuration dropdowns
         $items = class_exists(\Modules\Inventory\Models\Item::class)
             ? \Modules\Inventory\Models\Item::query()
-                ->select(['id', 'name', 'sku', 'unit_of_issue', 'unit_measure'])
+                ->select(['id', 'name', 'sku', 'unit_of_issue'])
                 ->orderBy('name')
                 ->limit(500)
                 ->get()
