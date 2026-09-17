@@ -223,13 +223,16 @@ class SystemSettingController extends Controller
         $recipient = $validated['recipient'] ?: $request->user()->email;
 
         try {
-            Mail::raw(
-                "This is an automated diagnostic test from the NEMIX Consumable Supply & Inventory Management System (SPMO - University of Camarines Norte). Your SMTP mail transport is operational!\n\nSent at: ".now()->toDateTimeString().' (PST)',
-                function ($message) use ($recipient) {
-                    $message->to($recipient)
-                        ->subject('NEMIX SPMO: SMTP Email System Test');
-                }
-            );
+            $body = "SMTP Configuration Test\n\n" .
+                "This is a test email from the UCN Supply & Property Management Office System.\n\n" .
+                "If you received this message successfully, the configured outgoing mail service is functioning correctly.\n\n" .
+                "Supply & Property Management Office\n" .
+                "University of Camarines Norte";
+
+            Mail::raw($body, function ($message) use ($recipient) {
+                $message->to($recipient)
+                    ->subject('[SPMO System] SMTP Configuration Test');
+            });
 
             return back()->with('success', "Diagnostic test email dispatched successfully to {$recipient}.");
         } catch (\Throwable $e) {
