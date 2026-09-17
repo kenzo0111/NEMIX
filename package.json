@@ -29,6 +29,7 @@
     },
     "dependencies": {
         "chart.js": "^4.5.1",
+        "exceljs": "^4.4.0",
         "html2canvas": "^1.4.1",
         "jspdf": "^4.2.1",
         "jspdf-autotable": "^5.0.7",
@@ -40,7 +41,6 @@
         "react-router-dom": "^7.11.0",
         "react-select": "^5.10.2",
         "recharts": "^3.10.1",
-        "tesseract.js": "^7.0.0",
-        "xlsx": "^0.18.5"
+        "tesseract.js": "^7.0.0"
     }
 }

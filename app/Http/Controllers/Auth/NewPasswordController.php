@@ -77,12 +77,22 @@ class NewPasswordController extends Controller
         // database. Otherwise we will parse the error and return the response.
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user) use ($request) {
-                $user->forceFill([
+            function ($user) use ($request, $isInvitationFlow) {
+                $userData = [
                     'password' => Hash::make($request->password),
                     'is_active' => true,
                     'remember_token' => Str::random(60),
-                ])->save();
+                ];
+
+                if ($request->filled('name')) {
+                    $userData['name'] = $request->string('name')->trim()->value();
+                }
+
+                if ($isInvitationFlow && is_null($user->email_verified_at)) {
+                    $userData['email_verified_at'] = now();
+                }
+
+                $user->forceFill($userData)->save();
 
                 event(new PasswordReset($user));
             }

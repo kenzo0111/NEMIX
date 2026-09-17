@@ -168,6 +168,21 @@ class ManageStaffController extends Controller
             'is_active' => ! $user->is_active,
         ]);
 
+        if (! $user->is_active) {
+            if (\Illuminate\Support\Facades\Schema::hasTable('sessions')) {
+                \Illuminate\Support\Facades\DB::table('sessions')
+                    ->where('user_id', $user->id)
+                    ->delete();
+            }
+
+            if (\Illuminate\Support\Facades\Schema::hasTable('personal_access_tokens')) {
+                \Illuminate\Support\Facades\DB::table('personal_access_tokens')
+                    ->where('tokenable_type', $user->getMorphClass())
+                    ->where('tokenable_id', $user->id)
+                    ->delete();
+            }
+        }
+
         $action = $user->is_active ? 'enabled' : 'disabled';
         return back()->with('success', "User account {$action} successfully.");
     }

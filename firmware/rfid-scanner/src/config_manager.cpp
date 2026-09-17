@@ -54,3 +54,20 @@ bool ConfigManager::validateConfiguration(const DeviceConfiguration& c, bool req
 bool ConfigManager::applyConfiguration(const DeviceConfiguration& c) const { return validateConfiguration(c,true); }
 void ConfigManager::resetConfiguration(bool preserveIdentity) { DeviceConfiguration old; loadConfiguration(old); Preferences p; if(p.begin(NAMESPACE,false)){p.clear();p.end();} if(preserveIdentity&&old.deviceId.length()){DeviceConfiguration clean;clean.deviceId=old.deviceId;clean.deviceToken=old.deviceToken;clean.serverUrl=old.serverUrl.length()?old.serverUrl:"https://example.invalid";saveConfiguration(clean);} }
 String ConfigManager::generateDeviceId() { uint64_t chip=ESP.getEfuseMac(); char id[24]; snprintf(id,sizeof(id),"RFID-HH-%06llX",(unsigned long long)(chip&0xFFFFFF)); return String(id); }
+String ConfigManager::getOrGenerateSetupPin() {
+    Preferences p;
+    if (p.begin(NAMESPACE, false)) {
+        String pin = p.getString("setup_pin", "");
+        if (pin.length() >= 8) {
+            p.end();
+            return pin;
+        }
+        uint64_t chip = ESP.getEfuseMac();
+        char genPin[12];
+        snprintf(genPin, sizeof(genPin), "%08X", (uint32_t)((chip ^ (chip >> 32)) & 0xFFFFFFFF));
+        p.putString("setup_pin", genPin);
+        p.end();
+        return String(genPin);
+    }
+    return "NEMIX888";
+}

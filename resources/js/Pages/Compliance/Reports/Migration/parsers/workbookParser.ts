@@ -3,7 +3,6 @@ import { MigrationFormType } from '../migrationTypes';
 export const parseWorkbookToGroups = (
     workbook: any,
     formType: MigrationFormType,
-    xlsx: any,
 ): Array<{ sheetName: string; metadata: Record<string, string>; items: any[] }> => {
     const groups: any[] = [];
     const isMatchKeyword = (cellVal: any, keywords: string[]) => {
@@ -22,9 +21,56 @@ export const parseWorkbookToGroups = (
         targetKeywords = ['date', 'reference', 'receipt', 'issue', 'balance', 'consume', 'office'];
     }
 
-    workbook.SheetNames.forEach((sheetName: string) => {
-        const worksheet = workbook.Sheets[sheetName];
-        const matrix: any[][] = xlsx.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' });
+    const MAX_ROWS = 5000;
+    const MAX_COLS = 100;
+
+    const worksheets: any[] = workbook.worksheets || [];
+
+    worksheets.forEach((worksheet: any) => {
+        const sheetName = worksheet.name || 'Sheet';
+        const matrix: any[][] = [];
+
+        worksheet.eachRow({ includeEmpty: true }, (row: any, rowNumber: number) => {
+            if (rowNumber > MAX_ROWS) return;
+            const rowValues: any[] = [];
+
+            row.eachCell({ includeEmpty: true }, (cell: any, colNumber: number) => {
+                if (colNumber > MAX_COLS) return;
+                let val = cell.value;
+                if (val !== null && typeof val === 'object') {
+                    if ('result' in val) {
+                        // Formula result: do NOT evaluate formulas dynamically; use precomputed result or empty
+                        val = val.result ?? '';
+                    } else if ('richText' in val && Array.isArray(val.richText)) {
+                        val = val.richText.map((rt: any) => rt.text || '').join('');
+                    } else if ('text' in val) {
+                        val = val.text;
+                    } else if (val instanceof Date) {
+                        val = val.toISOString().split('T')[0];
+                    } else {
+                        val = String(val);
+                    }
+                }
+                rowValues[colNumber - 1] = val !== null && val !== undefined ? String(val).trim() : '';
+            });
+
+            // Fill empty leading columns
+            for (let c = 0; c < rowValues.length; c++) {
+                if (rowValues[c] === undefined) {
+                    rowValues[c] = '';
+                }
+            }
+
+            matrix[rowNumber - 1] = rowValues;
+        });
+
+        // Fill empty rows before data
+        for (let r = 0; r < matrix.length; r++) {
+            if (!matrix[r]) {
+                matrix[r] = [];
+            }
+        }
+
         if (!matrix || matrix.length === 0) return;
 
         let r = 0;

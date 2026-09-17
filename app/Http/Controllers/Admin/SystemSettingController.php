@@ -233,9 +233,13 @@ class SystemSettingController extends Controller
 
             return back()->with('success', "Diagnostic test email dispatched successfully to {$recipient}.");
         } catch (\Throwable $e) {
-            Log::error('SMTP Diagnostic Test Failed: '.$e->getMessage());
+            Log::error('SMTP Diagnostic Test Failed: '.$e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
 
-            return back()->with('error', 'SMTP Connection Failed: '.$e->getMessage());
+            return back()->with('error', 'SMTP test email failed. Please verify the mail configuration or review the system logs.');
         }
     }
 

@@ -70,4 +70,19 @@ class RfidHmacSecurityTest extends TestCase
         $this->withHeaders($this->headers($device, $path, str_repeat('f', 32)))
             ->getJson($path)->assertUnauthorized();
     }
+
+    public function test_production_fails_closed_when_cache_store_is_ephemeral_or_null(): void
+    {
+        $device = $this->device();
+        $path = '/api/hardware/rfid/config';
+        $headers = $this->headers($device, $path, str_repeat('7', 32));
+
+        $this->app['env'] = 'production';
+        config(['cache.default' => 'array']);
+
+        $this->withHeaders($headers)->getJson('https://localhost' . $path)->assertUnauthorized();
+
+        config(['cache.default' => 'null']);
+        $this->withHeaders($headers)->getJson('https://localhost' . $path)->assertUnauthorized();
+    }
 }

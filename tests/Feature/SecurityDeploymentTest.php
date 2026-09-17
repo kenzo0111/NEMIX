@@ -97,4 +97,23 @@ class SecurityDeploymentTest extends TestCase
 
         $response->assertRedirect('https://localhost/login');
     }
+
+    public function test_docker_compose_runs_queue_worker_as_non_root(): void
+    {
+        $composePath = base_path('docker-compose.yml');
+        $this->assertFileExists($composePath);
+
+        $composeContent = file_get_contents($composePath);
+        $this->assertMatchesRegularExpression('/queue:\s+.*?user:\s*["\']?www-data:www-data["\']?/s', $composeContent);
+    }
+
+    public function test_dockerfile_configures_least_privilege_permissions(): void
+    {
+        $dockerfilePath = base_path('Dockerfile');
+        $this->assertFileExists($dockerfilePath);
+
+        $dockerfileContent = file_get_contents($dockerfilePath);
+        $this->assertStringContainsString('www-data:www-data', $dockerfileContent);
+        $this->assertStringContainsString('chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache', $dockerfileContent);
+    }
 }

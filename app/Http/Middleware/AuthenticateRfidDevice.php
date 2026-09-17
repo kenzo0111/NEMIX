@@ -37,7 +37,7 @@ class AuthenticateRfidDevice
         if (! hash_equals($expected, strtolower($signature))) {
             return $this->deny($deviceId, 'invalid_signature');
         }
-        if (app()->environment('production') && config('cache.default') === 'array') {
+        if (app()->environment('production') && in_array(config('cache.default'), ['array', 'null'], true)) {
             return $this->deny($deviceId, 'replay_cache_unavailable');
         }
         if (! Cache::add("rfid:nonce:{$deviceId}:{$nonce}", true, now()->addMinutes(2))) {

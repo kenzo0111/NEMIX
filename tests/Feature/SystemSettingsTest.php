@@ -194,4 +194,35 @@ class SystemSettingsTest extends TestCase
         $this->assertIsArray($units);
         $this->assertContains('carton', $units);
     }
+
+    public function test_smtp_diagnostic_email_failure_does_not_leak_technical_details_or_credentials(): void
+    {
+        \Illuminate\Support\Facades\Mail::shouldReceive('raw')
+            ->once()
+            ->andThrow(new \RuntimeException('Connection refused to smtp.internal-node.cluster:587 with password super_secret_credential'));
+
+        $response = $this->actingAs($this->adminUser)->post('/admin/system-settings/test-email', [
+            'recipient' => 'test@ucn.edu.ph',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error', 'SMTP test email failed. Please verify the mail configuration or review the system logs.');
+
+        $errorMsg = session('error');
+        $this->assertStringNotContainsString('smtp.internal-node.cluster', $errorMsg);
+        $this->assertStringNotContainsString('super_secret_credential', $errorMsg);
+        $this->assertStringNotContainsString('Connection refused', $errorMsg);
+    }
+
+    public function test_smtp_diagnostic_email_dispatches_successfully(): void
+    {
+        \Illuminate\Support\Facades\Mail::fake();
+
+        $response = $this->actingAs($this->adminUser)->post('/admin/system-settings/test-email', [
+            'recipient' => 'test@ucn.edu.ph',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+    }
 }

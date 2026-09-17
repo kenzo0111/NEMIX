@@ -26,6 +26,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    user: "www-data:www-data"
     command: php artisan queue:work --tries=3 --timeout=90
     volumes:
       - .:/var/www/html

@@ -52,15 +52,49 @@ export function useHistoricalMigration(migratedRecords: any[] = [], onSuccess?: 
         setStatusMessage('Initializing document parsers...');
 
         try {
-            const { xlsx, mammoth, pdfjs, tesseract } = await loadDocumentParsers();
+            const { exceljs, mammoth, pdfjs, tesseract } = await loadDocumentParsers();
 
             let extractedRaw = '';
 
             if (lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls') || lowerName.endsWith('.csv')) {
                 setStatusMessage('Extracting tabular spreadsheet data...');
                 const arrayBuffer = await file.arrayBuffer();
-                const workbook = xlsx.read(arrayBuffer, { type: 'array', cellDates: true });
-                const parsedWorkbookGroups = parseWorkbookToGroups(workbook, formType, xlsx);
+                const ExcelJSClass = exceljs.default || exceljs;
+                const workbook = new ExcelJSClass.Workbook();
+
+                if (lowerName.endsWith('.csv')) {
+                    const text = await file.text();
+                    const worksheet = workbook.addWorksheet('CSV');
+                    const lines = text.split(/\r?\n/);
+                    for (const line of lines) {
+                        if (!line.trim()) continue;
+                        const cells: string[] = [];
+                        let inQuotes = false;
+                        let token = '';
+                        for (let i = 0; i < line.length; i++) {
+                            const char = line[i];
+                            if (char === '"') {
+                                if (inQuotes && line[i + 1] === '"') {
+                                    token += '"';
+                                    i++;
+                                } else {
+                                    inQuotes = !inQuotes;
+                                }
+                            } else if (char === ',' && !inQuotes) {
+                                cells.push(token.trim());
+                                token = '';
+                            } else {
+                                token += char;
+                            }
+                        }
+                        cells.push(token.trim());
+                        worksheet.addRow(cells);
+                    }
+                } else {
+                    await workbook.xlsx.load(arrayBuffer);
+                }
+
+                const parsedWorkbookGroups = parseWorkbookToGroups(workbook, formType);
                 extractedRaw = JSON.stringify({ isGroups: true, groups: parsedWorkbookGroups });
             } else if (lowerName.endsWith('.docx')) {
                 extractedRaw = await extractTextFromDocx(file, mammoth, tesseract, setStatusMessage);

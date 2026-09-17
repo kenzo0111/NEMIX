@@ -24,6 +24,7 @@ public:
     bool applyConfiguration(const DeviceConfiguration& config) const;
     void resetConfiguration(bool preserveIdentity = true);
     static String generateDeviceId();
+    static String getOrGenerateSetupPin();
 private:
     bool read(bool pending, DeviceConfiguration& config);
     bool write(bool pending, const DeviceConfiguration& config);

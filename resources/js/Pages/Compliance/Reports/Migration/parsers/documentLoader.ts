@@ -1,18 +1,18 @@
-let xlsxModule: typeof import('xlsx') | null = null;
+let exceljsModule: any = null;
 let mammothModule: typeof import('mammoth') | null = null;
 let pdfjsModule: typeof import('pdfjs-dist/legacy/build/pdf.mjs') | null = null;
 let tesseractModule: typeof import('tesseract.js') | null = null;
 
 export interface LoadedParsers {
-    xlsx: typeof import('xlsx');
+    exceljs: any;
     mammoth: typeof import('mammoth');
     pdfjs: typeof import('pdfjs-dist/legacy/build/pdf.mjs');
     tesseract: typeof import('tesseract.js');
 }
 
 export const loadDocumentParsers = async (): Promise<LoadedParsers> => {
-    if (!xlsxModule) {
-        xlsxModule = await import('xlsx');
+    if (!exceljsModule) {
+        exceljsModule = await import('exceljs');
     }
 
     if (!mammothModule) {
@@ -33,7 +33,7 @@ export const loadDocumentParsers = async (): Promise<LoadedParsers> => {
     }
 
     return {
-        xlsx: xlsxModule,
+        exceljs: exceljsModule,
         mammoth: mammothModule,
         pdfjs: pdfjsModule,
         tesseract: tesseractModule,

@@ -145,6 +145,82 @@ class ComplianceReportDataService
     }
 
     /**
+     * Applies database-level date/period constraints directly to an Eloquent query builder.
+     * Pushes date filtering to SQL to prevent full-table in-memory loading and memory exhaustion.
+     */
+    public function applyPeriodScopeToQuery($query, array $filters, string $dateColumn = 'date', ?string $fallbackColumn = 'created_at')
+    {
+        $periodType = $filters['periodType'] ?? $filters['period_type'] ?? 'all';
+        if ($periodType === 'all') {
+            return $query;
+        }
+
+        if ($periodType === 'specific' && !empty($filters['date'])) {
+            $dt = $this->normalizeDate($filters['date']);
+            if ($dt) {
+                return $query->where(function ($q) use ($dt, $dateColumn, $fallbackColumn) {
+                    $q->whereDate($dateColumn, $dt);
+                    if ($fallbackColumn) {
+                        $q->orWhere(function ($sub) use ($dt, $dateColumn, $fallbackColumn) {
+                            $sub->whereNull($dateColumn)->whereDate($fallbackColumn, $dt);
+                        });
+                    }
+                });
+            }
+        }
+
+        if ($periodType === 'range') {
+            $start = $this->normalizeDate($filters['startDate'] ?? $filters['start_date'] ?? null);
+            $end = $this->normalizeDate($filters['endDate'] ?? $filters['end_date'] ?? null);
+            if ($start && $end) {
+                return $query->where(function ($q) use ($start, $end, $dateColumn, $fallbackColumn) {
+                    $q->whereBetween($dateColumn, [$start, $end . ' 23:59:59']);
+                    if ($fallbackColumn) {
+                        $q->orWhere(function ($sub) use ($start, $end, $dateColumn, $fallbackColumn) {
+                            $sub->whereNull($dateColumn)->whereBetween($fallbackColumn, [$start . ' 00:00:00', $end . ' 23:59:59']);
+                        });
+                    }
+                });
+            }
+        }
+
+        if ($periodType === 'monthly') {
+            $m = (int) ($filters['selectedMonth'] ?? $filters['selected_month'] ?? 0);
+            $y = (int) ($filters['selectedYear'] ?? $filters['selected_year'] ?? 0);
+            if ($m && $y) {
+                $start = Carbon::create($y, $m, 1, 0, 0, 0, $this->timezone)->startOfDay()->format('Y-m-d');
+                $end = Carbon::create($y, $m, 1, 0, 0, 0, $this->timezone)->endOfMonth()->endOfDay()->format('Y-m-d');
+                return $query->where(function ($q) use ($start, $end, $dateColumn, $fallbackColumn) {
+                    $q->whereBetween($dateColumn, [$start, $end . ' 23:59:59']);
+                    if ($fallbackColumn) {
+                        $q->orWhere(function ($sub) use ($start, $end, $dateColumn, $fallbackColumn) {
+                            $sub->whereNull($dateColumn)->whereBetween($fallbackColumn, [$start . ' 00:00:00', $end . ' 23:59:59']);
+                        });
+                    }
+                });
+            }
+        }
+
+        if ($periodType === 'yearly') {
+            $y = (int) ($filters['selectedYear'] ?? $filters['selected_year'] ?? 0);
+            if ($y) {
+                $start = "{$y}-01-01";
+                $end = "{$y}-12-31";
+                return $query->where(function ($q) use ($start, $end, $dateColumn, $fallbackColumn) {
+                    $q->whereBetween($dateColumn, [$start, $end . ' 23:59:59']);
+                    if ($fallbackColumn) {
+                        $q->orWhere(function ($sub) use ($start, $end, $dateColumn, $fallbackColumn) {
+                            $sub->whereNull($dateColumn)->whereBetween($fallbackColumn, [$start . ' 00:00:00', $end . ' 23:59:59']);
+                        });
+                    }
+                });
+            }
+        }
+
+        return $query;
+    }
+
+    /**
      * Compute coverage label from filter parameters.
      */
     public function buildCoverageLabel(array $filters): string
@@ -378,7 +454,15 @@ class ComplianceReportDataService
         // 1. Live Issuances
         if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
             $liveIssuances = \Modules\Inventory\Models\Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches', 'issuer'])
+                ->where(function ($q) use ($periodStart, $periodEnd) {
+                    $q->whereBetween('date_issued', [$periodStart, $periodEnd])
+                        ->orWhere(function ($sub) use ($periodStart, $periodEnd) {
+                            $sub->whereNull('date_issued')
+                                ->whereBetween('created_at', [$periodStart . ' 00:00:00', $periodEnd . ' 23:59:59']);
+                        });
+                })
                 ->latest()
+                ->limit(2000)
                 ->get()
                 ->filter(function ($issuance) use ($periodStart, $periodEnd) {
                     $dt = $this->normalizeDate($issuance->date_issued ?? $issuance->created_at);
@@ -466,7 +550,12 @@ class ComplianceReportDataService
         // 2. Migrated RSMI Records
         if (Schema::hasTable('rsmi_migrated_records')) {
             $migrated = RsmiMigratedRecord::query()
+                ->where(function ($q) use ($periodStart, $periodEnd) {
+                    $q->whereBetween('date', [$periodStart, $periodEnd . ' 23:59:59'])
+                        ->orWhereBetween('created_at', [$periodStart . ' 00:00:00', $periodEnd . ' 23:59:59']);
+                })
                 ->latest()
+                ->limit(2000)
                 ->get()
                 ->filter(function ($rec) use ($periodStart, $periodEnd) {
                     $dt = $this->normalizeDate($rec->date ?? data_get($rec->raw_data, 'date'));
@@ -510,7 +599,12 @@ class ComplianceReportDataService
         if (Schema::hasTable('compliance_migrated_records')) {
             $legacy = ComplianceMigratedRecord::query()
                 ->where('form_type', 'RSMI')
+                ->where(function ($q) use ($periodStart, $periodEnd) {
+                    $q->whereBetween('date', [$periodStart, $periodEnd . ' 23:59:59'])
+                        ->orWhereBetween('created_at', [$periodStart . ' 00:00:00', $periodEnd . ' 23:59:59']);
+                })
                 ->latest()
+                ->limit(2000)
                 ->get()
                 ->filter(function ($rec) use ($periodStart, $periodEnd) {
                     $dt = $this->normalizeDate($rec->date);
@@ -765,8 +859,11 @@ class ComplianceReportDataService
 
         // 1. Live Issuances
         if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
-            $liveIssuances = \Modules\Inventory\Models\Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches', 'issuer'])
+            $liveIssuancesQuery = \Modules\Inventory\Models\Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches', 'issuer']);
+            $this->applyPeriodScopeToQuery($liveIssuancesQuery, $filters, 'date_issued', 'created_at');
+            $liveIssuances = $liveIssuancesQuery
                 ->latest()
+                ->limit(2000)
                 ->get()
                 ->filter(function ($issuance) use ($filters) {
                     $dt = $issuance->date_issued ?? $issuance->created_at;
@@ -853,8 +950,11 @@ class ComplianceReportDataService
 
         // 2. Migrated RSMI Records
         if (Schema::hasTable('rsmi_migrated_records')) {
-            $migrated = RsmiMigratedRecord::query()
+            $migratedQuery = RsmiMigratedRecord::query();
+            $this->applyPeriodScopeToQuery($migratedQuery, $filters, 'date', 'created_at');
+            $migrated = $migratedQuery
                 ->latest()
+                ->limit(2000)
                 ->get()
                 ->filter(function ($rec) use ($filters) {
                     $dt = $rec->date ?? data_get($rec->raw_data, 'date');
@@ -896,9 +996,11 @@ class ComplianceReportDataService
 
         // 3. Legacy compliance migrated records
         if (Schema::hasTable('compliance_migrated_records')) {
-            $legacy = ComplianceMigratedRecord::query()
-                ->where('form_type', 'RSMI')
+            $legacyQuery = ComplianceMigratedRecord::query()->where('form_type', 'RSMI');
+            $this->applyPeriodScopeToQuery($legacyQuery, $filters, 'date', 'created_at');
+            $legacy = $legacyQuery
                 ->latest()
+                ->limit(2000)
                 ->get()
                 ->filter(function ($rec) use ($filters) {
                     return $this->isDateInPeriod($this->normalizeDate($rec->date), $filters);
@@ -1191,8 +1293,11 @@ class ComplianceReportDataService
 
         // 2. Migrated RPCI records
         if (Schema::hasTable('rpci_migrated_records')) {
-            $migrated = RpcIMigratedRecord::query()
+            $migratedQuery = RpcIMigratedRecord::query();
+            $this->applyPeriodScopeToQuery($migratedQuery, $filters, 'date', 'created_at');
+            $migrated = $migratedQuery
                 ->latest()
+                ->limit(2000)
                 ->get()
                 ->filter(function ($rec) use ($filters, $supplierId) {
                     if ($supplierId && data_get($rec->raw_data, 'supplier_id') && (string)data_get($rec->raw_data, 'supplier_id') !== (string)$supplierId) {
@@ -1285,7 +1390,11 @@ class ComplianceReportDataService
             if ($activeItem) {
                 $receivingsQuery->where('item_id', $activeItem->id);
             }
-            $receivings = $receivingsQuery->get()
+            $this->applyPeriodScopeToQuery($receivingsQuery, $filters, 'date_received', 'created_at');
+            $receivings = $receivingsQuery
+                ->latest()
+                ->limit(2000)
+                ->get()
                 ->filter(function ($rec) use ($targetLower, $activeItem, $filters) {
                     if (!$activeItem) {
                         $name = strtolower((string)($rec->item?->name ?? ''));
@@ -1326,7 +1435,11 @@ class ComplianceReportDataService
                     });
                 });
             }
-            $issuances = $issuancesQuery->get()
+            $this->applyPeriodScopeToQuery($issuancesQuery, $filters, 'date_issued', 'created_at');
+            $issuances = $issuancesQuery
+                ->latest()
+                ->limit(2000)
+                ->get()
                 ->filter(function ($iss) use ($targetLower, $activeItem, $filters) {
                     $dt = $iss->date_issued ?? $iss->created_at;
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
@@ -1386,8 +1499,11 @@ class ComplianceReportDataService
 
         // 3. Migrated Stock Card Records
         if (Schema::hasTable('stock_card_migrated_records')) {
-            $migrated = StockCardMigratedRecord::query()
+            $migratedQuery = StockCardMigratedRecord::query();
+            $this->applyPeriodScopeToQuery($migratedQuery, $filters, 'date', 'created_at');
+            $migrated = $migratedQuery
                 ->latest()
+                ->limit(2000)
                 ->get()
                 ->filter(function ($rec) use ($targetLower, $activeItem, $filters) {
                     $raw = $rec->raw_data ?? [];
@@ -1503,7 +1619,11 @@ class ComplianceReportDataService
         // 1. Live issuances
         if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
             $query = \Modules\Inventory\Models\Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches']);
-            $issuances = $query->latest()->get()
+            $this->applyPeriodScopeToQuery($query, $filters, 'date_issued', 'created_at');
+            $issuances = $query
+                ->latest()
+                ->limit(2000)
+                ->get()
                 ->filter(function ($iss) use ($endUserLower, $filters) {
                     if ($endUserLower && strtolower((string)$iss->recipient) !== $endUserLower) {
                         return false;
@@ -1578,8 +1698,11 @@ class ComplianceReportDataService
 
         // 2. Migrated Memorandum Receipt records
         if (Schema::hasTable('memorandum_receipt_migrated_records')) {
-            $migrated = MemorandumReceiptMigratedRecord::query()
+            $migratedQuery = MemorandumReceiptMigratedRecord::query();
+            $this->applyPeriodScopeToQuery($migratedQuery, $filters, 'date_received', 'created_at');
+            $migrated = $migratedQuery
                 ->latest()
+                ->limit(2000)
                 ->get()
                 ->filter(function ($rec) use ($endUserLower, $filters) {
                     if ($endUserLower) {

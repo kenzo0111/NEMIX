@@ -48,8 +48,9 @@ RUN a2enmod rewrite
 # Configure Apache to use Laravel's public directory as document root
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
-# Change ownership of our applications
-RUN chown -R www-data:www-data /var/www/html
+# Change ownership and permissions for secure non-root execution
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 80
 

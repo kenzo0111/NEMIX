@@ -17,14 +17,27 @@ class ComplianceReportController extends Controller
 {
     public function index(): Response
     {
-        $items = class_exists(\Modules\Inventory\Models\Item::class)
-            ? \Modules\Inventory\Models\Item::all()
-            : [];
-
         $tz = config('app.timezone', 'Asia/Manila');
 
+        // Bounded, lightweight items and suppliers for report configuration dropdowns
+        $items = class_exists(\Modules\Inventory\Models\Item::class)
+            ? \Modules\Inventory\Models\Item::query()
+                ->select(['id', 'name', 'sku', 'unit_of_issue', 'unit_measure'])
+                ->orderBy('name')
+                ->limit(500)
+                ->get()
+            : [];
+
+        $suppliers = class_exists(\Modules\Suppliers\Models\Supplier::class)
+            ? \Modules\Suppliers\Models\Supplier::query()
+                ->select(['id', 'name'])
+                ->orderBy('name')
+                ->limit(500)
+                ->get()
+            : [];
+
         $issuances = class_exists(\Modules\Inventory\Models\Issuance::class)
-            ? \Modules\Inventory\Models\Issuance::with(['item', 'issuer'])->latest()->get()->map(function ($issuance) use ($tz) {
+            ? \Modules\Inventory\Models\Issuance::with(['item', 'issuer'])->latest()->limit(100)->get()->map(function ($issuance) use ($tz) {
                 $rawDate = $issuance->date_issued ?? $issuance->created_at;
                 $formattedDate = $rawDate instanceof \DateTimeInterface
                     ? $rawDate->timezone($tz)->format('Y-m-d')
@@ -38,7 +51,7 @@ class ComplianceReportController extends Controller
             : collect();
 
         $receivings = class_exists(\Modules\Inventory\Models\Receiving::class)
-            ? \Modules\Inventory\Models\Receiving::with(['item', 'supplier'])->latest()->get()->map(function ($receiving) use ($tz) {
+            ? \Modules\Inventory\Models\Receiving::with(['item', 'supplier'])->latest()->limit(100)->get()->map(function ($receiving) use ($tz) {
                 $rawDate = $receiving->date_received ?? $receiving->created_at;
                 $formattedDate = $rawDate instanceof \DateTimeInterface
                     ? $rawDate->timezone($tz)->format('Y-m-d')
@@ -54,7 +67,7 @@ class ComplianceReportController extends Controller
         $migratedRecords = collect();
 
         if (\Illuminate\Support\Facades\Schema::hasTable('rsmi_migrated_records')) {
-            $rsmiRecords = \App\Models\Compliance\RsmiMigratedRecord::query()->latest()->get()->map(function ($record) {
+            $rsmiRecords = \App\Models\Compliance\RsmiMigratedRecord::query()->latest()->limit(50)->get()->map(function ($record) {
                 $raw = $record->raw_data ?? [];
                 $recordDate = $record->date instanceof \DateTimeInterface
                     ? $record->date->format('Y-m-d')
@@ -104,7 +117,7 @@ class ComplianceReportController extends Controller
         }
 
         if (\Illuminate\Support\Facades\Schema::hasTable('rpci_migrated_records')) {
-            $rpciRecords = \App\Models\Compliance\RpcIMigratedRecord::query()->latest()->get()->map(function ($record) {
+            $rpciRecords = \App\Models\Compliance\RpcIMigratedRecord::query()->latest()->limit(50)->get()->map(function ($record) {
                 $raw = $record->raw_data ?? [];
                 $itemName = $record->item ?? data_get($raw, 'item_name') ?? data_get($raw, 'description') ?? data_get($raw, 'article') ?? 'Inventory Item';
                 $unitCost = (float) ($record->unit_cost ?? data_get($raw, 'unit_cost') ?? data_get($raw, 'unit_value') ?? 0);
@@ -121,55 +134,42 @@ class ComplianceReportController extends Controller
                     'id' => $record->id,
                     'form_type' => 'RPCI',
                     'source' => $record->source_file ?? $record->source_sheet ?? 'historical_migration',
-                    'reference' => $record->serial_no ?? $record->stock_no ?? ('RPCI-HIST-' . $record->id),
-                    'serial_no' => $record->serial_no,
-                    'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no'),
+                    'reference' => $record->serial_no ?? ('RPCI-HIST-' . $record->id),
                     'item_name' => $itemName,
                     'item' => $itemName,
-                    'article' => data_get($raw, 'article') ?? $itemName,
-                    'description' => data_get($raw, 'description') ?? $itemName,
+                    'article' => $itemName,
+                    'description' => $record->description ?? data_get($raw, 'description') ?? $itemName,
+                    'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no') ?? '-',
                     'unit' => $record->unit ?? data_get($raw, 'unit') ?? 'pc',
                     'unit_cost' => $unitCost,
                     'unit_value' => $unitCost,
-                    'quantity' => $qtyBooks,
-                    'quantity_per_books' => $qtyBooks,
                     'balance_per_card' => $qtyBooks,
-                    'physical_count' => $physCount,
+                    'quantity_per_books' => $qtyBooks,
                     'on_hand_count' => $physCount,
+                    'physical_count' => $physCount,
+                    'shortage_quantity' => $shortageQty,
                     'variance' => $shortageQty,
-                    'shortage_qty' => $shortageQty,
                     'shortage_value' => $shortageVal,
                     'total_value' => $totalVal,
                     'amount' => $totalVal,
-                    'recipient' => data_get($raw, 'recipient') ?? data_get($raw, 'accountable_officer'),
-                    'accountable_officer' => data_get($raw, 'recipient') ?? data_get($raw, 'accountable_officer'),
-                    'department' => $record->location ?? $record->entity_name ?? data_get($raw, 'department'),
-                    'location' => $record->location,
-                    'designation' => data_get($raw, 'designation'),
-                    'condition' => $record->condition,
                     'remarks' => $record->remarks ?? data_get($raw, 'remarks'),
-                    'entity_name' => $record->entity_name ?? data_get($raw, 'entity_name') ?? \App\Models\SystemSetting::get('institution.name', 'University of Camarines Norte'),
-                    'fund_cluster' => $record->fund_cluster ?? data_get($raw, 'fund_cluster') ?? '01 - Regular Agency Fund',
                     'date' => $recordDate,
                     'status' => 'historical_migration',
+                    'fund_cluster' => data_get($raw, 'fund_cluster') ?? '01 - Regular Agency Fund',
                     'payload' => array_merge($raw, [
-                        'fund_cluster' => $record->fund_cluster ?? data_get($raw, 'fund_cluster') ?? '01 - Regular Agency Fund',
-                        'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no'),
+                        'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no') ?? '-',
                         'unit' => $record->unit ?? data_get($raw, 'unit') ?? 'pc',
                         'unit_cost' => $unitCost,
                         'unit_value' => $unitCost,
                         'total_value' => $totalVal,
-                        'physical_count' => $physCount,
-                        'on_hand_count' => $physCount,
+                        'amount' => $totalVal,
+                        'item_name' => $itemName,
+                        'description' => $record->description ?? data_get($raw, 'description') ?? $itemName,
                         'balance_per_card' => $qtyBooks,
-                        'quantity_per_books' => $qtyBooks,
-                        'variance' => $shortageQty,
+                        'physical_count' => $physCount,
                         'shortage_qty' => $shortageQty,
                         'shortage_value' => $shortageVal,
-                        'location' => $record->location,
-                        'condition' => $record->condition,
-                        'remarks' => $record->remarks,
-                        'item_name' => $itemName,
+                        'fund_cluster' => data_get($raw, 'fund_cluster') ?? '01 - Regular Agency Fund',
                     ]),
                 ];
             });
@@ -177,12 +177,12 @@ class ComplianceReportController extends Controller
         }
 
         if (\Illuminate\Support\Facades\Schema::hasTable('stock_card_migrated_records')) {
-            $stockCardRecords = \App\Models\Compliance\StockCardMigratedRecord::query()->latest()->get()->map(function ($record) {
+            $stockCardRecords = \App\Models\Compliance\StockCardMigratedRecord::query()->latest()->limit(50)->get()->map(function ($record) {
                 $raw = $record->raw_data ?? [];
-                $itemName = $record->item ?? data_get($raw, 'item_name') ?? data_get($raw, 'item') ?? 'Stock Item';
-                $receiptQty = (int) ($record->receipt_quantity ?? data_get($raw, 'receipt_qty') ?? data_get($raw, 'receipt_quantity') ?? 0);
-                $issueQty = (int) ($record->issue_quantity ?? data_get($raw, 'issue_qty') ?? data_get($raw, 'issue_quantity') ?? data_get($raw, 'quantity') ?? 0);
-                $balanceQty = (int) ($record->balance ?? data_get($raw, 'balance_qty') ?? data_get($raw, 'balance') ?? 0);
+                $itemName = $record->item ?? data_get($raw, 'item_name') ?? data_get($raw, 'item') ?? data_get($raw, 'description') ?? 'Inventory Item';
+                $rcvQty = (int) ($record->receipt_quantity ?? data_get($raw, 'receipt_quantity') ?? data_get($raw, 'received_qty') ?? 0);
+                $issQty = (int) ($record->issue_quantity ?? data_get($raw, 'issue_quantity') ?? data_get($raw, 'issued_qty') ?? 0);
+                $balanceQty = (int) ($record->balance_quantity ?? data_get($raw, 'balance_quantity') ?? data_get($raw, 'balance') ?? 0);
                 $recordDate = $record->date instanceof \DateTimeInterface
                     ? $record->date->format('Y-m-d')
                     : ($record->date ? (string) $record->date : data_get($raw, 'date'));
@@ -195,34 +195,30 @@ class ComplianceReportController extends Controller
                     'reference_no' => $record->reference_no,
                     'item_name' => $itemName,
                     'item' => $itemName,
-                    'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no'),
-                    'unit' => $record->unit ?? data_get($raw, 'unit') ?? 'Pieces',
-                    'quantity' => $issueQty,
-                    'issue_quantity' => $issueQty,
-                    'issue_qty' => $issueQty,
-                    'receipt_quantity' => $receiptQty,
-                    'receipt_qty' => $receiptQty,
-                    'balance' => $balanceQty,
+                    'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no') ?? '-',
+                    'received_qty' => $rcvQty,
+                    'receipt_quantity' => $rcvQty,
+                    'issued_qty' => $issQty,
+                    'issue_quantity' => $issQty,
                     'balance_qty' => $balanceQty,
-                    'recipient' => $record->office_end_user ?? data_get($raw, 'recipient') ?? data_get($raw, 'issue_office'),
-                    'office_end_user' => $record->office_end_user ?? data_get($raw, 'recipient') ?? data_get($raw, 'issue_office'),
-                    'department' => $record->supplier_source ?? data_get($raw, 'department') ?? data_get($raw, 'supplier_source'),
-                    'supplier_source' => $record->supplier_source,
-                    'unit_cost' => $record->unit_cost ?? data_get($raw, 'unit_cost'),
-                    'total_cost' => $record->total_cost ?? data_get($raw, 'total_cost') ?? data_get($raw, 'amount'),
-                    'designation' => null,
+                    'balance' => $balanceQty,
+                    'unit_cost' => (float) ($record->unit_cost ?? data_get($raw, 'unit_cost') ?? 0),
+                    'total_cost' => (float) ($record->total_cost ?? data_get($raw, 'total_cost') ?? 0),
+                    'office_end_user' => $record->office_end_user ?? data_get($raw, 'office_end_user') ?? data_get($raw, 'office'),
+                    'supplier_source' => $record->supplier_source ?? data_get($raw, 'supplier_source') ?? data_get($raw, 'supplier'),
                     'remarks' => $record->remarks ?? data_get($raw, 'remarks'),
                     'date' => $recordDate,
                     'status' => 'historical_migration',
                     'fund_cluster' => data_get($raw, 'fund_cluster') ?? '01 - Regular Agency Fund',
                     'payload' => array_merge($raw, [
-                        'fund_cluster' => data_get($raw, 'fund_cluster') ?? '01 - Regular Agency Fund',
-                        'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no'),
-                        'unit' => $record->unit ?? data_get($raw, 'unit') ?? 'Pieces',
-                        'receipt_qty' => $receiptQty,
-                        'receipt_quantity' => $receiptQty,
-                        'issue_qty' => $issueQty,
-                        'issue_quantity' => $issueQty,
+                        'reference' => $record->reference_no ?? ('SC-HIST-' . $record->id),
+                        'reference_no' => $record->reference_no,
+                        'stock_no' => $record->stock_no ?? data_get($raw, 'stock_no') ?? '-',
+                        'receipt_quantity' => $rcvQty,
+                        'received_qty' => $rcvQty,
+                        'issue_quantity' => $issQty,
+                        'issued_qty' => $issQty,
+                        'balance_quantity' => $balanceQty,
                         'balance_qty' => $balanceQty,
                         'balance' => $balanceQty,
                         'unit_cost' => $record->unit_cost,
@@ -237,7 +233,7 @@ class ComplianceReportController extends Controller
         }
 
         if (\Illuminate\Support\Facades\Schema::hasTable('memorandum_receipt_migrated_records')) {
-            $mrRecords = \App\Models\Compliance\MemorandumReceiptMigratedRecord::query()->latest()->get()->map(function ($record) {
+            $mrRecords = \App\Models\Compliance\MemorandumReceiptMigratedRecord::query()->latest()->limit(50)->get()->map(function ($record) {
                 $raw = $record->raw_data ?? [];
                 $itemName = data_get($raw, 'item_name') ?? data_get($raw, 'item') ?? data_get($raw, 'description') ?? $record->remarks ?? 'Property Item';
                 $qty = (int) (data_get($raw, 'quantity') ?? data_get($raw, 'qty') ?? 1);
@@ -299,40 +295,38 @@ class ComplianceReportController extends Controller
         }
 
         if (\Illuminate\Support\Facades\Schema::hasTable('compliance_migrated_records')) {
-            $legacyRecords = \App\Models\ComplianceMigratedRecord::query()
-                ->latest()
-                ->get()
-                ->map(function ($record) {
-                    $raw = $record->payload ?? [];
-                    $recordDate = $record->date instanceof \DateTimeInterface
-                        ? $record->date->format('Y-m-d')
-                        : ($record->date ? (string) $record->date : data_get($raw, 'date'));
+            $legacyRecords = \App\Models\ComplianceMigratedRecord::query()->latest()->limit(50)->get()->map(function ($record) {
+                $raw = $record->payload ?? [];
+                $recordDate = $record->date instanceof \DateTimeInterface
+                    ? $record->date->format('Y-m-d')
+                    : ($record->date ? (string) $record->date : data_get($raw, 'date'));
 
-                    return [
-                        'id' => $record->id,
-                        'form_type' => $record->form_type,
-                        'source' => $record->source,
-                        'reference' => $record->reference,
-                        'item_name' => $record->item_name,
-                        'quantity' => (int) ($record->quantity ?? 0),
-                        'recipient' => $record->recipient,
-                        'department' => $record->department,
-                        'designation' => $record->designation,
-                        'remarks' => $record->remarks,
-                        'date' => $recordDate,
-                        'status' => $record->status,
-                        'payload' => $raw,
-                    ];
-                });
+                return [
+                    'id' => $record->id,
+                    'form_type' => $record->form_type,
+                    'source' => $record->source,
+                    'reference' => $record->reference,
+                    'item_name' => $record->item_name,
+                    'quantity' => (int) ($record->quantity ?? 0),
+                    'recipient' => $record->recipient,
+                    'department' => $record->department,
+                    'designation' => $record->designation,
+                    'remarks' => $record->remarks,
+                    'date' => $recordDate,
+                    'status' => $record->status,
+                    'payload' => $raw,
+                ];
+            });
             $migratedRecords = $migratedRecords->concat($legacyRecords);
         }
 
+        // Bounded reports registry to eliminate memory exhaustion on initial page load
         $reports = \Illuminate\Support\Facades\Schema::hasTable('compliance_reports')
             ? ResourceOwnershipPolicy::scopeQuery(ComplianceReport::query()->whereNull('archived_at'), request()->user(), 'created_by')
                 ->latest()
+                ->limit(100)
                 ->get()
-                ->map(function ($report) {
-                    $tz = config('app.timezone', 'Asia/Manila');
+                ->map(function ($report) use ($tz) {
                     $supplierName = data_get($report->payload, 'supplierName');
                     $generatedDate = data_get($report->payload, 'generatedDate')
                         ?? ($report->created_at ? $report->created_at->timezone($tz)->format('Y-m-d') : null);
@@ -363,10 +357,6 @@ class ComplianceReportController extends Controller
                 })
                 ->values()
             : collect();
-
-        $suppliers = class_exists(\Modules\Suppliers\Models\Supplier::class)
-            ? \Modules\Suppliers\Models\Supplier::all()
-            : [];
 
         return Inertia::render('Compliance/ManageReports', [
             'items' => $items,
