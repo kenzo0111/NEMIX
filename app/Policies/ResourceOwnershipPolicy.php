@@ -16,8 +16,8 @@ class ResourceOwnershipPolicy
             return false;
         }
 
-        // System Admin role bypasses ownership restrictions
-        if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['System Admin', 'System Administrator'])) {
+        // System Admin and operational Property Staff bypass ownership restrictions for institutional assets
+        if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['System Admin', 'System Administrator', 'Property Staff'])) {
             return true;
         }
 
@@ -42,7 +42,7 @@ class ResourceOwnershipPolicy
     }
 
     /**
-     * Scope Eloquent query to only include records owned by the user (unless System Admin).
+     * Scope Eloquent query to only include records owned by the user (unless System Admin or Property Staff).
      */
     public static function scopeQuery($query, ?User $user, string $ownerColumn = 'created_by')
     {
@@ -50,7 +50,11 @@ class ResourceOwnershipPolicy
             return $query->whereRaw('1 = 0');
         }
 
-        if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['System Admin', 'System Administrator'])) {
+        if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['System Admin', 'System Administrator', 'Property Staff'])) {
+            return $query;
+        }
+
+        if (method_exists($user, 'can') && ($user->can('inventory.index') || $user->can('route:inventory.index') || $user->can('suppliers.index') || $user->can('route:suppliers.index'))) {
             return $query;
         }
 

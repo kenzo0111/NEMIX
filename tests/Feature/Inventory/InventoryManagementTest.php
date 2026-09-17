@@ -42,6 +42,34 @@ class InventoryManagementTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_property_staff_can_view_items_created_by_another_user(): void
+    {
+        $propertyStaff = User::factory()->create();
+        $role = Role::firstOrCreate(['name' => 'Property Staff']);
+        $perm = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'route:inventory.index']);
+        $role->givePermissionTo($perm);
+        $propertyStaff->assignRole('Property Staff');
+
+        Item::create([
+            'name' => 'Institutional Projector',
+            'supplier_id' => $this->supplier->id,
+            'sku' => 'PROJ-001',
+            'stock' => 5,
+            'unit_cost' => 15000.00,
+            'amount' => 75000.00,
+            'status' => 'Available',
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        $response = $this->actingAs($propertyStaff)->get(route('inventory.index'));
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page
+            ->component('Inventory/AllItems')
+            ->has('items', 1)
+            ->where('items.0.name', 'Institutional Projector')
+        );
+    }
+
     public function test_inventory_item_can_be_created(): void
     {
         $response = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
