@@ -7,7 +7,10 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Mail\Markdown;
+use App\Models\User;
+use App\Services\AccessControl\PermissionResolver;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -31,6 +34,18 @@ class AppServiceProvider extends ServiceProvider
         if (app()->environment('production') || config('app.force_https', false)) {
             URL::forceScheme('https');
         }
+
+        Gate::before(function (User $user, string $ability) {
+            if ($user->isSystemAdmin()) {
+                return true;
+            }
+
+            if (PermissionResolver::hasPermission($user, $ability)) {
+                return true;
+            }
+
+            return null;
+        });
 
         Event::subscribe(LogAuthenticationActivity::class);
 

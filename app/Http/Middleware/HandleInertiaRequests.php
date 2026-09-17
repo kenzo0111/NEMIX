@@ -49,32 +49,23 @@ class HandleInertiaRequests extends Middleware
                 'created_at_formatted' => $user->created_at?->format('F d, Y'),
             ];
 
-            $userPermissions = [];
-            try {
-                $userPermissions = $user->getAllPermissions()->pluck('name')->all();
-            } catch (\Throwable $e) {
-                $userPermissions = $user->getPermissionNames()->toArray();
-            }
+            $effectivePermissions = \App\Services\AccessControl\PermissionResolver::resolveEffectivePermissions($user);
 
-            $hasPerm = function (string $routeName, bool $default = false) use ($isSystemAdmin, $user, $userPermissions) {
+            $hasPerm = function (string $routeName, bool $default = false) use ($isSystemAdmin, $user, $effectivePermissions) {
                 if ($isSystemAdmin) {
                     return true;
                 }
-                if (in_array('route:' . $routeName, $userPermissions, true) || in_array($routeName, $userPermissions, true)) {
+                if (in_array('route:' . $routeName, $effectivePermissions, true) || in_array($routeName, $effectivePermissions, true)) {
                     return true;
                 }
-                try {
-                    if ($user->hasPermissionTo('route:' . $routeName) || $user->hasPermissionTo($routeName)) {
-                        return true;
-                    }
-                } catch (\Throwable $e) {
-                    // Fallback if permission not yet in database
+                if (\App\Services\AccessControl\PermissionResolver::hasPermission($user, $routeName)) {
+                    return true;
                 }
                 return $default;
             };
 
             // Non-admin operational staff fallback if no route permissions seeded yet
-            $hasAnyConfiguredPerms = count($userPermissions) > 0;
+            $hasAnyConfiguredPerms = count($effectivePermissions) > 0;
             $defaultForStaff = ! $hasAnyConfiguredPerms;
 
             $capabilities = [
@@ -107,6 +98,7 @@ class HandleInertiaRequests extends Middleware
         } else {
             $userArray = null;
             $capabilities = null;
+            $effectivePermissions = [];
         }
 
         $sysConfig = \App\Models\SystemConfiguration::current();
@@ -132,7 +124,8 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $userArray,
-                'permissions' => $request->user()?->getPermissionNames()->toArray() ?? [],
+                'roles' => $user ? $user->getRoleNames()->values()->all() : [],
+                'permissions' => $effectivePermissions,
                 'is_system_admin' => $isSystemAdmin,
                 'capabilities' => $capabilities,
             ],

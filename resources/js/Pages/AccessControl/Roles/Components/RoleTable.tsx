@@ -1,5 +1,6 @@
 import React from 'react';
 import { Plus, Search, Shield, ShieldCheck, Lock, Users } from 'lucide-react';
+import useAuthorization from '@/Hooks/useAuthorization';
 import { Role } from '../types';
 
 interface RoleTableProps {
@@ -27,6 +28,8 @@ export default function RoleTable({
     onEditRole,
     onDeleteRole,
 }: RoleTableProps) {
+    const { isSystemAdmin } = useAuthorization();
+
     return (
         <section
             aria-labelledby="roles-heading"
@@ -215,7 +218,7 @@ export default function RoleTable({
                                         {/* Actions */}
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
                                             <div className="inline-flex items-center justify-end gap-2.5">
-                                                {canUpdate && (
+                                                {canUpdate && (isSystemAdmin || !isSystem) && (
                                                     <button
                                                         type="button"
                                                         onClick={() => onEditRole(role)}
@@ -225,26 +228,19 @@ export default function RoleTable({
                                                     </button>
                                                 )}
 
-                                                {canDelete && (
+                                                {canDelete && !isSystem && role.is_deletable && (
                                                     <button
                                                         type="button"
                                                         onClick={() => onDeleteRole(role)}
-                                                        disabled={isSystem || !role.is_deletable}
-                                                        title={
-                                                            isSystem
-                                                                ? 'System roles are protected and cannot be deleted'
-                                                                : !role.is_deletable
-                                                                ? `Cannot delete while ${role.users_count ?? 0} user(s) are assigned`
-                                                                : 'Delete role'
-                                                        }
-                                                        className={`border font-semibold text-xs px-2.5 py-1 rounded transition-colors shadow-2xs ${
-                                                            isSystem || !role.is_deletable
-                                                                ? 'border-gray-200 text-gray-300 bg-gray-50/50 cursor-not-allowed shadow-none'
-                                                                : 'border-red-900/30 text-red-950 hover:bg-red-50 hover:border-red-900/50 cursor-pointer'
-                                                        }`}
+                                                        title="Delete role"
+                                                        className="border font-semibold text-xs px-2.5 py-1 rounded transition-colors shadow-2xs border-red-900/30 text-red-950 hover:bg-red-50 hover:border-red-900/50 cursor-pointer"
                                                     >
                                                         Delete
                                                     </button>
+                                                )}
+
+                                                {(!canUpdate || (!isSystemAdmin && isSystem)) && (!canDelete || isSystem || !role.is_deletable) && (
+                                                    <span className="text-xs text-gray-400 select-none px-2">—</span>
                                                 )}
                                             </div>
                                         </td>

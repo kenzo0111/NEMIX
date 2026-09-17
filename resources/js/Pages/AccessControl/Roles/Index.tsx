@@ -17,6 +17,7 @@ import CreateRoleDialog from './Components/CreateRoleDialog';
 import EditRoleDialog from './Components/EditRoleDialog';
 import DeleteRoleDialog from './Components/DeleteRoleDialog';
 import RoleNotification from './Components/RoleNotification';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 export default function RoleManagementIndex({
     auth,
@@ -57,29 +58,20 @@ export default function RoleManagementIndex({
 
     const moduleNames = useMemo(() => Object.keys(permissionsByModule), [permissionsByModule]);
 
+    const { can, isSystemAdmin } = useAuthorization();
+
     // Capability authorization
     const capabilities: RoleCapabilities = useMemo(() => {
         if (providedCapabilities) {
             return providedCapabilities;
         }
 
-        const isSysAdmin = Boolean(
-            auth?.is_system_admin ||
-            user?.role === 'System Admin' ||
-            user?.role === 'System Administrator' ||
-            (Array.isArray(user?.roles) &&
-                (user.roles.includes('System Admin') ||
-                    user.roles.includes('System Administrator')))
-        );
-
-        const perms = auth?.permissions || [];
-
         return {
-            canCreate: isSysAdmin || perms.includes('route:access-control.role-permission.store'),
-            canUpdate: isSysAdmin || perms.includes('route:access-control.role-permission.update'),
-            canDelete: isSysAdmin || perms.includes('route:access-control.role-permission.destroy'),
+            canCreate: can('roles.create'),
+            canUpdate: can('roles.update'),
+            canDelete: can('roles.delete'),
         };
-    }, [providedCapabilities, auth, user]);
+    }, [providedCapabilities, can]);
 
     // Role search
     const [searchQuery, setSearchQuery] = useState('');

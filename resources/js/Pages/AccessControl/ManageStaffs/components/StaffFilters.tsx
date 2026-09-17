@@ -119,8 +119,8 @@ export default function StaffFilters({
             </div>
 
             {/* Primary Action Button */}
-            <div className="flex items-center shrink-0 w-full sm:w-auto">
-                {canAddStaff ? (
+            {canAddStaff && (
+                <div className="flex items-center shrink-0 w-full sm:w-auto">
                     <button
                         type="button"
                         onClick={onOpenCreateModal}
@@ -129,16 +129,8 @@ export default function StaffFilters({
                         <UserPlus className="w-4 h-4 text-amber-300" />
                         <span>Add Staff</span>
                     </button>
-                ) : (
-                    <div
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-gray-100 border border-gray-200 rounded-lg font-medium text-xs text-gray-400 select-none cursor-not-allowed"
-                        title="System Administrator privileges required to register staff"
-                    >
-                        <Shield className="w-3.5 h-3.5 text-gray-400" />
-                        <span>Add Staff (Restricted)</span>
-                    </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 }

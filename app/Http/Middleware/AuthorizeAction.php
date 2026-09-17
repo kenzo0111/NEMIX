@@ -41,12 +41,9 @@ class AuthorizeAction
         $permissionName = $this->routePermissionName($routeName);
         $this->ensurePermissionExists($permissionName);
 
-        try {
-            if ($user->hasPermissionTo($permissionName)) {
-                return $next($request);
-            }
-        } catch (\Spatie\Permission\Exceptions\PermissionDoesNotExist $e) {
-            abort(403);
+        if (\App\Services\AccessControl\PermissionResolver::hasPermission($user, $permissionName)
+            || \App\Services\AccessControl\PermissionResolver::hasPermission($user, $routeName)) {
+            return $next($request);
         }
 
         abort(403);

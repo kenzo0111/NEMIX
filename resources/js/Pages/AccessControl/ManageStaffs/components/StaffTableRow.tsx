@@ -1,5 +1,6 @@
 import React from 'react';
 import { Shield, ShieldCheck, CheckCircle2, Clock } from 'lucide-react';
+import useAuthorization from '@/Hooks/useAuthorization';
 import { Staff } from '../types';
 
 interface StaffTableRowProps {
@@ -25,13 +26,25 @@ export default function StaffTableRow({
     onToggleStatus,
     onResendInvitation,
 }: StaffTableRowProps) {
+    const { isSystemAdmin: currentUserIsAdmin } = useAuthorization();
     const isActive = staff.status === 'Active';
     const isSelf = staff.id === currentUserId;
-    const isSystemAdmin = staff.role.toLowerCase().includes('admin');
+    const targetIsSystemAdmin = Boolean(
+        staff.is_system_admin ||
+        staff.role.toLowerCase() === 'system admin' ||
+        staff.role.toLowerCase() === 'system administrator'
+    );
     const isAuditor = staff.role.toLowerCase().includes('auditor');
 
+    // Target-level capability enforcement: Non-admins cannot mutate System Admin accounts
+    const canEditTarget = canEdit && (currentUserIsAdmin || !targetIsSystemAdmin);
+    const canToggleTarget = canToggleStatus && !isSelf && (currentUserIsAdmin || !targetIsSystemAdmin);
+    const canResendInviteTarget = canResendInvite && (currentUserIsAdmin || !targetIsSystemAdmin);
+
+    const hasAnyAction = canEditTarget || canToggleTarget || ((!isActive || !staff.email_verified) && canResendInviteTarget);
+
     // Deterministic avatar styling by role
-    const avatarColor = isSystemAdmin
+    const avatarColor = targetIsSystemAdmin
         ? 'bg-red-50 text-red-950 border-red-200/80'
         : isAuditor
         ? 'bg-amber-50 text-amber-900 border-amber-200/80'
@@ -67,7 +80,7 @@ export default function StaffTableRow({
 
             {/* Role */}
             <td className="px-6 py-3.5">
-                {isSystemAdmin ? (
+                {targetIsSystemAdmin ? (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-red-50 text-red-950 border border-red-200/80">
                         <Shield className="w-3 h-3 text-red-900 shrink-0" />
                         {staff.role}
@@ -119,7 +132,7 @@ export default function StaffTableRow({
             <td className="px-6 py-3.5 whitespace-nowrap text-right">
                 <div className="inline-flex items-center justify-end gap-2.5">
                     {/* Resend Invite (for disabled/unverified accounts) */}
-                    {(!isActive || !staff.email_verified) && canResendInvite && (
+                    {(!isActive || !staff.email_verified) && canResendInviteTarget && (
                         <button
                             type="button"
                             onClick={() => onResendInvitation(staff)}
@@ -132,7 +145,7 @@ export default function StaffTableRow({
                     )}
 
                     {/* Edit Staff */}
-                    {canEdit && (
+                    {canEditTarget && (
                         <button
                             type="button"
                             onClick={() => onEdit(staff)}
@@ -144,37 +157,20 @@ export default function StaffTableRow({
                     )}
 
                     {/* Toggle Status (Enable / Disable) */}
-                    {canToggleStatus && (
+                    {canToggleTarget && (
                         <button
                             type="button"
                             onClick={() => onToggleStatus(staff)}
-                            disabled={isSelf}
-                            title={
-                                isSelf
-                                    ? 'You cannot disable your own account.'
-                                    : isActive
-                                    ? 'Disable staff account'
-                                    : 'Enable staff account'
-                            }
-                            className={`border font-semibold text-xs px-2.5 py-1 rounded transition-colors shadow-2xs ${
-                                isSelf
-                                    ? 'border-gray-200 text-gray-300 bg-gray-50/50 cursor-not-allowed shadow-none'
-                                    : 'border-red-900/30 text-red-950 hover:bg-red-50 hover:border-red-900/50 cursor-pointer'
-                            }`}
+                            title={isActive ? 'Disable staff account' : 'Enable staff account'}
+                            className="border font-semibold text-xs px-2.5 py-1 rounded transition-colors shadow-2xs border-red-900/30 text-red-950 hover:bg-red-50 hover:border-red-900/50 cursor-pointer"
                         >
                             {isActive ? 'Disable' : 'Enable'}
                         </button>
                     )}
 
-                    {/* Read-only fallback when no management actions permitted */}
-                    {!canEdit && !canToggleStatus && !canResendInvite && (
-                        <span
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium text-gray-500 bg-gray-100 border border-gray-200 select-none"
-                            title="Read-only directory view"
-                        >
-                            <Shield className="w-3 h-3 text-gray-400" />
-                            <span>Read-only</span>
-                        </span>
+                    {/* Minimal placeholder when no actions permitted for this account */}
+                    {!hasAnyAction && (
+                        <span className="text-xs text-gray-400 select-none px-2">—</span>
                     )}
                 </div>
             </td>

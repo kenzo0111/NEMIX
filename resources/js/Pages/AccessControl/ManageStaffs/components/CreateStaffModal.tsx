@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
 import Select, { StylesConfig } from 'react-select';
 import { UserPlus, User, Mail, X, Info } from 'lucide-react';
+import useAuthorization from '@/Hooks/useAuthorization';
 import { CreateStaffFormData, SelectOption } from '../types';
 
 interface CreateStaffModalProps {
@@ -82,13 +83,25 @@ export default function CreateStaffModal({
         });
     };
 
+    const { isSystemAdmin } = useAuthorization();
+
+    const assignableRoleOptions = useMemo(() => {
+        if (isSystemAdmin) {
+            return roleOptions;
+        }
+        return roleOptions.filter((opt) => {
+            const val = opt.value.toLowerCase().trim();
+            return val !== 'system admin' && val !== 'system administrator';
+        });
+    }, [roleOptions, isSystemAdmin]);
+
     const handleClose = () => {
         reset();
         clearErrors();
         onClose();
     };
 
-    const selectedRoleOption = roleOptions.find((opt) => opt.value === data.role) || null;
+    const selectedRoleOption = assignableRoleOptions.find((opt) => opt.value === data.role) || null;
 
     return (
         <Modal show={isOpen} onClose={handleClose} maxWidth="md">
@@ -206,7 +219,7 @@ export default function CreateStaffModal({
                                     setData('role', opt?.value || '');
                                     if (errors.role) clearErrors('role');
                                 }}
-                                options={roleOptions}
+                                options={assignableRoleOptions}
                                 styles={modalSelectStyles}
                                 menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
                                 menuPosition="fixed"

@@ -20,6 +20,7 @@ import AccountStatusModal from './components/AccountStatusModal';
 import SecurityNotice from './components/SecurityNotice';
 import StaffNotification from './components/StaffNotification';
 import ReadOnlyNotice from './components/ReadOnlyNotice';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 const defaultRoleOptions: SelectOption[] = [
     { value: 'System Admin', label: 'System Admin' },
@@ -56,28 +57,22 @@ export default function StaffManagementIndex({
         });
     }, []);
 
+    const { can, isSystemAdmin } = useAuthorization();
+
     // Normalized Capability-Based Authorization
     const capabilities: StaffCapabilities = useMemo(() => {
         if (providedCapabilities) {
             return providedCapabilities;
         }
 
-        const isSysAdmin = Boolean(
-            auth?.is_system_admin ||
-            auth?.user?.role === 'System Admin' ||
-            auth?.user?.role === 'System Administrator' ||
-            (Array.isArray(auth?.user?.roles) &&
-                (auth.user.roles.includes('System Admin') ||
-                    auth.user.roles.includes('System Administrator')))
-        );
-
         return {
-            canCreate: isSysAdmin,
-            canUpdate: isSysAdmin,
-            canToggleStatus: isSysAdmin,
-            canResendInvitation: isSysAdmin,
+            canCreate: can('users.create'),
+            canUpdate: can('users.update'),
+            canToggleStatus: can('users.manage-status'),
+            canResendInvitation: can('users.create'),
+            canAssignRole: can('users.assign-role'),
         };
-    }, [providedCapabilities, auth]);
+    }, [providedCapabilities, can]);
 
     const isReadOnly = !capabilities.canCreate && !capabilities.canUpdate && !capabilities.canToggleStatus;
 

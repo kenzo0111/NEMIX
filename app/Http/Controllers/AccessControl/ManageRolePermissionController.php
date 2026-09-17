@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\AccessControl;
 
 use App\Http\Controllers\Controller;
+use App\Services\AccessControl\PermissionResolver;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -14,12 +16,11 @@ use Spatie\Permission\Models\Role;
 
 class ManageRolePermissionController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $user = request()->user();
-        if (! $user?->hasRole('System Admin') && ! $user?->hasRole('System Administrator')) {
-            abort(403, 'Unauthorized action. System Admin access required.');
-        }
+        Gate::authorize('roles.view');
+
+        $user = $request->user();
 
         $this->ensureRoutePermissionsExist();
 
@@ -52,18 +53,10 @@ class ManageRolePermissionController extends Controller
             ->map(fn (Permission $permission) => $this->enrichPermission($permission))
             ->values();
 
-        $isSystemAdmin = (bool) (
-            $user->hasRole('System Admin') ||
-            $user->hasRole('System Administrator') ||
-            (method_exists($user, 'isSystemAdmin') && $user->isSystemAdmin())
-        );
-
-        $userPermissions = $user->getAllPermissions()->pluck('name')->all();
-
         $capabilities = [
-            'canCreate' => $isSystemAdmin || in_array('route:access-control.role-permission.store', $userPermissions, true),
-            'canUpdate' => $isSystemAdmin || in_array('route:access-control.role-permission.update', $userPermissions, true),
-            'canDelete' => $isSystemAdmin || in_array('route:access-control.role-permission.destroy', $userPermissions, true),
+            'canCreate' => $user->can('roles.create'),
+            'canUpdate' => $user->can('roles.update'),
+            'canDelete' => $user->can('roles.delete'),
         ];
 
         return Inertia::render('AccessControl/ManageRolePermission', [
@@ -75,10 +68,9 @@ class ManageRolePermissionController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        Gate::authorize('roles.create');
+
         $user = $request->user();
-        if (! $user?->hasRole('System Admin') && ! $user?->hasRole('System Administrator')) {
-            abort(403, 'Unauthorized action. System Admin access required.');
-        }
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\-_]+$/', 'unique:roles,name'],
@@ -90,22 +82,33 @@ class ManageRolePermissionController extends Controller
             'name.regex' => 'The role name may only contain alphanumeric characters, spaces, hyphens, and underscores.',
         ]);
 
+        if ($this->isProtectedRole($validated['name'])) {
+            abort(403, 'Unauthorized action. Cannot create reserved System Admin roles.');
+        }
+
+        PermissionResolver::validatePermissionSubset($user, $validated['permissions'] ?? []);
+
         $role = Role::create(['name' => trim($validated['name'])]);
         if (! empty($validated['permissions'])) {
             $role->syncPermissions($validated['permissions']);
         }
+
+        PermissionResolver::clearPermissionCache();
 
         return back()->with('success', "Role '{$role->name}' was created successfully.");
     }
 
     public function update(Request $request, Role $role): RedirectResponse
     {
-        $user = $request->user();
-        if (! $user?->hasRole('System Admin') && ! $user?->hasRole('System Administrator')) {
-            abort(403, 'Unauthorized action. System Admin access required.');
-        }
+        Gate::authorize('roles.update');
 
+        $user = $request->user();
         $isSystem = $this->isProtectedRole($role);
+
+        // Protected system roles can only be edited by System Admin
+        if ($isSystem && ! $user->isSystemAdmin()) {
+            abort(403, 'Unauthorized action. System Admin role can only be modified by System Administrators.');
+        }
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\-_]+$/', 'unique:roles,name,' . $role->id],
@@ -122,25 +125,31 @@ class ManageRolePermissionController extends Controller
             return back()->with('error', "System role '{$role->name}' is protected and its name cannot be altered.");
         }
 
+        // Prevent renaming a non-system role to a protected system role name
+        if (! $isSystem && $this->isProtectedRole($validated['name'])) {
+            abort(403, 'Unauthorized action. Cannot rename a role to a reserved System Admin title.');
+        }
+
+        // Validate that caller cannot grant permissions they do not possess
+        PermissionResolver::validatePermissionSubset($user, $validated['permissions'] ?? []);
+
         if (! $isSystem) {
             $role->update(['name' => trim($validated['name'])]);
         }
 
         $role->syncPermissions($validated['permissions'] ?? []);
+        PermissionResolver::clearPermissionCache();
 
         return back()->with('success', "Permissions for '{$role->name}' were updated successfully.");
     }
 
     public function destroy(Role $role): RedirectResponse
     {
-        $user = request()->user();
-        if (! $user?->hasRole('System Admin') && ! $user?->hasRole('System Administrator')) {
-            abort(403, 'Unauthorized action. System Admin access required.');
-        }
+        Gate::authorize('roles.delete');
 
         // Backend-authoritative protection check
         if ($this->isProtectedRole($role)) {
-            return back()->with('error', "System role '{$role->name}' is protected and cannot be deleted.");
+            abort(403, "System role '{$role->name}' is protected and cannot be deleted.");
         }
 
         // Safer handling of assigned users
@@ -154,15 +163,14 @@ class ManageRolePermissionController extends Controller
 
         $roleName = $role->name;
         $role->delete();
+        PermissionResolver::clearPermissionCache();
 
         return back()->with('success', "Role '{$roleName}' was deleted successfully.");
     }
 
-    private function isProtectedRole(Role $role): bool
+    private function isProtectedRole(Role|string $role): bool
     {
-        $normalized = strtolower(trim($role->name));
-
-        return in_array($normalized, ['system admin', 'system administrator'], true);
+        return PermissionResolver::isProtectedRole($role);
     }
 
     private function ensureRoutePermissionsExist(): void

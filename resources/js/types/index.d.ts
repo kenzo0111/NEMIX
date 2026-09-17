@@ -212,8 +212,9 @@ export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {
     auth: {
-        user: User;
-        permissions?: string[];
+        user: User | null;
+        roles: string[];
+        permissions: string[];
         is_system_admin?: boolean;
         capabilities?: AuthCapabilities;
     };

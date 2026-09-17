@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
 import Select, { StylesConfig } from 'react-select';
 import { Edit2, User, Mail, X } from 'lucide-react';
+import useAuthorization from '@/Hooks/useAuthorization';
 import { EditStaffFormData, SelectOption, Staff } from '../types';
 
 interface EditStaffModalProps {
@@ -87,12 +88,26 @@ export default function EditStaffModal({
         });
     };
 
+    const { can, isSystemAdmin, user: currentUser } = useAuthorization();
+    const isSelf = currentUser?.id === staff?.id;
+    const canChangeRole = (isSystemAdmin || can('users.assign-role')) && (!isSelf || isSystemAdmin);
+
+    const assignableRoleOptions = useMemo(() => {
+        if (isSystemAdmin) {
+            return roleOptions;
+        }
+        return roleOptions.filter((opt) => {
+            const val = opt.value.toLowerCase().trim();
+            return val !== 'system admin' && val !== 'system administrator';
+        });
+    }, [roleOptions, isSystemAdmin]);
+
     const handleClose = () => {
         clearErrors();
         onClose();
     };
 
-    const selectedRoleOption = roleOptions.find((opt) => opt.value === data.role) || null;
+    const selectedRoleOption = assignableRoleOptions.find((opt) => opt.value === data.role) || null;
 
     return (
         <Modal show={isOpen} onClose={handleClose} maxWidth="md">
@@ -193,19 +208,36 @@ export default function EditStaffModal({
                             >
                                 System Role <span className="text-red-600">*</span>
                             </label>
-                            <Select<SelectOption, false>
-                                inputId="edit-staff-role"
-                                value={selectedRoleOption}
-                                onChange={(opt) => {
-                                    setData('role', opt?.value || '');
-                                    if (errors.role) clearErrors('role');
-                                }}
-                                options={roleOptions}
-                                styles={modalSelectStyles}
-                                menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
-                                menuPosition="fixed"
-                                placeholder="Select a system role"
-                            />
+                            {canChangeRole ? (
+                                <Select<SelectOption, false>
+                                    inputId="edit-staff-role"
+                                    value={selectedRoleOption}
+                                    onChange={(opt) => {
+                                        setData('role', opt?.value || '');
+                                        if (errors.role) clearErrors('role');
+                                    }}
+                                    options={assignableRoleOptions}
+                                    styles={modalSelectStyles}
+                                    menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                                    menuPosition="fixed"
+                                    placeholder="Select a system role"
+                                />
+                            ) : (
+                                <div>
+                                    <input
+                                        type="text"
+                                        id="edit-staff-role"
+                                        value={staff.role}
+                                        readOnly
+                                        className="w-full pl-3 pr-3 py-2 text-sm rounded-lg border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed select-none font-semibold"
+                                    />
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        {isSelf
+                                            ? 'You cannot modify your own administrative role.'
+                                            : 'Role modification requires administrative privileges.'}
+                                    </p>
+                                </div>
+                            )}
                             {errors.role && (
                                 <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.role}</p>
                             )}

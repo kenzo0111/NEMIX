@@ -7,6 +7,7 @@ export interface Staff {
     role: string;
     status: 'Active' | 'Disabled' | string;
     email_verified?: boolean;
+    is_system_admin?: boolean;
 }
 
 export type AuthUser = User;
@@ -22,6 +23,7 @@ export interface StaffCapabilities {
     canUpdate: boolean;
     canToggleStatus: boolean;
     canResendInvitation: boolean;
+    canAssignRole?: boolean;
 }
 
 export interface SelectOption {
