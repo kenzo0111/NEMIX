@@ -15,10 +15,10 @@ export default function RfidOverview({ rfidSummary, className = '' }: RfidOvervi
     const percentage = rfidSummary?.percentage ?? (total > 0 ? Math.round((tagged / total) * 100) : 0);
 
     return (
-        <div className={`bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between h-full min-w-0 ${className}`}>
+        <div className={`bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col justify-between h-full min-w-0 ${className}`}>
             <div>
                 {/* Header */}
-                <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-100">
+                <div className="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-100">
                     <div className="flex items-center gap-2 min-w-0">
                         <div className="p-1 rounded-md bg-slate-100 text-slate-700 shrink-0">
                             <Radio className="w-3.5 h-3.5" />
@@ -33,29 +33,29 @@ export default function RfidOverview({ rfidSummary, className = '' }: RfidOvervi
                 </div>
 
                 {/* Compact Stats Row */}
-                <div className="grid grid-cols-2 gap-3 py-1">
-                    <div className="bg-slate-50 border border-slate-100 rounded-lg p-2.5">
+                <div className="grid grid-cols-2 gap-2.5 py-0.5">
+                    <div className="bg-slate-50 border border-slate-100 rounded-lg p-2 sm:p-2.5">
                         <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
                             Tagged
                         </span>
-                        <span className="text-base sm:text-lg font-bold font-mono text-slate-900 mt-0.5 block">
+                        <span className="text-base font-bold font-mono text-slate-900 mt-0.5 block truncate">
                             {tagged.toLocaleString()}
                             <span className="text-[10px] font-normal text-slate-400 ml-1">/ {total.toLocaleString()}</span>
                         </span>
                     </div>
 
-                    <div className="bg-slate-50 border border-slate-100 rounded-lg p-2.5">
+                    <div className="bg-slate-50 border border-slate-100 rounded-lg p-2 sm:p-2.5">
                         <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
                             Pending
                         </span>
-                        <span className="text-base sm:text-lg font-bold font-mono text-slate-900 mt-0.5 block">
+                        <span className="text-base font-bold font-mono text-slate-900 mt-0.5 block truncate">
                             {untagged.toLocaleString()}
                         </span>
                     </div>
                 </div>
 
                 {/* Compact Progress Bar */}
-                <div className="mt-3">
+                <div className="mt-2.5">
                     <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                         <div
                             className="bg-red-900 h-1.5 rounded-full transition-all duration-500"
@@ -63,10 +63,15 @@ export default function RfidOverview({ rfidSummary, className = '' }: RfidOvervi
                         ></div>
                     </div>
                 </div>
+
+                {/* Subtle description */}
+                <p className="text-[11px] text-slate-500 mt-2 truncate">
+                    {tagged} of {total} hardware assets verified in field.
+                </p>
             </div>
 
             {/* Standardized Secondary Action */}
-            <div className="pt-2.5 mt-3 border-t border-slate-100 flex justify-end">
+            <div className="pt-2 mt-2.5 border-t border-slate-100 flex justify-end">
                 <Link
                     href={route('rfid-scanner.index')}
                     className="text-xs font-medium text-red-950 hover:text-red-800 transition-colors inline-flex items-center gap-1"

@@ -10,16 +10,35 @@ interface RecentSystemActivityProps {
 }
 
 export default function RecentSystemActivity({ activities = [], className = '' }: RecentSystemActivityProps) {
-    // Show concise operational overview: 4–5 latest business events
-    const normalizedActivities = (activities || [])
+    // Filter out routine authentication/session noise (login, logout, session creation)
+    const businessActivities = (activities || []).filter((act: any) => {
+        const rawAction = String(act.action || act.title || '').toLowerCase();
+        const rawEvent = String(act.event_key || '').toLowerCase();
+        
+        const isAuthNoise =
+            rawAction.includes('login') ||
+            rawAction.includes('logout') ||
+            rawAction.includes('session') ||
+            rawEvent.includes('auth.login') ||
+            rawEvent.includes('auth.logout') ||
+            rawEvent.includes('session.create');
+
+        return !isAuthNoise;
+    });
+
+    // Fall back to original list if filtering eliminates all items (to avoid unexpected blank slate if only audit logs passed)
+    const candidateActivities = businessActivities.length > 0 ? businessActivities : activities;
+
+    // Show concise operational overview: strictly 4 latest business events
+    const normalizedActivities = candidateActivities
         .map(normalizeActivity)
-        .slice(0, 5);
+        .slice(0, 4);
 
     return (
-        <div className={`bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs w-full min-w-0 flex flex-col justify-between ${className}`}>
+        <div className={`bg-white border border-slate-200 rounded-xl p-4 shadow-xs w-full min-w-0 flex flex-col justify-between ${className}`}>
             <div>
                 {/* Section Header */}
-                <div className="flex items-center justify-between gap-2 pb-3 mb-2 border-b border-slate-100">
+                <div className="flex items-center justify-between gap-2 pb-2.5 mb-1.5 border-b border-slate-100">
                     <div className="flex items-center gap-2 min-w-0">
                         <div className="p-1 rounded-md bg-slate-100 text-slate-600 shrink-0">
                             <History className="w-3.5 h-3.5" />
@@ -32,7 +51,7 @@ export default function RecentSystemActivity({ activities = [], className = '' }
 
                 {/* Empty State */}
                 {normalizedActivities.length === 0 ? (
-                    <div className="py-6 text-center text-slate-400 space-y-1">
+                    <div className="py-5 text-center text-slate-400 space-y-1">
                         <p className="text-xs font-medium text-slate-600">No recent system activity.</p>
                         <p className="text-[11px] text-slate-400">
                             New inventory, compliance, and administrative actions will appear here.
@@ -62,7 +81,7 @@ export default function RecentSystemActivity({ activities = [], className = '' }
                             return (
                                 <div
                                     key={act.id ?? idx}
-                                    className="py-2.5 flex flex-col justify-between gap-0.5 group min-w-0 w-full"
+                                    className="py-2 flex flex-col justify-between gap-0.5 group min-w-0 w-full"
                                 >
                                     {/* LINE 1: Main Activity Title + Optional Business Reference */}
                                     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 min-w-0">
@@ -110,7 +129,7 @@ export default function RecentSystemActivity({ activities = [], className = '' }
             </div>
 
             {/* Standardized Secondary Action */}
-            <div className="pt-2.5 mt-2.5 border-t border-slate-100 flex justify-end">
+            <div className="pt-2 mt-2 border-t border-slate-100 flex justify-end">
                 <Link
                     href={route('audit-logs.transaction-trails')}
                     className="text-xs font-medium text-red-950 hover:text-red-800 transition-colors inline-flex items-center gap-1 shrink-0"

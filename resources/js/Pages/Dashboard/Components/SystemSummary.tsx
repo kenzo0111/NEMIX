@@ -23,14 +23,14 @@ export default function SystemSummary({
 
     return (
         <section aria-label="Immediate Operational Status" className="w-full">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-3.5">
                 {/* 1. Critical Stock - Highest Alert Priority */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-red-50/75 border border-red-200/90 hover:border-red-300 hover:shadow-xs rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all group min-w-0"
+                    className="bg-red-50/75 border border-red-200/90 hover:border-red-300 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
-                        <div className="flex items-center justify-between gap-1.5 mb-2">
+                        <div className="flex items-center justify-between gap-1.5 mb-1.5">
                             <span className="text-[11px] font-bold uppercase tracking-wider text-red-950 truncate">
                                 Critical Stock
                             </span>
@@ -42,7 +42,7 @@ export default function SystemSummary({
                             {criticalCount.toLocaleString()}
                         </div>
                     </div>
-                    <div className="mt-2.5 pt-2 border-t border-red-200/60 flex items-center justify-between text-[11px] text-red-900 font-medium">
+                    <div className="mt-2 pt-1.5 border-t border-red-200/60 flex items-center justify-between text-[11px] text-red-900 font-medium">
                         <span className="truncate">
                             {criticalCount === 1 ? '1 item needs reorder' : `${criticalCount} items need reorder`}
                         </span>
@@ -53,10 +53,10 @@ export default function SystemSummary({
                 {/* 2. Inventory Value - Neutral Card */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all group min-w-0"
+                    className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
-                        <div className="flex items-center justify-between gap-1.5 mb-2">
+                        <div className="flex items-center justify-between gap-1.5 mb-1.5">
                             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 truncate">
                                 Inventory Value
                             </span>
@@ -64,11 +64,11 @@ export default function SystemSummary({
                                 <Boxes className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-lg sm:text-xl xl:text-[22px] font-bold font-serif text-slate-900 tracking-tight tabular-nums truncate">
+                        <div className="text-lg sm:text-xl font-bold font-serif text-slate-900 tracking-tight tabular-nums truncate">
                             {formattedVal}
                         </div>
                     </div>
-                    <div className="mt-2.5 pt-2 border-t border-slate-100 text-[11px] text-slate-500 font-medium truncate">
+                    <div className="mt-2 pt-1.5 border-t border-slate-100 text-[11px] text-slate-500 font-medium truncate">
                         Total on-hand valuation
                     </div>
                 </Link>
@@ -76,10 +76,10 @@ export default function SystemSummary({
                 {/* 3. Available Items - Neutral Card */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all group min-w-0"
+                    className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
-                        <div className="flex items-center justify-between gap-1.5 mb-2">
+                        <div className="flex items-center justify-between gap-1.5 mb-1.5">
                             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 truncate">
                                 Available Items
                             </span>
@@ -91,7 +91,7 @@ export default function SystemSummary({
                             {availableItems.toLocaleString()}
                         </div>
                     </div>
-                    <div className="mt-2.5 pt-2 border-t border-slate-100 text-[11px] text-slate-500 font-medium truncate">
+                    <div className="mt-2 pt-1.5 border-t border-slate-100 text-[11px] text-slate-500 font-medium truncate">
                         Active stock lines
                     </div>
                 </Link>
@@ -99,10 +99,10 @@ export default function SystemSummary({
                 {/* 4. Issued This Month - Neutral Card */}
                 <Link
                     href={route('inventory.issuance')}
-                    className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all group min-w-0"
+                    className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
-                        <div className="flex items-center justify-between gap-1.5 mb-2">
+                        <div className="flex items-center justify-between gap-1.5 mb-1.5">
                             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 truncate">
                                 Issued This Month
                             </span>
@@ -114,7 +114,7 @@ export default function SystemSummary({
                             {issuedMtd.toLocaleString()}
                         </div>
                     </div>
-                    <div className="mt-2.5 pt-2 border-t border-slate-100 text-[11px] text-slate-500 font-medium truncate">
+                    <div className="mt-2 pt-1.5 border-t border-slate-100 text-[11px] text-slate-500 font-medium truncate">
                         Disbursed via RIS MTD
                     </div>
                 </Link>
@@ -122,10 +122,10 @@ export default function SystemSummary({
                 {/* 5. Unserviceable - Neutral Card */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all group min-w-0"
+                    className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
-                        <div className="flex items-center justify-between gap-1.5 mb-2">
+                        <div className="flex items-center justify-between gap-1.5 mb-1.5">
                             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 truncate">
                                 Unserviceable
                             </span>
@@ -137,7 +137,7 @@ export default function SystemSummary({
                             {unserviceable.toLocaleString()}
                         </div>
                     </div>
-                    <div className="mt-2.5 pt-2 border-t border-slate-100 text-[11px] text-slate-500 font-medium truncate">
+                    <div className="mt-2 pt-1.5 border-t border-slate-100 text-[11px] text-slate-500 font-medium truncate">
                         Awaiting disposal
                     </div>
                 </Link>

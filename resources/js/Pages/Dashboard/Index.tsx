@@ -67,7 +67,7 @@ export default function DashboardIndex({
                 <DashboardHeader />
 
                 {/* Dashboard Main Canvas with Clear 4-Tier Hierarchy */}
-                <div className="p-4 sm:p-5 lg:p-6 max-w-[1600px] mx-auto pb-16 min-w-0 w-full space-y-4 sm:space-y-5">
+                <div className="p-4 sm:p-5 lg:p-6 max-w-[1600px] mx-auto pb-10 lg:pb-12 min-w-0 w-full space-y-4">
                     
                     {/* Operational Alert Banner (e.g. Missing RFIDs / Supplier accreditation notices) */}
                     <OperationalAlertStrip
