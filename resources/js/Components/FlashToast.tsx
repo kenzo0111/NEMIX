@@ -25,8 +25,18 @@ export default function FlashToast({ flash: customFlash, autoDismissDuration }: 
     const flash = customFlash ?? page.props.flash;
 
     const [alert, setAlert] = useState<FlashToastItem | null>(null);
-    const [isPaused, setIsPaused] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+    const isPaused = isHovered || isFocused;
+
+    // Dismiss alert and reset pause states
+    const handleDismiss = () => {
+        setAlert(null);
+        setIsHovered(false);
+        setIsFocused(false);
+    };
 
     // Watch for changes in flash props
     useEffect(() => {
@@ -41,9 +51,11 @@ export default function FlashToast({ flash: customFlash, autoDismissDuration }: 
         } else if (flash.status) {
             setAlert({ type: 'info', message: flash.status, title: 'Notice' });
         }
+        setIsHovered(false);
+        setIsFocused(false);
     }, [flash?.success, flash?.error, flash?.warning, flash?.status]);
 
-    // Handle auto-dismiss with pause on hover
+    // Handle auto-dismiss with pause on hover or keyboard focus
     useEffect(() => {
         if (!alert || isPaused) {
             if (timerRef.current) clearTimeout(timerRef.current);
@@ -55,7 +67,7 @@ export default function FlashToast({ flash: customFlash, autoDismissDuration }: 
             (alert.type === 'error' || alert.type === 'warning' ? 8000 : 5000);
 
         timerRef.current = setTimeout(() => {
-            setAlert(null);
+            handleDismiss();
         }, duration);
 
         return () => {
@@ -106,8 +118,15 @@ export default function FlashToast({ flash: customFlash, autoDismissDuration }: 
             <div
                 role="alert"
                 aria-live="polite"
-                onMouseEnter={() => setIsPaused(true)}
-                onMouseLeave={() => setIsPaused(false)}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={(e) => {
+                    // Check if new focus destination is outside toast
+                    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                        setIsFocused(false);
+                    }
+                }}
                 className={`pointer-events-auto rounded-xl p-4 shadow-lg border backdrop-blur-md flex items-start gap-3 transition-all animate-in fade-in slide-in-from-top-2 duration-300 ${bg}`}
             >
                 <div className={`shrink-0 mt-0.5 ${iconColor}`}>
@@ -131,7 +150,7 @@ export default function FlashToast({ flash: customFlash, autoDismissDuration }: 
 
                 <button
                     type="button"
-                    onClick={() => setAlert(null)}
+                    onClick={handleDismiss}
                     className={`shrink-0 p-1.5 rounded-lg transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-900/30 ${closeHover}`}
                     aria-label="Dismiss notification"
                 >

@@ -45,9 +45,14 @@ export default function InventoryMovementOverview({
 
                 <div className="flex flex-wrap items-center gap-2.5">
                     {/* Simplified Period Toggle: Monthly / Yearly */}
-                    <div className="inline-flex rounded-md p-0.5 bg-gray-100 border border-gray-200 text-xs shrink-0">
+                    <div
+                        role="group"
+                        aria-label="Movement chart period"
+                        className="inline-flex rounded-md p-0.5 bg-gray-100 border border-gray-200 text-xs shrink-0"
+                    >
                         <button
                             type="button"
+                            aria-pressed={currentFilter === 'monthly'}
                             onClick={() => handleFilterChange('monthly')}
                             className={`px-3 py-1 rounded font-semibold transition-all cursor-pointer ${
                                 currentFilter === 'monthly'
@@ -59,6 +64,7 @@ export default function InventoryMovementOverview({
                         </button>
                         <button
                             type="button"
+                            aria-pressed={currentFilter === 'yearly'}
                             onClick={() => handleFilterChange('yearly')}
                             className={`px-3 py-1 rounded font-semibold transition-all cursor-pointer ${
                                 currentFilter === 'yearly'

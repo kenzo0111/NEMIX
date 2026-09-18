@@ -30,10 +30,10 @@ export default function SupplierComplianceRow({
                 </span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className={`grid grid-cols-1 ${hasSuppliers && hasCompliance ? 'lg:grid-cols-2' : ''} gap-5`}>
                 {/* Supplier Status Card */}
                 {hasSuppliers && (
-                    <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs flex flex-col justify-between">
+                    <div className={`bg-white border border-gray-200 rounded-lg p-5 shadow-xs flex flex-col justify-between ${!hasCompliance ? 'col-span-full' : ''}`}>
                         <div>
                             <div className="flex flex-wrap items-start sm:items-center justify-between gap-2.5 pb-3 mb-3 border-b border-gray-100">
                                 <div className="flex items-center gap-2 min-w-0">
@@ -94,7 +94,7 @@ export default function SupplierComplianceRow({
 
                 {/* Compliance & Reports Card */}
                 {hasCompliance && (
-                    <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs flex flex-col justify-between">
+                    <div className={`bg-white border border-gray-200 rounded-lg p-5 shadow-xs flex flex-col justify-between ${!hasSuppliers ? 'col-span-full' : ''}`}>
                         <div>
                             <div className="flex flex-wrap items-start sm:items-center justify-between gap-2.5 pb-3 mb-3 border-b border-gray-100">
                                 <div className="flex items-center gap-2 min-w-0">

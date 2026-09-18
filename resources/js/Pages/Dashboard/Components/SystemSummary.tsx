@@ -18,7 +18,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
 
     return (
         <section aria-label="System Summary Metrics">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">
                     System Summary Metrics
                 </h2>
@@ -27,11 +27,11 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                 </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 2xl:grid-cols-5 gap-3.5">
                 {/* Total Inventory Value */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between"
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between sm:col-span-1 lg:col-span-2 2xl:col-span-1"
                 >
                     <div>
                         <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-2">
@@ -42,7 +42,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                                 <Boxes className="w-4 h-4" />
                             </div>
                         </div>
-                        <div className="text-lg sm:text-xl font-bold font-serif text-gray-950 tracking-tight break-words min-w-0">
+                        <div className="text-lg sm:text-xl font-bold font-serif text-gray-950 tracking-tight tabular-nums break-words min-w-0">
                             {formattedVal}
                         </div>
                     </div>
@@ -54,7 +54,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                 {/* Available Inventory Items */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between"
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between sm:col-span-1 lg:col-span-2 2xl:col-span-1"
                 >
                     <div>
                         <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-2">
@@ -65,7 +65,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                                 <Package className="w-4 h-4" />
                             </div>
                         </div>
-                        <div className="text-lg sm:text-xl font-bold text-gray-950 tracking-tight font-mono break-words min-w-0">
+                        <div className="text-lg sm:text-xl font-bold text-gray-950 tracking-tight font-mono tabular-nums break-words min-w-0">
                             {availableItems.toLocaleString()}
                         </div>
                     </div>
@@ -77,7 +77,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                 {/* Items Issued This Month */}
                 <Link
                     href={route('inventory.issuance')}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between"
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between sm:col-span-1 lg:col-span-2 2xl:col-span-1"
                 >
                     <div>
                         <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-2">
@@ -88,7 +88,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                                 <TrendingUp className="w-4 h-4" />
                             </div>
                         </div>
-                        <div className="text-lg sm:text-xl font-bold text-gray-950 tracking-tight font-mono break-words min-w-0">
+                        <div className="text-lg sm:text-xl font-bold text-gray-950 tracking-tight font-mono tabular-nums break-words min-w-0">
                             {issuedMtd.toLocaleString()}
                         </div>
                     </div>
@@ -100,7 +100,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                 {/* Critical Stock Alerts */}
                 <Link
                     href={route('inventory.index')}
-                    className={`border rounded-lg p-4 transition-all group flex flex-col justify-between ${
+                    className={`border rounded-lg p-4 transition-all group flex flex-col justify-between sm:col-span-1 lg:col-span-3 2xl:col-span-1 ${
                         criticalStock > 0
                             ? 'bg-red-50/40 border-red-200 hover:border-red-300 hover:shadow-xs'
                             : 'bg-white border-gray-200 hover:border-gray-300'
@@ -115,7 +115,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                                 <AlertOctagon className="w-4 h-4" />
                             </div>
                         </div>
-                        <div className={`text-lg sm:text-xl font-bold tracking-tight font-mono break-words min-w-0 ${criticalStock > 0 ? 'text-red-700' : 'text-gray-950'}`}>
+                        <div className={`text-lg sm:text-xl font-bold tracking-tight font-mono tabular-nums break-words min-w-0 ${criticalStock > 0 ? 'text-red-700' : 'text-gray-950'}`}>
                             {criticalStock.toLocaleString()}
                         </div>
                     </div>
@@ -127,7 +127,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                 {/* Unserviceable / Disposals (Permanently visible at all widths) */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between"
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between sm:col-span-2 lg:col-span-3 2xl:col-span-1"
                 >
                     <div>
                         <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-2">
@@ -138,7 +138,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                                 <ShieldAlert className="w-4 h-4" />
                             </div>
                         </div>
-                        <div className="text-lg sm:text-xl font-bold text-gray-950 tracking-tight font-mono break-words min-w-0">
+                        <div className="text-lg sm:text-xl font-bold text-gray-950 tracking-tight font-mono tabular-nums break-words min-w-0">
                             {unserviceable.toLocaleString()}
                         </div>
                     </div>
