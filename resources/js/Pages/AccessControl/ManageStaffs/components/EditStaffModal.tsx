@@ -111,7 +111,7 @@ export default function EditStaffModal({
 
     return (
         <Modal show={isOpen} onClose={handleClose} maxWidth="md" closeable={!processing} ariaLabel="Edit Staff Account">
-            <div className="overflow-hidden rounded-xl bg-white shadow-xl">
+            <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
                 {/* Institutional Maroon Accent Bar */}
                 <div className="h-1.5 w-full bg-red-900 shrink-0"></div>
 

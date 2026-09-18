@@ -23,7 +23,7 @@ export default function SignOutDialog({
             closeable={!isLoggingOut}
             ariaLabel="Sign Out Confirmation"
         >
-            <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-xl text-left">
+            <div className="bg-white rounded-2xl overflow-hidden shadow-xl text-left">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
 

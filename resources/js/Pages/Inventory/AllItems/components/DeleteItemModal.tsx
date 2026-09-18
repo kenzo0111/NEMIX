@@ -28,7 +28,7 @@ export default function DeleteItemModal({
             closeable={!isDeleting}
             ariaLabel="Delete Inventory Item Confirmation"
         >
-            <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
                 {/* Red Top Accent Line for Destructive Action */}
                 <div className="h-1.5 w-full bg-red-600 shrink-0" />
 

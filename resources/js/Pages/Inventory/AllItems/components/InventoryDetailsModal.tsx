@@ -27,8 +27,8 @@ export default function InventoryDetailsModal({
     const recentIssuances = item.recent_issuances || [];
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="3xl" ariaLabel="Item Master Record">
-            <div className="relative bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
+        <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Item Master Record">
+            <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 

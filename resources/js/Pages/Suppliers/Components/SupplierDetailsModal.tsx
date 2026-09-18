@@ -41,8 +41,8 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
     const hasContractValue = supplier.contract_value !== null && supplier.contract_value !== undefined && supplier.contract_value !== '';
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Supplier Information">
-            <div className="relative bg-white rounded-xl overflow-hidden shadow-xl border border-gray-200">
+        <Modal show={show} onClose={onClose} maxWidth="xl" ariaLabel="Supplier Information">
+            <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 

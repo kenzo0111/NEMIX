@@ -114,7 +114,7 @@ export default function EditRoleDialog({
 
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="4xl" closeable={!processing} ariaLabel="Edit Role and Permissions">
-            <div className="bg-white rounded-xl overflow-hidden flex flex-col max-h-[90vh] shadow-xl border border-slate-200">
+            <div className="bg-white rounded-2xl overflow-hidden flex flex-col max-h-[90vh] shadow-xl">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 

@@ -24,7 +24,7 @@ export default function AccountStatusModal({
 
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="md" closeable={!isProcessing} ariaLabel="Staff Account Status Confirmation">
-            <div className="overflow-hidden rounded-xl bg-white shadow-xl">
+            <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
                 {/* Status Color Bar */}
                 <div
                     className={`h-1.5 w-full shrink-0 ${

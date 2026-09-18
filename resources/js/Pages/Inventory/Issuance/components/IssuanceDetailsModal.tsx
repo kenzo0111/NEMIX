@@ -27,7 +27,7 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Issuance Record Details">
-            <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 flex flex-col max-h-[90vh]">
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 

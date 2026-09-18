@@ -29,7 +29,7 @@ export const RfidReceivingModal: React.FC<RfidReceivingModalProps> = ({
 }) => {
     return (
         <Modal show={show} onClose={onClose} maxWidth="md" ariaLabel="Scan RFID Tag">
-            <div className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
                 {/* Institutional Maroon Accent Line */}
                 <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 w-full shrink-0" />
 

@@ -27,7 +27,7 @@ export const ActionDialog: React.FC<ActionDialogProps> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="sm" ariaLabel={title}>
-            <div className="overflow-hidden rounded-xl bg-white shadow-2xl border border-gray-200">
+            <div className="overflow-hidden rounded-2xl bg-white shadow-2xl">
                 {/* Thin Type Accent Top Line */}
                 <div className={`h-1.5 w-full shrink-0 ${accentBg}`} />
 

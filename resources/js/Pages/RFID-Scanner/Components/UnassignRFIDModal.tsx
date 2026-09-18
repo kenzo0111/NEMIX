@@ -28,7 +28,7 @@ export default function UnassignRFIDModal({
             closeable={!isProcessing}
             ariaLabel="Unassign RFID Tag"
         >
-            <div className="relative bg-white rounded-xl shadow-xl w-full overflow-hidden border border-slate-200 text-center">
+            <div className="relative bg-white rounded-2xl shadow-xl w-full overflow-hidden text-center">
                 {/* Red Destructive Accent Line */}
                 <div className="h-1.5 w-full bg-red-600 shrink-0" />
 
