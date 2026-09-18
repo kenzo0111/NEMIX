@@ -149,15 +149,15 @@ export default function InventoryDetailsModal({
 
                     {/* 2. RECEIVING HISTORY / BATCHES SECTION */}
                     <div>
-                        <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
+                        <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-gray-100">
                             <div className="flex items-center gap-2">
                                 <Layers className="w-4 h-4 text-red-900" />
                                 <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
                                     Receiving History & Active Batches
                                 </h4>
                             </div>
-                            <span className="text-xs text-gray-500 font-mono">
-                                {batches.length} {batches.length === 1 ? 'batch' : 'batches'} recorded
+                            <span className="text-xs text-slate-500 font-normal">
+                                {batches.length} {batches.length === 1 ? 'batch' : 'batches'}
                             </span>
                         </div>
 
@@ -169,63 +169,72 @@ export default function InventoryDetailsModal({
                                 </p>
                             </div>
                         ) : (
-                            <div className="overflow-x-auto rounded border border-gray-200">
-                                <table className="w-full text-left border-collapse min-w-[500px]">
-                                    <thead className="bg-gray-50 border-b border-gray-200">
+                            <div className="overflow-x-auto rounded-lg border border-gray-200">
+                                <table className="w-full text-left border-collapse">
+                                    <thead className="bg-gray-50/80 border-b border-gray-200">
                                         <tr>
-                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono">
+                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 whitespace-nowrap w-[90px]">
                                                 Date
                                             </th>
-                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono">
+                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 min-w-[120px]">
                                                 Supplier
                                             </th>
-                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono">
+                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 whitespace-nowrap w-[160px]">
                                                 Supplier Stock No.
                                             </th>
-                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono text-right">
+                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 text-right whitespace-nowrap w-[70px]">
                                                 Received
                                             </th>
-                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono text-right">
+                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 text-right whitespace-nowrap w-[75px]">
                                                 Remaining
                                             </th>
-                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono text-right">
+                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 text-right whitespace-nowrap w-[80px]">
                                                 Unit Cost
                                             </th>
-                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 uppercase font-mono text-right">
+                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 text-right whitespace-nowrap w-[100px]">
                                                 Batch Value
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-100 text-xs">
                                         {batches.map((batch) => (
-                                            <tr key={batch.id} className="hover:bg-gray-50/50">
-                                                <td className="px-4 py-2.5 font-mono text-gray-600">
-                                                    {formatDisplayDate(batch.date_received, 'MM/DD/YYYY') || batch.date_received}
+                                            <tr key={batch.id} className="hover:bg-gray-50/60 transition-colors">
+                                                <td className="px-3 py-2.5 sm:py-3 align-middle whitespace-nowrap text-xs text-slate-600 tabular-nums">
+                                                    {formatDisplayDate(batch.date_received, 'short') || batch.date_received}
                                                 </td>
-                                                <td className="px-4 py-2.5 text-gray-800 font-medium">
+                                                <td className="px-3 py-2.5 sm:py-3 align-middle text-xs font-medium text-slate-800 leading-snug">
                                                     {batch.supplier_name}
                                                 </td>
-                                                <td className="px-4 py-2.5 font-mono text-gray-800">
+                                                <td className="px-3 py-2.5 sm:py-3 align-middle whitespace-nowrap">
                                                     {batch.supplier_stock_no ? (
-                                                        <span className="inline-block px-1.5 py-0.5 font-mono text-[11px] text-slate-800 bg-slate-100 rounded border border-slate-200 shadow-2xs font-semibold">
+                                                        <span
+                                                            className="inline-block font-mono text-xs text-slate-700 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/70 whitespace-nowrap max-w-[170px] truncate align-middle"
+                                                            title={batch.supplier_stock_no}
+                                                        >
                                                             {batch.supplier_stock_no}
                                                         </span>
                                                     ) : (
-                                                        <span className="text-gray-400 italic text-[11px]">—</span>
+                                                        <span className="text-slate-400 italic text-xs">—</span>
                                                     )}
                                                 </td>
-                                                <td className="px-4 py-2.5 text-right font-mono text-gray-700">
+                                                <td className="px-3 py-2.5 sm:py-3 align-middle text-right font-mono text-xs tabular-nums text-slate-700 whitespace-nowrap">
                                                     {formatNumber(batch.quantity_received)}
                                                 </td>
-                                                <td className="px-4 py-2.5 text-right font-mono font-semibold">
-                                                    <span className={batch.quantity_remaining > 0 ? 'text-emerald-700' : 'text-gray-400'}>
+                                                <td className="px-3 py-2.5 sm:py-3 align-middle text-right font-mono text-xs tabular-nums whitespace-nowrap">
+                                                    <span
+                                                        className={
+                                                            Number(batch.quantity_remaining) > 0
+                                                                ? 'text-emerald-700 font-semibold'
+                                                                : 'text-slate-400'
+                                                        }
+                                                    >
                                                         {formatNumber(batch.quantity_remaining)}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-2.5 text-right font-mono text-gray-700">
+                                                <td className="px-3 py-2.5 sm:py-3 align-middle text-right font-mono text-xs tabular-nums text-slate-700 whitespace-nowrap">
                                                     {formatCurrency(batch.unit_cost)}
                                                 </td>
-                                                <td className="px-4 py-2.5 text-right font-mono font-bold text-gray-900">
+                                                <td className="px-3 py-2.5 sm:py-3 align-middle text-right font-mono text-xs tabular-nums font-bold text-slate-900 whitespace-nowrap">
                                                     {formatCurrency(batch.batch_value)}
                                                 </td>
                                             </tr>
