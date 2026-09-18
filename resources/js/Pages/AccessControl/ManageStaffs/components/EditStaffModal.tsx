@@ -57,6 +57,18 @@ export default function EditStaffModal({
         role: '',
     });
 
+    const { can, isSystemAdmin, user: currentUser } = useAuthorization();
+
+    const assignableRoleOptions = useMemo(() => {
+        if (isSystemAdmin) {
+            return roleOptions;
+        }
+        return roleOptions.filter((opt) => {
+            const val = opt.value.toLowerCase().trim();
+            return val !== 'system admin' && val !== 'system administrator';
+        });
+    }, [roleOptions, isSystemAdmin]);
+
     useEffect(() => {
         if (staff && isOpen) {
             setData({
@@ -73,6 +85,9 @@ export default function EditStaffModal({
 
     if (!staff) return null;
 
+    const isSelf = currentUser?.id === staff?.id;
+    const canChangeRole = (isSystemAdmin || can('users.assign-role')) && (!isSelf || isSystemAdmin);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -87,20 +102,6 @@ export default function EditStaffModal({
             },
         });
     };
-
-    const { can, isSystemAdmin, user: currentUser } = useAuthorization();
-    const isSelf = currentUser?.id === staff?.id;
-    const canChangeRole = (isSystemAdmin || can('users.assign-role')) && (!isSelf || isSystemAdmin);
-
-    const assignableRoleOptions = useMemo(() => {
-        if (isSystemAdmin) {
-            return roleOptions;
-        }
-        return roleOptions.filter((opt) => {
-            const val = opt.value.toLowerCase().trim();
-            return val !== 'system admin' && val !== 'system administrator';
-        });
-    }, [roleOptions, isSystemAdmin]);
 
     const handleClose = () => {
         clearErrors();
