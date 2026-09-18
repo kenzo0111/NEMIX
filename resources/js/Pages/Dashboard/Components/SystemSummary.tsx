@@ -31,20 +31,22 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                 {/* Total Inventory Value */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group"
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between"
                 >
-                    <div className="flex items-center justify-between text-gray-500 mb-2">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
-                            Inventory Value
-                        </span>
-                        <div className="p-1.5 rounded-md bg-gray-50 text-gray-600 group-hover:text-red-900 group-hover:bg-red-50 transition-colors">
-                            <Boxes className="w-4 h-4" />
+                    <div>
+                        <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-2">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                Inventory Value
+                            </span>
+                            <div className="p-1.5 rounded-md bg-gray-50 text-gray-600 group-hover:text-red-900 group-hover:bg-red-50 transition-colors shrink-0">
+                                <Boxes className="w-4 h-4" />
+                            </div>
+                        </div>
+                        <div className="text-lg sm:text-xl font-bold font-serif text-gray-950 tracking-tight break-words min-w-0">
+                            {formattedVal}
                         </div>
                     </div>
-                    <div className="text-xl font-bold font-serif text-gray-950 truncate tracking-tight">
-                        {formattedVal}
-                    </div>
-                    <div className="text-xs text-gray-500 font-medium mt-1 flex items-center gap-1">
+                    <div className="text-xs text-gray-600 font-medium mt-1.5 flex items-center gap-1">
                         <span>Total on-hand valuation</span>
                     </div>
                 </Link>
@@ -52,20 +54,22 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                 {/* Available Inventory Items */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group"
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between"
                 >
-                    <div className="flex items-center justify-between text-gray-500 mb-2">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
-                            Available Items
-                        </span>
-                        <div className="p-1.5 rounded-md bg-gray-50 text-gray-600 group-hover:text-emerald-700 group-hover:bg-emerald-50 transition-colors">
-                            <Package className="w-4 h-4" />
+                    <div>
+                        <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-2">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                Available Items
+                            </span>
+                            <div className="p-1.5 rounded-md bg-gray-50 text-gray-600 group-hover:text-emerald-700 group-hover:bg-emerald-50 transition-colors shrink-0">
+                                <Package className="w-4 h-4" />
+                            </div>
+                        </div>
+                        <div className="text-lg sm:text-xl font-bold text-gray-950 tracking-tight font-mono break-words min-w-0">
+                            {availableItems.toLocaleString()}
                         </div>
                     </div>
-                    <div className="text-xl font-bold text-gray-950 tracking-tight font-mono">
-                        {availableItems.toLocaleString()}
-                    </div>
-                    <div className="text-xs text-gray-500 font-medium mt-1">
+                    <div className="text-xs text-gray-600 font-medium mt-1.5">
                         <span>Tracked stock lines</span>
                     </div>
                 </Link>
@@ -73,20 +77,22 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                 {/* Items Issued This Month */}
                 <Link
                     href={route('inventory.issuance')}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group"
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between"
                 >
-                    <div className="flex items-center justify-between text-gray-500 mb-2">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
-                            Issued This Month
-                        </span>
-                        <div className="p-1.5 rounded-md bg-gray-50 text-gray-600 group-hover:text-blue-700 group-hover:bg-blue-50 transition-colors">
-                            <TrendingUp className="w-4 h-4" />
+                    <div>
+                        <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-2">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                Issued This Month
+                            </span>
+                            <div className="p-1.5 rounded-md bg-gray-50 text-gray-600 group-hover:text-blue-700 group-hover:bg-blue-50 transition-colors shrink-0">
+                                <TrendingUp className="w-4 h-4" />
+                            </div>
+                        </div>
+                        <div className="text-lg sm:text-xl font-bold text-gray-950 tracking-tight font-mono break-words min-w-0">
+                            {issuedMtd.toLocaleString()}
                         </div>
                     </div>
-                    <div className="text-xl font-bold text-gray-950 tracking-tight font-mono">
-                        {issuedMtd.toLocaleString()}
-                    </div>
-                    <div className="text-xs text-gray-500 font-medium mt-1">
+                    <div className="text-xs text-gray-600 font-medium mt-1.5">
                         <span>Disbursed via RIS MTD</span>
                     </div>
                 </Link>
@@ -94,24 +100,26 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                 {/* Critical Stock Alerts */}
                 <Link
                     href={route('inventory.index')}
-                    className={`border rounded-lg p-4 transition-all group ${
+                    className={`border rounded-lg p-4 transition-all group flex flex-col justify-between ${
                         criticalStock > 0
                             ? 'bg-red-50/40 border-red-200 hover:border-red-300 hover:shadow-xs'
                             : 'bg-white border-gray-200 hover:border-gray-300'
                     }`}
                 >
-                    <div className="flex items-center justify-between mb-2">
-                        <span className={`text-xs font-semibold uppercase tracking-wider ${criticalStock > 0 ? 'text-red-900' : 'text-gray-600'}`}>
-                            Critical Stock
-                        </span>
-                        <div className={`p-1.5 rounded-md ${criticalStock > 0 ? 'bg-red-100 text-red-700' : 'bg-gray-50 text-gray-600'}`}>
-                            <AlertOctagon className="w-4 h-4" />
+                    <div>
+                        <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
+                            <span className={`text-xs font-semibold uppercase tracking-wider ${criticalStock > 0 ? 'text-red-900' : 'text-gray-600'}`}>
+                                Critical Stock
+                            </span>
+                            <div className={`p-1.5 rounded-md shrink-0 ${criticalStock > 0 ? 'bg-red-100 text-red-700' : 'bg-gray-50 text-gray-600'}`}>
+                                <AlertOctagon className="w-4 h-4" />
+                            </div>
+                        </div>
+                        <div className={`text-lg sm:text-xl font-bold tracking-tight font-mono break-words min-w-0 ${criticalStock > 0 ? 'text-red-700' : 'text-gray-950'}`}>
+                            {criticalStock.toLocaleString()}
                         </div>
                     </div>
-                    <div className={`text-xl font-bold tracking-tight font-mono ${criticalStock > 0 ? 'text-red-700' : 'text-gray-950'}`}>
-                        {criticalStock.toLocaleString()}
-                    </div>
-                    <div className={`text-xs font-medium mt-1 ${criticalStock > 0 ? 'text-red-800' : 'text-gray-500'}`}>
+                    <div className={`text-xs font-medium mt-1.5 ${criticalStock > 0 ? 'text-red-800' : 'text-gray-600'}`}>
                         <span>{criticalStock > 0 ? 'Items below minimum' : 'All thresholds normal'}</span>
                     </div>
                 </Link>
@@ -119,20 +127,22 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                 {/* Unserviceable / Disposals (Permanently visible at all widths) */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group"
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between"
                 >
-                    <div className="flex items-center justify-between text-gray-500 mb-2">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
-                            Unserviceable
-                        </span>
-                        <div className="p-1.5 rounded-md bg-gray-50 text-gray-600 group-hover:text-amber-700 group-hover:bg-amber-50 transition-colors">
-                            <ShieldAlert className="w-4 h-4" />
+                    <div>
+                        <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-2">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                Unserviceable
+                            </span>
+                            <div className="p-1.5 rounded-md bg-gray-50 text-gray-600 group-hover:text-amber-700 group-hover:bg-amber-50 transition-colors shrink-0">
+                                <ShieldAlert className="w-4 h-4" />
+                            </div>
+                        </div>
+                        <div className="text-lg sm:text-xl font-bold text-gray-950 tracking-tight font-mono break-words min-w-0">
+                            {unserviceable.toLocaleString()}
                         </div>
                     </div>
-                    <div className="text-xl font-bold text-gray-950 tracking-tight font-mono">
-                        {unserviceable.toLocaleString()}
-                    </div>
-                    <div className="text-xs text-gray-500 font-medium mt-1">
+                    <div className="text-xs text-gray-600 font-medium mt-1.5">
                         <span>Items awaiting review/disposal</span>
                     </div>
                 </Link>

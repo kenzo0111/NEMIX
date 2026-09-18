@@ -71,14 +71,14 @@ export default function DashboardHeader({ onToggleSidebar }: DashboardHeaderProp
 
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-[10px] font-bold text-red-900 uppercase tracking-widest truncate">
+                            <span className="text-xs font-bold text-red-950 uppercase tracking-widest truncate">
                                 SPMO • Supply & Property Management Office
                             </span>
                         </div>
                         <h1 className="text-lg sm:text-xl font-bold text-gray-900 font-serif tracking-tight break-words">
                             Supply & Inventory Management
                         </h1>
-                        <p className="text-xs text-gray-500 font-medium mt-0.5 break-words">
+                        <p className="text-xs text-gray-600 font-medium mt-0.5 break-words">
                             System-wide operational overview and real-time asset position
                         </p>
                     </div>
@@ -90,7 +90,7 @@ export default function DashboardHeader({ onToggleSidebar }: DashboardHeaderProp
                         <span className="block text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
                             {todayDate}
                         </span>
-                        <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold block mt-0.5">
+                        <span className="text-xs text-gray-600 uppercase tracking-wider font-semibold block mt-0.5">
                             {todayWeekday}
                         </span>
                     </div>

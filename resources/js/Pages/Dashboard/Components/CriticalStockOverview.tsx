@@ -11,29 +11,30 @@ export default function CriticalStockOverview({ items = [] }: CriticalStockOverv
     return (
         <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs flex flex-col justify-between">
             <div>
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1 rounded bg-red-50 text-red-700">
+                <div className="flex flex-wrap items-start sm:items-center justify-between gap-2.5 pb-3 mb-3 border-b border-gray-100">
+                    <div className="flex items-center gap-2 min-w-0">
+                        <div className="p-1 rounded bg-red-50 text-red-700 shrink-0">
                             <AlertCircle className="w-4 h-4" />
                         </div>
-                        <div>
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900">
+                        <div className="min-w-0">
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900 truncate">
                                 Stock Requiring Attention
                             </h3>
-                            <p className="text-[11px] text-gray-500">Items nearing or below minimum threshold</p>
+                            <p className="text-xs text-gray-600">Items nearing or below minimum threshold</p>
                         </div>
                     </div>
 
                     <Link
                         href={route('inventory.index')}
-                        className="text-xs font-semibold text-red-900 hover:text-red-950 hover:underline"
+                        className="text-xs font-semibold text-red-900 hover:text-red-950 hover:underline inline-flex items-center gap-1 shrink-0"
                     >
-                        View All
+                        <span>View All Inventory</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                 </div>
 
                 {items.length === 0 ? (
-                    <div className="py-8 text-center text-gray-400">
+                    <div className="py-8 text-center text-gray-500">
                         <p className="text-xs">
                             All tracked inventory items are currently above their critical thresholds.
                         </p>
@@ -42,7 +43,7 @@ export default function CriticalStockOverview({ items = [] }: CriticalStockOverv
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
                             <thead>
-                                <tr className="border-b border-gray-100 text-gray-500 font-semibold uppercase text-[10px] tracking-wider">
+                                <tr className="border-b border-gray-100 text-gray-600 font-semibold uppercase text-[11px] tracking-wider">
                                     <th className="pb-2">Item</th>
                                     <th className="pb-2 text-center">Available / Min</th>
                                     <th className="pb-2 text-right">Status</th>
@@ -57,7 +58,7 @@ export default function CriticalStockOverview({ items = [] }: CriticalStockOverv
                                                 <div className="font-semibold text-gray-900 truncate max-w-[180px] sm:max-w-[220px]">
                                                     {item.name}
                                                 </div>
-                                                <div className="text-[10px] text-gray-400 font-mono">
+                                                <div className="text-[11px] text-gray-500 font-mono font-medium">
                                                     {item.sku}
                                                 </div>
                                             </td>
@@ -66,12 +67,12 @@ export default function CriticalStockOverview({ items = [] }: CriticalStockOverv
                                                     {item.current}
                                                 </span>
                                                 <span className="text-gray-400 mx-1">/</span>
-                                                <span className="text-gray-500">{item.min}</span>
-                                                <span className="text-[10px] text-gray-400 ml-1">{item.unit}</span>
+                                                <span className="text-gray-600">{item.min}</span>
+                                                <span className="text-xs text-gray-500 ml-1">{item.unit}</span>
                                             </td>
                                             <td className="py-2.5 pl-2 text-right">
                                                 <span
-                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider ${
                                                         isCritical
                                                             ? 'bg-red-50 text-red-800 ring-1 ring-red-600/20'
                                                             : 'bg-amber-50 text-amber-800 ring-1 ring-amber-600/20'
@@ -87,16 +88,6 @@ export default function CriticalStockOverview({ items = [] }: CriticalStockOverv
                         </table>
                     </div>
                 )}
-            </div>
-
-            <div className="pt-3 mt-3 border-t border-gray-100 text-right">
-                <Link
-                    href={route('inventory.index')}
-                    className="text-xs font-semibold text-gray-600 hover:text-red-900 transition-colors inline-flex items-center gap-1"
-                >
-                    <span>Manage Inventory & Thresholds</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
             </div>
         </div>
     );

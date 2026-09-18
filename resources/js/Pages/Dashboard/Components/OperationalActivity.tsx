@@ -18,7 +18,7 @@ export default function OperationalActivity({
                 <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">
                     Operational Activity
                 </h2>
-                <span className="text-[11px] text-gray-500 font-medium">
+                <span className="text-xs text-gray-600 font-medium">
                     Recent Inflow & Outflow
                 </span>
             </div>

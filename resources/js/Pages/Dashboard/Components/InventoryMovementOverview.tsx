@@ -30,26 +30,26 @@ export default function InventoryMovementOverview({
     return (
         <section aria-label="Inventory Movement Overview" className="bg-white border border-gray-200 rounded-lg p-4 sm:p-5 shadow-xs">
             {/* Header & Controls */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
-                <div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100 min-w-0">
+                <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-red-900"></span>
-                        <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
+                        <span className="h-2 w-2 rounded-full bg-red-900 shrink-0"></span>
+                        <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide truncate">
                             Inventory Movement Overview
                         </h2>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-xs text-gray-600 mt-0.5">
                         Inflow vs. outflow dynamics and net stock position
                     </p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2.5">
                     {/* Simplified Period Toggle: Monthly / Yearly */}
-                    <div className="inline-flex rounded-md p-0.5 bg-gray-100 border border-gray-200 text-xs">
+                    <div className="inline-flex rounded-md p-0.5 bg-gray-100 border border-gray-200 text-xs shrink-0">
                         <button
                             type="button"
                             onClick={() => handleFilterChange('monthly')}
-                            className={`px-3 py-1 rounded font-semibold transition-all ${
+                            className={`px-3 py-1 rounded font-semibold transition-all cursor-pointer ${
                                 currentFilter === 'monthly'
                                     ? 'bg-white text-red-950 shadow-xs'
                                     : 'text-gray-600 hover:text-gray-900'
@@ -60,7 +60,7 @@ export default function InventoryMovementOverview({
                         <button
                             type="button"
                             onClick={() => handleFilterChange('yearly')}
-                            className={`px-3 py-1 rounded font-semibold transition-all ${
+                            className={`px-3 py-1 rounded font-semibold transition-all cursor-pointer ${
                                 currentFilter === 'yearly'
                                     ? 'bg-white text-red-950 shadow-xs'
                                     : 'text-gray-600 hover:text-gray-900'
@@ -72,7 +72,7 @@ export default function InventoryMovementOverview({
 
                     <Link
                         href={route('compliance.analytics')}
-                        className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-red-900 hover:text-red-950 hover:underline"
+                        className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-red-900 hover:text-red-950 hover:underline shrink-0"
                     >
                         <span>Detailed Analytics</span>
                         <ArrowUpRight className="w-3.5 h-3.5" />
@@ -81,25 +81,25 @@ export default function InventoryMovementOverview({
             </div>
 
             {/* Visual Movement Chart */}
-            <div className="pt-4">
-                <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
-                    {/* Custom Legend */}
-                    <div className="flex items-center gap-4 text-xs font-semibold">
-                        <div className="flex items-center gap-1.5">
+            <div className="pt-4 min-w-0">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                    {/* Custom Legend - Wraps cleanly on mobile */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-semibold">
+                        <div className="flex items-center gap-1.5 shrink-0">
                             <span className="w-3 h-3 rounded bg-emerald-500"></span>
                             <span className="text-gray-700">Stock Received</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 shrink-0">
                             <span className="w-3 h-3 rounded bg-amber-500"></span>
                             <span className="text-gray-700">Items Issued (RIS)</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 shrink-0">
                             <span className="w-3.5 h-1 rounded-full bg-red-900"></span>
                             <span className="text-gray-700">Stock Balance Trend</span>
                         </div>
                     </div>
 
-                    <div className="text-[11px] text-gray-400 font-medium">
+                    <div className="text-xs text-gray-500 font-medium shrink-0">
                         Period: {currentFilter === 'yearly' ? 'Annual Consolidated' : 'Monthly Tracking'}
                     </div>
                 </div>

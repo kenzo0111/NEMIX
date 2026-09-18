@@ -20,16 +20,16 @@ export default function RecentSystemActivity({ activities = [] }: RecentSystemAc
             className="bg-white border border-slate-200 rounded-lg p-5 shadow-xs w-full min-w-0"
         >
             {/* Section Header */}
-            <div className="flex items-center justify-between pb-3.5 mb-1 border-b border-slate-100">
-                <div className="flex items-center gap-2.5">
-                    <div className="p-1.5 rounded bg-slate-100 text-slate-600">
+            <div className="flex flex-wrap items-start sm:items-center justify-between gap-2.5 pb-3.5 mb-1 border-b border-slate-100">
+                <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="p-1.5 rounded bg-slate-100 text-slate-600 shrink-0">
                         <History className="w-4 h-4" />
                     </div>
-                    <div>
-                        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                    <div className="min-w-0">
+                        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 truncate">
                             Recent System Activity
                         </h2>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-xs text-slate-600">
                             Latest inventory, compliance, and administrative activity.
                         </p>
                     </div>
@@ -37,10 +37,10 @@ export default function RecentSystemActivity({ activities = [] }: RecentSystemAc
 
                 <Link
                     href={route('audit-logs.transaction-trails')}
-                    className="text-xs font-semibold text-slate-700 hover:text-slate-950 hover:underline inline-flex items-center gap-1 transition-colors"
+                    className="text-xs font-semibold text-slate-700 hover:text-slate-950 hover:underline inline-flex items-center gap-1 transition-colors shrink-0"
                 >
                     <span>View All Activity</span>
-                    <ArrowRight className="w-3 h-3" />
+                    <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
             </div>
 
@@ -48,7 +48,7 @@ export default function RecentSystemActivity({ activities = [] }: RecentSystemAc
             {normalizedActivities.length === 0 ? (
                 <div className="py-10 text-center text-slate-500 space-y-1">
                     <p className="text-xs font-medium text-slate-700">No recent system activity.</p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-xs text-slate-500">
                         New inventory, compliance, and administrative actions will appear here.
                     </p>
                 </div>
@@ -91,7 +91,7 @@ export default function RecentSystemActivity({ activities = [] }: RecentSystemAc
                                     </span>
 
                                     {displayReference && (
-                                        <span className="text-xs text-slate-500 font-mono font-normal">
+                                        <span className="text-xs text-slate-600 font-mono font-medium">
                                             · {displayReference}
                                         </span>
                                     )}
@@ -105,14 +105,14 @@ export default function RecentSystemActivity({ activities = [] }: RecentSystemAc
                                 )}
 
                                 {/* LINE 3: Metadata Line (Module • Time • Actor) */}
-                                <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500 pt-0.5 min-w-0">
-                                    <span className="font-medium text-slate-600">{act.module}</span>
+                                <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-600 pt-0.5 min-w-0">
+                                    <span className="font-medium text-slate-700">{act.module}</span>
                                     <span className="text-slate-300">•</span>
                                     <span>{act.time || act.timestamp || 'Recently'}</span>
                                     {act.actor?.name && (
                                         <>
                                             <span className="text-slate-300">•</span>
-                                            <span className="text-slate-600">{act.actor.name}</span>
+                                            <span className="text-slate-700">{act.actor.name}</span>
                                         </>
                                     )}
                                 </div>
@@ -121,17 +121,6 @@ export default function RecentSystemActivity({ activities = [] }: RecentSystemAc
                     })}
                 </div>
             )}
-
-            {/* Bottom Footer Link */}
-            <div className="pt-3 mt-1 border-t border-slate-100 flex justify-end">
-                <Link
-                    href={route('audit-logs.transaction-trails')}
-                    className="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors inline-flex items-center gap-1"
-                >
-                    <span>View All Activity</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-            </div>
         </section>
     );
 }

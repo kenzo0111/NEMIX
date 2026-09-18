@@ -1,6 +1,7 @@
-import React, { PropsWithChildren, ReactNode, useState, useEffect } from 'react';
+import React, { PropsWithChildren, ReactNode } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
+import FlashToast from '@/Components/FlashToast';
 import SystemModeBadge from '@/Components/SystemModeBadge';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
@@ -28,31 +29,6 @@ export default function AppLayout({
     const user = auth.user;
 
     const [collapsed, toggleCollapse] = useSidebarCollapse();
-
-    const [flashAlert, setFlashAlert] = useState<{
-        type: 'success' | 'error' | 'warning' | 'info';
-        message: string;
-    } | null>(null);
-
-    useEffect(() => {
-        if (flash?.success) {
-            setFlashAlert({ type: 'success', message: flash.success });
-        } else if (flash?.error) {
-            setFlashAlert({ type: 'error', message: flash.error });
-        } else if (flash?.warning) {
-            setFlashAlert({ type: 'warning', message: flash.warning });
-        } else if (flash?.status) {
-            setFlashAlert({ type: 'info', message: flash.status });
-        }
-    }, [flash]);
-
-    useEffect(() => {
-        if (flashAlert) {
-            const timer = setTimeout(() => setFlashAlert(null), 5000);
-            return () => clearTimeout(timer);
-        }
-    }, [flashAlert]);
-
     const modules = getSidebarModules(activeModule, activeSubmodule);
     const systemMode = system?.mode || 'LIVE PRODUCTION';
 
@@ -87,53 +63,7 @@ export default function AppLayout({
             )}
 
             {/* Flash Message Toast */}
-            {flashAlert && (
-                <div className="fixed top-5 right-5 z-50 max-w-md animate-in fade-in slide-in-from-top-2 duration-300">
-                    <div
-                        className={`rounded-2xl p-4 shadow-xl border flex items-start gap-3 backdrop-blur-md ${
-                            flashAlert.type === 'success'
-                                ? 'bg-emerald-50/95 border-emerald-200 text-emerald-900'
-                                : flashAlert.type === 'error'
-                                ? 'bg-rose-50/95 border-rose-200 text-rose-900'
-                                : flashAlert.type === 'warning'
-                                ? 'bg-amber-50/95 border-amber-200 text-amber-900'
-                                : 'bg-sky-50/95 border-sky-200 text-sky-900'
-                        }`}
-                    >
-                        <div className="shrink-0 mt-0.5">
-                            {flashAlert.type === 'success' && (
-                                <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            )}
-                            {flashAlert.type === 'error' && (
-                                <svg className="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            )}
-                            {flashAlert.type === 'warning' && (
-                                <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                            )}
-                            {flashAlert.type === 'info' && (
-                                <svg className="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            )}
-                        </div>
-                        <div className="flex-1 text-sm font-medium leading-snug">{flashAlert.message}</div>
-                        <button
-                            onClick={() => setFlashAlert(null)}
-                            className="shrink-0 p-1 text-slate-400 hover:text-slate-600 rounded-lg transition-colors cursor-pointer"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            )}
+            <FlashToast />
 
             {/* Main Shell Container */}
             <div className="flex flex-1 min-h-0">

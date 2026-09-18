@@ -1,6 +1,7 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
+import FlashToast from '@/Components/FlashToast';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { DashboardPageProps } from './types';
@@ -49,6 +50,9 @@ export default function DashboardIndex({
     return (
         <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
             <Head title="Supply & Inventory Management Dashboard" />
+
+            {/* Global Flash Toast Notifications */}
+            <FlashToast />
 
             <Sidebar
                 modules={modules}
