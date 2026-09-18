@@ -47,7 +47,7 @@ export default function RecentIssuance({ issuances = [] }: RecentIssuanceProps) 
                                             {formatRisNumber(iss.ris_number)}
                                         </span>
                                     </div>
-                                    <p className="text-xs text-gray-600 truncate mt-0.5">
+                                    <p className="text-xs text-gray-600 line-clamp-2 mt-0.5 pr-2">
                                         {iss.department} • <span className="text-gray-500">{iss.recipient}</span>
                                     </p>
                                 </div>

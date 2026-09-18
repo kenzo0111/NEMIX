@@ -53,8 +53,8 @@ export default function InventoryMovementChart({ data }: InventoryMovementChartP
     }
 
     return (
-        <ChartContainer config={chartConfig} className="h-64 sm:h-72 lg:h-80 w-full aspect-auto">
-            <ComposedChart data={chartData} margin={{ top: 12, right: 12, left: -16, bottom: 0 }}>
+        <ChartContainer config={chartConfig} className="h-56 sm:h-64 lg:h-72 w-full aspect-auto">
+            <ComposedChart data={chartData} margin={{ top: 12, right: 12, left: 4, bottom: 0 }}>
                 <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis
                     dataKey="label"
@@ -64,6 +64,7 @@ export default function InventoryMovementChart({ data }: InventoryMovementChartP
                     tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600 }}
                 />
                 <YAxis
+                    width={60}
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}

@@ -9,10 +9,10 @@ interface RecentSystemActivityProps {
 }
 
 export default function RecentSystemActivity({ activities = [] }: RecentSystemActivityProps) {
-    // Show concise operational overview: 6 latest business events
+    // Show concise operational overview: 5 latest business events
     const normalizedActivities = (activities || [])
         .map(normalizeActivity)
-        .slice(0, 6);
+        .slice(0, 5);
 
     return (
         <section
@@ -76,7 +76,7 @@ export default function RecentSystemActivity({ activities = [] }: RecentSystemAc
                         return (
                             <div
                                 key={act.id ?? idx}
-                                className="py-3.5 flex flex-col justify-between gap-1 group min-w-0 w-full"
+                                className="py-2.5 flex flex-col justify-between gap-0.5 group min-w-0 w-full"
                             >
                                 {/* LINE 1: Main Activity Title + Optional Business Reference */}
                                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 min-w-0">
@@ -99,7 +99,7 @@ export default function RecentSystemActivity({ activities = [] }: RecentSystemAc
 
                                 {/* LINE 2: Human-Readable Natural Summary */}
                                 {act.summary && (
-                                    <p className="text-sm text-slate-700 leading-relaxed break-words">
+                                    <p className="text-xs text-slate-700 leading-relaxed line-clamp-1">
                                         {act.summary}
                                     </p>
                                 )}

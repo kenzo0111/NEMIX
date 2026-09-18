@@ -50,13 +50,26 @@ export default function OperationalAlertStrip({
                 </div>
             </div>
 
-            <Link
-                href={criticalStockCount > 0 ? route('inventory.index') : (untaggedRfidCount > 0 ? route('rfid-scanner.index') : route('inventory.index'))}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-red-950 hover:text-red-800 hover:underline transition-colors shrink-0"
-            >
-                <span>Review Issues</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+                {(criticalStockCount > 0 || unserviceableCount > 0) && (
+                    <Link
+                        href={route('inventory.index')}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-red-950 hover:text-red-800 hover:underline transition-colors"
+                    >
+                        <span>Review Stock</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                )}
+                {untaggedRfidCount > 0 && (
+                    <Link
+                        href={route('rfid-scanner.index')}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-red-950 hover:text-red-800 hover:underline transition-colors"
+                    >
+                        <span>Manage RFID</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                )}
+            </div>
         </div>
     );
 }
