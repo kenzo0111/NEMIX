@@ -9,7 +9,7 @@ interface RecentReceivingProps {
 
 export default function RecentReceiving({ receivings = [] }: RecentReceivingProps) {
     return (
-        <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs flex flex-col justify-between">
+        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between h-full col-span-1">
             <div>
                 <div className="flex flex-wrap items-start sm:items-center justify-between gap-2.5 pb-3 mb-3 border-b border-gray-100">
                     <div className="flex items-center gap-2 min-w-0">
@@ -20,16 +20,8 @@ export default function RecentReceiving({ receivings = [] }: RecentReceivingProp
                             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900 truncate">
                                 Recent Receiving
                             </h3>
-                            <p className="text-xs text-gray-600">Latest deliveries added to inventory</p>
                         </div>
                     </div>
-                    <Link
-                        href={route('inventory.receiving')}
-                        className="text-xs font-semibold text-red-900 hover:text-red-950 hover:underline inline-flex items-center gap-1 shrink-0"
-                    >
-                        <span>View Ledger</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
                 </div>
 
                 {receivings.length === 0 ? (
@@ -44,7 +36,7 @@ export default function RecentReceiving({ receivings = [] }: RecentReceivingProp
                                     <h4 className="text-xs font-semibold text-gray-900 truncate group-hover:text-red-900 transition-colors">
                                         {rec.item_name}
                                     </h4>
-                                    <p className="text-xs text-gray-600 truncate mt-0.5">
+                                    <p className="text-[11px] text-gray-600 truncate mt-0.5">
                                         {rec.supplier}
                                     </p>
                                 </div>
@@ -52,7 +44,7 @@ export default function RecentReceiving({ receivings = [] }: RecentReceivingProp
                                     <span className="text-xs font-bold font-mono text-emerald-700 block">
                                         +{rec.quantity.toLocaleString()} {rec.unit}
                                     </span>
-                                    <span className="text-xs text-gray-500 font-medium block mt-0.5">
+                                    <span className="text-[11px] text-gray-500 font-medium block mt-0.5">
                                         {rec.received_at}
                                     </span>
                                 </div>
@@ -60,6 +52,16 @@ export default function RecentReceiving({ receivings = [] }: RecentReceivingProp
                         ))}
                     </div>
                 )}
+            </div>
+
+            <div className="pt-3 mt-3 border-t border-gray-100 text-right">
+                <Link
+                    href={route('inventory.receiving')}
+                    className="text-xs font-semibold text-gray-700 hover:text-red-900 transition-colors inline-flex items-center gap-1"
+                >
+                    <span>View Ledger</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
             </div>
         </div>
     );

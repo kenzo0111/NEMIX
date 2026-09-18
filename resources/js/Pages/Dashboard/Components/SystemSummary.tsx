@@ -17,136 +17,98 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
     const unserviceable = summary?.unserviceable ?? stats?.unserviceable ?? 0;
 
     return (
-        <section aria-label="System Summary Metrics">
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                    System Summary Metrics
-                </h2>
-                <span className="text-xs text-gray-500 font-medium">
-                    Institutional Supplies & Inventory
-                </span>
-            </div>
+        <>
+            {/* Total Inventory Value */}
+            <Link
+                href={route('inventory.index')}
+                className="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-900/40 hover:shadow-md transition-all group flex flex-col justify-between shadow-sm col-span-1"
+            >
+                <div>
+                    <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-3">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
+                            Inventory Value
+                        </span>
+                        <div className="p-2 rounded-lg bg-gray-50 text-gray-600 group-hover:text-red-900 group-hover:bg-red-50 transition-colors shrink-0">
+                            <Boxes className="w-4 h-4" />
+                        </div>
+                    </div>
+                    <div className="text-xl sm:text-2xl font-bold font-serif text-gray-950 tracking-tight tabular-nums break-words min-w-0">
+                        {formattedVal}
+                    </div>
+                </div>
+                <div className="text-xs text-gray-600 font-medium mt-3 pt-3 border-t border-gray-100 flex items-center gap-1">
+                    <span>Total on-hand valuation</span>
+                </div>
+            </Link>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 2xl:grid-cols-5 gap-3.5">
-                {/* Total Inventory Value */}
-                <Link
-                    href={route('inventory.index')}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between sm:col-span-1 lg:col-span-2 2xl:col-span-1"
-                >
-                    <div>
-                        <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-2">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                Inventory Value
-                            </span>
-                            <div className="p-1.5 rounded-md bg-gray-50 text-gray-600 group-hover:text-red-900 group-hover:bg-red-50 transition-colors shrink-0">
-                                <Boxes className="w-4 h-4" />
-                            </div>
-                        </div>
-                        <div className="text-lg sm:text-xl font-bold font-serif text-gray-950 tracking-tight tabular-nums break-words min-w-0">
-                            {formattedVal}
+            {/* Available Inventory Items */}
+            <Link
+                href={route('inventory.index')}
+                className="bg-white border border-gray-200 rounded-xl p-5 hover:border-emerald-700/40 hover:shadow-md transition-all group flex flex-col justify-between shadow-sm col-span-1"
+            >
+                <div>
+                    <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-3">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
+                            Available Items
+                        </span>
+                        <div className="p-2 rounded-lg bg-gray-50 text-gray-600 group-hover:text-emerald-700 group-hover:bg-emerald-50 transition-colors shrink-0">
+                            <Package className="w-4 h-4" />
                         </div>
                     </div>
-                    <div className="text-xs text-gray-600 font-medium mt-1.5 flex items-center gap-1">
-                        <span>Total on-hand valuation</span>
+                    <div className="text-xl sm:text-2xl font-bold text-gray-950 tracking-tight font-mono tabular-nums break-words min-w-0">
+                        {availableItems.toLocaleString()}
                     </div>
-                </Link>
+                </div>
+                <div className="text-xs text-gray-600 font-medium mt-3 pt-3 border-t border-gray-100">
+                    <span>Tracked stock lines</span>
+                </div>
+            </Link>
 
-                {/* Available Inventory Items */}
-                <Link
-                    href={route('inventory.index')}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between sm:col-span-1 lg:col-span-2 2xl:col-span-1"
-                >
-                    <div>
-                        <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-2">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                Available Items
-                            </span>
-                            <div className="p-1.5 rounded-md bg-gray-50 text-gray-600 group-hover:text-emerald-700 group-hover:bg-emerald-50 transition-colors shrink-0">
-                                <Package className="w-4 h-4" />
-                            </div>
-                        </div>
-                        <div className="text-lg sm:text-xl font-bold text-gray-950 tracking-tight font-mono tabular-nums break-words min-w-0">
-                            {availableItems.toLocaleString()}
+            {/* Items Issued This Month */}
+            <Link
+                href={route('inventory.issuance')}
+                className="bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-700/40 hover:shadow-md transition-all group flex flex-col justify-between shadow-sm col-span-1"
+            >
+                <div>
+                    <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-3">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
+                            Issued This Month
+                        </span>
+                        <div className="p-2 rounded-lg bg-gray-50 text-gray-600 group-hover:text-blue-700 group-hover:bg-blue-50 transition-colors shrink-0">
+                            <TrendingUp className="w-4 h-4" />
                         </div>
                     </div>
-                    <div className="text-xs text-gray-600 font-medium mt-1.5">
-                        <span>Tracked stock lines</span>
+                    <div className="text-xl sm:text-2xl font-bold text-gray-950 tracking-tight font-mono tabular-nums break-words min-w-0">
+                        {issuedMtd.toLocaleString()}
                     </div>
-                </Link>
+                </div>
+                <div className="text-xs text-gray-600 font-medium mt-3 pt-3 border-t border-gray-100">
+                    <span>Disbursed via RIS MTD</span>
+                </div>
+            </Link>
 
-                {/* Items Issued This Month */}
-                <Link
-                    href={route('inventory.issuance')}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between sm:col-span-1 lg:col-span-2 2xl:col-span-1"
-                >
-                    <div>
-                        <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-2">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                Issued This Month
-                            </span>
-                            <div className="p-1.5 rounded-md bg-gray-50 text-gray-600 group-hover:text-blue-700 group-hover:bg-blue-50 transition-colors shrink-0">
-                                <TrendingUp className="w-4 h-4" />
-                            </div>
-                        </div>
-                        <div className="text-lg sm:text-xl font-bold text-gray-950 tracking-tight font-mono tabular-nums break-words min-w-0">
-                            {issuedMtd.toLocaleString()}
+            {/* Unserviceable / Disposals */}
+            <Link
+                href={route('inventory.index')}
+                className="bg-white border border-gray-200 rounded-xl p-5 hover:border-amber-700/40 hover:shadow-md transition-all group flex flex-col justify-between shadow-sm col-span-1"
+            >
+                <div>
+                    <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-3">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
+                            Unserviceable
+                        </span>
+                        <div className="p-2 rounded-lg bg-gray-50 text-gray-600 group-hover:text-amber-700 group-hover:bg-amber-50 transition-colors shrink-0">
+                            <ShieldAlert className="w-4 h-4" />
                         </div>
                     </div>
-                    <div className="text-xs text-gray-600 font-medium mt-1.5">
-                        <span>Disbursed via RIS MTD</span>
+                    <div className="text-xl sm:text-2xl font-bold text-gray-950 tracking-tight font-mono tabular-nums break-words min-w-0">
+                        {unserviceable.toLocaleString()}
                     </div>
-                </Link>
-
-                {/* Critical Stock Alerts */}
-                <Link
-                    href={route('inventory.index')}
-                    className={`border rounded-lg p-4 transition-all group flex flex-col justify-between sm:col-span-1 lg:col-span-3 2xl:col-span-1 ${
-                        criticalStock > 0
-                            ? 'bg-red-50/40 border-red-200 hover:border-red-300 hover:shadow-xs'
-                            : 'bg-white border-gray-200 hover:border-gray-300'
-                    }`}
-                >
-                    <div>
-                        <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
-                            <span className={`text-xs font-semibold uppercase tracking-wider ${criticalStock > 0 ? 'text-red-900' : 'text-gray-600'}`}>
-                                Critical Stock
-                            </span>
-                            <div className={`p-1.5 rounded-md shrink-0 ${criticalStock > 0 ? 'bg-red-100 text-red-700' : 'bg-gray-50 text-gray-600'}`}>
-                                <AlertOctagon className="w-4 h-4" />
-                            </div>
-                        </div>
-                        <div className={`text-lg sm:text-xl font-bold tracking-tight font-mono tabular-nums break-words min-w-0 ${criticalStock > 0 ? 'text-red-700' : 'text-gray-950'}`}>
-                            {criticalStock.toLocaleString()}
-                        </div>
-                    </div>
-                    <div className={`text-xs font-medium mt-1.5 ${criticalStock > 0 ? 'text-red-800' : 'text-gray-600'}`}>
-                        <span>{criticalStock > 0 ? 'Items below minimum' : 'All thresholds normal'}</span>
-                    </div>
-                </Link>
-
-                {/* Unserviceable / Disposals (Permanently visible at all widths) */}
-                <Link
-                    href={route('inventory.index')}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group flex flex-col justify-between sm:col-span-2 lg:col-span-3 2xl:col-span-1"
-                >
-                    <div>
-                        <div className="flex flex-wrap items-center justify-between gap-1 text-gray-500 mb-2">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                Unserviceable
-                            </span>
-                            <div className="p-1.5 rounded-md bg-gray-50 text-gray-600 group-hover:text-amber-700 group-hover:bg-amber-50 transition-colors shrink-0">
-                                <ShieldAlert className="w-4 h-4" />
-                            </div>
-                        </div>
-                        <div className="text-lg sm:text-xl font-bold text-gray-950 tracking-tight font-mono tabular-nums break-words min-w-0">
-                            {unserviceable.toLocaleString()}
-                        </div>
-                    </div>
-                    <div className="text-xs text-gray-600 font-medium mt-1.5">
-                        <span>Items awaiting review/disposal</span>
-                    </div>
-                </Link>
-            </div>
-        </section>
+                </div>
+                <div className="text-xs text-gray-600 font-medium mt-3 pt-3 border-t border-gray-100">
+                    <span>Items awaiting disposal</span>
+                </div>
+            </Link>
+        </>
     );
 }

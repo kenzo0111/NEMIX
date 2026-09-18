@@ -10,10 +10,12 @@ import DashboardHeader from './Components/DashboardHeader';
 import OperationalAlertStrip from './Components/OperationalAlertStrip';
 import SystemSummary from './Components/SystemSummary';
 import InventoryMovementOverview from './Components/InventoryMovementOverview';
-import OperationalActivity from './Components/OperationalActivity';
+import RecentReceiving from './Components/RecentReceiving';
+import RecentIssuance from './Components/RecentIssuance';
 import CriticalStockOverview from './Components/CriticalStockOverview';
 import RfidOverview from './Components/RfidOverview';
-import SupplierComplianceRow from './Components/SupplierComplianceRow';
+import SupplierStatusCard from './Components/SupplierStatusCard';
+import ComplianceStatusCard from './Components/ComplianceStatusCard';
 import RecentSystemActivity from './Components/RecentSystemActivity';
 
 export default function DashboardIndex({
@@ -65,9 +67,10 @@ export default function DashboardIndex({
                 {/* Unified Sticky Header */}
                 <DashboardHeader />
 
-                {/* Main Dashboard Overview Canvas */}
-                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
-                    {/* Operational Alert Strip (Condition-based) */}
+                {/* Bento Grid Canvas */}
+                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 max-w-[1600px] mx-auto pb-16 min-w-0 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 auto-rows-min">
+                    
+                    {/* Dynamic Alert Row (Automatically fits into grid cells) */}
                     <OperationalAlertStrip
                         criticalStockCount={criticalCount}
                         unserviceableCount={unserviceableCount}
@@ -75,36 +78,32 @@ export default function DashboardIndex({
                         pendingSupplierCount={pendingSuppliers}
                     />
 
-                    {/* System Summary Key Totals */}
+                    {/* KPI Cards (4 cards) */}
                     <SystemSummary summary={summary} stats={stats} />
 
-                    {/* Inventory Movement Overview (Monthly / Yearly Trends) */}
+                    {/* Main Visual: Inventory Movement Chart (Spans 2 columns, 2 rows) */}
                     <InventoryMovementOverview
                         movement={activeMovement}
                         movementSummary={movementSummary}
                         currentFilter={filters?.chartFilter}
                     />
 
-                    {/* Operational Activity (Recent Receiving & Recent Issuance) */}
-                    <OperationalActivity
-                        receiving={recentReceiving}
-                        issuance={recentIssuance}
-                    />
+                    {/* Smaller contextual cards arranged around the chart */}
+                    <RecentReceiving receivings={recentReceiving} />
+                    
+                    <RecentIssuance issuances={recentIssuance} />
+                    
+                    <CriticalStockOverview items={activeCriticalStock} />
+                    
+                    <RfidOverview rfidSummary={rfidSummary} />
 
-                    {/* Inventory Attention (Critical Stock & RFID Status) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-                        <CriticalStockOverview items={activeCriticalStock} />
-                        <RfidOverview rfidSummary={rfidSummary} />
-                    </div>
+                    <SupplierStatusCard summary={supplierSummary} />
 
-                    {/* Governance & Vendor Status (Suppliers & Compliance) */}
-                    <SupplierComplianceRow
-                        supplierSummary={supplierSummary}
-                        complianceSummary={complianceSummary}
-                    />
+                    <ComplianceStatusCard summary={complianceSummary} />
 
-                    {/* Recent System Activity Feed */}
+                    {/* Recent System Activity Feed (Spans full width at bottom) */}
                     <RecentSystemActivity activities={activeRecentActivity} />
+
                 </div>
             </main>
         </div>

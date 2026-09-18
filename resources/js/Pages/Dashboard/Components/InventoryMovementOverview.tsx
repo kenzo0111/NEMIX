@@ -28,7 +28,7 @@ export default function InventoryMovementOverview({
     const endingBalance = movementSummary?.ending_balance ?? 0;
 
     return (
-        <section aria-label="Inventory Movement Overview" className="bg-white border border-gray-200 rounded-lg p-4 sm:p-5 shadow-xs">
+        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col h-full col-span-1 md:col-span-2 xl:col-span-2 md:row-span-2 min-w-0">
             {/* Header & Controls */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100 min-w-0">
                 <div className="min-w-0">
@@ -38,9 +38,6 @@ export default function InventoryMovementOverview({
                             Inventory Movement Overview
                         </h2>
                     </div>
-                    <p className="text-xs text-gray-600 mt-0.5">
-                        Inflow vs. outflow dynamics and net stock position
-                    </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2.5">
@@ -56,7 +53,7 @@ export default function InventoryMovementOverview({
                             onClick={() => handleFilterChange('monthly')}
                             className={`px-3 py-1 rounded font-semibold transition-all cursor-pointer ${
                                 currentFilter === 'monthly'
-                                    ? 'bg-white text-red-950 shadow-xs'
+                                    ? 'bg-white text-red-950 shadow-sm'
                                     : 'text-gray-600 hover:text-gray-900'
                             }`}
                         >
@@ -68,7 +65,7 @@ export default function InventoryMovementOverview({
                             onClick={() => handleFilterChange('yearly')}
                             className={`px-3 py-1 rounded font-semibold transition-all cursor-pointer ${
                                 currentFilter === 'yearly'
-                                    ? 'bg-white text-red-950 shadow-xs'
+                                    ? 'bg-white text-red-950 shadow-sm'
                                     : 'text-gray-600 hover:text-gray-900'
                             }`}
                         >
@@ -80,14 +77,14 @@ export default function InventoryMovementOverview({
                         href={route('compliance.analytics')}
                         className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-red-900 hover:text-red-950 hover:underline shrink-0"
                     >
-                        <span>Detailed Analytics</span>
+                        <span>Analytics</span>
                         <ArrowUpRight className="w-3.5 h-3.5" />
                     </Link>
                 </div>
             </div>
 
             {/* Visual Movement Chart */}
-            <div className="pt-4 min-w-0">
+            <div className="pt-4 flex-1 flex flex-col min-w-0">
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
                     {/* Custom Legend - Wraps cleanly on mobile */}
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-semibold">
@@ -106,15 +103,17 @@ export default function InventoryMovementOverview({
                     </div>
 
                     <div className="text-xs text-gray-500 font-medium shrink-0">
-                        Period: {currentFilter === 'yearly' ? 'Annual Consolidated' : 'Monthly Tracking'}
+                        {currentFilter === 'yearly' ? 'Annual Consolidated' : 'Monthly Tracking'}
                     </div>
                 </div>
 
-                <InventoryMovementChart data={movement} />
+                <div className="flex-1 min-h-[250px] sm:min-h-[300px]">
+                    <InventoryMovementChart data={movement} />
+                </div>
             </div>
 
             {/* Concise Period Movement Summary Row */}
-            <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center sm:text-left">
+            <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center sm:text-left shrink-0">
                 <div className="sm:border-r sm:border-gray-100 sm:pr-4 pb-2 sm:pb-0 border-b sm:border-b-0 border-gray-50">
                     <span className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
                         Total Received
@@ -144,7 +143,7 @@ export default function InventoryMovementOverview({
             </div>
 
             {/* Mobile Link */}
-            <div className="mt-3 pt-3 border-t border-gray-100 text-right sm:hidden">
+            <div className="mt-3 pt-3 border-t border-gray-100 text-right sm:hidden shrink-0">
                 <Link
                     href={route('compliance.analytics')}
                     className="inline-flex items-center gap-1 text-xs font-semibold text-red-900"
@@ -153,6 +152,6 @@ export default function InventoryMovementOverview({
                     <ArrowUpRight className="w-3.5 h-3.5" />
                 </Link>
             </div>
-        </section>
+        </div>
     );
 }
