@@ -1,129 +1,88 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
-import { AlertTriangle, ArrowRight, Radio, ShieldAlert, FileText } from 'lucide-react';
+import { Radio, ArrowRight, FileText, AlertTriangle } from 'lucide-react';
 
 interface OperationalAlertStripProps {
-    criticalStockCount?: number;
-    unserviceableCount?: number;
     untaggedRfidCount?: number;
     pendingSupplierCount?: number;
+    criticalStockCount?: number;
+    className?: string;
 }
 
 export default function OperationalAlertStrip({
-    criticalStockCount = 0,
-    unserviceableCount = 0,
     untaggedRfidCount = 0,
     pendingSupplierCount = 0,
+    criticalStockCount = 0,
+    className = '',
 }: OperationalAlertStripProps) {
+    const hasAlerts = untaggedRfidCount > 0 || pendingSupplierCount > 0;
+
+    if (!hasAlerts) {
+        return null;
+    }
+
     return (
-        <>
-            {criticalStockCount > 0 && (
-                <div className="bg-red-50/90 border border-red-200/80 rounded-xl p-5 flex flex-col justify-between shadow-sm col-span-1">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-red-200/60 text-red-800 shrink-0">
-                            <AlertTriangle className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <div className="text-sm font-bold text-red-950 uppercase tracking-wide">
-                                Critical Stock
-                            </div>
-                            <div className="text-xs text-red-900 mt-0.5">
-                                {criticalStockCount} {criticalStockCount === 1 ? 'item' : 'items'} require attention
-                            </div>
-                        </div>
-                    </div>
-                    <div className="text-right mt-3 pt-3 border-t border-red-200/50">
-                        <Link
-                            href={route('inventory.index')}
-                            className="inline-flex items-center gap-1 text-xs font-bold text-red-950 hover:text-red-800 transition-colors"
-                        >
-                            <span>Review Stock</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                    </div>
-                </div>
-            )}
-
-            {unserviceableCount > 0 && (
-                <div className="bg-amber-50/90 border border-amber-200/80 rounded-xl p-5 flex flex-col justify-between shadow-sm col-span-1">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-amber-200/60 text-amber-800 shrink-0">
-                            <ShieldAlert className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <div className="text-sm font-bold text-amber-950 uppercase tracking-wide">
-                                Unserviceable
-                            </div>
-                            <div className="text-xs text-amber-900 mt-0.5">
-                                {unserviceableCount} {unserviceableCount === 1 ? 'item' : 'items'} awaiting review
-                            </div>
-                        </div>
-                    </div>
-                    <div className="text-right mt-3 pt-3 border-t border-amber-200/50">
-                        <Link
-                            href={route('inventory.index')}
-                            className="inline-flex items-center gap-1 text-xs font-bold text-amber-950 hover:text-amber-800 transition-colors"
-                        >
-                            <span>Manage Assets</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                    </div>
-                </div>
-            )}
-
+        <section aria-label="System Operational Alerts" className={`w-full space-y-2.5 ${className}`}>
+            {/* 1. Missing RFID Alert */}
             {untaggedRfidCount > 0 && (
-                <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-5 flex flex-col justify-between shadow-sm col-span-1">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-slate-200/60 text-slate-800 shrink-0">
-                            <Radio className="w-5 h-5" />
+                <div className="bg-amber-50/90 border border-amber-200/90 rounded-xl p-3 sm:px-4 sm:py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-xs">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="p-1.5 rounded-lg bg-amber-100 text-amber-900 shrink-0">
+                            <Radio className="w-4 h-4" />
                         </div>
-                        <div>
-                            <div className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                                Missing RFIDs
-                            </div>
-                            <div className="text-xs text-slate-600 mt-0.5">
-                                {untaggedRfidCount} {untaggedRfidCount === 1 ? 'tag' : 'tags'} pending assignment
+                        <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-200/70 text-amber-950 px-1.5 py-0.5 rounded">
+                                    RFID Alert
+                                </span>
+                                <span className="text-xs font-semibold text-amber-950">
+                                    {untaggedRfidCount} {untaggedRfidCount === 1 ? 'item requires' : 'items require'} RFID hardware tag assignment
+                                </span>
+                                <span className="hidden md:inline text-xs text-amber-800/80">
+                                    — Physical asset tracking remains unlinked until tagged.
+                                </span>
                             </div>
                         </div>
                     </div>
-                    <div className="text-right mt-3 pt-3 border-t border-slate-200/50">
-                        <Link
-                            href={route('rfid-scanner.index')}
-                            className="inline-flex items-center gap-1 text-xs font-bold text-slate-900 hover:text-red-900 transition-colors"
-                        >
-                            <span>Manage RFID</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                    </div>
+
+                    <Link
+                        href={route('rfid-scanner.index')}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-950 hover:text-amber-900 bg-amber-100/80 hover:bg-amber-200/80 border border-amber-300/70 px-3 py-1.5 rounded-lg transition-colors shrink-0 self-start sm:self-auto"
+                    >
+                        <span>Manage RFID Hardware</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
                 </div>
             )}
 
+            {/* 2. Pending Supplier Registrations/Renewals */}
             {pendingSupplierCount > 0 && (
-                <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-5 flex flex-col justify-between shadow-sm col-span-1">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-slate-200/60 text-slate-800 shrink-0">
-                            <FileText className="w-5 h-5" />
+                <div className="bg-slate-50/90 border border-slate-200 rounded-xl p-3 sm:px-4 sm:py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-xs">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="p-1.5 rounded-lg bg-slate-200/80 text-slate-800 shrink-0">
+                            <FileText className="w-4 h-4" />
                         </div>
-                        <div>
-                            <div className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                                Pending Renewals
-                            </div>
-                            <div className="text-xs text-slate-600 mt-0.5">
-                                {pendingSupplierCount} supplier {pendingSupplierCount === 1 ? 'renewal' : 'renewals'} pending
+                        <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-800 px-1.5 py-0.5 rounded">
+                                    Supplier Notice
+                                </span>
+                                <span className="text-xs font-semibold text-slate-900">
+                                    {pendingSupplierCount} supplier {pendingSupplierCount === 1 ? 'application requires' : 'applications require'} accreditation review
+                                </span>
                             </div>
                         </div>
                     </div>
-                    <div className="text-right mt-3 pt-3 border-t border-slate-200/50">
-                        <Link
-                            href={route('suppliers.index')}
-                            className="inline-flex items-center gap-1 text-xs font-bold text-slate-900 hover:text-red-900 transition-colors"
-                        >
-                            <span>Review Suppliers</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                    </div>
+
+                    <Link
+                        href={route('suppliers.index')}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 hover:text-slate-950 bg-white hover:bg-slate-100 border border-slate-300 px-3 py-1.5 rounded-lg transition-colors shrink-0 self-start sm:self-auto"
+                    >
+                        <span>Review Suppliers</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
                 </div>
             )}
-        </>
+        </section>
     );
 }

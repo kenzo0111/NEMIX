@@ -7,6 +7,7 @@ import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { DashboardPageProps } from './types';
 
 import DashboardHeader from './Components/DashboardHeader';
+import OperationalAlertStrip from './Components/OperationalAlertStrip';
 import SystemSummary from './Components/SystemSummary';
 import InventoryMovementOverview from './Components/InventoryMovementOverview';
 import RecentReceiving from './Components/RecentReceiving';
@@ -44,6 +45,8 @@ export default function DashboardIndex({
     const activeMovement = movement.length > 0 ? movement : (chartData?.monthly || []);
 
     const criticalCount = summary?.critical_stock ?? stats?.criticalAlerts ?? activeCriticalStock.length;
+    const untaggedRfid = rfidSummary?.untagged ?? 0;
+    const pendingSuppliers = supplierSummary?.pending ?? 0;
 
     return (
         <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
@@ -66,13 +69,19 @@ export default function DashboardIndex({
                 {/* Dashboard Main Canvas with Clear 4-Tier Hierarchy */}
                 <div className="p-4 sm:p-5 lg:p-6 max-w-[1600px] mx-auto pb-16 min-w-0 w-full space-y-4 sm:space-y-5">
                     
+                    {/* Operational Alert Banner (e.g. Missing RFIDs / Supplier accreditation notices) */}
+                    <OperationalAlertStrip
+                        untaggedRfidCount={untaggedRfid}
+                        pendingSupplierCount={pendingSuppliers}
+                        criticalStockCount={criticalCount}
+                    />
+
                     {/* ========================================================================= */}
-                    {/* TIER 1: IMMEDIATE OPERATIONAL STATUS (6 Unified Responsive Metrics)      */}
+                    {/* TIER 1: IMMEDIATE OPERATIONAL STATUS (5 Unified Responsive Metrics)       */}
                     {/* ========================================================================= */}
                     <SystemSummary
                         summary={summary}
                         stats={stats}
-                        rfidSummary={rfidSummary}
                         criticalStockCount={criticalCount}
                     />
 
