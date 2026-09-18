@@ -7,6 +7,7 @@ export default function InputError({
 }: HTMLAttributes<HTMLParagraphElement> & { message?: string }) {
     return message ? (
         <p
+            role="alert"
             {...props}
             className={'text-sm text-red-600 ' + className}
         >

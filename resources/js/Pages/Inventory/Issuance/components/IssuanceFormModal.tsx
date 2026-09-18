@@ -181,11 +181,18 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                    Recipient Name <span className="text-red-600">*</span>
+                                <label htmlFor="issuance_recipient" className="block text-xs font-semibold text-gray-700 mb-1">
+                                    Recipient Name <span className="text-red-600" aria-hidden="true">*</span>
+                                    <span className="sr-only"> (required)</span>
                                 </label>
                                 <input
+                                    id="issuance_recipient"
+                                    name="recipient"
                                     type="text"
+                                    required
+                                    aria-required="true"
+                                    aria-invalid={Boolean(form.errors.recipient)}
+                                    aria-describedby={form.errors.recipient ? 'issuance_recipient-error' : undefined}
                                     value={form.data.recipient}
                                     onChange={(e) => form.setData('recipient', e.target.value)}
                                     placeholder="Full name of requesting personnel"
@@ -194,16 +201,23 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     }`}
                                 />
                                 {form.errors.recipient && (
-                                    <p className="mt-1 text-xs text-red-600 font-medium">{form.errors.recipient}</p>
+                                    <p id="issuance_recipient-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{form.errors.recipient}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                    Date Issued <span className="text-red-600">*</span>
+                                <label htmlFor="issuance_date_issued" className="block text-xs font-semibold text-gray-700 mb-1">
+                                    Date Issued <span className="text-red-600" aria-hidden="true">*</span>
+                                    <span className="sr-only"> (required)</span>
                                 </label>
                                 <input
+                                    id="issuance_date_issued"
+                                    name="date_issued"
                                     type="date"
+                                    required
+                                    aria-required="true"
+                                    aria-invalid={Boolean(form.errors.date_issued)}
+                                    aria-describedby={form.errors.date_issued ? 'issuance_date_issued-error' : undefined}
                                     value={form.data.date_issued}
                                     onChange={(e) => form.setData('date_issued', e.target.value)}
                                     className={`w-full h-10 px-3 bg-white border rounded-md text-xs font-mono font-medium text-gray-900 focus:outline-none focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-2xs ${
@@ -211,15 +225,20 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     }`}
                                 />
                                 {form.errors.date_issued && (
-                                    <p className="mt-1 text-xs text-red-600 font-medium">{form.errors.date_issued}</p>
+                                    <p id="issuance_date_issued-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{form.errors.date_issued}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label htmlFor="issuance_department" className="block text-xs font-semibold text-gray-700 mb-1">
                                     Division / Office
                                 </label>
                                 <Select
+                                    inputId="issuance_department"
+                                    name="department"
+                                    aria-label="Division or Office"
+                                    aria-invalid={Boolean(form.errors.department)}
+                                    aria-describedby={form.errors.department ? 'issuance_department-error' : undefined}
                                     value={selectedDivisionOption}
                                     onChange={(selected) => form.setData('department', selected?.value || '')}
                                     options={divisionList}
@@ -230,16 +249,20 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     isClearable
                                 />
                                 {form.errors.department && (
-                                    <p className="mt-1 text-xs text-red-600 font-medium">{form.errors.department}</p>
+                                    <p id="issuance_department-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{form.errors.department}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label htmlFor="issuance_recipient_designation" className="block text-xs font-semibold text-gray-700 mb-1">
                                     Recipient Designation
                                 </label>
                                 <input
+                                    id="issuance_recipient_designation"
+                                    name="recipient_designation"
                                     type="text"
+                                    aria-invalid={Boolean(form.errors.recipient_designation)}
+                                    aria-describedby={form.errors.recipient_designation ? 'issuance_recipient_designation-error' : undefined}
                                     value={form.data.recipient_designation}
                                     onChange={(e) => form.setData('recipient_designation', e.target.value)}
                                     placeholder="e.g. Dean, Department Head, Faculty"
@@ -248,7 +271,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     }`}
                                 />
                                 {form.errors.recipient_designation && (
-                                    <p className="mt-1 text-xs text-red-600 font-medium">
+                                    <p id="issuance_recipient_designation-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">
                                         {form.errors.recipient_designation}
                                     </p>
                                 )}
@@ -265,10 +288,15 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label htmlFor="issuance_fund_cluster" className="block text-xs font-semibold text-gray-700 mb-1">
                                     Fund Cluster
                                 </label>
                                 <Select
+                                    inputId="issuance_fund_cluster"
+                                    name="fund_cluster"
+                                    aria-label="Fund Cluster"
+                                    aria-invalid={Boolean(form.errors.fund_cluster)}
+                                    aria-describedby={form.errors.fund_cluster ? 'issuance_fund_cluster-error' : undefined}
                                     value={selectedFundClusterOption}
                                     onChange={(selected) => form.setData('fund_cluster', selected?.value || '')}
                                     options={FUND_CLUSTER_OPTIONS}
@@ -277,16 +305,20 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     classNamePrefix="react-select"
                                 />
                                 {form.errors.fund_cluster && (
-                                    <p className="mt-1 text-xs text-red-600 font-medium">{form.errors.fund_cluster}</p>
+                                    <p id="issuance_fund_cluster-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{form.errors.fund_cluster}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label htmlFor="issuance_purpose" className="block text-xs font-semibold text-gray-700 mb-1">
                                     Purpose
                                 </label>
                                 <input
+                                    id="issuance_purpose"
+                                    name="purpose"
                                     type="text"
+                                    aria-invalid={Boolean(form.errors.purpose)}
+                                    aria-describedby={form.errors.purpose ? 'issuance_purpose-error' : undefined}
                                     value={form.data.purpose}
                                     onChange={(e) => form.setData('purpose', e.target.value)}
                                     placeholder="Purpose of supply requisition"
@@ -295,7 +327,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     }`}
                                 />
                                 {form.errors.purpose && (
-                                    <p className="mt-1 text-xs text-red-600 font-medium">{form.errors.purpose}</p>
+                                    <p id="issuance_purpose-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{form.errors.purpose}</p>
                                 )}
                             </div>
                         </div>

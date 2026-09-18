@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Head } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { DashboardPageProps } from './types';
 
 import DashboardHeader from './Components/DashboardHeader';
@@ -32,7 +33,7 @@ export default function DashboardIndex({
     auditLogs = [],
     filters,
 }: DashboardPageProps) {
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const modules = getSidebarModules();
 
     // Prefer modern props, fallback cleanly to legacy props
@@ -53,7 +54,7 @@ export default function DashboardIndex({
                 modules={modules}
                 user={auth.user}
                 collapsed={collapsed}
-                onToggleCollapse={() => setCollapsed(!collapsed)}
+                onToggleCollapse={handleToggleCollapse}
             />
 
             <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>

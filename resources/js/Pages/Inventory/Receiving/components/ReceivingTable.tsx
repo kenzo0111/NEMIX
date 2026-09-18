@@ -26,9 +26,9 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
     const toRecord = paginationMeta ? paginationMeta.to || receivings.length : receivings.length;
 
     return (
-        <div className="overflow-hidden">
+        <div className="overflow-hidden min-w-0">
             {/* Table */}
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto min-w-0">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50/80 border-b border-gray-200">
                         <tr>
@@ -119,7 +119,8 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                             type="button"
                             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
                             disabled={currentPage <= 1}
-                            className="px-3 py-1.5 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs"
+                            aria-label="Go to previous page"
+                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs inline-flex items-center justify-center cursor-pointer"
                         >
                             Previous
                         </button>
@@ -130,7 +131,8 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                             type="button"
                             onClick={() => onPageChange(Math.min(lastPage, currentPage + 1))}
                             disabled={currentPage >= lastPage}
-                            className="px-3 py-1.5 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs"
+                            aria-label="Go to next page"
+                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs inline-flex items-center justify-center cursor-pointer"
                         >
                             Next
                         </button>

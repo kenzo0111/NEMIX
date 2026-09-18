@@ -3,6 +3,7 @@ import { Head, router, useForm, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { getLocalDateString } from '@/utils/dateUtils';
 import {
     ReceivingPageProps,
@@ -27,7 +28,7 @@ export default function ReceivingIndex({
     filters = {},
 }: ReceivingPageProps) {
     const user = auth.user;
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const pageProps = usePage().props as any;
 
     // Flash notifications
@@ -277,7 +278,7 @@ export default function ReceivingIndex({
                 modules={modules}
                 user={user}
                 collapsed={collapsed}
-                onToggleCollapse={() => setCollapsed(!collapsed)}
+                onToggleCollapse={handleToggleCollapse}
             />
 
             {/* Main Content Area */}

@@ -63,7 +63,7 @@ export default function DashboardHeader({ onToggleSidebar }: DashboardHeaderProp
                     <button
                         type="button"
                         onClick={handleToggleMenu}
-                        className="md:hidden p-1.5 -ml-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer shrink-0 mt-0.5"
+                        className="md:hidden min-h-[40px] min-w-[40px] p-2 -ml-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer shrink-0 inline-flex items-center justify-center"
                         aria-label="Toggle navigation menu"
                     >
                         <Menu className="w-5 h-5" />

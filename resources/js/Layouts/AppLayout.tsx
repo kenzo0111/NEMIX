@@ -3,6 +3,7 @@ import { Head, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import SystemModeBadge from '@/Components/SystemModeBadge';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { PageProps } from '@/types';
 
 interface AppLayoutProps extends PropsWithChildren {
@@ -26,30 +27,12 @@ export default function AppLayout({
     const { auth, system, flash } = usePage<PageProps>().props;
     const user = auth.user;
 
-    const [collapsed, setCollapsed] = useState<boolean>(() => {
-        try {
-            return localStorage.getItem('nemix_sidebar_collapsed') === 'true';
-        } catch {
-            return false;
-        }
-    });
+    const [collapsed, toggleCollapse] = useSidebarCollapse();
 
     const [flashAlert, setFlashAlert] = useState<{
         type: 'success' | 'error' | 'warning' | 'info';
         message: string;
     } | null>(null);
-
-    const toggleCollapse = () => {
-        setCollapsed((prev) => {
-            const next = !prev;
-            try {
-                localStorage.setItem('nemix_sidebar_collapsed', String(next));
-            } catch {
-                // Ignore storage errors
-            }
-            return next;
-        });
-    };
 
     useEffect(() => {
         if (flash?.success) {

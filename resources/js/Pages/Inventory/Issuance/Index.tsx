@@ -3,6 +3,7 @@ import { Head, router, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { IssuancePageProps, IssuanceRecord, PaginatedData } from './types';
 import { IssuanceToolbar } from './components/IssuanceToolbar';
 import { IssuanceTable } from './components/IssuanceTable';
@@ -19,7 +20,7 @@ export default function IssuanceIndex({
     filters = {},
 }: IssuancePageProps) {
     const user = auth.user;
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const pageProps = usePage().props as any;
     const systemSettings = (pageProps.systemSettings || {}) as Record<string, any>;
     const publicSettings = pageProps.system?.settings || {};
@@ -169,7 +170,7 @@ export default function IssuanceIndex({
                 modules={modules}
                 user={user}
                 collapsed={collapsed}
-                onToggleCollapse={() => setCollapsed(!collapsed)}
+                onToggleCollapse={handleToggleCollapse}
             />
 
             <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>

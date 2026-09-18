@@ -72,7 +72,7 @@ export interface SidebarUser {
 
 export interface SidebarProps {
     modules?: SidebarModule[];
-    user?: SidebarUser;
+    user?: SidebarUser | null;
     collapsed?: boolean;
     onToggleCollapse?: () => void;
     className?: string;

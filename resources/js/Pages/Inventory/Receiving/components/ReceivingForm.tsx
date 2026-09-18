@@ -135,10 +135,16 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
         <form onSubmit={onSubmit} className="space-y-5">
             {/* Item Selection */}
             <div>
-                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Inventory Item <span className="text-red-600">*</span>
+                <label htmlFor="receiving_item_id" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                    Inventory Item <span className="text-red-600" aria-hidden="true">*</span>
+                    <span className="sr-only"> (required)</span>
                 </label>
                 <Select
+                    inputId="receiving_item_id"
+                    name="item_id"
+                    aria-label="Inventory Item"
+                    aria-invalid={hasItemError}
+                    aria-describedby={hasItemError ? 'receiving_item_id-error' : undefined}
                     value={selectedItemOption}
                     onChange={handleItemChange}
                     options={itemOptions}
@@ -148,21 +154,27 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     classNamePrefix="react-select"
                 />
                 {errors.item_id && (
-                    <p className="mt-1 text-xs text-red-600 font-medium">{errors.item_id}</p>
+                    <p id="receiving_item_id-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{errors.item_id}</p>
                 )}
             </div>
 
             {/* Supplier Selection */}
             <div>
                 <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
-                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Supplier <span className="text-red-600">*</span>
+                    <label htmlFor="receiving_supplier_id" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        Supplier <span className="text-red-600" aria-hidden="true">*</span>
+                        <span className="sr-only"> (required)</span>
                     </label>
                     <span className="text-[11px] text-gray-500 font-medium">
                         Deliveries can be received from any vendor
                     </span>
                 </div>
                 <Select
+                    inputId="receiving_supplier_id"
+                    name="supplier_id"
+                    aria-label="Supplier"
+                    aria-invalid={hasSupplierError}
+                    aria-describedby={hasSupplierError ? 'receiving_supplier_id-error' : undefined}
                     value={selectedSupplierOption}
                     onChange={(selected) => setData('supplier_id', selected ? selected.value : '')}
                     options={supplierOptions}
@@ -172,14 +184,14 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     classNamePrefix="react-select"
                 />
                 {errors.supplier_id && (
-                    <p className="mt-1 text-xs text-red-600 font-medium">{errors.supplier_id}</p>
+                    <p id="receiving_supplier_id-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{errors.supplier_id}</p>
                 )}
             </div>
 
             {/* Supplier Stock Number (Automatic) */}
             <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
-                    <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    <label htmlFor="receiving_supplier_stock_no" className="text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Supplier Stock No.
                     </label>
                     <span className="shrink-0 whitespace-nowrap rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
@@ -188,11 +200,15 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                 </div>
                 <div className="relative">
                     <input
+                        id="receiving_supplier_stock_no"
+                        name="supplier_stock_no"
                         type="text"
                         readOnly
                         tabIndex={-1}
                         value={data.supplier_stock_no || ''}
                         placeholder="Generated automatically after selecting an item and supplier."
+                        aria-invalid={Boolean(errors.supplier_stock_no)}
+                        aria-describedby={errors.supplier_stock_no ? 'receiving_supplier_stock_no-error' : undefined}
                         className="w-full px-3 py-2 pr-9 bg-slate-50 border border-slate-200 text-slate-700 font-mono font-bold text-xs rounded-md cursor-not-allowed select-none focus:outline-none focus:ring-0 focus:border-slate-300 transition-colors shadow-2xs"
                     />
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
@@ -205,7 +221,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     Automatically generated per receiving batch and retained for RPCI reporting.
                 </p>
                 {errors.supplier_stock_no && (
-                    <p className="mt-1 text-xs text-red-600 font-medium">{errors.supplier_stock_no}</p>
+                    <p id="receiving_supplier_stock_no-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{errors.supplier_stock_no}</p>
                 )}
             </div>
 
@@ -213,13 +229,20 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Quantity */}
                 <div>
-                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                        Quantity Received <span className="text-red-600">*</span>
+                    <label htmlFor="receiving_quantity" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Quantity Received <span className="text-red-600" aria-hidden="true">*</span>
+                        <span className="sr-only"> (required)</span>
                     </label>
                     <input
+                        id="receiving_quantity"
+                        name="quantity"
                         type="number"
                         min="1"
                         max="1000000"
+                        required
+                        aria-required="true"
+                        aria-invalid={Boolean(errors.quantity)}
+                        aria-describedby={errors.quantity ? 'receiving_quantity-error' : undefined}
                         value={data.quantity}
                         onChange={(e) => setData('quantity', e.target.value ? parseInt(e.target.value, 10) : '')}
                         placeholder="e.g. 50"
@@ -230,22 +253,26 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                         }`}
                     />
                     {errors.quantity && (
-                        <p className="mt-1 text-xs text-red-600 font-medium">{errors.quantity}</p>
+                        <p id="receiving_quantity-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{errors.quantity}</p>
                     )}
                 </div>
 
                 {/* Unit Cost */}
                 <div>
-                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                    <label htmlFor="receiving_unit_cost" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
                         Unit Cost (₱)
                     </label>
                     <input
+                        id="receiving_unit_cost"
+                        name="unit_cost"
                         type="number"
                         step="0.01"
                         min="0"
                         value={data.unit_cost !== undefined ? data.unit_cost : ''}
                         onChange={(e) => setData('unit_cost', e.target.value)}
                         placeholder="0.00"
+                        aria-invalid={Boolean(errors.unit_cost)}
+                        aria-describedby={errors.unit_cost ? 'receiving_unit_cost-error' : undefined}
                         className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-mono font-medium focus:outline-none transition-colors ${
                             errors.unit_cost
                                 ? 'border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600'
@@ -253,16 +280,17 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                         }`}
                     />
                     {errors.unit_cost && (
-                        <p className="mt-1 text-xs text-red-600 font-medium">{errors.unit_cost}</p>
+                        <p id="receiving_unit_cost-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{errors.unit_cost}</p>
                     )}
                 </div>
 
                 {/* Batch Total Amount Preview */}
                 <div>
-                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                    <label htmlFor="receiving_batch_total" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
                         Batch Total (₱)
                     </label>
                     <input
+                        id="receiving_batch_total"
                         type="text"
                         readOnly
                         disabled
@@ -278,11 +306,18 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
 
             {/* Date Received */}
             <div>
-                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Date Received <span className="text-red-600">*</span>
+                <label htmlFor="receiving_date_received" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                    Date Received <span className="text-red-600" aria-hidden="true">*</span>
+                    <span className="sr-only"> (required)</span>
                 </label>
                 <input
+                    id="receiving_date_received"
+                    name="date_received"
                     type="date"
+                    required
+                    aria-required="true"
+                    aria-invalid={Boolean(errors.date_received)}
+                    aria-describedby={errors.date_received ? 'receiving_date_received-error' : undefined}
                     value={data.date_received}
                     onChange={(e) => setData('date_received', e.target.value)}
                     className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-medium focus:outline-none transition-colors ${
@@ -292,7 +327,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     }`}
                 />
                 {errors.date_received && (
-                    <p className="mt-1 text-xs text-red-600 font-medium">{errors.date_received}</p>
+                    <p id="receiving_date_received-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{errors.date_received}</p>
                 )}
             </div>
 

@@ -124,7 +124,7 @@ export interface RfidDeviceConfiguration {
     device_uuid: string;
     device_name: string;
     firmware_version: string | null;
-    status: 'online' | 'offline';
+    status: 'online' | 'offline' | 'disabled';
     ip_address: string | null;
     last_seen_at: string | null;
     config_version: number;

@@ -3,6 +3,7 @@ import { Head, router, useForm, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import {
     AllItemsProps,
     AllItemsPageProps,
@@ -29,24 +30,8 @@ export default function AllItemsIndex({
     const { flash } = usePage<AllItemsPageProps>().props;
     const user = auth?.user;
 
-    // Sidebar collapse state
-    const [collapsed, setCollapsed] = useState<boolean>(() => {
-        try {
-            return localStorage.getItem('nemix_sidebar_collapsed') === 'true';
-        } catch {
-            return false;
-        }
-    });
-
-    const handleToggleCollapse = useCallback(() => {
-        setCollapsed((prev) => {
-            const next = !prev;
-            try {
-                localStorage.setItem('nemix_sidebar_collapsed', String(next));
-            } catch {}
-            return next;
-        });
-    }, []);
+    // Unified persistent sidebar collapse state
+    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
 
     // Transient Notification
     const [notification, setNotification] = useState<NotificationState | null>(null);
@@ -156,6 +141,28 @@ export default function AllItemsIndex({
         });
     }, [initialItems, searchTerm, filterSupplier, filterStatus, isServerDriven]);
 
+    const totalFiltered = isServerDriven
+        ? (pagination?.total ?? initialItems.length)
+        : filteredClientItems.length;
+
+    const totalPages = isServerDriven
+        ? pagination?.last_page || 1
+        : Math.max(1, Math.ceil(totalFiltered / rowsPerPage));
+
+    // Priority 2: Reset client page to 1 whenever any filter or search term changes
+    useEffect(() => {
+        if (!isServerDriven) {
+            setClientPage(1);
+        }
+    }, [searchTerm, filterSupplier, filterStatus, isServerDriven]);
+
+    // Priority 1: Clamp client page if totalPages shrinks below current page
+    useEffect(() => {
+        if (!isServerDriven && clientPage > totalPages) {
+            setClientPage(totalPages);
+        }
+    }, [clientPage, totalPages, isServerDriven]);
+
     const displayedItems = useMemo(() => {
         if (isServerDriven) {
             return initialItems;
@@ -163,10 +170,6 @@ export default function AllItemsIndex({
         const startIndex = (clientPage - 1) * rowsPerPage;
         return filteredClientItems.slice(startIndex, startIndex + rowsPerPage);
     }, [isServerDriven, initialItems, filteredClientItems, clientPage, rowsPerPage]);
-
-    const totalPages = isServerDriven
-        ? pagination?.last_page || 1
-        : Math.max(1, Math.ceil(filteredClientItems.length / rowsPerPage));
 
     const currentPage = isServerDriven
         ? pagination?.current_page || 1
@@ -362,6 +365,7 @@ export default function AllItemsIndex({
                         {/* Inventory Table */}
                         <InventoryTable
                             items={displayedItems}
+                            totalItems={totalFiltered}
                             pagination={pagination}
                             currentPage={currentPage}
                             totalPages={totalPages}
@@ -370,6 +374,7 @@ export default function AllItemsIndex({
                             onEdit={(item) => openEditModal(item)}
                             onDelete={(item) => setItemToDelete(item)}
                             isFiltered={isFiltered}
+                            onResetFilters={handleResetFilters}
                         />
                     </div>
                 </div>

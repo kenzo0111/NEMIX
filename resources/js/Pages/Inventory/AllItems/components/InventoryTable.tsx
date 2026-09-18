@@ -1,10 +1,11 @@
 import React from 'react';
-import { PackageOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { PackageOpen, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { InventoryItem, PaginationMeta } from '../types';
 import InventoryRow from './InventoryRow';
 
 interface InventoryTableProps {
     items: InventoryItem[];
+    totalItems?: number;
     pagination?: PaginationMeta;
     currentPage: number;
     totalPages: number;
@@ -13,10 +14,12 @@ interface InventoryTableProps {
     onEdit: (item: InventoryItem) => void;
     onDelete: (item: InventoryItem) => void;
     isFiltered: boolean;
+    onResetFilters?: () => void;
 }
 
 export default function InventoryTable({
     items = [],
+    totalItems,
     pagination,
     currentPage,
     totalPages,
@@ -25,39 +28,45 @@ export default function InventoryTable({
     onEdit,
     onDelete,
     isFiltered,
+    onResetFilters,
 }: InventoryTableProps) {
-    const totalCount = pagination ? pagination.total : items.length;
-    const fromCount = pagination ? pagination.from ?? (items.length > 0 ? 1 : 0) : Math.min(items.length, 1);
-    const toCount = pagination ? pagination.to ?? items.length : items.length;
+    const itemsPerPage = 10;
+    const totalCount = pagination ? pagination.total : (totalItems ?? items.length);
+    const fromCount = pagination
+        ? (pagination.from ?? (items.length > 0 ? 1 : 0))
+        : (totalCount === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1);
+    const toCount = pagination
+        ? (pagination.to ?? items.length)
+        : Math.min(currentPage * itemsPerPage, totalCount);
 
     return (
-        <div className="w-full overflow-hidden">
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[850px]">
+        <div className="w-full overflow-hidden min-w-0">
+            <div className="overflow-x-auto min-w-0">
+                <table className="w-full text-left border-collapse min-w-full sm:min-w-[640px]">
                     <thead className="bg-gray-50/80 border-b border-gray-200">
                         <tr>
-                            <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                            <th scope="col" className="hidden md:table-cell px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
                                 Stock No.
                             </th>
-                            <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                            <th scope="col" className="px-4 sm:px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
                                 Item
                             </th>
-                            <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                            <th scope="col" className="hidden md:table-cell px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
                                 Description
                             </th>
-                            <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                            <th scope="col" className="hidden md:table-cell px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
                                 Unit
                             </th>
-                            <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                            <th scope="col" className="px-4 sm:px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
                                 On Hand
                             </th>
-                            <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                            <th scope="col" className="hidden md:table-cell px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
                                 Inventory Value
                             </th>
-                            <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                            <th scope="col" className="px-3 sm:px-5 py-3 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
                                 Status
                             </th>
-                            <th scope="col" className="px-5 py-3 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono">
+                            <th scope="col" className="px-3 sm:px-5 py-3 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono">
                                 Actions
                             </th>
                         </tr>
@@ -76,6 +85,17 @@ export default function InventoryTable({
                                                 ? 'No items matched your active search or filter criteria. Try clearing or modifying your filters.'
                                                 : 'There are currently no items registered in the inventory master list.'}
                                         </p>
+                                        {isFiltered && onResetFilters && (
+                                            <button
+                                                type="button"
+                                                onClick={onResetFilters}
+                                                className="mt-4 px-3.5 py-2 bg-white border border-gray-300 rounded-md text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-2xs transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                                                aria-label="Clear all active inventory filters"
+                                            >
+                                                <RotateCcw className="w-3.5 h-3.5 text-gray-500" />
+                                                <span>Clear filters</span>
+                                            </button>
+                                        )}
                                     </div>
                                 </td>
                             </tr>
@@ -106,10 +126,11 @@ export default function InventoryTable({
                             type="button"
                             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
                             disabled={currentPage <= 1}
-                            className="px-2.5 py-1.5 border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1"
+                            aria-label="Go to previous page"
+                            className="min-h-[40px] min-w-[40px] px-3 py-2 border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors inline-flex items-center justify-center gap-1 cursor-pointer"
                         >
-                            <ChevronLeft className="w-3.5 h-3.5" />
-                            <span>Previous</span>
+                            <ChevronLeft className="w-4 h-4" />
+                            <span className="hidden sm:inline">Previous</span>
                         </button>
 
                         <span className="px-2 text-xs font-medium text-gray-700">
@@ -120,10 +141,11 @@ export default function InventoryTable({
                             type="button"
                             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
                             disabled={currentPage >= totalPages}
-                            className="px-2.5 py-1.5 border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1"
+                            aria-label="Go to next page"
+                            className="min-h-[40px] min-w-[40px] px-3 py-2 border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors inline-flex items-center justify-center gap-1 cursor-pointer"
                         >
-                            <span>Next</span>
-                            <ChevronRight className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Next</span>
+                            <ChevronRight className="w-4 h-4" />
                         </button>
                     </div>
                 </div>

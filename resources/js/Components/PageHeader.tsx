@@ -33,7 +33,7 @@ export default function PageHeader({
           <button
             type="button"
             onClick={handleToggleMenu}
-            className="md:hidden p-1.5 -ml-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer shrink-0 mt-0.5"
+            className="md:hidden min-h-[40px] min-w-[40px] p-2 -ml-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer shrink-0 inline-flex items-center justify-center"
             aria-label="Toggle navigation menu"
           >
             <Menu className="w-5 h-5" />
@@ -41,9 +41,9 @@ export default function PageHeader({
 
           <div className="min-w-0 flex-1">
             {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
-            <h2 className="text-base sm:text-lg font-bold text-gray-900 font-serif tracking-tight break-words">
+            <h1 className="text-base sm:text-lg font-bold text-gray-900 font-serif tracking-tight break-words">
               {title}
-            </h2>
+            </h1>
             {description && (
               <p className="text-xs text-gray-500 font-medium break-words mt-0.5">
                 {description}

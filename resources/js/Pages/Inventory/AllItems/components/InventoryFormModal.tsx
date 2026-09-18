@@ -231,30 +231,44 @@ export default function InventoryFormModal({
 
                             <div className="space-y-3.5">
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                        Item Name <span className="text-red-600">*</span>
+                                    <label htmlFor="inventory_item_name" className="block text-xs font-semibold text-gray-700 mb-1">
+                                        Item Name <span className="text-red-600" aria-hidden="true">*</span>
+                                        <span className="sr-only"> (required)</span>
                                     </label>
                                     <input
+                                        id="inventory_item_name"
+                                        name="name"
                                         type="text"
                                         value={data.name}
                                         onChange={(e) => setData('name', e.target.value)}
                                         placeholder="e.g. A4 Bond Paper 80 GSM"
                                         required
+                                        aria-required="true"
+                                        aria-invalid={Boolean(errors.name)}
+                                        aria-describedby={errors.name ? 'inventory_item_name-error' : undefined}
                                         disabled={processing}
                                         className={`w-full px-3 py-2 bg-white border rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all ${
                                             errors.name ? 'border-red-300' : 'border-gray-300'
                                         }`}
                                     />
                                     {errors.name && (
-                                        <p className="mt-1 text-xs text-red-600 font-medium">{errors.name}</p>
+                                        <p id="inventory_item_name-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">
+                                            {errors.name}
+                                        </p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                        Unit of Issue <span className="text-red-600">*</span>
+                                    <label htmlFor="inventory_unit_of_issue" className="block text-xs font-semibold text-gray-700 mb-1">
+                                        Unit of Issue <span className="text-red-600" aria-hidden="true">*</span>
+                                        <span className="sr-only"> (required)</span>
                                     </label>
                                     <Select
+                                        inputId="inventory_unit_of_issue"
+                                        name="unit_of_issue"
+                                        aria-label="Unit of Issue"
+                                        aria-invalid={Boolean(errors.unit_of_issue)}
+                                        aria-describedby={errors.unit_of_issue ? 'inventory_unit_of_issue-error' : undefined}
                                         value={selectedUnitOption}
                                         onChange={(opt) => setData('unit_of_issue', opt ? opt.value : '')}
                                         options={UNIT_OF_ISSUE_OPTIONS}
@@ -265,26 +279,34 @@ export default function InventoryFormModal({
                                         isDisabled={processing}
                                     />
                                     {errors.unit_of_issue && (
-                                        <p className="mt-1 text-xs text-red-600 font-medium">{errors.unit_of_issue}</p>
+                                        <p id="inventory_unit_of_issue-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">
+                                            {errors.unit_of_issue}
+                                        </p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                    <label htmlFor="inventory_description" className="block text-xs font-semibold text-gray-700 mb-1">
                                         Description / Specifications <span className="text-gray-400 font-normal">(Optional)</span>
                                     </label>
                                     <textarea
+                                        id="inventory_description"
+                                        name="description"
                                         value={data.description}
                                         onChange={(e) => setData('description', e.target.value)}
                                         placeholder="Specifications, dimensions, material, or packaging details..."
                                         rows={2}
                                         disabled={processing}
+                                        aria-invalid={Boolean(errors.description)}
+                                        aria-describedby={errors.description ? 'inventory_description-error' : undefined}
                                         className={`w-full px-3 py-2 bg-white border rounded-lg text-xs font-normal focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all ${
                                             errors.description ? 'border-red-300' : 'border-gray-300'
                                         }`}
                                     />
                                     {errors.description && (
-                                        <p className="mt-1 text-xs text-red-600 font-medium">{errors.description}</p>
+                                        <p id="inventory_description-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">
+                                            {errors.description}
+                                        </p>
                                     )}
                                 </div>
                             </div>
@@ -366,10 +388,16 @@ export default function InventoryFormModal({
                                     <div className="p-4 border-t border-gray-200/70 space-y-3.5 bg-white">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                                             <div>
-                                                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                                    Preferred Supplier {Number(data.stock) > 0 && <span className="text-red-600">*</span>}
+                                                <label htmlFor="inventory_supplier_id" className="block text-xs font-semibold text-gray-700 mb-1">
+                                                    Preferred Supplier {Number(data.stock) > 0 && <span className="text-red-600" aria-hidden="true">*</span>}
+                                                    {Number(data.stock) > 0 && <span className="sr-only"> (required)</span>}
                                                 </label>
                                                 <Select
+                                                    inputId="inventory_supplier_id"
+                                                    name="supplier_id"
+                                                    aria-label="Preferred Supplier"
+                                                    aria-invalid={Boolean(errors.supplier_id)}
+                                                    aria-describedby={errors.supplier_id ? 'inventory_supplier_id-error' : undefined}
                                                     value={selectedSupplierOption}
                                                     onChange={(opt) => setData('supplier_id', opt ? opt.value : '')}
                                                     options={supplierOptions}
@@ -380,20 +408,26 @@ export default function InventoryFormModal({
                                                     isDisabled={processing}
                                                 />
                                                 {errors.supplier_id && (
-                                                    <p className="mt-1 text-xs text-red-600 font-medium">{errors.supplier_id}</p>
+                                                    <p id="inventory_supplier_id-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">
+                                                        {errors.supplier_id}
+                                                    </p>
                                                 )}
                                             </div>
 
                                             <div>
-                                                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                                <label htmlFor="inventory_supplier_stock_no" className="block text-xs font-semibold text-gray-700 mb-1">
                                                     Supplier Stock No. / SKU
                                                 </label>
                                                 <div className="relative">
                                                     <input
+                                                        id="inventory_supplier_stock_no"
+                                                        name="supplier_stock_no"
                                                         type="text"
                                                         value={data.supplier_stock_no || ''}
                                                         readOnly
                                                         placeholder={data.supplier_id ? 'Generating SKU...' : 'Auto-generated with vendor'}
+                                                        aria-invalid={Boolean(errors.supplier_stock_no)}
+                                                        aria-describedby={errors.supplier_stock_no ? 'inventory_supplier_stock_no-error' : undefined}
                                                         className={`w-full px-3 py-2 pr-8 bg-gray-50 border rounded-lg text-xs font-mono font-medium text-gray-900 cursor-not-allowed ${
                                                             errors.supplier_stock_no ? 'border-red-300' : 'border-gray-200'
                                                         }`}
@@ -407,17 +441,21 @@ export default function InventoryFormModal({
                                                     </div>
                                                 </div>
                                                 {errors.supplier_stock_no && (
-                                                    <p className="mt-1 text-xs text-red-600 font-medium">{errors.supplier_stock_no}</p>
+                                                    <p id="inventory_supplier_stock_no-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">
+                                                        {errors.supplier_stock_no}
+                                                    </p>
                                                 )}
                                             </div>
                                         </div>
 
                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                             <div>
-                                                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                                <label htmlFor="inventory_stock" className="block text-xs font-semibold text-gray-700 mb-1">
                                                     Initial Stock
                                                 </label>
                                                 <input
+                                                    id="inventory_stock"
+                                                    name="stock"
                                                     type="number"
                                                     min="0"
                                                     value={data.stock}
@@ -428,20 +466,27 @@ export default function InventoryFormModal({
                                                         setData('amount', (newStock * cost).toFixed(2));
                                                     }}
                                                     disabled={processing}
+                                                    aria-invalid={Boolean(errors.stock)}
+                                                    aria-describedby={errors.stock ? 'inventory_stock-error' : undefined}
                                                     className={`w-full px-3 py-2 bg-white border rounded-lg text-xs font-mono font-medium focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${
                                                         errors.stock ? 'border-red-300' : 'border-gray-300'
                                                     }`}
                                                 />
                                                 {errors.stock && (
-                                                    <p className="mt-1 text-xs text-red-600 font-medium">{errors.stock}</p>
+                                                    <p id="inventory_stock-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">
+                                                        {errors.stock}
+                                                    </p>
                                                 )}
                                             </div>
 
                                             <div>
-                                                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                                    Unit Cost (₱) {Number(data.stock) > 0 && <span className="text-red-600">*</span>}
+                                                <label htmlFor="inventory_unit_cost" className="block text-xs font-semibold text-gray-700 mb-1">
+                                                    Unit Cost (₱) {Number(data.stock) > 0 && <span className="text-red-600" aria-hidden="true">*</span>}
+                                                    {Number(data.stock) > 0 && <span className="sr-only"> (required)</span>}
                                                 </label>
                                                 <input
+                                                    id="inventory_unit_cost"
+                                                    name="unit_cost"
                                                     type="number"
                                                     step="0.01"
                                                     min="0"
@@ -454,12 +499,16 @@ export default function InventoryFormModal({
                                                     }}
                                                     placeholder="0.00"
                                                     disabled={processing}
+                                                    aria-invalid={Boolean(errors.unit_cost)}
+                                                    aria-describedby={errors.unit_cost ? 'inventory_unit_cost-error' : undefined}
                                                     className={`w-full px-3 py-2 bg-white border rounded-lg text-xs font-mono font-medium focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${
                                                         errors.unit_cost ? 'border-red-300' : 'border-gray-300'
                                                     }`}
                                                 />
                                                 {errors.unit_cost && (
-                                                    <p className="mt-1 text-xs text-red-600 font-medium">{errors.unit_cost}</p>
+                                                    <p id="inventory_unit_cost-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">
+                                                        {errors.unit_cost}
+                                                    </p>
                                                 )}
                                             </div>
 

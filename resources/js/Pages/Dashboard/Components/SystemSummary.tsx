@@ -22,7 +22,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                 <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">
                     System Summary Metrics
                 </h2>
-                <span className="text-[11px] text-gray-500 font-medium">
+                <span className="text-xs text-gray-500 font-medium">
                     Institutional Supplies & Inventory
                 </span>
             </div>
@@ -44,7 +44,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                     <div className="text-xl font-bold font-serif text-gray-950 truncate tracking-tight">
                         {formattedVal}
                     </div>
-                    <div className="text-[11px] text-gray-500 font-medium mt-1 flex items-center gap-1">
+                    <div className="text-xs text-gray-500 font-medium mt-1 flex items-center gap-1">
                         <span>Total on-hand valuation</span>
                     </div>
                 </Link>
@@ -65,7 +65,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                     <div className="text-xl font-bold text-gray-950 tracking-tight font-mono">
                         {availableItems.toLocaleString()}
                     </div>
-                    <div className="text-[11px] text-gray-500 font-medium mt-1">
+                    <div className="text-xs text-gray-500 font-medium mt-1">
                         <span>Tracked stock lines</span>
                     </div>
                 </Link>
@@ -86,7 +86,7 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                     <div className="text-xl font-bold text-gray-950 tracking-tight font-mono">
                         {issuedMtd.toLocaleString()}
                     </div>
-                    <div className="text-[11px] text-gray-500 font-medium mt-1">
+                    <div className="text-xs text-gray-500 font-medium mt-1">
                         <span>Disbursed via RIS MTD</span>
                     </div>
                 </Link>
@@ -111,28 +111,31 @@ export default function SystemSummary({ summary, stats }: SystemSummaryProps) {
                     <div className={`text-xl font-bold tracking-tight font-mono ${criticalStock > 0 ? 'text-red-700' : 'text-gray-950'}`}>
                         {criticalStock.toLocaleString()}
                     </div>
-                    <div className={`text-[11px] font-medium mt-1 ${criticalStock > 0 ? 'text-red-800' : 'text-gray-500'}`}>
+                    <div className={`text-xs font-medium mt-1 ${criticalStock > 0 ? 'text-red-800' : 'text-gray-500'}`}>
                         <span>{criticalStock > 0 ? 'Items below minimum' : 'All thresholds normal'}</span>
                     </div>
                 </Link>
 
-                {/* Unserviceable / Disposals (Optional 5th card on large screens) */}
-                <div className="hidden xl:block bg-white border border-gray-200 rounded-lg p-4">
+                {/* Unserviceable / Disposals (Permanently visible at all widths) */}
+                <Link
+                    href={route('inventory.index')}
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:border-red-900/40 hover:shadow-xs transition-all group"
+                >
                     <div className="flex items-center justify-between text-gray-500 mb-2">
                         <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
                             Unserviceable
                         </span>
-                        <div className="p-1.5 rounded-md bg-gray-50 text-gray-600">
+                        <div className="p-1.5 rounded-md bg-gray-50 text-gray-600 group-hover:text-amber-700 group-hover:bg-amber-50 transition-colors">
                             <ShieldAlert className="w-4 h-4" />
                         </div>
                     </div>
                     <div className="text-xl font-bold text-gray-950 tracking-tight font-mono">
                         {unserviceable.toLocaleString()}
                     </div>
-                    <div className="text-[11px] text-gray-500 font-medium mt-1">
+                    <div className="text-xs text-gray-500 font-medium mt-1">
                         <span>Items awaiting review/disposal</span>
                     </div>
-                </div>
+                </Link>
             </div>
         </section>
     );

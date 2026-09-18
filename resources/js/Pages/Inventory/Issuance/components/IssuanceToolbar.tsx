@@ -24,9 +24,9 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
     return (
         <div className="p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-50/50">
             <div>
-                <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">
+                <h2 className="text-base font-bold text-gray-900 font-serif tracking-tight">
                     Inventory Issuance Records
-                </h3>
+                </h2>
                 <p className="text-xs text-gray-500 font-medium mt-0.5">
                     Official supply distributions and Requisition and Issue Slips (RIS).
                 </p>
@@ -36,8 +36,11 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
             <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 w-full xl:w-auto">
                 {/* Search Input */}
                 <div className="relative w-full sm:w-64">
+                    <label htmlFor="issuance-search-input" className="sr-only">
+                        Search issuance records
+                    </label>
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -47,10 +50,12 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                         </svg>
                     </div>
                     <input
-                        type="text"
+                        id="issuance-search-input"
+                        type="search"
                         value={searchTerm}
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search issuance..."
+                        aria-label="Search issuance records"
                         className="w-full pl-9 pr-3 py-2 bg-white border border-gray-300 rounded-md text-xs font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-xs placeholder-gray-400 transition-colors"
                     />
                 </div>
@@ -65,6 +70,7 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                         isClearable
                         styles={institutionalSelectStyles}
                         classNamePrefix="react-select"
+                        aria-label="Filter by recipient"
                     />
                 </div>
 
@@ -72,9 +78,9 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                 <button
                     type="button"
                     onClick={onRecordIssuance}
-                    className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer"
+                    className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer min-h-[38px]"
                 >
-                    <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-amber-300" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
                     Record Issuance
