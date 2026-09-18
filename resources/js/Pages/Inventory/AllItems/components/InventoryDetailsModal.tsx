@@ -27,15 +27,15 @@ export default function InventoryDetailsModal({
     const recentIssuances = item.recent_issuances || [];
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="3xl">
-            <div className="relative bg-white rounded-lg shadow-xl overflow-hidden border border-gray-200">
+        <Modal show={show} onClose={onClose} maxWidth="3xl" ariaLabel="Item Master Record">
+            <div className="relative bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
                 {/* Institutional Maroon Top Accent Line */}
-                <div className="h-1.5 w-full bg-red-950" />
+                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Modal Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/50">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/70">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-md bg-red-50 text-red-950 flex items-center justify-center border border-red-100">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-950 flex items-center justify-center border border-red-100/80 shadow-2xs shrink-0">
                             <Package className="w-5 h-5" />
                         </div>
                         <div>

@@ -5,6 +5,7 @@ import { IssuanceRecord } from '../types';
 import { IssuanceStatus } from './IssuanceStatus';
 import { getFundClusterDisplay } from '../constants';
 import { formatDisplayDate } from '@/utils/dateUtils';
+import { ClipboardList, X } from 'lucide-react';
 
 interface IssuanceDetailsModalProps {
     show: boolean;
@@ -25,27 +26,33 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
     const totalAmt = issuance.total_amount ?? issuance.amount ?? 0;
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="2xl">
+        <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Issuance Record Details">
             <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 flex flex-col max-h-[90vh]">
+                {/* Institutional Maroon Top Accent Line */}
+                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
+
                 {/* Administrative Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50/75 flex-shrink-0">
-                    <div>
-                        <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">
-                            Issuance Record Details
-                        </h3>
-                        <p className="text-xs text-gray-500 font-mono">
-                            RIS Reference: <span className="font-bold text-red-950">{formatRisNumber(issuance.ris_number)}</span>
-                        </p>
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/75 flex-shrink-0">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-950 flex items-center justify-center border border-red-100/80 shadow-2xs shrink-0">
+                            <ClipboardList className="w-5 h-5 text-red-900" />
+                        </div>
+                        <div className="min-w-0">
+                            <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight truncate">
+                                Issuance Record Details
+                            </h3>
+                            <p className="text-xs text-gray-500 font-mono truncate">
+                                RIS Reference: <span className="font-bold text-red-950">{formatRisNumber(issuance.ris_number)}</span>
+                            </p>
+                        </div>
                     </div>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
+                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer shrink-0 ml-2"
                         aria-label="Close"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 

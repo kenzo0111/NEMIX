@@ -23,7 +23,7 @@ export default function AccountStatusModal({
     const isActive = staff.status === 'Active';
 
     return (
-        <Modal show={isOpen} onClose={onClose} maxWidth="md">
+        <Modal show={isOpen} onClose={onClose} maxWidth="md" closeable={!isProcessing} ariaLabel="Staff Account Status Confirmation">
             <div className="overflow-hidden rounded-xl bg-white shadow-xl">
                 {/* Status Color Bar */}
                 <div

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Modal from '@/Components/Modal';
 import { X, UserPlus, AlertCircle, Loader2 } from 'lucide-react';
 import { Signatory } from '../types';
 
@@ -32,8 +33,6 @@ export default function AddSignatoryDialog({
         }
     }, [isOpen, initialName]);
 
-    if (!isOpen) return null;
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage(null);
@@ -44,7 +43,7 @@ export default function AddSignatoryDialog({
         }
 
         if (!designation.trim()) {
-            setErrorMessage('Designation is required.');
+            setErrorMessage('Official Designation / Title is required.');
             return;
         }
 
@@ -85,21 +84,29 @@ export default function AddSignatoryDialog({
     };
 
     return (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-            <div
-                className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-150"
-                onClick={(e) => e.stopPropagation()}
-            >
+        <Modal
+            show={isOpen}
+            onClose={() => !submitting && onClose()}
+            maxWidth="md"
+            closeable={!submitting}
+            ariaLabel="Add New Signatory"
+        >
+            <div className="bg-white rounded-xl overflow-hidden shadow-xl border border-slate-200">
+                {/* Institutional Maroon Top Accent Line */}
+                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
+
                 {/* Header */}
-                <div className="px-6 py-4 bg-gradient-to-r from-red-950 to-red-900 flex items-center justify-between text-white">
-                    <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                            <UserPlus className="w-4 h-4 text-amber-300" />
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-white">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-900 border border-red-100/80 flex items-center justify-center shrink-0 shadow-2xs">
+                            <UserPlus className="w-5 h-5" />
                         </div>
-                        <div>
-                            <h3 className="text-sm font-bold tracking-tight">Add New Signatory</h3>
-                            <p className="text-[11px] text-red-200/90">
-                                Register authorized personnel to official directory
+                        <div className="min-w-0">
+                            <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight truncate">
+                                Add New Signatory
+                            </h3>
+                            <p className="text-xs text-gray-500 mt-0.5 truncate">
+                                Register authorized personnel to the official directory.
                             </p>
                         </div>
                     </div>
@@ -107,85 +114,99 @@ export default function AddSignatoryDialog({
                         type="button"
                         onClick={onClose}
                         disabled={submitting}
-                        className="p-1 rounded-lg text-red-200 hover:text-white hover:bg-white/10 transition-colors"
+                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-40 cursor-pointer shrink-0 ml-2"
+                        aria-label="Close dialog"
                     >
-                        <X className="w-4 h-4" />
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    {errorMessage && (
-                        <div className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-xs text-red-700">
-                            <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                            <span>{errorMessage}</span>
+                <form onSubmit={handleSubmit}>
+                    <div className="p-4 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                        {errorMessage && (
+                            <div className="p-3 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2.5 text-xs text-red-700 leading-relaxed">
+                                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                                <span>{errorMessage}</span>
+                            </div>
+                        )}
+
+                        <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
+                                Full Name <span className="text-red-600">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                disabled={submitting}
+                                placeholder="e.g. JUAN DELA CRUZ, PhD"
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900 focus:outline-none bg-white text-gray-900 placeholder:text-gray-400 transition-colors shadow-2xs disabled:bg-slate-50"
+                                autoFocus
+                                required
+                            />
                         </div>
-                    )}
 
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
-                            Full Name <span className="text-red-600">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            disabled={submitting}
-                            placeholder="e.g. JUAN DELA CRUZ"
-                            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300 disabled:bg-slate-50"
-                            autoFocus
-                        />
+                        <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
+                                Official Designation / Title <span className="text-red-600">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={designation}
+                                onChange={(e) => setDesignation(e.target.value)}
+                                disabled={submitting}
+                                placeholder="e.g. SUPPLY OFFICER III / ADMIN OFFICER V"
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900 focus:outline-none bg-white text-gray-900 placeholder:text-gray-400 transition-colors shadow-2xs disabled:bg-slate-50"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
+                                Office / Department <span className="text-gray-400 text-[11px] font-normal normal-case">(Optional)</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={office}
+                                onChange={(e) => setOffice(e.target.value)}
+                                disabled={submitting}
+                                placeholder="e.g. Supply & Property Management Office (SPMO)"
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900 focus:outline-none bg-white text-gray-900 placeholder:text-gray-400 transition-colors shadow-2xs disabled:bg-slate-50"
+                            />
+                        </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
-                            Official Designation / Title <span className="text-red-600">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={designation}
-                            onChange={(e) => setDesignation(e.target.value)}
-                            disabled={submitting}
-                            placeholder="e.g. SUPPLY OFFICER III / ADMIN OFFICER V"
-                            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300 disabled:bg-slate-50"
-                        />
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
-                            Office / Department <span className="text-slate-400 text-[11px] font-normal">(Optional)</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={office}
-                            onChange={(e) => setOffice(e.target.value)}
-                            disabled={submitting}
-                            placeholder="e.g. Supply & Property Management Office (SPMO)"
-                            className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300 disabled:bg-slate-50"
-                        />
-                    </div>
-
-                    {/* Footer buttons */}
-                    <div className="pt-3 flex items-center justify-end gap-2.5 border-t border-slate-100">
+                    {/* Footer */}
+                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 border-t border-gray-200 gap-2.5">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={submitting}
-                            className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer text-center"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={submitting || !name.trim() || !designation.trim()}
-                            className="px-4 py-2 text-xs font-semibold text-white bg-red-900 hover:bg-red-800 active:bg-red-950 rounded-xl transition-all shadow-xs flex items-center gap-1.5 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed"
+                            className="w-full sm:w-auto px-5 py-2.5 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-xs font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 uppercase font-mono tracking-wider cursor-pointer"
                         >
-                            {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                            <span>{submitting ? 'Adding...' : 'Add Signatory'}</span>
+                            {submitting ? (
+                                <>
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    <span>Adding...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <UserPlus className="w-3.5 h-3.5 text-amber-300" />
+                                    <span>Add Signatory</span>
+                                </>
+                            )}
                         </button>
                     </div>
                 </form>
             </div>
-        </div>
+        </Modal>
     );
 }

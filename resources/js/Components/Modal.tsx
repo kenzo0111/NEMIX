@@ -4,18 +4,22 @@ import {
     Transition,
     TransitionChild,
 } from '@headlessui/react';
-import { PropsWithChildren } from 'react';
+import React, { PropsWithChildren } from 'react';
 
 export default function Modal({
     children,
     show = false,
     maxWidth = '2xl',
     closeable = true,
+    initialFocus,
+    ariaLabel,
     onClose = () => {},
 }: PropsWithChildren<{
     show: boolean;
     maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl';
     closeable?: boolean;
+    initialFocus?: React.RefObject<HTMLElement | null>;
+    ariaLabel?: string;
     onClose: CallableFunction;
 }>) {
     const close = () => {
@@ -42,8 +46,10 @@ export default function Modal({
             <Dialog
                 as="div"
                 id="modal"
-                className="fixed inset-0 z-50 flex transform items-center overflow-y-auto px-4 py-6 transition-all sm:px-0 print:static print:overflow-visible print:p-0 print:m-0 print:block"
+                aria-label={ariaLabel}
+                className="fixed inset-0 z-50 overflow-y-auto print:static print:overflow-visible print:p-0 print:m-0 print:block"
                 onClose={close}
+                initialFocus={initialFocus}
             >
                 <TransitionChild
                     enter="ease-out duration-300"
@@ -53,24 +59,30 @@ export default function Modal({
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="absolute inset-0 bg-slate-900/75 backdrop-blur-md print:hidden" />
+                    <div
+                        className="fixed inset-0 bg-slate-900/75 backdrop-blur-sm transition-opacity print:hidden"
+                        aria-hidden="true"
+                    />
                 </TransitionChild>
 
-                <TransitionChild
-                    enter="ease-out duration-300"
-                    enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    enterTo="opacity-100 translate-y-0 sm:scale-100"
-                    leave="ease-in duration-200"
-                    leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-                    leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                >
-                    <DialogPanel
-                        className={`mb-6 transform overflow-hidden rounded-lg bg-white shadow-xl transition-all w-full max-w-[calc(100vw-2rem)] sm:mx-auto sm:w-full ${maxWidthClass} print:m-0 print:p-0 print:shadow-none print:border-none print:rounded-none print:w-full print:max-w-none print:transform-none print:overflow-visible`}
+                <div className="flex min-h-full items-center justify-center p-3 text-center sm:p-6 print:block print:p-0">
+                    <TransitionChild
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                        enterTo="opacity-100 translate-y-0 sm:scale-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                        leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                     >
-                        {children}
-                    </DialogPanel>
-                </TransitionChild>
+                        <DialogPanel
+                            className={`w-full my-auto transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-2xl transition-all max-w-[calc(100vw-1.5rem)] sm:max-w-none ${maxWidthClass} print:m-0 print:p-0 print:shadow-none print:border-none print:rounded-none print:w-full print:max-w-none print:transform-none print:overflow-visible`}
+                        >
+                            {children}
+                        </DialogPanel>
+                    </TransitionChild>
+                </div>
             </Dialog>
         </Transition>
     );
 }
+

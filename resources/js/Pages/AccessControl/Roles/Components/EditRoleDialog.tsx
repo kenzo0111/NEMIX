@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
-import { X, Lock, Sliders } from 'lucide-react';
+import { X, Lock, Sliders, Loader2 } from 'lucide-react';
 import { Role, Permission, EditRoleFormData, ModuleStats } from '../types';
 import PermissionModuleList from './PermissionModuleList';
 import PermissionList from './PermissionList';
@@ -113,8 +113,11 @@ export default function EditRoleDialog({
     const isSystemRole = role.is_system;
 
     return (
-        <Modal show={isOpen} onClose={onClose} maxWidth="4xl">
-            <div className="bg-white rounded-xl overflow-hidden flex flex-col max-h-[90vh]">
+        <Modal show={isOpen} onClose={onClose} maxWidth="4xl" closeable={!processing} ariaLabel="Edit Role and Permissions">
+            <div className="bg-white rounded-xl overflow-hidden flex flex-col max-h-[90vh] shadow-xl border border-slate-200">
+                {/* Institutional Maroon Top Accent Line */}
+                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
+
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 shrink-0 bg-white">
                     <div className="flex items-center gap-3 min-w-0">
@@ -260,9 +263,16 @@ export default function EditRoleDialog({
                             type="submit"
                             form="edit-role-form"
                             disabled={processing || !data.name.trim()}
-                            className="w-full sm:w-auto px-4 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-center"
+                            className="w-full sm:w-auto px-5 py-2.5 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-xs font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-center flex items-center justify-center gap-1.5 uppercase font-mono tracking-wider"
                         >
-                            {processing ? 'Saving...' : 'Save Changes'}
+                            {processing ? (
+                                <>
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    <span>Saving...</span>
+                                </>
+                            ) : (
+                                <span>Save Changes</span>
+                            )}
                         </button>
                     </div>
                 </div>

@@ -259,12 +259,12 @@ export default function Authenticated({
                             <span>Your session activity and logout timestamp will be safely recorded in the Audit Ledger.</span>
                         </p>
 
-                        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-4 border-t border-gray-100">
                             <button
                                 type="button"
                                 onClick={() => setShowLogoutModal(false)}
                                 disabled={isLoggingOut}
-                                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 focus:outline-none transition-all disabled:opacity-50 cursor-pointer"
+                                className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-400 transition-all disabled:opacity-50 cursor-pointer text-center"
                             >
                                 Stay Signed In
                             </button>
@@ -272,13 +272,13 @@ export default function Authenticated({
                                 type="button"
                                 onClick={handleConfirmLogout}
                                 disabled={isLoggingOut}
-                                className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-red-700 hover:bg-red-800 active:bg-red-900 shadow-md shadow-red-900/20 focus:outline-none transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-red-900 hover:bg-red-950 active:bg-black shadow-md shadow-red-950/20 focus:outline-none focus:ring-2 focus:ring-red-900/50 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                             >
                                 {isLoggingOut ? (
                                     <>
                                         <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                         </svg>
                                         <span>Logging Out...</span>
                                     </>

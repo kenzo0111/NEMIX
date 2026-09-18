@@ -33,13 +33,13 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
     ) || FORM_STATUS_OPTIONS[0];
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="2xl" closeable={!isSubmitting}>
-            <div className="relative bg-white rounded-lg overflow-hidden shadow-xl border border-gray-200">
+        <Modal show={show} onClose={onClose} maxWidth="2xl" closeable={!isSubmitting} ariaLabel={title}>
+            <div className="relative bg-white rounded-xl overflow-hidden shadow-xl border border-gray-200">
                 {/* Institutional Maroon Top Accent Line */}
-                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
+                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/60">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/70">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-red-50 text-red-950 flex items-center justify-center border border-red-100/80 shadow-xs shrink-0">
                             {isCreate ? (

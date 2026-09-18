@@ -110,7 +110,7 @@ export default function EditStaffModal({
     const selectedRoleOption = assignableRoleOptions.find((opt) => opt.value === data.role) || null;
 
     return (
-        <Modal show={isOpen} onClose={handleClose} maxWidth="md">
+        <Modal show={isOpen} onClose={handleClose} maxWidth="md" closeable={!processing} ariaLabel="Edit Staff Account">
             <div className="overflow-hidden rounded-xl bg-white shadow-xl">
                 {/* Institutional Maroon Accent Bar */}
                 <div className="h-1.5 w-full bg-red-900 shrink-0"></div>

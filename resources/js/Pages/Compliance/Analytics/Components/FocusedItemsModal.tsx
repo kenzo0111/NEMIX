@@ -39,10 +39,13 @@ export default function FocusedItemsModal({
     };
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="3xl">
-            <div className="flex max-h-[85vh] flex-col overflow-hidden rounded-lg bg-white shadow-xl border border-gray-200">
+        <Modal show={show} onClose={onClose} maxWidth="3xl" ariaLabel="Inventory Analytics Drill-Down">
+            <div className="flex max-h-[85vh] flex-col overflow-hidden rounded-xl bg-white shadow-xl border border-gray-200">
+                {/* Institutional Maroon Top Accent Line */}
+                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
+
                 {/* Institutional Header */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 border-b border-gray-200 bg-gray-50 px-4 sm:px-6 py-3.5 sm:py-4 flex-shrink-0">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 border-b border-gray-200 bg-gray-50/70 px-4 sm:px-6 py-3.5 sm:py-4 flex-shrink-0">
                     <div className="flex items-center gap-2.5 min-w-0">
                         <div className="p-2 rounded bg-red-950 text-amber-300 border border-red-900 shrink-0">
                             <Package className="h-4 w-4" />

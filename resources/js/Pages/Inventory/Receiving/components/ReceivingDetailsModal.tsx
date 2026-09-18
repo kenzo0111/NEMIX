@@ -2,6 +2,7 @@ import React from 'react';
 import Modal from '@/Components/Modal';
 import { ReceivingRecord } from '../types';
 import { formatDisplayDate } from '@/utils/dateUtils';
+import { PackageCheck, X, Edit3 } from 'lucide-react';
 
 interface ReceivingDetailsModalProps {
     show: boolean;
@@ -23,35 +24,38 @@ export const ReceivingDetailsModal: React.FC<ReceivingDetailsModalProps> = ({
         receiving.date;
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="md">
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                {/* Thin Maroon Accent Line */}
-                <div className="h-1 bg-red-900 w-full" />
+        <Modal show={show} onClose={onClose} maxWidth="md" ariaLabel="Receiving Record Details">
+            <div className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
+                {/* Institutional Maroon Accent Line */}
+                <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 w-full shrink-0" />
 
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50/50">
-                    <div>
-                        <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">
-                            Receiving Record
-                        </h3>
-                        <p className="text-xs text-gray-500 font-medium mt-0.5">
-                            Transaction Reference #{receiving.id}
-                        </p>
+                <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50/70">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-950 flex items-center justify-center border border-red-100/80 shadow-2xs shrink-0">
+                            <PackageCheck className="w-5 h-5 text-red-900" />
+                        </div>
+                        <div className="min-w-0">
+                            <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight truncate">
+                                Receiving Record
+                            </h3>
+                            <p className="text-xs text-gray-500 font-medium mt-0.5 truncate">
+                                Transaction Reference #{receiving.id}
+                            </p>
+                        </div>
                     </div>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer shrink-0 ml-2"
                         aria-label="Close modal"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 
-                {/* Clean Definition Layout (No Nested Bordered Cards) */}
-                <div className="p-6">
+                {/* Definition Layout */}
+                <div className="p-4 sm:p-6 max-h-[75vh] overflow-y-auto">
                     <dl className="divide-y divide-gray-100 text-xs">
                         <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
                             <dt className="font-semibold text-gray-500 uppercase tracking-wider">Item</dt>
@@ -98,7 +102,7 @@ export const ReceivingDetailsModal: React.FC<ReceivingDetailsModalProps> = ({
                                         {receiving.quantity_remaining} {receiving.unit || 'pcs'}
                                     </span>
                                 ) : (
-                                    <span className="text-gray-400">N/A</span>
+                                    <span className="text-gray-400 italic">N/A</span>
                                 )}
                             </dd>
                         </div>
@@ -121,7 +125,7 @@ export const ReceivingDetailsModal: React.FC<ReceivingDetailsModalProps> = ({
                             </dd>
                         </div>
                         <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-                            <dt className="font-semibold text-gray-500 uppercase tracking-wider">Date Received</dt>
+                            <dt className="font-semibold text-gray-500 uppercase tracking-wider">Date Recorded</dt>
                             <dd className="mt-1 text-gray-700 sm:col-span-2 sm:mt-0">
                                 {formattedDate}
                             </dd>
@@ -130,20 +134,24 @@ export const ReceivingDetailsModal: React.FC<ReceivingDetailsModalProps> = ({
                 </div>
 
                 {/* Footer Actions */}
-                <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-200 flex items-center justify-between">
+                <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 border-t border-gray-200 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors shadow-2xs"
+                        className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-2xs text-center cursor-pointer"
                     >
                         Close
                     </button>
                     <button
                         type="button"
-                        onClick={() => onEdit(receiving)}
-                        className="inline-flex items-center px-4 py-2 border border-red-900 text-red-900 hover:bg-red-50 rounded-md font-semibold text-xs transition-colors shadow-2xs"
+                        onClick={() => {
+                            onClose();
+                            onEdit(receiving);
+                        }}
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-red-900 text-red-900 hover:bg-red-50 rounded-lg font-semibold text-xs transition-colors shadow-2xs cursor-pointer text-center"
                     >
-                        Update Record
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Update Record</span>
                     </button>
                 </div>
             </div>

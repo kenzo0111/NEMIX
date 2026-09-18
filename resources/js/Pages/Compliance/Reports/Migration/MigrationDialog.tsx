@@ -59,10 +59,11 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
             onClose={() => !isSubmitting && onClose()}
             maxWidth="6xl"
             closeable={!isSubmitting}
+            ariaLabel="Historical Data Migration Workspace"
         >
             <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white shadow-2xl border border-gray-200">
                 {/* Thin Amber-Maroon Accent Top Line */}
-                <div className="h-1 bg-gradient-to-r from-amber-600 via-red-900 to-red-950 w-full shrink-0" />
+                <div className="h-1.5 bg-gradient-to-r from-amber-600 via-red-900 to-red-950 w-full shrink-0" />
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200/80 bg-gradient-to-b from-gray-50/90 to-white shrink-0">

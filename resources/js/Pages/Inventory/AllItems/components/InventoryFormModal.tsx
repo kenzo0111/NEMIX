@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Modal from '@/Components/Modal';
 import Select from 'react-select';
 import axios from 'axios';
-import { X, Loader2, Lock } from 'lucide-react';
+import { X, Loader2, Lock, PackagePlus, Edit3 } from 'lucide-react';
 import { Supplier, InventoryItem, SelectOption } from '../types';
 import { UNIT_OF_ISSUE_OPTIONS, customSelectStyles } from '../constants';
 import { computeStatusFromStock } from '../utils/inventory';
@@ -124,28 +124,43 @@ export default function InventoryFormModal({
     const computedBatchTotal = (Number(data.stock || 0) * Number(data.unit_cost || 0));
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="2xl" closeable={!processing}>
-            <div className="relative bg-white rounded-lg shadow-xl overflow-hidden border border-gray-200">
+        <Modal
+            show={show}
+            onClose={onClose}
+            maxWidth="2xl"
+            closeable={!processing}
+            ariaLabel={isEditing ? 'Edit Item Master' : 'Register New Item Master'}
+        >
+            <div className="relative bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
                 {/* Institutional Maroon Top Accent Line */}
-                <div className="h-1.5 w-full bg-red-950" />
+                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Modal Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/50">
-                    <div>
-                        <h3 className="text-base font-bold text-gray-900 tracking-tight font-serif">
-                            {isEditing ? 'Edit Item Master' : 'Register New Item Master'}
-                        </h3>
-                        <p className="text-xs text-gray-500 font-medium mt-0.5">
-                            {isEditing
-                                ? 'Update the master specifications and identity for this consumable inventory item.'
-                                : 'Define the standardized item master identity. Receiving batches and suppliers are tracked separately.'}
-                        </p>
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/70">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-950 flex items-center justify-center border border-red-100/80 shadow-2xs shrink-0">
+                            {isEditing ? (
+                                <Edit3 className="w-5 h-5 text-red-900" />
+                            ) : (
+                                <PackagePlus className="w-5 h-5 text-red-900" />
+                            )}
+                        </div>
+                        <div className="min-w-0">
+                            <h3 className="text-base font-bold text-gray-900 tracking-tight font-serif truncate">
+                                {isEditing ? 'Edit Item Master' : 'Register New Item Master'}
+                            </h3>
+                            <p className="text-xs text-gray-500 font-medium mt-0.5 truncate">
+                                {isEditing
+                                    ? 'Update the master specifications and identity for this consumable inventory item.'
+                                    : 'Define the standardized item master identity. Receiving batches and suppliers are tracked separately.'}
+                            </p>
+                        </div>
                     </div>
                     <button
                         type="button"
                         onClick={onClose}
                         disabled={processing}
-                        className="text-gray-400 hover:text-gray-700 hover:bg-gray-100 p-1.5 rounded-md transition-colors disabled:opacity-40"
+                        className="text-gray-400 hover:text-gray-700 hover:bg-gray-100 p-1.5 rounded-lg transition-colors disabled:opacity-40 cursor-pointer shrink-0 ml-2"
                         aria-label="Close modal"
                     >
                         <X className="w-5 h-5" />

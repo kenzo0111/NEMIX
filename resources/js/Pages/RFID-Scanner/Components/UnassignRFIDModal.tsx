@@ -1,5 +1,7 @@
+import React from 'react';
 import Modal from '@/Components/Modal';
 import { RFIDInventoryItem } from '../types';
+import { AlertTriangle, Loader2 } from 'lucide-react';
 
 interface UnassignRFIDModalProps {
     show: boolean;
@@ -19,36 +21,41 @@ export default function UnassignRFIDModal({
     if (!item) return null;
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="sm">
+        <Modal
+            show={show}
+            onClose={onClose}
+            maxWidth="sm"
+            closeable={!isProcessing}
+            ariaLabel="Unassign RFID Tag"
+        >
             <div className="relative bg-white rounded-xl shadow-xl w-full overflow-hidden border border-slate-200 text-center">
-                <div className="h-1 w-full bg-red-900" />
-                <div className="p-4 sm:p-6">
-                    <div className="mx-auto flex items-center justify-center h-11 w-11 rounded-full bg-red-50 text-red-800 mb-3 border border-red-100">
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                            />
-                        </svg>
+                {/* Red Destructive Accent Line */}
+                <div className="h-1.5 w-full bg-red-600 shrink-0" />
+
+                <div className="p-5 sm:p-6">
+                    <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-2xl bg-red-50 text-red-700 mb-3.5 border border-red-200/80 shadow-2xs">
+                        <AlertTriangle className="h-6 w-6" />
                     </div>
 
-                    <h3 className="text-base font-semibold text-gray-900 mb-1 font-serif">
+                    <h3 className="text-base font-bold text-gray-900 mb-1 font-serif tracking-tight">
                         Unassign RFID Tag?
                     </h3>
 
                     <p className="text-xs text-gray-600 mb-4 leading-relaxed max-w-xs mx-auto">
-                        Remove RFID tag <strong className="font-mono text-gray-900">{item.rfid_tag}</strong> from{' '}
+                        Remove RFID tag <strong className="font-mono text-gray-900 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">{item.rfid_tag}</strong> from{' '}
                         <strong className="text-gray-900">{item.name}</strong>?
                     </p>
 
-                    <div className="flex flex-col-reverse sm:flex-row items-center gap-2.5 sm:gap-3">
+                    <div className="p-3 rounded-lg bg-red-50/70 border border-red-200/80 text-red-900 text-xs leading-relaxed text-left mb-5">
+                        The physical RFID card or sticker will be unlinked and become available for reassignment to another asset.
+                    </div>
+
+                    <div className="flex flex-col-reverse sm:flex-row items-center gap-2.5">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={isProcessing}
-                            className="w-full sm:flex-1 py-2.5 px-3.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                            className="w-full sm:flex-1 py-2 px-4 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 text-center"
                         >
                             Cancel
                         </button>
@@ -56,9 +63,16 @@ export default function UnassignRFIDModal({
                             type="button"
                             onClick={onConfirm}
                             disabled={isProcessing}
-                            className="w-full sm:flex-1 py-2.5 px-3.5 bg-red-950 hover:bg-red-900 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
+                            className="w-full sm:flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs disabled:opacity-50 flex items-center justify-center gap-1.5 text-center"
                         >
-                            {isProcessing ? 'Unassigning...' : 'Unassign RFID'}
+                            {isProcessing ? (
+                                <>
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    <span>Unassigning...</span>
+                                </>
+                            ) : (
+                                <span>Unassign RFID</span>
+                            )}
                         </button>
                     </div>
                 </div>

@@ -7,6 +7,7 @@ import { FUND_CLUSTER_OPTIONS, FALLBACK_DIVISIONS } from '../constants';
 import { IssuanceItemRow } from './IssuanceItemRow';
 import { getInstitutionalSelectStyles } from '@/styles/selectStyles';
 import { getLocalDateString } from '@/utils/dateUtils';
+import { FileSpreadsheet, X } from 'lucide-react';
 
 interface IssuanceFormModalProps {
     show: boolean;
@@ -138,28 +139,34 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
     };
 
     return (
-        <Modal show={show} onClose={handleModalClose} maxWidth="3xl" closeable={!form.processing}>
+        <Modal show={show} onClose={handleModalClose} maxWidth="3xl" closeable={!form.processing} ariaLabel="Record Stock Issuance">
             <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 flex flex-col max-h-[90vh]">
+                {/* Institutional Maroon Top Accent Line */}
+                <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
+
                 {/* Formal Administrative Header */}
                 <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/75 flex-shrink-0">
-                    <div>
-                        <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">
-                            Record Stock Issuance
-                        </h3>
-                        <p className="text-xs text-gray-500 font-medium">
-                            Administrative Requisition & Issue Slip (RIS) Entry
-                        </p>
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-950 flex items-center justify-center border border-red-100/80 shadow-2xs shrink-0">
+                            <FileSpreadsheet className="w-5 h-5 text-red-900" />
+                        </div>
+                        <div className="min-w-0">
+                            <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight truncate">
+                                Record Stock Issuance
+                            </h3>
+                            <p className="text-xs text-gray-500 font-medium truncate">
+                                Administrative Requisition & Issue Slip (RIS) Entry
+                            </p>
+                        </div>
                     </div>
                     <button
                         type="button"
                         onClick={handleModalClose}
                         disabled={form.processing}
-                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-md hover:bg-gray-100 transition-colors disabled:opacity-40 cursor-pointer"
+                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-40 cursor-pointer shrink-0 ml-2"
                         aria-label="Close"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 

@@ -212,10 +212,11 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
             onClose={() => !isSubmitting && onClose()}
             maxWidth={isLandscape && currentStep === 'preview' ? '7xl' : '4xl'}
             closeable={!isSubmitting}
+            ariaLabel="Generate Official Report"
         >
             <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white shadow-2xl border border-gray-200 print:max-h-none print:shadow-none print:border-none compliance-print-dialog-panel">
                 {/* Thin Maroon Accent Top Line */}
-                <div className="h-1 bg-gradient-to-r from-red-900 via-red-800 to-amber-600 w-full shrink-0 print:hidden compliance-print-hide" />
+                <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-amber-600 w-full shrink-0 print:hidden compliance-print-hide" />
 
                 {/* Modal Header */}
                 <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200/80 bg-gradient-to-b from-gray-50/90 to-white shrink-0 print:hidden compliance-print-hide">
