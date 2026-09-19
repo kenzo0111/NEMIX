@@ -53,7 +53,7 @@ class RfidBulkReceivingTest extends TestCase
             'submission_key' => (string) Str::uuid(),
             'date_received' => '2026-09-19',
             'items' => array_map(fn ($tag) => [
-                'tag' => $tag, 'supplier_id' => $this->supplier->id, 'unit_cost' => 14.75,
+                'tag' => $tag, 'supplier_id' => $this->supplier->id, 'quantity' => 1, 'unit_cost' => 14.75,
             ], $tags),
         ];
     }
@@ -72,13 +72,27 @@ class RfidBulkReceivingTest extends TestCase
         }
     }
 
+    public function test_scanned_item_type_receives_the_inspected_batch_quantity(): void
+    {
+        $payload = $this->payload(['TAG-ONE', 'TAG-TWO']);
+        $payload['items'][0]['quantity'] = 20;
+        $payload['items'][1]['quantity'] = 5;
+        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('receivings', ['item_id' => $this->first->id, 'quantity' => 20, 'scanned_rfid_tag' => 'TAG-ONE']);
+        $this->assertDatabaseHas('receivings', ['item_id' => $this->second->id, 'quantity' => 5, 'scanned_rfid_tag' => 'TAG-TWO']);
+        $this->assertSame(20, (int) $this->first->fresh()->stock);
+        $this->assertSame(5, (int) $this->second->fresh()->stock);
+    }
+
     public function test_retry_or_double_submission_does_not_add_stock_again(): void
     {
         $payload = $this->payload(['TAG-ONE', 'TAG-TWO']);
+        $payload['items'][0]['quantity'] = 20;
         $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasNoErrors();
         $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasNoErrors();
         $this->assertSame(2, Receiving::count());
-        $this->assertSame(1, $this->first->fresh()->stock);
+        $this->assertSame(20, $this->first->fresh()->stock);
         $payload['items'][0]['unit_cost'] = 99;
         $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasErrors(['submission_key']);
         $this->assertSame(2, Receiving::count());
@@ -106,6 +120,15 @@ class RfidBulkReceivingTest extends TestCase
         $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasErrors(['items.1.supplier_id']);
         $this->assertSame(0, Receiving::count());
         $this->assertSame(0, DB::table('rfid_receiving_submissions')->count());
+    }
+
+    public function test_invalid_inspected_quantity_rejects_all_lines(): void
+    {
+        $payload = $this->payload(['TAG-ONE', 'TAG-TWO']);
+        $payload['items'][1]['quantity'] = 0;
+        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)
+            ->assertSessionHasErrors(['items.1.quantity']);
+        $this->assertSame(0, Receiving::count());
     }
 
     public function test_inactive_supplier_is_rejected_and_zero_cost_is_retained(): void
@@ -229,30 +252,64 @@ class RfidBulkReceivingTest extends TestCase
         $polled->assertOk()->assertJsonCount(1, 'events')->assertJsonPath('events.0.tag', 'TAG-HIST-2');
     }
 
-    public function test_rfid_receipt_quantity_cannot_be_edited_to_multi_unit(): void
+    public function test_initializing_a_device_session_skips_earlier_scans_and_captures_new_ones(): void
+    {
+        DB::table('rfid_scan_events')->insert([
+            'tag' => 'TAG-ONE', 'device_uuid' => 'DEV-SESSION', 'station_id' => 'A',
+            'occurred_at' => microtime(true), 'created_at' => now(),
+        ]);
+
+        $initial = $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', [
+            'device_uuid' => 'DEV-SESSION', 'station' => 'A', 'initialize' => 1,
+        ]));
+        $initial->assertOk()->assertJsonCount(0, 'events');
+        $cursor = $initial->json('latest_event_id');
+        $this->assertGreaterThan(0, $cursor);
+
+        DB::table('rfid_scan_events')->insert([
+            'tag' => 'TAG-TWO', 'device_uuid' => 'DEV-SESSION', 'station_id' => 'A',
+            'occurred_at' => microtime(true), 'created_at' => now(),
+        ]);
+        $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', [
+            'device_uuid' => 'DEV-SESSION', 'station' => 'A', 'since' => $cursor,
+        ]))->assertJsonCount(1, 'events')->assertJsonPath('events.0.tag', 'TAG-TWO');
+    }
+
+    public function test_station_filter_excludes_unassigned_hardware_events(): void
+    {
+        DB::table('rfid_scan_events')->insert([
+            'tag' => 'TAG-ONE', 'device_uuid' => 'DEV-SESSION', 'station_id' => null,
+            'occurred_at' => microtime(true), 'created_at' => now(),
+        ]);
+        $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', [
+            'device_uuid' => 'DEV-SESSION', 'station' => 'A', 'since' => 0,
+        ]))->assertJsonCount(0, 'events');
+    }
+
+    public function test_rfid_receipt_quantity_can_be_corrected_from_inspection_record(): void
     {
         $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE']))->assertSessionHasNoErrors();
         $receipt = Receiving::firstOrFail();
 
-        // Attempting to change quantity to 5 on an RFID receipt is rejected
+        // Quantity can be corrected while the scanned item identity stays fixed.
         $this->actingAs($this->admin)->put(route('inventory.receiving.update', $receipt), [
             'item_id' => $this->first->id,
             'supplier_id' => $this->supplier->id,
             'quantity' => 5,
             'unit_cost' => 14.75,
             'date_received' => '2026-09-19',
-        ])->assertSessionHasErrors(['quantity']);
+        ])->assertSessionHasNoErrors();
 
-        // Preserving valid correction workflows (updating cost or supplier with quantity = 1) succeeds
+        // Cost and date corrections also remain available.
         $this->actingAs($this->admin)->put(route('inventory.receiving.update', $receipt), [
             'item_id' => $this->first->id,
             'supplier_id' => $this->supplier->id,
-            'quantity' => 1,
+            'quantity' => 5,
             'unit_cost' => 20.00,
             'date_received' => '2026-09-20',
         ])->assertSessionHasNoErrors();
 
-        $this->assertSame(1, (int) $receipt->fresh()->quantity);
+        $this->assertSame(5, (int) $receipt->fresh()->quantity);
         $this->assertSame('20.00', $receipt->fresh()->batch->unit_cost);
     }
 

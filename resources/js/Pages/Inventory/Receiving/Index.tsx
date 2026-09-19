@@ -145,6 +145,7 @@ export default function ReceivingIndex({
     const [selectedStation, setSelectedStation] = useState<string>('');
     const [rfidSupplierIds, setRfidSupplierIds] = useState<Record<string, number | ''>>({});
     const [rfidCosts, setRfidCosts] = useState<Record<string, string>>({});
+    const [rfidQuantities, setRfidQuantities] = useState<Record<string, string>>({});
     const rfidSubmissionKey = useRef('');
     const rfidSubmitting = useRef(false);
     const [rfidDate, setRfidDate] = useState(getLocalDateString());
@@ -177,6 +178,9 @@ export default function ReceivingIndex({
         setScanInput,
         scannedItems,
         queuedItems,
+        beginSubmission,
+        finishSubmission,
+        cancelSubmission,
         isSearching: isRfidSearching,
         errorMessage: rfidError,
         lookupTag,
@@ -207,6 +211,16 @@ export default function ReceivingIndex({
             const next = { ...current };
             scannedItems.forEach(item => {
                 if (item.rfid_tag && next[item.rfid_tag] === undefined) next[item.rfid_tag] = String(item.unit_cost ?? 0);
+            });
+            return next;
+        });
+    }, [scannedItems]);
+
+    useEffect(() => {
+        setRfidQuantities(current => {
+            const next = { ...current };
+            scannedItems.forEach(item => {
+                if (item.rfid_tag && next[item.rfid_tag] === undefined) next[item.rfid_tag] = '1';
             });
             return next;
         });
@@ -284,6 +298,7 @@ export default function ReceivingIndex({
         resetScanner();
         setRfidSupplierIds({});
         setRfidCosts({});
+        setRfidQuantities({});
         rfidSubmissionKey.current = crypto.randomUUID();
         setRfidDate(getLocalDateString());
         setRfidSubmitError(null);
@@ -297,6 +312,7 @@ export default function ReceivingIndex({
             return;
         }
         rfidSubmitting.current = true;
+        beginSubmission();
         setRfidProcessing(true);
         setRfidSubmitError(null);
         router.post(route('inventory.receiving.rfid.store'), {
@@ -305,28 +321,25 @@ export default function ReceivingIndex({
             items: scannedItems.map(item => ({
                 tag: item.rfid_tag,
                 supplier_id: rfidSupplierIds[item.rfid_tag || ''],
+                quantity: rfidQuantities[item.rfid_tag || ''],
                 unit_cost: rfidCosts[item.rfid_tag || ''],
             })),
         }, {
             onSuccess: () => {
-                if (queuedItems.length > 0) {
-                    // Scans arrived during submission: start a new receiving session with the queued items
-                    const itemsToCarry = [...queuedItems];
-                    resetScanner();
+                const carried = finishSubmission();
+                if (carried) {
                     rfidSubmissionKey.current = crypto.randomUUID();
                     setNotification({
                         type: 'success',
-                        message: `Previous batch received. New session started with ${itemsToCarry.length} scan(s) queued during submission.`,
+                        message: 'Previous batch received. Scans made during submission are ready for review in a new session.',
                     });
-                    for (const qItem of itemsToCarry) {
-                        void lookupTag(qItem.rfid_tag || '', false);
-                    }
                 } else {
                     setIsRfidModalOpen(false);
                     resetScanner();
                 }
             },
             onError: errors => {
+                cancelSubmission();
                 setRfidSubmitError(
                     Object.entries(errors)
                         .map(([field, message]) => `${field}: ${message}`)
@@ -436,6 +449,8 @@ export default function ReceivingIndex({
                 suppliers={suppliers}
                 supplierIds={rfidSupplierIds}
                 costs={rfidCosts}
+                quantities={rfidQuantities}
+                onQuantityChange={(tag, quantity) => setRfidQuantities(current => ({ ...current, [tag]: quantity }))}
                 onCostChange={(tag, cost) => setRfidCosts(current => ({ ...current, [tag]: cost }))}
                 connectionState={connectionState}
                 scanFeedback={scanFeedback}

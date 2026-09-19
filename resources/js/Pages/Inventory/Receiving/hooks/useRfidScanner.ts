@@ -28,9 +28,10 @@ export function useRfidScanner({
     const scannedRef = useRef<InventoryItem[]>([]);
     const queuedRef = useRef<InventoryItem[]>([]);
     const isSubmittingRef = useRef(isSubmitting);
-    isSubmittingRef.current = isSubmitting;
+    useEffect(() => { isSubmittingRef.current = isSubmitting; }, [isSubmitting]);
 
     const pendingTagsRef = useRef<Set<string>>(new Set());
+    const acceptingRef = useRef(false);
     const generationRef = useRef(0);
     const cursorRef = useRef<number | null>(null);
 
@@ -43,6 +44,7 @@ export function useRfidScanner({
     const wedgeActiveInputRef = useRef<HTMLInputElement | null>(null);
 
     const resetScanner = useCallback(() => {
+        acceptingRef.current = false;
         generationRef.current += 1;
         scannedRef.current = [];
         queuedRef.current = [];
@@ -55,6 +57,20 @@ export function useRfidScanner({
         setErrorMessage(null);
         setScanFeedback('Ready for keyboard, manual, or hardware scans.');
         setIsSearching(false);
+    }, []);
+
+    const beginSubmission = useCallback(() => { isSubmittingRef.current = true; }, []);
+    const cancelSubmission = useCallback(() => { isSubmittingRef.current = false; }, []);
+    const finishSubmission = useCallback(() => {
+        isSubmittingRef.current = false;
+        const carried = queuedRef.current.length > 0 || pendingTagsRef.current.size > 0;
+        scannedRef.current = [...queuedRef.current];
+        queuedRef.current = [];
+        setScannedItems([...scannedRef.current]);
+        setQueuedItems([]);
+        setScanInput('');
+        setErrorMessage(null);
+        return carried;
     }, []);
 
     const clearQueuedItems = useCallback(() => {
@@ -70,6 +86,7 @@ export function useRfidScanner({
     }, []);
 
     const lookupTag = useCallback(async (rawTag: string, clearInput = true) => {
+        if (!acceptingRef.current) return;
         const tag = rawTag.trim().toUpperCase();
         if (clearInput) setScanInput('');
         if (!tag || !/^[A-Z0-9_-]{1,100}$/.test(tag)) {
@@ -157,21 +174,25 @@ export function useRfidScanner({
 
     // Live Feed polling with device/station scoping and server session cursor
     useEffect(() => {
-        if (!enabled) return;
+        acceptingRef.current = enabled;
+        if (!enabled || !selectedDeviceUuid) {
+            setConnectionState('offline');
+            return;
+        }
         const controller = new AbortController();
         let busy = false;
+        cursorRef.current = null;
         setConnectionState('connecting');
 
         const poll = async () => {
             if (busy) return;
             busy = true;
             try {
-                const params: Record<string, any> = {
-                    since: cursorRef.current ?? 0,
+                const params: Record<string, string | number> = {
+                    device_uuid: selectedDeviceUuid,
                 };
-                if (selectedDeviceUuid) {
-                    params.device_uuid = selectedDeviceUuid;
-                }
+                if (cursorRef.current === null) params.initialize = 1;
+                else params.since = cursorRef.current;
                 if (selectedStation) {
                     params.station = selectedStation;
                 }
@@ -188,7 +209,7 @@ export function useRfidScanner({
 
                 setConnectionState('connected');
 
-                // Advance server-defined cursor
+                // The first response arms this device from a server cursor. Earlier events are not replayed.
                 const incomingLatestId = Number(data.latest_event_id ?? 0);
                 const currentCursor = cursorRef.current ?? 0;
 
@@ -294,6 +315,9 @@ export function useRfidScanner({
         setScanInput,
         scannedItems,
         queuedItems,
+        beginSubmission,
+        finishSubmission,
+        cancelSubmission,
         isSearching,
         errorMessage,
         connectionState,

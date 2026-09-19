@@ -498,6 +498,7 @@ class InventoryController extends Controller
             'items' => ['required', 'array', 'min:1', 'max:100'],
             'items.*.tag' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\-_]+$/'],
             'items.*.supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
+            'items.*.quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
             'items.*.unit_cost' => ['required', 'numeric', 'min:0', 'max:9999999999.99', 'decimal:0,2'],
         ]);
 
@@ -505,6 +506,7 @@ class InventoryController extends Controller
         $rows = array_map(fn ($row) => [
             'tag' => strtoupper(trim($row['tag'])),
             'supplier_id' => (int) $row['supplier_id'],
+            'quantity' => (int) $row['quantity'],
             'unit_cost' => number_format((float) $row['unit_cost'], 2, '.', ''),
         ], $validated['items']);
         $payloadHash = hash('sha256', json_encode([$dateReceived, $rows], JSON_THROW_ON_ERROR));
@@ -551,13 +553,12 @@ class InventoryController extends Controller
                 ResourceOwnershipPolicy::authorize(auth()->user(), $supplier, 'created_by');
                 $receipts[] = [
                     'item_id' => $item->id, 'supplier_id' => $supplier->id,
-                    'unit_cost' => $row['unit_cost'], 'scanned_rfid_tag' => $tag,
+                    'quantity' => $row['quantity'], 'unit_cost' => $row['unit_cost'], 'scanned_rfid_tag' => $tag,
                 ];
             }
 
             foreach ($receipts as $receipt) {
                 $this->receivingService->receive($receipt + [
-                    'quantity' => 1,
                     'date_received' => $dateReceived,
                 ], auth()->id());
             }
@@ -586,11 +587,6 @@ class InventoryController extends Controller
             if ((int) $validated['item_id'] !== (int) $receiving->item_id) {
                 throw ValidationException::withMessages([
                     'item_id' => 'This receipt records a scanned RFID tag. Create a new receipt to use a different item.',
-                ]);
-            }
-            if ((int) $validated['quantity'] !== 1) {
-                throw ValidationException::withMessages([
-                    'quantity' => 'RFID receipts represent a single scanned unit and cannot be modified to a multi-unit quantity.',
                 ]);
             }
         }

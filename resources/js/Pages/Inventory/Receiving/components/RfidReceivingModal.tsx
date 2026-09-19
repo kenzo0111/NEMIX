@@ -15,6 +15,8 @@ interface Props {
     suppliers: Supplier[];
     supplierIds: Record<string, number | ''>;
     costs: Record<string, string>;
+    quantities: Record<string, string>;
+    onQuantityChange: (tag: string, quantity: string) => void;
     onCostChange: (tag: string, cost: string) => void;
     connectionState: 'connecting' | 'connected' | 'offline';
     scanFeedback: string;
@@ -54,6 +56,8 @@ export const RfidReceivingModal: React.FC<Props> = ({
     suppliers,
     supplierIds,
     costs,
+    quantities,
+    onQuantityChange,
     onCostChange,
     connectionState,
     scanFeedback,
@@ -88,13 +92,17 @@ export const RfidReceivingModal: React.FC<Props> = ({
 
     // Row-level validation state for each scanned item
     const rowErrors = useMemo(() => {
-        const errors: Record<string, { cost?: string; supplier?: string }> = {};
+        const errors: Record<string, { cost?: string; supplier?: string; quantity?: string }> = {};
         for (const item of scannedItems) {
             const tag = item.rfid_tag || '';
             const cost = costs[tag];
             const supplierId = supplierIds[tag];
 
             const costError = validateCost(cost);
+            const quantity = quantities[tag];
+            const quantityError = !quantity || !/^\d+$/.test(quantity) || Number(quantity) < 1 || Number(quantity) > 1000000
+                ? 'Enter the inspected quantity (1–1,000,000).'
+                : undefined;
             let supplierError: string | undefined;
 
             if (!supplierId) {
@@ -106,10 +114,11 @@ export const RfidReceivingModal: React.FC<Props> = ({
                 }
             }
 
-            if (costError || supplierError) {
+            if (costError || supplierError || quantityError) {
                 errors[tag] = {
                     cost: costError || undefined,
                     supplier: supplierError,
+                    quantity: quantityError,
                 };
             }
         }
@@ -117,6 +126,11 @@ export const RfidReceivingModal: React.FC<Props> = ({
     }, [scannedItems, costs, supplierIds, suppliers]);
 
     const hasRowErrors = Object.keys(rowErrors).length > 0;
+    const totalQuantity = scannedItems.reduce((sum, item) => sum + (Number(quantities[item.rfid_tag || '']) || 0), 0);
+    const totalCost = scannedItems.reduce((sum, item) => {
+        const tag = item.rfid_tag || '';
+        return sum + (Number(quantities[tag]) || 0) * (Number(costs[tag]) || 0);
+    }, 0);
     const ready =
         scannedItems.length > 0 &&
         scannedItems.length <= 100 &&
@@ -148,7 +162,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                 </span>
                             </div>
                             <p className="text-xs text-gray-500">
-                                Each tag identifies an item type (1 unit per tag receipt). Scans are isolated to your assigned station.
+                                Scan to identify each item type, then enter the inspected quantity and actual unit cost.
                             </p>
                         </div>
                     </div>
@@ -178,7 +192,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                     aria-label="Hardware Device"
                                     className="rounded-lg border-gray-300 text-xs py-1 px-2.5 bg-white text-gray-800 font-mono focus:ring-1 focus:ring-red-900"
                                 >
-                                    <option value="">All Scanners (Default)</option>
+                                    <option value="">Select a scanner for hardware input</option>
                                     {devices.map(dev => (
                                         <option key={dev.device_uuid} value={dev.device_uuid}>
                                             {dev.device_name} ({dev.device_uuid}) - {dev.status}
@@ -187,7 +201,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                 </select>
                             ) : (
                                 <span className="font-mono text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200">
-                                    {selectedDeviceUuid || 'Station Default Reader'}
+                                    {selectedDeviceUuid || 'Select a scanner for hardware input'}
                                 </span>
                             )}
                             {onStationChange && (
@@ -205,14 +219,14 @@ export const RfidReceivingModal: React.FC<Props> = ({
                         <div className="flex items-center gap-1.5 shrink-0">
                             <span
                                 className={`w-2 h-2 rounded-full ${
-                                    connectionState === 'connected'
+                                    !selectedDeviceUuid ? 'bg-amber-400' : connectionState === 'connected'
                                         ? 'bg-emerald-500 animate-pulse'
                                         : connectionState === 'connecting'
                                         ? 'bg-amber-400 animate-pulse'
                                         : 'bg-red-500'
                                 }`}
                             />
-                            <span className="capitalize font-semibold text-slate-700">{connectionState}</span>
+                            <span className="font-semibold text-slate-700">{selectedDeviceUuid ? `Feed ${connectionState}` : 'Select a scanner'}</span>
                             <span className="text-slate-400">·</span>
                             <span className="text-slate-600 truncate max-w-xs" title={scanFeedback}>
                                 {scanFeedback}
@@ -301,7 +315,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                 Scanned Items ({scannedItems.length})
                             </h4>
                             <span className="text-[11px] text-gray-500">
-                                1 unit received per scanned line · All items will be recorded atomically
+                                Confirm inspected quantities and costs before receiving · All lines save atomically
                             </span>
                         </div>
                     </div>
@@ -321,6 +335,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                 const tag = item.rfid_tag || '';
                                 const error = rowErrors[tag];
                                 const hasCostError = Boolean(error?.cost);
+                                const hasQuantityError = Boolean(error?.quantity);
                                 const hasSupplierError = Boolean(error?.supplier);
 
                                 return (
@@ -378,6 +393,24 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                             {hasSupplierError && (
                                                 <p className="mt-1 text-[11px] text-red-600 font-medium">{error?.supplier}</p>
                                             )}
+                                        </div>
+
+                                        <div className="w-full sm:w-28 shrink-0">
+                                            <label className="block text-[11px] font-semibold text-gray-700 uppercase tracking-wider mb-1">
+                                                Inspected Qty <span className="text-red-600">*</span>
+                                            </label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                max="1000000"
+                                                step="1"
+                                                value={quantities[tag] ?? ''}
+                                                onChange={event => onQuantityChange(tag, event.target.value)}
+                                                disabled={processing}
+                                                aria-invalid={hasQuantityError}
+                                                className={`block rounded-lg text-xs w-full py-1.5 px-2 font-mono bg-white ${hasQuantityError ? 'border-red-400' : 'border-gray-300'}`}
+                                            />
+                                            {hasQuantityError && <p className="mt-1 text-[11px] text-red-600">{error?.quantity}</p>}
                                         </div>
 
                                         {/* Unit Cost Input with Row-level feedback */}
@@ -443,7 +476,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                     <div className="text-xs text-gray-500">
                         {scannedItems.length > 0 && !hasRowErrors && (
                             <span className="flex items-center gap-1 text-emerald-700 font-medium">
-                                <CheckCircle2 className="w-3.5 h-3.5" /> All {scannedItems.length} line(s) valid and ready for receipt
+                                <CheckCircle2 className="w-3.5 h-3.5" /> {scannedItems.length} lines · {totalQuantity} units · ₱{totalCost.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
                         )}
                         {hasRowErrors && (

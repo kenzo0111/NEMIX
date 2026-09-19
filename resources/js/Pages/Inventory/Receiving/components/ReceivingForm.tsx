@@ -253,28 +253,8 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                         <label htmlFor="receiving_quantity" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Quantity Received <span className="text-red-600" aria-hidden="true">*</span>
                         </label>
-                        {isRfidReceipt && (
-                            <span className="text-[10px] font-semibold text-red-900 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">
-                                1 UNIT LOCKED
-                            </span>
-                        )}
+                        {isRfidReceipt && <span className="text-[10px] text-gray-500">Correct from inspection record</span>}
                     </div>
-                    {isRfidReceipt ? (
-                        <div>
-                            <input
-                                id="receiving_quantity"
-                                name="quantity"
-                                type="number"
-                                readOnly
-                                disabled
-                                value={1}
-                                className="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-md text-xs font-mono font-bold text-slate-700 cursor-not-allowed select-none"
-                            />
-                            <p className="mt-1 text-[11px] text-gray-500 leading-tight">
-                                RFID receipts represent a single scanned unit and cannot be modified to a multi-unit quantity.
-                            </p>
-                        </div>
-                    ) : (
                         <input
                             id="receiving_quantity"
                             name="quantity"
@@ -294,7 +274,6 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                                     : 'border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900'
                             }`}
                         />
-                    )}
                     {errors.quantity && (
                         <p id="receiving_quantity-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{errors.quantity}</p>
                     )}

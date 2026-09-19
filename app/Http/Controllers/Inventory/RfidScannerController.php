@@ -344,15 +344,19 @@ class RfidScannerController extends Controller
         }
 
         if (!empty($stationId)) {
-            $query->where(function ($q) use ($stationId) {
-                $q->where('station_id', $stationId)
-                  ->orWhereNull('station_id');
-            });
+            $query->where('station_id', $stationId);
         }
 
-        $maxId = (int) (DB::table('rfid_scan_events')->max('id') ?? 0);
+        if ($request->boolean('initialize')) {
+            return response()->json([
+                'status' => 'online',
+                'events' => [],
+                'latest_event_id' => (int) ($query->max('id') ?? 0),
+                'server_time' => microtime(true),
+            ]);
+        }
 
-        if ($hasSince && $sinceParam > 0) {
+        if ($hasSince) {
             $events = $query->where('id', '>', $sinceParam)->orderBy('id')->limit(100)->get(['id', 'tag', 'device_uuid', 'station_id', 'occurred_at']);
         } else {
             // Initial poll or session start:
@@ -364,7 +368,7 @@ class RfidScannerController extends Controller
                 ->get(['id', 'tag', 'device_uuid', 'station_id', 'occurred_at']);
         }
 
-        $latestEventId = $events->last()?->id ?? ($sinceParam > 0 ? max($sinceParam, $maxId) : $maxId);
+        $latestEventId = $events->last()?->id ?? $sinceParam;
 
         return response()->json([
             'status' => 'online',
