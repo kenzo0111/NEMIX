@@ -486,6 +486,50 @@ class InventoryController extends Controller
         return redirect()->route('inventory.receiving')->with('success', 'Receiving record created successfully.');
     }
 
+    public function storeRfidReceiving(Request $request)
+    {
+        $validated = $request->validate([
+            'date_received' => ['required', 'date'],
+            'items' => ['required', 'array', 'min:1', 'max:100'],
+            'items.*.tag' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\-_]+$/'],
+            'items.*.supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
+        ]);
+
+        $dateReceived = $this->normalizeDate($validated['date_received']);
+        DB::transaction(function () use ($validated, $dateReceived) {
+            $seen = [];
+            $receipts = [];
+
+            // Resolve every tag before writing any receipt. Never trust item IDs supplied by the browser.
+            foreach ($validated['items'] as $index => $row) {
+                $tag = strtoupper(trim($row['tag']));
+                if (isset($seen[$tag])) {
+                    throw ValidationException::withMessages([
+                        "items.{$index}.tag" => "RFID tag {$tag} was scanned more than once.",
+                    ]);
+                }
+                $seen[$tag] = true;
+
+                $item = Item::whereRaw('UPPER(rfid_tag) = ?', [$tag])->first();
+                if (! $item) {
+                    throw ValidationException::withMessages([
+                        "items.{$index}.tag" => "RFID tag {$tag} is no longer assigned to an inventory item.",
+                    ]);
+                }
+                $receipts[] = ['item_id' => $item->id, 'supplier_id' => $row['supplier_id']];
+            }
+
+            foreach ($receipts as $receipt) {
+                $this->receivingService->receive($receipt + [
+                    'quantity' => 1,
+                    'date_received' => $dateReceived,
+                ], auth()->id());
+            }
+        });
+
+        return redirect()->route('inventory.receiving')->with('success', count($validated['items']).' RFID items received successfully.');
+    }
+
     public function updateReceiving(Request $request, Receiving $receiving)
     {
         ResourceOwnershipPolicy::authorize(auth()->user(), $receiving, 'created_by');

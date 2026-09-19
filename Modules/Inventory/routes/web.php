@@ -8,6 +8,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('inventory/receiving', [InventoryController::class, 'receiving'])->name('inventory.receiving');
     Route::get('inventory/generate-supplier-stock-no', [InventoryController::class, 'generateSupplierStockNo'])->name('inventory.supplier-stock-no');
     Route::post('inventory/receiving', [InventoryController::class, 'storeReceiving'])->name('inventory.receiving.store');
+    Route::post('inventory/receiving/rfid', [InventoryController::class, 'storeRfidReceiving'])->name('inventory.receiving.rfid.store');
     Route::put('inventory/receiving/{receiving}', [InventoryController::class, 'updateReceiving'])->name('inventory.receiving.update');
     Route::delete('inventory/receiving/{receiving}', [InventoryController::class, 'destroyReceiving'])->name('inventory.receiving.destroy');
     Route::get('inventory/issuance', [InventoryController::class, 'issuance'])->name('inventory.issuance');

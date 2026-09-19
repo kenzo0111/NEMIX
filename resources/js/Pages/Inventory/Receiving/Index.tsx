@@ -8,7 +8,6 @@ import { getLocalDateString } from '@/utils/dateUtils';
 import {
     ReceivingPageProps,
     ReceivingRecord,
-    InventoryItem,
     PaginatedData,
     ReceivingFormData,
 } from './types';
@@ -141,6 +140,10 @@ export default function ReceivingIndex({
     const [selectedReceiving, setSelectedReceiving] = useState<ReceivingRecord | null>(null);
 
     const [isRfidModalOpen, setIsRfidModalOpen] = useState(false);
+    const [rfidSupplierIds, setRfidSupplierIds] = useState<Record<string, number | ''>>({});
+    const [rfidDate, setRfidDate] = useState(getLocalDateString());
+    const [rfidProcessing, setRfidProcessing] = useState(false);
+    const [rfidSubmitError, setRfidSubmitError] = useState<string | null>(null);
 
     // Form Hook
     const {
@@ -165,15 +168,23 @@ export default function ReceivingIndex({
     const {
         scanInput,
         setScanInput,
-        matchedItem,
+        scannedItems,
         isSearching: isRfidSearching,
         errorMessage: rfidError,
         lookupTag,
+        removeItem,
         resetScanner,
-    } = useRfidScanner({
-        items,
-        enabled: isRfidModalOpen,
-    });
+    } = useRfidScanner(items, isRfidModalOpen);
+
+    useEffect(() => {
+        setRfidSupplierIds(current => {
+            const next = { ...current };
+            scannedItems.forEach(item => {
+                if (item.rfid_tag && next[item.rfid_tag] === undefined) next[item.rfid_tag] = item.supplier_id || '';
+            });
+            return next;
+        });
+    }, [scannedItems]);
 
     // --- ACTION HANDLERS ---
     const handleOpenCreateModal = () => {
@@ -241,30 +252,29 @@ export default function ReceivingIndex({
         }
     };
 
-    // RFID Confirm Receive: Prefill and transfer to receiving form
-    const handleConfirmRfidReceive = (item: InventoryItem) => {
-        setIsRfidModalOpen(false);
-        resetScanner();
-
-        // Safe supplier assignment: Only bind if item has an associated supplier in the database
-        const matchingSupplierId = item.supplier_id || '';
-
-        setFormMode('create');
-        setActiveRecordId(null);
-        clearErrors();
-        setFormData({
-            item_id: item.id,
-            supplier_id: matchingSupplierId,
-            quantity: 1,
-            unit_cost: '',
-            date_received: getLocalDateString(),
-        });
-        setIsFormModalOpen(true);
-    };
-
     const handleOpenRfidModal = () => {
         resetScanner();
+        setRfidSupplierIds({});
+        setRfidDate(getLocalDateString());
+        setRfidSubmitError(null);
         setIsRfidModalOpen(true);
+    };
+
+    const handleRfidSubmit = () => {
+        if (rfidProcessing || isRfidSearching || !scannedItems.length) return;
+        setRfidProcessing(true);
+        setRfidSubmitError(null);
+        router.post(route('inventory.receiving.rfid.store'), {
+            date_received: rfidDate,
+            items: scannedItems.map(item => ({ tag: item.rfid_tag, supplier_id: rfidSupplierIds[item.rfid_tag || ''] })),
+        }, {
+            onSuccess: () => {
+                setIsRfidModalOpen(false);
+                resetScanner();
+            },
+            onError: errors => setRfidSubmitError(Object.values(errors)[0] || 'Could not receive the scanned items.'),
+            onFinish: () => setRfidProcessing(false),
+        });
     };
 
     const isFiltered = Boolean(searchTerm || supplierFilter);
@@ -350,16 +360,25 @@ export default function ReceivingIndex({
             <RfidReceivingModal
                 show={isRfidModalOpen}
                 onClose={() => {
+                    if (rfidProcessing) return;
                     setIsRfidModalOpen(false);
                     resetScanner();
                 }}
                 scanInput={scanInput}
                 onScanInputChange={setScanInput}
                 onScanLookup={lookupTag}
-                matchedItem={matchedItem}
+                scannedItems={scannedItems}
+                onRemove={removeItem}
+                suppliers={suppliers}
+                supplierIds={rfidSupplierIds}
+                onSupplierChange={(tag, supplierId) => setRfidSupplierIds(current => ({ ...current, [tag]: supplierId }))}
+                dateReceived={rfidDate}
+                onDateChange={setRfidDate}
                 isSearching={isRfidSearching}
+                processing={rfidProcessing}
                 errorMessage={rfidError}
-                onConfirmReceive={handleConfirmRfidReceive}
+                submitError={rfidSubmitError}
+                onSubmit={handleRfidSubmit}
             />
         </div>
     );
