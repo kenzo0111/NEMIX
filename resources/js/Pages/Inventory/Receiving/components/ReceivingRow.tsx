@@ -17,7 +17,17 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
         <tr className="hover:bg-red-50/20 transition-colors border-b border-gray-100 last:border-0">
             {/* Item Received & SKU */}
             <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-semibold text-gray-900">{receiving.item}</div>
+                <div className="flex items-center gap-2">
+                    <div className="text-sm font-semibold text-gray-900">{receiving.item}</div>
+                    {receiving.scanned_rfid_tag && (
+                        <span
+                            className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-50 text-red-900 border border-red-200 shrink-0"
+                            title={`Scanned RFID Tag: ${receiving.scanned_rfid_tag}`}
+                        >
+                            RFID
+                        </span>
+                    )}
+                </div>
                 <div className="text-xs text-gray-500 font-mono mt-0.5">
                     SKU: {receiving.sku || 'N/A'}
                 </div>

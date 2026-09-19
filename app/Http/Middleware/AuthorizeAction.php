@@ -47,6 +47,16 @@ class AuthorizeAction
             return $next($request);
         }
 
+        // Staff with receiving permission can access lookup and hardware feed endpoints without broader RFID administration
+        if (in_array($routeName, ['rfid-scanner.status', 'rfid-scanner.lookup', 'rfid-scanner.live-feed'], true)) {
+            if (\App\Services\AccessControl\PermissionResolver::hasPermission($user, 'inventory.receiving')
+                || \App\Services\AccessControl\PermissionResolver::hasPermission($user, 'route:inventory.receiving')
+                || \App\Services\AccessControl\PermissionResolver::hasPermission($user, 'inventory.receiving.store')
+                || \App\Services\AccessControl\PermissionResolver::hasPermission($user, 'route:inventory.receiving.store')) {
+                return $next($request);
+            }
+        }
+
         abort(403);
     }
 

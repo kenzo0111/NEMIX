@@ -332,17 +332,46 @@ class RfidScannerController extends Controller
     public function liveFeed(Request $request): JsonResponse
     {
         $scan = Cache::get('latest_rfid_hardware_scan');
-        $since = max(0, (int) $request->query('since', 0));
-        if ($since === 0) {
-            $since = max(0, (int) DB::table('rfid_scan_events')->max('id') - 100);
+        $deviceUuid = $request->query('device_uuid');
+        $stationId = $request->query('station') ?? $request->query('station_id');
+        $hasSince = $request->has('since') && $request->query('since') !== '' && $request->query('since') !== null;
+        $sinceParam = $hasSince ? (int) $request->query('since') : 0;
+
+        $query = DB::table('rfid_scan_events');
+
+        if (!empty($deviceUuid)) {
+            $query->where('device_uuid', $deviceUuid);
         }
-        $events = DB::table('rfid_scan_events')->where('id', '>', $since)->orderBy('id')->limit(100)->get(['id', 'tag', 'occurred_at']);
+
+        if (!empty($stationId)) {
+            $query->where(function ($q) use ($stationId) {
+                $q->where('station_id', $stationId)
+                  ->orWhereNull('station_id');
+            });
+        }
+
+        $maxId = (int) (DB::table('rfid_scan_events')->max('id') ?? 0);
+
+        if ($hasSince && $sinceParam > 0) {
+            $events = $query->where('id', '>', $sinceParam)->orderBy('id')->limit(100)->get(['id', 'tag', 'device_uuid', 'station_id', 'occurred_at']);
+        } else {
+            // Initial poll or session start:
+            // Fetch events within the last 5 seconds to preserve scans arriving as the session opens,
+            // while preventing replay of older historical scans from previous sessions.
+            $events = $query->where('created_at', '>=', now()->subSeconds(5))
+                ->orderBy('id')
+                ->limit(100)
+                ->get(['id', 'tag', 'device_uuid', 'station_id', 'occurred_at']);
+        }
+
+        $latestEventId = $events->last()?->id ?? ($sinceParam > 0 ? max($sinceParam, $maxId) : $maxId);
 
         return response()->json([
             'status' => 'online',
             'scan' => $scan,
             'events' => $events,
-            'latest_event_id' => $events->last()?->id ?? $since,
+            'latest_event_id' => $latestEventId,
+            'server_time' => microtime(true),
         ]);
     }
 }

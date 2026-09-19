@@ -444,7 +444,10 @@ class InventoryController extends Controller
                     'unit_cost' => (float) ($item->unit_cost ?? 0),
                 ];
             }),
-            'suppliers' => $suppliersQuery->get(['id', 'name']),
+            'suppliers' => $suppliersQuery->get(['id', 'name', 'status']),
+            'devices' => class_exists(\App\Models\RfidDevice::class)
+                ? \App\Models\RfidDevice::orderBy('device_name')->get(['id', 'device_uuid', 'device_name', 'status'])
+                : [],
             'filters' => [
                 'search' => $search,
                 'supplier' => $supplierId ? (int) $supplierId : '',
@@ -579,10 +582,17 @@ class InventoryController extends Controller
             'date_received' => ['required', 'date'],
         ]);
 
-        if ($receiving->scanned_rfid_tag && (int) $validated['item_id'] !== (int) $receiving->item_id) {
-            throw ValidationException::withMessages([
-                'item_id' => 'This receipt records a scanned RFID tag. Create a new receipt to use a different item.',
-            ]);
+        if ($receiving->scanned_rfid_tag) {
+            if ((int) $validated['item_id'] !== (int) $receiving->item_id) {
+                throw ValidationException::withMessages([
+                    'item_id' => 'This receipt records a scanned RFID tag. Create a new receipt to use a different item.',
+                ]);
+            }
+            if ((int) $validated['quantity'] !== 1) {
+                throw ValidationException::withMessages([
+                    'quantity' => 'RFID receipts represent a single scanned unit and cannot be modified to a multi-unit quantity.',
+                ]);
+            }
         }
 
         $validated['date_received'] = $this->normalizeDate($request->date_received);

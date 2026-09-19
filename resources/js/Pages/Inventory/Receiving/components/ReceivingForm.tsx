@@ -128,6 +128,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
         }
     }, [data.item_id, data.supplier_id, data.date_received, mode]);
 
+    const isRfidReceipt = mode === 'edit' && Boolean(data.scanned_rfid_tag);
     const hasItemError = Boolean(errors.item_id);
     const hasSupplierError = Boolean(errors.supplier_id);
 
@@ -139,20 +140,39 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     Inventory Item <span className="text-red-600" aria-hidden="true">*</span>
                     <span className="sr-only"> (required)</span>
                 </label>
-                <Select
-                    inputId="receiving_item_id"
-                    name="item_id"
-                    aria-label="Inventory Item"
-                    aria-invalid={hasItemError}
-                    aria-describedby={hasItemError ? 'receiving_item_id-error' : undefined}
-                    value={selectedItemOption}
-                    onChange={handleItemChange}
-                    options={itemOptions}
-                    placeholder="Search and select an item..."
-                    isClearable
-                    styles={hasItemError ? getInstitutionalSelectStyles(true) : institutionalSelectStyles}
-                    classNamePrefix="react-select"
-                />
+                {isRfidReceipt ? (
+                    <div className="space-y-1.5">
+                        <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-md text-xs flex items-center justify-between">
+                            <div>
+                                <span className="font-semibold text-slate-800">{selectedItemOption?.label || `Item #${data.item_id}`}</span>
+                                <span className="ml-2 font-mono text-[11px] text-slate-500">
+                                    Tag: {data.scanned_rfid_tag}
+                                </span>
+                            </div>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-50 text-red-900 border border-red-200">
+                                RFID-ORIGINATED (LOCKED)
+                            </span>
+                        </div>
+                        <p className="text-[11px] text-gray-500">
+                            This receipt records a scanned RFID tag. The item is locked to preserve tag traceability.
+                        </p>
+                    </div>
+                ) : (
+                    <Select
+                        inputId="receiving_item_id"
+                        name="item_id"
+                        aria-label="Inventory Item"
+                        aria-invalid={hasItemError}
+                        aria-describedby={hasItemError ? 'receiving_item_id-error' : undefined}
+                        value={selectedItemOption}
+                        onChange={handleItemChange}
+                        options={itemOptions}
+                        placeholder="Search and select an item..."
+                        isClearable
+                        styles={hasItemError ? getInstitutionalSelectStyles(true) : institutionalSelectStyles}
+                        classNamePrefix="react-select"
+                    />
+                )}
                 {errors.item_id && (
                     <p id="receiving_item_id-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{errors.item_id}</p>
                 )}
@@ -229,29 +249,52 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Quantity */}
                 <div>
-                    <label htmlFor="receiving_quantity" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                        Quantity Received <span className="text-red-600" aria-hidden="true">*</span>
-                        <span className="sr-only"> (required)</span>
-                    </label>
-                    <input
-                        id="receiving_quantity"
-                        name="quantity"
-                        type="number"
-                        min="1"
-                        max="1000000"
-                        required
-                        aria-required="true"
-                        aria-invalid={Boolean(errors.quantity)}
-                        aria-describedby={errors.quantity ? 'receiving_quantity-error' : undefined}
-                        value={data.quantity}
-                        onChange={(e) => setData('quantity', e.target.value ? parseInt(e.target.value, 10) : '')}
-                        placeholder="e.g. 50"
-                        className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-medium focus:outline-none transition-colors ${
-                            errors.quantity
-                                ? 'border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600'
-                                : 'border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900'
-                        }`}
-                    />
+                    <div className="flex items-center justify-between mb-1.5">
+                        <label htmlFor="receiving_quantity" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Quantity Received <span className="text-red-600" aria-hidden="true">*</span>
+                        </label>
+                        {isRfidReceipt && (
+                            <span className="text-[10px] font-semibold text-red-900 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">
+                                1 UNIT LOCKED
+                            </span>
+                        )}
+                    </div>
+                    {isRfidReceipt ? (
+                        <div>
+                            <input
+                                id="receiving_quantity"
+                                name="quantity"
+                                type="number"
+                                readOnly
+                                disabled
+                                value={1}
+                                className="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-md text-xs font-mono font-bold text-slate-700 cursor-not-allowed select-none"
+                            />
+                            <p className="mt-1 text-[11px] text-gray-500 leading-tight">
+                                RFID receipts represent a single scanned unit and cannot be modified to a multi-unit quantity.
+                            </p>
+                        </div>
+                    ) : (
+                        <input
+                            id="receiving_quantity"
+                            name="quantity"
+                            type="number"
+                            min="1"
+                            max="1000000"
+                            required
+                            aria-required="true"
+                            aria-invalid={Boolean(errors.quantity)}
+                            aria-describedby={errors.quantity ? 'receiving_quantity-error' : undefined}
+                            value={data.quantity}
+                            onChange={(e) => setData('quantity', e.target.value ? parseInt(e.target.value, 10) : '')}
+                            placeholder="e.g. 50"
+                            className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-medium focus:outline-none transition-colors ${
+                                errors.quantity
+                                    ? 'border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600'
+                                    : 'border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900'
+                            }`}
+                        />
+                    )}
                     {errors.quantity && (
                         <p id="receiving_quantity-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{errors.quantity}</p>
                     )}

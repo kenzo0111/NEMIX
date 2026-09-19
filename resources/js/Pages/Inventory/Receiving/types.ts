@@ -1,6 +1,14 @@
 export interface Supplier {
     id: number;
     name: string;
+    status?: string;
+}
+
+export interface RfidDeviceOption {
+    id: number;
+    device_uuid: string;
+    device_name: string;
+    status: string;
 }
 
 export interface InventoryItem {
@@ -41,6 +49,7 @@ export interface ReceivingFormData {
     quantity: number | '';
     unit_cost?: number | string;
     date_received: string;
+    scanned_rfid_tag?: string | null;
 }
 
 export interface PaginatedLink {
@@ -75,5 +84,6 @@ export interface ReceivingPageProps {
     receivings: PaginatedData<ReceivingRecord> | ReceivingRecord[];
     items: InventoryItem[];
     suppliers: Supplier[];
+    devices?: RfidDeviceOption[];
     filters?: ReceivingFilters;
 }

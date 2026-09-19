@@ -183,4 +183,117 @@ class RfidBulkReceivingTest extends TestCase
 
         $this->assertSame(0, Receiving::count());
     }
+
+    public function test_concurrent_stations_receive_only_their_scoped_device_scans(): void
+    {
+        DB::table('rfid_scan_events')->insert([
+            ['tag' => 'TAG-STATION-A', 'device_uuid' => 'DEVICE-A', 'station_id' => 'STATION-1', 'occurred_at' => 200, 'created_at' => now()],
+            ['tag' => 'TAG-STATION-B', 'device_uuid' => 'DEVICE-B', 'station_id' => 'STATION-2', 'occurred_at' => 201, 'created_at' => now()],
+        ]);
+
+        // Station 1 listening to DEVICE-A
+        $resA = $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', ['device_uuid' => 'DEVICE-A']));
+        $resA->assertOk()->assertJsonCount(1, 'events')->assertJsonPath('events.0.tag', 'TAG-STATION-A');
+
+        // Station 2 listening to DEVICE-B
+        $resB = $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', ['device_uuid' => 'DEVICE-B']));
+        $resB->assertOk()->assertJsonCount(1, 'events')->assertJsonPath('events.0.tag', 'TAG-STATION-B');
+    }
+
+    public function test_server_defined_session_cursor_advances_without_client_clock_comparison(): void
+    {
+        DB::table('rfid_scan_events')->insert([
+            ['tag' => 'TAG-HIST-1', 'device_uuid' => 'DEV-CURSOR', 'occurred_at' => 100, 'created_at' => now()],
+        ]);
+
+        $initial = $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', ['device_uuid' => 'DEV-CURSOR']));
+        $initial->assertOk()->assertJsonCount(1, 'events');
+        $latestEventId = $initial->json('latest_event_id');
+
+        // Same cursor returns 0 events
+        $subsequent = $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', [
+            'device_uuid' => 'DEV-CURSOR',
+            'since' => $latestEventId,
+        ]));
+        $subsequent->assertOk()->assertJsonCount(0, 'events');
+
+        // New event arrives
+        DB::table('rfid_scan_events')->insert([
+            ['tag' => 'TAG-HIST-2', 'device_uuid' => 'DEV-CURSOR', 'occurred_at' => 105, 'created_at' => now()],
+        ]);
+
+        $polled = $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', [
+            'device_uuid' => 'DEV-CURSOR',
+            'since' => $latestEventId,
+        ]));
+        $polled->assertOk()->assertJsonCount(1, 'events')->assertJsonPath('events.0.tag', 'TAG-HIST-2');
+    }
+
+    public function test_rfid_receipt_quantity_cannot_be_edited_to_multi_unit(): void
+    {
+        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE']))->assertSessionHasNoErrors();
+        $receipt = Receiving::firstOrFail();
+
+        // Attempting to change quantity to 5 on an RFID receipt is rejected
+        $this->actingAs($this->admin)->put(route('inventory.receiving.update', $receipt), [
+            'item_id' => $this->first->id,
+            'supplier_id' => $this->supplier->id,
+            'quantity' => 5,
+            'unit_cost' => 14.75,
+            'date_received' => '2026-09-19',
+        ])->assertSessionHasErrors(['quantity']);
+
+        // Preserving valid correction workflows (updating cost or supplier with quantity = 1) succeeds
+        $this->actingAs($this->admin)->put(route('inventory.receiving.update', $receipt), [
+            'item_id' => $this->first->id,
+            'supplier_id' => $this->supplier->id,
+            'quantity' => 1,
+            'unit_cost' => 20.00,
+            'date_received' => '2026-09-20',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame(1, (int) $receipt->fresh()->quantity);
+        $this->assertSame('20.00', $receipt->fresh()->batch->unit_cost);
+    }
+
+    public function test_hundred_item_bulk_limit_enforced_on_submission(): void
+    {
+        $tags101 = [];
+        for ($i = 1; $i <= 101; $i++) {
+            $tag = "TAG-BULK-{$i}";
+            $this->makeItem($tag, "Bulk Item {$i}");
+            $tags101[] = $tag;
+        }
+
+        // 101 items exceeds max:100 validation
+        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $this->payload($tags101))
+            ->assertSessionHasErrors(['items']);
+
+        // Exactly 100 items is accepted
+        $tags100 = array_slice($tags101, 0, 100);
+        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $this->payload($tags100))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(100, Receiving::count());
+    }
+
+    public function test_staff_with_receiving_permission_can_access_lookup_and_live_feed_without_rfid_admin(): void
+    {
+        $staff = User::factory()->create(['is_active' => true]);
+        \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'inventory.receiving', 'guard_name' => 'web']);
+        \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'inventory.receiving.store', 'guard_name' => 'web']);
+        \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'rfid.view', 'guard_name' => 'web']);
+        $staff->givePermissionTo(['inventory.receiving', 'inventory.receiving.store']);
+        $this->first->update(['created_by' => $staff->id]);
+
+        // Receiving staff CAN access scanner status, lookup, and live-feed
+        $this->actingAs($staff)->getJson(route('rfid-scanner.status'))->assertOk();
+        $this->actingAs($staff)->getJson(route('rfid-scanner.lookup', 'TAG-ONE'))->assertOk();
+        $this->actingAs($staff)->getJson(route('rfid-scanner.live-feed'))->assertOk();
+
+        // Receiving staff CANNOT access RFID administrative page or assignment endpoints
+        $this->actingAs($staff)->get(route('rfid-scanner.index'))->assertForbidden();
+        $this->actingAs($staff)->post(route('rfid-scanner.assign'), ['item_id' => $this->first->id, 'rfid_tag' => 'TAG-NEW'])->assertForbidden();
+        $this->actingAs($staff)->post(route('rfid-scanner.unassign'), ['item_id' => $this->first->id])->assertForbidden();
+    }
 }

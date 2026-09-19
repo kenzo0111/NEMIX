@@ -110,16 +110,23 @@ class RfidDeviceController extends Controller
         $data = $request->validate([
             'epc' => ['required', 'string', 'max:100', 'regex:/^[A-Fa-f0-9]+$/'],
             'rssi' => ['nullable', 'integer', 'between:-127,0'],
+            'station_id' => ['nullable', 'string', 'max:100'],
         ]);
         $device = $this->device($request);
+        $stationId = $data['station_id'] ?? null;
         $item = Item::where('rfid_tag', strtoupper($data['epc']))->first();
         Cache::put('latest_rfid_hardware_scan', [
             'tag' => strtoupper($data['epc']), 'found' => (bool) $item,
-            'device_id' => $device->device_uuid, 'timestamp' => microtime(true),
+            'device_id' => $device->device_uuid, 'station_id' => $stationId,
+            'timestamp' => microtime(true),
             'scanned_at' => now()->format('h:i:s A'),
         ], 60);
         DB::table('rfid_scan_events')->insert([
-            'tag' => strtoupper($data['epc']), 'occurred_at' => microtime(true), 'created_at' => now(),
+            'tag' => strtoupper($data['epc']),
+            'device_uuid' => $device->device_uuid,
+            'station_id' => $stationId,
+            'occurred_at' => microtime(true),
+            'created_at' => now(),
         ]);
         DB::table('rfid_scan_events')->where('created_at', '<', now()->subDay())->delete();
 
