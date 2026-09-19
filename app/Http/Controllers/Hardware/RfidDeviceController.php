@@ -7,6 +7,7 @@ use App\Models\RfidDevice;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\Inventory\Models\Item;
 
@@ -117,6 +118,10 @@ class RfidDeviceController extends Controller
             'device_id' => $device->device_uuid, 'timestamp' => microtime(true),
             'scanned_at' => now()->format('h:i:s A'),
         ], 60);
+        DB::table('rfid_scan_events')->insert([
+            'tag' => strtoupper($data['epc']), 'occurred_at' => microtime(true), 'created_at' => now(),
+        ]);
+        DB::table('rfid_scan_events')->where('created_at', '<', now()->subDay())->delete();
 
         return response()->json(['success' => true, 'found' => (bool) $item, 'item' => $item?->only(['id', 'name', 'sku', 'stock', 'unit_of_issue'])], $item ? 200 : 404);
     }

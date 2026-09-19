@@ -303,21 +303,7 @@ class RfidScannerController extends Controller
         $item = Item::where('rfid_tag', $sanitizedTag)
             ->with('supplier')
             ->first();
-
-        // Broadcast to live feed cache for real-time web portal sync
-        Cache::put('latest_rfid_hardware_scan', [
-            'tag' => $sanitizedTag,
-            'found' => (bool) $item,
-            'item' => $item ? [
-                'id' => $item->id,
-                'name' => $item->name,
-                'sku' => $item->sku,
-                'stock' => $item->stock,
-                'unit_of_issue' => $item->unit_of_issue,
-            ] : null,
-            'timestamp' => microtime(true),
-            'scanned_at' => now()->format('h:i:s A'),
-        ], 60);
+        if ($item) ResourceOwnershipPolicy::authorize($request->user(), $item, 'created_by');
 
         if (!$item) {
             return response()->json([
@@ -337,17 +323,26 @@ class RfidScannerController extends Controller
                 'stock' => (int) $item->stock,
                 'unit_of_issue' => $item->unit_of_issue,
                 'status' => $item->status,
+                'supplier_id' => $item->supplier_id,
+                'unit_cost' => (float) ($item->unit_cost ?? 0),
             ],
         ]);
     }
 
-    public function liveFeed(): JsonResponse
+    public function liveFeed(Request $request): JsonResponse
     {
         $scan = Cache::get('latest_rfid_hardware_scan');
+        $since = max(0, (int) $request->query('since', 0));
+        if ($since === 0) {
+            $since = max(0, (int) DB::table('rfid_scan_events')->max('id') - 100);
+        }
+        $events = DB::table('rfid_scan_events')->where('id', '>', $since)->orderBy('id')->limit(100)->get(['id', 'tag', 'occurred_at']);
 
         return response()->json([
             'status' => 'online',
             'scan' => $scan,
+            'events' => $events,
+            'latest_event_id' => $events->last()?->id ?? $since,
         ]);
     }
 }

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\RfidDevice;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class RfidHmacSecurityTest extends TestCase
@@ -84,5 +85,23 @@ class RfidHmacSecurityTest extends TestCase
 
         config(['cache.default' => 'null']);
         $this->withHeaders($headers)->getJson('https://localhost' . $path)->assertUnauthorized();
+    }
+
+    public function test_signed_hardware_scan_is_added_to_ordered_live_feed(): void
+    {
+        $device = $this->device();
+        $path = '/api/hardware/rfid/scan';
+        $body = json_encode(['epc' => 'ABCDEF0123']);
+        $timestamp = (string) time();
+        $nonce = str_repeat('8', 32);
+        $canonical = implode("\n", [$timestamp, $nonce, 'POST', $path, hash('sha256', $body)]);
+        $headers = [
+            'X-Device-ID' => $device->device_uuid,
+            'X-Timestamp' => $timestamp,
+            'X-Nonce' => $nonce,
+            'X-Signature' => hash_hmac('sha256', $canonical, $device->device_secret_encrypted),
+        ];
+        $this->withHeaders($headers)->postJson($path, ['epc' => 'ABCDEF0123'])->assertNotFound();
+        $this->assertSame('ABCDEF0123', DB::table('rfid_scan_events')->first()->tag);
     }
 }

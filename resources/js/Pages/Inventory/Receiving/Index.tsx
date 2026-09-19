@@ -141,6 +141,9 @@ export default function ReceivingIndex({
 
     const [isRfidModalOpen, setIsRfidModalOpen] = useState(false);
     const [rfidSupplierIds, setRfidSupplierIds] = useState<Record<string, number | ''>>({});
+    const [rfidCosts, setRfidCosts] = useState<Record<string, string>>({});
+    const rfidSubmissionKey = useRef('');
+    const rfidSubmitting = useRef(false);
     const [rfidDate, setRfidDate] = useState(getLocalDateString());
     const [rfidProcessing, setRfidProcessing] = useState(false);
     const [rfidSubmitError, setRfidSubmitError] = useState<string | null>(null);
@@ -174,6 +177,8 @@ export default function ReceivingIndex({
         lookupTag,
         removeItem,
         resetScanner,
+        connectionState,
+        scanFeedback,
     } = useRfidScanner(items, isRfidModalOpen);
 
     useEffect(() => {
@@ -181,6 +186,16 @@ export default function ReceivingIndex({
             const next = { ...current };
             scannedItems.forEach(item => {
                 if (item.rfid_tag && next[item.rfid_tag] === undefined) next[item.rfid_tag] = item.supplier_id || '';
+            });
+            return next;
+        });
+    }, [scannedItems]);
+
+    useEffect(() => {
+        setRfidCosts(current => {
+            const next = { ...current };
+            scannedItems.forEach(item => {
+                if (item.rfid_tag && next[item.rfid_tag] === undefined) next[item.rfid_tag] = String(item.unit_cost ?? 0);
             });
             return next;
         });
@@ -255,25 +270,29 @@ export default function ReceivingIndex({
     const handleOpenRfidModal = () => {
         resetScanner();
         setRfidSupplierIds({});
+        setRfidCosts({});
+        rfidSubmissionKey.current = crypto.randomUUID();
         setRfidDate(getLocalDateString());
         setRfidSubmitError(null);
         setIsRfidModalOpen(true);
     };
 
     const handleRfidSubmit = () => {
-        if (rfidProcessing || isRfidSearching || !scannedItems.length) return;
+        if (rfidSubmitting.current || rfidProcessing || isRfidSearching || !scannedItems.length) return;
+        rfidSubmitting.current = true;
         setRfidProcessing(true);
         setRfidSubmitError(null);
         router.post(route('inventory.receiving.rfid.store'), {
+            submission_key: rfidSubmissionKey.current,
             date_received: rfidDate,
-            items: scannedItems.map(item => ({ tag: item.rfid_tag, supplier_id: rfidSupplierIds[item.rfid_tag || ''] })),
+            items: scannedItems.map(item => ({ tag: item.rfid_tag, supplier_id: rfidSupplierIds[item.rfid_tag || ''], unit_cost: rfidCosts[item.rfid_tag || ''] })),
         }, {
             onSuccess: () => {
                 setIsRfidModalOpen(false);
                 resetScanner();
             },
-            onError: errors => setRfidSubmitError(Object.values(errors)[0] || 'Could not receive the scanned items.'),
-            onFinish: () => setRfidProcessing(false),
+            onError: errors => setRfidSubmitError(Object.entries(errors).map(([field, message]) => `${field}: ${message}`).join(' ') || 'Could not receive the scanned items.'),
+            onFinish: () => { rfidSubmitting.current = false; setRfidProcessing(false); },
         });
     };
 
@@ -371,6 +390,10 @@ export default function ReceivingIndex({
                 onRemove={removeItem}
                 suppliers={suppliers}
                 supplierIds={rfidSupplierIds}
+                costs={rfidCosts}
+                onCostChange={(tag, cost) => setRfidCosts(current => ({ ...current, [tag]: cost }))}
+                connectionState={connectionState}
+                scanFeedback={scanFeedback}
                 onSupplierChange={(tag, supplierId) => setRfidSupplierIds(current => ({ ...current, [tag]: supplierId }))}
                 dateReceived={rfidDate}
                 onDateChange={setRfidDate}

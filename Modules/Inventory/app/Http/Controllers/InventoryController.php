@@ -413,6 +413,7 @@ class InventoryController extends Controller
                 'supplier_stock_no' => $receiving->supplier_stock_no ?: ($receiving->batch?->supplier_stock_no ?: ''),
                 'item' => $receiving->item ? $receiving->item->name : 'N/A',
                 'sku' => $receiving->item ? $receiving->item->sku : '',
+                'scanned_rfid_tag' => $receiving->scanned_rfid_tag,
                 'quantity' => (int) $receiving->quantity,
                 'unit_cost' => (float) $receiving->unit_cost,
                 'amount' => (float) $receiving->amount,
@@ -489,20 +490,43 @@ class InventoryController extends Controller
     public function storeRfidReceiving(Request $request)
     {
         $validated = $request->validate([
+            'submission_key' => ['required', 'uuid'],
             'date_received' => ['required', 'date'],
             'items' => ['required', 'array', 'min:1', 'max:100'],
             'items.*.tag' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\-_]+$/'],
             'items.*.supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
+            'items.*.unit_cost' => ['required', 'numeric', 'min:0', 'max:9999999999.99', 'decimal:0,2'],
         ]);
 
         $dateReceived = $this->normalizeDate($validated['date_received']);
-        DB::transaction(function () use ($validated, $dateReceived) {
+        $rows = array_map(fn ($row) => [
+            'tag' => strtoupper(trim($row['tag'])),
+            'supplier_id' => (int) $row['supplier_id'],
+            'unit_cost' => number_format((float) $row['unit_cost'], 2, '.', ''),
+        ], $validated['items']);
+        $payloadHash = hash('sha256', json_encode([$dateReceived, $rows], JSON_THROW_ON_ERROR));
+        $created = DB::transaction(function () use ($validated, $dateReceived, $rows, $payloadHash) {
+            $inserted = DB::table('rfid_receiving_submissions')->insertOrIgnore([
+                'submission_key' => $validated['submission_key'],
+                'created_by' => auth()->id(),
+                'payload_hash' => $payloadHash,
+                'created_at' => now(), 'updated_at' => now(),
+            ]);
+            if (! $inserted) {
+                $previous = DB::table('rfid_receiving_submissions')
+                    ->where('submission_key', $validated['submission_key'])->lockForUpdate()->first();
+                if (! $previous || (int) $previous->created_by !== (int) auth()->id() || $previous->payload_hash !== $payloadHash) {
+                    throw ValidationException::withMessages(['submission_key' => 'This scan session was already submitted with different details. Start a new scan session.']);
+                }
+                return false;
+            }
+
             $seen = [];
             $receipts = [];
 
             // Resolve every tag before writing any receipt. Never trust item IDs supplied by the browser.
-            foreach ($validated['items'] as $index => $row) {
-                $tag = strtoupper(trim($row['tag']));
+            foreach ($rows as $index => $row) {
+                $tag = $row['tag'];
                 if (isset($seen[$tag])) {
                     throw ValidationException::withMessages([
                         "items.{$index}.tag" => "RFID tag {$tag} was scanned more than once.",
@@ -516,7 +540,16 @@ class InventoryController extends Controller
                         "items.{$index}.tag" => "RFID tag {$tag} is no longer assigned to an inventory item.",
                     ]);
                 }
-                $receipts[] = ['item_id' => $item->id, 'supplier_id' => $row['supplier_id']];
+                ResourceOwnershipPolicy::authorize(auth()->user(), $item, 'created_by');
+                $supplier = Supplier::find($row['supplier_id']);
+                if (! $supplier || $supplier->status !== 'active') {
+                    throw ValidationException::withMessages(["items.{$index}.supplier_id" => 'Select an active supplier.']);
+                }
+                ResourceOwnershipPolicy::authorize(auth()->user(), $supplier, 'created_by');
+                $receipts[] = [
+                    'item_id' => $item->id, 'supplier_id' => $supplier->id,
+                    'unit_cost' => $row['unit_cost'], 'scanned_rfid_tag' => $tag,
+                ];
             }
 
             foreach ($receipts as $receipt) {
@@ -525,9 +558,12 @@ class InventoryController extends Controller
                     'date_received' => $dateReceived,
                 ], auth()->id());
             }
+            return true;
         });
 
-        return redirect()->route('inventory.receiving')->with('success', count($validated['items']).' RFID items received successfully.');
+        return redirect()->route('inventory.receiving')->with('success', $created
+            ? count($rows).' RFID items received successfully.'
+            : 'This scan session was already received. No additional stock was added.');
     }
 
     public function updateReceiving(Request $request, Receiving $receiving)
@@ -542,6 +578,12 @@ class InventoryController extends Controller
             'unit_cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'date_received' => ['required', 'date'],
         ]);
+
+        if ($receiving->scanned_rfid_tag && (int) $validated['item_id'] !== (int) $receiving->item_id) {
+            throw ValidationException::withMessages([
+                'item_id' => 'This receipt records a scanned RFID tag. Create a new receipt to use a different item.',
+            ]);
+        }
 
         $validated['date_received'] = $this->normalizeDate($request->date_received);
 

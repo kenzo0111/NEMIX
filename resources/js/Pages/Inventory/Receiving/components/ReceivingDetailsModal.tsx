@@ -69,6 +69,7 @@ export const ReceivingDetailsModal: React.FC<ReceivingDetailsModalProps> = ({
                                 {receiving.sku || 'N/A'}
                             </dd>
                         </div>
+                        {receiving.scanned_rfid_tag && <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4"><dt className="font-semibold text-gray-500 uppercase tracking-wider">Scanned item-type tag</dt><dd className="mt-1 font-mono text-gray-700 sm:col-span-2 sm:mt-0">{receiving.scanned_rfid_tag}</dd></div>}
                         <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
                             <dt className="font-semibold text-gray-500 uppercase tracking-wider">Supplier</dt>
                             <dd className="mt-1 font-medium text-gray-800 sm:col-span-2 sm:mt-0">

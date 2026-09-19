@@ -13,6 +13,7 @@ export interface InventoryItem {
     description?: string | null;
     unit_of_issue?: string | null;
     stock?: number;
+    unit_cost?: number;
 }
 
 export interface ReceivingRecord {
@@ -22,6 +23,7 @@ export interface ReceivingRecord {
     supplier_stock_no?: string | null;
     item: string;
     sku: string;
+    scanned_rfid_tag?: string | null;
     unit?: string;
     supplier: string;
     quantity: number;

@@ -20,6 +20,7 @@ class Receiving extends Model
         'quantity',
         'date_received',
         'created_by',
+        'scanned_rfid_tag',
     ];
 
     /**

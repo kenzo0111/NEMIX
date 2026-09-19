@@ -118,7 +118,7 @@ class InventoryReceivingService
             $this->balanceService->ensureOpeningBatch($item, $userId);
 
             // Default unit_cost to item's reference cost if not provided
-            if ($unitCost <= 0 && (float) ($item->unit_cost ?? 0) > 0) {
+            if ((!isset($data['unit_cost']) || $data['unit_cost'] === '') && (float) ($item->unit_cost ?? 0) > 0) {
                 $unitCost = (float) $item->unit_cost;
             }
 
@@ -135,6 +135,7 @@ class InventoryReceivingService
                     'quantity' => $quantity,
                     'date_received' => $dateReceived,
                     'created_by' => $userId,
+                    'scanned_rfid_tag' => $data['scanned_rfid_tag'] ?? null,
                 ]);
 
                 // 2. Create inventory batch
