@@ -330,7 +330,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                             </p>
                         </div>
                     ) : (
-                        <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
+                        <div className="space-y-2.5">
                             {scannedItems.map((item, idx) => {
                                 const tag = item.rfid_tag || '';
                                 const error = rowErrors[tag];
@@ -341,26 +341,37 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                 return (
                                     <div
                                         key={`${tag}-${idx}`}
-                                        className={`p-3.5 border rounded-xl flex flex-col sm:flex-row sm:items-start gap-3 transition-colors ${
+                                        className={`p-3.5 border rounded-xl space-y-3 transition-colors ${
                                             error ? 'border-red-300 bg-red-50/30' : 'border-gray-200 bg-white hover:border-gray-300'
                                         }`}
                                     >
-                                        {/* Item Information */}
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="text-xs font-mono font-bold text-gray-400">#{idx + 1}</span>
-                                                <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+                                        <div className="flex items-start justify-between gap-3">
+                                            {/* Item Information */}
+                                            <div className="min-w-0">
+                                                <div className="flex items-start gap-1.5">
+                                                    <span className="text-xs font-mono font-bold text-gray-400 shrink-0 pt-0.5">#{idx + 1}</span>
+                                                    <p className="text-sm font-semibold text-gray-900 break-words">{item.name}</p>
+                                                </div>
+                                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-600 font-mono mt-1">
+                                                    <span className="font-semibold text-red-900 bg-red-50 px-1 py-0.5 rounded border border-red-100 break-all">{tag}</span>
+                                                    <span className="break-all">SKU: {item.sku || 'N/A'}</span>
+                                                    <span>Current Stock: {item.stock ?? 0} {item.unit_of_issue || 'pcs'}</span>
+                                                </div>
                                             </div>
-                                            <p className="text-xs text-gray-600 font-mono mt-0.5">
-                                                <span className="font-semibold text-red-900 bg-red-50 px-1 py-0.5 rounded border border-red-100">
-                                                    {tag}
-                                                </span>{' '}
-                                                · SKU: {item.sku || 'N/A'} · Current Stock: {item.stock ?? 0} {item.unit_of_issue || 'pcs'}
-                                            </p>
+                                            <button
+                                                type="button"
+                                                onClick={() => onRemove(tag)}
+                                                disabled={processing}
+                                                aria-label={`Remove tag ${tag}`}
+                                                className="text-xs text-red-800 hover:text-red-950 hover:underline font-semibold disabled:opacity-40 cursor-pointer shrink-0"
+                                            >
+                                                Remove
+                                            </button>
                                         </div>
 
+                                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
                                         {/* Supplier Dropdown */}
-                                        <div className="w-full sm:w-48 shrink-0">
+                                        <div className="min-w-0 sm:col-span-5">
                                             <label className="block text-[11px] font-semibold text-gray-700 uppercase tracking-wider mb-1">
                                                 Supplier <span className="text-red-600">*</span>
                                             </label>
@@ -395,7 +406,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                             )}
                                         </div>
 
-                                        <div className="w-full sm:w-28 shrink-0">
+                                        <div className="min-w-0 sm:col-span-3">
                                             <label className="block text-[11px] font-semibold text-gray-700 uppercase tracking-wider mb-1">
                                                 Inspected Qty <span className="text-red-600">*</span>
                                             </label>
@@ -414,7 +425,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                         </div>
 
                                         {/* Unit Cost Input with Row-level feedback */}
-                                        <div className="w-full sm:w-36 shrink-0">
+                                        <div className="min-w-0 sm:col-span-4">
                                             <label className="block text-[11px] font-semibold text-gray-700 uppercase tracking-wider mb-1">
                                                 Unit Cost (₱) <span className="text-red-600">*</span>
                                             </label>
@@ -438,17 +449,6 @@ export const RfidReceivingModal: React.FC<Props> = ({
                                             )}
                                         </div>
 
-                                        {/* Remove Action */}
-                                        <div className="sm:pt-6 shrink-0">
-                                            <button
-                                                type="button"
-                                                onClick={() => onRemove(tag)}
-                                                disabled={processing}
-                                                aria-label={`Remove tag ${tag}`}
-                                                className="text-xs text-red-800 hover:text-red-950 hover:underline font-semibold disabled:opacity-40 cursor-pointer"
-                                            >
-                                                Remove
-                                            </button>
                                         </div>
                                     </div>
                                 );
