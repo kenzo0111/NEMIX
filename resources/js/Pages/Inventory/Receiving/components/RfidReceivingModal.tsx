@@ -123,7 +123,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
             }
         }
         return errors;
-    }, [scannedItems, costs, supplierIds, suppliers]);
+    }, [scannedItems, costs, quantities, supplierIds, suppliers]);
 
     const hasRowErrors = Object.keys(rowErrors).length > 0;
     const totalQuantity = scannedItems.reduce((sum, item) => sum + (Number(quantities[item.rfid_tag || '']) || 0), 0);
