@@ -20,15 +20,15 @@ export const ReceivingStatusNotice: React.FC<ReceivingStatusNoticeProps> = ({
         <div
             className={`p-4 rounded-lg border text-xs font-medium flex items-center justify-between shadow-xs transition-all animate-in fade-in slide-in-from-top-2 ${
                 isSuccess
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                    : 'bg-red-50 border-red-200 text-red-900'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-300'
+                    : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-red-900 dark:text-red-300'
             }`}
             role="alert"
         >
             <div className="flex items-center gap-2.5">
                 {isSuccess ? (
                     <svg
-                        className="w-4 h-4 text-emerald-600 flex-shrink-0"
+                        className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -42,7 +42,7 @@ export const ReceivingStatusNotice: React.FC<ReceivingStatusNoticeProps> = ({
                     </svg>
                 ) : (
                     <svg
-                        className="w-4 h-4 text-red-600 flex-shrink-0"
+                        className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -60,10 +60,10 @@ export const ReceivingStatusNotice: React.FC<ReceivingStatusNoticeProps> = ({
             <button
                 type="button"
                 onClick={onDismiss}
-                className={`p-1 rounded-md transition-colors ${
+                className={`p-1 rounded-md transition-colors cursor-pointer ${
                     isSuccess
-                        ? 'text-emerald-700 hover:bg-emerald-100'
-                        : 'text-red-700 hover:bg-red-100'
+                        ? 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50'
+                        : 'text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50'
                 }`}
                 aria-label="Dismiss notice"
             >

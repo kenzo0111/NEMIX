@@ -136,24 +136,24 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
         <form onSubmit={onSubmit} className="space-y-5">
             {/* Item Selection */}
             <div>
-                <label htmlFor="receiving_item_id" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                <label htmlFor="receiving_item_id" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Inventory Item <span className="text-red-600" aria-hidden="true">*</span>
                     <span className="sr-only"> (required)</span>
                 </label>
                 {isRfidReceipt ? (
                     <div className="space-y-1.5">
-                        <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-md text-xs flex items-center justify-between">
+                        <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-md text-xs flex items-center justify-between">
                             <div>
-                                <span className="font-semibold text-slate-800">{selectedItemOption?.label || `Item #${data.item_id}`}</span>
-                                <span className="ml-2 font-mono text-[11px] text-slate-500">
+                                <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedItemOption?.label || `Item #${data.item_id}`}</span>
+                                <span className="ml-2 font-mono text-[11px] text-slate-500 dark:text-slate-400">
                                     Tag: {data.scanned_rfid_tag}
                                 </span>
                             </div>
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-50 text-red-900 border border-red-200">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-400 border border-red-200 dark:border-red-900/50">
                                 RFID-ORIGINATED (LOCKED)
                             </span>
                         </div>
-                        <p className="text-[11px] text-gray-500">
+                        <p className="text-[11px] text-gray-500 dark:text-slate-400">
                             This receipt records a scanned RFID tag. The item is locked to preserve tag traceability.
                         </p>
                     </div>
@@ -181,11 +181,11 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
             {/* Supplier Selection */}
             <div>
                 <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
-                    <label htmlFor="receiving_supplier_id" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    <label htmlFor="receiving_supplier_id" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
                         Supplier <span className="text-red-600" aria-hidden="true">*</span>
                         <span className="sr-only"> (required)</span>
                     </label>
-                    <span className="text-[11px] text-gray-500 font-medium">
+                    <span className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">
                         Deliveries can be received from any vendor
                     </span>
                 </div>
@@ -211,10 +211,10 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
             {/* Supplier Stock Number (Automatic) */}
             <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
-                    <label htmlFor="receiving_supplier_stock_no" className="text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    <label htmlFor="receiving_supplier_stock_no" className="text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
                         Supplier Stock No.
                     </label>
-                    <span className="shrink-0 whitespace-nowrap rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                    <span className="shrink-0 whitespace-nowrap rounded-md border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
                         AUTOMATIC
                     </span>
                 </div>
@@ -229,15 +229,15 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                         placeholder="Generated automatically after selecting an item and supplier."
                         aria-invalid={Boolean(errors.supplier_stock_no)}
                         aria-describedby={errors.supplier_stock_no ? 'receiving_supplier_stock_no-error' : undefined}
-                        className="w-full px-3 py-2 pr-9 bg-slate-50 border border-slate-200 text-slate-700 font-mono font-bold text-xs rounded-md cursor-not-allowed select-none focus:outline-none focus:ring-0 focus:border-slate-300 transition-colors shadow-2xs"
+                        className="w-full px-3 py-2 pr-9 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-mono font-bold text-xs rounded-md cursor-not-allowed select-none focus:outline-none focus:ring-0 focus:border-slate-300 dark:focus:border-slate-600 transition-colors shadow-2xs"
                     />
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
-                        <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                        <svg className="w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                     </div>
                 </div>
-                <p className="min-w-0 text-xs leading-relaxed text-gray-500 whitespace-normal break-words">
+                <p className="min-w-0 text-xs leading-relaxed text-gray-500 dark:text-slate-400 whitespace-normal break-words">
                     Automatically generated per receiving batch and retained for RPCI reporting.
                 </p>
                 {errors.supplier_stock_no && (
@@ -250,30 +250,30 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                 {/* Quantity */}
                 <div>
                     <div className="flex items-center justify-between mb-1.5">
-                        <label htmlFor="receiving_quantity" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        <label htmlFor="receiving_quantity" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider">
                             Quantity Received <span className="text-red-600" aria-hidden="true">*</span>
                         </label>
-                        {isRfidReceipt && <span className="text-[10px] text-gray-500">Correct from inspection record</span>}
+                        {isRfidReceipt && <span className="text-[10px] text-gray-500 dark:text-slate-400">Correct from inspection record</span>}
                     </div>
-                        <input
-                            id="receiving_quantity"
-                            name="quantity"
-                            type="number"
-                            min="1"
-                            max="1000000"
-                            required
-                            aria-required="true"
-                            aria-invalid={Boolean(errors.quantity)}
-                            aria-describedby={errors.quantity ? 'receiving_quantity-error' : undefined}
-                            value={data.quantity}
-                            onChange={(e) => setData('quantity', e.target.value ? parseInt(e.target.value, 10) : '')}
-                            placeholder="e.g. 50"
-                            className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-medium focus:outline-none transition-colors ${
-                                errors.quantity
-                                    ? 'border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600'
-                                    : 'border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900'
-                            }`}
-                        />
+                    <input
+                        id="receiving_quantity"
+                        name="quantity"
+                        type="number"
+                        min="1"
+                        max="1000000"
+                        required
+                        aria-required="true"
+                        aria-invalid={Boolean(errors.quantity)}
+                        aria-describedby={errors.quantity ? 'receiving_quantity-error' : undefined}
+                        value={data.quantity}
+                        onChange={(e) => setData('quantity', e.target.value ? parseInt(e.target.value, 10) : '')}
+                        placeholder="e.g. 50"
+                        className={`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-xs font-medium text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none transition-colors ${
+                            errors.quantity
+                                ? 'border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600'
+                                : 'border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600'
+                        }`}
+                    />
                     {errors.quantity && (
                         <p id="receiving_quantity-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{errors.quantity}</p>
                     )}
@@ -281,7 +281,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
 
                 {/* Unit Cost */}
                 <div>
-                    <label htmlFor="receiving_unit_cost" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                    <label htmlFor="receiving_unit_cost" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                         Unit Cost (₱)
                     </label>
                     <input
@@ -295,10 +295,10 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                         placeholder="0.00"
                         aria-invalid={Boolean(errors.unit_cost)}
                         aria-describedby={errors.unit_cost ? 'receiving_unit_cost-error' : undefined}
-                        className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-mono font-medium focus:outline-none transition-colors ${
+                        className={`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-xs font-mono font-medium text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none transition-colors ${
                             errors.unit_cost
-                                ? 'border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600'
-                                : 'border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900'
+                                ? 'border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600'
+                                : 'border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600'
                         }`}
                     />
                     {errors.unit_cost && (
@@ -308,7 +308,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
 
                 {/* Batch Total Amount Preview */}
                 <div>
-                    <label htmlFor="receiving_batch_total" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                    <label htmlFor="receiving_batch_total" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                         Batch Total (₱)
                     </label>
                     <input
@@ -321,14 +321,14 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                                 ? `₱${(Number(data.quantity) * Number(data.unit_cost)).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                                 : '₱0.00'
                         }
-                        className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-xs font-mono font-bold text-gray-900 cursor-not-allowed"
+                        className="w-full px-3 py-2 bg-gray-100 dark:bg-slate-800/80 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-mono font-bold text-gray-900 dark:text-slate-100 cursor-not-allowed"
                     />
                 </div>
             </div>
 
             {/* Date Received */}
             <div>
-                <label htmlFor="receiving_date_received" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                <label htmlFor="receiving_date_received" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Date Received <span className="text-red-600" aria-hidden="true">*</span>
                     <span className="sr-only"> (required)</span>
                 </label>
@@ -342,10 +342,10 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     aria-describedby={errors.date_received ? 'receiving_date_received-error' : undefined}
                     value={data.date_received}
                     onChange={(e) => setData('date_received', e.target.value)}
-                    className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-medium focus:outline-none transition-colors ${
+                    className={`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-xs font-medium text-gray-900 dark:text-slate-100 focus:outline-none transition-colors ${
                         errors.date_received
-                            ? 'border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600'
-                            : 'border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900'
+                            ? 'border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600'
+                            : 'border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600'
                     }`}
                 />
                 {errors.date_received && (
@@ -354,12 +354,12 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
             </div>
 
             {/* Modal Actions Footer */}
-            <div className="pt-4 border-t border-gray-200 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+            <div className="pt-4 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
                 <button
                     type="button"
                     onClick={onCancel}
                     disabled={processing}
-                    className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none transition-colors disabled:opacity-50 text-center"
+                    className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none transition-colors disabled:opacity-50 text-center cursor-pointer"
                 >
                     Cancel
                 </button>
