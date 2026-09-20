@@ -20,22 +20,42 @@
     --chart-cursor: rgba(241, 245, 249, 0.6);
     --chart-pie-stroke: #ffffff;
     color-scheme: light;
+
+    /* Tailwind Slate Palette RGB Channels (Light Mode Defaults) */
+    --slate-700-rgb: 51 65 85;
+    --slate-800-rgb: 30 41 59;
+    --slate-850-rgb: 23 32 51;
+    --slate-900-rgb: 15 23 42;
+    --slate-950-rgb: 2 6 23;
 }
 
 .dark {
-    --app-background: #020617;
-    --surface: #0f172a;
-    --surface-card: #0f172a;
-    --surface-muted: #1e293b;
-    --input-background: #090d16;
-    --border-color: #1e293b;
+    /* NEMIX Dark Mode Core Palette */
+    --app-background: #111316;
+    --surface: #1D2024;
+    --surface-card: #1D2024;
+    --surface-muted: #24272C;
+    --input-background: #16181B;
+    --border-color: #34373B;
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
-    --chart-grid: #1e293b;
+    --chart-grid: #34373B;
     --chart-tick: #94a3b8;
     --chart-tick-muted: #64748b;
-    --chart-cursor: rgba(30, 41, 59, 0.6);
-    --chart-pie-stroke: #0f172a;
+    --chart-cursor: rgba(29, 32, 36, 0.6);
+    --chart-pie-stroke: #1D2024;
+    color-scheme: dark;
+
+    /* Dark Mode Palette Tokens (NEMIX Spec) */
+    --slate-950-rgb: 17 19 22;  /* #111316: Main content canvas background */
+    --slate-900-rgb: 29 32 36;  /* #1D2024: Card, panel, and top bar surfaces */
+    --slate-850-rgb: 35 38 43;  /* #23262B: Elevated inner surfaces & headers */
+    --slate-800-rgb: 52 55 59;  /* #34373B: Primary borders on dark surfaces */
+    --slate-700-rgb: 52 55 59;  /* #34373B: Surface, control, and divider borders */
+}
+
+html.dark {
+    background-color: var(--app-background);
     color-scheme: dark;
 }
 
