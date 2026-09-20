@@ -169,58 +169,58 @@ export default function InventoryDetailsModal({
                                 </p>
                             </div>
                         ) : (
-                            <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-800">
-                                <table className="w-full text-left border-collapse">
+                            <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-slate-800">
+                                <table className="w-full table-fixed text-left border-collapse">
                                     <thead className="bg-gray-50/80 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800">
                                         <tr>
-                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap w-[90px]">
+                                            <th scope="col" className="w-[12%] px-1.5 sm:px-2 py-2 text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 truncate">
                                                 Date
                                             </th>
-                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-300 min-w-[120px]">
+                                            <th scope="col" className="w-[23%] px-1.5 sm:px-2 py-2 text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 truncate">
                                                 Supplier
                                             </th>
-                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap w-[160px]">
+                                            <th scope="col" className="w-[21%] px-1.5 sm:px-2 py-2 text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 truncate">
                                                 Supplier Stock No.
                                             </th>
-                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-300 text-right whitespace-nowrap w-[70px]">
+                                            <th scope="col" className="w-[10%] px-1 sm:px-1.5 py-2 text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 text-right truncate">
                                                 Received
                                             </th>
-                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-300 text-right whitespace-nowrap w-[75px]">
+                                            <th scope="col" className="w-[10%] px-1 sm:px-1.5 py-2 text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 text-right truncate">
                                                 Remaining
                                             </th>
-                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-300 text-right whitespace-nowrap w-[80px]">
+                                            <th scope="col" className="w-[11%] px-1 sm:px-1.5 py-2 text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 text-right truncate">
                                                 Unit Cost
                                             </th>
-                                            <th scope="col" className="px-3 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-300 text-right whitespace-nowrap w-[100px]">
+                                            <th scope="col" className="w-[13%] px-1.5 sm:px-2 py-2 text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-300 text-right truncate">
                                                 Batch Value
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800 text-xs">
+                                    <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800 text-[11px]">
                                         {batches.map((batch) => (
                                             <tr key={batch.id} className="hover:bg-gray-50/60 dark:hover:bg-slate-800/50 transition-colors">
-                                                <td className="px-3 py-2.5 sm:py-3 align-middle whitespace-nowrap text-xs text-slate-600 dark:text-slate-400 tabular-nums">
+                                                <td className="px-1.5 sm:px-2 py-2 align-middle text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 tabular-nums truncate">
                                                     {formatDisplayDate(batch.date_received, 'short') || batch.date_received}
                                                 </td>
-                                                <td className="px-3 py-2.5 sm:py-3 align-middle text-xs font-medium text-slate-800 dark:text-slate-200 leading-snug">
+                                                <td className="px-1.5 sm:px-2 py-2 align-middle text-[11px] font-medium text-slate-800 dark:text-slate-200 truncate" title={batch.supplier_name}>
                                                     {batch.supplier_name}
                                                 </td>
-                                                <td className="px-3 py-2.5 sm:py-3 align-middle whitespace-nowrap">
+                                                <td className="px-1.5 sm:px-2 py-2 align-middle">
                                                     {batch.supplier_stock_no ? (
                                                         <span
-                                                            className="inline-block font-mono text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200/70 dark:border-slate-700 whitespace-nowrap max-w-[170px] truncate align-middle"
+                                                            className="inline-block font-mono text-[10px] text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200/70 dark:border-slate-700 truncate max-w-full align-middle"
                                                             title={batch.supplier_stock_no}
                                                         >
                                                             {batch.supplier_stock_no}
                                                         </span>
                                                     ) : (
-                                                        <span className="text-slate-400 dark:text-slate-500 italic text-xs">—</span>
+                                                        <span className="text-slate-400 dark:text-slate-500 italic text-[11px]">—</span>
                                                     )}
                                                 </td>
-                                                <td className="px-3 py-2.5 sm:py-3 align-middle text-right font-mono text-xs tabular-nums text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                                                <td className="px-1 sm:px-1.5 py-2 align-middle text-right font-mono text-[11px] tabular-nums text-slate-700 dark:text-slate-300 truncate">
                                                     {formatNumber(batch.quantity_received)}
                                                 </td>
-                                                <td className="px-3 py-2.5 sm:py-3 align-middle text-right font-mono text-xs tabular-nums whitespace-nowrap">
+                                                <td className="px-1 sm:px-1.5 py-2 align-middle text-right font-mono text-[11px] tabular-nums truncate">
                                                     <span
                                                         className={
                                                             Number(batch.quantity_remaining) > 0
@@ -231,10 +231,10 @@ export default function InventoryDetailsModal({
                                                         {formatNumber(batch.quantity_remaining)}
                                                     </span>
                                                 </td>
-                                                <td className="px-3 py-2.5 sm:py-3 align-middle text-right font-mono text-xs tabular-nums text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                                                <td className="px-1 sm:px-1.5 py-2 align-middle text-right font-mono text-[11px] tabular-nums text-slate-700 dark:text-slate-300 truncate">
                                                     {formatCurrency(batch.unit_cost)}
                                                 </td>
-                                                <td className="px-3 py-2.5 sm:py-3 align-middle text-right font-mono text-xs tabular-nums font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">
+                                                <td className="px-1.5 sm:px-2 py-2 align-middle text-right font-mono text-[11px] tabular-nums font-bold text-slate-900 dark:text-slate-100 truncate">
                                                     {formatCurrency(batch.batch_value)}
                                                 </td>
                                             </tr>
@@ -255,43 +255,43 @@ export default function InventoryDetailsModal({
                                 </h4>
                             </div>
 
-                            <div className="overflow-x-auto rounded border border-gray-200 dark:border-slate-800">
-                                <table className="w-full text-left border-collapse min-w-[500px]">
+                            <div className="overflow-hidden rounded border border-gray-200 dark:border-slate-800">
+                                <table className="w-full table-fixed text-left border-collapse">
                                     <thead className="bg-gray-50 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800">
                                         <tr>
-                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 dark:text-slate-300 uppercase font-mono">
+                                            <th className="w-[15%] px-2 py-2 text-[10px] sm:text-[11px] font-bold text-gray-700 dark:text-slate-300 uppercase font-mono truncate">
                                                 Date
                                             </th>
-                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 dark:text-slate-300 uppercase font-mono">
+                                            <th className="w-[24%] px-2 py-2 text-[10px] sm:text-[11px] font-bold text-gray-700 dark:text-slate-300 uppercase font-mono truncate">
                                                 RIS Reference
                                             </th>
-                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 dark:text-slate-300 uppercase font-mono">
+                                            <th className="w-[33%] px-2 py-2 text-[10px] sm:text-[11px] font-bold text-gray-700 dark:text-slate-300 uppercase font-mono truncate">
                                                 Recipient / Office
                                             </th>
-                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 dark:text-slate-300 uppercase font-mono text-right">
+                                            <th className="w-[13%] px-1.5 py-2 text-[10px] sm:text-[11px] font-bold text-gray-700 dark:text-slate-300 uppercase font-mono text-right truncate">
                                                 Quantity
                                             </th>
-                                            <th className="px-4 py-2 text-[11px] font-bold text-gray-700 dark:text-slate-300 uppercase font-mono text-right">
+                                            <th className="w-[15%] px-2 py-2 text-[10px] sm:text-[11px] font-bold text-gray-700 dark:text-slate-300 uppercase font-mono text-right truncate">
                                                 Issued Value
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800 text-xs">
+                                    <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800 text-[11px]">
                                         {recentIssuances.map((iss) => (
                                             <tr key={iss.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50">
-                                                <td className="px-4 py-2 font-mono text-gray-600 dark:text-slate-400">
+                                                <td className="px-2 py-2 font-mono text-gray-600 dark:text-slate-400 truncate">
                                                     {formatDisplayDate(iss.date_issued, 'MM/DD/YYYY') || iss.date_issued}
                                                 </td>
-                                                <td className="px-4 py-2 font-mono font-semibold text-gray-800 dark:text-slate-200">
+                                                <td className="px-2 py-2 font-mono font-semibold text-gray-800 dark:text-slate-200 truncate" title={iss.ris_number}>
                                                     {formatRisNumber(iss.ris_number)}
                                                 </td>
-                                                <td className="px-4 py-2 text-gray-700 dark:text-slate-300">
+                                                <td className="px-2 py-2 text-gray-700 dark:text-slate-300 truncate" title={iss.recipient}>
                                                     {iss.recipient}
                                                 </td>
-                                                <td className="px-4 py-2 text-right font-mono text-red-700 dark:text-red-400 font-semibold">
+                                                <td className="px-1.5 py-2 text-right font-mono text-red-700 dark:text-red-400 font-semibold truncate">
                                                     -{formatNumber(iss.quantity)}
                                                 </td>
-                                                <td className="px-4 py-2 text-right font-mono font-bold text-gray-800 dark:text-slate-200">
+                                                <td className="px-2 py-2 text-right font-mono font-bold text-gray-800 dark:text-slate-200 truncate">
                                                     {formatCurrency(iss.amount)}
                                                 </td>
                                             </tr>
