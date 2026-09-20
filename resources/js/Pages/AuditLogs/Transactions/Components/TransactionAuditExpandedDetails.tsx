@@ -89,15 +89,15 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
         !(Object.keys(affectedItemGroups).length === 1 && affectedItemGroups['general']);
 
     return (
-        <div className="p-4 sm:p-5 bg-white border border-gray-200 rounded-lg shadow-2xs space-y-5 text-xs text-gray-800">
+        <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg shadow-2xs space-y-5 text-xs text-gray-800 dark:text-slate-200">
             {/* LEVEL 1: TRANSACTION SUMMARY */}
             <div>
-                <div className="flex items-center justify-between pb-2.5 border-b border-gray-100">
+                <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 dark:border-slate-800">
                     <div className="flex items-center gap-2">
-                        <div className="p-1 bg-red-50 text-red-900 rounded border border-red-100">
+                        <div className="p-1 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 rounded border border-red-100 dark:border-red-900/50">
                             <FileText className="w-4 h-4" />
                         </div>
-                        <span className="font-bold text-gray-900 uppercase tracking-wide text-[11px]">
+                        <span className="font-bold text-gray-900 dark:text-slate-100 uppercase tracking-wide text-[11px]">
                             Level 1 • Transaction Summary
                         </span>
                     </div>
@@ -107,24 +107,24 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                             status={record.audit_status}
                             result={record.result}
                         />
-                        <span className="font-mono text-gray-400 text-[11px]">
+                        <span className="font-mono text-gray-400 dark:text-slate-500 text-[11px]">
                             ID: {record.id}
                         </span>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-3">
-                    <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
-                        <span className="text-gray-500 text-[11px] block font-medium flex items-center gap-1.5">
-                            <Hash className="w-3 h-3 text-gray-400" />
+                    <div className="bg-gray-50/70 dark:bg-slate-850/60 p-2.5 rounded border border-gray-100 dark:border-slate-800">
+                        <span className="text-gray-500 dark:text-slate-400 text-[11px] block font-medium flex items-center gap-1.5">
+                            <Hash className="w-3 h-3 text-gray-400 dark:text-slate-500" />
                             Reference Identifier
                         </span>
-                        <span className="font-mono font-bold text-gray-900 mt-1 block">
+                        <span className="font-mono font-bold text-gray-900 dark:text-slate-100 mt-1 block">
                             {reference}
                         </span>
                         {record.audit_group_id && (
                             <span
-                                className="font-mono text-[10px] text-gray-500 block mt-0.5 truncate"
+                                className="font-mono text-[10px] text-gray-500 dark:text-slate-400 block mt-0.5 truncate"
                                 title={record.audit_group_id}
                             >
                                 Group: {record.audit_group_id}
@@ -132,49 +132,49 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                         )}
                     </div>
 
-                    <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
-                        <span className="text-gray-500 text-[11px] block font-medium flex items-center gap-1.5">
-                            <UserIcon className="w-3 h-3 text-gray-400" />
+                    <div className="bg-gray-50/70 dark:bg-slate-850/60 p-2.5 rounded border border-gray-100 dark:border-slate-800">
+                        <span className="text-gray-500 dark:text-slate-400 text-[11px] block font-medium flex items-center gap-1.5">
+                            <UserIcon className="w-3 h-3 text-gray-400 dark:text-slate-500" />
                             Authorized User
                         </span>
-                        <span className="font-bold text-gray-900 mt-1 block truncate">
+                        <span className="font-bold text-gray-900 dark:text-slate-100 mt-1 block truncate">
                             {record.user_name || record.user || 'System Administrator'}
                         </span>
-                        <span className="text-[10px] text-gray-500 block mt-0.5">
+                        <span className="text-[10px] text-gray-500 dark:text-slate-400 block mt-0.5">
                             {record.role || 'Authorized Role'}
                         </span>
                     </div>
 
-                    <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
-                        <span className="text-gray-500 text-[11px] block font-medium flex items-center gap-1.5">
-                            <Shield className="w-3 h-3 text-gray-400" />
+                    <div className="bg-gray-50/70 dark:bg-slate-850/60 p-2.5 rounded border border-gray-100 dark:border-slate-800">
+                        <span className="text-gray-500 dark:text-slate-400 text-[11px] block font-medium flex items-center gap-1.5">
+                            <Shield className="w-3 h-3 text-gray-400 dark:text-slate-500" />
                             Module & Business Action
                         </span>
-                        <span className="font-bold text-gray-900 mt-1 block truncate">
+                        <span className="font-bold text-gray-900 dark:text-slate-100 mt-1 block truncate">
                             {record.action}
                         </span>
-                        <span className="text-[10px] text-red-950 font-medium block mt-0.5">
+                        <span className="text-[10px] text-red-950 dark:text-red-400 font-medium block mt-0.5">
                             {record.module}
                         </span>
                     </div>
 
-                    <div className="bg-gray-50/70 p-2.5 rounded border border-gray-100">
-                        <span className="text-gray-500 text-[11px] block font-medium flex items-center gap-1.5">
-                            <Clock className="w-3 h-3 text-gray-400" />
+                    <div className="bg-gray-50/70 dark:bg-slate-850/60 p-2.5 rounded border border-gray-100 dark:border-slate-800">
+                        <span className="text-gray-500 dark:text-slate-400 text-[11px] block font-medium flex items-center gap-1.5">
+                            <Clock className="w-3 h-3 text-gray-400 dark:text-slate-500" />
                             Recorded Date & Time
                         </span>
-                        <span className="font-medium text-gray-900 mt-1 block">
+                        <span className="font-medium text-gray-900 dark:text-slate-100 mt-1 block">
                             {formatDate(record.occurred_at || record.time)}
                         </span>
-                        <span className="text-[10px] text-emerald-700 font-medium block mt-0.5">
+                        <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-medium block mt-0.5">
                             Official Audit Timestamp
                         </span>
                     </div>
                 </div>
 
                 {secondaryText && (
-                    <div className="mt-2.5 px-3 py-1.5 bg-red-50/40 rounded border border-red-100 text-xs text-red-950 font-medium flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
+                    <div className="mt-2.5 px-3 py-1.5 bg-red-50/40 dark:bg-red-950/30 rounded border border-red-100 dark:border-red-900/40 text-xs text-red-950 dark:text-red-300 font-medium flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-900 dark:bg-red-400"></span>
                         <span>{secondaryText}</span>
                     </div>
                 )}
@@ -195,12 +195,12 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
 
             {/* LEVEL 2: AFFECTED RECORDS / ENTITY ALLOCATIONS (Optional grouping) */}
             {hasItemGroups ? (
-                <div className="pt-2 border-t border-gray-100">
-                    <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
-                        <div className="p-1 bg-amber-50 text-amber-900 rounded border border-amber-100">
+                <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
+                    <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-slate-800">
+                        <div className="p-1 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-400 rounded border border-amber-100 dark:border-amber-900/50">
                             <Layers className="w-4 h-4" />
                         </div>
-                        <span className="font-bold text-gray-900 uppercase tracking-wide text-[11px]">
+                        <span className="font-bold text-gray-900 dark:text-slate-100 uppercase tracking-wide text-[11px]">
                             Affected Records & Entity Allocations
                         </span>
                     </div>
@@ -209,27 +209,27 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                         {Object.entries(affectedItemGroups).map(([groupKey, group]) => (
                             <div
                                 key={groupKey}
-                                className="bg-gray-50/60 rounded-md border border-gray-200 p-3 space-y-2"
+                                className="bg-gray-50/60 dark:bg-slate-850/60 rounded-md border border-gray-200 dark:border-slate-800 p-3 space-y-2"
                             >
                                 <div className="flex items-center justify-between">
-                                    <span className="font-bold text-gray-900 text-xs">
+                                    <span className="font-bold text-gray-900 dark:text-slate-100 text-xs">
                                         {group.title}
                                     </span>
-                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-white border border-gray-200 text-gray-600">
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300">
                                         {group.events.length} technical event{group.events.length === 1 ? '' : 's'}
                                     </span>
                                 </div>
 
-                                <ul className="space-y-1.5 text-[11px] text-gray-600 divide-y divide-gray-100 pt-1">
+                                <ul className="space-y-1.5 text-[11px] text-gray-600 dark:text-slate-400 divide-y divide-gray-100 dark:divide-slate-800 pt-1">
                                     {group.events.map((evt) => (
                                         <li key={evt.id} className="pt-1.5 flex items-start gap-1.5">
-                                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                                             <div className="min-w-0 flex-1">
-                                                <span className="font-medium text-gray-800 block">
+                                                <span className="font-medium text-gray-800 dark:text-slate-200 block">
                                                     {evt.label || evt.action}
                                                 </span>
                                                 {evt.details && !isJsonString(evt.details) && (
-                                                    <span className="text-gray-500 text-[10px] block leading-tight mt-0.5">
+                                                    <span className="text-gray-500 dark:text-slate-400 text-[10px] block leading-tight mt-0.5">
                                                         {evt.details}
                                                     </span>
                                                 )}
@@ -245,13 +245,13 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
 
             {/* LEVEL 3: TECHNICAL AUDIT TRAIL (Child events if present) */}
             {children.length > 0 && (
-                <div className="pt-2 border-t border-gray-100">
-                    <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
+                    <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
                         <div className="flex items-center gap-2">
-                            <div className="p-1 bg-blue-50 text-blue-900 rounded border border-blue-100">
+                            <div className="p-1 bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-400 rounded border border-blue-100 dark:border-blue-900/50">
                                 <CheckCircle2 className="w-4 h-4" />
                             </div>
-                            <span className="font-bold text-gray-900 uppercase tracking-wide text-[11px]">
+                            <span className="font-bold text-gray-900 dark:text-slate-100 uppercase tracking-wide text-[11px]">
                                 Technical Audit Trail ({children.length} Events)
                             </span>
                         </div>
@@ -281,30 +281,30 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                             return (
                                 <div
                                     key={child.id || idx}
-                                    className="p-3 bg-gray-50/50 rounded-md border border-gray-200 space-y-2 transition-colors hover:bg-gray-50"
+                                    className="p-3 bg-gray-50/50 dark:bg-slate-850/50 rounded-md border border-gray-200 dark:border-slate-800 space-y-2 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/60"
                                 >
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                                         <div className="flex items-center gap-2">
-                                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white border border-gray-300 text-[10px] font-bold text-gray-700">
+                                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-[10px] font-bold text-gray-700 dark:text-slate-300">
                                                 {idx + 1}
                                             </span>
-                                            <span className="font-semibold text-gray-900 text-xs">
+                                            <span className="font-semibold text-gray-900 dark:text-slate-100 text-xs">
                                                 {child.label || child.action}
                                             </span>
                                             {child.event_key && (
-                                                <span className="hidden sm:inline-block font-mono text-[10px] text-gray-500 px-1.5 py-0.5 bg-white rounded border border-gray-200">
+                                                <span className="hidden sm:inline-block font-mono text-[10px] text-gray-500 dark:text-slate-400 px-1.5 py-0.5 bg-white dark:bg-slate-800 rounded border border-gray-200 dark:border-slate-700">
                                                     {child.event_key}
                                                 </span>
                                             )}
                                         </div>
 
-                                        <span className="text-[10px] text-gray-500 font-medium">
+                                        <span className="text-[10px] text-gray-500 dark:text-slate-400 font-medium">
                                             {formatDate(child.occurred_at)}
                                         </span>
                                     </div>
 
                                     {childDisplayDetails && (
-                                        <p className="text-xs text-gray-700 leading-relaxed font-sans pl-7">
+                                        <p className="text-xs text-gray-700 dark:text-slate-300 leading-relaxed font-sans pl-7">
                                             {childDisplayDetails}
                                         </p>
                                     )}
@@ -330,16 +330,16 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                                                         return (
                                                             <div
                                                                 key={key}
-                                                                className="flex items-center gap-1.5 px-2 py-1 bg-white rounded border border-gray-200 text-xs"
+                                                                className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-slate-800 rounded border border-gray-200 dark:border-slate-700 text-xs"
                                                             >
-                                                                <span className="font-semibold text-gray-600">
+                                                                <span className="font-semibold text-gray-600 dark:text-slate-300">
                                                                     {formatAuditFieldLabel(key)}:
                                                                 </span>
-                                                                <span className="px-1.5 py-0.5 bg-rose-50 text-rose-800 rounded border border-rose-100 font-medium line-through">
+                                                                <span className="px-1.5 py-0.5 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 rounded border border-rose-100 dark:border-rose-900/50 font-medium line-through">
                                                                     {oldStr}
                                                                 </span>
-                                                                <ArrowRight className="w-3 h-3 text-gray-400" />
-                                                                <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-800 rounded border border-emerald-100 font-bold">
+                                                                <ArrowRight className="w-3 h-3 text-gray-400 dark:text-slate-500" />
+                                                                <span className="px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded border border-emerald-100 dark:border-emerald-900/50 font-bold">
                                                                     {newStr}
                                                                 </span>
                                                             </div>
