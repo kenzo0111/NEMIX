@@ -184,7 +184,11 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
             <AuditMetadataDetails
                 record={record}
                 metadata={record.metadata}
-                isExpanded={true}
+                oldValues={record.old_values}
+                newValues={record.new_values}
+                actionDescription={record.details}
+                eventKey={record.event_key}
+                showSummaryBanner={true}
                 className="pt-1 border-t border-gray-100 dark:border-slate-800"
             />
 
