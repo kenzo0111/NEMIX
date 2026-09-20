@@ -42,24 +42,24 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="xl" ariaLabel="Supplier Information">
-            <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl">
+            <div className="relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-xl">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/70">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-900/70">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-red-50 text-red-950 flex items-center justify-center border border-red-100/80 shadow-xs shrink-0">
-                            <Building2 className="w-5 h-5 text-red-900" />
+                        <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-xs shrink-0">
+                            <Building2 className="w-5 h-5 text-red-900 dark:text-red-400" />
                         </div>
                         <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">
+                                <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight">
                                     Supplier Information
                                 </h3>
                                 <SupplierStatusBadge status={supplier.status} />
                             </div>
-                            <p className="text-xs text-gray-500 font-medium mt-0.5">
+                            <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mt-0.5">
                                 Official registry details and inventory consignment ledger.
                             </p>
                         </div>
@@ -67,7 +67,7 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-700 hover:bg-gray-100 p-1.5 rounded-md transition-colors"
+                        className="text-gray-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 p-1.5 rounded-md transition-colors cursor-pointer"
                         aria-label="Close"
                     >
                         <X className="w-5 h-5" />
@@ -77,123 +77,123 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                 {/* Content */}
                 <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 text-xs max-h-[75vh] sm:max-h-[80vh] overflow-y-auto">
                     {/* Hero Business Identity Banner */}
-                    <div className="bg-gradient-to-br from-gray-50 via-white to-gray-50/60 p-4 rounded-lg border border-gray-200/80 shadow-xs">
+                    <div className="bg-gradient-to-br from-gray-50 via-white to-gray-50/60 dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 p-4 rounded-lg border border-gray-200/80 dark:border-slate-800 shadow-xs">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                             <div>
-                                <span className="inline-block text-[10px] font-bold uppercase tracking-wider font-mono text-red-900 bg-red-50 border border-red-100 px-2 py-0.5 rounded">
+                                <span className="inline-block text-[10px] font-bold uppercase tracking-wider font-mono text-red-900 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 px-2 py-0.5 rounded">
                                     {CATEGORY_DISPLAY_LABEL}
                                 </span>
-                                <h2 className="text-base sm:text-lg font-bold text-gray-900 font-serif mt-1.5">
+                                <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-slate-100 font-serif mt-1.5">
                                     {supplier.name}
                                 </h2>
                             </div>
                         </div>
 
-                        <div className="mt-3.5 pt-3 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="mt-3.5 pt-3 border-t border-gray-100 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div className="flex items-center gap-2 text-xs">
-                                <div className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center shrink-0 text-gray-500">
+                                <div className="w-6 h-6 rounded bg-gray-100 dark:bg-slate-800 flex items-center justify-center shrink-0 text-gray-500 dark:text-slate-400">
                                     <Hash className="w-3.5 h-3.5" />
                                 </div>
                                 <div>
-                                    <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Tax ID (TIN)</div>
-                                    <div className="font-mono font-bold text-gray-900">{supplier.tin || '—'}</div>
+                                    <div className="text-[10px] font-medium text-gray-400 dark:text-slate-500 uppercase tracking-wider">Tax ID (TIN)</div>
+                                    <div className="font-mono font-bold text-gray-900 dark:text-slate-100">{supplier.tin || '—'}</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2 text-xs">
-                                <div className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center shrink-0 text-gray-500">
+                                <div className="w-6 h-6 rounded bg-gray-100 dark:bg-slate-800 flex items-center justify-center shrink-0 text-gray-500 dark:text-slate-400">
                                     <FileText className="w-3.5 h-3.5" />
                                 </div>
                                 <div>
-                                    <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Registration Number</div>
-                                    <div className="font-mono font-bold text-gray-900">{supplier.reg_number || '—'}</div>
+                                    <div className="text-[10px] font-medium text-gray-400 dark:text-slate-500 uppercase tracking-wider">Registration Number</div>
+                                    <div className="font-mono font-bold text-gray-900 dark:text-slate-100">{supplier.reg_number || '—'}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Official Business Address Section */}
-                    <div className="bg-white rounded-lg border border-gray-200/80 p-4 shadow-xs">
-                        <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-gray-100">
-                            <MapPin className="w-4 h-4 text-red-900" />
-                            <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                    <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200/80 dark:border-slate-800 p-4 shadow-xs">
+                        <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-gray-100 dark:border-slate-800">
+                            <MapPin className="w-4 h-4 text-red-900 dark:text-red-400" />
+                            <h4 className="text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
                                 Official Business Address
                             </h4>
                         </div>
-                        <p className="text-xs text-gray-700 leading-relaxed font-medium mt-1">
+                        <p className="text-xs text-gray-700 dark:text-slate-300 leading-relaxed font-medium mt-1">
                             {supplier.address || 'No official business address registered.'}
                         </p>
                     </div>
 
                     {/* Supply Activity & Financial Metrics */}
                     <div>
-                        <div className="flex items-center gap-2 mb-3 pb-1.5 border-b border-gray-100">
-                            <Layers className="w-4 h-4 text-red-900" />
-                            <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                        <div className="flex items-center gap-2 mb-3 pb-1.5 border-b border-gray-100 dark:border-slate-800">
+                            <Layers className="w-4 h-4 text-red-900 dark:text-red-400" />
+                            <h4 className="text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
                                 Supply Activity & Financial Metrics
                             </h4>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                             {/* Total Received Value */}
-                            <div className="bg-gray-50/70 border border-gray-200/70 rounded-lg p-3.5 flex flex-col justify-between">
-                                <div className="flex items-center justify-between text-gray-500 mb-1.5">
-                                    <span className="text-[11px] font-semibold uppercase tracking-wider font-mono text-gray-500">
+                            <div className="bg-gray-50/70 dark:bg-slate-950/50 border border-gray-200/70 dark:border-slate-800 rounded-lg p-3.5 flex flex-col justify-between">
+                                <div className="flex items-center justify-between text-gray-500 dark:text-slate-400 mb-1.5">
+                                    <span className="text-[11px] font-semibold uppercase tracking-wider font-mono text-gray-500 dark:text-slate-400">
                                         Received Value
                                     </span>
-                                    <PhilippinePeso className="w-3.5 h-3.5 text-gray-400" />
+                                    <PhilippinePeso className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
                                 </div>
-                                <div className="text-sm font-mono font-bold text-gray-900">
+                                <div className="text-sm font-mono font-bold text-gray-900 dark:text-slate-100">
                                     {formatCurrency(totalReceivedVal)}
                                 </div>
-                                <span className="text-[10px] text-gray-400 mt-1">
+                                <span className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
                                     Lifetime deliveries
                                 </span>
                             </div>
 
                             {/* Current Inventory Value */}
-                            <div className="bg-gray-50/70 border border-gray-200/70 rounded-lg p-3.5 flex flex-col justify-between">
-                                <div className="flex items-center justify-between text-gray-500 mb-1.5">
-                                    <span className="text-[11px] font-semibold uppercase tracking-wider font-mono text-gray-500">
+                            <div className="bg-gray-50/70 dark:bg-slate-950/50 border border-gray-200/70 dark:border-slate-800 rounded-lg p-3.5 flex flex-col justify-between">
+                                <div className="flex items-center justify-between text-gray-500 dark:text-slate-400 mb-1.5">
+                                    <span className="text-[11px] font-semibold uppercase tracking-wider font-mono text-gray-500 dark:text-slate-400">
                                         Inventory Value
                                     </span>
-                                    <Package className="w-3.5 h-3.5 text-gray-400" />
+                                    <Package className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
                                 </div>
-                                <div className="text-sm font-mono font-bold text-red-950">
+                                <div className="text-sm font-mono font-bold text-red-950 dark:text-red-400">
                                     {formatCurrency(currentInventoryVal)}
                                 </div>
-                                <span className="text-[10px] text-gray-400 mt-1">
+                                <span className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
                                     Current stock on hand
                                 </span>
                             </div>
 
                             {/* Receiving Batches */}
-                            <div className="bg-gray-50/70 border border-gray-200/70 rounded-lg p-3.5 flex flex-col justify-between">
-                                <div className="flex items-center justify-between text-gray-500 mb-1.5">
-                                    <span className="text-[11px] font-semibold uppercase tracking-wider font-mono text-gray-500">
+                            <div className="bg-gray-50/70 dark:bg-slate-950/50 border border-gray-200/70 dark:border-slate-800 rounded-lg p-3.5 flex flex-col justify-between">
+                                <div className="flex items-center justify-between text-gray-500 dark:text-slate-400 mb-1.5">
+                                    <span className="text-[11px] font-semibold uppercase tracking-wider font-mono text-gray-500 dark:text-slate-400">
                                         Batches Logged
                                     </span>
-                                    <Boxes className="w-3.5 h-3.5 text-gray-400" />
+                                    <Boxes className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
                                 </div>
-                                <div className="text-sm font-mono font-bold text-gray-900">
+                                <div className="text-sm font-mono font-bold text-gray-900 dark:text-slate-100">
                                     {batchCount} {batchCount === 1 ? 'batch' : 'batches'}
                                 </div>
-                                <span className="text-[10px] text-gray-400 mt-1">
+                                <span className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
                                     Accepted consignments
                                 </span>
                             </div>
 
                             {/* Stock Movement Quantity */}
-                            <div className="bg-gray-50/70 border border-gray-200/70 rounded-lg p-3.5 flex flex-col justify-between">
-                                <div className="flex items-center justify-between text-gray-500 mb-1.5">
-                                    <span className="text-[11px] font-semibold uppercase tracking-wider font-mono text-gray-500">
+                            <div className="bg-gray-50/70 dark:bg-slate-950/50 border border-gray-200/70 dark:border-slate-800 rounded-lg p-3.5 flex flex-col justify-between">
+                                <div className="flex items-center justify-between text-gray-500 dark:text-slate-400 mb-1.5">
+                                    <span className="text-[11px] font-semibold uppercase tracking-wider font-mono text-gray-500 dark:text-slate-400">
                                         Unit Quantity
                                     </span>
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-gray-400" />
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
                                 </div>
-                                <div className="text-sm font-mono font-bold text-gray-900">
-                                    {currentQty.toLocaleString()} <span className="text-xs text-gray-500 font-normal">/ {totalRecQty.toLocaleString()}</span>
+                                <div className="text-sm font-mono font-bold text-gray-900 dark:text-slate-100">
+                                    {currentQty.toLocaleString()} <span className="text-xs text-gray-500 dark:text-slate-400 font-normal">/ {totalRecQty.toLocaleString()}</span>
                                 </div>
-                                <span className="text-[10px] text-gray-400 mt-1">
+                                <span className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
                                     Remaining / Received units
                                 </span>
                             </div>
@@ -202,16 +202,16 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
 
                     {/* Contract Information Section - Only rendered if formal contract recorded */}
                     {hasContractValue && (
-                        <div className="bg-amber-50/50 rounded-lg border border-amber-200/70 p-4 shadow-xs">
-                            <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-amber-200/50">
-                                <Award className="w-4 h-4 text-amber-700" />
-                                <h4 className="text-xs font-bold text-amber-900 uppercase tracking-wider font-mono">
+                        <div className="bg-amber-50/50 dark:bg-amber-950/20 rounded-lg border border-amber-200/70 dark:border-amber-900/40 p-4 shadow-xs">
+                            <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-amber-200/50 dark:border-amber-900/40">
+                                <Award className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+                                <h4 className="text-xs font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wider font-mono">
                                     Contract Allocation
                                 </h4>
                             </div>
                             <div className="flex items-baseline justify-between pt-1">
-                                <span className="text-xs font-medium text-amber-800">Awarded Contract Value:</span>
-                                <span className="text-sm font-mono font-bold text-amber-950">
+                                <span className="text-xs font-medium text-amber-800 dark:text-amber-300">Awarded Contract Value:</span>
+                                <span className="text-sm font-mono font-bold text-amber-950 dark:text-amber-200">
                                     {formatCurrency(supplier.contract_value)}
                                 </span>
                             </div>
@@ -220,11 +220,11 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 border-t border-gray-200 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+                <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-900/80 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors shadow-2xs cursor-pointer text-center"
+                        className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer text-center"
                     >
                         Close
                     </button>

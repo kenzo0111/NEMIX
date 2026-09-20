@@ -61,7 +61,7 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
     const modules = getSidebarModules('Compliance', 'Manage Analytics');
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
+        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white">
             <Head title="Inventory Performance Analytics" />
 
             <Sidebar
@@ -91,11 +91,11 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
                         {/* Stock Quantity by Item (Horizontal Bar Chart) */}
                         <div className="xl:col-span-2">
                             <Card className="h-full flex flex-col justify-between">
-                                <CardHeader className="border-b border-gray-100 bg-gray-50/50 py-4 px-6">
-                                    <CardTitle className="text-sm font-bold text-gray-900 font-serif">
+                                <CardHeader className="border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 py-4 px-6">
+                                    <CardTitle className="text-sm font-bold text-gray-900 dark:text-slate-100 font-serif">
                                         Stock Quantity by Item
                                     </CardTitle>
-                                    <CardDescription className="text-xs text-gray-500 mt-0.5">
+                                    <CardDescription className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
                                         Top inventory items ranked by current available on-hand volume
                                     </CardDescription>
                                 </CardHeader>
@@ -108,11 +108,11 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
                         {/* Inventory Status Distribution (Donut Pie Chart) */}
                         <div className="xl:col-span-1">
                             <Card className="h-full flex flex-col justify-between">
-                                <CardHeader className="border-b border-gray-100 bg-gray-50/50 py-4 px-6">
-                                    <CardTitle className="text-sm font-bold text-gray-900 font-serif">
+                                <CardHeader className="border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 py-4 px-6">
+                                    <CardTitle className="text-sm font-bold text-gray-900 dark:text-slate-100 font-serif">
                                         Inventory Status
                                     </CardTitle>
-                                    <CardDescription className="text-xs text-gray-500 mt-0.5">
+                                    <CardDescription className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
                                         Overall distribution by availability threshold
                                     </CardDescription>
                                 </CardHeader>
@@ -125,11 +125,11 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
 
                     {/* Inventory Valuation Section */}
                     <Card>
-                        <CardHeader className="border-b border-gray-100 bg-gray-50/50 py-4 px-6">
-                            <CardTitle className="text-sm font-bold text-gray-900 font-serif">
+                        <CardHeader className="border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 py-4 px-6">
+                            <CardTitle className="text-sm font-bold text-gray-900 dark:text-slate-100 font-serif">
                                 Inventory Valuation by Item
                             </CardTitle>
-                            <CardDescription className="text-xs text-gray-500 mt-0.5">
+                            <CardDescription className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
                                 Top registered items ranked by calculated financial value in Philippine pesos (₱)
                             </CardDescription>
                         </CardHeader>

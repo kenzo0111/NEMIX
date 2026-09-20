@@ -90,7 +90,7 @@ export default function ReportsIndex({
     };
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white print:bg-white print:min-h-0 print:h-auto print:block">
+        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white print:bg-white print:min-h-0 print:h-auto print:block">
             <Head title="COA Compliance Reports & Official Forms" />
 
             <div className="print:hidden compliance-print-hide">
@@ -118,7 +118,7 @@ export default function ReportsIndex({
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 print:p-0 print:m-0 print:space-y-0 print:h-auto min-w-0 w-full">
                     <div className="print:hidden space-y-6">
                         {/* Primary Official COA Documents Ledger Card */}
-                        <div className="bg-white rounded-xl shadow-2xs border border-gray-200/80 overflow-hidden">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-gray-200/80 dark:border-slate-800 overflow-hidden">
                             <ReportToolbar
                                 searchTerm={searchTerm}
                                 onSearchChange={setSearchTerm}

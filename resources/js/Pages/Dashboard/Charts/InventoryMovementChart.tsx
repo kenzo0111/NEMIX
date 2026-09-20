@@ -30,7 +30,10 @@ const chartConfig: ChartConfig = {
     },
     balance: {
         label: 'Stock Balance',
-        color: '#7f1d1d', // University Maroon
+        theme: {
+            light: '#7f1d1d',
+            dark: '#f87171',
+        },
     },
 };
 
@@ -46,7 +49,7 @@ export default function InventoryMovementChart({ data }: InventoryMovementChartP
 
     if (data.length === 0) {
         return (
-            <div className="h-64 flex flex-col items-center justify-center text-gray-400 border border-dashed border-gray-200 rounded-lg">
+            <div className="h-64 flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 border border-dashed border-gray-200 dark:border-slate-800 rounded-lg">
                 <p className="text-xs font-medium">No inventory movement recorded for this period.</p>
             </div>
         );
@@ -55,20 +58,20 @@ export default function InventoryMovementChart({ data }: InventoryMovementChartP
     return (
         <ChartContainer config={chartConfig} className="h-44 sm:h-48 lg:h-52 w-full aspect-auto">
             <ComposedChart data={chartData} margin={{ top: 8, right: 10, left: -10, bottom: 0 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#e2e8f0" />
+                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--chart-grid)" />
                 <XAxis
                     dataKey="label"
                     tickLine={false}
                     axisLine={false}
                     tickMargin={6}
-                    tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600 }}
+                    tick={{ fill: 'var(--chart-tick)', fontSize: 11, fontWeight: 600 }}
                 />
                 <YAxis
                     width={50}
                     tickLine={false}
                     axisLine={false}
                     tickMargin={6}
-                    tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }}
+                    tick={{ fill: 'var(--chart-tick-muted)', fontSize: 11, fontWeight: 500 }}
                     tickFormatter={(val) => Number(val).toLocaleString()}
                 />
                 <ChartTooltip
@@ -96,8 +99,8 @@ export default function InventoryMovementChart({ data }: InventoryMovementChartP
                     dataKey="balance"
                     stroke="var(--color-balance)"
                     strokeWidth={2.2}
-                    dot={{ fill: 'var(--color-balance)', r: 3.5, strokeWidth: 1.5, stroke: '#ffffff' }}
-                    activeDot={{ r: 5, strokeWidth: 2, stroke: '#ffffff' }}
+                    dot={{ fill: 'var(--color-balance)', r: 3.5, strokeWidth: 1.5, stroke: 'var(--chart-pie-stroke)' }}
+                    activeDot={{ r: 5, strokeWidth: 2, stroke: 'var(--chart-pie-stroke)' }}
                 />
             </ComposedChart>
         </ChartContainer>

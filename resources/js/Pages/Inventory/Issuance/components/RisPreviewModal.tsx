@@ -91,22 +91,22 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="4xl">
-            <div className="ris-print-modal bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 flex flex-col max-h-[92vh]">
+            <div className="ris-print-modal bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden border border-gray-200 dark:border-slate-800 flex flex-col max-h-[92vh]">
                 {/* Neutral Administrative Header */}
-                <div className="ris-print-hide flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50/75 flex-shrink-0">
+                <div className="ris-print-hide flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-800/75 flex-shrink-0">
                     <div>
-                        <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">
+                        <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight">
                             Requisition and Issue Slip
                         </h3>
-                        <p className="text-xs text-gray-500 font-mono">
-                            RIS Reference: <span className="font-bold text-red-950">{formatRisNumber(issuance.ris_number)}</span>
+                        <p className="text-xs text-gray-500 dark:text-slate-400 font-mono">
+                            RIS Reference: <span className="font-bold text-red-950 dark:text-red-400">{formatRisNumber(issuance.ris_number)}</span>
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="p-1.5 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
+                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                             aria-label="Close"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,8 +116,8 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
                     </div>
                 </div>
 
-                {/* Form Document View Area */}
-                <div className="p-3 sm:p-6 overflow-y-auto max-h-[80vh] bg-gray-100 flex justify-center">
+                {/* Form Document View Area - Neutral canvas backdrop; ris-print-area remains pure white paper */}
+                <div className="p-3 sm:p-6 overflow-y-auto max-h-[80vh] bg-gray-100 dark:bg-slate-950 flex justify-center">
                     <div className="ris-print-area bg-white border border-gray-300 rounded shadow-sm w-full max-w-[210mm] p-2 sm:p-4 overflow-x-auto print-zoom-fit">
                         {/* Preserve exact RequisitionIssueSlip component layout */}
                         <RequisitionIssueSlip data={risData} />
@@ -125,7 +125,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
                 </div>
 
                 {/* Modal Footer */}
-                <div className="ris-print-hide px-4 sm:px-6 py-3.5 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-2.5 flex-shrink-0">
+                <div className="ris-print-hide px-4 sm:px-6 py-3.5 bg-gray-50 dark:bg-slate-950/60 border-t border-gray-200 dark:border-slate-800 flex items-center justify-end gap-2.5 flex-shrink-0">
                     <button
                         type="button"
                         onClick={handlePrint}
@@ -144,7 +144,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 bg-white border border-gray-300 rounded-md text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                     >
                         Close
                     </button>

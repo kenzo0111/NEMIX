@@ -3,6 +3,7 @@ import { Head, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import FlashToast from '@/Components/FlashToast';
 import SystemModeBadge from '@/Components/SystemModeBadge';
+import ThemeToggle from '@/Components/ThemeToggle';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { PageProps } from '@/types';
@@ -33,7 +34,7 @@ export default function AppLayout({
     const systemMode = system?.mode || 'LIVE PRODUCTION';
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] text-slate-900 flex flex-col font-sans antialiased selection:bg-red-500 selection:text-white">
+        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans antialiased selection:bg-red-500 selection:text-white transition-colors">
             {title && <Head title={title} />}
 
             {/* Global System Mode Warning Bar */}
@@ -82,13 +83,14 @@ export default function AppLayout({
                     }`}
                 >
                     {/* Top Application Header */}
-                    <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-6 py-3.5 flex items-center justify-between gap-4">
+                    <header className="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-6 py-3.5 flex items-center justify-between gap-4 transition-colors">
                         <div className="flex items-center gap-3 min-w-0">
                             {breadcrumbs}
                         </div>
                         <div className="flex items-center gap-4 shrink-0">
                             {actions}
                             <SystemModeBadge />
+                            <ThemeToggle variant="compact" />
                         </div>
                     </header>
 

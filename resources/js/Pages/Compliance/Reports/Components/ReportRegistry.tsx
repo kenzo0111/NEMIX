@@ -19,29 +19,29 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
             {reports.length > 0 ? (
                 <div className="overflow-x-auto">
                     <table className="w-full min-w-[750px] text-left border-collapse">
-                        <thead className="bg-gray-50/80 border-b border-gray-200">
+                        <thead className="bg-gray-50/80 dark:bg-slate-800/60 border-b border-gray-200 dark:border-slate-700">
                             <tr>
-                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 dark:text-slate-300 uppercase font-mono">
                                     Reference No.
                                 </th>
-                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 dark:text-slate-300 uppercase font-mono">
                                     Form Type
                                 </th>
-                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 dark:text-slate-300 uppercase font-mono">
                                     Document Title
                                 </th>
-                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 dark:text-slate-300 uppercase font-mono">
                                     Coverage Period
                                 </th>
-                                <th className="hidden md:table-cell px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 uppercase font-mono">
+                                <th className="hidden md:table-cell px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 dark:text-slate-300 uppercase font-mono">
                                     Date Generated
                                 </th>
-                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 uppercase font-mono w-44">
+                                <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 dark:text-slate-300 uppercase font-mono w-44">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-100">
+                        <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
                             {reports.map((report) => {
                                 const shortType = getReportTypeShortLabel(report.type);
                                 const coverageText =
@@ -56,46 +56,46 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                                 return (
                                     <tr
                                         key={report.id}
-                                        className="hover:bg-red-50/20 transition-colors border-b border-gray-100 last:border-0 group"
+                                        className="hover:bg-red-50/20 dark:hover:bg-slate-800/50 transition-colors border-b border-gray-100 dark:border-slate-800 last:border-0 group"
                                     >
-                                        <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-900 font-mono tracking-wide">
+                                        <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-900 dark:text-slate-100 font-mono tracking-wide">
                                             {report.reference}
                                         </td>
                                         <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-900 border border-red-200/80 font-mono">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-200/80 dark:border-red-900/40 font-mono">
                                                 {shortType}
                                             </span>
                                         </td>
-                                        <td className="px-4 lg:px-6 py-4 text-xs font-medium text-gray-900 max-w-xs truncate">
-                                            <div className="font-semibold text-gray-900 leading-tight">
+                                        <td className="px-4 lg:px-6 py-4 text-xs font-medium text-gray-900 dark:text-slate-100 max-w-xs truncate">
+                                            <div className="font-semibold text-gray-900 dark:text-slate-100 leading-tight">
                                                 {report.title}
                                             </div>
                                             {report.supplierName && (
-                                                <div className="text-[11px] text-gray-500 mt-0.5 leading-tight">
+                                                <div className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5 leading-tight">
                                                     Supplier: {report.supplierName}
                                                 </div>
                                             )}
                                         </td>
-                                        <td className="px-4 lg:px-6 py-4 text-xs text-gray-600 whitespace-nowrap font-medium">
+                                        <td className="px-4 lg:px-6 py-4 text-xs text-gray-600 dark:text-slate-400 whitespace-nowrap font-medium">
                                             {coverageText}
                                         </td>
-                                        <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-xs text-gray-600 font-mono">
+                                        <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-xs text-gray-600 dark:text-slate-400 font-mono">
                                             {formatDisplayDate(genDate, 'MM/DD/YYYY')}
                                         </td>
-                                        {/* Actions: View & Official COA Form (Institutional maroon & neutral outline, identical to Issuance) */}
+                                        {/* Actions: View & Official COA Form */}
                                         <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right">
                                             <div className="inline-flex items-center gap-2.5">
                                                 <button
                                                     type="button"
                                                     onClick={() => onViewReport(report)}
-                                                    className="text-gray-700 hover:text-red-950 font-semibold text-xs transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100"
+                                                    className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-xs transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
                                                 >
                                                     View
                                                 </button>
                                                 <button
                                                     type="button"
                                                     onClick={() => onViewReport(report)}
-                                                    className="border border-red-900/30 text-red-950 hover:bg-red-50 hover:border-red-900/50 font-semibold text-xs px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
+                                                    className="border border-red-900/30 dark:border-red-800/50 text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-800 font-semibold text-xs px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
                                                 >
                                                     COA Form
                                                 </button>
@@ -109,13 +109,13 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                 </div>
             ) : (
                 <div className="p-12 text-center">
-                    <div className="w-12 h-12 mx-auto bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mb-3">
+                    <div className="w-12 h-12 mx-auto bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 rounded-full flex items-center justify-center mb-3">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
-                    <h3 className="text-sm font-bold text-gray-800">No Compliance Reports Found</h3>
-                    <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+                    <h3 className="text-sm font-bold text-gray-800 dark:text-slate-200">No Compliance Reports Found</h3>
+                    <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
                         There are no documents matching your search or filter criteria. You can generate a new report or migrate historical records.
                     </p>
                     <button

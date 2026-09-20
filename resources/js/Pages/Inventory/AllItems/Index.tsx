@@ -322,7 +322,7 @@ export default function AllItemsIndex({
     const isFiltered = Boolean(searchTerm.trim() || filterSupplier || filterStatus);
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
+        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white">
             <Head title="Inventory Management - Supply Administration" />
 
             <Sidebar
@@ -348,7 +348,7 @@ export default function AllItemsIndex({
                     />
 
                     {/* Main Working Interface: Card & Table */}
-                    <div className="bg-white rounded-lg shadow-xs border border-gray-200 overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xs border border-gray-200 dark:border-slate-800 overflow-hidden">
                         {/* Streamlined Toolbar */}
                         <InventoryToolbar
                             searchTerm={searchTerm}

@@ -41,11 +41,11 @@ export default function Register({
             headline="Institutional Account Activation"
             subheadline="Activate your official credentials for the SPMO Smart Supply and Inventory System."
             headerSlot={
-                <div className="mb-5 pb-3 border-b border-stone-200/80">
-                    <h2 className="text-xl sm:text-2xl font-bold text-stone-900 font-serif tracking-tight">
+                <div className="mb-5 pb-3 border-b border-stone-200/80 dark:border-slate-800">
+                    <h2 className="text-xl sm:text-2xl font-bold text-stone-900 dark:text-slate-100 font-serif tracking-tight">
                         {isInvitation ? 'Complete Registration' : 'Account Registration'}
                     </h2>
-                    <p className="text-xs sm:text-sm text-stone-600 mt-1">
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-slate-400 mt-1">
                         {isInvitation
                             ? 'Your staff account has been provisioned. Complete your account activation below.'
                             : 'Register your institutional credentials to activate official SPMO system access.'}
@@ -64,16 +64,16 @@ export default function Register({
             <form onSubmit={submit} className="space-y-4">
                 {/* Full Name */}
                 <div>
-                    <InputLabel htmlFor="name" value="Full Name" className="text-stone-800 font-semibold text-sm mb-1.5" />
+                    <InputLabel htmlFor="name" value="Full Name" className="text-stone-800 dark:text-slate-200 font-semibold text-sm mb-1.5" />
                     <div className="relative rounded-lg shadow-2xs">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400 dark:text-slate-500">
                             <User className="w-4 h-4" aria-hidden="true" />
                         </div>
                         <TextInput
                             id="name"
                             name="name"
                             value={data.name}
-                            className="pl-10 block w-full rounded-lg border-stone-300 shadow-2xs focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-colors py-2.5 text-sm bg-stone-50/60 focus:bg-white"
+                            className="pl-10 block w-full rounded-lg border-stone-300 dark:border-slate-700 shadow-2xs focus:border-red-900 dark:focus:border-red-600 focus:ring-2 focus:ring-red-900/20 dark:focus:ring-red-600/30 transition-colors py-2.5 text-sm bg-stone-50/60 dark:bg-slate-850 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-stone-400 dark:placeholder:text-slate-500"
                             autoComplete="name"
                             isFocused={true}
                             onChange={(e) => setData('name', e.target.value)}
@@ -86,9 +86,9 @@ export default function Register({
 
                 {/* Official Email */}
                 <div>
-                    <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-800 font-semibold text-sm mb-1.5" />
+                    <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-800 dark:text-slate-200 font-semibold text-sm mb-1.5" />
                     <div className="relative rounded-lg shadow-2xs">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400 dark:text-slate-500">
                             <Mail className="w-4 h-4" aria-hidden="true" />
                         </div>
                         <TextInput
@@ -96,8 +96,8 @@ export default function Register({
                             type="email"
                             name="email"
                             value={data.email}
-                            className={`pl-10 block w-full rounded-lg border-stone-300 shadow-2xs focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-colors py-2.5 text-sm ${
-                                isInvitation ? 'bg-stone-100 text-stone-600 cursor-not-allowed' : 'bg-stone-50/60 focus:bg-white'
+                            className={`pl-10 block w-full rounded-lg border-stone-300 dark:border-slate-700 shadow-2xs focus:border-red-900 dark:focus:border-red-600 focus:ring-2 focus:ring-red-900/20 dark:focus:ring-red-600/30 transition-colors py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-stone-400 dark:placeholder:text-slate-500 ${
+                                isInvitation ? 'bg-stone-100 dark:bg-slate-800 text-stone-600 dark:text-slate-400 cursor-not-allowed' : 'bg-stone-50/60 dark:bg-slate-850 focus:bg-white dark:focus:bg-slate-900'
                             }`}
                             autoComplete="username"
                             onChange={(e) => setData('email', e.target.value)}
@@ -143,7 +143,7 @@ export default function Register({
                     <div className="text-center">
                         <Link
                             href={route('login')}
-                            className="text-xs font-semibold text-red-900 hover:text-red-950 hover:underline transition-colors"
+                            className="text-xs font-semibold text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 hover:underline transition-colors"
                         >
                             &larr; Already have an account? Sign In
                         </Link>

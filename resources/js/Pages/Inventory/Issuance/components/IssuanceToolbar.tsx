@@ -22,12 +22,12 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
     const selectedRecipientOption = recipientOptions.find((o) => o.value === recipientFilter) || null;
 
     return (
-        <div className="p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-50/50">
+        <div className="p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-50/50 dark:bg-slate-900/50">
             <div>
-                <h2 className="text-base font-bold text-gray-900 font-serif tracking-tight">
+                <h2 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight">
                     Inventory Issuance Records
                 </h2>
-                <p className="text-xs text-gray-500 font-medium mt-0.5">
+                <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mt-0.5">
                     Official supply distributions and Requisition and Issue Slips (RIS).
                 </p>
             </div>
@@ -39,7 +39,7 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                     <label htmlFor="issuance-search-input" className="sr-only">
                         Search issuance records
                     </label>
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
                         <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                                 strokeLinecap="round"
@@ -56,7 +56,7 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search issuance..."
                         aria-label="Search issuance records"
-                        className="w-full pl-9 pr-3 py-2 bg-white border border-gray-300 rounded-md text-xs font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-xs placeholder-gray-400 transition-colors"
+                        className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-xs font-medium focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-xs placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
                     />
                 </div>
 

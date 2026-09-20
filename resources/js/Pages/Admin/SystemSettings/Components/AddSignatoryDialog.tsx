@@ -91,21 +91,21 @@ export default function AddSignatoryDialog({
             closeable={!submitting}
             ariaLabel="Add New Signatory"
         >
-            <div className="bg-white rounded-2xl overflow-hidden shadow-xl">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-xl">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-white">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-900 border border-red-100/80 flex items-center justify-center shrink-0 shadow-2xs">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0 shadow-2xs">
                             <UserPlus className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight truncate">
+                            <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight truncate">
                                 Add New Signatory
                             </h3>
-                            <p className="text-xs text-gray-500 mt-0.5 truncate">
+                            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 truncate">
                                 Register authorized personnel to the official directory.
                             </p>
                         </div>
@@ -114,7 +114,7 @@ export default function AddSignatoryDialog({
                         type="button"
                         onClick={onClose}
                         disabled={submitting}
-                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-40 cursor-pointer shrink-0 ml-2"
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 cursor-pointer shrink-0 ml-2"
                         aria-label="Close dialog"
                     >
                         <X className="w-5 h-5" />
@@ -125,14 +125,14 @@ export default function AddSignatoryDialog({
                 <form onSubmit={handleSubmit}>
                     <div className="p-4 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
                         {errorMessage && (
-                            <div className="p-3 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2.5 text-xs text-red-700 leading-relaxed">
+                            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 flex items-start gap-2.5 text-xs text-red-700 dark:text-red-300 leading-relaxed">
                                 <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
                                 <span>{errorMessage}</span>
                             </div>
                         )}
 
                         <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">
                                 Full Name <span className="text-red-600">*</span>
                             </label>
                             <input
@@ -141,14 +141,14 @@ export default function AddSignatoryDialog({
                                 onChange={(e) => setName(e.target.value)}
                                 disabled={submitting}
                                 placeholder="e.g. JUAN DELA CRUZ, PhD"
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900 focus:outline-none bg-white text-gray-900 placeholder:text-gray-400 transition-colors shadow-2xs disabled:bg-slate-50"
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors shadow-2xs disabled:bg-slate-50 dark:disabled:bg-slate-800"
                                 autoFocus
                                 required
                             />
                         </div>
 
                         <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">
                                 Official Designation / Title <span className="text-red-600">*</span>
                             </label>
                             <input
@@ -157,14 +157,14 @@ export default function AddSignatoryDialog({
                                 onChange={(e) => setDesignation(e.target.value)}
                                 disabled={submitting}
                                 placeholder="e.g. SUPPLY OFFICER III / ADMIN OFFICER V"
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900 focus:outline-none bg-white text-gray-900 placeholder:text-gray-400 transition-colors shadow-2xs disabled:bg-slate-50"
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors shadow-2xs disabled:bg-slate-50 dark:disabled:bg-slate-800"
                                 required
                             />
                         </div>
 
                         <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
-                                Office / Department <span className="text-gray-400 text-[11px] font-normal normal-case">(Optional)</span>
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">
+                                Office / Department <span className="text-gray-400 dark:text-slate-500 text-[11px] font-normal normal-case">(Optional)</span>
                             </label>
                             <input
                                 type="text"
@@ -172,18 +172,18 @@ export default function AddSignatoryDialog({
                                 onChange={(e) => setOffice(e.target.value)}
                                 disabled={submitting}
                                 placeholder="e.g. Supply & Property Management Office (SPMO)"
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:border-red-900 focus:ring-1 focus:ring-red-900 focus:outline-none bg-white text-gray-900 placeholder:text-gray-400 transition-colors shadow-2xs disabled:bg-slate-50"
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:outline-none bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors shadow-2xs disabled:bg-slate-50 dark:disabled:bg-slate-800"
                             />
                         </div>
                     </div>
 
                     {/* Footer */}
-                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 border-t border-gray-200 gap-2.5">
+                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-850/80 border-t border-gray-200 dark:border-slate-800 gap-2.5">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={submitting}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer text-center"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
                         >
                             Cancel
                         </button>

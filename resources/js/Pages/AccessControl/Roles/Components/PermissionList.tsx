@@ -16,19 +16,19 @@ interface PermissionListProps {
 const getActionBadgeColor = (action: string) => {
     const act = (action || '').toLowerCase();
     if (act.includes('view') || act.includes('show') || act.includes('index')) {
-        return 'bg-sky-50 text-sky-800 border-sky-200/80';
+        return 'bg-sky-50 dark:bg-sky-950/40 text-sky-800 dark:text-sky-300 border-sky-200/80 dark:border-sky-800/50';
     }
     if (act.includes('create') || act.includes('store') || act.includes('add')) {
-        return 'bg-emerald-50 text-emerald-800 border-emerald-200/80';
+        return 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800/50';
     }
     if (act.includes('update') || act.includes('edit') || act.includes('modify')) {
-        return 'bg-amber-50 text-amber-800 border-amber-200/80';
+        return 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200/80 dark:border-amber-800/50';
     }
     if (act.includes('delete') || act.includes('destroy') || act.includes('remove')) {
-        return 'bg-rose-50 text-rose-800 border-rose-200/80';
+        return 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200/80 dark:border-rose-800/50';
     }
     if (act.includes('approve') || act.includes('verify') || act.includes('audit')) {
-        return 'bg-teal-50 text-teal-800 border-teal-200/80';
+        return 'bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 border-teal-200/80 dark:border-teal-800/50';
     }
     if (
         act.includes('export') ||
@@ -36,9 +36,9 @@ const getActionBadgeColor = (action: string) => {
         act.includes('generate') ||
         act.includes('print')
     ) {
-        return 'bg-indigo-50 text-indigo-800 border-indigo-200/80';
+        return 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-800 dark:text-indigo-300 border-indigo-200/80 dark:border-indigo-800/50';
     }
-    return 'bg-gray-100 text-gray-700 border-gray-200';
+    return 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700';
 };
 
 export default function PermissionList({
@@ -74,25 +74,25 @@ export default function PermissionList({
     }, [permissions, searchQuery]);
 
     return (
-        <div className="flex-1 p-5 overflow-y-auto max-h-[460px] flex flex-col justify-between bg-white">
+        <div className="flex-1 p-5 overflow-y-auto max-h-[460px] flex flex-col justify-between bg-white dark:bg-slate-900">
             <div className="space-y-4">
                 {/* Module Header & Select-All Control */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200 dark:border-slate-800">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-bold text-gray-900">
+                            <h4 className="text-sm font-bold text-gray-900 dark:text-slate-100">
                                 {moduleName}
                             </h4>
-                            <span className="text-[11px] font-semibold text-gray-600 bg-gray-100 border border-gray-200/80 px-2 py-0.5 rounded">
+                            <span className="text-[11px] font-semibold text-gray-600 dark:text-slate-300 bg-gray-100 dark:bg-slate-800 border border-gray-200/80 dark:border-slate-700 px-2 py-0.5 rounded">
                                 {assignedInModuleCount} of {permissions.length} granted
                             </span>
                         </div>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
                             Manage granular capabilities and operational actions for {moduleName}.
                         </p>
                     </div>
 
-                    <label className="inline-flex items-center gap-2 cursor-pointer select-none self-start sm:self-auto bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200 transition-colors shadow-2xs">
+                    <label className="inline-flex items-center gap-2 cursor-pointer select-none self-start sm:self-auto bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 transition-colors shadow-2xs">
                         <input
                             type="checkbox"
                             checked={isAllSelected}
@@ -100,9 +100,9 @@ export default function PermissionList({
                                 if (el) el.indeterminate = isPartiallySelected;
                             }}
                             onChange={(e) => onSelectAllModule(e.target.checked)}
-                            className="w-4 h-4 text-red-900 border-gray-300 rounded focus:ring-red-900 focus:ring-1 cursor-pointer"
+                            className="w-4 h-4 text-red-900 border-gray-300 dark:border-slate-600 rounded focus:ring-red-900 focus:ring-1 cursor-pointer"
                         />
-                        <span className="text-xs font-semibold text-gray-700">
+                        <span className="text-xs font-semibold text-gray-700 dark:text-slate-300">
                             Select all in {moduleName}
                         </span>
                     </label>
@@ -117,14 +117,14 @@ export default function PermissionList({
                             onChange={(e) => onSearchChange(e.target.value)}
                             placeholder={`Search permissions in ${moduleName}...`}
                             aria-label={`Search permissions in ${moduleName}`}
-                            className="w-full pl-8 pr-7 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-1 focus:ring-red-900 focus:border-red-900 bg-gray-50/50 placeholder:text-gray-400 shadow-2xs"
+                            className="w-full pl-8 pr-7 py-1.5 text-xs border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-gray-50/50 dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 shadow-2xs"
                         />
-                        <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                        <Search className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
                         {searchQuery && (
                             <button
                                 type="button"
                                 onClick={() => onSearchChange('')}
-                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold"
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 text-xs font-bold"
                                 aria-label="Clear filter"
                             >
                                 ✕
@@ -144,8 +144,8 @@ export default function PermissionList({
                                     key={perm.id}
                                     className={`flex items-start justify-between p-3 rounded-lg border cursor-pointer transition-all ${
                                         isChecked
-                                            ? 'bg-red-50/25 border-red-200/90 shadow-2xs ring-1 ring-red-900/10'
-                                            : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/60'
+                                            ? 'bg-red-50/25 dark:bg-red-950/25 border-red-200/90 dark:border-red-900/50 shadow-2xs ring-1 ring-red-900/10 dark:ring-red-900/30'
+                                            : 'bg-white dark:bg-slate-800/60 border-gray-200 dark:border-slate-700/80 hover:border-gray-300 dark:hover:border-slate-600 hover:bg-gray-50/60 dark:hover:bg-slate-800'
                                     }`}
                                 >
                                     <div className="flex items-start gap-3 min-w-0 flex-1">
@@ -153,31 +153,31 @@ export default function PermissionList({
                                             type="checkbox"
                                             checked={isChecked}
                                             onChange={() => onTogglePermission(perm.id)}
-                                            className="w-4 h-4 mt-0.5 text-red-900 border-gray-300 rounded focus:ring-red-900 focus:ring-1 cursor-pointer shrink-0"
+                                            className="w-4 h-4 mt-0.5 text-red-900 border-gray-300 dark:border-slate-600 rounded focus:ring-red-900 focus:ring-1 cursor-pointer shrink-0"
                                         />
                                         <div className="flex flex-col min-w-0 pr-2">
                                             <div className="flex items-center gap-1.5">
                                                 <span
                                                     className={`text-xs ${
                                                         isChecked
-                                                            ? 'text-gray-900 font-bold'
-                                                            : 'text-gray-800 font-semibold'
+                                                            ? 'text-gray-900 dark:text-slate-100 font-bold'
+                                                            : 'text-gray-800 dark:text-slate-200 font-semibold'
                                                     }`}
                                                 >
                                                     {perm.display_name}
                                                 </span>
                                                 {isChecked && (
-                                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                                                 )}
                                             </div>
 
                                             {perm.description && (
-                                                <p className="text-[11px] text-gray-500 mt-0.5 leading-normal">
+                                                <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5 leading-normal">
                                                     {perm.description}
                                                 </p>
                                             )}
 
-                                            <span className="text-[10px] text-gray-400 font-mono mt-1">
+                                            <span className="text-[10px] text-gray-400 dark:text-slate-500 font-mono mt-1">
                                                 {perm.name}
                                             </span>
                                         </div>
@@ -197,15 +197,15 @@ export default function PermissionList({
                         })}
                     </div>
                 ) : (
-                    <div className="p-8 text-center text-gray-500 text-xs">
+                    <div className="p-8 text-center text-gray-500 dark:text-slate-400 text-xs">
                         {searchQuery ? (
                             <div className="flex flex-col items-center gap-1.5">
-                                <Search className="w-5 h-5 text-gray-300" />
+                                <Search className="w-5 h-5 text-gray-300 dark:text-slate-600" />
                                 <span>No permissions match "{searchQuery}"</span>
                                 <button
                                     type="button"
                                     onClick={() => onSearchChange('')}
-                                    className="text-xs text-red-900 font-semibold hover:underline mt-1"
+                                    className="text-xs text-red-900 dark:text-red-400 font-semibold hover:underline mt-1"
                                 >
                                     Clear search filter
                                 </button>

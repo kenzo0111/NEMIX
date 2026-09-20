@@ -2,6 +2,7 @@ import React from 'react';
 import { Menu } from 'lucide-react';
 import SystemModeBadge from '@/Components/SystemModeBadge';
 import Breadcrumbs from '@/Components/Breadcrumbs';
+import ThemeToggle from '@/Components/ThemeToggle';
 
 interface PageHeaderProps {
   title: string;
@@ -28,12 +29,12 @@ export default function PageHeader({
 
   return (
     <header className="sticky top-0 z-30 shadow-xs">
-      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 transition-colors">
         <div className="flex items-start gap-2 min-w-0 flex-1">
           <button
             type="button"
             onClick={handleToggleMenu}
-            className="md:hidden min-h-[40px] min-w-[40px] p-2 -ml-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer shrink-0 inline-flex items-center justify-center"
+            className="md:hidden min-h-[40px] min-w-[40px] p-2 -ml-1 text-gray-600 hover:text-gray-900 dark:text-slate-300 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer shrink-0 inline-flex items-center justify-center"
             aria-label="Toggle navigation menu"
           >
             <Menu className="w-5 h-5" />
@@ -41,11 +42,11 @@ export default function PageHeader({
 
           <div className="min-w-0 flex-1">
             {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
-            <h1 className="text-base sm:text-lg font-bold text-gray-900 font-serif tracking-tight break-words">
+            <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight break-words">
               {title}
             </h1>
             {description && (
-              <p className="text-xs text-gray-500 font-medium break-words mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-slate-400 font-medium break-words mt-0.5">
                 {description}
               </p>
             )}
@@ -54,16 +55,17 @@ export default function PageHeader({
 
         <div className="flex flex-wrap items-center gap-3 sm:gap-4 shrink-0 justify-between md:justify-end">
           <SystemModeBadge />
-          <div className="text-right hidden sm:block border-l border-gray-200 pl-4">
-            <span className="block text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+          <ThemeToggle variant="compact" />
+          <div className="text-right hidden sm:block border-l border-gray-200 dark:border-slate-800 pl-4">
+            <span className="block text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
               {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
             </span>
-            <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold block mt-0.5">
+            <span className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-widest font-semibold block mt-0.5">
               {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
             </span>
           </div>
           {actions && (
-            <div className="flex flex-wrap items-center gap-2 pl-2 border-l border-gray-200">
+            <div className="flex flex-wrap items-center gap-2 pl-2 border-l border-gray-200 dark:border-slate-800">
               {actions}
             </div>
           )}

@@ -17,17 +17,22 @@ const modalSelectStyles: StylesConfig<SelectOption, false> = {
     control: (provided, state) => ({
         ...provided,
         borderRadius: '0.5rem',
-        borderColor: state.isFocused ? '#7f1d1d' : '#e5e7eb',
+        borderColor: state.isFocused ? '#7f1d1d' : 'var(--border-color, #e5e7eb)',
         boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
         '&:hover': { borderColor: '#7f1d1d' },
         minHeight: '38px',
         fontSize: '0.875rem',
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--surface-card, #ffffff)',
+        color: 'var(--text-primary, #111827)',
+    }),
+    singleValue: (provided) => ({
+        ...provided,
+        color: 'var(--text-primary, #111827)',
     }),
     option: (provided, state) => ({
         ...provided,
-        backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? '#fef2f2' : '#ffffff',
-        color: state.isSelected ? '#ffffff' : '#1f2937',
+        backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? 'rgba(127, 29, 29, 0.15)' : 'var(--surface-card, #ffffff)',
+        color: state.isSelected ? '#ffffff' : 'var(--text-primary, #1f2937)',
         cursor: 'pointer',
         fontSize: '0.875rem',
         fontWeight: state.isSelected ? '600' : '500',
@@ -38,6 +43,8 @@ const modalSelectStyles: StylesConfig<SelectOption, false> = {
         borderRadius: '0.5rem',
         overflow: 'hidden',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        backgroundColor: 'var(--surface-card, #ffffff)',
+        border: '1px solid var(--border-color, #e5e7eb)',
     }),
     menuPortal: (provided) => ({
         ...provided,
@@ -112,28 +119,28 @@ export default function EditStaffModal({
 
     return (
         <Modal show={isOpen} onClose={handleClose} maxWidth="md" closeable={!processing} ariaLabel="Edit Staff Account">
-            <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
+            <div className="overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-xl">
                 {/* Institutional Maroon Accent Bar */}
                 <div className="h-1.5 w-full bg-red-900 shrink-0"></div>
 
                 {/* Modal Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-white">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-900 border border-red-100/80 flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0">
                             <Edit2 className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-base font-bold text-gray-900 truncate">Edit Staff Account</h3>
-                            <p className="text-xs text-gray-500 mt-0.5 truncate">
+                            <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 truncate">Edit Staff Account</h3>
+                            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 truncate">
                                 Update credentials and system role for{' '}
-                                <strong className="text-gray-800 font-semibold">{staff.name}</strong>.
+                                <strong className="text-gray-800 dark:text-slate-200 font-semibold">{staff.name}</strong>.
                             </p>
                         </div>
                     </div>
                     <button
                         type="button"
                         onClick={handleClose}
-                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer shrink-0 ml-2"
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0 ml-2"
                         aria-label="Close modal"
                     >
                         <X className="w-5 h-5" />
@@ -147,12 +154,12 @@ export default function EditStaffModal({
                         <div>
                             <label
                                 htmlFor="edit-staff-name"
-                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5"
+                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5"
                             >
                                 Full Name <span className="text-red-600">*</span>
                             </label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
                                     <User className="w-4 h-4" />
                                 </div>
                                 <input
@@ -164,8 +171,8 @@ export default function EditStaffModal({
                                         if (errors.name) clearErrors('name');
                                     }}
                                     className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${
-                                        errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-red-900 focus:ring-red-900'
-                                    } focus:outline-none focus:ring-1 bg-white text-gray-900 placeholder:text-gray-400 transition-colors`}
+                                        errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600'
+                                    } focus:outline-none focus:ring-1 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors`}
                                     required
                                     autoFocus
                                 />
@@ -179,12 +186,12 @@ export default function EditStaffModal({
                         <div>
                             <label
                                 htmlFor="edit-staff-email"
-                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5"
+                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5"
                             >
                                 Email Address
                             </label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
                                     <Mail className="w-4 h-4" />
                                 </div>
                                 <input
@@ -192,20 +199,20 @@ export default function EditStaffModal({
                                     id="edit-staff-email"
                                     value={data.email}
                                     readOnly
-                                    className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed select-none font-mono"
+                                    className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-850 text-gray-500 dark:text-slate-400 cursor-not-allowed select-none font-mono"
                                 />
                             </div>
                             {errors.email && (
                                 <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.email}</p>
                             )}
-                            <p className="mt-1 text-xs text-gray-400">Email address cannot be modified after registration.</p>
+                            <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">Email address cannot be modified after registration.</p>
                         </div>
 
                         {/* System Role */}
                         <div>
                             <label
                                 htmlFor="edit-staff-role"
-                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5"
+                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5"
                             >
                                 System Role <span className="text-red-600">*</span>
                             </label>
@@ -230,9 +237,9 @@ export default function EditStaffModal({
                                         id="edit-staff-role"
                                         value={staff.role}
                                         readOnly
-                                        className="w-full pl-3 pr-3 py-2 text-sm rounded-lg border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed select-none font-semibold"
+                                        className="w-full pl-3 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-850 text-gray-500 dark:text-slate-400 cursor-not-allowed select-none font-semibold"
                                     />
-                                    <p className="mt-1 text-xs text-gray-400">
+                                    <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">
                                         {isSelf
                                             ? 'You cannot modify your own administrative role.'
                                             : 'Role modification requires administrative privileges.'}
@@ -246,12 +253,12 @@ export default function EditStaffModal({
                     </div>
 
                     {/* Modal Actions */}
-                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 border-t border-gray-200 gap-2.5">
+                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-850/80 border-t border-gray-200 dark:border-slate-800 gap-2.5">
                         <button
                             type="button"
                             onClick={handleClose}
                             disabled={processing}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer text-center"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
                         >
                             Cancel
                         </button>

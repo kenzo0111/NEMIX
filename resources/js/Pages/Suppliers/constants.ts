@@ -20,17 +20,17 @@ export const institutionalSelectStyles = {
     control: (provided: Record<string, unknown>, state: { isFocused: boolean; isDisabled?: boolean }) => ({
         ...provided,
         borderRadius: '0.375rem',
-        borderColor: state.isFocused ? '#7f1d1d' : '#d1d5db',
+        borderColor: state.isFocused ? '#7f1d1d' : 'var(--border-color, #d1d5db)',
         borderWidth: '1px',
         padding: '1px 2px',
         minWidth: '160px',
         boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
         fontSize: '0.8125rem',
         fontWeight: '500',
-        backgroundColor: state.isDisabled ? '#f9fafb' : '#ffffff',
+        backgroundColor: state.isDisabled ? 'var(--app-background, #f9fafb)' : 'var(--surface-card, #ffffff)',
         cursor: state.isDisabled ? 'not-allowed' : 'default',
         '&:hover': {
-            borderColor: state.isDisabled ? '#d1d5db' : '#7f1d1d',
+            borderColor: state.isDisabled ? 'var(--border-color, #d1d5db)' : '#7f1d1d',
         },
     }),
     option: (
@@ -41,9 +41,9 @@ export const institutionalSelectStyles = {
         backgroundColor: state.isSelected
             ? '#7f1d1d'
             : state.isFocused
-            ? '#fef2f2'
-            : '#ffffff',
-        color: state.isSelected ? '#ffffff' : '#111827',
+            ? 'rgba(127, 29, 29, 0.18)'
+            : 'var(--surface-card, #ffffff)',
+        color: state.isSelected ? '#ffffff' : 'var(--text-primary, #111827)',
         padding: '8px 12px',
         fontSize: '0.8125rem',
         fontWeight: '500',
@@ -51,21 +51,22 @@ export const institutionalSelectStyles = {
     }),
     singleValue: (provided: Record<string, unknown>) => ({
         ...provided,
-        color: '#111827',
+        color: 'var(--text-primary, #111827)',
         fontSize: '0.8125rem',
         fontWeight: '500',
     }),
     placeholder: (provided: Record<string, unknown>) => ({
         ...provided,
-        color: '#6b7280',
+        color: 'var(--text-secondary, #6b7280)',
         fontSize: '0.8125rem',
         fontWeight: '400',
     }),
     menu: (provided: Record<string, unknown>) => ({
         ...provided,
         borderRadius: '0.375rem',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        border: '1px solid #e5e7eb',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12)',
+        border: '1px solid var(--border-color, #e5e7eb)',
+        backgroundColor: 'var(--surface-card, #ffffff)',
         zIndex: 50,
     }),
     indicatorSeparator: () => ({ display: 'none' }),

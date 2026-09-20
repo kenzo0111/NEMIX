@@ -49,7 +49,7 @@ export default function DashboardIndex({
     const pendingSuppliers = supplierSummary?.pending ?? 0;
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
+        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white transition-colors">
             <Head title="Supply & Inventory Management Dashboard" />
 
             {/* Global Flash Toast Notifications */}

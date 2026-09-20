@@ -34,25 +34,25 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="lg" closeable={!isSubmitting} ariaLabel={title}>
-            <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl">
+            <div className="relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-xl">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/70">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-900/70">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-red-50 text-red-950 flex items-center justify-center border border-red-100/80 shadow-xs shrink-0">
+                        <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-xs shrink-0">
                             {isCreate ? (
-                                <Building2 className="w-5 h-5 text-red-900" />
+                                <Building2 className="w-5 h-5 text-red-900 dark:text-red-400" />
                             ) : (
-                                <Edit3 className="w-5 h-5 text-red-900" />
+                                <Edit3 className="w-5 h-5 text-red-900 dark:text-red-400" />
                             )}
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight truncate">
+                            <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight truncate">
                                 {title}
                             </h3>
-                            <p className="text-xs text-gray-500 font-medium mt-0.5">
+                            <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mt-0.5">
                                 {isCreate
                                     ? 'Maintain an accredited vendor record for university consumables.'
                                     : 'Update official accreditation and compliance record.'}
@@ -63,7 +63,7 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                         type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="text-gray-400 hover:text-gray-700 hover:bg-gray-100 p-1.5 rounded-md disabled:opacity-50 transition-colors shrink-0 ml-2"
+                        className="text-gray-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 p-1.5 rounded-md disabled:opacity-50 transition-colors shrink-0 ml-2 cursor-pointer"
                         aria-label="Close"
                     >
                         <X className="w-5 h-5" />
@@ -75,16 +75,16 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                     <div className="p-4 sm:p-6 space-y-5 text-xs max-h-[75vh] overflow-y-auto">
                         {/* Section 1: Business Information */}
                         <div>
-                            <div className="flex items-center gap-2 pb-2 mb-3.5 border-b border-gray-100">
-                                <Building2 className="w-4 h-4 text-red-900" />
-                                <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                            <div className="flex items-center gap-2 pb-2 mb-3.5 border-b border-gray-100 dark:border-slate-800">
+                                <Building2 className="w-4 h-4 text-red-900 dark:text-red-400" />
+                                <h4 className="text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
                                     Business Information
                                 </h4>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label htmlFor="supplier-name" className="block text-xs font-medium text-gray-700 mb-1">
-                                        Business Name <span className="text-red-700">*</span>
+                                    <label htmlFor="supplier-name" className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">
+                                        Business Name <span className="text-red-700 dark:text-red-400">*</span>
                                     </label>
                                     <input
                                         id="supplier-name"
@@ -94,18 +94,18 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                         placeholder="e.g. ABC Office Supplies Trading"
                                         required
                                         disabled={isSubmitting}
-                                        className={`w-full px-3 py-2 bg-white border rounded-md text-xs shadow-xs focus:ring-1 focus:ring-red-900 focus:border-red-900 transition-colors ${
-                                            errors.name ? 'border-red-500 focus:border-red-600' : 'border-gray-300'
+                                        className={`w-full px-3 py-2 bg-white dark:bg-slate-950 border rounded-md text-xs text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 shadow-xs focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors ${
+                                            errors.name ? 'border-red-500 dark:border-red-500 focus:border-red-600' : 'border-gray-300 dark:border-slate-700'
                                         }`}
                                     />
                                     {errors.name && (
-                                         <p className="mt-1 text-xs text-red-600 font-medium">{errors.name}</p>
+                                         <p className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{errors.name}</p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label htmlFor="supplier-tin" className="block text-xs font-medium text-gray-700 mb-1">
-                                        Tax ID (TIN) <span className="text-red-700">*</span>
+                                    <label htmlFor="supplier-tin" className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">
+                                        Tax ID (TIN) <span className="text-red-700 dark:text-red-400">*</span>
                                     </label>
                                     <input
                                         id="supplier-tin"
@@ -115,18 +115,18 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                         placeholder="e.g. 000-123-456-000"
                                         required
                                         disabled={isSubmitting}
-                                        className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-mono shadow-xs focus:ring-1 focus:ring-red-900 focus:border-red-900 transition-colors ${
-                                            errors.tin ? 'border-red-500 focus:border-red-600' : 'border-gray-300'
+                                        className={`w-full px-3 py-2 bg-white dark:bg-slate-950 border rounded-md text-xs font-mono text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 shadow-xs focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors ${
+                                            errors.tin ? 'border-red-500 dark:border-red-500 focus:border-red-600' : 'border-gray-300 dark:border-slate-700'
                                         }`}
                                     />
                                     {errors.tin && (
-                                        <p className="mt-1 text-xs text-red-600 font-medium">{errors.tin}</p>
+                                        <p className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{errors.tin}</p>
                                     )}
                                 </div>
 
                                 <div className="sm:col-span-2">
-                                    <label htmlFor="supplier-address" className="block text-xs font-medium text-gray-700 mb-1">
-                                        Business Address <span className="text-red-700">*</span>
+                                    <label htmlFor="supplier-address" className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">
+                                        Business Address <span className="text-red-700 dark:text-red-400">*</span>
                                     </label>
                                     <input
                                         id="supplier-address"
@@ -136,12 +136,12 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                         placeholder="e.g. Provincial Capitol Complex, Daet, Camarines Norte"
                                         required
                                         disabled={isSubmitting}
-                                        className={`w-full px-3 py-2 bg-white border rounded-md text-xs shadow-xs focus:ring-1 focus:ring-red-900 focus:border-red-900 transition-colors ${
-                                            errors.address ? 'border-red-500 focus:border-red-600' : 'border-gray-300'
+                                        className={`w-full px-3 py-2 bg-white dark:bg-slate-950 border rounded-md text-xs text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 shadow-xs focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors ${
+                                            errors.address ? 'border-red-500 dark:border-red-500 focus:border-red-600' : 'border-gray-300 dark:border-slate-700'
                                         }`}
                                     />
                                     {errors.address && (
-                                        <p className="mt-1 text-xs text-red-600 font-medium">{errors.address}</p>
+                                        <p className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{errors.address}</p>
                                     )}
                                 </div>
                             </div>
@@ -149,16 +149,16 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 
                         {/* Section 2: Registration Information */}
                         <div>
-                            <div className="flex items-center gap-2 pb-2 mb-3.5 border-b border-gray-100">
-                                <FileText className="w-4 h-4 text-red-900" />
-                                <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                            <div className="flex items-center gap-2 pb-2 mb-3.5 border-b border-gray-100 dark:border-slate-800">
+                                <FileText className="w-4 h-4 text-red-900 dark:text-red-400" />
+                                <h4 className="text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
                                     Registration & Classification
                                 </h4>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label htmlFor="supplier-registration-number" className="block text-xs font-medium text-gray-700 mb-1">
-                                        Registration Number <span className="text-red-700">*</span>
+                                    <label htmlFor="supplier-registration-number" className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">
+                                        Registration Number <span className="text-red-700 dark:text-red-400">*</span>
                                     </label>
                                     <input
                                         id="supplier-registration-number"
@@ -168,24 +168,24 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                         placeholder="e.g. 2023-112233"
                                         required
                                         disabled={isSubmitting}
-                                        className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-mono shadow-xs focus:ring-1 focus:ring-red-900 focus:border-red-900 transition-colors ${
-                                            errors.reg_number ? 'border-red-500 focus:border-red-600' : 'border-gray-300'
+                                        className={`w-full px-3 py-2 bg-white dark:bg-slate-950 border rounded-md text-xs font-mono text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 shadow-xs focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors ${
+                                            errors.reg_number ? 'border-red-500 dark:border-red-500 focus:border-red-600' : 'border-gray-300 dark:border-slate-700'
                                         }`}
                                     />
                                     {errors.reg_number && (
-                                        <p className="mt-1 text-xs text-red-600 font-medium">{errors.reg_number}</p>
+                                        <p className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{errors.reg_number}</p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <span className="block text-xs font-medium text-gray-700 mb-1">
+                                    <span className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">
                                         Classification
                                     </span>
-                                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-50/80 border border-gray-200 rounded-md text-xs text-gray-800 font-medium select-none">
-                                        <span className="w-2 h-2 rounded-full bg-red-900 shrink-0"></span>
+                                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-50/80 dark:bg-slate-950/80 border border-gray-200 dark:border-slate-800 rounded-md text-xs text-gray-800 dark:text-slate-200 font-medium select-none">
+                                        <span className="w-2 h-2 rounded-full bg-red-900 dark:bg-red-500 shrink-0"></span>
                                         <span>{CATEGORY_DISPLAY_LABEL}</span>
                                     </div>
-                                    <p className="text-[11px] text-gray-400 mt-1">
+                                    <p className="text-[11px] text-gray-400 dark:text-slate-500 mt-1">
                                         Dedicated consumable office supplies registry.
                                     </p>
                                 </div>
@@ -194,15 +194,15 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 
                         {/* Section 3: Supplier Status */}
                         <div>
-                            <div className="flex items-center gap-2 pb-2 mb-3.5 border-b border-gray-100">
-                                <ShieldCheck className="w-4 h-4 text-red-900" />
-                                <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                            <div className="flex items-center gap-2 pb-2 mb-3.5 border-b border-gray-100 dark:border-slate-800">
+                                <ShieldCheck className="w-4 h-4 text-red-900 dark:text-red-400" />
+                                <h4 className="text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
                                     Compliance & Status
                                 </h4>
                             </div>
                             <div className="max-w-sm">
-                                <label htmlFor="supplier-status" className="block text-xs font-medium text-gray-700 mb-1">
-                                    Accreditation Status <span className="text-red-700">*</span>
+                                <label htmlFor="supplier-status" className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">
+                                    Accreditation Status <span className="text-red-700 dark:text-red-400">*</span>
                                 </label>
                                 <Select<{ value: SupplierStatus; label: string }>
                                     inputId="supplier-status"
@@ -214,11 +214,11 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                     styles={institutionalSelectStyles}
                                 />
                                 {errors.status && (
-                                    <p className="mt-1 text-xs text-red-600 font-medium">{errors.status}</p>
+                                    <p className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{errors.status}</p>
                                 )}
 
-                                <div className="mt-2 text-[11px] text-gray-600 bg-gray-50/90 rounded-md p-2.5 border border-gray-200/70 flex items-start gap-2">
-                                    <Info className="w-3.5 h-3.5 text-gray-400 mt-0.5 shrink-0" />
+                                <div className="mt-2 text-[11px] text-gray-600 dark:text-slate-400 bg-gray-50/90 dark:bg-slate-950/90 rounded-md p-2.5 border border-gray-200/70 dark:border-slate-800 flex items-start gap-2">
+                                    <Info className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 mt-0.5 shrink-0" />
                                     <span>
                                         {formData.status === 'active' && 'Active suppliers are eligible for purchase orders and delivery receiving.'}
                                         {formData.status === 'pending' && 'Supplier accreditation is pending review or document renewal.'}
@@ -230,12 +230,12 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                     </div>
 
                     {/* Footer */}
-                    <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/75 border-t border-gray-200 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
+                    <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/75 dark:bg-slate-900/75 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={isSubmitting}
-                            className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 rounded-md text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-xs cursor-pointer text-center"
+                            className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors shadow-xs cursor-pointer text-center"
                         >
                             Cancel
                         </button>

@@ -16,10 +16,10 @@ export default function InstitutionSettings({
     return (
         <div className="space-y-6">
             <div>
-                <h3 className="text-sm font-bold text-slate-900 font-serif">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
                     University Official Identification
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Official university naming, office identity, and legal letterhead used across official SPMO forms.
                 </p>
             </div>
@@ -27,10 +27,10 @@ export default function InstitutionSettings({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {/* Entity Name (Centralized Organization / Institution Setting) */}
                 <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                         <span className="flex items-center gap-1.5">
                             <span>Entity Name</span>
-                            <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-red-50 text-red-800 font-bold border border-red-200">
+                            <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-400 font-bold border border-red-200 dark:border-red-900/50">
                                 Official COA Header
                             </span>
                         </span>
@@ -40,13 +40,13 @@ export default function InstitutionSettings({
                         type="text"
                         value={settings['institution.name']}
                         onChange={(e) => onChange('institution.name', e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                         placeholder="University of Camarines Norte"
                     />
                     {errors['settings.institution.name'] && (
                         <p className="text-xs text-red-600 mt-1">{errors['settings.institution.name']}</p>
                     )}
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-1">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
                         <Info className="w-3 h-3 text-slate-400 shrink-0" />
                         Centralized agency/entity title displayed on all Compliance forms (RIS, RSMI, RPCI, Stock Card, MOR).
                     </p>
@@ -54,7 +54,7 @@ export default function InstitutionSettings({
 
                 {/* Default Fund Cluster */}
                 <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                         <span>Default Fund Cluster</span>
                         <span className="text-red-600 font-normal">*</span>
                     </label>
@@ -62,13 +62,13 @@ export default function InstitutionSettings({
                         type="text"
                         value={settings['institution.default_fund_cluster'] || '01 - Regular Agency Fund'}
                         onChange={(e) => onChange('institution.default_fund_cluster', e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                         placeholder="01 - Regular Agency Fund"
                     />
                     {errors['settings.institution.default_fund_cluster'] && (
                         <p className="text-xs text-red-600 mt-1">{errors['settings.institution.default_fund_cluster']}</p>
                     )}
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-1">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
                         <Info className="w-3 h-3 text-slate-400 shrink-0" />
                         Default fund cluster auto-populated across newly generated compliance reports.
                     </p>
@@ -76,7 +76,7 @@ export default function InstitutionSettings({
 
                 {/* Agency Acronym */}
                 <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                         <span>Agency Acronym</span>
                         <span className="text-red-600 font-normal">*</span>
                     </label>
@@ -84,13 +84,13 @@ export default function InstitutionSettings({
                         type="text"
                         value={settings['institution.acronym']}
                         onChange={(e) => onChange('institution.acronym', e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300 uppercase"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600 uppercase"
                         placeholder="UCN"
                     />
                     {errors['settings.institution.acronym'] && (
                         <p className="text-xs text-red-600 mt-1">{errors['settings.institution.acronym']}</p>
                     )}
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-1">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
                         <Info className="w-3 h-3 text-slate-400 shrink-0" />
                         Short identification acronym used for bin tags and summary headers.
                     </p>
@@ -98,7 +98,7 @@ export default function InstitutionSettings({
 
                 {/* Custodial Supply Office */}
                 <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                         <span>Custodial Supply Office</span>
                         <span className="text-red-600 font-normal">*</span>
                     </label>
@@ -106,13 +106,13 @@ export default function InstitutionSettings({
                         type="text"
                         value={settings['institution.custodial_office']}
                         onChange={(e) => onChange('institution.custodial_office', e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                         placeholder="Supply & Property Management Office (SPMO)"
                     />
                     {errors['settings.institution.custodial_office'] && (
                         <p className="text-xs text-red-600 mt-1">{errors['settings.institution.custodial_office']}</p>
                     )}
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-1">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
                         <Info className="w-3 h-3 text-slate-400 shrink-0" />
                         Office in primary custody of consumable inventory and issuance.
                     </p>
@@ -120,7 +120,7 @@ export default function InstitutionSettings({
 
                 {/* Campus Address */}
                 <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                         <span>Campus / Postal Address</span>
                         <span className="text-red-600 font-normal">*</span>
                     </label>
@@ -128,13 +128,13 @@ export default function InstitutionSettings({
                         type="text"
                         value={settings['institution.campus_address']}
                         onChange={(e) => onChange('institution.campus_address', e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                         placeholder="Daet, Camarines Norte"
                     />
                     {errors['settings.institution.campus_address'] && (
                         <p className="text-xs text-red-600 mt-1">{errors['settings.institution.campus_address']}</p>
                     )}
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-1">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
                         <Info className="w-3 h-3 text-slate-400 shrink-0" />
                         Physical campus location printed on official compliance reports.
                     </p>
@@ -142,20 +142,20 @@ export default function InstitutionSettings({
 
                 {/* Responsibility Center Code (RCC) */}
                 <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 block">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                         Responsibility Center Code (RCC)
                     </label>
                     <input
                         type="text"
                         value={settings['institution.responsibility_center_code']}
                         onChange={(e) => onChange('institution.responsibility_center_code', e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-mono font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-mono font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                         placeholder="01-101-00"
                     />
                     {errors['settings.institution.responsibility_center_code'] && (
                         <p className="text-xs text-red-600 mt-1">{errors['settings.institution.responsibility_center_code']}</p>
                     )}
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-1">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
                         <Info className="w-3 h-3 text-slate-400 shrink-0" />
                         Official government accounting station code for SPMO disbursements.
                     </p>
@@ -163,20 +163,20 @@ export default function InstitutionSettings({
 
                 {/* Logo Path */}
                 <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 block">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                         Institutional Crest / Logo Asset Path
                     </label>
                     <input
                         type="text"
                         value={settings['institution.logo_path']}
                         onChange={(e) => onChange('institution.logo_path', e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-mono font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-mono font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                         placeholder="/images/ucn-crest.png"
                     />
                     {errors['settings.institution.logo_path'] && (
                         <p className="text-xs text-red-600 mt-1">{errors['settings.institution.logo_path']}</p>
                     )}
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-1">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
                         <Info className="w-3 h-3 text-slate-400 shrink-0" />
                         Asset path for the official university seal displayed on print forms.
                     </p>

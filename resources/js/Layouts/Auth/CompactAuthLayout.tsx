@@ -1,4 +1,5 @@
 import AuthFooter from '@/Components/Auth/AuthFooter';
+import ThemeToggle from '@/Components/ThemeToggle';
 import { PropsWithChildren, ReactNode } from 'react';
 
 interface CompactAuthLayoutProps extends PropsWithChildren {
@@ -19,6 +20,11 @@ export default function CompactAuthLayout({
 
     return (
         <div className="min-h-screen flex items-center justify-center p-3 sm:p-6 lg:p-8 relative overflow-hidden login-bg">
+            {/* Theme Toggle Button in top right */}
+            <div className="fixed top-3 right-3 sm:top-4 sm:right-4 z-50">
+                <ThemeToggle variant="compact" />
+            </div>
+
             {/* Single Maroon Overlay + Subtle Vignette */}
             <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
                 <div className="absolute inset-0 bg-red-950/85 mix-blend-multiply" />
@@ -26,7 +32,7 @@ export default function CompactAuthLayout({
             </div>
 
             {/* Centered Institutional Card */}
-            <div className={`relative z-10 w-full ${maxWidthMap[maxWidth]} bg-white rounded-2xl shadow-xl border border-stone-200/80 p-5 sm:p-8 my-2 sm:my-4`}>
+            <div className={`relative z-10 w-full ${maxWidthMap[maxWidth]} bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-stone-200/80 dark:border-slate-800 p-5 sm:p-8 my-2 sm:my-4`}>
                 {headerSlot}
                 <div className="mt-4">
                     {children}

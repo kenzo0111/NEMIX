@@ -19,36 +19,36 @@ export const IssuanceRow: React.FC<IssuanceRowProps> = ({
     const totalQty = issuance.total_quantity ?? issuance.quantity ?? 0;
 
     return (
-        <tr className="hover:bg-red-50/20 transition-colors border-b border-gray-100 last:border-0 group">
+        <tr className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0 group">
             {/* RIS / Issuance Number */}
-            <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-900 font-mono tracking-wide">
+            <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-900 dark:text-slate-100 font-mono tracking-wide">
                 {formatRisNumber(issuance.ris_number)}
             </td>
 
             {/* Recipient / Office (Normal text, no decorative circular avatars) */}
             <td className="px-4 lg:px-6 py-4 text-xs">
-                <div className="font-semibold text-gray-900 leading-tight">
+                <div className="font-semibold text-gray-900 dark:text-slate-100 leading-tight">
                     {issuance.recipient}
                 </div>
                 {issuance.department && (
-                    <div className="text-[11px] text-gray-500 mt-0.5 leading-tight">
+                    <div className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5 leading-tight">
                         {issuance.department}
                     </div>
                 )}
             </td>
 
             {/* Items Issued */}
-            <td className="px-4 lg:px-6 py-4 text-xs text-gray-800 font-medium max-w-xs truncate" title={issuance.item}>
+            <td className="px-4 lg:px-6 py-4 text-xs text-gray-800 dark:text-slate-200 font-medium max-w-xs truncate" title={issuance.item}>
                 {issuance.item || 'N/A'}
             </td>
 
             {/* Total Quantity */}
-            <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs text-gray-900 font-bold font-mono">
-                {totalQty} <span className="text-gray-400 text-[11px] font-normal font-sans">pcs</span>
+            <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs text-gray-900 dark:text-slate-100 font-bold font-mono">
+                {totalQty} <span className="text-gray-400 dark:text-slate-500 text-[11px] font-normal font-sans">pcs</span>
             </td>
 
             {/* Date Issued */}
-            <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-xs text-gray-600 font-mono">
+            <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-xs text-gray-600 dark:text-slate-400 font-mono">
                 {displayDate}
             </td>
 
@@ -63,14 +63,14 @@ export const IssuanceRow: React.FC<IssuanceRowProps> = ({
                     <button
                         type="button"
                         onClick={() => onViewDetails(issuance)}
-                        className="text-gray-700 hover:text-red-950 font-semibold text-xs transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100"
+                        className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-xs transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
                     >
                         View
                     </button>
                     <button
                         type="button"
                         onClick={() => onViewRisForm(issuance)}
-                        className="border border-red-900/30 text-red-950 hover:bg-red-50 hover:border-red-900/50 font-semibold text-xs px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
+                        className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-600 font-semibold text-xs px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
                     >
                         RIS Form
                     </button>

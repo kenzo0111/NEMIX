@@ -9,7 +9,7 @@ export default function InputError({
         <p
             role="alert"
             {...props}
-            className={'text-sm text-red-600 ' + className}
+            className={'text-sm text-red-600 dark:text-red-400 ' + className}
         >
             {message}
         </p>

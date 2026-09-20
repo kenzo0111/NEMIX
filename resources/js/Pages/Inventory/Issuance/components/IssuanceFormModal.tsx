@@ -140,21 +140,21 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
 
     return (
         <Modal show={show} onClose={handleModalClose} maxWidth="3xl" closeable={!form.processing} ariaLabel="Record Stock Issuance">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Formal Administrative Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-gray-50/75 flex-shrink-0">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-900/75 flex-shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-950 flex items-center justify-center border border-red-100/80 shadow-2xs shrink-0">
-                            <FileSpreadsheet className="w-5 h-5 text-red-900" />
+                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-2xs shrink-0">
+                            <FileSpreadsheet className="w-5 h-5 text-red-900 dark:text-red-400" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight truncate">
+                            <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight truncate">
                                 Record Stock Issuance
                             </h3>
-                            <p className="text-xs text-gray-500 font-medium truncate">
+                            <p className="text-xs text-gray-500 dark:text-slate-400 font-medium truncate">
                                 Administrative Requisition & Issue Slip (RIS) Entry
                             </p>
                         </div>
@@ -163,7 +163,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                         type="button"
                         onClick={handleModalClose}
                         disabled={form.processing}
-                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-40 cursor-pointer shrink-0 ml-2"
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 cursor-pointer shrink-0 ml-2"
                         aria-label="Close"
                     >
                         <X className="w-5 h-5" />
@@ -174,14 +174,14 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                 <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto max-h-[75vh] space-y-6 text-xs">
                     {/* SECTION 1: Recipient Information */}
                     <div>
-                        <div className="pb-2 mb-3 border-b border-gray-200">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-950 font-mono">
+                        <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-950 dark:text-red-400 font-mono">
                                 1. Recipient Information
                             </h4>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="issuance_recipient" className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label htmlFor="issuance_recipient" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Recipient Name <span className="text-red-600" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
                                 </label>
@@ -196,17 +196,17 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     value={form.data.recipient}
                                     onChange={(e) => form.setData('recipient', e.target.value)}
                                     placeholder="Full name of requesting personnel"
-                                    className={`w-full h-10 px-3 bg-white border rounded-md text-xs font-medium text-gray-900 focus:outline-none focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-2xs ${
-                                        form.errors.recipient ? 'border-red-400' : 'border-gray-300'
+                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-xs font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
+                                        form.errors.recipient ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
                                     }`}
                                 />
                                 {form.errors.recipient && (
-                                    <p id="issuance_recipient-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{form.errors.recipient}</p>
+                                    <p id="issuance_recipient-error" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{form.errors.recipient}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label htmlFor="issuance_date_issued" className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label htmlFor="issuance_date_issued" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Date Issued <span className="text-red-600" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
                                 </label>
@@ -220,17 +220,17 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     aria-describedby={form.errors.date_issued ? 'issuance_date_issued-error' : undefined}
                                     value={form.data.date_issued}
                                     onChange={(e) => form.setData('date_issued', e.target.value)}
-                                    className={`w-full h-10 px-3 bg-white border rounded-md text-xs font-mono font-medium text-gray-900 focus:outline-none focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-2xs ${
-                                        form.errors.date_issued ? 'border-red-400' : 'border-gray-300'
+                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-xs font-mono font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
+                                        form.errors.date_issued ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
                                     }`}
                                 />
                                 {form.errors.date_issued && (
-                                    <p id="issuance_date_issued-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{form.errors.date_issued}</p>
+                                    <p id="issuance_date_issued-error" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{form.errors.date_issued}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label htmlFor="issuance_department" className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label htmlFor="issuance_department" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Division / Office
                                 </label>
                                 <Select
@@ -249,12 +249,12 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     isClearable
                                 />
                                 {form.errors.department && (
-                                    <p id="issuance_department-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{form.errors.department}</p>
+                                    <p id="issuance_department-error" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{form.errors.department}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label htmlFor="issuance_recipient_designation" className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label htmlFor="issuance_recipient_designation" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Recipient Designation
                                 </label>
                                 <input
@@ -266,12 +266,12 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     value={form.data.recipient_designation}
                                     onChange={(e) => form.setData('recipient_designation', e.target.value)}
                                     placeholder="e.g. Dean, Department Head, Faculty"
-                                    className={`w-full h-10 px-3 bg-white border rounded-md text-xs font-medium text-gray-900 focus:outline-none focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-2xs ${
-                                        form.errors.recipient_designation ? 'border-red-400' : 'border-gray-300'
+                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-xs font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
+                                        form.errors.recipient_designation ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
                                     }`}
                                 />
                                 {form.errors.recipient_designation && (
-                                    <p id="issuance_recipient_designation-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">
+                                    <p id="issuance_recipient_designation-error" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
                                         {form.errors.recipient_designation}
                                     </p>
                                 )}
@@ -281,14 +281,14 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
 
                     {/* SECTION 2: Accounting Information */}
                     <div>
-                        <div className="pb-2 mb-3 border-b border-gray-200">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-950 font-mono">
+                        <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-950 dark:text-red-400 font-mono">
                                 2. Accounting Information
                             </h4>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="issuance_fund_cluster" className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label htmlFor="issuance_fund_cluster" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Fund Cluster
                                 </label>
                                 <Select
@@ -305,12 +305,12 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     classNamePrefix="react-select"
                                 />
                                 {form.errors.fund_cluster && (
-                                    <p id="issuance_fund_cluster-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{form.errors.fund_cluster}</p>
+                                    <p id="issuance_fund_cluster-error" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{form.errors.fund_cluster}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label htmlFor="issuance_purpose" className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label htmlFor="issuance_purpose" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Purpose
                                 </label>
                                 <input
@@ -322,12 +322,12 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     value={form.data.purpose}
                                     onChange={(e) => form.setData('purpose', e.target.value)}
                                     placeholder="Purpose of supply requisition"
-                                    className={`w-full h-10 px-3 bg-white border rounded-md text-xs font-medium text-gray-900 focus:outline-none focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-2xs ${
-                                        form.errors.purpose ? 'border-red-400' : 'border-gray-300'
+                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-xs font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
+                                        form.errors.purpose ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
                                     }`}
                                 />
                                 {form.errors.purpose && (
-                                    <p id="issuance_purpose-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">{form.errors.purpose}</p>
+                                    <p id="issuance_purpose-error" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{form.errors.purpose}</p>
                                 )}
                             </div>
                         </div>
@@ -335,14 +335,14 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
 
                     {/* SECTION 3: Items to Issue */}
                     <div>
-                        <div className="pb-2 mb-3 border-b border-gray-200 flex items-center justify-between">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-950 font-mono">
+                        <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-950 dark:text-red-400 font-mono">
                                 3. Items to Issue
                             </h4>
                             <button
                                 type="button"
                                 onClick={handleAddItem}
-                                className="text-red-950 hover:text-red-800 font-semibold text-xs flex items-center gap-1.5 cursor-pointer py-1 px-2 rounded hover:bg-red-50 transition-colors"
+                                className="text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-semibold text-xs flex items-center gap-1.5 cursor-pointer py-1 px-2 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
                             >
                                 <svg className="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -352,7 +352,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                         </div>
 
                         {form.errors.issuances && (
-                            <div className="mb-3 p-2.5 bg-red-50 border border-red-200 rounded text-xs text-red-700 font-medium">
+                            <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded text-xs text-red-700 dark:text-red-300 font-medium">
                                 {form.errors.issuances}
                             </div>
                         )}
@@ -378,66 +378,66 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
 
                     {/* SECTION 4: Authorization */}
                     <div>
-                        <div className="pb-2 mb-3 border-b border-gray-200">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-950 font-mono">
+                        <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-950 dark:text-red-400 font-mono">
                                 4. Authorization (System Signatories)
                             </h4>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Approved By (Read-Only)
                                 </label>
                                 <input
                                     type="text"
                                     value={form.data.approved_by}
                                     readOnly
-                                    className="w-full h-10 px-3 bg-gray-100 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 cursor-not-allowed"
+                                    className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Approved By Designation (Read-Only)
                                 </label>
                                 <input
                                     type="text"
                                     value={form.data.approved_by_designation}
                                     readOnly
-                                    className="w-full h-10 px-3 bg-gray-100 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 cursor-not-allowed"
+                                    className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Issued By (Read-Only)
                                 </label>
                                 <input
                                     type="text"
                                     value={form.data.issued_by_name}
                                     readOnly
-                                    className="w-full h-10 px-3 bg-gray-100 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 cursor-not-allowed"
+                                    className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Issued By Designation (Read-Only)
                                 </label>
                                 <input
                                     type="text"
                                     value={form.data.issued_by_position}
                                     readOnly
-                                    className="w-full h-10 px-3 bg-gray-100 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 cursor-not-allowed"
+                                    className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                 />
                             </div>
                         </div>
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="pt-4 border-t border-gray-200 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
+                    <div className="pt-4 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
                         <button
                             type="button"
                             onClick={handleModalClose}
                             disabled={form.processing}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer text-center"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
                         >
                             Cancel
                         </button>

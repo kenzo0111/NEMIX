@@ -24,7 +24,7 @@ export default function AccountStatusModal({
 
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="md" closeable={!isProcessing} ariaLabel="Staff Account Status Confirmation">
-            <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
+            <div className="overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-xl">
                 {/* Status Color Bar */}
                 <div
                     className={`h-1.5 w-full shrink-0 ${
@@ -38,21 +38,21 @@ export default function AccountStatusModal({
                             <div
                                 className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
                                     isActive
-                                        ? 'bg-red-50 text-red-900 border-red-100/80'
-                                        : 'bg-emerald-50 text-emerald-800 border-emerald-200/80'
+                                        ? 'bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border-red-100/80 dark:border-red-900/40'
+                                        : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800/50'
                                 }`}
                             >
                                 {isActive ? (
-                                    <AlertTriangle className="w-5 h-5 text-red-700" />
+                                    <AlertTriangle className="w-5 h-5 text-red-700 dark:text-red-400" />
                                 ) : (
-                                    <UserCheck className="w-5 h-5 text-emerald-700" />
+                                    <UserCheck className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
                                 )}
                             </div>
                             <div className="min-w-0">
-                                <h3 className="text-base font-bold text-gray-900 truncate">
+                                <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 truncate">
                                     {isActive ? 'Disable Staff Account' : 'Enable Staff Account'}
                                 </h3>
-                                <p className="text-xs text-gray-500 mt-0.5 truncate">
+                                <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 truncate">
                                     Administrative access authorization update
                                 </p>
                             </div>
@@ -60,24 +60,24 @@ export default function AccountStatusModal({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer shrink-0 ml-2"
+                            className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0 ml-2"
                             aria-label="Close modal"
                         >
                             <X className="w-5 h-5" />
                         </button>
                     </div>
 
-                    <div className="mt-4 text-xs text-gray-600 space-y-3">
+                    <div className="mt-4 text-xs text-gray-600 dark:text-slate-300 space-y-3">
                         <p className="leading-relaxed">
                             Are you sure you want to {isActive ? 'disable' : 'enable'} access credentials for{' '}
-                            <strong className="text-gray-900 font-semibold">{staff.name}</strong>{' '}
-                            <span className="font-mono text-gray-500 text-[11px]">({staff.email})</span>?
+                            <strong className="text-gray-900 dark:text-slate-100 font-semibold">{staff.name}</strong>{' '}
+                            <span className="font-mono text-gray-500 dark:text-slate-400 text-[11px]">({staff.email})</span>?
                         </p>
                         <div
                             className={`p-3.5 rounded-lg border text-xs leading-relaxed ${
                                 isActive
-                                    ? 'bg-red-50/60 border-red-200/80 text-red-900'
-                                    : 'bg-emerald-50/60 border-emerald-200/80 text-emerald-900'
+                                    ? 'bg-red-50/60 dark:bg-red-950/40 border-red-200/80 dark:border-red-900/50 text-red-900 dark:text-red-300'
+                                    : 'bg-emerald-50/60 dark:bg-emerald-950/40 border-emerald-200/80 dark:border-emerald-800/50 text-emerald-900 dark:text-emerald-300'
                             }`}
                         >
                             {isActive
@@ -92,7 +92,7 @@ export default function AccountStatusModal({
                             type="button"
                             onClick={onClose}
                             disabled={isProcessing}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer text-center"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
                         >
                             Cancel
                         </button>

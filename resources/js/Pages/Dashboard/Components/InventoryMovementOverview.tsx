@@ -30,12 +30,12 @@ export default function InventoryMovementOverview({
     const endingBalance = movementSummary?.ending_balance ?? 0;
 
     return (
-        <div className={`bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col justify-between h-full min-w-0 ${className}`}>
+        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs flex flex-col justify-between h-full min-w-0 transition-colors ${className}`}>
             {/* Header & Controls */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800 min-w-0">
                 <div className="flex items-center gap-2 min-w-0">
-                    <span className="h-2 w-2 rounded-full bg-red-900 shrink-0"></span>
-                    <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider truncate">
+                    <span className="h-2 w-2 rounded-full bg-red-900 dark:bg-red-400 shrink-0"></span>
+                    <h2 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider truncate">
                         Inventory Movement Overview
                     </h2>
                 </div>
@@ -45,7 +45,7 @@ export default function InventoryMovementOverview({
                     <div
                         role="group"
                         aria-label="Movement chart period"
-                        className="inline-flex rounded-lg p-0.5 bg-slate-100 border border-slate-200 text-xs shrink-0"
+                        className="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs shrink-0"
                     >
                         <button
                             type="button"
@@ -53,8 +53,8 @@ export default function InventoryMovementOverview({
                             onClick={() => handleFilterChange('monthly')}
                             className={`px-2 py-0.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
                                 currentFilter === 'monthly'
-                                    ? 'bg-white text-red-950 shadow-xs'
-                                    : 'text-slate-600 hover:text-slate-900'
+                                    ? 'bg-white dark:bg-slate-900 text-red-950 dark:text-amber-300 shadow-xs'
+                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                             }`}
                         >
                             Last 6 Months
@@ -65,8 +65,8 @@ export default function InventoryMovementOverview({
                             onClick={() => handleFilterChange('yearly')}
                             className={`px-2 py-0.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
                                 currentFilter === 'yearly'
-                                    ? 'bg-white text-red-950 shadow-xs'
-                                    : 'text-slate-600 hover:text-slate-900'
+                                    ? 'bg-white dark:bg-slate-900 text-red-950 dark:text-amber-300 shadow-xs'
+                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                             }`}
                         >
                             Last 5 Years
@@ -75,7 +75,7 @@ export default function InventoryMovementOverview({
 
                     <Link
                         href={route('compliance.analytics')}
-                        className="text-xs font-medium text-red-950 hover:text-red-800 transition-colors inline-flex items-center gap-1 shrink-0"
+                        className="text-xs font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1 shrink-0"
                     >
                         <span>Analytics</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -90,19 +90,19 @@ export default function InventoryMovementOverview({
                     <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[11px] font-medium">
                         <div className="flex items-center gap-1.5 shrink-0">
                             <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>
-                            <span className="text-slate-600">Stock Received</span>
+                            <span className="text-slate-600 dark:text-slate-300">Stock Received</span>
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
                             <span className="w-2.5 h-2.5 rounded-sm bg-amber-500"></span>
-                            <span className="text-slate-600">Items Issued (RIS)</span>
+                            <span className="text-slate-600 dark:text-slate-300">Items Issued (RIS)</span>
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="w-3 h-0.5 rounded-full bg-red-900"></span>
-                            <span className="text-slate-600">Stock Balance Trend</span>
+                            <span className="w-3 h-0.5 rounded-full bg-red-900 dark:bg-red-400"></span>
+                            <span className="text-slate-600 dark:text-slate-300">Stock Balance Trend</span>
                         </div>
                     </div>
 
-                    <div className="text-[11px] text-slate-400 font-medium shrink-0">
+                    <div className="text-[11px] text-slate-400 dark:text-slate-500 font-medium shrink-0">
                         {currentFilter === 'yearly' ? 'Annual Consolidated' : 'Monthly Tracking'}
                     </div>
                 </div>
@@ -113,31 +113,31 @@ export default function InventoryMovementOverview({
             </div>
 
             {/* Concise Period Movement Summary Row */}
-            <div className="mt-2.5 pt-2.5 border-t border-slate-100 grid grid-cols-3 gap-2 sm:gap-3 text-left shrink-0">
-                <div className="border-r border-slate-100 pr-2 sm:pr-3">
-                    <span className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+            <div className="mt-2.5 pt-2.5 border-t border-slate-100 dark:border-slate-800 grid grid-cols-3 gap-2 sm:gap-3 text-left shrink-0">
+                <div className="border-r border-slate-100 dark:border-slate-800 pr-2 sm:pr-3">
+                    <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Total Received
                     </span>
-                    <span className="text-sm sm:text-base font-bold font-mono text-emerald-700 mt-0.5 block truncate">
-                        +{receivedCount.toLocaleString()} <span className="text-[10px] font-sans text-slate-500 font-normal">units</span>
+                    <span className="text-sm sm:text-base font-bold font-mono text-emerald-700 dark:text-emerald-400 mt-0.5 block truncate">
+                        +{receivedCount.toLocaleString()} <span className="text-[10px] font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
                     </span>
                 </div>
 
-                <div className="border-r border-slate-100 pr-2 sm:pr-3">
-                    <span className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                <div className="border-r border-slate-100 dark:border-slate-800 pr-2 sm:pr-3">
+                    <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Total Dispatched
                     </span>
-                    <span className="text-sm sm:text-base font-bold font-mono text-amber-700 mt-0.5 block truncate">
-                        -{issuedCount.toLocaleString()} <span className="text-[10px] font-sans text-slate-500 font-normal">units</span>
+                    <span className="text-sm sm:text-base font-bold font-mono text-amber-700 dark:text-amber-400 mt-0.5 block truncate">
+                        -{issuedCount.toLocaleString()} <span className="text-[10px] font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
                     </span>
                 </div>
 
                 <div>
-                    <span className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                    <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Current Balance
                     </span>
-                    <span className="text-sm sm:text-base font-bold font-mono text-slate-900 mt-0.5 block truncate">
-                        {endingBalance.toLocaleString()} <span className="text-[10px] font-sans text-slate-500 font-normal">units</span>
+                    <span className="text-sm sm:text-base font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
+                        {endingBalance.toLocaleString()} <span className="text-[10px] font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
                     </span>
                 </div>
             </div>

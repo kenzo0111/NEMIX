@@ -27,48 +27,48 @@ export default function SystemSummary({
                 {/* 1. Critical Stock - Highest Alert Priority */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-red-50/75 border border-red-200/90 hover:border-red-300 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
+                    className="bg-red-50/75 dark:bg-red-950/40 border border-red-200/90 dark:border-red-800/80 hover:border-red-300 dark:hover:border-red-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-red-950 truncate">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-red-950 dark:text-red-200 truncate">
                                 Critical Stock
                             </span>
-                            <div className="p-1 rounded-md bg-red-200/60 text-red-900 shrink-0">
+                            <div className="p-1 rounded-md bg-red-200/60 dark:bg-red-900/60 text-red-900 dark:text-red-300 shrink-0">
                                 <AlertTriangle className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-xl sm:text-2xl font-bold font-mono text-red-950 tabular-nums">
+                        <div className="text-xl sm:text-2xl font-bold font-mono text-red-950 dark:text-red-200 tabular-nums">
                             {criticalCount.toLocaleString()}
                         </div>
                     </div>
-                    <div className="mt-2 pt-1.5 border-t border-red-200/60 flex items-center justify-between text-[11px] text-red-900 font-medium">
+                    <div className="mt-2 pt-1.5 border-t border-red-200/60 dark:border-red-800/60 flex items-center justify-between text-[11px] text-red-900 dark:text-red-300 font-medium">
                         <span className="truncate">
                             {criticalCount === 1 ? '1 item needs reorder' : `${criticalCount} items need reorder`}
                         </span>
-                        <ArrowRight className="w-3 h-3 shrink-0 text-red-800 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                        <ArrowRight className="w-3 h-3 shrink-0 text-red-800 dark:text-red-300 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                     </div>
                 </Link>
 
                 {/* 2. Inventory Value - Neutral Card */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
-                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 truncate">
+                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 truncate">
                                 Inventory Value
                             </span>
-                            <div className="p-1 rounded-md bg-slate-100 text-slate-600 group-hover:text-red-900 transition-colors shrink-0">
+                            <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:text-red-900 dark:group-hover:text-amber-300 transition-colors shrink-0">
                                 <Boxes className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-lg sm:text-xl font-bold font-serif text-slate-900 tracking-tight tabular-nums truncate">
+                        <div className="text-lg sm:text-xl font-bold font-serif text-slate-900 dark:text-slate-100 tracking-tight tabular-nums truncate">
                             {formattedVal}
                         </div>
                     </div>
-                    <div className="mt-2 pt-1.5 border-t border-slate-100 text-[11px] text-slate-500 font-medium truncate">
+                    <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
                         Total on-hand valuation
                     </div>
                 </Link>
@@ -76,22 +76,22 @@ export default function SystemSummary({
                 {/* 3. Available Items - Neutral Card */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
-                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 truncate">
+                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 truncate">
                                 Available Items
                             </span>
-                            <div className="p-1 rounded-md bg-slate-100 text-slate-600 group-hover:text-red-900 transition-colors shrink-0">
+                            <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:text-red-900 dark:group-hover:text-amber-300 transition-colors shrink-0">
                                 <Package className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 tabular-nums">
+                        <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-slate-100 tabular-nums">
                             {availableItems.toLocaleString()}
                         </div>
                     </div>
-                    <div className="mt-2 pt-1.5 border-t border-slate-100 text-[11px] text-slate-500 font-medium truncate">
+                    <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
                         Active stock lines
                     </div>
                 </Link>
@@ -99,22 +99,22 @@ export default function SystemSummary({
                 {/* 4. Issued This Month - Neutral Card */}
                 <Link
                     href={route('inventory.issuance')}
-                    className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
-                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 truncate">
+                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 truncate">
                                 Issued This Month
                             </span>
-                            <div className="p-1 rounded-md bg-slate-100 text-slate-600 group-hover:text-red-900 transition-colors shrink-0">
+                            <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:text-red-900 dark:group-hover:text-amber-300 transition-colors shrink-0">
                                 <TrendingUp className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 tabular-nums">
+                        <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-slate-100 tabular-nums">
                             {issuedMtd.toLocaleString()}
                         </div>
                     </div>
-                    <div className="mt-2 pt-1.5 border-t border-slate-100 text-[11px] text-slate-500 font-medium truncate">
+                    <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
                         Disbursed via RIS MTD
                     </div>
                 </Link>
@@ -122,22 +122,22 @@ export default function SystemSummary({
                 {/* 5. Unserviceable - Neutral Card */}
                 <Link
                     href={route('inventory.index')}
-                    className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
-                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 truncate">
+                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 truncate">
                                 Unserviceable
                             </span>
-                            <div className="p-1 rounded-md bg-slate-100 text-slate-600 group-hover:text-red-900 transition-colors shrink-0">
+                            <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:text-red-900 dark:group-hover:text-amber-300 transition-colors shrink-0">
                                 <ShieldAlert className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 tabular-nums">
+                        <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-slate-100 tabular-nums">
                             {unserviceable.toLocaleString()}
                         </div>
                     </div>
-                    <div className="mt-2 pt-1.5 border-t border-slate-100 text-[11px] text-slate-500 font-medium truncate">
+                    <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
                         Awaiting disposal
                     </div>
                 </Link>

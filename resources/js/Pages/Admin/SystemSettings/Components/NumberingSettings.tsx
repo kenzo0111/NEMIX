@@ -68,51 +68,51 @@ export default function NumberingSettings({
     return (
         <div className="space-y-6">
             <div>
-                <h3 className="text-sm font-bold text-slate-900 font-serif">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
                     Document Sequences & Series
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Configure prefixes used for official inventory documents. Final sequence values are generated and reserved by the system upon creation.
                 </p>
             </div>
 
             {/* Sequence Table / Grid */}
-            <div className="border border-slate-200/80 rounded-2xl overflow-hidden bg-white shadow-2xs">
+            <div className="border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
                 <div className="overflow-x-auto">
                     <table className="w-full text-xs text-left">
                         <thead>
-                            <tr className="bg-slate-50 border-b border-slate-200/80 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
+                            <tr className="bg-slate-50 dark:bg-slate-850 border-b border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
                                 <th className="px-5 py-3.5">Document Type</th>
                                 <th className="px-5 py-3.5 w-48">Prefix</th>
                                 <th className="px-5 py-3.5 w-32">Reset Rule</th>
                                 <th className="px-5 py-3.5 w-52">Format Preview</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {sequences.map((seq) => (
-                                <tr key={seq.key} className="hover:bg-slate-50/50 transition-colors">
+                                <tr key={seq.key} className="hover:bg-slate-50/50 dark:hover:bg-slate-850/50 transition-colors">
                                     <td className="px-5 py-4">
-                                        <div className="font-semibold text-slate-900">{seq.name}</div>
-                                        <div className="text-[11px] text-slate-500 mt-0.5">{seq.description}</div>
+                                        <div className="font-semibold text-slate-900 dark:text-slate-100">{seq.name}</div>
+                                        <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{seq.description}</div>
                                     </td>
                                     <td className="px-5 py-4">
                                         <input
                                             type="text"
                                             value={settings[seq.key]}
                                             onChange={(e) => onChange(seq.key, e.target.value)}
-                                            className="w-full px-3 py-1.5 rounded-lg border border-slate-300 font-mono font-semibold text-xs text-slate-900 bg-white focus:ring-1 focus:ring-red-900 focus:border-red-800 shadow-2xs"
+                                            className="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 font-mono font-semibold text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-800 dark:focus:border-red-600 shadow-2xs"
                                         />
                                         {errors[`settings.${seq.key}`] && (
                                             <p className="text-xs text-red-600 mt-1">{errors[`settings.${seq.key}`]}</p>
                                         )}
                                     </td>
                                     <td className="px-5 py-4">
-                                        <span className="inline-block px-2.5 py-1 rounded bg-slate-100 text-slate-600 font-mono text-[11px] font-medium">
+                                        <span className="inline-block px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-[11px] font-medium">
                                             {seq.resetRule}
                                         </span>
                                     </td>
                                     <td className="px-5 py-4">
-                                        <span className="inline-block px-3 py-1 rounded-lg bg-red-50/70 border border-red-200/80 font-mono font-bold text-red-950 text-xs">
+                                        <span className="inline-block px-3 py-1 rounded-lg bg-red-50/70 dark:bg-red-950/40 border border-red-200/80 dark:border-red-900/40 font-mono font-bold text-red-950 dark:text-red-300 text-xs">
                                             {seq.preview}
                                         </span>
                                     </td>

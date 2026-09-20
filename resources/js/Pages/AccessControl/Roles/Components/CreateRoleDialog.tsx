@@ -37,21 +37,21 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
 
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="md" closeable={!processing} ariaLabel="Create New Role">
-            <div className="bg-white rounded-2xl overflow-hidden shadow-xl">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-xl">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 bg-white">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-900 border border-red-100/80 flex items-center justify-center shrink-0 shadow-2xs">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0 shadow-2xs">
                             <ShieldPlus className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight truncate">
+                            <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight truncate">
                                 Create Role
                             </h3>
-                            <p className="text-xs text-gray-500 mt-0.5 truncate">
+                            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 truncate">
                                 Register a new institutional access role.
                             </p>
                         </div>
@@ -60,7 +60,7 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                         type="button"
                         onClick={onClose}
                         disabled={processing}
-                        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-40 cursor-pointer shrink-0 ml-2"
+                        className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 cursor-pointer shrink-0 ml-2"
                         aria-label="Close dialog"
                     >
                         <X className="w-5 h-5" />
@@ -73,9 +73,9 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                         <div>
                             <label
                                 htmlFor="create-role-name"
-                                className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-700"
+                                className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300"
                             >
-                                Role Name <span className="text-red-600">*</span>
+                                Role Name <span className="text-red-600 dark:text-red-400">*</span>
                             </label>
                             <input
                                 type="text"
@@ -86,19 +86,19 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                                     if (errors.name) clearErrors('name');
                                 }}
                                 disabled={processing}
-                                className={`bg-white border text-gray-900 text-sm rounded-lg focus:ring-1 focus:ring-red-900 focus:border-red-900 focus:outline-none block w-full p-2.5 transition-all placeholder:text-gray-400 shadow-2xs ${
-                                    errors.name ? 'border-red-500' : 'border-gray-300'
+                                className={`bg-white dark:bg-slate-800 border text-gray-900 dark:text-slate-100 text-sm rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 focus:outline-none block w-full p-2.5 transition-all placeholder:text-gray-400 dark:placeholder:text-slate-500 shadow-2xs ${
+                                    errors.name ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'
                                 }`}
                                 placeholder="e.g. Property Custodian or Internal Auditor"
                                 required
                                 autoFocus
                             />
                             {errors.name ? (
-                                <p className="text-xs text-red-600 mt-1.5 font-medium">
+                                <p className="text-xs text-red-600 dark:text-red-400 mt-1.5 font-medium">
                                     {errors.name}
                                 </p>
                             ) : (
-                                <p className="text-xs text-gray-500 mt-1.5">
+                                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1.5">
                                     Use a clear, descriptive title representing operational authority.
                                 </p>
                             )}
@@ -106,12 +106,12 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                     </div>
 
                     {/* Footer */}
-                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 border-t border-gray-200 gap-2.5">
+                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800 gap-2.5">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={processing}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer text-center"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
                         >
                             Cancel
                         </button>

@@ -170,7 +170,7 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
         <>
             <Head title="Suppliers - Consumable Office Supplies" />
 
-            <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
+            <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white">
                 <Sidebar
                     modules={modules}
                     user={user}
@@ -186,13 +186,13 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
                     />
 
                     <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
-                        <div className="bg-white rounded-lg shadow-xs border border-gray-200/80 overflow-hidden">
+                        <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xs border border-gray-200/80 dark:border-slate-800 overflow-hidden">
                             {/* Section Header */}
-                            <div className="px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 border-b border-gray-200/80 bg-gray-50/50">
-                                <h3 className="text-base font-bold text-gray-900 font-serif tracking-tight">
+                            <div className="px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 border-b border-gray-200/80 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50">
+                                <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight">
                                     Supplier Registry
                                 </h3>
-                                <p className="text-xs text-gray-500 font-medium mt-0.5">
+                                <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mt-0.5">
                                     Official directory of accredited university office consumables suppliers.
                                 </p>
                             </div>

@@ -12,9 +12,9 @@ export const getInstitutionalSelectStyles = (hasError: boolean = false): StylesC
     control: (provided, state) => ({
         ...provided,
         borderRadius: '0.5rem',
-        borderColor: hasError ? '#f87171' : state.isFocused ? '#7f1d1d' : '#d1d5db',
+        borderColor: hasError ? '#f87171' : state.isFocused ? '#7f1d1d' : 'var(--border-color, #d1d5db)',
         borderWidth: '1px',
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--surface-card, #ffffff)',
         minHeight: '40px',
         fontSize: '0.875rem',
         fontWeight: 500,
@@ -33,9 +33,9 @@ export const getInstitutionalSelectStyles = (hasError: boolean = false): StylesC
         backgroundColor: state.isSelected
             ? '#7f1d1d'
             : state.isFocused
-            ? '#fef2f2'
-            : '#ffffff',
-        color: state.isSelected ? '#ffffff' : '#1f2937',
+            ? 'rgba(153, 27, 27, 0.2)'
+            : 'var(--surface-card, #ffffff)',
+        color: state.isSelected ? '#ffffff' : 'var(--text-primary, #1f2937)',
         cursor: 'pointer',
         fontSize: '0.875rem',
         fontWeight: state.isSelected ? 600 : 500,
@@ -54,30 +54,36 @@ export const getInstitutionalSelectStyles = (hasError: boolean = false): StylesC
         textTransform: 'uppercase',
         paddingTop: '0.5rem',
         paddingBottom: '0.25rem',
-        borderBottom: '1px solid #f3f4f6',
+        borderBottom: '1px solid var(--border-color, #f3f4f6)',
     }),
     menu: (provided) => ({
         ...provided,
         borderRadius: '0.5rem',
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        border: '1px solid #e5e7eb',
+        backgroundColor: 'var(--surface-card, #ffffff)',
+        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15)',
+        border: '1px solid var(--border-color, #e5e7eb)',
         zIndex: 60,
         overflow: 'hidden',
     }),
     menuList: (provided) => ({
         ...provided,
+        backgroundColor: 'var(--surface-card, #ffffff)',
         maxHeight: '260px',
         paddingTop: 0,
         paddingBottom: 0,
     }),
+    input: (provided) => ({
+        ...provided,
+        color: 'var(--text-primary, #111827)',
+    }),
     placeholder: (provided) => ({
         ...provided,
-        color: '#9ca3af',
+        color: 'var(--text-secondary, #9ca3af)',
         fontSize: '0.875rem',
     }),
     singleValue: (provided) => ({
         ...provided,
-        color: '#111827',
+        color: 'var(--text-primary, #111827)',
         fontSize: '0.875rem',
         fontWeight: 500,
     }),

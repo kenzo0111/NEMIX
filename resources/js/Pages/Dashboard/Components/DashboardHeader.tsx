@@ -1,6 +1,7 @@
 import React from 'react';
 import { Menu } from 'lucide-react';
 import SystemModeBadge from '@/Components/SystemModeBadge';
+import ThemeToggle from '@/Components/ThemeToggle';
 import { usePage } from '@inertiajs/react';
 
 interface DashboardHeaderProps {
@@ -30,7 +31,7 @@ export default function DashboardHeader({ onToggleSidebar }: DashboardHeaderProp
     };
 
     return (
-        <header className="sticky top-0 z-30 bg-white shadow-xs">
+        <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 shadow-xs transition-colors">
             {/* Non-Production Mode Alert Notice */}
             {systemMode && systemMode !== 'LIVE PRODUCTION' && (
                 <div
@@ -58,12 +59,12 @@ export default function DashboardHeader({ onToggleSidebar }: DashboardHeaderProp
             )}
 
             {/* Single Merged Header Row */}
-            <div className="border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="border-b border-gray-200 dark:border-slate-800 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start gap-2 min-w-0 flex-1">
                     <button
                         type="button"
                         onClick={handleToggleMenu}
-                        className="md:hidden min-h-[40px] min-w-[40px] p-2 -ml-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer shrink-0 inline-flex items-center justify-center"
+                        className="md:hidden min-h-[40px] min-w-[40px] p-2 -ml-1 text-gray-600 hover:text-gray-900 dark:text-slate-300 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer shrink-0 inline-flex items-center justify-center"
                         aria-label="Toggle navigation menu"
                     >
                         <Menu className="w-5 h-5" />
@@ -71,14 +72,14 @@ export default function DashboardHeader({ onToggleSidebar }: DashboardHeaderProp
 
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-xs font-bold text-red-950 uppercase tracking-widest truncate">
+                            <span className="text-xs font-bold text-red-950 dark:text-red-400 uppercase tracking-widest truncate">
                                 SPMO • Supply & Property Management Office
                             </span>
                         </div>
-                        <h1 className="text-lg sm:text-xl font-bold text-gray-900 font-serif tracking-tight break-words">
+                        <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight break-words">
                             Supply & Inventory Management
                         </h1>
-                        <p className="text-xs text-gray-600 font-medium mt-0.5 break-words">
+                        <p className="text-xs text-gray-600 dark:text-slate-400 font-medium mt-0.5 break-words">
                             System-wide operational overview and real-time asset position
                         </p>
                     </div>
@@ -86,11 +87,12 @@ export default function DashboardHeader({ onToggleSidebar }: DashboardHeaderProp
 
                 <div className="flex flex-wrap items-center gap-3 sm:gap-4 shrink-0 justify-between sm:justify-end">
                     <SystemModeBadge />
-                    <div className="text-right hidden sm:block border-l border-gray-200 pl-4">
-                        <span className="block text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                    <ThemeToggle variant="compact" />
+                    <div className="text-right hidden sm:block border-l border-gray-200 dark:border-slate-800 pl-4">
+                        <span className="block text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
                             {todayDate}
                         </span>
-                        <span className="text-xs text-gray-600 uppercase tracking-wider font-semibold block mt-0.5">
+                        <span className="text-xs text-gray-600 dark:text-slate-400 uppercase tracking-wider font-semibold block mt-0.5">
                             {todayWeekday}
                         </span>
                     </div>

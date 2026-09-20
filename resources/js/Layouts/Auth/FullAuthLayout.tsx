@@ -1,6 +1,7 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import AuthBrandPanel from '@/Components/Auth/AuthBrandPanel';
 import AuthFooter from '@/Components/Auth/AuthFooter';
+import ThemeToggle from '@/Components/ThemeToggle';
 import { PageProps } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode } from 'react';
@@ -24,6 +25,11 @@ export default function FullAuthLayout({
 
     return (
         <div className="min-h-screen flex items-center justify-center p-3 sm:p-6 lg:p-8 relative overflow-hidden login-bg">
+            {/* Theme Toggle Button in top right */}
+            <div className="fixed top-3 right-3 sm:top-4 sm:right-4 z-50">
+                <ThemeToggle variant="compact" />
+            </div>
+
             {/* Single Maroon Overlay + Subtle Vignette */}
             <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
                 <div className="absolute inset-0 bg-red-950/85 mix-blend-multiply" />
@@ -31,7 +37,7 @@ export default function FullAuthLayout({
             </div>
 
             {/* Main Institutional Container */}
-            <div className="relative z-10 w-full max-w-5xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col lg:flex-row border border-stone-200/80 my-2 sm:my-4">
+            <div className="relative z-10 w-full max-w-5xl bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden flex flex-col lg:flex-row border border-stone-200/80 dark:border-slate-800 my-2 sm:my-4">
                 {/* Desktop Left Brand Panel */}
                 <AuthBrandPanel
                     badgeText={badgeText}
@@ -40,18 +46,18 @@ export default function FullAuthLayout({
                 />
 
                 {/* Right Form Container / Mobile Form First */}
-                <div className="w-full lg:w-7/12 p-5 sm:p-10 lg:p-12 flex flex-col justify-center bg-white">
+                <div className="w-full lg:w-7/12 p-5 sm:p-10 lg:p-12 flex flex-col justify-center bg-white dark:bg-slate-900">
                     <div className="max-w-md mx-auto w-full">
                         {/* Mobile Condensed Brand Header */}
-                        <div className="lg:hidden flex items-center gap-3 pb-3.5 mb-5 border-b border-stone-200/80">
-                            <div className="bg-white p-1.5 rounded-lg border border-stone-200/80 shadow-2xs shrink-0 flex items-center justify-center">
+                        <div className="lg:hidden flex items-center gap-3 pb-3.5 mb-5 border-b border-stone-200/80 dark:border-slate-800">
+                            <div className="bg-white dark:bg-slate-800 p-1.5 rounded-lg border border-stone-200/80 dark:border-slate-700 shadow-2xs shrink-0 flex items-center justify-center">
                                 <ApplicationLogo alt={`${institutionName} Seal`} className="h-9 w-9 object-contain" />
                             </div>
                             <div className="min-w-0">
-                                <h1 className="font-serif text-sm font-bold text-stone-900 leading-tight truncate">
+                                <h1 className="font-serif text-sm font-bold text-stone-900 dark:text-slate-100 leading-tight truncate">
                                     {institutionName}
                                 </h1>
-                                <p className="text-[11px] text-red-900 font-medium truncate">
+                                <p className="text-[11px] text-red-900 dark:text-red-400 font-medium truncate">
                                     Smart Supply &amp; Inventory Management System
                                 </p>
                             </div>

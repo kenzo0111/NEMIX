@@ -173,7 +173,7 @@ export default function RoleManagementIndex({
     const sidebarModules = getSidebarModules('Access', 'Manage Role Permission');
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
+        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white">
             <Head title="Role & Permission Management - Access Control" />
 
             <Sidebar
@@ -229,19 +229,19 @@ export default function RoleManagementIndex({
                     {/* 4. Security Advisory Notice */}
                     <section
                         aria-labelledby="security-notice-heading"
-                        className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-4 flex items-start gap-3.5 text-xs text-amber-950 shadow-2xs"
+                        className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 rounded-xl p-4 flex items-start gap-3.5 text-xs text-amber-950 dark:text-amber-200 shadow-2xs"
                     >
-                        <div className="p-1.5 bg-amber-100/70 text-amber-800 rounded-lg border border-amber-200 shrink-0 mt-0.5">
+                        <div className="p-1.5 bg-amber-100/70 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 rounded-lg border border-amber-200 dark:border-amber-700 shrink-0 mt-0.5">
                             <Info className="w-4 h-4" />
                         </div>
                         <div>
                             <h3
                                 id="security-notice-heading"
-                                className="font-bold text-amber-900 text-xs"
+                                className="font-bold text-amber-900 dark:text-amber-300 text-xs"
                             >
                                 Permission Changes & Session Policy
                             </h3>
-                            <p className="text-amber-900/90 text-xs mt-0.5 leading-relaxed">
+                            <p className="text-amber-900/90 dark:text-amber-200/90 text-xs mt-0.5 leading-relaxed">
                                 Role and permission updates apply according to the system's current
                                 authorization and session policy. Signed-in staff members will receive
                                 updated capabilities upon their next request or upon refreshing their

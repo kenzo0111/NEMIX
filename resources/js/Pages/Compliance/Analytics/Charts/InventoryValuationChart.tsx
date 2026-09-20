@@ -21,7 +21,10 @@ interface InventoryValuationChartProps {
 const chartConfig = {
     amount: {
         label: 'Inventory Value',
-        color: '#0f766e', // Institutional Deep Teal
+        theme: {
+            light: '#0f766e',
+            dark: '#2dd4bf',
+        },
     },
 } satisfies ChartConfig;
 
@@ -50,8 +53,8 @@ export default function InventoryValuationChart({ items }: InventoryValuationCha
 
     if (!items || items.length === 0) {
         return (
-            <div className="h-72 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-200 bg-gray-50/50 p-6 text-center">
-                <p className="text-xs font-medium text-gray-500">No valuation records available.</p>
+            <div className="h-72 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 p-6 text-center">
+                <p className="text-xs font-medium text-gray-500 dark:text-slate-400">No valuation records available.</p>
             </div>
         );
     }
@@ -66,14 +69,14 @@ export default function InventoryValuationChart({ items }: InventoryValuationCha
                 layout="vertical"
                 margin={{ top: 8, right: 24, left: 8, bottom: 8 }}
             >
-                <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="#e2e8f0" />
+                <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="var(--chart-grid)" />
                 <YAxis
                     dataKey="item"
                     type="category"
                     tickLine={false}
                     axisLine={false}
                     width={150}
-                    tick={{ fill: '#334155', fontSize: 11, fontWeight: 500 }}
+                    tick={{ fill: 'var(--chart-tick)', fontSize: 11, fontWeight: 500 }}
                     tickFormatter={(val) => {
                         const str = String(val);
                         return str.length > 20 ? `${str.slice(0, 19)}…` : str;
@@ -84,20 +87,20 @@ export default function InventoryValuationChart({ items }: InventoryValuationCha
                     type="number"
                     tickLine={false}
                     axisLine={false}
-                    tick={{ fill: '#94a3b8', fontSize: 11 }}
+                    tick={{ fill: 'var(--chart-tick-muted)', fontSize: 11 }}
                     tickFormatter={(val) => formatCompactCurrency(Number(val))}
                 />
                 <ChartTooltip
-                    cursor={{ fill: 'rgba(241, 245, 249, 0.6)' }}
+                    cursor={{ fill: 'var(--chart-cursor)' }}
                     content={
                         <ChartTooltipContent
                             formatter={(value, name, item) => (
                                 <div className="space-y-0.5">
-                                    <span className="font-semibold text-gray-900 font-mono">
+                                    <span className="font-semibold text-gray-900 dark:text-slate-100 font-mono">
                                         {formatCurrency(Number(value))}
                                     </span>
                                     {item.payload?.sku && (
-                                        <p className="text-[10px] text-gray-500">SKU: {item.payload.sku}</p>
+                                        <p className="text-[10px] text-gray-500 dark:text-slate-400">SKU: {item.payload.sku}</p>
                                     )}
                                 </div>
                             )}

@@ -43,9 +43,9 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
 
             <form onSubmit={submit} className="space-y-4">
                 <div>
-                    <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-800 font-semibold text-sm mb-1.5" />
+                    <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-800 dark:text-slate-200 font-semibold text-sm mb-1.5" />
                     <div className="relative rounded-lg shadow-2xs">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400 dark:text-slate-500">
                             <Mail className="w-4 h-4" aria-hidden="true" />
                         </div>
                         <TextInput
@@ -53,7 +53,7 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
                             type="email"
                             name="email"
                             value={data.email}
-                            className="pl-10 block w-full rounded-lg border-stone-300 shadow-2xs focus:border-red-900 focus:ring-2 focus:ring-red-900/20 transition-colors py-2.5 text-sm bg-stone-50/60 focus:bg-white"
+                            className="pl-10 block w-full rounded-lg border-stone-300 dark:border-slate-700 shadow-2xs focus:border-red-900 dark:focus:border-red-600 focus:ring-2 focus:ring-red-900/20 dark:focus:ring-red-600/30 transition-colors py-2.5 text-sm bg-stone-50/60 dark:bg-slate-850 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-stone-400 dark:placeholder:text-slate-500"
                             isFocused={true}
                             onChange={(e) => setData('email', e.target.value)}
                             required
@@ -74,7 +74,7 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
                     <div className="text-center">
                         <Link
                             href={route('login')}
-                            className="text-xs font-semibold text-red-900 hover:text-red-950 hover:underline transition-colors"
+                            className="text-xs font-semibold text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 hover:underline transition-colors"
                         >
                             &larr; Return to Sign In
                         </Link>

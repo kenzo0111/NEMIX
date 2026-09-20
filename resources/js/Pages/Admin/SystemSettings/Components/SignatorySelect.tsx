@@ -95,8 +95,9 @@ export default function SignatorySelect({
             ...provided,
             borderRadius: '0.75rem',
             boxShadow:
-                '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
-            border: '1px solid #e2e8f0',
+                '0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+            border: '1px solid var(--border-color, #e2e8f0)',
+            backgroundColor: 'var(--surface-card, #ffffff)',
             overflow: 'hidden',
             zIndex: 9999,
         }),
@@ -107,9 +108,11 @@ export default function SignatorySelect({
                 ? '#ef4444'
                 : state.isFocused
                 ? '#7f1d1d'
-                : '#e2e8f0',
+                : 'var(--border-color, #e2e8f0)',
             borderWidth: '1px',
-            backgroundColor: isDisabled ? '#f8fafc' : '#ffffff',
+            backgroundColor: isDisabled
+                ? 'var(--surface-muted, #f8fafc)'
+                : 'var(--surface-card, #ffffff)',
             minHeight: '42px',
             fontSize: '0.875rem',
             fontWeight: 500,
@@ -123,7 +126,7 @@ export default function SignatorySelect({
                     ? '#dc2626'
                     : state.isFocused
                     ? '#7f1d1d'
-                    : '#cbd5e1',
+                    : 'var(--border-hover, #cbd5e1)',
             },
             transition: 'all 0.15s ease-in-out',
         }),
@@ -154,13 +157,13 @@ export default function SignatorySelect({
                         <div className="flex items-center gap-2">
                             <span
                                 className={`text-xs font-semibold truncate block ${
-                                    isSelected ? 'text-white' : 'text-slate-900'
+                                    isSelected ? 'text-white' : 'text-slate-900 dark:text-slate-100'
                                 }`}
                             >
                                 {sig.name}
                             </span>
                             {!sig.is_active && (
-                                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-200 text-slate-600">
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
                                     Inactive
                                 </span>
                             )}
@@ -168,7 +171,7 @@ export default function SignatorySelect({
                         {sig.designation && (
                             <div
                                 className={`text-[11px] truncate mt-0.5 ${
-                                    isSelected ? 'text-red-100' : 'text-slate-500'
+                                    isSelected ? 'text-red-100' : 'text-slate-500 dark:text-slate-400'
                                 }`}
                             >
                                 {sig.designation}
@@ -188,10 +191,10 @@ export default function SignatorySelect({
                             }}
                             onClick={handleDelete}
                             title={`Remove "${sig.name}" from directory`}
-                            className={`p-1 rounded-md transition-colors ${
+                            className={`p-1 rounded-md transition-colors cursor-pointer ${
                                 isSelected
                                     ? 'hover:bg-red-800 text-red-200 hover:text-white'
-                                    : 'hover:bg-red-50 text-slate-400 hover:text-red-600'
+                                    : 'hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400'
                             }`}
                         >
                             <Trash2 className="w-3.5 h-3.5" />

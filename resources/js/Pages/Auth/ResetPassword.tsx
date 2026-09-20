@@ -46,9 +46,9 @@ export default function ResetPassword({
             <form onSubmit={submit} className="space-y-4">
                 {/* Official Email */}
                 <div>
-                    <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-800 font-semibold text-sm mb-1.5" />
+                    <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-800 dark:text-slate-200 font-semibold text-sm mb-1.5" />
                     <div className="relative rounded-lg shadow-2xs">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400 dark:text-slate-500">
                             <Mail className="w-4 h-4" aria-hidden="true" />
                         </div>
                         <TextInput
@@ -56,7 +56,7 @@ export default function ResetPassword({
                             type="email"
                             name="email"
                             value={data.email}
-                            className="pl-10 block w-full rounded-lg border-stone-300 shadow-2xs py-2.5 text-sm bg-stone-100 text-stone-600 cursor-not-allowed"
+                            className="pl-10 block w-full rounded-lg border-stone-300 dark:border-slate-700 shadow-2xs py-2.5 text-sm bg-stone-100 dark:bg-slate-800 text-stone-600 dark:text-slate-400 cursor-not-allowed"
                             autoComplete="username"
                             onChange={(e) => setData('email', e.target.value)}
                             disabled={true}

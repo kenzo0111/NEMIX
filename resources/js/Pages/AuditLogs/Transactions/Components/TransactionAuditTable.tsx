@@ -52,24 +52,24 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
 
     if (records.length === 0) {
         return (
-            <div className="bg-white rounded-lg border border-gray-200 p-12 text-center shadow-2xs">
+            <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800 p-12 text-center shadow-2xs">
                 <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
-                    <div className="p-3 bg-red-50 text-red-900 border border-red-100 rounded-full mb-3">
+                    <div className="p-3 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300 border border-red-100 dark:border-red-900/50 rounded-full mb-3">
                         <Shield className="w-8 h-8" />
                     </div>
                     {hasActiveFilters ? (
                         <>
-                            <h4 className="text-sm font-bold text-gray-900 mb-1">
+                            <h4 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-1">
                                 No transaction records match the selected filters.
                             </h4>
-                            <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+                            <p className="text-xs text-gray-500 dark:text-slate-400 mb-4 leading-relaxed">
                                 Please adjust your search keyword, module, action, date range, or view mode to inspect other records.
                             </p>
                             {onResetFilters && (
                                 <button
                                     type="button"
                                     onClick={onResetFilters}
-                                    className="px-3.5 py-1.5 text-xs font-semibold text-red-900 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition-colors"
+                                    className="px-3.5 py-1.5 text-xs font-semibold text-red-900 dark:text-red-300 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/40 rounded-md transition-colors"
                                 >
                                     Clear Filters
                                 </button>
@@ -77,10 +77,10 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                         </>
                     ) : (
                         <>
-                            <h4 className="text-sm font-bold text-gray-900 mb-1">
+                            <h4 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-1">
                                 No transaction audit records are available.
                             </h4>
-                            <p className="text-xs text-gray-500 leading-relaxed">
+                            <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
                                 Recorded business transactions, stock movements, and administrative activities will automatically appear here.
                             </p>
                         </>
@@ -91,11 +91,11 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
     }
 
     return (
-        <div className="bg-white rounded-lg border border-gray-200/90 shadow-2xs overflow-hidden w-full min-w-0">
+        <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200/90 dark:border-slate-800 shadow-2xs overflow-hidden w-full min-w-0">
             <div className="overflow-x-auto w-full">
                 <table className="w-full text-left border-collapse min-w-[760px]">
                     <thead>
-                        <tr className="border-b border-gray-200 bg-gray-50/70 text-[11px] font-bold text-gray-600 uppercase tracking-wider">
+                        <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/60 text-[11px] font-bold text-gray-600 dark:text-slate-300 uppercase tracking-wider">
                             <th className="py-3 px-3 w-12 text-center" aria-label="Expand or collapse row"></th>
                             <th className="py-3 px-4 w-1/4">User</th>
                             <th className="py-3 px-4 w-1/3">Activity</th>
@@ -104,7 +104,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                             <th className="py-3 px-4 w-44">Date & Time</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 text-xs">
+                    <tbody className="divide-y divide-gray-200 dark:divide-slate-800 text-xs">
                         {records.map((record, index) => {
                             const isExpanded = expandedRowId === record.id;
                             const childrenCount = record.children?.length || 0;
@@ -115,7 +115,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                     <tr
                                         onClick={() => toggleRow(record.id)}
                                         className={`cursor-pointer transition-colors ${
-                                            isExpanded ? 'bg-red-50/25' : 'hover:bg-gray-50/80'
+                                            isExpanded ? 'bg-red-50/25 dark:bg-red-950/20' : 'hover:bg-gray-50/80 dark:hover:bg-slate-800/50'
                                         }`}
                                     >
                                         {/* Expand Toggle Button with Accessibility */}
@@ -128,22 +128,22 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                                 }}
                                                 aria-expanded={isExpanded}
                                                 aria-label={isExpanded ? 'Collapse audit details' : 'View audit details'}
-                                                className="p-1 rounded hover:bg-gray-200/60 focus:outline-none focus:ring-1 focus:ring-red-900 transition-colors inline-flex items-center justify-center text-gray-500"
+                                                className="p-1 rounded hover:bg-gray-200/60 dark:hover:bg-slate-700 focus:outline-none focus:ring-1 focus:ring-red-900 transition-colors inline-flex items-center justify-center text-gray-500 dark:text-slate-400"
                                             >
                                                 {isExpanded ? (
-                                                    <ChevronDown className="w-4 h-4 text-red-900" />
+                                                    <ChevronDown className="w-4 h-4 text-red-900 dark:text-red-400" />
                                                 ) : (
-                                                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                                                    <ChevronRight className="w-4 h-4 text-gray-400 dark:text-slate-500" />
                                                 )}
                                             </button>
                                         </td>
 
                                         {/* USER */}
                                         <td className="py-3.5 px-4">
-                                            <div className="font-semibold text-gray-900 leading-tight truncate">
+                                            <div className="font-semibold text-gray-900 dark:text-slate-100 leading-tight truncate">
                                                 {record.user_name || record.user || 'System Administrator'}
                                             </div>
-                                            <div className="text-[11px] text-gray-500 mt-0.5 leading-tight truncate">
+                                            <div className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5 leading-tight truncate">
                                                 {record.role || 'System Role'}
                                             </div>
                                         </td>
@@ -151,17 +151,17 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                         {/* ACTIVITY (Primary bold title + Secondary subtitle) */}
                                         <td className="py-3.5 px-4">
                                             <div className="flex items-center gap-2">
-                                                <span className="font-semibold text-gray-900 leading-tight">
+                                                <span className="font-semibold text-gray-900 dark:text-slate-100 leading-tight">
                                                     {record.action || 'Action unavailable'}
                                                 </span>
                                                 {childrenCount > 0 && (
-                                                    <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                                                    <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700">
                                                         {childrenCount} {childrenCount === 1 ? 'event' : 'events'}
                                                     </span>
                                                 )}
                                             </div>
                                             {secondaryText && (
-                                                <div className="text-[11px] text-gray-500 mt-0.5 leading-tight line-clamp-1">
+                                                <div className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5 leading-tight line-clamp-1">
                                                     {secondaryText}
                                                 </div>
                                             )}
@@ -169,7 +169,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
 
                                         {/* MODULE (Normalized, Plain text) */}
                                         <td className="py-3.5 px-4">
-                                            <span className="text-xs text-gray-700 font-medium">
+                                            <span className="text-xs text-gray-700 dark:text-slate-300 font-medium">
                                                 {record.module || 'System'}
                                             </span>
                                         </td>
@@ -183,15 +183,15 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                         </td>
 
                                         {/* DATE & TIME */}
-                                        <td className="py-3.5 px-4 text-gray-600 font-medium whitespace-nowrap">
+                                        <td className="py-3.5 px-4 text-gray-600 dark:text-slate-400 font-medium whitespace-nowrap">
                                             {formatDisplayDate(record.occurred_at || record.time)}
                                         </td>
                                     </tr>
 
                                     {/* EXPANDED DETAILS */}
                                     {isExpanded && (
-                                        <tr className="bg-gray-50/40">
-                                            <td colSpan={6} className="px-4 sm:px-6 py-4 border-t border-gray-100">
+                                        <tr className="bg-gray-50/40 dark:bg-slate-950/40">
+                                            <td colSpan={6} className="px-4 sm:px-6 py-4 border-t border-gray-100 dark:border-slate-800">
                                                 <TransactionAuditExpandedDetails
                                                     record={record}
                                                     formatDate={formatDisplayDate}

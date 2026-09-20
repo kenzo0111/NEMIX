@@ -8,11 +8,35 @@
 :root {
     --app-background: #F4F6F8;
     --surface: #FFFFFF;
+    --surface-card: #FFFFFF;
     --surface-muted: #F8FAFC;
     --input-background: #FAFBFC;
     --border-color: #E2E8F0;
     --text-primary: #1F2937;
     --text-secondary: #64748B;
+    --chart-grid: #e2e8f0;
+    --chart-tick: #64748b;
+    --chart-tick-muted: #94a3b8;
+    --chart-cursor: rgba(241, 245, 249, 0.6);
+    --chart-pie-stroke: #ffffff;
+    color-scheme: light;
+}
+
+.dark {
+    --app-background: #020617;
+    --surface: #0f172a;
+    --surface-card: #0f172a;
+    --surface-muted: #1e293b;
+    --input-background: #090d16;
+    --border-color: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --chart-grid: #1e293b;
+    --chart-tick: #94a3b8;
+    --chart-tick-muted: #64748b;
+    --chart-cursor: rgba(30, 41, 59, 0.6);
+    --chart-pie-stroke: #0f172a;
+    color-scheme: dark;
 }
 
 body {
@@ -20,10 +44,54 @@ body {
     color: var(--text-primary);
 }
 
+/* ==========================================================================
+   Report Previews & PDF Print Isolation:
+   Documents, reports, and PDFs MUST remain on pure white paper with original
+   black/slate text and branding colors regardless of active dark mode.
+   ========================================================================== */
+.dark .compliance-print-area,
+.dark .ris-print-area,
+.dark .compliance-pdf-render-wrapper,
+.dark .sc-container,
+.dark .rsmi-container,
+.dark .rpci-container,
+.dark .mr-container,
+.dark .ris-container,
+.dark .ics-container,
+.dark .iar-container,
+.dark .par-container,
+.dark .po-container,
+.dark [data-paper-preview],
+.dark .paper-canvas {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    color-scheme: light !important;
+}
+
+.dark .compliance-print-area *,
+.dark .ris-print-area *,
+.dark .compliance-pdf-render-wrapper *,
+.dark .sc-container *,
+.dark .rsmi-container *,
+.dark .rpci-container *,
+.dark .mr-container *,
+.dark .ris-container *,
+.dark .ics-container *,
+.dark .iar-container *,
+.dark .par-container *,
+.dark .po-container * {
+    color-scheme: light !important;
+}
+
 @media print {
-    body {
+    html,
+    body,
+    #app {
         background-color: #ffffff !important;
         background: #ffffff !important;
+        color: #000000 !important;
+        color-scheme: light !important;
     }
 }
 

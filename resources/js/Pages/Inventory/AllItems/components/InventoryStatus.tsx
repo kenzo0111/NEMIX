@@ -9,19 +9,19 @@ export default function InventoryStatus({ status }: InventoryStatusProps) {
     const config = {
         Available: {
             dot: 'bg-emerald-500',
-            text: 'text-gray-700',
+            text: 'text-gray-700 dark:text-emerald-300',
         },
         'Low Stock': {
             dot: 'bg-amber-500',
-            text: 'text-amber-800',
+            text: 'text-amber-800 dark:text-amber-300',
         },
         'Out of Stock': {
             dot: 'bg-red-500',
-            text: 'text-red-800',
+            text: 'text-red-800 dark:text-red-400',
         },
     }[status] || {
         dot: 'bg-gray-400',
-        text: 'text-gray-600',
+        text: 'text-gray-600 dark:text-slate-400',
     };
 
     return (

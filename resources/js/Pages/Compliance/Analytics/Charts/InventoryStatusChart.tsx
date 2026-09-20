@@ -70,8 +70,8 @@ export default function InventoryStatusChart({ statusCounts }: InventoryStatusCh
 
     if (total === 0) {
         return (
-            <div className="h-64 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-200 bg-gray-50/50 p-6 text-center">
-                <p className="text-xs font-medium text-gray-500">No status records available.</p>
+            <div className="h-64 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 p-6 text-center">
+                <p className="text-xs font-medium text-gray-500 dark:text-slate-400">No status records available.</p>
             </div>
         );
     }
@@ -98,10 +98,10 @@ export default function InventoryStatusChart({ statusCounts }: InventoryStatusCh
                                                     className="h-2.5 w-2.5 rounded-full"
                                                     style={{ backgroundColor: item.payload?.color }}
                                                 />
-                                                <span className="font-medium text-gray-900">
+                                                <span className="font-medium text-gray-900 dark:text-slate-100">
                                                     {item.payload?.label}:
                                                 </span>
-                                                <span className="font-semibold text-gray-900">
+                                                <span className="font-semibold text-gray-900 dark:text-slate-100">
                                                     {count.toLocaleString()} ({pct}%)
                                                 </span>
                                             </div>
@@ -117,7 +117,7 @@ export default function InventoryStatusChart({ statusCounts }: InventoryStatusCh
                             innerRadius={54}
                             outerRadius={78}
                             paddingAngle={3}
-                            stroke="#ffffff"
+                            stroke="var(--chart-pie-stroke)"
                             strokeWidth={2}
                         >
                             {data.map((entry) => (
@@ -129,34 +129,34 @@ export default function InventoryStatusChart({ statusCounts }: InventoryStatusCh
 
                 {/* Central total display */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-2xl font-bold text-gray-900 font-sans tracking-tight">
+                    <span className="text-2xl font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
                         {total.toLocaleString()}
                     </span>
-                    <span className="text-[11px] font-medium text-gray-500">
+                    <span className="text-[11px] font-medium text-gray-500 dark:text-slate-400">
                         Total Items
                     </span>
                 </div>
             </div>
 
             {/* Compact, clean status breakdown */}
-            <div className="space-y-2 pt-2 border-t border-gray-100">
+            <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-slate-800">
                 {data.map((item) => {
                     const pct = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0';
                     const meta = STATUS_META.find((m) => m.label === item.label);
                     return (
                         <div
                             key={item.label}
-                            className="flex items-center justify-between text-xs py-1 px-1.5 rounded hover:bg-gray-50 transition-colors"
+                            className="flex items-center justify-between text-xs py-1 px-1.5 rounded hover:bg-gray-50 dark:hover:bg-slate-800/60 transition-colors"
                         >
                             <div className="flex items-center gap-2">
                                 <span className={`h-2 w-2 rounded-full ${meta?.dotClass || 'bg-gray-400'}`} />
-                                <span className="font-medium text-gray-700">{item.label}</span>
+                                <span className="font-medium text-gray-700 dark:text-slate-300">{item.label}</span>
                             </div>
                             <div className="flex items-center gap-3">
-                                <span className="font-semibold text-gray-900 font-mono">
+                                <span className="font-semibold text-gray-900 dark:text-slate-100 font-mono">
                                     {item.value.toLocaleString()}
                                 </span>
-                                <span className="text-[11px] text-gray-500 font-mono w-10 text-right">
+                                <span className="text-[11px] text-gray-500 dark:text-slate-400 font-mono w-10 text-right">
                                     {pct}%
                                 </span>
                             </div>

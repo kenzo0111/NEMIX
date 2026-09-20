@@ -124,7 +124,7 @@ export default function Index({
     const modules = getSidebarModules('RFID Scanner');
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
+        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white">
             <Head title="RFID Scanner | UCN SPMO" />
 
             {/* Persistent Sidebar */}
@@ -145,14 +145,14 @@ export default function Index({
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1500px] mx-auto pb-16 min-w-0 w-full">
                     {/* Optional Flash Notification */}
                     {flash?.success && (
-                        <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs rounded-xl shadow-2xs">
-                            <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 text-xs rounded-xl shadow-2xs">
+                            <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                             <span>{flash.success}</span>
                         </div>
                     )}
                     {flash?.error && (
-                        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 text-red-900 text-xs rounded-xl shadow-2xs">
-                            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                        <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-900 dark:text-red-200 text-xs rounded-xl shadow-2xs">
+                            <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
                             <span>{flash.error}</span>
                         </div>
                     )}
@@ -160,67 +160,67 @@ export default function Index({
                     {/* Operational Metric Overview Strip */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
                         {/* 1. Total Catalog Items */}
-                        <div className="bg-white rounded-xl p-4 border border-gray-200/90 shadow-2xs flex items-center justify-between">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200/90 dark:border-slate-800 shadow-2xs flex items-center justify-between">
                             <div>
-                                <p className="text-[11px] font-medium text-gray-500">Catalog Registry</p>
-                                <p className="text-xl font-bold font-mono text-gray-900 mt-1">
+                                <p className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Catalog Registry</p>
+                                <p className="text-xl font-bold font-mono text-gray-900 dark:text-slate-100 mt-1">
                                     {items.length}
                                 </p>
-                                <p className="text-[10px] text-gray-400 mt-0.5">Total registered items</p>
+                                <p className="text-[10px] text-gray-400 dark:text-slate-500 mt-0.5">Total registered items</p>
                             </div>
-                            <div className="w-10 h-10 rounded-xl bg-gray-50 text-gray-600 border border-gray-100 flex items-center justify-center shrink-0">
-                                <Package className="w-5 h-5 text-gray-600" />
+                            <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-100 dark:border-slate-700 flex items-center justify-center shrink-0">
+                                <Package className="w-5 h-5 text-gray-600 dark:text-slate-400" />
                             </div>
                         </div>
 
                         {/* 2. RFID Tagged Items */}
-                        <div className="bg-white rounded-xl p-4 border border-gray-200/90 shadow-2xs flex items-center justify-between">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200/90 dark:border-slate-800 shadow-2xs flex items-center justify-between">
                             <div>
                                 <div className="flex items-center gap-1.5">
-                                    <p className="text-[11px] font-medium text-gray-500">Tagged & Linked</p>
-                                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/70">
+                                    <p className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Tagged & Linked</p>
+                                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60">
                                         {taggedPercent}%
                                     </span>
                                 </div>
-                                <p className="text-xl font-bold font-mono text-emerald-950 mt-1">
+                                <p className="text-xl font-bold font-mono text-emerald-950 dark:text-emerald-400 mt-1">
                                     {taggedCount}
                                 </p>
-                                <p className="text-[10px] text-gray-400 mt-0.5">Active transponders</p>
+                                <p className="text-[10px] text-gray-400 dark:text-slate-500 mt-0.5">Active transponders</p>
                             </div>
-                            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center shrink-0">
-                                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50 flex items-center justify-center shrink-0">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                             </div>
                         </div>
 
                         {/* 3. Untagged Pending Items */}
-                        <div className="bg-white rounded-xl p-4 border border-gray-200/90 shadow-2xs flex items-center justify-between">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200/90 dark:border-slate-800 shadow-2xs flex items-center justify-between">
                             <div>
-                                <p className="text-[11px] font-medium text-gray-500">Pending Tagging</p>
-                                <p className="text-xl font-bold font-mono text-amber-950 mt-1">
+                                <p className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Pending Tagging</p>
+                                <p className="text-xl font-bold font-mono text-amber-950 dark:text-amber-400 mt-1">
                                     {untaggedCount}
                                 </p>
-                                <p className="text-[10px] text-gray-400 mt-0.5">Awaiting physical scan</p>
+                                <p className="text-[10px] text-gray-400 dark:text-slate-500 mt-0.5">Awaiting physical scan</p>
                             </div>
-                            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 border border-amber-100 flex items-center justify-center shrink-0">
-                                <Tag className="w-5 h-5 text-amber-600" />
+                            <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-900/50 flex items-center justify-center shrink-0">
+                                <Tag className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                             </div>
                         </div>
 
                         {/* 4. Hardware Scanner Station */}
-                        <div className="bg-white rounded-xl p-4 border border-gray-200/90 shadow-2xs flex items-center justify-between">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200/90 dark:border-slate-800 shadow-2xs flex items-center justify-between">
                             <div>
-                                <p className="text-[11px] font-medium text-gray-500">Hardware Reader</p>
+                                <p className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Hardware Reader</p>
                                 <div className="flex items-center gap-1.5 mt-1">
                                     <span
                                         className={`w-2 h-2 rounded-full ${
                                             connectionState === 'connected'
                                                 ? 'bg-emerald-500'
                                                 : connectionState === 'offline'
-                                                ? 'bg-gray-400'
+                                                ? 'bg-gray-400 dark:bg-slate-500'
                                                 : 'bg-amber-500 animate-pulse'
                                         }`}
                                     />
-                                    <p className="text-sm font-bold font-mono text-gray-900 capitalize">
+                                    <p className="text-sm font-bold font-mono text-gray-900 dark:text-slate-100 capitalize">
                                         {connectionState === 'connected'
                                             ? 'Online'
                                             : connectionState === 'offline'
@@ -228,29 +228,29 @@ export default function Index({
                                             : connectionState}
                                     </p>
                                 </div>
-                                <p className="text-[10px] text-gray-400 mt-0.5">USB HID Wedge ready</p>
+                                <p className="text-[10px] text-gray-400 dark:text-slate-500 mt-0.5">USB HID Wedge ready</p>
                             </div>
-                            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-900 border border-red-100/80 flex items-center justify-center shrink-0">
-                                <Radio className="w-5 h-5 text-red-900" />
+                            <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 border border-red-100/80 dark:border-red-900/50 flex items-center justify-center shrink-0">
+                                <Radio className="w-5 h-5 text-red-900 dark:text-red-400" />
                             </div>
                         </div>
                     </div>
 
                     {/* Completion State: shown only when all items are tagged and not dismissed */}
                     {allItemsTagged && !selectedItem && !isCompletionDismissed ? (
-                        <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-2xs text-center max-w-xl mx-auto space-y-3">
-                            <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto border border-emerald-200/80 shadow-2xs">
-                                <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+                        <div className="bg-white dark:bg-slate-900 rounded-xl p-8 border border-gray-200 dark:border-slate-800 shadow-2xs text-center max-w-xl mx-auto space-y-3">
+                            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mx-auto border border-emerald-200/80 dark:border-emerald-800/60 shadow-2xs">
+                                <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
                             </div>
                             <div>
-                                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-medium border border-emerald-200 mb-2">
-                                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-[10px] font-medium border border-emerald-200 dark:border-emerald-800/60 mb-2">
+                                    <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                                     <span>All Inventory Items Tagged</span>
                                 </div>
-                                <h2 className="text-lg font-semibold text-gray-900 font-serif">
+                                <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-serif">
                                     RFID Tagging Complete
                                 </h2>
-                                <p className="text-xs text-gray-500 mt-1 max-w-md mx-auto leading-relaxed">
+                                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 max-w-md mx-auto leading-relaxed">
                                     All current inventory items have RFID transponders assigned. You may review the records registry or proceed directly to Receiving.
                                 </p>
                             </div>
@@ -266,7 +266,7 @@ export default function Index({
                                 <button
                                     type="button"
                                     onClick={() => setIsCompletionDismissed(true)}
-                                    className="px-4 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs"
+                                    className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-300 text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs"
                                 >
                                     Review Tag Registry
                                 </button>
@@ -276,18 +276,18 @@ export default function Index({
                         /* Main Two-Column Workflow Workspace */
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-w-0">
                             {/* LEFT COLUMN (5 cols): Selected Item and Item Search */}
-                            <div className="lg:col-span-5 bg-white rounded-xl p-4 sm:p-6 shadow-2xs border border-gray-200/90 flex flex-col justify-between min-h-[420px] min-w-0">
+                            <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-xl p-4 sm:p-6 shadow-2xs border border-gray-200/90 dark:border-slate-800 flex flex-col justify-between min-h-[420px] min-w-0">
                                 <div>
-                                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100 dark:border-slate-800">
                                         <div className="flex items-center gap-2.5">
-                                            <div className="w-9 h-9 rounded-lg bg-red-50 text-red-950 border border-red-100/80 flex items-center justify-center shrink-0 shadow-2xs">
-                                                <Box className="w-4 h-4 text-red-950" />
+                                            <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 border border-red-100/80 dark:border-red-900/50 flex items-center justify-center shrink-0 shadow-2xs">
+                                                <Box className="w-4 h-4 text-red-950 dark:text-red-400" />
                                             </div>
                                             <div>
-                                                <h2 className="text-base font-semibold text-gray-900 font-serif tracking-tight">
+                                                <h2 className="text-base font-semibold text-gray-900 dark:text-slate-100 font-serif tracking-tight">
                                                     Selected Item
                                                 </h2>
-                                                <p className="text-xs text-gray-500">
+                                                <p className="text-xs text-gray-500 dark:text-slate-400">
                                                     Select item to pair with an RFID tag
                                                 </p>
                                             </div>
@@ -295,7 +295,7 @@ export default function Index({
                                         <button
                                             type="button"
                                             onClick={() => router.visit(route('inventory.index'))}
-                                            className="inline-flex items-center gap-1 text-xs text-red-900 hover:text-red-950 font-medium hover:underline cursor-pointer"
+                                            className="inline-flex items-center gap-1 text-xs text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 font-medium hover:underline cursor-pointer"
                                         >
                                             <span>Manage</span>
                                             <ExternalLink className="w-3 h-3" />
@@ -304,7 +304,7 @@ export default function Index({
 
                                     {/* Searchable Item Selector */}
                                     <div className="mb-4">
-                                        <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                                        <label className="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1.5">
                                             Search Item Catalog
                                         </label>
                                         <ItemSelector
@@ -323,8 +323,8 @@ export default function Index({
                                         item={selectedItem}
                                         isReplacingTag={isReplacingTag}
                                         onStartReplaceTag={() => {
-                                            setIsReplacingTag(true);
-                                            resetScanner();
+                                             setIsReplacingTag(true);
+                                             resetScanner();
                                         }}
                                         onPromptUnassign={() => setShowUnassignModal(true)}
                                     />

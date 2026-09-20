@@ -26,8 +26,8 @@ export default function AnalyticsSummary({
             value: stats.totalItems?.toLocaleString() ?? '0',
             description: 'Active records in database',
             icon: Package,
-            iconColor: 'text-red-900',
-            iconBg: 'bg-red-50 border-red-100',
+            iconColor: 'text-red-900 dark:text-red-400',
+            iconBg: 'bg-red-50 dark:bg-red-950/50 border-red-100 dark:border-red-900/40',
             clickable: true,
             onClick: onOpenDrillDown,
         },
@@ -36,8 +36,8 @@ export default function AnalyticsSummary({
             value: stats.totalStock?.toLocaleString() ?? '0',
             description: 'Combined on-hand stock units',
             icon: Boxes,
-            iconColor: 'text-blue-900',
-            iconBg: 'bg-blue-50 border-blue-100',
+            iconColor: 'text-blue-900 dark:text-blue-400',
+            iconBg: 'bg-blue-50 dark:bg-blue-950/50 border-blue-100 dark:border-blue-900/40',
             clickable: false,
         },
         {
@@ -45,8 +45,8 @@ export default function AnalyticsSummary({
             value: stats.totalValue || '₱0.00',
             description: 'Calculated stored item value',
             icon: PhilippinePeso,
-            iconColor: 'text-emerald-800',
-            iconBg: 'bg-emerald-50 border-emerald-100',
+            iconColor: 'text-emerald-800 dark:text-emerald-400',
+            iconBg: 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-100 dark:border-emerald-900/40',
             clickable: false,
         },
         {
@@ -54,8 +54,8 @@ export default function AnalyticsSummary({
             value: attentionCount.toLocaleString(),
             description: `${stats.lowStockAlerts || 0} low stock • ${stats.outOfStock || 0} out of stock`,
             icon: AlertTriangle,
-            iconColor: attentionCount > 0 ? 'text-amber-800' : 'text-gray-600',
-            iconBg: attentionCount > 0 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100',
+            iconColor: attentionCount > 0 ? 'text-amber-800 dark:text-amber-400' : 'text-gray-600 dark:text-slate-400',
+            iconBg: attentionCount > 0 ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-900/40' : 'bg-gray-50 dark:bg-slate-800 border-gray-100 dark:border-slate-700',
             clickable: false,
         },
     ];
@@ -107,7 +107,7 @@ export default function AnalyticsSummary({
                             key={card.title}
                             className={`border-t-2 border-t-red-900 transition-all ${
                                 card.clickable
-                                    ? 'cursor-pointer hover:shadow-md hover:border-gray-300 focus:outline-hidden focus:ring-1 focus:ring-red-900'
+                                    ? 'cursor-pointer hover:shadow-md hover:border-gray-300 dark:hover:border-slate-700 focus:outline-hidden focus:ring-1 focus:ring-red-900'
                                     : ''
                             }`}
                             onClick={card.onClick}
@@ -126,7 +126,7 @@ export default function AnalyticsSummary({
                         >
                             <CardContent className="p-4 flex flex-col justify-between h-full space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-semibold text-gray-600">
+                                    <span className="text-xs font-semibold text-gray-600 dark:text-slate-400">
                                         {card.title}
                                     </span>
                                     <div className={`p-2 rounded-md border ${card.iconBg}`}>
@@ -134,13 +134,13 @@ export default function AnalyticsSummary({
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 font-sans">
+                                    <div className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-slate-100 font-sans">
                                         {card.value}
                                     </div>
-                                    <div className="text-[11px] font-medium text-gray-500 mt-0.5 flex items-center justify-between">
+                                    <div className="text-[11px] font-medium text-gray-500 dark:text-slate-400 mt-0.5 flex items-center justify-between">
                                         <span>{card.description}</span>
                                         {card.clickable && (
-                                            <span className="text-[10px] font-semibold text-red-900 hover:underline">
+                                            <span className="text-[10px] font-semibold text-red-900 dark:text-red-400 hover:underline">
                                                 Inspect →
                                             </span>
                                         )}

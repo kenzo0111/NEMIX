@@ -51,11 +51,11 @@ export const IssuanceItemRow: React.FC<IssuanceItemRowProps> = ({
     const selectStyles = getInstitutionalSelectStyles(Boolean(errorItem));
 
     return (
-        <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-lg space-y-2">
+        <div className="p-3.5 bg-gray-50/70 dark:bg-slate-900/70 border border-gray-200 dark:border-slate-800 rounded-lg space-y-2">
             <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
                 {/* Item Select */}
                 <div className="flex-1 w-full">
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
                         Item #{index + 1}
                     </label>
                     <Select
@@ -67,28 +67,28 @@ export const IssuanceItemRow: React.FC<IssuanceItemRowProps> = ({
                         classNamePrefix="react-select"
                         isClearable
                     />
-                    {errorItem && <p className="mt-1 text-xs text-red-600 font-medium">{errorItem}</p>}
+                    {errorItem && <p className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{errorItem}</p>}
                 </div>
 
                 {/* Available Stock Indicator */}
                 <div className="w-full sm:w-36 flex-shrink-0">
-                    <label className="block text-[11px] font-semibold text-gray-500 mb-1">
+                    <label className="block text-[11px] font-semibold text-gray-500 dark:text-slate-400 mb-1">
                         Available Stock
                     </label>
-                    <div className="h-10 px-3 flex items-center bg-white border border-gray-200 rounded-md text-xs font-mono font-bold text-gray-800">
+                    <div className="h-10 px-3 flex items-center bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 rounded-md text-xs font-mono font-bold text-gray-800 dark:text-slate-200">
                         {selectedItem ? (
-                            <span className={selectedItem.stock <= 0 ? 'text-red-600' : 'text-emerald-700'}>
+                            <span className={selectedItem.stock <= 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-700 dark:text-emerald-400'}>
                                 {selectedItem.stock} {selectedItem.unit_of_issue || 'pcs'}
                             </span>
                         ) : (
-                            <span className="text-gray-400 font-sans font-normal">—</span>
+                            <span className="text-gray-400 dark:text-slate-500 font-sans font-normal">—</span>
                         )}
                     </div>
                 </div>
 
                 {/* Quantity to Issue */}
                 <div className="w-full sm:w-28 flex-shrink-0">
-                    <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                    <label className="block text-[11px] font-semibold text-gray-700 dark:text-slate-300 mb-1">
                         Quantity
                     </label>
                     <input
@@ -98,11 +98,11 @@ export const IssuanceItemRow: React.FC<IssuanceItemRowProps> = ({
                         value={itemLine.quantity}
                         onChange={(e) => onChangeQuantity(index, e.target.value)}
                         placeholder="Qty"
-                        className={`w-full h-10 px-3 bg-white border rounded-md text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-2xs ${
-                            errorQuantity ? 'border-red-400' : 'border-gray-300'
+                        className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-xs font-mono font-bold text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
+                            errorQuantity ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
                         }`}
                     />
-                    {errorQuantity && <p className="mt-1 text-xs text-red-600 font-medium">{errorQuantity}</p>}
+                    {errorQuantity && <p className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{errorQuantity}</p>}
                 </div>
 
                 {/* Remove Action Button */}
@@ -111,7 +111,7 @@ export const IssuanceItemRow: React.FC<IssuanceItemRowProps> = ({
                         <button
                             type="button"
                             onClick={() => onRemove(index)}
-                            className="h-10 px-2.5 text-gray-400 hover:text-red-700 hover:bg-red-50 rounded-md border border-transparent hover:border-red-200 transition-colors cursor-pointer flex items-center justify-center"
+                            className="h-10 px-2.5 text-gray-400 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-md border border-transparent hover:border-red-200 dark:hover:border-red-800 transition-colors cursor-pointer flex items-center justify-center"
                             title="Remove line item"
                             aria-label="Remove item"
                         >

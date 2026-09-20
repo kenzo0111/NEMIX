@@ -357,7 +357,7 @@ export default function ReceivingIndex({
     const modules = getSidebarModules('Inventory', 'Receiving');
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 selection:bg-red-900 selection:text-white">
+        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white">
             <Head title="Inventory - Receiving" />
 
             <Sidebar
@@ -384,7 +384,7 @@ export default function ReceivingIndex({
                     />
 
                     {/* Receiving Ledger Card */}
-                    <div className="bg-white rounded-lg shadow-xs border border-gray-200 overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xs border border-gray-200 dark:border-slate-800 overflow-hidden">
                         {/* Receiving Toolbar */}
                         <ReceivingToolbar
                             searchTerm={searchTerm}

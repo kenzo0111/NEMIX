@@ -163,7 +163,7 @@ export default function IssuanceIndex({
     const modules = getSidebarModules('Inventory', 'Issuance');
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-gray-900 overflow-x-hidden selection:bg-red-900 selection:text-white">
+        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 overflow-x-hidden selection:bg-red-900 selection:text-white">
             <Head title="Inventory - Stock Issuance" />
 
             <Sidebar
@@ -186,17 +186,17 @@ export default function IssuanceIndex({
                         <div
                             className={`mb-4 px-4 py-3 rounded-lg border text-xs font-semibold flex items-center justify-between transition-all ${
                                 notification.type === 'success'
-                                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                                    : 'bg-rose-50 border-rose-200 text-rose-800'
+                                    ? 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200'
+                                    : 'bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200'
                             }`}
                         >
                             <div className="flex items-center gap-2">
                                 {notification.type === 'success' ? (
-                                    <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                     </svg>
                                 ) : (
-                                    <svg className="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 )}
@@ -205,7 +205,7 @@ export default function IssuanceIndex({
                             <button
                                 type="button"
                                 onClick={() => setNotification(null)}
-                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 cursor-pointer"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -215,7 +215,7 @@ export default function IssuanceIndex({
                     )}
 
                     {/* Primary Issuance Ledger Card */}
-                    <div className="bg-white rounded-xl shadow-2xs border border-gray-200/80 overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-gray-200/80 dark:border-slate-800 overflow-hidden">
                         <IssuanceToolbar
                             searchTerm={searchTerm}
                             onSearchChange={handleSearchChange}

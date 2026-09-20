@@ -44,17 +44,17 @@ export default function InventoryPolicySettings({
             {/* THRESHOLD HIERARCHY */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 font-serif">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
                         Stock Thresholds & Reorder Points
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         Global safety thresholds dictating automated inventory reorder indicators and stock health status.
                     </p>
                 </div>
 
                 {/* Inline Cross-Validation Error Banner */}
                 {hasThresholdError && (
-                    <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 flex items-start gap-2.5">
+                    <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-xs text-rose-900 dark:text-rose-300 flex items-start gap-2.5">
                         <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                         <div>
                             <span className="font-semibold">Invalid Threshold Configuration: </span>
@@ -66,7 +66,7 @@ export default function InventoryPolicySettings({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Low Stock Threshold */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                             <span>Global Low-Stock Threshold</span>
                             <span className="text-red-600 font-normal">*</span>
                         </label>
@@ -82,13 +82,13 @@ export default function InventoryPolicySettings({
                                         parseInt(e.target.value, 10) || 1
                                     )
                                 }
-                                className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-semibold text-slate-900 bg-white shadow-2xs hover:border-slate-300 ${
+                                className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-2xs hover:border-slate-300 dark:hover:border-slate-600 ${
                                     hasThresholdError || errors['settings.inventory.low_stock_threshold']
                                         ? 'border-rose-400 focus:ring-rose-500'
-                                        : 'border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800'
+                                        : 'border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600'
                                 }`}
                             />
-                            <span className="absolute right-3.5 top-2.5 text-xs text-slate-500 font-medium">
+                            <span className="absolute right-3.5 top-2.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
                                 Units
                             </span>
                         </div>
@@ -97,7 +97,7 @@ export default function InventoryPolicySettings({
                                 {errors['settings.inventory.low_stock_threshold']}
                             </p>
                         )}
-                        <p className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
                             <Info className="w-3 h-3 text-slate-400 shrink-0" />
                             Triggers Low Stock warning when available balance reaches or falls below this point.
                         </p>
@@ -105,7 +105,7 @@ export default function InventoryPolicySettings({
 
                     {/* Critical Stock Threshold */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                             <span>Critical Stock Threshold</span>
                             <span className="text-red-600 font-normal">*</span>
                         </label>
@@ -121,13 +121,13 @@ export default function InventoryPolicySettings({
                                         parseInt(e.target.value, 10) || 0
                                     )
                                 }
-                                className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-semibold text-slate-900 bg-white shadow-2xs hover:border-slate-300 ${
+                                className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-2xs hover:border-slate-300 dark:hover:border-slate-600 ${
                                     hasThresholdError || errors['settings.inventory.critical_stock_threshold']
                                         ? 'border-rose-400 focus:ring-rose-500'
-                                        : 'border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800'
+                                        : 'border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600'
                                 }`}
                             />
-                            <span className="absolute right-3.5 top-2.5 text-xs text-amber-700 font-medium">
+                            <span className="absolute right-3.5 top-2.5 text-xs text-amber-700 dark:text-amber-400 font-medium">
                                 Units
                             </span>
                         </div>
@@ -136,7 +136,7 @@ export default function InventoryPolicySettings({
                                 {errors['settings.inventory.critical_stock_threshold']}
                             </p>
                         )}
-                        <p className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
                             <Info className="w-3 h-3 text-slate-400 shrink-0" />
                             Indicates inventory requiring immediate replenishment attention.
                         </p>
@@ -144,20 +144,20 @@ export default function InventoryPolicySettings({
                 </div>
             </div>
 
-            <hr className="border-slate-200/80" />
+            <hr className="border-slate-200/80 dark:border-slate-800" />
 
             {/* INVENTORY ENFORCEMENT */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 font-serif">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
                         Inventory Enforcement Safeguards
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         Backend transaction validation rules governing physical stock deductions.
                     </p>
                 </div>
 
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start gap-3.5">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200/80 dark:border-slate-800 flex items-start gap-3.5">
                     <input
                         type="checkbox"
                         id="strict_stock"
@@ -165,31 +165,31 @@ export default function InventoryPolicySettings({
                         onChange={(e) =>
                             onChange('inventory.strict_stock_enforcement', e.target.checked)
                         }
-                        className="w-4 h-4 mt-0.5 rounded text-red-900 focus:ring-red-800 border-slate-300 cursor-pointer"
+                        className="w-4 h-4 mt-0.5 rounded text-red-900 focus:ring-red-800 border-slate-300 dark:border-slate-600 dark:bg-slate-900 cursor-pointer"
                     />
                     <div className="flex-1">
                         <label
                             htmlFor="strict_stock"
-                            className="text-xs font-semibold text-slate-900 cursor-pointer"
+                            className="text-xs font-semibold text-slate-900 dark:text-slate-100 cursor-pointer"
                         >
                             Prevent issuance resulting in negative stock
                         </label>
-                        <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
                             Strictly disallows approvals or issuances when requested quantities exceed available on-hand physical balance.
                         </p>
                     </div>
                 </div>
             </div>
 
-            <hr className="border-slate-200/80" />
+            <hr className="border-slate-200/80 dark:border-slate-800" />
 
             {/* RECOGNIZED UNITS OF ISSUE */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 font-serif">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
                         Recognized Units of Issue
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         Standardized units of measure recognized across SPMO receiving vouchers and RIS issuance slips.
                     </p>
                 </div>
@@ -199,13 +199,13 @@ export default function InventoryPolicySettings({
                     {(settings['inventory.units_of_issue'] || []).map((unit) => (
                         <span
                             key={unit}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200"
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
                         >
                             <span>{unit}</span>
                             <button
                                 type="button"
                                 onClick={() => handleRemoveUnit(unit)}
-                                className="text-slate-400 hover:text-slate-700 p-0.5 rounded transition-colors cursor-pointer"
+                                className="text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 p-0.5 rounded transition-colors cursor-pointer"
                                 title={`Remove ${unit}`}
                                 aria-label={`Remove unit ${unit}`}
                             >
@@ -222,12 +222,12 @@ export default function InventoryPolicySettings({
                         value={newUnitInput}
                         onChange={(e) => setNewUnitInput(e.target.value)}
                         placeholder="Add new unit (e.g. carton)"
-                        className="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 text-xs text-slate-900 bg-white focus:ring-1 focus:ring-red-900 focus:border-red-800 shadow-2xs"
+                        className="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-800 dark:focus:border-red-600 shadow-2xs"
                     />
                     <button
                         type="submit"
                         disabled={!newUnitInput.trim()}
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 disabled:opacity-40 flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-40 flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
                     >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Add</span>

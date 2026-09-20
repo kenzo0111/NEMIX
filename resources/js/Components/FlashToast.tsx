@@ -79,32 +79,32 @@ export default function FlashToast({ flash: customFlash, autoDismissDuration }: 
 
     const config = {
         success: {
-            bg: 'bg-emerald-50/95 border-emerald-300 text-emerald-950',
-            badgeBg: 'bg-emerald-100 text-emerald-800',
-            iconColor: 'text-emerald-700',
+            bg: 'bg-emerald-50/95 dark:bg-emerald-950/95 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-100',
+            badgeBg: 'bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200',
+            iconColor: 'text-emerald-700 dark:text-emerald-400',
             Icon: CheckCircle2,
-            closeHover: 'hover:bg-emerald-100/80 text-emerald-800',
+            closeHover: 'hover:bg-emerald-100/80 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-200',
         },
         error: {
-            bg: 'bg-rose-50/95 border-rose-300 text-rose-950',
-            badgeBg: 'bg-rose-100 text-rose-800',
-            iconColor: 'text-rose-700',
+            bg: 'bg-rose-50/95 dark:bg-rose-950/95 border-rose-300 dark:border-rose-800 text-rose-950 dark:text-rose-100',
+            badgeBg: 'bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-200',
+            iconColor: 'text-rose-700 dark:text-rose-400',
             Icon: AlertCircle,
-            closeHover: 'hover:bg-rose-100/80 text-rose-800',
+            closeHover: 'hover:bg-rose-100/80 dark:hover:bg-rose-900 text-rose-800 dark:text-rose-200',
         },
         warning: {
-            bg: 'bg-amber-50/95 border-amber-300 text-amber-950',
-            badgeBg: 'bg-amber-100 text-amber-800',
-            iconColor: 'text-amber-700',
+            bg: 'bg-amber-50/95 dark:bg-amber-950/95 border-amber-300 dark:border-amber-800 text-amber-950 dark:text-amber-100',
+            badgeBg: 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200',
+            iconColor: 'text-amber-700 dark:text-amber-400',
             Icon: AlertTriangle,
-            closeHover: 'hover:bg-amber-100/80 text-amber-800',
+            closeHover: 'hover:bg-amber-100/80 dark:hover:bg-amber-900 text-amber-800 dark:text-amber-200',
         },
         info: {
-            bg: 'bg-sky-50/95 border-sky-300 text-sky-950',
-            badgeBg: 'bg-sky-100 text-sky-800',
-            iconColor: 'text-sky-700',
+            bg: 'bg-sky-50/95 dark:bg-sky-950/95 border-sky-300 dark:border-sky-800 text-sky-950 dark:text-sky-100',
+            badgeBg: 'bg-sky-100 dark:bg-sky-900 text-sky-800 dark:text-sky-200',
+            iconColor: 'text-sky-700 dark:text-sky-400',
             Icon: Info,
-            closeHover: 'hover:bg-sky-100/80 text-sky-800',
+            closeHover: 'hover:bg-sky-100/80 dark:hover:bg-sky-900 text-sky-800 dark:text-sky-200',
         },
     }[alert.type];
 

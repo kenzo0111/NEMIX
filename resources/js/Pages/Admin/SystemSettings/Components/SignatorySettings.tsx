@@ -223,10 +223,10 @@ export default function SignatorySettings({
             {/* SUBSECTION 1: REQUISITION & ISSUE SLIP */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 font-serif">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
                         Requisition & Issue Slip (RIS — Appendix 63)
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         Authorized approving and issuing personnel appearing on official RIS issuance vouchers.
                     </p>
                 </div>
@@ -234,7 +234,7 @@ export default function SignatorySettings({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {/* Approving Officer Name */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Approving Officer
                         </label>
                         <SignatorySelect
@@ -260,7 +260,7 @@ export default function SignatorySettings({
 
                     {/* Approving Officer Designation */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Approving Officer Designation
                         </label>
                         <input
@@ -269,7 +269,7 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.ris_approved_by_designation', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="SUPPLY OFFICER III / ADMIN OFFICER V"
                         />
                         {errors['settings.signatories.ris_approved_by_designation'] && (
@@ -281,7 +281,7 @@ export default function SignatorySettings({
 
                     {/* Issuing Custodian Name */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Issuing Custodian
                         </label>
                         <SignatorySelect
@@ -307,7 +307,7 @@ export default function SignatorySettings({
 
                     {/* Issuing Custodian Designation */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Issuing Custodian Designation
                         </label>
                         <input
@@ -316,7 +316,7 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.ris_issued_by_designation', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="Administrative Aide VI / Storekeeper"
                         />
                         {errors['settings.signatories.ris_issued_by_designation'] && (
@@ -328,33 +328,33 @@ export default function SignatorySettings({
                 </div>
 
                 {/* OIC Delegation */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200/80 dark:border-slate-800 space-y-2">
                     <div className="flex items-center gap-2.5">
                         <input
                             type="checkbox"
                             id="oic_toggle"
                             checked={settings['signatories.ris_oic_active']}
                             onChange={(e) => onChange('signatories.ris_oic_active', e.target.checked)}
-                            className="w-4 h-4 rounded text-red-900 focus:ring-red-800 border-slate-300 cursor-pointer"
+                            className="w-4 h-4 rounded text-red-900 focus:ring-red-800 border-slate-300 dark:border-slate-600 dark:bg-slate-900 cursor-pointer"
                         />
-                        <label htmlFor="oic_toggle" className="text-xs font-semibold text-slate-900 cursor-pointer">
+                        <label htmlFor="oic_toggle" className="text-xs font-semibold text-slate-900 dark:text-slate-100 cursor-pointer">
                             Enable Officer-in-Charge (OIC) Delegation on RIS Forms
                         </label>
                     </div>
-                    <p className="text-xs text-slate-500 pl-6 leading-relaxed">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 pl-6 leading-relaxed">
                         Prepends designated prefix text to the approving officer name on printed documents during official administrative absence.
                     </p>
 
                     {settings['signatories.ris_oic_active'] && (
                         <div className="pt-2 pl-6 max-w-xs">
-                            <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                            <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 block mb-1">
                                 Delegation Prefix
                             </label>
                             <input
                                 type="text"
                                 value={settings['signatories.ris_oic_prefix']}
                                 onChange={(e) => onChange('signatories.ris_oic_prefix', e.target.value)}
-                                className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-medium bg-white text-slate-900 focus:ring-1 focus:ring-red-900 focus:border-red-800 shadow-2xs"
+                                className="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-medium bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-800 dark:focus:border-red-600 shadow-2xs"
                                 placeholder="OIC, "
                             />
                         </div>
@@ -362,15 +362,15 @@ export default function SignatorySettings({
                 </div>
             </div>
 
-            <hr className="border-slate-200/80" />
+            <hr className="border-slate-200/80 dark:border-slate-800" />
 
             {/* SUBSECTION 2: RSMI */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 font-serif">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
                         Report of Supplies & Materials Issued (RSMI — Monthly Summary)
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         Custodian certification and accounting posting personnel for monthly summary ledgers.
                     </p>
                 </div>
@@ -378,7 +378,7 @@ export default function SignatorySettings({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {/* Certified Correct By */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Certified Correct By (Supply Custodian)
                         </label>
                         <SignatorySelect
@@ -404,7 +404,7 @@ export default function SignatorySettings({
 
                     {/* Certification Designation */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Certification Designation
                         </label>
                         <input
@@ -413,7 +413,7 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.rsmi_certified_by_designation', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="Supply Officer III / SPMO Head"
                         />
                         {errors['settings.signatories.rsmi_certified_by_designation'] && (
@@ -425,7 +425,7 @@ export default function SignatorySettings({
 
                     {/* Posted By (Accounting Representative) */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Posted By (Accounting Representative)
                         </label>
                         <SignatorySelect
@@ -451,7 +451,7 @@ export default function SignatorySettings({
 
                     {/* Accounting Designation */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Accounting Designation
                         </label>
                         <input
@@ -460,7 +460,7 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.rsmi_posted_by_designation', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="Administrative Officer IV"
                         />
                         {errors['settings.signatories.rsmi_posted_by_designation'] && (
@@ -472,15 +472,15 @@ export default function SignatorySettings({
                 </div>
             </div>
 
-            <hr className="border-slate-200/80" />
+            <hr className="border-slate-200/80 dark:border-slate-800" />
 
             {/* SUBSECTION 3: RPCI */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 font-serif">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
                         Report on the Physical Count of Inventories (RPCI)
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         Accountable officers and inventory committee heads for annual physical inventory verification.
                     </p>
                 </div>
@@ -488,7 +488,7 @@ export default function SignatorySettings({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {/* Accountable Officer Name */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Accountable Officer
                         </label>
                         <SignatorySelect
@@ -514,7 +514,7 @@ export default function SignatorySettings({
 
                     {/* Accountable Officer Designation */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Accountable Officer Designation
                         </label>
                         <input
@@ -523,7 +523,7 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.rpci_accountable_officer_designation', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="Supply Custodian / Supply Officer III"
                         />
                         {errors['settings.signatories.rpci_accountable_officer_designation'] && (
@@ -535,7 +535,7 @@ export default function SignatorySettings({
 
                     {/* Inventory Committee Chairman */}
                     <div className="space-y-1.5 md:col-span-2">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Inventory Committee Chairman
                         </label>
                         <SignatorySelect
@@ -561,7 +561,7 @@ export default function SignatorySettings({
 
                     {/* Certified Correct By - Name */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Certified Correct By - Name
                         </label>
                         <SignatorySelect
@@ -587,7 +587,7 @@ export default function SignatorySettings({
 
                     {/* Certified Correct By - Designation */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Certified Correct By - Designation
                         </label>
                         <input
@@ -596,7 +596,7 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.rpci_certified_by_position', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="Inventory Committee Chair and Members"
                         />
                         {errors['settings.signatories.rpci_certified_by_position'] && (
@@ -608,7 +608,7 @@ export default function SignatorySettings({
 
                     {/* Verified By - Name */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Verified By - Name
                         </label>
                         <SignatorySelect
@@ -634,7 +634,7 @@ export default function SignatorySettings({
 
                     {/* Verified By - Designation */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Verified By - Designation
                         </label>
                         <input
@@ -643,7 +643,7 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.rpci_verified_by_position', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="COA Representative"
                         />
                         {errors['settings.signatories.rpci_verified_by_position'] && (
@@ -655,21 +655,21 @@ export default function SignatorySettings({
                 </div>
             </div>
 
-            <hr className="border-slate-200/80" />
+            <hr className="border-slate-200/80 dark:border-slate-800" />
 
             {/* SUBSECTION 4: STOCK CARD */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 font-serif">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
                         Stock Card Custodian
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         Storekeeper or property custodian maintaining bin-level physical stock cards.
                     </p>
                 </div>
 
                 <div className="max-w-xl space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 block">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                         Stock Card Storekeeper / Custodian
                     </label>
                     <SignatorySelect
@@ -694,15 +694,15 @@ export default function SignatorySettings({
                 </div>
             </div>
 
-            <hr className="border-slate-200/80" />
+            <hr className="border-slate-200/80 dark:border-slate-800" />
 
             {/* SUBSECTION 5: MEMORANDUM RECEIPT FOR PROPERTY (MOR / MR) */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 font-serif">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
                         Memorandum Receipt for Property (MOR / MR — Appendix 59-A)
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         Issuing authority and property custodian designations for equipment and property receipts. Note that Entity Name is inherited globally from Organization Settings.
                     </p>
                 </div>
@@ -710,7 +710,7 @@ export default function SignatorySettings({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {/* Issued / Released By Name */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Issued / Released By (Property Custodian)
                         </label>
                         <SignatorySelect
@@ -736,7 +736,7 @@ export default function SignatorySettings({
 
                     {/* Issued By Designation */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Issued By Designation / Position
                         </label>
                         <input
@@ -745,7 +745,7 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.mor_issued_by_designation', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="SUPPLY OFFICER III / PROPERTY CUSTODIAN"
                         />
                         {errors['settings.signatories.mor_issued_by_designation'] && (
@@ -757,7 +757,7 @@ export default function SignatorySettings({
 
                     {/* Issuing Office Title */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Issuing / Custodial Office Title
                         </label>
                         <input
@@ -766,7 +766,7 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.mor_issued_by_office', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="Supply & Property Management Office (SPMO)"
                         />
                         {errors['settings.signatories.mor_issued_by_office'] && (
@@ -778,7 +778,7 @@ export default function SignatorySettings({
 
                     {/* Form Appendix Header Number */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 block">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                             Form Appendix Header Number
                         </label>
                         <input
@@ -787,7 +787,7 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('compliance.mor_appendix_number', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-900/10 focus:border-red-800 text-sm font-medium text-slate-900 bg-white placeholder:text-slate-400 transition-all shadow-2xs hover:border-slate-300"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="Appendix 59-A"
                         />
                         {errors['settings.compliance.mor_appendix_number'] && (

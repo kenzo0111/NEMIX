@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from '@inertiajs/react';
 import { LogOut, PanelLeftClose, PanelLeftOpen, User } from 'lucide-react';
 import { SidebarUser as UserType } from '@/types/navigation';
+import ThemeToggle from '@/Components/ThemeToggle';
 
 interface SidebarUserProps {
     user?: UserType;
@@ -49,6 +50,9 @@ export default function SidebarUser({
                     <User className="w-4 h-4" />
                 </Link>
 
+                {/* Theme Toggle Icon in Collapsed State */}
+                <ThemeToggle variant="compact" />
+
                 {/* Expand Toggle */}
                 {onToggleCollapse && (
                     <button
@@ -75,7 +79,7 @@ export default function SidebarUser({
     }
 
     return (
-        <div className="p-3 border-t border-red-900/60 bg-red-950/60 relative z-10 space-y-2 select-none">
+        <div className="p-3 border-t border-red-900/60 bg-red-950/60 relative z-10 space-y-2.5 select-none">
             {/* User Profile Summary */}
             <div className="flex items-center gap-3 px-1">
                 <div className="w-9 h-9 rounded-lg bg-red-900 border border-amber-400/40 text-amber-300 flex items-center justify-center font-bold text-xs shrink-0">
@@ -102,6 +106,14 @@ export default function SidebarUser({
             >
                 Account Settings
             </Link>
+
+            {/* Theme Selector Strip in Sidebar */}
+            <div className="pt-1">
+                <div className="flex items-center justify-between px-1 mb-1 text-[10px] uppercase font-bold tracking-wider text-red-300/60">
+                    <span>Appearance</span>
+                </div>
+                <ThemeToggle variant="sidebar" />
+            </div>
 
             {/* Controls: Collapse & Sign Out */}
             <div className="flex items-center justify-between pt-2 border-t border-red-900/40 text-xs">

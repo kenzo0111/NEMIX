@@ -4,6 +4,7 @@ import Modal from '@/Components/Modal';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import SystemModeBadge from '@/Components/SystemModeBadge';
+import ThemeToggle from '@/Components/ThemeToggle';
 import { Link, router, usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode, useState } from 'react';
 
@@ -31,7 +32,7 @@ export default function Authenticated({
     };
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8]">
+        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
             {/* System Operating Mode Global Warning Banner */}
             {systemMode !== 'LIVE PRODUCTION' && (
                 <div className={`px-4 py-2 text-xs font-mono font-bold text-center flex items-center justify-center gap-2 shadow-xs border-b ${
@@ -53,13 +54,13 @@ export default function Authenticated({
                 </div>
             )}
 
-            <nav className="border-b border-gray-100 bg-white">
+            <nav className="border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
                                 <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
+                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-slate-200" />
                                 </Link>
                             </div>
 
@@ -75,6 +76,7 @@ export default function Authenticated({
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center sm:gap-4">
                             <SystemModeBadge />
+                            <ThemeToggle variant="compact" />
                             <div className="relative ms-1">
                                 <Dropdown>
                                     <Dropdown.Trigger>

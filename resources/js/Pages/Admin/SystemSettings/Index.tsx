@@ -183,7 +183,7 @@ export default function Index({
     };
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] flex font-sans text-slate-900 selection:bg-red-900 selection:text-white antialiased">
+        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-slate-900 dark:text-slate-100 selection:bg-red-900 selection:text-white antialiased">
             <Head title="System Settings & Policies — UCN SPMO" />
 
             {/* Persistent Sidebar */}
@@ -211,7 +211,7 @@ export default function Index({
                     actions={
                         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                             {isDirty && (
-                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200/80 text-amber-800 text-xs font-medium">
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/60 text-amber-800 dark:text-amber-400 text-xs font-medium">
                                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                     <span>Unsaved changes</span>
                                 </div>
@@ -222,9 +222,9 @@ export default function Index({
                                     type="button"
                                     onClick={() => reset()}
                                     disabled={processing}
-                                    className="px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
+                                    className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-400 dark:hover:border-slate-600 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
                                 >
-                                    <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                                    <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                                     <span>Reset</span>
                                 </button>
                             )}
@@ -236,7 +236,7 @@ export default function Index({
                                 className={`px-4 py-2 rounded-xl text-xs font-semibold text-white flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98] ${
                                     isDirty && !hasThresholdError
                                         ? 'bg-red-900 hover:bg-red-800 active:bg-red-950 shadow-red-950/15 shadow-md'
-                                        : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                                        : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed shadow-none'
                                 }`}
                             >
                                 <Save className="w-3.5 h-3.5" />
@@ -258,7 +258,7 @@ export default function Index({
                     />
 
                     {/* 4. Active Settings Domain Panel */}
-                    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
                         <SettingsSectionHeader tab={currentTabMeta} />
 
                         <div className="p-4 sm:p-6 lg:p-8">
