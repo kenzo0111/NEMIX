@@ -114,7 +114,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-3">
-                    <div className="bg-gray-50/70 dark:bg-slate-850/60 p-2.5 rounded border border-gray-100 dark:border-slate-800">
+                    <div className="bg-gray-50/70 dark:bg-slate-800/80 p-2.5 rounded border border-gray-100 dark:border-slate-700/60">
                         <span className="text-gray-500 dark:text-slate-400 text-[11px] block font-medium flex items-center gap-1.5">
                             <Hash className="w-3 h-3 text-gray-400 dark:text-slate-500" />
                             Reference Identifier
@@ -132,7 +132,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                         )}
                     </div>
 
-                    <div className="bg-gray-50/70 dark:bg-slate-850/60 p-2.5 rounded border border-gray-100 dark:border-slate-800">
+                    <div className="bg-gray-50/70 dark:bg-slate-800/80 p-2.5 rounded border border-gray-100 dark:border-slate-700/60">
                         <span className="text-gray-500 dark:text-slate-400 text-[11px] block font-medium flex items-center gap-1.5">
                             <UserIcon className="w-3 h-3 text-gray-400 dark:text-slate-500" />
                             Authorized User
@@ -145,7 +145,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                         </span>
                     </div>
 
-                    <div className="bg-gray-50/70 dark:bg-slate-850/60 p-2.5 rounded border border-gray-100 dark:border-slate-800">
+                    <div className="bg-gray-50/70 dark:bg-slate-800/80 p-2.5 rounded border border-gray-100 dark:border-slate-700/60">
                         <span className="text-gray-500 dark:text-slate-400 text-[11px] block font-medium flex items-center gap-1.5">
                             <Shield className="w-3 h-3 text-gray-400 dark:text-slate-500" />
                             Module & Business Action
@@ -158,7 +158,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                         </span>
                     </div>
 
-                    <div className="bg-gray-50/70 dark:bg-slate-850/60 p-2.5 rounded border border-gray-100 dark:border-slate-800">
+                    <div className="bg-gray-50/70 dark:bg-slate-800/80 p-2.5 rounded border border-gray-100 dark:border-slate-700/60">
                         <span className="text-gray-500 dark:text-slate-400 text-[11px] block font-medium flex items-center gap-1.5">
                             <Clock className="w-3 h-3 text-gray-400 dark:text-slate-500" />
                             Recorded Date & Time
@@ -173,35 +173,30 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                 </div>
 
                 {secondaryText && (
-                    <div className="mt-2.5 px-3 py-1.5 bg-red-50/40 dark:bg-red-950/30 rounded border border-red-100 dark:border-red-900/40 text-xs text-red-950 dark:text-red-300 font-medium flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-900 dark:bg-red-400"></span>
-                        <span>{secondaryText}</span>
+                    <div className="mt-3 p-2.5 bg-red-50/50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/40 rounded flex items-center gap-2 text-[11px] text-red-950 dark:text-red-300">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-800 dark:bg-red-400 shrink-0" />
+                        <span className="font-medium">{secondaryText}</span>
                     </div>
                 )}
             </div>
 
-            {/* PRIMARY TRANSACTION DETAILS & AUDIT METADATA (Requirements 1 - 7, 13 - 26) */}
-            <div className="pt-1">
-                <AuditMetadataDetails
-                    record={record}
-                    metadata={record.metadata}
-                    oldValues={record.old_values}
-                    newValues={record.new_values}
-                    actionDescription={record.details}
-                    eventKey={record.event_key}
-                    showSummaryBanner={true}
-                />
-            </div>
+            {/* LEVEL 2: DETAILED RECORD AUDIT (Primary metadata & changes) */}
+            <AuditMetadataDetails
+                record={record}
+                metadata={record.metadata}
+                isExpanded={true}
+                className="pt-1 border-t border-gray-100 dark:border-slate-800"
+            />
 
-            {/* LEVEL 2: AFFECTED RECORDS / ENTITY ALLOCATIONS (Optional grouping) */}
+            {/* AFFECTED ITEM GROUPS (When multi-item events are present in children) */}
             {hasItemGroups ? (
                 <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-slate-800">
-                        <div className="p-1 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-400 rounded border border-amber-100 dark:border-amber-900/50">
+                        <div className="p-1 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 rounded border border-amber-100 dark:border-amber-900/50">
                             <Layers className="w-4 h-4" />
                         </div>
                         <span className="font-bold text-gray-900 dark:text-slate-100 uppercase tracking-wide text-[11px]">
-                            Affected Records & Entity Allocations
+                            Level 2 • Affected Items & Actions ({Object.keys(affectedItemGroups).length})
                         </span>
                     </div>
 
@@ -209,7 +204,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                         {Object.entries(affectedItemGroups).map(([groupKey, group]) => (
                             <div
                                 key={groupKey}
-                                className="bg-gray-50/60 dark:bg-slate-850/60 rounded-md border border-gray-200 dark:border-slate-800 p-3 space-y-2"
+                                className="bg-gray-50/60 dark:bg-slate-800/70 rounded-md border border-gray-200 dark:border-slate-700/60 p-3 space-y-2"
                             >
                                 <div className="flex items-center justify-between">
                                     <span className="font-bold text-gray-900 dark:text-slate-100 text-xs">
@@ -281,7 +276,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                             return (
                                 <div
                                     key={child.id || idx}
-                                    className="p-3 bg-gray-50/50 dark:bg-slate-850/50 rounded-md border border-gray-200 dark:border-slate-800 space-y-2 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/60"
+                                    className="p-3 bg-gray-50/50 dark:bg-slate-800/60 rounded-md border border-gray-200 dark:border-slate-700/60 space-y-2 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/80"
                                 >
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                                         <div className="flex items-center gap-2">

@@ -25,6 +25,9 @@ export default {
                     DEFAULT: '#FFFFFF',
                     muted: '#F8FAFC',
                 },
+                slate: {
+                    850: '#172033',
+                },
             },
         },
     },
