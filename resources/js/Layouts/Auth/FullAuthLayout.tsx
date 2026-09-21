@@ -30,13 +30,10 @@ export default function FullAuthLayout({
                 <div className="absolute inset-0 bg-stone-950/75 dark:bg-black/80 backdrop-blur-[1.5px]" />
             </div>
 
-            {/* Utility Bar: Theme Toggle positioned above the upper-right area of the card */}
-            <header className="relative z-10 w-full max-w-5xl flex items-center justify-end mb-2.5 px-1">
-                <div className="flex items-center gap-2 bg-stone-900/40 dark:bg-slate-900/60 backdrop-blur-xs py-1 px-2.5 rounded-lg border border-white/10">
-                    <span className="text-xs font-medium text-stone-200 hidden sm:inline select-none">Theme</span>
-                    <ThemeToggle variant="compact" />
-                </div>
-            </header>
+            {/* Theme selection in the top right corner of the screen */}
+            <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50">
+                <ThemeToggle variant="compact" />
+            </div>
 
             {/* Main Centered Institutional Card */}
             <main className="relative z-10 w-full max-w-5xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-stone-200 dark:border-slate-800">
