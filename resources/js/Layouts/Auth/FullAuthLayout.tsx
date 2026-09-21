@@ -25,9 +25,10 @@ export default function FullAuthLayout({
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center py-6 sm:py-10 px-4 sm:px-6 lg:px-8 relative login-bg">
-            {/* Subtle dark backdrop overlay */}
+            {/* Institutional Maroon Overlay + Vignette on Campus Background */}
             <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
-                <div className="absolute inset-0 bg-stone-950/75 dark:bg-black/80 backdrop-blur-[1.5px]" />
+                <div className="absolute inset-0 bg-red-950/85 mix-blend-multiply" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
             </div>
 
             {/* Theme selection in the top right corner of the screen */}
