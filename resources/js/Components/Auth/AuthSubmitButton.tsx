@@ -22,7 +22,7 @@ export default function AuthSubmitButton({
             type={type}
             disabled={disabled || processing}
             aria-busy={processing}
-            className={`w-full min-h-[44px] inline-flex items-center justify-center py-2.5 px-6 bg-[#7B1113] hover:bg-[#600e0f] active:bg-[#4d0b0c] dark:bg-red-800 dark:hover:bg-red-700 dark:active:bg-red-900 active:scale-[0.99] text-white text-sm sm:text-base font-semibold rounded-lg shadow-sm transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#7B1113] dark:focus-visible:ring-red-400 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900 disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer ${className}`}
+            className={`w-full min-h-[44px] inline-flex items-center justify-center py-2.5 px-6 bg-[#680d13] hover:bg-[#52090d] active:bg-[#3d060a] dark:bg-red-800 dark:hover:bg-red-700 dark:active:bg-red-900 active:scale-[0.99] text-white text-sm sm:text-base font-semibold rounded-lg shadow-sm transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#680d13] dark:focus-visible:ring-red-400 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900 disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer ${className}`}
             {...props}
         >
             {processing ? (

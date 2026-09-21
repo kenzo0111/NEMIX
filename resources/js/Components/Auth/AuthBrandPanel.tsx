@@ -18,7 +18,7 @@ export default function AuthBrandPanel({
     const officeName = branding?.officeName || 'Supply & Property Management Office (SPMO)';
 
     return (
-        <div className="hidden md:flex md:w-5/12 lg:w-[44%] text-white p-8 lg:p-10 flex-col justify-between relative overflow-hidden bg-red-950 border-r border-red-900/40 dark:border-slate-800">
+        <div className="hidden md:flex md:w-5/12 lg:w-[44%] text-white p-8 lg:p-10 flex-col justify-between relative overflow-hidden bg-gradient-to-b from-[#4d080c] via-[#680d13] to-[#350406] border-r border-[#52090d] dark:border-slate-800">
             {/* 1. Top: Institutional Identity Block: Horizontal Logo + Name Lockup */}
             <div className="flex items-center gap-3.5">
                 <div className="bg-white p-2.5 rounded-xl shadow-xs shrink-0 flex items-center justify-center">
