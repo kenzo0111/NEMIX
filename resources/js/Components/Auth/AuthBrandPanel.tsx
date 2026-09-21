@@ -18,47 +18,47 @@ export default function AuthBrandPanel({
     const officeName = branding?.officeName || 'Supply and Property Management Office';
 
     return (
-        <div className="hidden lg:flex lg:w-5/12 text-white p-8 lg:p-12 flex-col justify-between relative overflow-hidden bg-gradient-to-br from-red-950 via-red-900 to-red-950 border-r border-red-800/40">
+        <div className="hidden md:flex md:w-5/12 lg:w-[40%] text-white p-6 md:p-8 lg:p-10 flex-col justify-between relative overflow-hidden bg-[#7B1113] border-r border-[#600e0f] dark:border-slate-800">
             {/* Institutional Identity Block */}
-            <div className="space-y-6">
-                <div className="flex flex-col items-start gap-4">
-                    <div className="bg-white p-3 rounded-xl shadow-xs shrink-0 flex items-center justify-center">
-                        <ApplicationLogo alt={`${institutionName} Seal`} className="h-16 w-16 object-contain" />
+            <div className="space-y-5">
+                <div className="flex flex-col items-start gap-3.5">
+                    <div className="bg-white p-2.5 rounded-xl shadow-xs shrink-0 flex items-center justify-center">
+                        <ApplicationLogo alt={`${institutionName} Seal`} className="h-14 w-14 object-contain" />
                     </div>
                     <div className="space-y-1">
-                        <p className="font-serif text-yellow-400 uppercase tracking-[0.16em] text-[11px] font-bold">
+                        <p className="font-sans text-xs uppercase tracking-widest text-amber-300 font-semibold">
                             Republic of the Philippines
                         </p>
-                        <h1 className="font-serif text-2xl lg:text-3xl font-bold leading-tight text-white tracking-tight">
+                        <h1 className="font-serif text-xl lg:text-2xl font-bold leading-snug text-white tracking-tight">
                             {institutionName}
                         </h1>
-                        <p className="text-xs text-stone-300 font-medium pt-0.5">
+                        <p className="font-sans text-xs sm:text-sm text-stone-200 font-medium">
                             {officeName}
                         </p>
                     </div>
                 </div>
 
-                {/* System Title & Scope */}
-                <div className="border-l-2 border-yellow-500/80 pl-4 py-2.5 my-6 bg-black/20 rounded-r-lg">
-                    <span className="inline-block text-[11px] uppercase tracking-wider text-yellow-300/90 font-semibold mb-1">
+                {/* Simplified System Information Box */}
+                <div className="border-l-2 border-amber-400 pl-4 py-2.5 my-4 bg-black/15 rounded-r-lg">
+                    <span className="inline-block text-xs uppercase tracking-wider text-amber-300 font-semibold font-sans mb-1">
                         {badgeText}
                     </span>
-                    <h2 className="text-xl lg:text-2xl font-bold tracking-tight text-white leading-snug">
+                    <h2 className="text-base lg:text-lg font-bold tracking-tight text-white leading-snug font-sans">
                         {headline}
                     </h2>
-                    <p className="text-stone-300 text-xs leading-relaxed mt-1.5 font-normal">
+                    <p className="text-xs sm:text-sm text-stone-200 leading-relaxed mt-1 font-sans">
                         {subheadline}
                     </p>
                 </div>
             </div>
 
-            {/* Restrained Scope Note */}
-            <div className="pt-6 mt-6 border-t border-red-800/50 text-xs text-stone-300 space-y-1">
-                <p className="font-medium text-stone-200">
+            {/* Streamlined Scope Footer */}
+            <div className="pt-4 border-t border-white/15 text-xs sm:text-sm text-stone-200 space-y-1 font-sans">
+                <p className="font-medium text-white">
                     Official Consumables &amp; Supplies Administration
                 </p>
-                <p className="text-[11px] text-stone-400">
-                    Inventory Receiving &bull; Issuance Processing &bull; RFID Tracking &bull; Automated Reporting
+                <p className="text-xs text-stone-300">
+                    RFID Inventory Tracking &bull; Automated Reporting
                 </p>
             </div>
         </div>

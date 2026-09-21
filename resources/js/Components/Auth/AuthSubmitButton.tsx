@@ -22,12 +22,12 @@ export default function AuthSubmitButton({
             type={type}
             disabled={disabled || processing}
             aria-busy={processing}
-            className={`w-full inline-flex items-center justify-center py-2.5 px-4 bg-red-900 hover:bg-red-950 dark:bg-red-800 dark:hover:bg-red-700 focus:bg-red-950 dark:focus:bg-red-700 active:bg-red-950 dark:active:bg-red-900 focus:outline-hidden focus:ring-2 focus:ring-red-900/30 dark:focus:ring-red-700/50 focus:ring-offset-1 dark:focus:ring-offset-slate-900 text-white text-sm font-semibold rounded-lg shadow-xs transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+            className={`w-full min-h-[44px] inline-flex items-center justify-center py-2.5 px-6 bg-[#7B1113] hover:bg-[#600e0f] active:bg-[#4d0b0c] dark:bg-red-800 dark:hover:bg-red-700 dark:active:bg-red-900 active:scale-[0.99] text-white text-sm sm:text-base font-semibold rounded-lg shadow-sm transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#7B1113] dark:focus-visible:ring-red-400 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900 disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer ${className}`}
             {...props}
         >
             {processing ? (
                 <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin shrink-0" aria-hidden="true" />
+                    <Loader2 className="w-4 h-4 mr-2.5 animate-spin shrink-0" aria-hidden="true" />
                     <span>{loadingText}</span>
                 </>
             ) : (
