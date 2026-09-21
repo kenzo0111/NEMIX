@@ -18,28 +18,28 @@ export default function AuthBrandPanel({
     const officeName = branding?.officeName || 'Supply & Property Management Office (SPMO)';
 
     return (
-        <div className="hidden md:flex md:w-5/12 lg:w-[44%] text-white p-8 lg:p-10 flex-col justify-between relative overflow-hidden bg-[#7B1113] border-r border-[#600e0f] dark:border-slate-800">
-            {/* Institutional Identity Block: Horizontal Logo + Name Lockup */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-3.5">
-                    <div className="bg-white p-2.5 rounded-xl shadow-xs shrink-0 flex items-center justify-center">
-                        <ApplicationLogo alt={`${institutionName} Seal`} className="h-14 w-14 object-contain" />
-                    </div>
-                    <div className="space-y-0.5 min-w-0">
-                        <p className="font-sans text-[11px] uppercase tracking-[0.14em] text-yellow-400 font-bold">
-                            Republic of the Philippines
-                        </p>
-                        <h1 className="font-serif text-lg sm:text-xl lg:text-2xl font-bold uppercase leading-tight text-white tracking-tight">
-                            {institutionName}
-                        </h1>
-                        <p className="font-sans text-xs text-stone-200/90 font-medium">
-                            {officeName}
-                        </p>
-                    </div>
+        <div className="hidden md:flex md:w-5/12 lg:w-[44%] text-white p-8 lg:p-10 flex-col justify-between relative overflow-hidden bg-red-950 border-r border-red-900/40 dark:border-slate-800">
+            {/* 1. Top: Institutional Identity Block: Horizontal Logo + Name Lockup */}
+            <div className="flex items-center gap-3.5">
+                <div className="bg-white p-2.5 rounded-xl shadow-xs shrink-0 flex items-center justify-center">
+                    <ApplicationLogo alt={`${institutionName} Seal`} className="h-14 w-14 object-contain" />
                 </div>
+                <div className="space-y-0.5 min-w-0">
+                    <p className="font-sans text-[11px] uppercase tracking-[0.14em] text-yellow-400 font-bold">
+                        Republic of the Philippines
+                    </p>
+                    <h1 className="font-serif text-lg sm:text-xl lg:text-2xl font-bold uppercase leading-tight text-white tracking-tight">
+                        {institutionName}
+                    </h1>
+                    <p className="font-sans text-xs text-stone-200/90 font-medium">
+                        {officeName}
+                    </p>
+                </div>
+            </div>
 
-                {/* System Information Box with Yellow Left Accent */}
-                <div className="border-l-[3px] border-yellow-500 pl-4 py-3 my-6 bg-black/25 rounded-r-lg">
+            {/* 2. Middle: System Information Box - Centered vertically in the panel */}
+            <div className="my-auto py-6">
+                <div className="border-l-[3px] border-yellow-500 pl-4 py-3 bg-black/30 rounded-r-lg">
                     <span className="inline-block text-[11px] uppercase tracking-wider text-yellow-400 font-bold font-sans mb-1">
                         {badgeText}
                     </span>
@@ -52,7 +52,7 @@ export default function AuthBrandPanel({
                 </div>
             </div>
 
-            {/* Scope & Capabilities Footer */}
+            {/* 3. Bottom: Scope & Capabilities Footer */}
             <div className="pt-6 border-t border-white/15 space-y-1 font-sans">
                 <p className="text-xs font-semibold text-white">
                     Official Consumables &amp; Supplies Administration
