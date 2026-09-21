@@ -34,9 +34,9 @@ export default function Login({
 
     return (
         <FullAuthLayout
-            badgeText="Institutional Access"
-            headline="Smart Supply and Inventory Management System"
-            subheadline="RFID Inventory Tracking and Automated Reporting"
+            badgeText="Official Portal"
+            headline="Supply &amp; Property Management System"
+            subheadline="Centralized consumable inventory records, stock movement control, and verified property tracking."
             headerSlot={
                 <div className="mb-6 pb-3.5 border-b border-stone-200 dark:border-slate-800">
                     <h2 className="text-xl sm:text-2xl font-bold text-stone-900 dark:text-slate-100 font-serif tracking-tight">
