@@ -34,16 +34,16 @@ export default function Login({
 
     return (
         <FullAuthLayout
-            badgeText="Official Portal"
-            headline="Supply &amp; Property Management System"
-            subheadline="Centralized consumable inventory records, stock movement control, and verified property tracking."
+            badgeText="INSTITUTIONAL ACCESS"
+            headline="Smart Supply and Inventory Management System"
+            subheadline="RFID Inventory Tracking and Automated Reporting"
             headerSlot={
-                <div className="mb-6 pb-3.5 border-b border-stone-200 dark:border-slate-800">
-                    <h2 className="text-xl sm:text-2xl font-bold text-stone-900 dark:text-slate-100 font-serif tracking-tight">
+                <div className="mb-6 pb-4 border-b border-stone-200/80 dark:border-slate-800">
+                    <h2 className="text-2xl font-bold text-stone-900 dark:text-slate-100 font-serif tracking-tight">
                         Administrative Login
                     </h2>
-                    <p className="text-sm text-stone-600 dark:text-slate-300 mt-1 font-sans">
-                        Sign in using your authorized institutional account.
+                    <p className="text-xs sm:text-sm text-stone-500 dark:text-slate-400 mt-1 font-sans">
+                        Sign in using your institutional account.
                     </p>
                 </div>
             }

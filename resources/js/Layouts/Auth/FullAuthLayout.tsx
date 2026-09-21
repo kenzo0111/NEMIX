@@ -46,7 +46,7 @@ export default function FullAuthLayout({
                 />
 
                 {/* Right Form Panel: Primary visual focus */}
-                <div className="w-full md:w-7/12 lg:w-[60%] p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-white dark:bg-slate-900">
+                <div className="w-full md:w-7/12 lg:w-[56%] p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-white dark:bg-slate-900">
                     <div className="max-w-md mx-auto w-full">
                         {/* Mobile Condensed Brand Header */}
                         <div className="md:hidden flex items-center gap-3 pb-4 mb-5 border-b border-stone-200 dark:border-slate-800">
