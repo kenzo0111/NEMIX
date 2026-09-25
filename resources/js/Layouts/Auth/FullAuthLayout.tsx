@@ -46,7 +46,7 @@ export default function FullAuthLayout({
                 />
 
                 {/* Right Form Panel: Primary visual focus */}
-                <div className="relative w-full md:w-7/12 lg:w-[56%] p-6 sm:p-10 lg:p-12 flex flex-col justify-between bg-gradient-to-b from-stone-50/30 via-white to-stone-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 overflow-hidden">
+                <div className="relative w-full md:w-7/12 lg:w-[56%] p-6 sm:p-9 lg:p-10 flex flex-col justify-between bg-gradient-to-b from-stone-50/30 via-white to-stone-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 overflow-hidden">
                     {/* Subtle university watermark accent */}
                     <div
                         className="absolute -bottom-14 -right-14 w-60 h-60 pointer-events-none opacity-[0.035] dark:opacity-[0.025] select-none"
