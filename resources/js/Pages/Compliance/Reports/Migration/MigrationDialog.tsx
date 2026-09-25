@@ -96,7 +96,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                 </span>
                             </div>
                             <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mt-0.5 truncate">
-                                Extract, map, validate, and import legacy COA audit spreadsheets and documents into official database records.
+                                Extract table rows, map fields, review validation, and import legacy COA records from spreadsheets and supported documents.
                             </p>
                         </div>
                     </div>
@@ -163,7 +163,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                 2. Document Upload & Extraction
                             </span>
                             <span className="text-[10px] text-gray-400 dark:text-slate-500 font-mono">
-                                Excel (.xlsx, .xls) • CSV • PDF • Word (.docx)
+                                Excel (.xlsx, .xls) • CSV • PDF (.pdf) • Word (.docx, .doc)
                             </span>
                         </div>
 
@@ -171,7 +171,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                             <input
                                 type="file"
                                 disabled={isExtracting}
-                                accept=".xlsx,.xls,.csv,.pdf,.docx"
+                                accept=".xlsx,.xls,.csv,.pdf,.docx,.doc"
                                 onChange={handleFileChange}
                                 className="block w-full text-xs text-gray-600 dark:text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-red-900 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-red-950 file:shadow-2xs file:cursor-pointer disabled:opacity-50"
                             />
@@ -393,7 +393,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                         </div>
                     ) : (
                         <div className="p-8 text-center border border-dashed border-gray-200 dark:border-slate-800 rounded-lg text-xs text-gray-500 dark:text-slate-400">
-                            Upload a legacy {formType} document file (Excel, CSV, PDF, DOCX) to inspect detected records and field mappings before importing to the database.
+                            Upload a legacy {formType} spreadsheet (Excel, CSV) or document (PDF, Word .docx, .doc) to extract table rows, review detected records and field mappings, and validate them before importing.
                         </div>
                     )}
                 </div>
@@ -441,4 +441,3 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
         </Modal>
     );
 };
-

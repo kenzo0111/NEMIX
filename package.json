@@ -28,6 +28,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "cfb": "^1.2.2",
         "chart.js": "^4.5.1",
         "exceljs": "^4.4.0",
         "html2canvas": "^1.4.1",

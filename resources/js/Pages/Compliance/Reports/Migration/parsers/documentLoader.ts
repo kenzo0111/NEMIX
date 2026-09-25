@@ -2,12 +2,14 @@ let exceljsModule: any = null;
 let mammothModule: typeof import('mammoth') | null = null;
 let pdfjsModule: typeof import('pdfjs-dist/legacy/build/pdf.mjs') | null = null;
 let tesseractModule: typeof import('tesseract.js') | null = null;
+let cfbModule: any = null;
 
 export interface LoadedParsers {
     exceljs: any;
     mammoth: typeof import('mammoth');
     pdfjs: typeof import('pdfjs-dist/legacy/build/pdf.mjs');
     tesseract: typeof import('tesseract.js');
+    cfb: any;
 }
 
 export const loadDocumentParsers = async (): Promise<LoadedParsers> => {
@@ -32,10 +34,16 @@ export const loadDocumentParsers = async (): Promise<LoadedParsers> => {
         tesseractModule = await import('tesseract.js');
     }
 
+    if (!cfbModule) {
+        cfbModule = await import('cfb');
+    }
+
     return {
         exceljs: exceljsModule,
         mammoth: mammothModule,
         pdfjs: pdfjsModule,
         tesseract: tesseractModule,
+        cfb: cfbModule,
     };
 };
+

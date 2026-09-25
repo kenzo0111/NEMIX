@@ -4,8 +4,9 @@ import axios from 'axios';
 import { MigrationFormType, MigrationGroup, MigrationValidationSummary } from '../Migration/migrationTypes';
 import { loadDocumentParsers } from '../Migration/parsers/documentLoader';
 import { parseWorkbookToGroups } from '../Migration/parsers/workbookParser';
-import { extractTextFromPdf } from '../Migration/parsers/pdfParser';
-import { extractTextFromDocx } from '../Migration/parsers/docxParser';
+import { extractGroupsFromPdf } from '../Migration/parsers/pdfParser';
+import { extractGroupsFromDocx } from '../Migration/parsers/docxParser';
+import { extractGroupsFromDoc } from '../Migration/parsers/docParser';
 import { parseFormSpecificRows, validateMigrationGroups } from '../Migration/parsers/validation';
 
 export function useHistoricalMigration(migratedRecords: any[] = [], onSuccess?: () => void) {
@@ -44,8 +45,8 @@ export function useHistoricalMigration(migratedRecords: any[] = [], onSuccess?: 
     const processFile = async (file: File) => {
         const lowerName = file.name.toLowerCase();
         const extension = lowerName.split('.').pop();
-        if (!extension || !['xlsx', 'xls', 'csv', 'pdf', 'docx'].includes(extension) || file.size > 10 * 1024 * 1024) {
-            setStatusMessage('Choose an XLSX, XLS, CSV, PDF, or DOCX file no larger than 10 MB.');
+        if (!extension || !['xlsx', 'xls', 'csv', 'pdf', 'docx', 'doc'].includes(extension) || file.size > 10 * 1024 * 1024) {
+            setStatusMessage('Choose an XLSX, XLS, CSV, PDF, DOCX, or DOC file no larger than 10 MB.');
             return;
         }
         setFileName(file.name);
@@ -53,7 +54,7 @@ export function useHistoricalMigration(migratedRecords: any[] = [], onSuccess?: 
         setStatusMessage('Initializing document parsers...');
 
         try {
-            const { exceljs, mammoth, pdfjs, tesseract } = await loadDocumentParsers();
+            const { exceljs, mammoth, pdfjs, tesseract, cfb } = await loadDocumentParsers();
 
             let extractedRaw = '';
 
@@ -98,9 +99,17 @@ export function useHistoricalMigration(migratedRecords: any[] = [], onSuccess?: 
                 const parsedWorkbookGroups = parseWorkbookToGroups(workbook, formType);
                 extractedRaw = JSON.stringify({ isGroups: true, groups: parsedWorkbookGroups });
             } else if (lowerName.endsWith('.docx')) {
-                extractedRaw = await extractTextFromDocx(file, mammoth, tesseract, setStatusMessage);
+                setStatusMessage('Extracting table rows from Word document (.docx)...');
+                const docxGroups = await extractGroupsFromDocx(file, mammoth, tesseract, formType, setStatusMessage);
+                extractedRaw = JSON.stringify({ isGroups: true, groups: docxGroups });
+            } else if (lowerName.endsWith('.doc')) {
+                setStatusMessage('Extracting table rows from Word document (.doc)...');
+                const docGroups = await extractGroupsFromDoc(file, cfb, formType, setStatusMessage);
+                extractedRaw = JSON.stringify({ isGroups: true, groups: docGroups });
             } else if (lowerName.endsWith('.pdf')) {
-                extractedRaw = await extractTextFromPdf(file, pdfjs, tesseract, setStatusMessage);
+                setStatusMessage('Extracting table rows and layout from PDF document (.pdf)...');
+                const pdfGroups = await extractGroupsFromPdf(file, pdfjs, tesseract, formType, setStatusMessage);
+                extractedRaw = JSON.stringify({ isGroups: true, groups: pdfGroups });
             } else {
                 extractedRaw = await file.text();
             }
@@ -116,12 +125,15 @@ export function useHistoricalMigration(migratedRecords: any[] = [], onSuccess?: 
 
             setGroups(validatedGroups);
             setValidation(validationSummary);
+
+            if (validationSummary.totalDetected === 0) {
+                setStatusMessage('No records detected. Please check file format, headers, and selected form type.');
+            }
         } catch (err: any) {
             console.error('File extraction error:', err);
-            setStatusMessage('Error parsing file.');
+            setStatusMessage('Error parsing file: ' + (err?.message || 'unknown error'));
         } finally {
             setIsExtracting(false);
-            setStatusMessage('');
         }
     };
 

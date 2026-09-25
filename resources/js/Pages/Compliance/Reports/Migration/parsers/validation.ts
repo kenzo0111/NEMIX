@@ -45,7 +45,35 @@ export const parseFormSpecificRows = (
         // Not JSON
     }
 
-    // Fallback for raw text lines (DOCX/PDF)
+    // PDF and Word extraction emit tab-separated table cells. Turn those rows into
+    // header-keyed objects before applying the same form-specific field mapper.
+    const tabularLines = trimmed.split(/\r?\n/).map((line) => line.split('\t').map((cell) => cell.trim()));
+    const keywords = formType === 'RSMI'
+        ? ['item', 'description', 'quantity', 'qty', 'issued', 'stock']
+        : formType === 'RPCI'
+            ? ['article', 'description', 'balance', 'hand', 'stock']
+            : formType === 'MR' || formType === 'MOR'
+                ? ['description', 'item', 'quantity', 'qty', 'property', 'serial']
+                : ['date', 'reference', 'receipt', 'issue', 'balance'];
+    const headerIndex = tabularLines.findIndex((row) => {
+        const content = row.join(' ').toLowerCase();
+        return row.filter(Boolean).length >= 3 && keywords.filter((word) => content.includes(word)).length >= 3;
+    });
+    if (headerIndex >= 0) {
+        const headers = tabularLines[headerIndex].map((header, index) => header || `__col_${index}`);
+        const lastRefObj = { current: '', centerCode: '' };
+        const items = tabularLines.slice(headerIndex + 1)
+            .filter((row) => row.some(Boolean))
+            .map((row, index) => {
+                const record: Record<string, string> = {};
+                headers.forEach((header, column) => { record[header] = row[column] || ''; });
+                return mapRowToItem(record, index, formType, {}, lastRefObj);
+            })
+            .filter((item): item is NonNullable<typeof item> => Boolean(item));
+        if (items.length > 0) return [{ sheetName: 'Extracted Table', metadata: {}, items }];
+    }
+
+    // Fallback for plain text documents without detectable table structure.
     const lines = trimmed
         .split('\n')
         .map((l) => l.trim())
