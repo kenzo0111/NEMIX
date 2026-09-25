@@ -15,22 +15,22 @@ use Illuminate\Support\Facades\Schema;
 
 class ComplianceMigrationController extends Controller
 {
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         return $this->processMigration($request);
     }
 
-    public function migrateStockCard(Request $request): RedirectResponse
+    public function migrateStockCard(Request $request): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         return $this->processMigration($request, 'STOCK_CARD');
     }
 
-    public function migrateMemorandumReceipt(Request $request): RedirectResponse
+    public function migrateMemorandumReceipt(Request $request): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         return $this->processMigration($request, 'MR');
     }
 
-    protected function processMigration(Request $request, ?string $forcedFormType = null): RedirectResponse
+    protected function processMigration(Request $request, ?string $forcedFormType = null): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         @set_time_limit(300);
         @ini_set('memory_limit', '512M');
@@ -359,6 +359,15 @@ class ComplianceMigrationController extends Controller
             'status' => 'completed',
             'message' => "Migrated {$saved} historical {$normalizedFormType} records to dedicated table; skipped {$skipped} duplicates or invalid rows.",
         ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Batch migration completed: {$saved} records imported.",
+                'saved' => $saved,
+                'skipped' => $skipped,
+            ]);
+        }
 
         return redirect()->route('compliance.reports')->with('success', "Batch migration completed: {$saved} records imported.");
     }

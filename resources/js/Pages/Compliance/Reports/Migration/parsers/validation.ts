@@ -11,15 +11,17 @@ export const parseFormSpecificRows = (
     try {
         const parsed = JSON.parse(trimmed);
         if (parsed && parsed.isGroups) {
-            return parsed.groups.map((group: any) => {
-                const lastRefObj = { current: '', centerCode: '' };
-                const items: any[] = [];
-                group.items.forEach((row: any, idx: number) => {
-                    const mapped = mapRowToItem(row, idx, formType, group.metadata, lastRefObj);
-                    if (mapped) items.push(mapped);
-                });
-                return { ...group, items };
-            });
+            return parsed.groups
+                .map((group: any) => {
+                    const lastRefObj = { current: '', centerCode: '' };
+                    const items: any[] = [];
+                    group.items.forEach((row: any, idx: number) => {
+                        const mapped = mapRowToItem(row, idx, formType, group.metadata, lastRefObj);
+                        if (mapped) items.push(mapped);
+                    });
+                    return { ...group, items };
+                })
+                .filter((group: any) => group.items.length > 0);
         }
         if (Array.isArray(parsed)) {
             const lastRefObj = { current: '', centerCode: '' };

@@ -34,6 +34,52 @@ export const getRowVal = (row: any, possibleKeys: string[]): string => {
 };
 
 export const formatDateToIso = (rawDate: any): string => {
+    if (!rawDate) return getLocalDateString();
+    const str = String(rawDate).trim();
+
+    // Support COA period ranges e.g. "January 1-31, 2024", "January 1-31,2024", "Jan 1-31, 2024"
+    const rangeMatch = str.match(/^([A-Za-z]+)\s+(\d{1,2})\s*[-–]\s*(\d{1,2})\s*,?\s*(\d{4})/);
+    if (rangeMatch) {
+        const monthStr = rangeMatch[1].toLowerCase();
+        const dayStr = rangeMatch[3].padStart(2, '0');
+        const yearStr = rangeMatch[4];
+        const monthMap: Record<string, string> = {
+            jan: '01', january: '01',
+            feb: '02', february: '02',
+            mar: '03', march: '03',
+            apr: '04', april: '04',
+            may: '05',
+            jun: '06', june: '06',
+            jul: '07', july: '07',
+            aug: '08', august: '08',
+            sep: '09', sept: '09', september: '09',
+            oct: '10', october: '10',
+            nov: '11', november: '11',
+            dec: '12', december: '12',
+        };
+        const m = monthMap[monthStr] || monthMap[monthStr.slice(0, 3)];
+        if (m) {
+            return `${yearStr}-${m}-${dayStr}`;
+        }
+    }
+
+    // Support single month & year e.g. "January 2024"
+    const monthYearMatch = str.match(/^([A-Za-z]+)\s*,?\s*(\d{4})$/);
+    if (monthYearMatch) {
+        const monthStr = monthYearMatch[1].toLowerCase();
+        const yearStr = monthYearMatch[2];
+        const monthMap: Record<string, string> = {
+            jan: '01', january: '01', feb: '02', february: '02', mar: '03', march: '03',
+            apr: '04', april: '04', may: '05', jun: '06', june: '06', jul: '07', july: '07',
+            aug: '08', august: '08', sep: '09', sept: '09', september: '09', oct: '10', october: '10',
+            nov: '11', november: '11', dec: '12', december: '12',
+        };
+        const m = monthMap[monthStr] || monthMap[monthStr.slice(0, 3)];
+        if (m) {
+            return `${yearStr}-${m}-01`;
+        }
+    }
+
     return getLocalDateString(rawDate);
 };
 

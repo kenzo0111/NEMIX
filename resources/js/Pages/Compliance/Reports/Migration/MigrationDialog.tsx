@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import Modal from '@/Components/Modal';
 import Select from 'react-select';
 import { customSelectStyles, REPORT_TYPE_OPTIONS } from '../constants';
@@ -34,20 +34,33 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
         submitMigration,
     } = migration;
 
+    const [selectedSheetTab, setSelectedSheetTab] = useState<string>('ALL');
+
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setSelectedSheetTab('ALL');
             processFile(file);
         }
     };
 
+    const uniqueSheets = Array.from(new Set(groups.map((g) => g.sheetName)));
+    const displayedGroups = selectedSheetTab === 'ALL'
+        ? groups
+        : groups.filter((g) => g.sheetName === selectedSheetTab);
+
+    const displayedValidCount = displayedGroups.reduce((acc, g) => acc + (g.validCount || 0), 0);
+
     const handleConfirm = () => {
-        submitMigration((res) => {
-            if (res.success) {
-                onClose();
-            }
-            onCompleteNotification?.(res);
-        });
+        submitMigration(
+            (res) => {
+                if (res.success) {
+                    onClose();
+                }
+                onCompleteNotification?.(res);
+            },
+            selectedSheetTab === 'ALL' ? undefined : displayedGroups,
+        );
     };
 
     const previewRows = groups.flatMap((g) => g.items);
@@ -254,17 +267,61 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                     {/* Review Detected Records Table */}
                     {groups.length > 0 ? (
                         <div className="space-y-4">
-                            <h4 className="text-xs font-bold uppercase text-gray-700 dark:text-slate-300 tracking-wider">
-                                Detected Records Review
-                            </h4>
-                            {groups.map((group, gIdx) => (
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200/80 dark:border-slate-800 pb-2.5">
+                                <h4 className="text-xs font-bold uppercase text-gray-700 dark:text-slate-300 tracking-wider flex items-center gap-2">
+                                    <span>Detected Records Review</span>
+                                    <span className="text-[11px] font-normal text-gray-500 dark:text-slate-400 font-mono">
+                                        ({selectedSheetTab === 'ALL' ? validation.totalDetected : displayedGroups.reduce((a, g) => a + g.items.length, 0)} records in {displayedGroups.length} batches)
+                                    </span>
+                                </h4>
+
+                                {uniqueSheets.length > 1 && (
+                                    <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedSheetTab('ALL')}
+                                            className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-all shrink-0 cursor-pointer ${
+                                                selectedSheetTab === 'ALL'
+                                                    ? 'bg-red-900 text-white font-bold shadow-xs'
+                                                    : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700 font-medium'
+                                            }`}
+                                        >
+                                            All Sheets ({groups.length})
+                                        </button>
+                                        {uniqueSheets.map((sName) => {
+                                            const sCount = groups.filter((g) => g.sheetName === sName).reduce((a, g) => a + g.items.length, 0);
+                                            return (
+                                                <button
+                                                    key={sName}
+                                                    type="button"
+                                                    onClick={() => setSelectedSheetTab(sName)}
+                                                    className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-all shrink-0 cursor-pointer ${
+                                                        selectedSheetTab === sName
+                                                            ? 'bg-red-900 text-white font-bold shadow-xs'
+                                                            : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700 font-medium'
+                                                    }`}
+                                                >
+                                                    {sName} ({sCount})
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+
+                            {displayedGroups.map((group, gIdx) => (
                                 <div key={gIdx} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-2xs">
-                                    <div className="px-4 py-2.5 bg-gray-50 dark:bg-slate-800/60 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between text-xs">
-                                        <div className="font-semibold text-gray-800 dark:text-slate-200">
-                                            Sheet: <span className="font-mono text-gray-900 dark:text-slate-100">{group.sheetName}</span>
+                                    <div className="px-4 py-2.5 bg-gray-50 dark:bg-slate-800/60 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between text-xs flex-wrap gap-2">
+                                        <div className="font-semibold text-gray-800 dark:text-slate-200 flex items-center gap-2 flex-wrap">
+                                            <span>Sheet: <strong className="font-mono text-gray-900 dark:text-slate-100">{group.sheetName}</strong></span>
                                             {group.metadata?.topSerialNo && (
-                                                <span className="ml-3 text-gray-500 dark:text-slate-400">
-                                                    Serial: <strong>{group.metadata.topSerialNo}</strong>
+                                                <span className="text-gray-600 dark:text-slate-300 font-mono text-[11px] bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-gray-200/80 dark:border-slate-700">
+                                                    Serial: <strong className="text-gray-900 dark:text-slate-100">{group.metadata.topSerialNo}</strong>
+                                                </span>
+                                            )}
+                                            {group.metadata?.topDate && (
+                                                <span className="text-gray-500 dark:text-slate-400 text-[11px]">
+                                                    • {group.metadata.topDate}
                                                 </span>
                                             )}
                                         </div>
@@ -355,7 +412,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                     <button
                         type="button"
                         onClick={handleConfirm}
-                        disabled={isSubmitting || validation.validCount === 0}
+                        disabled={isSubmitting || (selectedSheetTab === 'ALL' ? validation.validCount === 0 : displayedValidCount === 0)}
                         className="inline-flex items-center justify-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-red-900 rounded-lg hover:bg-red-950 disabled:opacity-50 transition-all shadow-xs active:scale-[0.99] cursor-pointer w-full sm:w-auto"
                     >
                         {isSubmitting ? (
@@ -364,14 +421,18 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                 </svg>
-                                <span>Importing Records...</span>
+                                <span>{statusMessage || 'Importing Records...'}</span>
                             </>
                         ) : (
                             <>
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
                                 </svg>
-                                <span>Import {validation.validCount} Valid Records</span>
+                                <span>
+                                    {selectedSheetTab === 'ALL'
+                                        ? `Import All ${validation.validCount} Valid Records`
+                                        : `Import ${selectedSheetTab} (${displayedValidCount} Valid Records)`}
+                                </span>
                             </>
                         )}
                     </button>

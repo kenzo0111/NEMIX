@@ -12,7 +12,7 @@ export const parseWorkbookToGroups = (
 
     let targetKeywords: string[] = [];
     if (formType === 'RSMI') {
-        targetKeywords = ['ris', 'item', 'stock', 'quantity', 'qty', 'issued', 'unit cost', 'amount', 'responsibility', 'center code'];
+        targetKeywords = ['ris', 'item', 'stock', 'quantity', 'qty', 'issued', 'unit cost', 'amount', 'responsibility', 'center code', 'unit'];
     } else if (formType === 'RPCI') {
         targetKeywords = ['article', 'description', 'stock', 'property', 'unit', 'unit value', 'balance', 'hand', 'shortage', 'remarks'];
     } else if (formType === 'MR' || formType === 'MOR') {
@@ -79,14 +79,24 @@ export const parseWorkbookToGroups = (
             let maxMatches = 0;
             const currentMetadata: Record<string, string> = {};
 
-            const scanLimit = Math.min(r + 50, matrix.length);
-            let foundHeader = false;
+            const scanLimit = Math.min(r + 60, matrix.length);
             for (let sr = r; sr < scanLimit; sr++) {
                 const row = matrix[sr];
                 if (!Array.isArray(row)) continue;
 
                 const rowStr = row.map((c) => String(c || '').toLowerCase().trim()).join(' ');
-                if (rowStr.includes('to be filled up by') || rowStr.includes('recapitulation')) {
+                // Skip non-table header rows: titles, instructions, recaps
+                if (
+                    rowStr.includes('to be filled up by') ||
+                    rowStr.includes('recapitulation') ||
+                    rowStr.includes('recap') ||
+                    rowStr.includes('appendix 6') ||
+                    rowStr.includes('report of supplies and materials') ||
+                    rowStr.includes('report on the physical count') ||
+                    rowStr.includes('report of physical count') ||
+                    rowStr.includes('stock card') ||
+                    rowStr.includes('memorandum receipt')
+                ) {
                     continue;
                 }
 
@@ -129,17 +139,26 @@ export const parseWorkbookToGroups = (
                     if (officeVal) currentMetadata['topOffice'] = officeVal;
                 }
 
-                let matches = 0;
+                // Count UNIQUE matching target keywords in this candidate row
+                const matchedKwSet = new Set<string>();
                 row.forEach((cell) => {
-                    if (isMatchKeyword(cell, targetKeywords)) matches++;
+                    const cellStr = String(cell || '').toLowerCase().trim();
+                    if (!cellStr) return;
+                    targetKeywords.forEach((kw) => {
+                        if (cellStr.includes(kw)) {
+                            matchedKwSet.add(kw);
+                        }
+                    });
                 });
 
-                if (matches >= 2 && matches > maxMatches) {
+                const matches = matchedKwSet.size;
+                if (matches >= 3 && matches > maxMatches) {
                     maxMatches = matches;
                     headerRowIdx = sr;
-                    if (matches >= 4) foundHeader = true;
+                    if (matches >= 4) {
+                        break;
+                    }
                 }
-                if (foundHeader && headerRowIdx !== -1) break;
             }
 
             if (headerRowIdx === -1) break;
@@ -167,7 +186,6 @@ export const parseWorkbookToGroups = (
 
             r = actualDataStart;
             const resultRows: any[] = [];
-            let hitRecapOrFooter = false;
 
             while (r < matrix.length) {
                 const row = matrix[r];
@@ -185,9 +203,9 @@ export const parseWorkbookToGroups = (
                     fullRowStr.includes('certified correct') ||
                     fullRowStr.includes('posted by') ||
                     fullRowStr.includes('approved by') ||
-                    fullRowStr.includes('i hereby certify')
+                    fullRowStr.includes('i hereby certif') ||
+                    fullRowStr.includes('correctness of the above')
                 ) {
-                    hitRecapOrFooter = true;
                     r++;
                     break;
                 }
@@ -235,30 +253,31 @@ export const parseWorkbookToGroups = (
                 });
             }
 
-            if (hitRecapOrFooter) {
-                let foundNewForm = false;
-                while (r < matrix.length) {
-                    const nextRow = matrix[r];
-                    if (Array.isArray(nextRow)) {
-                        const str = nextRow.map((c) => String(c || '').toLowerCase().trim()).join(' ');
-                        if (
-                            str.includes('report of supplies and materials issued') ||
-                            str.includes('report on the physical count') ||
-                            str.includes('stock card') ||
-                            str.includes('memorandum receipt') ||
-                            str.includes('appendix 64') ||
-                            str.includes('appendix 66') ||
-                            str.includes('appendix 63')
-                        ) {
-                            foundNewForm = true;
-                            break;
-                        }
+            // Advance to next report/page in the worksheet if present
+            let foundNewForm = false;
+            while (r < matrix.length) {
+                const nextRow = matrix[r];
+                if (Array.isArray(nextRow)) {
+                    const str = nextRow.map((c) => String(c || '').toLowerCase().trim()).join(' ');
+                    if (
+                        str.includes('report of supplies and materials issued') ||
+                        str.includes('report on the physical count') ||
+                        str.includes('report of physical count') ||
+                        str.includes('stock card') ||
+                        str.includes('memorandum receipt') ||
+                        str.includes('appendix 64') ||
+                        str.includes('appendix 66') ||
+                        str.includes('appendix 63') ||
+                        str.includes('entity name')
+                    ) {
+                        foundNewForm = true;
+                        break;
                     }
-                    r++;
                 }
-                if (!foundNewForm) {
-                    break;
-                }
+                r++;
+            }
+            if (!foundNewForm) {
+                break;
             }
         }
     });

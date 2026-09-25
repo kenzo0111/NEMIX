@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
+import axios from 'axios';
 import { MigrationFormType, MigrationGroup, MigrationValidationSummary } from '../Migration/migrationTypes';
 import { loadDocumentParsers } from '../Migration/parsers/documentLoader';
 import { parseWorkbookToGroups } from '../Migration/parsers/workbookParser';
@@ -138,9 +139,13 @@ export function useHistoricalMigration(migratedRecords: any[] = [], onSuccess?: 
         }
     };
 
-    const submitMigration = (onComplete?: (result: { success: boolean; message: string }) => void) => {
+    const submitMigration = async (
+        onComplete?: (result: { success: boolean; message: string }) => void,
+        targetGroups?: MigrationGroup[],
+    ) => {
+        const groupsToProcess = targetGroups || groups;
         const payloadRecords: any[] = [];
-        groups.forEach((group) => {
+        groupsToProcess.forEach((group) => {
             group.items.forEach((row) => {
                 if (!row.errors || row.errors.length === 0) {
                     payloadRecords.push({
@@ -181,11 +186,6 @@ export function useHistoricalMigration(migratedRecords: any[] = [], onSuccess?: 
             return;
         }
 
-        if (payloadRecords.length > 500) {
-            onComplete?.({ success: false, message: 'Import up to 500 records at a time.' });
-            return;
-        }
-
         const endpoint =
             formType === 'RSMI' || formType === 'RPCI'
                 ? route('compliance.migrations.store')
@@ -195,33 +195,90 @@ export function useHistoricalMigration(migratedRecords: any[] = [], onSuccess?: 
 
         setIsSubmitting(true);
 
-        router.post(
-            endpoint,
-            {
-                form_type: formType,
-                source: source || fileName || 'historical_migration',
-                records: payloadRecords,
-            },
-            {
-                preserveScroll: true,
-                onStart: () => setIsSubmitting(true),
-                onFinish: () => setIsSubmitting(false),
+        const CHUNK_SIZE = 500;
+        if (payloadRecords.length <= CHUNK_SIZE) {
+            router.post(
+                endpoint,
+                {
+                    form_type: formType,
+                    source: source || fileName || 'historical_migration',
+                    records: payloadRecords,
+                },
+                {
+                    preserveScroll: true,
+                    onStart: () => setIsSubmitting(true),
+                    onFinish: () => setIsSubmitting(false),
+                    onSuccess: () => {
+                        reset();
+                        onSuccess?.();
+                        onComplete?.({
+                            success: true,
+                            message: `Successfully migrated ${payloadRecords.length} historical ${formType} records.`,
+                        });
+                    },
+                    onError: () => {
+                        setIsSubmitting(false);
+                        onComplete?.({
+                            success: false,
+                            message: 'Failed to complete migration batch. Please verify input data and try again.',
+                        });
+                    },
+                },
+            );
+            return;
+        }
+
+        // Multi-batch chunked import for spreadsheets with > 500 records
+        try {
+            const totalBatches = Math.ceil(payloadRecords.length / CHUNK_SIZE);
+            let totalSaved = 0;
+
+            for (let i = 0; i < totalBatches; i++) {
+                const chunk = payloadRecords.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+                setStatusMessage(`Importing batch ${i + 1} of ${totalBatches} (${chunk.length} records)...`);
+
+                const response = await axios.post(
+                    endpoint,
+                    {
+                        form_type: formType,
+                        source: source || fileName || 'historical_migration',
+                        records: chunk,
+                    },
+                    {
+                        headers: {
+                            Accept: 'application/json',
+                        },
+                    },
+                );
+
+                if (response.data && response.data.saved !== undefined) {
+                    totalSaved += response.data.saved;
+                } else {
+                    totalSaved += chunk.length;
+                }
+            }
+
+            reset();
+            router.reload({
+                only: ['migratedRecords'],
                 onSuccess: () => {
-                    reset();
                     onSuccess?.();
                     onComplete?.({
                         success: true,
-                        message: `Successfully migrated ${payloadRecords.length} historical ${formType} records.`,
+                        message: `Successfully migrated ${totalSaved} historical ${formType} records in ${totalBatches} batches.`,
                     });
                 },
-                onError: () => {
-                    onComplete?.({
-                        success: false,
-                        message: 'Failed to complete migration batch. Please verify input data and try again.',
-                    });
-                },
-            },
-        );
+            });
+        } catch (err: any) {
+            console.error('Batch migration error:', err);
+            onComplete?.({
+                success: false,
+                message: err?.response?.data?.message || 'Failed to complete batch migration. Please verify input data.',
+            });
+        } finally {
+            setIsSubmitting(false);
+            setStatusMessage('');
+        }
     };
 
     return {
