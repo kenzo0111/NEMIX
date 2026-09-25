@@ -1,0 +1,117 @@
+/* ==========================================================================
+   Dedicated Print Stylesheet for Audit Logs (Transaction & Login Trails)
+   Standardized layout for institutional audit ledgers.
+   Completely hides dashboard shell, sidebars, headers, toolbars, and controls.
+   ========================================================================== */
+
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 8mm 6mm;
+    }
+
+    /* 1. Global Page & Canvas Resets */
+    html,
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        overflow: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    #app {
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        background: #ffffff !important;
+    }
+
+    /* 2. Hide Dashboard Chrome, Navigation, Aside, Header, Toolbars */
+    body.printing-audit aside,
+    body.printing-audit header,
+    body.printing-audit nav,
+    body.printing-audit .audit-print-hide,
+    .audit-print-hide,
+    .print\:hidden {
+        display: none !important;
+    }
+
+    /* Reset Main container geometry */
+    body.printing-audit main,
+    main.audit-main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        overflow: visible !important;
+    }
+
+    /* 3. Printable Ledger Display */
+    .audit-print-ledger {
+        display: block !important;
+        width: 100% !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* 4. Ledger Table Geometry */
+    .audit-print-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 8.5pt !important;
+        line-height: 1.25 !important;
+    }
+
+    .audit-print-table thead {
+        display: table-header-group !important;
+    }
+
+    .audit-print-table tr {
+        page-break-inside: avoid !important;
+        page-break-after: auto !important;
+    }
+
+    .audit-print-table th {
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        border: 1px solid #475569 !important;
+        padding: 5px 6px !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .audit-print-table td {
+        border: 1px solid #94a3b8 !important;
+        padding: 4.5px 6px !important;
+        vertical-align: top !important;
+        color: #0f172a !important;
+        word-break: break-word !important;
+    }
+
+    .audit-print-badge {
+        display: inline-block !important;
+        padding: 1px 5px !important;
+        border-radius: 3px !important;
+        font-weight: 600 !important;
+        font-size: 7.5pt !important;
+        text-transform: uppercase !important;
+        border: 1px solid #64748b !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}

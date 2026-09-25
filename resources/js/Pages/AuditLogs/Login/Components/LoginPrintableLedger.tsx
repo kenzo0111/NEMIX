@@ -1,0 +1,301 @@
+import React from 'react';
+import { LoginAuditRecord, LoginAuditSummary, LoginAuditFilters } from '../types';
+
+interface LoginPrintableLedgerProps {
+    records: LoginAuditRecord[];
+    summary: LoginAuditSummary;
+    filters: LoginAuditFilters;
+    currentUser?: {
+        name?: string;
+        role?: string;
+        email?: string;
+    };
+    branding?: {
+        institutionName?: string;
+        officeName?: string;
+        logoUrl?: string;
+        acronym?: string;
+    };
+}
+
+const formatPrintDateTime = (isoString?: string | null): string => {
+    if (!isoString) return '—';
+    try {
+        const date = new Date(isoString);
+        if (Number.isNaN(date.getTime())) return isoString;
+        return date.toLocaleString('en-US', {
+            month: 'short',
+            day: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true,
+        });
+    } catch {
+        return isoString || '—';
+    }
+};
+
+export const LoginPrintableLedger: React.FC<LoginPrintableLedgerProps> = ({
+    records,
+    summary,
+    filters,
+    currentUser,
+    branding,
+}) => {
+    const institutionName = branding?.institutionName || 'University of Camarines Norte';
+    const officeName = branding?.officeName || 'Supply & Property Management Office (SPMO)';
+    const printedAt = new Date().toLocaleString('en-US', {
+        month: 'long',
+        day: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+    });
+
+    const getEventBadge = (event: string) => {
+        switch (event) {
+            case 'login_success':
+                return { text: 'SUCCESS', border: 'border-emerald-600', bg: 'bg-emerald-50', textCol: 'text-emerald-900' };
+            case 'login_failed':
+                return { text: 'FAILED', border: 'border-red-600', bg: 'bg-red-50', textCol: 'text-red-900' };
+            case 'logout':
+                return { text: 'LOGOUT', border: 'border-blue-600', bg: 'bg-blue-50', textCol: 'text-blue-900' };
+            default:
+                return { text: event.toUpperCase(), border: 'border-slate-500', bg: 'bg-slate-100', textCol: 'text-slate-800' };
+        }
+    };
+
+    return (
+        <div className="audit-print-ledger p-4 bg-white text-black font-sans">
+            {/* 1. Formal Institutional Header */}
+            <div className="flex items-center justify-between pb-3 mb-3 border-b-2 border-slate-900">
+                <div className="flex items-center gap-3">
+                    <img
+                        src={branding?.logoUrl || '/images/ucnlogo.png'}
+                        alt="Institution Seal"
+                        className="w-14 h-14 object-contain"
+                        onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                        }}
+                    />
+                    <div>
+                        <div className="text-[10px] uppercase font-bold tracking-widest text-slate-700">
+                            Republic of the Philippines
+                        </div>
+                        <h1 className="text-base font-bold uppercase tracking-tight text-slate-900 font-serif leading-tight">
+                            {institutionName}
+                        </h1>
+                        <div className="text-xs font-semibold text-slate-800">
+                            {officeName}
+                        </div>
+                        <div className="text-[10px] text-slate-600">
+                            NEMIX — Networked Enterprise Management & Inventory System
+                        </div>
+                    </div>
+                </div>
+
+                <div className="text-right">
+                    <div className="inline-block px-2.5 py-1 bg-slate-900 text-white font-bold text-xs uppercase tracking-wider rounded">
+                        OFFICIAL AUDIT LEDGER
+                    </div>
+                    <div className="text-[10px] font-bold text-slate-800 mt-1 uppercase">
+                        Authentication & Login Audit Trail
+                    </div>
+                    <div className="text-[10px] text-slate-600">
+                        Classification: Permanent Security Record
+                    </div>
+                </div>
+            </div>
+
+            {/* 2. Audit Scope & Generation Metadata Bar */}
+            <div className="bg-slate-50 border border-slate-300 rounded p-2.5 mb-3 text-[10.5px] leading-tight">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div>
+                        <span className="font-bold text-slate-700 block">Date & Time Printed:</span>
+                        <span className="text-slate-900">{printedAt}</span>
+                    </div>
+                    <div>
+                        <span className="font-bold text-slate-700 block">Generated By:</span>
+                        <span className="text-slate-900">
+                            {currentUser?.name || 'System Administrator'}
+                            {currentUser?.role ? ` (${currentUser.role})` : ''}
+                        </span>
+                    </div>
+                    <div>
+                        <span className="font-bold text-slate-700 block">Date Scope:</span>
+                        <span className="text-slate-900">
+                            {filters.date_from || filters.date_to
+                                ? `${filters.date_from || 'Beginning'} to ${filters.date_to || 'Present'}`
+                                : 'All Recorded Dates'}
+                        </span>
+                    </div>
+                    <div>
+                        <span className="font-bold text-slate-700 block">Ledger Scope:</span>
+                        <span className="text-slate-900">
+                            {records.length} records shown (Total System Logins: {summary.total})
+                        </span>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 pt-2 border-t border-slate-200 text-[10px]">
+                    <div>
+                        <span className="font-semibold text-slate-600">Role Filter: </span>
+                        <span className="text-slate-800 font-medium">
+                            {filters.role && filters.role !== 'all' ? filters.role : 'All Roles'}
+                        </span>
+                    </div>
+                    <div>
+                        <span className="font-semibold text-slate-600">Status Filter: </span>
+                        <span className="text-slate-800 font-medium">
+                            {filters.status && filters.status !== 'all' ? filters.status : 'All Statuses'}
+                        </span>
+                    </div>
+                    <div>
+                        <span className="font-semibold text-slate-600">Authentication Metrics: </span>
+                        <span className="text-slate-800 font-medium">
+                            {summary.successful} Successful • {summary.failed} Failed • {summary.unique_users} Unique Users
+                        </span>
+                    </div>
+                    <div>
+                        <span className="font-semibold text-slate-600">Filter Keyword: </span>
+                        <span className="text-slate-800 font-medium">
+                            {filters.search ? `"${filters.search}"` : 'None (Unfiltered)'}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {/* 3. Formal Printable Audit Trail Ledger Table */}
+            {records.length === 0 ? (
+                <div className="p-8 text-center border border-slate-300 rounded bg-slate-50 text-xs text-slate-600">
+                    No authentication audit records match the selected scope.
+                </div>
+            ) : (
+                <table className="audit-print-table w-full border-collapse border border-slate-400 text-[9.5px]">
+                    <thead>
+                        <tr className="bg-slate-100 text-slate-900 font-bold uppercase text-[9px] border-b border-slate-400">
+                            <th className="py-1.5 px-2 text-center w-8 border border-slate-400">#</th>
+                            <th className="py-1.5 px-2 text-left w-36 border border-slate-400">Date & Time</th>
+                            <th className="py-1.5 px-2 text-left w-44 border border-slate-400">User Account</th>
+                            <th className="py-1.5 px-2 text-left w-48 border border-slate-400">Email Address / Identifier</th>
+                            <th className="py-1.5 px-2 text-left w-36 border border-slate-400">Access Role</th>
+                            <th className="py-1.5 px-2 text-left w-32 border border-slate-400">IP Address</th>
+                            <th className="py-1.5 px-2 text-center w-24 border border-slate-400">Event Result</th>
+                            <th className="py-1.5 px-2 text-left border border-slate-400">Security & Session Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {records.map((record, index) => {
+                            const formattedTime = formatPrintDateTime(record.occurred_at || record.time);
+                            const badge = getEventBadge(record.event);
+                            const isUnknown = !record.user_id && record.event === 'login_failed';
+                            const displayName = record.user_name || record.name || (isUnknown ? 'Unknown User' : '—');
+                            const displayEmail = record.email || '—';
+                            const displayRole = record.role || '—';
+                            const rawIp = record.ip_address || record.ip || '—';
+
+                            return (
+                                <tr
+                                    key={record.id || index}
+                                    className={index % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}
+                                >
+                                    {/* Row Index */}
+                                    <td className="py-1.5 px-2 text-center font-mono font-medium text-slate-600 border border-slate-300">
+                                        {index + 1}
+                                    </td>
+
+                                    {/* Date & Time */}
+                                    <td className="py-1.5 px-2 font-mono whitespace-nowrap text-slate-900 border border-slate-300">
+                                        {formattedTime}
+                                    </td>
+
+                                    {/* User Account */}
+                                    <td className="py-1.5 px-2 border border-slate-300">
+                                        <div className="font-bold text-slate-900 leading-tight">
+                                            {displayName}
+                                        </div>
+                                    </td>
+
+                                    {/* Email */}
+                                    <td className="py-1.5 px-2 font-mono text-[9px] text-slate-800 border border-slate-300">
+                                        {displayEmail}
+                                    </td>
+
+                                    {/* Access Role */}
+                                    <td className="py-1.5 px-2 text-slate-800 font-medium border border-slate-300">
+                                        {displayRole}
+                                    </td>
+
+                                    {/* IP Address */}
+                                    <td className="py-1.5 px-2 font-mono text-[9px] text-slate-800 border border-slate-300">
+                                        {rawIp}
+                                    </td>
+
+                                    {/* Event Result */}
+                                    <td className="py-1.5 px-2 text-center border border-slate-300">
+                                        <span className={`audit-print-badge font-bold uppercase text-[8px] px-1.5 py-0.5 rounded border ${badge.border} ${badge.bg} ${badge.textCol}`}>
+                                            {badge.text}
+                                        </span>
+                                    </td>
+
+                                    {/* Security Status */}
+                                    <td className="py-1.5 px-2 text-slate-800 border border-slate-300">
+                                        {record.status || (record.event === 'login_success' ? 'Authenticated successfully' : record.event === 'login_failed' ? 'Invalid credentials / blocked attempt' : 'Session terminated normally')}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            )}
+
+            {/* 4. Official Signatory & Attestation Block */}
+            <div className="mt-6 pt-4 border-t-2 border-slate-900 grid grid-cols-2 gap-8 text-xs break-inside-avoid">
+                <div>
+                    <div className="text-[10px] uppercase font-bold text-slate-600 mb-6">
+                        Generated and Prepared by:
+                    </div>
+                    <div className="border-b border-slate-900 pb-1 w-64">
+                        <span className="font-bold uppercase text-slate-900 text-xs">
+                            {currentUser?.name || 'Authorized Custodian'}
+                        </span>
+                    </div>
+                    <div className="text-[10px] text-slate-700 font-medium pt-0.5">
+                        {currentUser?.role || 'System Custodian / Administrator'}
+                    </div>
+                    <div className="text-[9.5px] text-slate-500">
+                        Date Printed: {printedAt}
+                    </div>
+                </div>
+
+                <div className="text-right flex flex-col items-end">
+                    <div className="text-[10px] uppercase font-bold text-slate-600 mb-6">
+                        Verified and Attested by:
+                    </div>
+                    <div className="border-b border-slate-900 pb-1 w-64 text-center">
+                        <span className="font-bold uppercase text-slate-900 text-xs">
+                            Office of Internal Audit
+                        </span>
+                    </div>
+                    <div className="text-[10px] text-slate-700 font-medium pt-0.5 w-64 text-center">
+                        Security Administrator / SPMO Head
+                    </div>
+                    <div className="text-[9.5px] text-slate-500 w-64 text-center">
+                        Official Institutional Verification
+                    </div>
+                </div>
+            </div>
+
+            {/* 5. Legal Notice & Immutability Certification */}
+            <div className="mt-4 pt-2 border-t border-slate-300 text-[8.5px] text-slate-500 text-center leading-normal">
+                <strong>CONFIDENTIAL & OFFICIAL RECORD:</strong> This authentication ledger was generated automatically by the NEMIX Security Audit System.
+                Under institutional data governance policies, Civil Service Commission rules, and Republic Act No. 10173 (Data Privacy Act of 2012),
+                unauthorized alteration, forging, or extraction of this audit trail ledger is strictly prohibited and subject to legal prosecution.
+            </div>
+        </div>
+    );
+};
