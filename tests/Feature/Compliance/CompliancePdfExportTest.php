@@ -74,12 +74,24 @@ class CompliancePdfExportTest extends TestCase
 
     public function test_can_export_rpci_pdf_report()
     {
+        \App\Models\SystemSetting::set('signatories.rpci_accountable_officer_name', 'ARSENIO GEM A. GARCILLANOSA');
+        \App\Models\SystemSetting::set('signatories.rpci_accountable_officer_designation', 'SUPPLY OFFICER III / ADMIN OFFICER V');
+        \App\Models\SystemSetting::set('institution.name', 'UNIVERSITY OF CAMARINES NORTE');
+
         $response = $this->postJson(route('compliance.reports.export_pdf'), [
             'type' => 'RPCI',
             'periodType' => 'yearly',
             'selectedYear' => 2026,
             'title' => 'RPCI Report 2026',
             'reference' => 'RPCI-2026-0001',
+            'payload' => [
+                'rpci' => [
+                    'accountable_officer' => 'ARSENIO GEM A. GARCILLANOSA',
+                    'designation' => 'SUPPLY OFFICER III / ADMIN OFFICER V',
+                    'entity_name' => 'UNIVERSITY OF CAMARINES NORTE',
+                    'fund_cluster' => '01 - REGULAR AGENCY FUND',
+                ]
+            ]
         ]);
 
         $response->assertStatus(200);

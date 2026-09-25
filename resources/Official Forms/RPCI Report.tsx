@@ -233,21 +233,21 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
         </table>
 
         {/* Accountability statement on a single seamless flex line */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', width: '100%', marginBottom: '6px', fontSize: '8.5pt', lineHeight: 1.15, whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', width: '100%', marginBottom: '6px', fontSize: '8pt', lineHeight: 1.25, whiteSpace: 'nowrap' }}>
           <span>For which</span>
-          <div style={{ flex: '1 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '3px', minWidth: '90px' }}>
+          <div style={{ flex: '0 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '4px' }}>
             {data.accountable_officer || 'Arsenio Gem A. Garcillanosa'}
           </div>
           <span>,</span>
-          <div style={{ flex: '1 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '3px', minWidth: '90px' }}>
+          <div style={{ flex: '0 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '4px' }}>
             {data.designation || 'Supply Custodian'}
           </div>
           <span>,</span>
-          <div style={{ flex: '1 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '3px', minWidth: '110px' }}>
+          <div style={{ flex: '0 1 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '4px' }}>
             {data.entity_name || '\u00A0'}
           </div>
-          <span style={{ marginLeft: '3px' }}>is accountable, having assumed such accountability on</span>
-          <div style={{ flex: '0 0 110px', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '3px', minWidth: '80px' }}>
+          <span style={{ marginLeft: '4px' }}>is accountable, having assumed such accountability on</span>
+          <div style={{ flex: '0 0 auto', borderBottom: '1px solid #000000', textAlign: 'center', fontWeight: 'bold', padding: '0 3px 1px 3px', marginLeft: '4px', minWidth: '75px' }}>
             {formatDisplayDate(data.date_assumption, 'MM/DD/YYYY') || data.date_assumption || '\u00A0'}
           </div>
           <span>.</span>

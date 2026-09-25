@@ -37,25 +37,26 @@
         line-height: 1.1;
     }
 
-    .accountability-table {
+    .rpci-accountability-line {
         width: 100%;
-        margin-bottom: 6px;
-        border-collapse: collapse;
-        table-layout: fixed;
-        font-size: 8.5pt;
-        line-height: 1.15;
+        margin-bottom: 5px;
+        font-size: 8pt;
+        line-height: 1.25;
+        text-align: left;
     }
 
-    .accountability-table td {
+    .rpci-acc-val {
+        font-weight: bold;
+        border-bottom: 1px solid #000000;
+        padding: 0 2.5px;
+        display: inline-block;
+        text-align: center;
         vertical-align: bottom;
-        font-size: 8.5pt;
-        line-height: 1.15;
-        padding: 0;
-        white-space: nowrap;
     }
 
-    .accountability-entity,
-    .accountability-date { font-size: 8.5pt !important; }
+    .rpci-acc-date {
+        min-width: 75px;
+    }
 
     .rpci-money { font-family: 'DejaVu Serif', serif; }
 
@@ -212,33 +213,10 @@
         </tbody>
     </table>
 
-    {{-- Accountability Statement Table --}}
-    <table class="accountability-table">
-        <colgroup>
-            <col width="4%" style="width: 4%;">
-            <col width="16%" style="width: 16%;">
-            <col width="1%" style="width: 1%;">
-            <col width="20%" style="width: 20%;">
-            <col width="1%" style="width: 1%;">
-            <col width="23%" style="width: 23%;">
-            <col width="24%" style="width: 24%;">
-            <col width="10%" style="width: 10%;">
-            <col width="1%" style="width: 1%;">
-        </colgroup>
-        <tbody>
-            <tr>
-                <td width="4%" style="white-space: nowrap;">For which</td>
-                <td width="16%" style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $accountableOfficer }}</td>
-                <td width="1%" style="text-align: center;">,</td>
-                <td width="20%" style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $designation }}</td>
-                <td width="1%" style="text-align: center;">,</td>
-                <td width="23%" class="accountability-entity" style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">{{ $entityName }}</td>
-                <td width="24%" style="white-space: nowrap; padding: 0 3px;">is accountable, having assumed such accountability on</td>
-                <td width="10%" class="accountability-date" style="border-bottom: 1px solid #000000; font-weight: bold; text-align: center; padding: 0 3px 1px 3px;">@if(!empty($dateAssumptionDisplay)){{ $dateAssumptionDisplay }}@endif</td>
-                <td width="1%">.</td>
-            </tr>
-        </tbody>
-    </table>
+    {{-- Accountability Statement --}}
+    <div class="rpci-accountability-line">
+        For which <span class="rpci-acc-val">{{ $accountableOfficer }}</span>, <span class="rpci-acc-val">{{ $designation }}</span>, <span class="rpci-acc-val accountability-entity">{{ $entityName }}</span> is accountable, having assumed such accountability on <span class="rpci-acc-val rpci-acc-date accountability-date">@if(!empty($dateAssumptionDisplay)){{ $dateAssumptionDisplay }}@else&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@endif</span>.
+    </div>
 
     {{-- Main RPCI Table --}}
     <table class="main-table">
