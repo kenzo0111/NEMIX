@@ -40,7 +40,7 @@ export default function PasswordField({
             <InputLabel htmlFor={id} value={label} className="text-stone-900 dark:text-slate-200 font-semibold text-sm mb-1.5 font-sans" />
             <div className="relative rounded-lg shadow-2xs">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-500 dark:text-slate-400">
-                    <Lock className="w-4 h-4" aria-hidden="true" />
+                    <Lock className="w-4 h-4 text-stone-500 dark:text-slate-400" strokeWidth={2} aria-hidden="true" />
                 </div>
                 <TextInput
                     id={id}
@@ -64,9 +64,9 @@ export default function PasswordField({
                     className="absolute inset-y-0 right-0 w-11 flex items-center justify-center text-stone-500 dark:text-slate-400 hover:text-stone-800 dark:hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7B1113] dark:focus-visible:ring-red-400 rounded-r-lg transition-colors cursor-pointer"
                 >
                     {showPassword ? (
-                        <EyeOff className="w-4 h-4 text-stone-700 dark:text-slate-300" aria-hidden="true" />
+                        <EyeOff className="w-4 h-4 text-stone-600 dark:text-slate-300" strokeWidth={2} aria-hidden="true" />
                     ) : (
-                        <Eye className="w-4 h-4 text-stone-500 dark:text-slate-400" aria-hidden="true" />
+                        <Eye className="w-4 h-4 text-stone-500 dark:text-slate-400" strokeWidth={2} aria-hidden="true" />
                     )}
                 </button>
             </div>

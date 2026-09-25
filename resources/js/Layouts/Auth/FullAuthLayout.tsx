@@ -46,10 +46,22 @@ export default function FullAuthLayout({
                 />
 
                 {/* Right Form Panel: Primary visual focus */}
-                <div className="w-full md:w-7/12 lg:w-[56%] p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-white dark:bg-slate-900">
-                    <div className="max-w-md mx-auto w-full">
+                <div className="relative w-full md:w-7/12 lg:w-[56%] p-6 sm:p-10 lg:p-12 flex flex-col justify-between bg-gradient-to-b from-stone-50/30 via-white to-stone-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 overflow-hidden">
+                    {/* Subtle university watermark accent */}
+                    <div
+                        className="absolute -bottom-14 -right-14 w-60 h-60 pointer-events-none opacity-[0.035] dark:opacity-[0.025] select-none"
+                        aria-hidden="true"
+                    >
+                        <img
+                            src="/images/ucnlogo.png"
+                            alt=""
+                            className="w-full h-full object-contain grayscale"
+                        />
+                    </div>
+
+                    <div className="relative z-10 w-full max-w-[470px] mx-auto flex-1 flex flex-col justify-between">
                         {/* Mobile Condensed Brand Header */}
-                        <div className="md:hidden flex items-center gap-3 pb-4 mb-5 border-b border-stone-200 dark:border-slate-800">
+                        <div className="md:hidden flex items-center gap-3 pb-4 mb-4 border-b border-stone-200 dark:border-slate-800">
                             <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-stone-200 dark:border-slate-700 shadow-xs shrink-0 flex items-center justify-center">
                                 <ApplicationLogo alt={`${institutionName} Seal`} className="h-10 w-10 object-contain" />
                             </div>
@@ -63,9 +75,14 @@ export default function FullAuthLayout({
                             </div>
                         </div>
 
-                        {headerSlot}
-                        {children}
-                        <AuthFooter className="mt-8" />
+                        {/* Vertically centered form group: Heading + Form + Actions */}
+                        <div className="my-auto w-full py-2 sm:py-3">
+                            {headerSlot}
+                            {children}
+                        </div>
+
+                        {/* Secondary institutional footer anchored at the bottom */}
+                        <AuthFooter className="pt-4 mt-6 border-t border-stone-200/70 dark:border-slate-800/80" />
                     </div>
                 </div>
             </main>

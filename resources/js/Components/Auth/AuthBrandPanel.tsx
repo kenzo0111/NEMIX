@@ -18,7 +18,7 @@ export default function AuthBrandPanel({
     const officeName = branding?.officeName || 'Supply & Property Management Office (SPMO)';
 
     return (
-        <div className="hidden md:flex md:w-5/12 lg:w-[44%] text-white p-8 lg:p-10 flex-col justify-between relative overflow-hidden bg-gradient-to-b from-[#4d080c] via-[#680d13] to-[#350406] border-r border-[#52090d] dark:border-slate-800">
+        <div className="hidden md:flex md:w-5/12 lg:w-[44%] text-white p-8 lg:p-10 flex-col justify-center gap-7 lg:gap-8 relative overflow-hidden bg-gradient-to-b from-[#4d080c] via-[#680d13] to-[#350406] border-r border-[#52090d] dark:border-slate-800">
             {/* 1. Top: Institutional Identity Block: Horizontal Logo + Name Lockup */}
             <div className="flex items-center gap-3.5">
                 <div className="bg-white p-2.5 rounded-xl shadow-xs shrink-0 flex items-center justify-center">
@@ -37,9 +37,9 @@ export default function AuthBrandPanel({
                 </div>
             </div>
 
-            {/* 2. Middle: System Information Box - Centered vertically in the panel */}
-            <div className="my-auto py-6">
-                <div className="border-l-[3px] border-yellow-500 pl-4 py-3 bg-black/30 rounded-r-lg">
+            {/* 2. Middle: System Information Box - Cohesively grouped */}
+            <div>
+                <div className="border-l-[3px] border-yellow-500 pl-4 py-3.5 bg-black/30 rounded-r-lg">
                     <span className="inline-block text-[11px] uppercase tracking-wider text-yellow-400 font-bold font-sans mb-1">
                         {badgeText}
                     </span>
@@ -53,7 +53,7 @@ export default function AuthBrandPanel({
             </div>
 
             {/* 3. Bottom: Scope & Capabilities Footer */}
-            <div className="pt-6 border-t border-white/15 space-y-1 font-sans">
+            <div className="pt-5 border-t border-white/15 space-y-1 font-sans">
                 <p className="text-xs font-semibold text-white">
                     Official Consumables &amp; Supplies Administration
                 </p>
