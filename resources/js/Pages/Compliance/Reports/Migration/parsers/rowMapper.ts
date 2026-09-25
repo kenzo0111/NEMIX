@@ -37,11 +37,10 @@ export const formatDateToIso = (rawDate: any): string => {
     if (!rawDate) return getLocalDateString();
     const str = String(rawDate).trim();
 
-    // Support COA period ranges e.g. "January 1-31, 2024", "January 1-31,2024", "Jan 1-31, 2024"
-    const rangeMatch = str.match(/^([A-Za-z]+)\s+(\d{1,2})\s*[-–]\s*(\d{1,2})\s*,?\s*(\d{4})/);
+    // Support COA period ranges e.g. "January 1-31, 2024", "September 1–30, 2026", "Jan 1-31, 2024"
+    const rangeMatch = str.match(/^([A-Za-z]+)\s+(\d{1,2})\s*[-–—]\s*(\d{1,2})\s*,?\s*(\d{4})/);
     if (rangeMatch) {
         const monthStr = rangeMatch[1].toLowerCase();
-        const dayStr = rangeMatch[3].padStart(2, '0');
         const yearStr = rangeMatch[4];
         const monthMap: Record<string, string> = {
             jan: '01', january: '01',
@@ -57,13 +56,11 @@ export const formatDateToIso = (rawDate: any): string => {
             nov: '11', november: '11',
             dec: '12', december: '12',
         };
-        const m = monthMap[monthStr] || monthMap[monthStr.slice(0, 3)];
-        if (m) {
-            return `${yearStr}-${m}-${dayStr}`;
-        }
+        const m = monthMap[monthStr] || monthMap[monthStr.slice(0, 3)] || '01';
+        return `${yearStr}-${m}-01`;
     }
 
-    // Support single month & year e.g. "January 2024"
+    // Support single month & year e.g. "January 2024", "September 2026"
     const monthYearMatch = str.match(/^([A-Za-z]+)\s*,?\s*(\d{4})$/);
     if (monthYearMatch) {
         const monthStr = monthYearMatch[1].toLowerCase();
@@ -74,13 +71,17 @@ export const formatDateToIso = (rawDate: any): string => {
             aug: '08', august: '08', sep: '09', sept: '09', september: '09', oct: '10', october: '10',
             nov: '11', november: '11', dec: '12', december: '12',
         };
-        const m = monthMap[monthStr] || monthMap[monthStr.slice(0, 3)];
-        if (m) {
-            return `${yearStr}-${m}-01`;
-        }
+        const m = monthMap[monthStr] || monthMap[monthStr.slice(0, 3)] || '01';
+        return `${yearStr}-${m}-01`;
     }
 
-    return getLocalDateString(rawDate);
+    const iso = getLocalDateString(rawDate);
+    // If year resolved to 2001 due to lack of year in source string, default to current year
+    if (iso && iso.startsWith('2001-')) {
+        const currentYear = new Date().getFullYear();
+        return `${currentYear}${iso.substring(4)}`;
+    }
+    return iso;
 };
 
 export interface LastRefTracker {
@@ -107,13 +108,26 @@ export const mapRowToItem = (
 
     if (formType === 'RSMI') {
         let rawRef = getRowVal(row, ['RIS No.', 'RIS No', 'RIS', 'Serial No.', 'Serial No', 'Reference', 'reference', 'risNo', 'ris_no', 'Doc No.', 'Doc No']);
-        const rccFromRow = getRowVal(row, ['Responsibility Center Code', 'Responsibility Center', 'Resp. Center Code', 'Resp Center Code', 'Center Code', 'RCC', 'responsibilityCenterCode', 'responsibility_center_code', 'center_code']);
+        let rccFromRow = getRowVal(row, ['Responsibility Center Code', 'Responsibility Center', 'Resp. Center Code', 'Resp Center Code', 'Center Code', 'RCC', 'responsibilityCenterCode', 'responsibility_center_code', 'center_code']);
         const stockNo = getRowVal(row, ['Stock No.', 'Stock No', 'Stock Number', 'SKU', 'stockNo', 'stock_no', 'Stock']);
         const rawItemName = getRowVal(row, ['Item', 'Item Description', 'Description', 'Article', 'Item / Description', 'item_name', 'itemDescription', 'Item Name']);
         const unit = getRowVal(row, ['Unit', 'Unit of Issue', 'Unit of Measurement', 'unit']) || 'pc';
-        const qty = Number(getRowVal(row, ['Quantity Issued', 'Qty Issued', 'Qty. Issued', 'Quantity', 'Qty', 'Qty.', 'quantity', 'quantityIssued', 'quantity_issued', 'issue_qty', 'Issued']) || 0);
-        const cost = Number(getRowVal(row, ['Unit Cost', 'Unit Value', 'Cost', 'unitCost', 'unit_cost', 'unit_value']) || 0);
-        const amt = Number(getRowVal(row, ['Amount', 'Total Cost', 'Total Amount', 'Total Value', 'amount', 'totalCost', 'total_cost']) || (qty * cost));
+
+        const parseNum = (v: any) => {
+            const cleaned = String(v || '').replace(/[^0-9.]/g, '');
+            return parseFloat(cleaned) || 0;
+        };
+
+        const qty = parseNum(getRowVal(row, ['Quantity Issued', 'Qty Issued', 'Qty. Issued', 'Quantity', 'Qty', 'Qty.', 'quantity', 'quantityIssued', 'quantity_issued', 'issue_qty', 'Issued']));
+        const cost = parseNum(getRowVal(row, ['Unit Cost', 'Unit Value', 'Cost', 'unitCost', 'unit_cost', 'unit_value']));
+        const rawAmt = getRowVal(row, ['Amount', 'Total Cost', 'Total Amount', 'Total Value', 'amount', 'totalCost', 'total_cost']);
+        const amt = rawAmt ? parseNum(rawAmt) : (qty * cost);
+
+        const isHeaderWord = (s: string) =>
+            /^(stock\s*no|ris\s*no|item|unit|quantity|qty|amount|cost|center\s*code|resp|responsibility|entity|fund|date|page|sheet|serial)/i.test(String(s || '').trim());
+
+        if (isHeaderWord(rawRef)) rawRef = '';
+        if (isHeaderWord(rccFromRow)) rccFromRow = '';
 
         // Check if this is a section header or RIS slip header row
         const firstCell = String(Object.values(row)[0] || '').trim();
@@ -121,41 +135,45 @@ export const mapRowToItem = (
         const isRisHeaderRow = (rawRef || rccFromRow) && !rawItemName && !stockNo && qty === 0;
 
         if (isSectionHeader || isRisHeaderRow) {
-            if (rawRef && !/^(center\s*code|resp|responsibility|entity|fund|date|page|sheet)/i.test(rawRef)) {
+            if (rawRef && !isHeaderWord(rawRef)) {
                 lastRefObj.current = rawRef;
             }
-            const detectedCode = (rccFromRow && !/center\s*code|resp/i.test(rccFromRow))
+            const detectedCode = (rccFromRow && !isHeaderWord(rccFromRow))
                 ? rccFromRow
-                : Object.values(row).find((v: any) => typeof v === 'string' && v.trim() && !/center\s*code|resp|appendix|report/i.test(v)) || '';
+                : Object.values(row).find((v: any) => typeof v === 'string' && v.trim() && !isHeaderWord(v) && !/appendix|report|university/i.test(v)) || '';
             if (detectedCode) {
                 lastRefObj.centerCode = String(detectedCode).trim();
             }
             return null;
         }
 
-        if (/^(center\s*code|resp|responsibility|entity|fund|date|page|sheet)/i.test(rawRef)) {
-            rawRef = '';
-        }
-
-        if (rccFromRow && !/^(center\s*code|resp|responsibility)/i.test(rccFromRow)) {
+        if (rccFromRow && !isHeaderWord(rccFromRow)) {
             lastRefObj.centerCode = rccFromRow;
         }
-
-        const activeCenterCode = (rccFromRow && !/^(center\s*code|resp|responsibility)/i.test(rccFromRow))
-            ? rccFromRow
-            : (lastRefObj.centerCode || groupMetadata?.topOffice || '');
 
         if (rawRef) {
             lastRefObj.current = rawRef;
         }
+
+        if (!lastRefObj.current && groupMetadata?.firstGroupRef) {
+            lastRefObj.current = groupMetadata.firstGroupRef;
+            if (groupMetadata.firstGroupRCC && !lastRefObj.centerCode) {
+                lastRefObj.centerCode = groupMetadata.firstGroupRCC;
+            }
+        }
+
         let ref = rawRef || lastRefObj.current;
-        if (!ref && groupMetadata?.topSerialNo && !/^(center\s*code|resp)/i.test(groupMetadata.topSerialNo)) {
+        if (!ref && groupMetadata?.topSerialNo && !isHeaderWord(groupMetadata.topSerialNo)) {
             ref = groupMetadata.topSerialNo;
         }
 
+        const activeCenterCode = (rccFromRow && !isHeaderWord(rccFromRow))
+            ? rccFromRow
+            : (lastRefObj.centerCode || groupMetadata?.topOffice || '');
+
         let dt = getRowVal(row, ['Date', 'Date Issued', 'Transaction Date', 'date', 'date_issued', 'topDate']);
         if (!dt && groupMetadata?.topDate) dt = groupMetadata.topDate;
-        const recipient = getRowVal(row, ['Recipient', 'Requested By', 'Issued To', 'recipient', 'topRecipient']) || groupMetadata?.topRecipient || activeCenterCode;
+        const recipient = getRowVal(row, ['Recipient', 'Requested By', 'Issued To', 'recipient', 'topRecipient']) || activeCenterCode || groupMetadata?.topRecipient || '';
         const fundCluster = getRowVal(row, ['Fund Cluster', 'fund_cluster', 'General Fund']) || groupMetadata?.fundCluster;
         const entityName = groupMetadata?.entityName || 'University of Camarines Norte';
         const remarks = getRowVal(row, ['Remarks', 'remarks']);
@@ -169,6 +187,7 @@ export const mapRowToItem = (
                 v.trim() !== rccFromRow &&
                 v.trim() !== rawRef &&
                 v.trim() !== ref &&
+                !isHeaderWord(v) &&
                 !v.includes('RIS') &&
                 !v.includes('Appendix') &&
                 !v.includes('REPORT') &&
@@ -177,6 +196,10 @@ export const mapRowToItem = (
                 !/^(center\s*code|spmo|acc|pc|pcs|box|ream|bot|unit|kg|pack|meter|pad)/i.test(v),
             );
             resolvedItem = found ? String(found) : '';
+        }
+
+        if (isHeaderWord(resolvedItem)) {
+            resolvedItem = '';
         }
 
         if (!String(resolvedItem).trim() && !stockNo && qty === 0) {

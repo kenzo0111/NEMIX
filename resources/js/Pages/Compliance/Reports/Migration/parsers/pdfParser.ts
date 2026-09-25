@@ -145,10 +145,8 @@ export const extractGroupsFromPdf = async (
                 }
             }
 
-            // Find Table Header Row
-            let headerLineIdx = -1;
-            let maxMatches = 0;
-
+            // Find Table Header Row Band (handles multi-line headers such as Responsibility Center Code and Quantity Issued)
+            const candidateIndices: Array<{ idx: number; y: number; kwMatches: number; text: string }> = [];
             for (let i = 0; i < Math.min(lines.length, 60); i++) {
                 const line = lines[i];
                 const lineText = line.chunks.map((c) => c.text.toLowerCase()).join(' ');
@@ -158,123 +156,105 @@ export const extractGroupsFromPdf = async (
                     lineText.includes('report of supplies') ||
                     lineText.includes('report on the physical count') ||
                     lineText.includes('appendix') ||
+                    lineText.includes('entity name') ||
+                    lineText.includes('fund cluster') ||
                     lineText.includes('recapitulation')
                 ) {
                     continue;
                 }
 
-                const matchedKwSet = new Set<string>();
+                let kwMatches = 0;
                 line.chunks.forEach((chunk) => {
                     const txt = chunk.text.toLowerCase();
-                    targetKeywords.forEach((kw) => {
-                        if (txt.includes(kw)) matchedKwSet.add(kw);
-                    });
+                    if (targetKeywords.some((kw) => txt.includes(kw))) kwMatches++;
                 });
 
-                if (matchedKwSet.size >= 3 && matchedKwSet.size > maxMatches) {
-                    maxMatches = matchedKwSet.size;
-                    headerLineIdx = i;
-                    if (matchedKwSet.size >= 4) break;
+                if (kwMatches >= 1) {
+                    candidateIndices.push({ idx: i, y: line.y, kwMatches, text: lineText });
                 }
             }
 
-            if (headerLineIdx === -1) {
-                // Try with 2 keywords
-                for (let i = 0; i < Math.min(lines.length, 60); i++) {
-                    const line = lines[i];
-                    const matchedKwSet = new Set<string>();
-                    line.chunks.forEach((chunk) => {
-                        const txt = chunk.text.toLowerCase();
-                        targetKeywords.forEach((kw) => {
-                            if (txt.includes(kw)) matchedKwSet.add(kw);
-                        });
-                    });
-                    if (matchedKwSet.size >= 2) {
-                        headerLineIdx = i;
-                        break;
-                    }
+            let bestBand: typeof candidateIndices = [];
+            let bestBandMatches = 0;
+            candidateIndices.forEach((cand) => {
+                const band = candidateIndices.filter((c) => {
+                    if (Math.abs(c.y - cand.y) > 12) return false;
+                    if (c.text.includes('to be filled up')) return false;
+                    return true;
+                });
+                const totalMatches = band.reduce((sum, c) => sum + c.kwMatches, 0);
+                if (totalMatches > bestBandMatches) {
+                    bestBandMatches = totalMatches;
+                    bestBand = band;
                 }
-            }
+            });
 
-            // Extract metadata from lines before the header row
-            const metaLines = (headerLineIdx >= 0 ? lines.slice(0, headerLineIdx) : lines)
-                .map((l) => l.chunks.map((c) => c.text).join(' '));
-            const pageMetadata = extractMetadataFromMatrixOrLines(metaLines);
-
-            if (headerLineIdx === -1) {
-                // No clear tabular header found; fallback to line-by-line tab matrix
+            if (bestBand.length === 0 || bestBandMatches < 2) {
+                // Fallback to tab matrix if no valid table header found
+                const meta = extractMetadataFromMatrixOrLines(lines.map((l) => l.chunks.map((c) => c.text).join(' ')));
                 const matrix = lines.map((l) => l.chunks.map((c) => c.text));
-                const pageGroups = parseTableMatrixToGroups(matrix, `Page ${pageIndex}`, formType, pageMetadata);
+                const pageGroups = parseTableMatrixToGroups(matrix, `Page ${pageIndex}`, formType, meta);
                 allGroups.push(...pageGroups);
                 continue;
             }
 
-            // Header line found! Define column boundaries based on header chunk positions
-            const headerLine = lines[headerLineIdx];
-            const nextLine = lines[headerLineIdx + 1];
+            const headerLines = bestBand.map((b) => lines[b.idx]);
+            const minHeaderY = Math.min(...bestBand.map((b) => b.y));
+            const allHeaderChunks = headerLines.flatMap((l) => l.chunks);
+            allHeaderChunks.sort((a, b) => b.y - a.y || a.xLeft - b.xLeft);
 
             interface ColumnDef {
                 name: string;
                 xLeft: number;
                 xRight: number;
+                chunks: MergedChunk[];
             }
 
-            let columns: ColumnDef[] = headerLine.chunks.map((c) => ({
-                name: c.text,
-                xLeft: c.xLeft,
-                xRight: c.xRight,
-            }));
+            // Cluster header chunks horizontally by X overlap or proximity
+            const columns: ColumnDef[] = [];
+            allHeaderChunks.forEach((chunk) => {
+                const chunkCenter = (chunk.xLeft + chunk.xRight) / 2;
+                const matched = columns.find((col) => {
+                    const colCenter = (col.xLeft + col.xRight) / 2;
+                    return (
+                        (chunk.xLeft <= col.xRight + 12 && chunk.xRight >= col.xLeft - 12) ||
+                        Math.abs(chunkCenter - colCenter) <= 25
+                    );
+                });
 
-            let dataStartIdx = headerLineIdx + 1;
-
-            // Merge sub-headers from next line if it contains matching sub-headers
-            if (nextLine) {
-                const nextLineText = nextLine.chunks.map((c) => c.text.toLowerCase()).join(' ');
-                if (
-                    !/^\s*\(\s*\d+\s*\)\s*$/.test(nextLineText) &&
-                    (nextLineText.includes('issued') ||
-                        nextLineText.includes('cost') ||
-                        nextLineText.includes('value') ||
-                        nextLineText.includes('amount') ||
-                        nextLineText.includes('code') ||
-                        nextLineText.includes('office') ||
-                        nextLineText.includes('desc'))
-                ) {
-                    nextLine.chunks.forEach((subChunk) => {
-                        const subCenter = (subChunk.xLeft + subChunk.xRight) / 2;
-                        const matchingCol = columns.find(
-                            (col) => subCenter >= col.xLeft - 10 && subCenter <= col.xRight + 10,
-                        );
-                        if (matchingCol) {
-                            matchingCol.name = `${matchingCol.name} ${subChunk.text}`.trim();
-                            matchingCol.xLeft = Math.min(matchingCol.xLeft, subChunk.xLeft);
-                            matchingCol.xRight = Math.max(matchingCol.xRight, subChunk.xRight);
-                        }
+                if (matched) {
+                    matched.chunks.push(chunk);
+                    matched.xLeft = Math.min(matched.xLeft, chunk.xLeft);
+                    matched.xRight = Math.max(matched.xRight, chunk.xRight);
+                } else {
+                    columns.push({
+                        name: chunk.text,
+                        xLeft: chunk.xLeft,
+                        xRight: chunk.xRight,
+                        chunks: [chunk],
                     });
-                    dataStartIdx = headerLineIdx + 2;
-                } else if (/^\s*\(\s*\d+\s*\)\s*/.test(nextLineText)) {
-                    dataStartIdx = headerLineIdx + 2;
                 }
-            }
+            });
 
-            // Calculate boundaries between columns
-            const columnCuts: number[] = [];
-            for (let c = 0; c < columns.length - 1; c++) {
-                const rightEdge = columns[c].xRight;
-                const nextLeftEdge = columns[c + 1].xLeft;
-                const cut = (rightEdge + nextLeftEdge) / 2;
-                columnCuts.push(cut);
-            }
+            columns.sort((a, b) => a.xLeft - b.xLeft);
+            columns.forEach((col) => {
+                col.chunks.sort((a, b) => b.y - a.y || a.xLeft - b.xLeft);
+                col.name = col.chunks.map((c) => c.text).join(' ').trim();
+            });
 
-            // Build table matrix
-            const matrix: string[][] = [];
-            // Header row in matrix
-            matrix.push(columns.map((c) => c.name));
+            // Extract metadata strictly from lines above the header band
+            const metaLines = lines
+                .filter((l) => l.y > minHeaderY + 12)
+                .map((l) => l.chunks.map((c) => c.text).join(' '));
+            const pageMetadata = extractMetadataFromMatrixOrLines(metaLines);
 
-            for (let i = dataStartIdx; i < lines.length; i++) {
-                const line = lines[i];
-                const fullText = line.chunks.map((c) => c.text.toLowerCase()).join(' ');
+            // Filter table body data lines (strictly below header band)
+            const bodyLines: LineCluster[] = [];
+            for (const l of lines) {
+                if (l.y >= minHeaderY - 2) continue;
+                const fullText = l.chunks.map((c) => c.text.toLowerCase()).join(' ');
 
+                // Stop immediately at Recapitulation or Certification Signatures
                 if (
                     fullText.includes('recapitulation') ||
                     fullText.includes('recap') ||
@@ -287,11 +267,63 @@ export const extractGroupsFromPdf = async (
                     break;
                 }
 
-                if (line.chunks.length === 0) continue;
+                // Skip column numbering row e.g. (1) (2) (3)...
+                if (/^\s*(\(\s*\d+\s*\)\s*)+$/.test(fullText)) {
+                    continue;
+                }
 
-                // Place each chunk in this line into the appropriate column
+                if (l.chunks.length > 0) {
+                    bodyLines.push(l);
+                }
+            }
+
+            // Calculate initial boundaries between columns
+            const columnCuts: number[] = [];
+            for (let c = 0; c < columns.length - 1; c++) {
+                columnCuts.push((columns[c].xRight + columns[c + 1].xLeft) / 2);
+            }
+
+            // Adaptive refinement: fine-tune cuts where header is centered but data starts earlier
+            // (e.g. between Stock No. and Item Description)
+            for (let c = 0; c < columns.length - 1; c++) {
+                const c1Name = columns[c].name.toLowerCase();
+                const c2Name = columns[c + 1].name.toLowerCase();
+
+                if (
+                    c1Name.includes('stock') &&
+                    (c2Name.includes('item') || c2Name.includes('desc') || c2Name.includes('article'))
+                ) {
+                    let maxColC = columns[c].xRight;
+                    let minColNext = columns[c + 1].xLeft;
+
+                    bodyLines.forEach((l) => {
+                        l.chunks.forEach((chunk) => {
+                            const center = (chunk.xLeft + chunk.xRight) / 2;
+                            if (center > columns[c].xLeft && center < columns[c].xRight + 40) {
+                                if (chunk.xRight > maxColC && chunk.xRight < columns[c + 1].xRight) {
+                                    maxColC = chunk.xRight;
+                                }
+                            }
+                            if (center > maxColC && center < columns[c + 1].xRight + 30) {
+                                if (chunk.xLeft < minColNext && chunk.xLeft > maxColC) {
+                                    minColNext = chunk.xLeft;
+                                }
+                            }
+                        });
+                    });
+
+                    if (minColNext > maxColC) {
+                        columnCuts[c] = (maxColC + minColNext) / 2;
+                    }
+                }
+            }
+
+            // Build table matrix
+            const matrix: string[][] = [];
+            matrix.push(columns.map((c) => c.name));
+
+            bodyLines.forEach((line) => {
                 const rowCells = Array(columns.length).fill('');
-
                 line.chunks.forEach((chunk) => {
                     const center = (chunk.xLeft + chunk.xRight) / 2;
                     let targetCol = 0;
@@ -309,7 +341,7 @@ export const extractGroupsFromPdf = async (
                 if (rowCells.some((c) => c.trim())) {
                     matrix.push(rowCells);
                 }
-            }
+            });
 
             const sheetName = pdf.numPages === 1 ? 'PDF Document' : `Page ${pageIndex}`;
             const pageGroups = parseTableMatrixToGroups(matrix, sheetName, formType, pageMetadata);

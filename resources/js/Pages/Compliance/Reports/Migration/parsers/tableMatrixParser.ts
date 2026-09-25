@@ -56,24 +56,24 @@ export const extractMetadataFromMatrixOrLines = (
         };
 
         if (!meta['entityName']) {
-            const ent = extract(/entity\s*name\s*[:\-]?\s*([^\n\r;|]+)/i);
+            const ent = extract(/entity\s*name\s*[:\-]?\s*(.*?)(?=\s+(?:serial|fund|date|sheet|appendix)\b|$)/i);
             if (ent) meta['entityName'] = ent;
         }
 
         if (!meta['fundCluster']) {
-            const fund = extract(/fund\s*cluster\s*[:\-]?\s*([^\n\r;|]+)/i);
+            const fund = extract(/fund\s*cluster\s*[:\-]?\s*(.*?)(?=\s+(?:serial|entity|date|sheet|appendix)\b|$)/i);
             if (fund) meta['fundCluster'] = fund;
         }
 
         if (!meta['topSerialNo']) {
-            const serial = extract(/(?:serial|mr|ris|doc|property)\s*no\.?\s*[:\-]?\s*([A-Za-z0-9\-_/]+)/i);
-            if (serial && !/^(center|code|resp|date|page|sheet)/i.test(serial)) {
+            const serial = extract(/(?:serial|mr|doc|property)\s*no\.?\s*[:\-]?\s*([A-Za-z0-9\-_/]+)/i);
+            if (serial && !/^(center|code|resp|date|page|sheet|division|stock|ris|item|unit|quantity)/i.test(serial)) {
                 meta['topSerialNo'] = serial;
             }
         }
 
         if (!meta['topDate']) {
-            const dt = extract(/(?:as\s*at\s*date|date\s*issued|date\s*:)\s*([A-Za-z0-9\s,\-_/]+)/i);
+            const dt = extract(/(?:as\s*at\s*date|date\s*issued|date\s*:)\s*([A-Za-z0-9\s,\-_/–—]+)/i);
             if (dt && !/^(entity|fund|serial|center|code)/i.test(dt)) {
                 meta['topDate'] = dt;
             }
@@ -142,44 +142,50 @@ export const parseTableMatrixToGroups = (
                 continue;
             }
 
-            // Extract metadata from cells in this header region
-            for (let c = 0; c < row.length; c++) {
-                const cellStr = String(row[c] || '').trim();
-                if (!cellStr) continue;
+            // Extract metadata from non-column-header cells in this header region
+            const isLikelyHeaderRow = targetKeywords.filter((kw) => rowStr.includes(kw)).length >= 2;
+            if (!isLikelyHeaderRow) {
+                for (let c = 0; c < row.length; c++) {
+                    const cellStr = String(row[c] || '').trim();
+                    if (!cellStr) continue;
 
-                const extractLabelVal = (pattern: RegExp) => {
-                    if (pattern.test(cellStr)) {
-                        const clean = cellStr.replace(pattern, '').replace(/^[:\-\s]+/, '').trim();
-                        if (clean) return clean;
-                        for (let nc = c + 1; nc < Math.min(c + 5, row.length); nc++) {
-                            const nextCell = String(row[nc] || '').trim();
-                            if (nextCell && !/entity|fund|serial|date|officer|custodian|division/i.test(nextCell)) {
-                                return nextCell;
+                    const extractLabelVal = (pattern: RegExp) => {
+                        if (pattern.test(cellStr)) {
+                            const clean = cellStr.replace(pattern, '').replace(/^[:\-\s]+/, '').trim();
+                            if (clean) return clean;
+                            for (let nc = c + 1; nc < Math.min(c + 5, row.length); nc++) {
+                                const nextCell = String(row[nc] || '').trim();
+                                if (nextCell && !/entity|fund|serial|date|officer|custodian|division/i.test(nextCell)) {
+                                    return nextCell;
+                                }
                             }
                         }
+                        return '';
+                    };
+
+                    const isHeaderWord = (s: string) =>
+                        /^(center\s*code|resp|responsibility|entity|fund|date|page|sheet|division|stock|ris|item|unit|qty|quantity|amount|cost)/i.test(s);
+
+                    const entityVal = extractLabelVal(/entity\s*name/i);
+                    if (entityVal) currentMetadata['entityName'] = entityVal;
+
+                    const fundVal = extractLabelVal(/fund\s*cluster/i);
+                    if (fundVal) currentMetadata['fundCluster'] = fundVal;
+
+                    const serialVal = extractLabelVal(/(?:serial|mr|doc|property)\s*no\.?/i);
+                    if (serialVal && !isHeaderWord(serialVal)) {
+                        currentMetadata['topSerialNo'] = serialVal;
                     }
-                    return '';
-                };
 
-                const entityVal = extractLabelVal(/entity\s*name/i);
-                if (entityVal) currentMetadata['entityName'] = entityVal;
+                    const dateVal = extractLabelVal(/(?:as\s*at\s*date|date\s*issued|date\s*:)/i);
+                    if (dateVal && !isHeaderWord(dateVal)) currentMetadata['topDate'] = dateVal;
 
-                const fundVal = extractLabelVal(/fund\s*cluster/i);
-                if (fundVal) currentMetadata['fundCluster'] = fundVal;
+                    const recipVal = extractLabelVal(/(?:accountable\s*officer|property\s*custodian|received\s*by)/i);
+                    if (recipVal) currentMetadata['topRecipient'] = recipVal;
 
-                const serialVal = extractLabelVal(/(?:serial|mr|ris|doc|property)\s*no\.?/i);
-                if (serialVal && !/^(center\s*code|resp|responsibility|entity|fund|date|page|sheet|division)/i.test(serialVal)) {
-                    currentMetadata['topSerialNo'] = serialVal;
+                    const officeVal = extractLabelVal(/(?:office|department)\s*[:\-]/i);
+                    if (officeVal) currentMetadata['topOffice'] = officeVal;
                 }
-
-                const dateVal = extractLabelVal(/(?:as\s*at\s*date|date\s*issued|date\s*:)/i);
-                if (dateVal) currentMetadata['topDate'] = dateVal;
-
-                const recipVal = extractLabelVal(/(?:accountable\s*officer|property\s*custodian|received\s*by)/i);
-                if (recipVal) currentMetadata['topRecipient'] = recipVal;
-
-                const officeVal = extractLabelVal(/(?:office|department)\s*[:\-]/i);
-                if (officeVal) currentMetadata['topOffice'] = officeVal;
             }
 
             // Count unique matching keywords in this row
@@ -232,20 +238,29 @@ export const parseTableMatrixToGroups = (
         const nextRow = matrix[headerRowIdx + 1] || [];
         let actualDataStart = headerRowIdx + 1;
 
+        let hasMergedSubheaders = false;
         const headers: string[] = [];
         rawHeaders.forEach((hCell, cIdx) => {
             let hName = String(hCell || '').replace(/\r?\n/g, ' ').trim();
             const subName = String(nextRow[cIdx] || '').replace(/\r?\n/g, ' ').trim();
             if (subName && !/^\s*\(\s*\d+\s*\)\s*$/.test(subName)) {
-                if (/quantity|value|cost|office|amount|desc|article|unit/i.test(subName)) {
+                if (/quantity|value|cost|office|amount|desc|article|unit|code|issued/i.test(subName)) {
                     hName = hName ? `${hName} ${subName}` : subName;
+                    hasMergedSubheaders = true;
                 }
             }
             headers[cIdx] = hName;
         });
 
-        if (nextRow.some((cell) => /^\s*\(\s*\d+\s*\)\s*$/.test(String(cell || '').trim()))) {
+        if (hasMergedSubheaders || nextRow.some((cell) => /^\s*\(\s*\d+\s*\)\s*$/.test(String(cell || '').trim()))) {
             actualDataStart = headerRowIdx + 2;
+        }
+
+        if (
+            actualDataStart < matrix.length &&
+            matrix[actualDataStart].some((cell) => /^\s*\(\s*\d+\s*\)\s*$/.test(String(cell || '').trim()))
+        ) {
+            actualDataStart++;
         }
 
         r = actualDataStart;

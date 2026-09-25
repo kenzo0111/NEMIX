@@ -259,7 +259,7 @@ export const extractGroupsFromDoc = async (
                             for (let r = 0; r < rowspan; r++) {
                                 for (let c = 0; c < colspan; c++) {
                                     if (!grid[rIdx + r]) grid[rIdx + r] = [];
-                                    grid[rIdx + r][cIdx + c] = (r === 0 && c === 0) ? text : '';
+                                    grid[rIdx + r][cIdx + c] = (c === 0) ? text : '';
                                 }
                             }
                             cIdx += colspan;

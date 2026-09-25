@@ -11,12 +11,26 @@ export const parseFormSpecificRows = (
     try {
         const parsed = JSON.parse(trimmed);
         if (parsed && parsed.isGroups) {
+            const sharedRefTracker = { current: '', centerCode: '' };
             return parsed.groups
                 .map((group: any) => {
-                    const lastRefObj = { current: '', centerCode: '' };
+                    if (!sharedRefTracker.current && Array.isArray(group.items)) {
+                        for (const row of group.items) {
+                            const r = row['RIS No.'] || row['RIS'] || row['Reference'] || row['Doc No.'] || '';
+                            const c = row['Responsibility Center Code'] || row['Center Code'] || row['RCC'] || '';
+                            const isHdr = /^(stock|ris|item|unit|quantity|qty|amount|cost|center|resp|page|sheet)/i.test(String(r).trim());
+                            if (r && !isHdr) {
+                                group.metadata = group.metadata || {};
+                                group.metadata.firstGroupRef = String(r).trim();
+                                if (c && !isHdr) group.metadata.firstGroupRCC = String(c).trim();
+                                break;
+                            }
+                        }
+                    }
+
                     const items: any[] = [];
                     group.items.forEach((row: any, idx: number) => {
-                        const mapped = mapRowToItem(row, idx, formType, group.metadata, lastRefObj);
+                        const mapped = mapRowToItem(row, idx, formType, group.metadata, sharedRefTracker);
                         if (mapped) items.push(mapped);
                     });
                     return { ...group, items };
