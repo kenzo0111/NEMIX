@@ -3,6 +3,7 @@ import { Head, useForm, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import {
     Save,
     RotateCcw,
@@ -58,24 +59,8 @@ export default function Index({
         setSignatoriesList((prev) => prev.filter((s) => s.id !== deletedSig.id));
     };
 
-    // Sidebar collapse state
-    const [collapsed, setCollapsed] = useState<boolean>(() => {
-        try {
-            return localStorage.getItem('nemix_sidebar_collapsed') === 'true';
-        } catch {
-            return false;
-        }
-    });
-
-    const handleToggleCollapse = () => {
-        setCollapsed((prev) => {
-            const next = !prev;
-            try {
-                localStorage.setItem('nemix_sidebar_collapsed', String(next));
-            } catch {}
-            return next;
-        });
-    };
+    // Sidebar collapse state with synchronized hook
+    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
 
     const modules = getSidebarModules('System Settings');
 

@@ -3,6 +3,7 @@ import { Head, useForm } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import {
     ManageSupplierPageProps,
     Supplier,
@@ -21,7 +22,7 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
     const modules = getSidebarModules('Suppliers', 'Manage Supplier');
 
     // Layout & modal state
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view' | null>(null);
     const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
 
@@ -175,7 +176,7 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
                     modules={modules}
                     user={user}
                     collapsed={collapsed}
-                    onToggleCollapse={() => setCollapsed(!collapsed)}
+                    onToggleCollapse={handleToggleCollapse}
                 />
 
                 <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>

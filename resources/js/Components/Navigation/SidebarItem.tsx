@@ -82,6 +82,10 @@ export default function SidebarItem({
         </div>
     );
 
+    const submenuId = item.key
+        ? `sidebar-submenu-${item.key.replace(/[^a-zA-Z0-9_-]/g, '-')}`
+        : undefined;
+
     return (
         <div className="relative select-none">
             {hasSubmodules ? (
@@ -90,12 +94,14 @@ export default function SidebarItem({
                     onClick={() => onToggle(item.title)}
                     className="w-full text-left focus:outline-none focus:ring-1 focus:ring-amber-400/40 rounded-lg"
                     aria-expanded={isExpanded}
+                    aria-controls={submenuId}
                 >
                     {buttonContent}
                 </button>
             ) : (
                 <Link
                     href={item.href || '#'}
+                    aria-current={item.active ? 'page' : undefined}
                     className="w-full block focus:outline-none focus:ring-1 focus:ring-amber-400/40 rounded-lg"
                 >
                     {buttonContent}
@@ -104,6 +110,7 @@ export default function SidebarItem({
 
             {hasSubmodules && item.submodules && (
                 <SidebarSubmenu
+                    id={submenuId}
                     submodules={item.submodules}
                     isExpanded={isExpanded}
                     collapsed={collapsed}

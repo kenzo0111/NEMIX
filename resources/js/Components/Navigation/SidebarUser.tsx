@@ -40,6 +40,7 @@ export default function SidebarUser({
                 {/* Account Settings Icon Link */}
                 <Link
                     href={route('profile.edit')}
+                    aria-current={isAccountSettingsActive ? 'page' : undefined}
                     className={`p-2 rounded-lg transition-colors ${
                         isAccountSettingsActive
                             ? 'bg-red-900 text-amber-300'
@@ -51,7 +52,7 @@ export default function SidebarUser({
                 </Link>
 
                 {/* Theme Toggle Icon in Collapsed State */}
-                <ThemeToggle variant="compact" />
+                <ThemeToggle variant="compact" placement="right-end" />
 
                 {/* Expand Toggle */}
                 {onToggleCollapse && (
@@ -98,6 +99,7 @@ export default function SidebarUser({
             {/* Account Settings Link */}
             <Link
                 href={route('profile.edit')}
+                aria-current={isAccountSettingsActive ? 'page' : undefined}
                 className={`block px-2.5 py-1.5 text-xs rounded-md transition-colors ${
                     isAccountSettingsActive
                         ? 'bg-red-900/60 text-amber-300 font-medium'
@@ -121,7 +123,7 @@ export default function SidebarUser({
                     <button
                         type="button"
                         onClick={onToggleCollapse}
-                        className="flex items-center gap-1.5 text-red-200/70 hover:text-white py-1 px-1.5 rounded transition-colors text-[11px] font-medium cursor-pointer"
+                        className="hidden md:flex items-center gap-1.5 text-red-200/70 hover:text-white py-1 px-1.5 rounded transition-colors text-[11px] font-medium cursor-pointer"
                         title="Collapse Sidebar"
                     >
                         <PanelLeftClose className="w-3.5 h-3.5" />

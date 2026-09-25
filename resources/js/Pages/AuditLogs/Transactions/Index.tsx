@@ -3,6 +3,7 @@ import { Head, router, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { ScrollText, Printer } from 'lucide-react';
 import {
     TransactionAuditPageProps,
@@ -26,7 +27,7 @@ export default function TransactionAuditIndex({
 }: TransactionAuditPageProps) {
     const page = usePage();
     const user = auth?.user || (page.props.auth as any)?.user;
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
 
     const modules = getSidebarModules('Audit Logs', 'Transaction Audit');
 
@@ -136,7 +137,7 @@ export default function TransactionAuditIndex({
                     modules={modules}
                     user={user}
                     collapsed={collapsed}
-                    onToggleCollapse={() => setCollapsed(!collapsed)}
+                    onToggleCollapse={handleToggleCollapse}
                 />
             </div>
 

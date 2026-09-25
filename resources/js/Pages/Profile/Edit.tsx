@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Sidebar from '@/Components/Sidebar';
 import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { PageProps } from '@/types';
 import { ProfilePageProps, UserProfileDetails, ProfileTab } from './types';
 import { Head, usePage } from '@inertiajs/react';
@@ -19,25 +20,7 @@ export default function Edit({
     const { auth } = usePage<PageProps>().props;
     const authUser = auth?.user;
 
-    const [collapsed, setCollapsed] = useState<boolean>(() => {
-        try {
-            return localStorage.getItem('nemix_sidebar_collapsed') === 'true';
-        } catch {
-            return false;
-        }
-    });
-
-    const handleToggleCollapse = () => {
-        setCollapsed((prev) => {
-            const next = !prev;
-            try {
-                localStorage.setItem('nemix_sidebar_collapsed', String(next));
-            } catch {
-                // Ignore storage errors
-            }
-            return next;
-        });
-    };
+    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
 
     // Strongly typed resolved profile with fallbacks
     const resolvedProfile: UserProfileDetails = profile || {

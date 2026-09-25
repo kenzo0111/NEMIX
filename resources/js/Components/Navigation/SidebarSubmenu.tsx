@@ -3,12 +3,14 @@ import { Link } from '@inertiajs/react';
 import { SidebarSubmodule } from '@/types/navigation';
 
 interface SidebarSubmenuProps {
+    id?: string;
     submodules: SidebarSubmodule[];
     isExpanded: boolean;
     collapsed?: boolean;
 }
 
 export default function SidebarSubmenu({
+    id,
     submodules,
     isExpanded,
     collapsed = false,
@@ -19,6 +21,9 @@ export default function SidebarSubmenu({
 
     return (
         <div
+            id={id}
+            role="region"
+            aria-label="Submenu"
             className={`
                 overflow-hidden transition-all duration-200 ease-in-out
                 ${isExpanded ? 'max-h-64 opacity-100 mt-1' : 'max-h-0 opacity-0 pointer-events-none'}
@@ -29,6 +34,7 @@ export default function SidebarSubmenu({
                     <Link
                         key={subItem.key}
                         href={subItem.href}
+                        aria-current={subItem.active ? 'page' : undefined}
                         className={`
                             flex items-center justify-between px-2.5 py-1.5 text-xs rounded-md transition-colors duration-150 whitespace-nowrap
                             ${

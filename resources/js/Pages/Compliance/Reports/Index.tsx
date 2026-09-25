@@ -3,6 +3,7 @@ import { Head, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { ReportToolbar } from './Components/ReportToolbar';
 import { ReportRegistry } from './Components/ReportRegistry';
 import { GenerateReportDialog } from './Components/GenerateReportDialog';
@@ -26,7 +27,7 @@ export default function ReportsIndex({
     const user = auth?.user || (props.auth as any)?.user;
     const publicSettings = (props as any)?.system?.settings || {};
 
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedType, setSelectedType] = useState<ReportType | ''>('');
 
@@ -98,7 +99,7 @@ export default function ReportsIndex({
                     modules={modules}
                     user={user}
                     collapsed={collapsed}
-                    onToggleCollapse={() => setCollapsed(!collapsed)}
+                    onToggleCollapse={handleToggleCollapse}
                 />
             </div>
 

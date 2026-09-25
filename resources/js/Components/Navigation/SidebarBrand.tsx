@@ -18,7 +18,7 @@ export default function SidebarBrand({ collapsed = false, onCloseMobile }: Sideb
 
                 <div
                     className={`whitespace-nowrap flex-1 min-w-0 transition-all duration-300 ease-in-out ${
-                        collapsed ? 'max-w-0 opacity-0 pointer-events-none md:hidden' : 'max-w-[200px] opacity-100'
+                        collapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-[200px] opacity-100'
                     }`}
                 >
                     <h1 className="font-bold tracking-wider text-sm text-white leading-tight font-serif">

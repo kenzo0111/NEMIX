@@ -4,6 +4,7 @@ import Sidebar from '@/Components/Sidebar';
 import PageHeader from '@/Components/PageHeader';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/Components/ui/card';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { ManageAnalyticsPageProps, InventoryAnalyticsProps } from './types';
 
 import AnalyticsSummary from './Components/AnalyticsSummary';
@@ -47,7 +48,7 @@ const fallbackAnalytics: InventoryAnalyticsProps = {
 export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
     const pageProps = usePage<ManageAnalyticsPageProps>().props;
     const user = props.auth?.user || pageProps.auth?.user;
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const [showDrillDown, setShowDrillDown] = useState(false);
 
     const analytics = props.analytics || pageProps.analytics || fallbackAnalytics;
@@ -68,7 +69,7 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
                 modules={modules}
                 user={user}
                 collapsed={collapsed}
-                onToggleCollapse={() => setCollapsed(!collapsed)}
+                onToggleCollapse={handleToggleCollapse}
             />
 
             <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'} ml-0`}>

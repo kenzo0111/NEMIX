@@ -3,6 +3,7 @@ import { Head, router } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { PaginationMeta, RFIDInventoryItem } from './types';
 import { useRfidScanner } from './hooks/useRfidScanner';
 import { useRfidTaggingWorkflow } from './hooks/useRfidTaggingWorkflow';
@@ -55,7 +56,7 @@ export default function Index({
     flash,
 }: PageProps) {
     const user = auth.user;
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const [isReplacingTag, setIsReplacingTag] = useState(false);
     const [showUnassignModal, setShowUnassignModal] = useState(false);
     const [isCompletionDismissed, setIsCompletionDismissed] = useState(false);
@@ -132,7 +133,7 @@ export default function Index({
                 modules={modules}
                 user={user}
                 collapsed={collapsed}
-                onToggleCollapse={() => setCollapsed(!collapsed)}
+                onToggleCollapse={handleToggleCollapse}
             />
 
             <main className={`flex-1 transition-all duration-300 ease-in-out min-w-0 ${collapsed ? 'md:ml-20' : 'md:ml-72'} ml-0`}>

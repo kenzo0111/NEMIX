@@ -3,6 +3,7 @@ import { Head, router, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
+import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import {
     ManageStaffsPageProps,
     Staff,
@@ -38,24 +39,8 @@ export default function StaffManagementIndex({
     const { flash } = usePage<ManageStaffsPageProps>().props;
     const user = auth?.user;
 
-    // Sidebar collapse state with localStorage persistence
-    const [collapsed, setCollapsed] = useState<boolean>(() => {
-        try {
-            return localStorage.getItem('nemix_sidebar_collapsed') === 'true';
-        } catch {
-            return false;
-        }
-    });
-
-    const handleToggleCollapse = useCallback(() => {
-        setCollapsed((prev) => {
-            const next = !prev;
-            try {
-                localStorage.setItem('nemix_sidebar_collapsed', String(next));
-            } catch {}
-            return next;
-        });
-    }, []);
+    // Sidebar collapse state with synchronized hook
+    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
 
     const { can, isSystemAdmin } = useAuthorization();
 

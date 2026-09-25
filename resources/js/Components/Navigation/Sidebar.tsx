@@ -82,12 +82,37 @@ export default function Sidebar({
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+    // Responsive screen width detection to decouple mobile drawer from desktop collapse state
+    const [isDesktop, setIsDesktop] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return window.innerWidth >= 768;
+        }
+        return true;
+    });
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const mediaQuery = window.matchMedia('(min-width: 768px)');
+        const updateMatch = (e: MediaQueryListEvent | MediaQueryList) => {
+            setIsDesktop(e.matches);
+            if (e.matches) {
+                setMobileOpen(false);
+            }
+        };
+        updateMatch(mediaQuery);
+        mediaQuery.addEventListener('change', updateMatch);
+        return () => mediaQuery.removeEventListener('change', updateMatch);
+    }, []);
+
+    // The mobile drawer (w-72) always shows full labels, submenus, and normal footer regardless of desktop collapse
+    const effectiveCollapsed = isDesktop && !mobileOpen ? collapsed : false;
+
     // Keep accordion synchronized if active route or active module changes
     useEffect(() => {
-        if (activeModuleTitle && !collapsed) {
+        if (activeModuleTitle && !effectiveCollapsed) {
             setExpandedModule(activeModuleTitle);
         }
-    }, [activeModuleTitle, collapsed]);
+    }, [activeModuleTitle, effectiveCollapsed]);
 
     // Listen for mobile sidebar events and close upon Inertia navigation
     useEffect(() => {
@@ -109,7 +134,7 @@ export default function Sidebar({
     }, []);
 
     const handleToggleSubmenu = (title: string) => {
-        if (collapsed) {
+        if (effectiveCollapsed) {
             if (onToggleCollapse) onToggleCollapse();
             setExpandedModule(title);
         } else {
@@ -140,7 +165,7 @@ export default function Sidebar({
             {mobileOpen && (
                 <div
                     onClick={() => setMobileOpen(false)}
-                    className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs transition-opacity md:hidden"
+                    className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs transition-opacity md:hidden print:hidden"
                     aria-label="Close navigation menu backdrop"
                 />
             )}
@@ -148,7 +173,7 @@ export default function Sidebar({
             <aside
                 className={`
                     fixed inset-y-0 left-0 z-50 bg-red-950 border-r border-red-900/60
-                    text-white shadow-xl transition-all duration-300 ease-in-out flex flex-col select-none overflow-x-hidden
+                    text-white shadow-xl transition-all duration-300 ease-in-out flex flex-col select-none overflow-x-hidden print:hidden
                     ${collapsed ? 'md:w-20' : 'md:w-72'}
                     ${mobileOpen ? 'w-72 translate-x-0' : 'w-72 -translate-x-full md:translate-x-0'}
                     ${className}
@@ -156,7 +181,7 @@ export default function Sidebar({
             >
                 {/* University Institutional Header */}
                 <SidebarBrand
-                    collapsed={collapsed}
+                    collapsed={effectiveCollapsed}
                     onCloseMobile={() => setMobileOpen(false)}
                 />
 
@@ -180,7 +205,7 @@ export default function Sidebar({
                             <div key={catKey} className="space-y-1">
                                 <SidebarSection
                                     title={categoryTitle}
-                                    collapsed={collapsed}
+                                    collapsed={effectiveCollapsed}
                                 />
 
                                 {categoryModules.map((item) => (
@@ -189,7 +214,7 @@ export default function Sidebar({
                                         item={item}
                                         isExpanded={expandedModule === item.title}
                                         onToggle={handleToggleSubmenu}
-                                        collapsed={collapsed}
+                                        collapsed={effectiveCollapsed}
                                     />
                                 ))}
                             </div>
@@ -200,7 +225,7 @@ export default function Sidebar({
                 {/* Institutional User Profile Footer & Collapse Controls */}
                 <SidebarUser
                     user={authUser}
-                    collapsed={collapsed}
+                    collapsed={effectiveCollapsed}
                     onToggleCollapse={onToggleCollapse}
                     onOpenLogoutModal={() => setShowLogoutModal(true)}
                 />
