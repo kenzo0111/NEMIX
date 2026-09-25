@@ -2,8 +2,7 @@
 @php
     $institutionName = 'University of Camarines Norte';
     $officeName = 'SUPPLY & PROPERTY MANAGEMENT OFFICE';
-    $productionBaseUrl = 'https://ucn-nemix.com';
-    $fallbackLogoUrl = $productionBaseUrl . '/images/ucnlogo.png';
+    $fallbackLogoUrl = \App\Services\MailAssetService::url('images/ucnlogo.png');
     $logoUrl = $fallbackLogoUrl;
 
     try {
@@ -25,7 +24,7 @@
                     if ($scheme === 'https' && !in_array($host, ['localhost', '127.0.0.1', '::1', '0.0.0.0'])) {
                         $logoUrl = $dbLogo;
                     } elseif (in_array($host, ['localhost', '127.0.0.1', '::1', '0.0.0.0']) && !empty($parsed['path'])) {
-                        $logoUrl = $productionBaseUrl . '/' . ltrim($parsed['path'], '/');
+                        $logoUrl = \App\Services\MailAssetService::url($parsed['path']);
                     } else {
                         $logoUrl = $fallbackLogoUrl;
                     }
@@ -34,15 +33,7 @@
                     if ($cleanPath === 'images/ucn-crest.png' || empty($cleanPath)) {
                         $cleanPath = 'images/ucnlogo.png';
                     }
-                    $appUrl = config('app.url');
-                    $appHost = parse_url((string) $appUrl, PHP_URL_HOST);
-                    $appScheme = parse_url((string) $appUrl, PHP_URL_SCHEME);
-
-                    if ($appScheme === 'https' && !in_array($appHost, ['localhost', '127.0.0.1', '::1', '0.0.0.0'])) {
-                        $logoUrl = rtrim($appUrl, '/') . '/' . $cleanPath;
-                    } else {
-                        $logoUrl = $productionBaseUrl . '/' . $cleanPath;
-                    }
+                    $logoUrl = \App\Services\MailAssetService::url($cleanPath);
                 }
             }
         }
@@ -54,9 +45,9 @@
         $logoUrl = $fallbackLogoUrl;
     }
 
-    $headerLinkUrl = $url ?? $productionBaseUrl;
+    $headerLinkUrl = $url ?? \App\Services\MailAssetService::baseUrl();
     if (in_array(parse_url((string) $headerLinkUrl, PHP_URL_HOST), ['localhost', '127.0.0.1', '::1', '0.0.0.0'])) {
-        $headerLinkUrl = $productionBaseUrl;
+        $headerLinkUrl = \App\Services\MailAssetService::baseUrl();
     }
 @endphp
 <tr>

@@ -1,8 +1,7 @@
 @php
     $institutionName = 'University of Camarines Norte';
     $officeName = 'Supply & Property Management Office';
-    $productionBaseUrl = 'https://ucn-nemix.com';
-    $watermarkUrl = $productionBaseUrl . '/images/mail/campus-watermark.png';
+    $watermarkUrl = \App\Services\MailAssetService::url('images/mail/campus-watermark.png');
 
     try {
         if (class_exists(\App\Models\SystemSetting::class)) {

@@ -1,10 +1,6 @@
 <x-mail::message>
 @php
-    $productionBaseUrl = 'https://ucn-nemix.com';
-    $appUrl = config('app.url');
-    $baseUrl = (parse_url((string) $appUrl, PHP_URL_SCHEME) === 'https' && !in_array(parse_url((string) $appUrl, PHP_URL_HOST), ['localhost', '127.0.0.1', '::1', '0.0.0.0']))
-        ? rtrim($appUrl, '/')
-        : $productionBaseUrl;
+    $baseUrl = \App\Services\MailAssetService::baseUrl();
 
     $iconType = $icon ?? null;
     if (!$iconType) {
@@ -25,12 +21,12 @@
     }
 
     $iconConfig = match ($iconType) {
-        'lock' => ['bg' => '#fee2e2', 'img' => $baseUrl . '/images/mail/icon-lock.png', 'alt' => 'Security Lock'],
-        'shield', 'otp' => ['bg' => '#fee2e2', 'img' => $baseUrl . '/images/mail/icon-shield.png', 'alt' => 'Verification Shield'],
-        'check', 'security', 'success' => ['bg' => '#dcfce7', 'img' => $baseUrl . '/images/mail/icon-check.png', 'alt' => 'Success'],
-        'envelope', 'verify' => ['bg' => '#fee2e2', 'img' => $baseUrl . '/images/mail/icon-envelope.png', 'alt' => 'Verify Email'],
-        'user', 'user-plus', 'invite', 'invitation' => ['bg' => '#fee2e2', 'img' => $baseUrl . '/images/mail/icon-user.png', 'alt' => 'Staff Invitation'],
-        'paperplane', 'paper-plane', 'smtp' => ['bg' => '#dbeafe', 'img' => $baseUrl . '/images/mail/icon-paperplane.png', 'alt' => 'SMTP Test'],
+        'lock' => ['bg' => '#fee2e2', 'img' => \App\Services\MailAssetService::url('images/mail/icon-lock.png'), 'alt' => 'Security Lock'],
+        'shield', 'otp' => ['bg' => '#fee2e2', 'img' => \App\Services\MailAssetService::url('images/mail/icon-shield.png'), 'alt' => 'Verification Shield'],
+        'check', 'security', 'success' => ['bg' => '#dcfce7', 'img' => \App\Services\MailAssetService::url('images/mail/icon-check.png'), 'alt' => 'Success'],
+        'envelope', 'verify' => ['bg' => '#fee2e2', 'img' => \App\Services\MailAssetService::url('images/mail/icon-envelope.png'), 'alt' => 'Verify Email'],
+        'user', 'user-plus', 'invite', 'invitation' => ['bg' => '#fee2e2', 'img' => \App\Services\MailAssetService::url('images/mail/icon-user.png'), 'alt' => 'Staff Invitation'],
+        'paperplane', 'paper-plane', 'smtp' => ['bg' => '#dbeafe', 'img' => \App\Services\MailAssetService::url('images/mail/icon-paperplane.png'), 'alt' => 'SMTP Test'],
         default => null,
     };
 @endphp
@@ -84,7 +80,7 @@
 @foreach ($outroLines as $line)
 @php
     $lineStr = is_string($line) ? trim($line) : '';
-    $clockImg = $baseUrl . '/images/mail/icon-clock.png';
+    $clockImg = \App\Services\MailAssetService::url('images/mail/icon-clock.png');
 @endphp
 @if (str_starts_with($lineStr, 'This link expires in 60 minutes.'))
 <table class="notice notice-expiration callout callout-expiration" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin: 20px 0; background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; width: 100%;">

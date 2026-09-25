@@ -32,10 +32,14 @@ class PasswordChangedSecurityNotification extends Notification
     {
         $timeStr = now()->timezone(config('app.timezone', 'Asia/Manila'))->format('F d, Y, h:i A (T)');
 
+        $calendarIconUrl = \App\Services\MailAssetService::url('images/mail/icon-calendar.png');
+        $locationIconUrl = \App\Services\MailAssetService::url('images/mail/icon-location.png');
+        $infoIconUrl = \App\Services\MailAssetService::url('images/mail/icon-info.png');
+
         $rows = '<tr>' .
                 '<td class="event-label" style="padding: 10px 16px 10px 0; font-weight: 600; color: #64748b; font-size: 13px; width: 140px; vertical-align: middle;">' .
                 '<table cellpadding="0" cellspacing="0" border="0" role="presentation"><tr>' .
-                '<td style="width: 18px; padding-right: 8px; vertical-align: middle;"><img src="https://ucn-nemix.com/images/mail/icon-calendar.png" width="14" height="14" alt="" style="display: block; border: 0;"></td>' .
+                '<td style="width: 18px; padding-right: 8px; vertical-align: middle;"><img src="' . $calendarIconUrl . '" width="14" height="14" alt="" style="display: block; border: 0;"></td>' .
                 '<td style="vertical-align: middle; color: #64748b; font-size: 13px; font-weight: 600;">Date &amp; Time</td>' .
                 '</tr></table>' .
                 '</td>' .
@@ -46,7 +50,7 @@ class PasswordChangedSecurityNotification extends Notification
             $rows .= '<tr>' .
                     '<td class="event-label" style="padding: 10px 16px 10px 0; font-weight: 600; color: #64748b; font-size: 13px; width: 140px; vertical-align: middle;">' .
                     '<table cellpadding="0" cellspacing="0" border="0" role="presentation"><tr>' .
-                    '<td style="width: 18px; padding-right: 8px; vertical-align: middle;"><img src="https://ucn-nemix.com/images/mail/icon-location.png" width="14" height="14" alt="" style="display: block; border: 0;"></td>' .
+                    '<td style="width: 18px; padding-right: 8px; vertical-align: middle;"><img src="' . $locationIconUrl . '" width="14" height="14" alt="" style="display: block; border: 0;"></td>' .
                     '<td style="vertical-align: middle; color: #64748b; font-size: 13px; font-weight: 600;">Originating IP</td>' .
                     '</tr></table>' .
                     '</td>' .
@@ -65,7 +69,7 @@ class PasswordChangedSecurityNotification extends Notification
             '<table class="notice notice-info callout callout-info" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin: 20px 0; background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; width: 100%;">' .
             '<tr><td class="notice-cell notice-info callout-cell callout-info" style="padding: 12px 16px; vertical-align: middle;">' .
             '<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="width: 100%; margin: 0;"><tr>' .
-            '<td style="width: 20px; vertical-align: middle; padding-right: 10px;"><img src="https://ucn-nemix.com/images/mail/icon-info.png" width="16" height="16" alt="Info" style="width: 16px; height: 16px; display: block; border: 0;"></td>' .
+            '<td style="width: 20px; vertical-align: middle; padding-right: 10px;"><img src="' . $infoIconUrl . '" width="16" height="16" alt="Info" style="width: 16px; height: 16px; display: block; border: 0;"></td>' .
             '<td style="vertical-align: middle; font-size: 13px; color: #1e40af; line-height: 1.45;">If you did not make this change, please secure your account immediately by contacting the SPMO administrator.</td>' .
             '</tr></table>' .
             '</td></tr></table>'

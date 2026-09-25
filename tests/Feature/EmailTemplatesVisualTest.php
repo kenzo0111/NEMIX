@@ -26,7 +26,7 @@ class EmailTemplatesVisualTest extends TestCase
 
         $this->user = User::factory()->create([
             'name' => 'Vince Steven Balce',
-            'email' => 'vince.balce@ucn-nemix.com',
+            'email' => 'vince.balce@unc-nemix.com',
         ]);
 
         $this->previewDir = public_path('previews');
