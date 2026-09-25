@@ -93,7 +93,7 @@ export const LoginPrintableLedger: React.FC<LoginPrintableLedgerProps> = ({
                             {officeName}
                         </div>
                         <div className="text-[10px] text-slate-600">
-                            NEMIX — Networked Enterprise Management & Inventory System
+                            SUPPLY AND INVENTORY MANAGEMENT SYSTEM
                         </div>
                     </div>
                 </div>
