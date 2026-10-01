@@ -31,6 +31,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
     if (!issuance) return null;
 
     const items = issuance.items && issuance.items.length > 0 ? issuance.items : issuance.items_list || [];
+    const awaitingRelease = issuance.status === 'Approved';
 
     const handlePrint = () => {
         document.body.classList.add('printing-ris');
@@ -56,7 +57,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
                 description: line.item || line.item_name,
                 quantity: allocation.quantity,
                 stock_available: true,
-                issue_quantity: allocation.quantity,
+                issue_quantity: awaitingRelease ? '' : allocation.quantity,
                 remarks: '',
             }));
             const unallocatedQuantity = line.quantity - allocations.reduce((total, allocation) => total + allocation.quantity, 0);
@@ -68,7 +69,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
                     description: line.item || line.item_name,
                     quantity: rows.length === 0 ? line.quantity : unallocatedQuantity,
                     stock_available: true,
-                    issue_quantity: rows.length === 0 ? line.quantity : unallocatedQuantity,
+                    issue_quantity: awaitingRelease ? '' : (rows.length === 0 ? line.quantity : unallocatedQuantity),
                     remarks: '',
                 });
             }
@@ -77,16 +78,16 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
         }),
         requested_by_name: issuance.recipient,
         requested_by_designation: issuance.recipient_designation,
-        requested_by_date: issuance.date_issued || issuance.date,
+        requested_by_date: issuance.requested_at || issuance.date_issued || issuance.date,
         approved_by_name: issuance.approved_by || defaultApprovedBy,
         approved_by_designation: issuance.approved_by_designation || defaultApprovedByDesignation,
-        approved_by_date: issuance.date_issued || issuance.date,
-        issued_by_name: issuance.issued_by_name || issuance.issued_by || defaultIssuedBy,
-        issued_by_designation: issuance.issued_by_position || defaultIssuedByDesignation,
-        issued_by_date: issuance.date_issued || issuance.date,
-        received_by_name: issuance.recipient,
-        received_by_designation: issuance.recipient_designation,
-        received_by_date: issuance.date_issued || issuance.date,
+        approved_by_date: issuance.reviewed_at || issuance.date_issued || issuance.date,
+        issued_by_name: awaitingRelease ? '' : (issuance.issued_by_name || issuance.issued_by || defaultIssuedBy),
+        issued_by_designation: awaitingRelease ? '' : (issuance.issued_by_position || defaultIssuedByDesignation),
+        issued_by_date: awaitingRelease ? '' : (issuance.date_issued || issuance.date),
+        received_by_name: awaitingRelease ? '' : issuance.recipient,
+        received_by_designation: awaitingRelease ? '' : issuance.recipient_designation,
+        received_by_date: awaitingRelease ? '' : (issuance.date_issued || issuance.date),
     };
 
     return (

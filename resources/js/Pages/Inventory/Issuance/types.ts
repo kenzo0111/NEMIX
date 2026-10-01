@@ -43,7 +43,9 @@ export interface IssuanceRecord {
     date: string;
     fund_cluster?: string;
     purpose?: string;
-    status: 'Pending' | 'Issued' | 'Cancelled';
+    status: 'Pending' | 'Approved' | 'Issued' | 'Cancelled';
+    reviewed_at?: string | null;
+    requested_at?: string | null;
     approved_by: string;
     approved_by_designation: string;
     issued_by: string;

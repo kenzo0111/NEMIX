@@ -246,7 +246,7 @@ class InventoryReceivingService
                         ]);
                     }
 
-                    if ($item->stock + $diff < 0) {
+                    if ($item->stock + $diff < SupplyRequestService::reservedQuantity($item->id)) {
                         throw ValidationException::withMessages([
                             'quantity' => "Cannot reduce received quantity by " . abs($diff) . ". Resulting stock balance for {$item->name} would be negative (" . ($item->stock + $diff) . ").",
                         ]);
@@ -264,7 +264,7 @@ class InventoryReceivingService
                     $batch->date_received = $newDate;
                     $batch->save();
                 } else {
-                    if ($item->stock + $diff < 0) {
+                    if ($item->stock + $diff < SupplyRequestService::reservedQuantity($item->id)) {
                         throw ValidationException::withMessages([
                             'quantity' => "Cannot reduce received quantity by " . abs($diff) . ". Resulting stock balance for {$item->name} would be negative (" . ($item->stock + $diff) . ").",
                         ]);
@@ -287,7 +287,7 @@ class InventoryReceivingService
                     }
                 }
 
-                if ($oldItem->stock - $oldQuantity < 0) {
+                if ($oldItem->stock - $oldQuantity < SupplyRequestService::reservedQuantity($oldItem->id)) {
                     throw ValidationException::withMessages([
                         'item_id' => "Cannot reassign item: reducing stock for {$oldItem->name} by {$oldQuantity} would result in a negative stock balance (" . ($oldItem->stock - $oldQuantity) . ").",
                     ]);
@@ -345,7 +345,7 @@ class InventoryReceivingService
                     ]);
                 }
 
-                if ($item->stock < (int) $batch->quantity_remaining) {
+                if ($item->stock - (int) $batch->quantity_remaining < SupplyRequestService::reservedQuantity($item->id)) {
                     throw ValidationException::withMessages([
                         'error' => "Cannot void receiving record: current stock for {$item->name} ({$item->stock}) is less than batch quantity ({$batch->quantity_remaining}).",
                     ]);
@@ -353,7 +353,7 @@ class InventoryReceivingService
 
                 $batch->delete();
             } else {
-                if ($item->stock < (int) $lockedReceiving->quantity) {
+                if ($item->stock - (int) $lockedReceiving->quantity < SupplyRequestService::reservedQuantity($item->id)) {
                     throw ValidationException::withMessages([
                         'error' => "Cannot void receiving record: current stock for {$item->name} ({$item->stock}) is less than the received quantity ({$lockedReceiving->quantity}).",
                     ]);

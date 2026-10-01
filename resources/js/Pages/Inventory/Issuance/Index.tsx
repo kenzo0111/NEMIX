@@ -10,6 +10,7 @@ import { IssuanceTable } from './components/IssuanceTable';
 import { IssuanceFormModal } from './components/IssuanceFormModal';
 import { IssuanceDetailsModal } from './components/IssuanceDetailsModal';
 import { RisPreviewModal } from './components/RisPreviewModal';
+import { SupplyRequestQueue, QueueRequest } from './components/SupplyRequestQueue';
 
 export default function IssuanceIndex({
     auth,
@@ -18,7 +19,9 @@ export default function IssuanceIndex({
     recipients = [],
     divisions = [],
     filters = {},
-}: IssuancePageProps) {
+    supplyRequests = [],
+    canCreateIssuance = false,
+}: IssuancePageProps & { supplyRequests?: QueueRequest[]; canCreateIssuance?: boolean }) {
     const user = auth.user;
     const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const pageProps = usePage().props as any;
@@ -151,6 +154,23 @@ export default function IssuanceIndex({
         setIsRisPreviewModalOpen(true);
     };
 
+    const handlePreviewApprovedRequest = (request: QueueRequest) => {
+        const lines = request.items.filter(line => (line.approved_quantity || 0) > 0).map(line => ({
+            id: line.id, item_id: line.item_id, item: line.item.name, sku: line.item.sku,
+            quantity: line.approved_quantity || 0, unit: line.item.unit_of_issue || 'pcs',
+            stock_no: '-', unit_cost: 0, amount: 0, allocations: [],
+        }));
+        setSelectedIssuance({
+            id: request.id, ris_number: request.ris_number || '', recipient: request.requester.name,
+            department: request.department, purpose: request.purpose, status: 'Approved',
+            requested_at: request.created_at?.slice(0, 10), reviewed_at: request.reviewed_at?.slice(0, 10),
+            date_issued: '', date: '', approved_by: request.reviewer?.name || '', approved_by_designation: 'Property Custodian',
+            issued_by: '', issued_by_name: '', issued_by_position: '', total_quantity: lines.reduce((sum, line) => sum + line.quantity, 0),
+            total_amount: 0, items: lines,
+        });
+        setIsRisPreviewModalOpen(true);
+    };
+
     const handleCloseRisPreview = () => {
         setIsRisPreviewModalOpen(false);
         setSelectedIssuance(null);
@@ -181,6 +201,7 @@ export default function IssuanceIndex({
                 />
 
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden pb-16 min-w-0">
+                    {supplyRequests.length > 0 && <div className="mb-6"><SupplyRequestQueue requests={supplyRequests} onPreview={handlePreviewApprovedRequest} /></div>}
                     {/* Inline Notification Banner */}
                     {notification && (
                         <div
@@ -223,6 +244,7 @@ export default function IssuanceIndex({
                             onRecipientFilterChange={handleRecipientFilterChange}
                             recipientOptions={recipientOptions}
                             onRecordIssuance={handleOpenRecordModal}
+                            canCreateIssuance={canCreateIssuance}
                         />
 
                         <IssuanceTable
@@ -237,7 +259,7 @@ export default function IssuanceIndex({
             </main>
 
             {/* Modals */}
-            <IssuanceFormModal
+            {canCreateIssuance && <IssuanceFormModal
                 show={isFormModalOpen}
                 onClose={handleCloseRecordModal}
                 items={items}
@@ -247,7 +269,7 @@ export default function IssuanceIndex({
                 defaultIssuedBy={defaultIssuedBy}
                 defaultIssuedByDesignation={defaultIssuedByDesignation}
                 onSuccessNotification={handleSuccessNotification}
-            />
+            />}
 
             <IssuanceDetailsModal
                 show={isDetailsModalOpen}

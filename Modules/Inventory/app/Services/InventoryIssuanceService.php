@@ -12,6 +12,7 @@ use Modules\Inventory\Models\Issuance;
 use Modules\Inventory\Models\IssuanceBatchAllocation;
 use Modules\Inventory\Models\IssuanceItem;
 use Modules\Inventory\Models\Item;
+use Modules\Inventory\Models\SupplyRequest;
 
 class InventoryIssuanceService
 {
@@ -64,7 +65,8 @@ class InventoryIssuanceService
 
             foreach ($condensed as $itemId => $qty) {
                 $item = $lockedItems->get($itemId);
-                if (!$item || ($strict && $item->stock < $qty)) {
+                $reserved = $item ? SupplyRequestService::reservedQuantity($itemId, $data['supply_request_id'] ?? null) : 0;
+                if (!$item || $item->stock - $reserved < $qty) {
                     $available = $item ? $item->stock : 0;
                     $name = $item ? $item->name : "Item #{$itemId}";
                     throw ValidationException::withMessages([
@@ -85,8 +87,11 @@ class InventoryIssuanceService
                 ->whereMonth('date_issued', $dateCarbon->month)
                 ->count();
             $seq = $monthCount + 1;
-            $risNumber = sprintf('%s%s-%04d', $risPrefix, $yearMonth, $seq);
-            while (Issuance::where('ris_number', $risNumber)->exists()) {
+            $risNumber = $data['ris_number'] ?? sprintf('%s%s-%04d', $risPrefix, $yearMonth, $seq);
+            if (!empty($data['ris_number']) && Issuance::where('ris_number', $risNumber)->exists()) {
+                throw ValidationException::withMessages(['request' => 'This RIS number has already been issued.']);
+            }
+            while (empty($data['ris_number']) && Issuance::where('ris_number', $risNumber)->exists()) {
                 $seq++;
                 $risNumber = sprintf('%s%s-%04d', $risPrefix, $yearMonth, $seq);
             }
@@ -210,6 +215,9 @@ class InventoryIssuanceService
      */
     public function update(Issuance $issuance, array $data, array $lines, ?int $userId = null): Issuance
     {
+        if (SupplyRequest::where('issuance_id', $issuance->id)->exists()) {
+            throw ValidationException::withMessages(['issuance' => 'A request-linked issuance cannot be edited independently.']);
+        }
         return DB::transaction(function () use ($issuance, $data, $lines, $userId) {
             $lockedIssuance = Issuance::where('id', $issuance->id)->lockForUpdate()->firstOrFail();
             $normalizedDate = $data['date_issued'];
@@ -300,7 +308,8 @@ class InventoryIssuanceService
 
                 foreach ($condensed as $itemId => $qty) {
                     $item = $lockedItems->get($itemId);
-                    if (!$item || ($strict && $item->stock < $qty)) {
+                    $reserved = $item ? SupplyRequestService::reservedQuantity($itemId) : 0;
+                    if (!$item || $item->stock - $reserved < $qty) {
                         $available = $item ? $item->stock : 0;
                         $name = $item ? $item->name : "Item #{$itemId}";
                         throw ValidationException::withMessages([
@@ -398,6 +407,9 @@ class InventoryIssuanceService
      */
     public function destroy(Issuance $issuance, ?int $userId = null): void
     {
+        if (SupplyRequest::where('issuance_id', $issuance->id)->exists()) {
+            throw ValidationException::withMessages(['issuance' => 'A request-linked issuance cannot be voided independently.']);
+        }
         DB::transaction(function () use ($issuance, $userId) {
             $lockedIssuance = Issuance::where('id', $issuance->id)->lockForUpdate()->firstOrFail();
 

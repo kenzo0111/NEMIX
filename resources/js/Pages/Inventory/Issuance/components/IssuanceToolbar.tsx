@@ -9,6 +9,7 @@ interface IssuanceToolbarProps {
     onRecipientFilterChange: (value: string) => void;
     recipientOptions: Array<{ value: string; label: string }>;
     onRecordIssuance: () => void;
+    canCreateIssuance: boolean;
 }
 
 export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
@@ -18,6 +19,7 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
     onRecipientFilterChange,
     recipientOptions,
     onRecordIssuance,
+    canCreateIssuance,
 }) => {
     const selectedRecipientOption = recipientOptions.find((o) => o.value === recipientFilter) || null;
 
@@ -75,7 +77,7 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                 </div>
 
                 {/* Record Issuance Button */}
-                <button
+                {canCreateIssuance && <button
                     type="button"
                     onClick={onRecordIssuance}
                     className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer min-h-[38px]"
@@ -84,7 +86,7 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
                     Record Issuance
-                </button>
+                </button>}
             </div>
         </div>
     );

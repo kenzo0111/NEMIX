@@ -76,6 +76,7 @@ class HandleInertiaRequests extends Middleware
                     'view' => $hasPerm('inventory.index', $defaultForStaff),
                     'receiving' => $hasPerm('inventory.receiving', $defaultForStaff),
                     'issuance' => $hasPerm('inventory.issuance', $defaultForStaff),
+                    'requests' => $hasPerm('inventory.requests.index', false),
                 ],
                 'rfid' => [
                     'view' => $hasPerm('rfid-scanner.index', $defaultForStaff),

@@ -13,6 +13,7 @@ use Inertia\Inertia;
 use Modules\Inventory\Http\Requests\StoreIssuanceRequest;
 use Modules\Inventory\Models\InventoryBatch;
 use Modules\Inventory\Models\Issuance;
+use Modules\Inventory\Models\SupplyRequest;
 use Modules\Inventory\Models\IssuanceItem;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\Receiving;
@@ -324,6 +325,7 @@ class InventoryController extends Controller
         }
 
         return DB::transaction(function () use ($validated, $inventory) {
+            $inventory = Item::whereKey($inventory->id)->lockForUpdate()->firstOrFail();
             $sku = !empty($validated['sku']) ? trim($validated['sku']) : $inventory->sku;
             if (empty($sku)) {
                 $sku = $this->generateUniqueSku($validated['supplier_id'] ?? $inventory->supplier_id, $validated['name']);
@@ -343,6 +345,9 @@ class InventoryController extends Controller
             // If item has no batch history, allow updating stock/unit_cost
             if (!$inventory->batches()->exists()) {
                 if (isset($validated['stock'])) {
+                    if ((int) $validated['stock'] < \Modules\Inventory\Services\SupplyRequestService::reservedQuantity($inventory->id)) {
+                        throw ValidationException::withMessages(['stock' => 'Stock cannot be reduced below quantities reserved for approved supply requests.']);
+                    }
                     $updateData['stock'] = (int) $validated['stock'];
                 }
                 if (isset($validated['unit_cost'])) {
@@ -629,11 +634,10 @@ class InventoryController extends Controller
         $search = trim($request->input('search', ''));
         $recipient = trim($request->input('recipient', ''));
 
-        $issuancesQuery = ResourceOwnershipPolicy::scopeQuery(
-            Issuance::with(['items.item', 'items.allocations.inventoryBatch.supplier', 'item', 'issuer']),
-            auth()->user(),
-            'issued_by'
-        );
+        $issuancesQuery = Issuance::with(['items.item', 'items.allocations.inventoryBatch.supplier', 'item', 'issuer']);
+        if (!auth()->user()->hasAnyRole(['Property Custodian', 'System Admin', 'System Administrator'])) {
+            $issuancesQuery = ResourceOwnershipPolicy::scopeQuery($issuancesQuery, auth()->user(), 'issued_by');
+        }
 
         if ($search !== '') {
             $issuancesQuery->where(function ($query) use ($search) {
@@ -788,11 +792,19 @@ class InventoryController extends Controller
             ];
         });
 
-        $itemsQuery = ResourceOwnershipPolicy::scopeQuery(Item::query(), auth()->user());
+        $itemsQuery = auth()->user()->hasRole('Property Custodian')
+            ? Item::query()
+            : ResourceOwnershipPolicy::scopeQuery(Item::query(), auth()->user());
         $recipientsQuery = ResourceOwnershipPolicy::scopeQuery(Issuance::query(), auth()->user(), 'issued_by');
 
         return Inertia::render('Inventory/Issuance', [
             'issuances' => $transformed,
+            'supplyRequests' => auth()->user()->hasAnyRole(['Property Custodian', 'System Admin', 'System Administrator'])
+                ? SupplyRequest::with(['items.item', 'requester', 'reviewer'])
+                    ->whereIn('status', ['Pending', 'Approved'])->oldest()->get()
+                : [],
+            'canCreateIssuance' => auth()->user()->hasAnyRole(['System Admin', 'System Administrator'])
+                || auth()->user()->can('route:inventory.issuance.store'),
             'items' => $itemsQuery->get(['id', 'name', 'sku', 'stock', 'unit_of_issue', 'unit_cost']),
             'recipients' => $recipientsQuery->distinct()->pluck('recipient')->filter()->values()->all(),
             'divisions' => config('university.divisions', []),
@@ -841,6 +853,9 @@ class InventoryController extends Controller
     public function updateIssuance(Request $request, Issuance $issuance)
     {
         ResourceOwnershipPolicy::authorize(auth()->user(), $issuance, 'issued_by');
+        if (SupplyRequest::where('issuance_id', $issuance->id)->exists()) {
+            throw ValidationException::withMessages(['issuance' => 'This issuance belongs to an approved supply request and cannot be edited independently.']);
+        }
 
         $validated = $request->validate([
             'issuances' => ['nullable', 'array', 'min:1', 'max:100'],
@@ -899,6 +914,9 @@ class InventoryController extends Controller
     public function destroyIssuance(Issuance $issuance)
     {
         ResourceOwnershipPolicy::authorize(auth()->user(), $issuance, 'issued_by');
+        if (SupplyRequest::where('issuance_id', $issuance->id)->exists()) {
+            throw ValidationException::withMessages(['issuance' => 'This issuance belongs to an approved supply request and cannot be voided independently.']);
+        }
 
         $this->issuanceService->destroy($issuance, auth()->id());
 

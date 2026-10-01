@@ -14,6 +14,7 @@ export interface AuthCapabilities {
         view: boolean;
         receiving: boolean;
         issuance: boolean;
+        requests: boolean;
     };
     rfid: {
         view: boolean;

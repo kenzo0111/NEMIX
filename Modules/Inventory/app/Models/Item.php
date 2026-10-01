@@ -39,6 +39,10 @@ class Item extends Model
             return true;
         }
 
+        if (class_exists(SupplyRequestItem::class) && SupplyRequestItem::where('item_id', $this->id)->exists()) {
+            return true;
+        }
+
         return false;
     }
 

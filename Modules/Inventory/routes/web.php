@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Inventory\Http\Controllers\InventoryController;
+use Modules\Inventory\Http\Controllers\SupplyRequestController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('inventories', InventoryController::class)->names('inventory');
@@ -15,4 +16,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('inventory/issuance', [InventoryController::class, 'storeIssuance'])->name('inventory.issuance.store');
     Route::put('inventory/issuance/{issuance}', [InventoryController::class, 'updateIssuance'])->name('inventory.issuance.update');
     Route::delete('inventory/issuance/{issuance}', [InventoryController::class, 'destroyIssuance'])->name('inventory.issuance.destroy');
+    Route::get('inventory/my-requests', [SupplyRequestController::class, 'index'])->name('inventory.requests.index');
+    Route::post('inventory/my-requests', [SupplyRequestController::class, 'store'])->name('inventory.requests.store');
+    Route::put('inventory/my-requests/{supplyRequest}', [SupplyRequestController::class, 'update'])->name('inventory.requests.update');
+    Route::post('inventory/my-requests/{supplyRequest}/cancel', [SupplyRequestController::class, 'cancel'])->name('inventory.requests.cancel');
+    Route::post('inventory/my-requests/{supplyRequest}/approve', [SupplyRequestController::class, 'approve'])->name('inventory.requests.approve');
+    Route::post('inventory/my-requests/{supplyRequest}/reject', [SupplyRequestController::class, 'reject'])->name('inventory.requests.reject');
+    Route::post('inventory/my-requests/{supplyRequest}/release', [SupplyRequestController::class, 'release'])->name('inventory.requests.release');
 });

@@ -64,6 +64,7 @@ function normalizeSubmoduleActive(
         if (subItemKey === 'all-items' && routeCurrentName === 'inventory.index') return true;
         if (subItemKey === 'receiving' && routeCurrentName.startsWith('inventory.receiving')) return true;
         if (subItemKey === 'issuance' && routeCurrentName.startsWith('inventory.issuance')) return true;
+        if (subItemKey === 'my-requests' && routeCurrentName.startsWith('inventory.requests.')) return true;
         if (subItemKey === 'supplier-registry' && routeCurrentName.startsWith('suppliers.')) return true;
         if (subItemKey === 'manage-reports' && routeCurrentName.startsWith('compliance.reports')) return true;
         if (subItemKey === 'manage-analytics' && routeCurrentName.startsWith('compliance.analytics')) return true;
@@ -138,7 +139,7 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
             icon: Package,
             href: '#',
             requiredCapability: (caps) =>
-                caps.inventory.view || caps.inventory.receiving || caps.inventory.issuance,
+                caps.inventory.view || caps.inventory.receiving || caps.inventory.issuance || caps.inventory.requests,
             requiredPermission: 'route:inventory.index',
             submodules: [
                 {
@@ -161,6 +162,13 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
                     href: route('inventory.issuance'),
                     requiredCapability: (caps) => caps.inventory.issuance,
                     requiredPermission: 'route:inventory.issuance',
+                },
+                {
+                    key: 'my-requests',
+                    title: 'My Requests',
+                    href: route('inventory.requests.index'),
+                    requiredCapability: (caps) => caps.inventory.requests,
+                    requiredPermission: 'route:inventory.requests.index',
                 },
             ],
         },

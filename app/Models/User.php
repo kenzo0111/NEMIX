@@ -38,6 +38,13 @@ class User extends Authenticatable implements MustVerifyEmail
             }
         }
 
+        if (class_exists(\Modules\Inventory\Models\SupplyRequest::class)) {
+            if (\Modules\Inventory\Models\SupplyRequest::where('requested_by', $this->id)
+                ->orWhere('reviewed_by', $this->id)->exists()) {
+                return true;
+            }
+        }
+
         return false;
     }
 
