@@ -30,6 +30,7 @@ export default function MyRequests({ auth, requests, items }: {
     const [editingRequest, setEditingRequest] = useState<SupplyRequest | null>(null);
     const [detailsRequest, setDetailsRequest] = useState<SupplyRequest | null>(null);
     const [preview, setPreview] = useState<IssuanceRecord | null>(null);
+    const [previewRequestId, setPreviewRequestId] = useState<number | null>(null);
     const [busy, setBusy] = useState<number | null>(null);
     const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -73,6 +74,7 @@ export default function MyRequests({ auth, requests, items }: {
         });
     };
     const openRis = (request: SupplyRequest) => {
+        const issued = request.status === 'Issued';
         const lines = request.items.filter(line => (line.approved_quantity || 0) > 0).map(line => ({
             id: line.id, item_id: line.item_id, item: line.item?.name || '', sku: line.item?.sku || '',
             quantity: line.approved_quantity || 0, unit: line.item?.unit_of_issue || 'pcs', stock_no: '-',
@@ -80,12 +82,13 @@ export default function MyRequests({ auth, requests, items }: {
         }));
         setPreview({
             id: request.id, ris_number: request.ris_number || '', recipient: auth.user.name,
-            department: request.department, purpose: request.purpose, status: 'Approved',
+            department: request.department, purpose: request.purpose, status: issued ? 'Issued' : 'Approved',
             requested_at: request.created_at?.slice(0, 10), reviewed_at: request.reviewed_at?.slice(0, 10),
-            date_issued: '', date: '', approved_by: request.reviewer?.name || '', approved_by_designation: 'Property Custodian',
-            issued_by: '', issued_by_name: '', issued_by_position: '', total_quantity: lines.reduce((sum, line) => sum + line.quantity, 0),
+            date_issued: issued ? request.issuance?.date_issued || '' : '', date: '', approved_by: request.reviewer?.name || '', approved_by_designation: 'Property Custodian',
+            issued_by: '', issued_by_name: issued ? request.issuance?.issued_by_name || '' : '', issued_by_position: issued ? request.issuance?.issued_by_position || '' : '', total_quantity: lines.reduce((sum, line) => sum + line.quantity, 0),
             total_amount: 0, items: lines,
         });
+        setPreviewRequestId(request.id);
     };
 
     return <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 overflow-x-hidden selection:bg-red-900 selection:text-white">
@@ -118,7 +121,7 @@ export default function MyRequests({ auth, requests, items }: {
                                 <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right"><div className="inline-flex items-center gap-2.5">
                                     <button type="button" onClick={() => setDetailsRequest(request)} className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-xs py-1 px-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800">View</button>
                                     {request.status === 'Pending' && <button type="button" onClick={() => openEdit(request)} className="text-red-950 dark:text-red-400 font-semibold text-xs py-1 px-1.5 rounded hover:bg-red-50 dark:hover:bg-red-950/40">Edit</button>}
-                                    {request.status === 'Approved' && <button type="button" onClick={() => openRis(request)} className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 font-semibold text-xs px-2.5 py-1 rounded shadow-2xs">RIS Form</button>}
+                                    {['Approved', 'Issued'].includes(request.status) && <button type="button" onClick={() => openRis(request)} className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 font-semibold text-xs px-2.5 py-1 rounded shadow-2xs">View RIS</button>}
                                     {['Pending', 'Approved'].includes(request.status) && <button type="button" disabled={busy === request.id} onClick={() => cancel(request)} className="text-gray-500 dark:text-slate-400 hover:text-red-800 dark:hover:text-red-400 font-semibold text-xs disabled:opacity-50">Cancel</button>}
                                 </div></td>
                             </tr>;
@@ -129,6 +132,6 @@ export default function MyRequests({ auth, requests, items }: {
         </main>
         <RequestFormModal show={formOpen} request={editingRequest} items={items} onClose={closeForm} onSaved={message => setNotification({ type: 'success', message })} />
         <RequestDetailsModal show={!!detailsRequest} request={detailsRequest} onClose={() => setDetailsRequest(null)} />
-        <RisPreviewModal show={!!preview} issuance={preview} onClose={() => setPreview(null)} institutionName={pageProps.systemSettings?.entity_name || 'University of Camarines Norte'} responsibilityCenterCode={pageProps.system?.settings?.institution_responsibility_center_code || ''} defaultApprovedBy="" defaultApprovedByDesignation="" defaultIssuedBy="" defaultIssuedByDesignation="" />
+        <RisPreviewModal show={!!preview} issuance={preview} onClose={() => { setPreview(null); setPreviewRequestId(null); }} downloadUrl={previewRequestId ? route('inventory.requests.ris-pdf', previewRequestId) : undefined} institutionName={pageProps.systemSettings?.entity_name || 'University of Camarines Norte'} responsibilityCenterCode={pageProps.system?.settings?.institution_responsibility_center_code || ''} defaultApprovedBy="" defaultApprovedByDesignation="" defaultIssuedBy="" defaultIssuedByDesignation="" />
     </div>;
 }

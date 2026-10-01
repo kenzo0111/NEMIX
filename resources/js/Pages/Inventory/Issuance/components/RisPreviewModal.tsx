@@ -15,6 +15,7 @@ interface RisPreviewModalProps {
     defaultApprovedByDesignation: string;
     defaultIssuedBy: string;
     defaultIssuedByDesignation: string;
+    downloadUrl?: string;
 }
 
 export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
@@ -27,6 +28,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
     defaultApprovedByDesignation,
     defaultIssuedBy,
     defaultIssuedByDesignation,
+    downloadUrl,
 }) => {
     if (!issuance) return null;
 
@@ -127,6 +129,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
 
                 {/* Modal Footer */}
                 <div className="ris-print-hide px-4 sm:px-6 py-3.5 bg-gray-50 dark:bg-slate-950/60 border-t border-gray-200 dark:border-slate-800 flex items-center justify-end gap-2.5 flex-shrink-0">
+                    {downloadUrl && <a href={downloadUrl} className="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700">Download PDF</a>}
                     <button
                         type="button"
                         onClick={handlePrint}

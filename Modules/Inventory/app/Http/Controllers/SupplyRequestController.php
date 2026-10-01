@@ -3,6 +3,8 @@
 namespace Modules\Inventory\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\SystemSetting;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -33,6 +35,59 @@ class SupplyRequestController extends Controller
                 ->where('requested_by', $request->user()->id)->latest()->get(),
             'items' => Item::orderBy('name')->get(['id', 'name', 'sku', 'stock', 'unit_of_issue']),
         ]);
+    }
+
+    public function risPdf(Request $request, SupplyRequest $supplyRequest)
+    {
+        abort_unless(
+            $request->user()->id === $supplyRequest->requested_by
+                || $request->user()->hasAnyRole(['Property Custodian', 'System Admin', 'System Administrator']),
+            403
+        );
+        abort_unless(in_array($supplyRequest->status, ['Approved', 'Issued'], true), 404);
+
+        $supplyRequest->load(['items.item', 'requester', 'reviewer', 'issuance']);
+        $issued = $supplyRequest->status === 'Issued';
+        $issuance = $supplyRequest->issuance;
+        $ris = [
+            'entity_name' => SystemSetting::get('institution.name', 'University of Camarines Norte'),
+            'fund_cluster' => $issuance?->fund_cluster ?: '01 - Regular Agency Fund',
+            'division' => $supplyRequest->department,
+            'office' => $supplyRequest->department,
+            'responsibility_center_code' => SystemSetting::get('institution_responsibility_center_code', ''),
+            'ris_no' => preg_replace('/^RIS-/i', '', $supplyRequest->ris_number ?? ''),
+            'purpose' => $supplyRequest->purpose,
+            'requested_by_name' => $supplyRequest->requester?->name,
+            'requested_by_date' => $supplyRequest->created_at,
+            'approved_by_name' => $supplyRequest->reviewer?->name,
+            'approved_by_designation' => 'Property Custodian',
+            'approved_by_date' => $supplyRequest->reviewed_at,
+            'issued_by_name' => $issued ? $issuance?->issued_by_name : null,
+            'issued_by_designation' => $issued ? $issuance?->issued_by_position : null,
+            'issued_by_date' => $issued ? $issuance?->date_issued : null,
+            'received_by_name' => $issued ? $supplyRequest->requester?->name : null,
+            'received_by_date' => $issued ? $issuance?->date_issued : null,
+        ];
+        $items = $supplyRequest->items->filter(fn ($line) => $line->approved_quantity > 0)
+            ->map(fn ($line) => [
+                'stock_no' => '-',
+                'unit' => $line->item?->unit_of_issue ?: 'pcs',
+                'description' => $line->item?->name ?: 'Unavailable item',
+                'quantity' => $line->approved_quantity,
+                'stock_available' => true,
+                'issue_quantity' => $issued ? $line->approved_quantity : '',
+                'remarks' => '',
+            ])->values()->all();
+        $fileName = preg_replace('/[^A-Za-z0-9_-]/', '_', $supplyRequest->ris_number ?: "RIS-REQ-{$supplyRequest->id}") . '.pdf';
+        $pdf = Pdf::loadView('compliance.pdf.requisition_issue_slip', [
+            'ris' => $ris, 'items' => $items, 'dataset' => [],
+        ])->setPaper('A4', 'portrait')->setOption([
+            'isRemoteEnabled' => false,
+            'isHtml5ParserEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+        ]);
+
+        return $request->boolean('inline') ? $pdf->stream($fileName) : $pdf->download($fileName);
     }
 
     public function store(Request $request)

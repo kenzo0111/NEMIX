@@ -17,6 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('inventory/issuance/{issuance}', [InventoryController::class, 'updateIssuance'])->name('inventory.issuance.update');
     Route::delete('inventory/issuance/{issuance}', [InventoryController::class, 'destroyIssuance'])->name('inventory.issuance.destroy');
     Route::get('inventory/my-requests', [SupplyRequestController::class, 'index'])->name('inventory.requests.index');
+    Route::get('inventory/my-requests/{supplyRequest}/ris.pdf', [SupplyRequestController::class, 'risPdf'])->name('inventory.requests.ris-pdf');
     Route::post('inventory/my-requests', [SupplyRequestController::class, 'store'])->name('inventory.requests.store');
     Route::put('inventory/my-requests/{supplyRequest}', [SupplyRequestController::class, 'update'])->name('inventory.requests.update');
     Route::post('inventory/my-requests/{supplyRequest}/cancel', [SupplyRequestController::class, 'cancel'])->name('inventory.requests.cancel');

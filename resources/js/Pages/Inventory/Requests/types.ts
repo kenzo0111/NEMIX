@@ -26,4 +26,5 @@ export type SupplyRequest = {
     items: RequestLine[];
     reviewer?: { name: string } | null;
     issuance_id?: number | null;
+    issuance?: { issued_by_name?: string | null; issued_by_position?: string | null; date_issued?: string | null } | null;
 };

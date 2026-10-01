@@ -8,6 +8,7 @@ use Modules\Inventory\Models\Issuance;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\SupplyRequest;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class SupplyRequestWorkflowTest extends TestCase
@@ -160,5 +161,38 @@ class SupplyRequestWorkflowTest extends TestCase
             'name' => $item->name, 'sku' => $item->sku, 'stock' => 5,
         ])->assertSessionHasErrors('stock');
         $this->assertSame(10, $item->fresh()->stock);
+    }
+
+    public function test_only_owner_can_download_approved_ris_pdf(): void
+    {
+        $coordinator = $this->user('Supply Coordinator');
+        $other = $this->user('Supply Coordinator');
+        $custodian = $this->user('Property Custodian');
+        Permission::firstOrCreate(['name' => 'route:inventory.requests.index', 'guard_name' => 'web']);
+        $coordinator->givePermissionTo('route:inventory.requests.index');
+        $other->givePermissionTo('route:inventory.requests.index');
+        $request = $this->submit($coordinator, $this->item(), 3);
+        $this->assertSame($coordinator->id, $request->requested_by);
+        $url = route('inventory.requests.ris-pdf', $request);
+
+        $this->actingAs($coordinator)->get($url)->assertNotFound();
+        $this->actingAs($other)->get($url)->assertForbidden();
+
+        $line = $request->items()->firstOrFail();
+        $this->actingAs($custodian)->post(route('inventory.requests.approve', $request), [
+            'approved_quantities' => [$line->id => 3],
+        ])->assertRedirect();
+
+        $pdf = $this->actingAs($coordinator)->get($url);
+        $pdf->assertOk()->assertHeader('content-type', 'application/pdf');
+        $this->assertStringStartsWith('%PDF', $pdf->getContent());
+        $this->actingAs($other)->get($url)->assertForbidden();
+        $this->actingAs($coordinator)->get($url . '?inline=1')
+            ->assertOk()->assertHeader('content-type', 'application/pdf');
+
+        $this->actingAs($custodian)->post(route('inventory.requests.release', $request), [
+            'signed_ris_presented' => true,
+        ])->assertRedirect();
+        $this->actingAs($coordinator)->get($url)->assertOk()->assertHeader('content-type', 'application/pdf');
     }
 }
