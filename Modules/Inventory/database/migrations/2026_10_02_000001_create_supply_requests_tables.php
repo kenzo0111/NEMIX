@@ -10,6 +10,10 @@ return new class extends Migration {
         Schema::create('supply_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('requested_by')->constrained('users')->restrictOnDelete();
+            $table->string('recipient')->nullable();
+            $table->string('recipient_designation')->nullable();
+            $table->string('fund_cluster')->nullable()->default('01');
+            $table->date('date_requested')->nullable();
             $table->string('department');
             $table->text('purpose');
             $table->string('status')->default('Pending')->index();

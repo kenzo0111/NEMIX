@@ -800,8 +800,8 @@ class InventoryController extends Controller
         return Inertia::render('Inventory/Issuance', [
             'issuances' => $transformed,
             'supplyRequests' => auth()->user()->hasAnyRole(['Property Custodian', 'System Admin', 'System Administrator'])
-                ? SupplyRequest::with(['items.item', 'requester', 'reviewer'])
-                    ->whereIn('status', ['Pending', 'Approved'])->oldest()->get()
+                ? SupplyRequest::with(['items.item', 'requester', 'reviewer', 'issuance'])
+                    ->latest()->get()
                 : [],
             'canCreateIssuance' => auth()->user()->hasAnyRole(['System Admin', 'System Administrator'])
                 || auth()->user()->can('route:inventory.issuance.store'),

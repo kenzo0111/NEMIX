@@ -195,4 +195,55 @@ class SupplyRequestWorkflowTest extends TestCase
         ])->assertRedirect();
         $this->actingAs($coordinator)->get($url)->assertOk()->assertHeader('content-type', 'application/pdf');
     }
+
+    public function test_supply_request_supports_mirrored_issuance_fields_and_custodian_adjustment(): void
+    {
+        $coordinator = $this->user('Supply Coordinator');
+        $custodian = $this->user('Property Custodian');
+        $item = $this->item(100);
+
+        // Submit with mirrored fields from Issuance page
+        $this->actingAs($coordinator)->post(route('inventory.requests.store'), [
+            'recipient' => 'Prof. Juan Dela Cruz',
+            'recipient_designation' => 'Department Chair',
+            'fund_cluster' => '05',
+            'date_requested' => '2026-10-02',
+            'department' => 'College of Computing and Multimedia Studies (CCMS) - Main Campus',
+            'purpose' => 'Faculty research supplies',
+            'items' => [
+                ['item_id' => $item->id, 'quantity' => 15],
+            ],
+        ])->assertRedirect(route('inventory.requests.index'));
+
+        $request = SupplyRequest::latest('id')->firstOrFail();
+        $this->assertSame('Prof. Juan Dela Cruz', $request->recipient);
+        $this->assertSame('Department Chair', $request->recipient_designation);
+        $this->assertSame('05', $request->fund_cluster);
+        $this->assertSame('2026-10-02', $request->date_requested->format('Y-m-d'));
+
+        // Property Custodian reviews and adjusts requested quantity from 15 down to 10
+        $line = $request->items()->firstOrFail();
+        $this->actingAs($custodian)->post(route('inventory.requests.approve', $request), [
+            'approved_quantities' => [$line->id => 10],
+            'remarks' => 'Adjusted quantity due to depot allocation guidelines',
+        ])->assertRedirect();
+
+        $request->refresh();
+        $this->assertSame('Approved', $request->status);
+        $this->assertSame(10, $line->fresh()->approved_quantity);
+        $this->assertSame('Adjusted quantity due to depot allocation guidelines', $request->review_remarks);
+
+        // Release approved request
+        $this->actingAs($custodian)->post(route('inventory.requests.release', $request), [
+            'signed_ris_presented' => true,
+        ])->assertRedirect();
+
+        $request->refresh();
+        $this->assertSame('Issued', $request->status);
+        $issuance = $request->issuance;
+        $this->assertNotNull($issuance);
+        $this->assertSame('Prof. Juan Dela Cruz', $issuance->recipient);
+        $this->assertSame('05', $issuance->fund_cluster);
+        $this->assertSame('Department Chair', $issuance->recipient_designation);
+    }
 }

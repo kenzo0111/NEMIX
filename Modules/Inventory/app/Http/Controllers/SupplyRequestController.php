@@ -30,10 +30,29 @@ class SupplyRequestController extends Controller
     public function index(Request $request)
     {
         $this->coordinator($request);
+
+        $defaultApprovedBy = class_exists(SystemSetting::class)
+            ? SystemSetting::get('signatories.ris_approved_by_name', 'ARSENIO GEM A. GARCILLANOSA')
+            : 'ARSENIO GEM A. GARCILLANOSA';
+        $defaultApprovedByDesignation = class_exists(SystemSetting::class)
+            ? SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V')
+            : 'SUPPLY OFFICER III/ADMIN OFFICER V';
+        $defaultIssuedBy = class_exists(SystemSetting::class)
+            ? SystemSetting::get('signatories.ris_issued_by_name', 'Supply Custodian / Storekeeper')
+            : 'Supply Custodian / Storekeeper';
+        $defaultIssuedByDesignation = class_exists(SystemSetting::class)
+            ? SystemSetting::get('signatories.ris_issued_by_designation', 'Administrative Aide VI / Storekeeper')
+            : 'Administrative Aide VI / Storekeeper';
+
         return Inertia::render('Inventory/Requests/Index', [
-            'requests' => SupplyRequest::with(['items.item', 'reviewer', 'issuance'])
+            'requests' => SupplyRequest::with(['items.item', 'requester', 'reviewer', 'issuance'])
                 ->where('requested_by', $request->user()->id)->latest()->get(),
-            'items' => Item::orderBy('name')->get(['id', 'name', 'sku', 'stock', 'unit_of_issue']),
+            'items' => Item::orderBy('name')->get(['id', 'name', 'sku', 'stock', 'unit_of_issue', 'unit_cost']),
+            'divisions' => config('university.divisions', []),
+            'defaultApprovedBy' => $defaultApprovedBy,
+            'defaultApprovedByDesignation' => $defaultApprovedByDesignation,
+            'defaultIssuedBy' => $defaultIssuedBy,
+            'defaultIssuedByDesignation' => $defaultIssuedByDesignation,
         ]);
     }
 
@@ -51,21 +70,22 @@ class SupplyRequestController extends Controller
         $issuance = $supplyRequest->issuance;
         $ris = [
             'entity_name' => SystemSetting::get('institution.name', 'University of Camarines Norte'),
-            'fund_cluster' => $issuance?->fund_cluster ?: '01 - Regular Agency Fund',
+            'fund_cluster' => $supplyRequest->fund_cluster ?: ($issuance?->fund_cluster ?: '01 - Regular Agency Fund'),
             'division' => $supplyRequest->department,
             'office' => $supplyRequest->department,
             'responsibility_center_code' => SystemSetting::get('institution_responsibility_center_code', ''),
             'ris_no' => preg_replace('/^RIS-/i', '', $supplyRequest->ris_number ?? ''),
             'purpose' => $supplyRequest->purpose,
-            'requested_by_name' => $supplyRequest->requester?->name,
-            'requested_by_date' => $supplyRequest->created_at,
+            'requested_by_name' => $supplyRequest->recipient ?: ($supplyRequest->requester?->name),
+            'requested_by_designation' => $supplyRequest->recipient_designation ?: 'Requesting Personnel',
+            'requested_by_date' => $supplyRequest->date_requested ? $supplyRequest->date_requested->format('Y-m-d') : $supplyRequest->created_at,
             'approved_by_name' => $supplyRequest->reviewer?->name,
             'approved_by_designation' => 'Property Custodian',
             'approved_by_date' => $supplyRequest->reviewed_at,
             'issued_by_name' => $issued ? $issuance?->issued_by_name : null,
             'issued_by_designation' => $issued ? $issuance?->issued_by_position : null,
             'issued_by_date' => $issued ? $issuance?->date_issued : null,
-            'received_by_name' => $issued ? $supplyRequest->requester?->name : null,
+            'received_by_name' => $issued ? ($supplyRequest->recipient ?: $supplyRequest->requester?->name) : null,
             'received_by_date' => $issued ? $issuance?->date_issued : null,
         ];
         $items = $supplyRequest->items->filter(fn ($line) => $line->approved_quantity > 0)
@@ -94,6 +114,10 @@ class SupplyRequestController extends Controller
     {
         $this->coordinator($request);
         $data = $request->validate([
+            'recipient' => ['nullable', 'string', 'max:255'],
+            'recipient_designation' => ['nullable', 'string', 'max:255'],
+            'fund_cluster' => ['nullable', 'string', 'max:255'],
+            'date_requested' => ['nullable', 'date'],
             'department' => ['required', 'string', 'max:255'],
             'purpose' => ['required', 'string', 'max:2000'],
             'items' => ['required', 'array', 'min:1', 'max:100'],
@@ -104,6 +128,10 @@ class SupplyRequestController extends Controller
         DB::transaction(function () use ($data, $request) {
             $supplyRequest = SupplyRequest::create([
                 'requested_by' => $request->user()->id,
+                'recipient' => $data['recipient'] ?? $request->user()->name,
+                'recipient_designation' => $data['recipient_designation'] ?? null,
+                'fund_cluster' => $data['fund_cluster'] ?? '01',
+                'date_requested' => $data['date_requested'] ?? now()->toDateString(),
                 'department' => $data['department'],
                 'purpose' => $data['purpose'],
                 'status' => 'Pending',
@@ -132,6 +160,10 @@ class SupplyRequestController extends Controller
     {
         abort_unless($request->user()->id === $supplyRequest->requested_by, 403);
         $data = $request->validate([
+            'recipient' => ['nullable', 'string', 'max:255'],
+            'recipient_designation' => ['nullable', 'string', 'max:255'],
+            'fund_cluster' => ['nullable', 'string', 'max:255'],
+            'date_requested' => ['nullable', 'date'],
             'department' => ['required', 'string', 'max:255'],
             'purpose' => ['required', 'string', 'max:2000'],
             'items' => ['required', 'array', 'min:1', 'max:100'],
@@ -143,7 +175,14 @@ class SupplyRequestController extends Controller
             if ($locked->status !== 'Pending') {
                 throw ValidationException::withMessages(['request' => 'Only pending requests can be edited.']);
             }
-            $locked->update(['department' => $data['department'], 'purpose' => $data['purpose']]);
+            $locked->update([
+                'recipient' => $data['recipient'] ?? $locked->recipient ?? $request->user()->name,
+                'recipient_designation' => $data['recipient_designation'] ?? $locked->recipient_designation,
+                'fund_cluster' => $data['fund_cluster'] ?? $locked->fund_cluster ?? '01',
+                'date_requested' => $data['date_requested'] ?? $locked->date_requested ?? now()->toDateString(),
+                'department' => $data['department'],
+                'purpose' => $data['purpose'],
+            ]);
             $locked->items()->delete();
             $locked->items()->createMany($data['items']);
             SupplyRequestService::audit($locked, $request->user()->id, 'Updated Supply Request');
