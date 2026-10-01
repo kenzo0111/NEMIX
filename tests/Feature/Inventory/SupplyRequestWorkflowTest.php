@@ -245,5 +245,39 @@ class SupplyRequestWorkflowTest extends TestCase
         $this->assertSame('Prof. Juan Dela Cruz', $issuance->recipient);
         $this->assertSame('05', $issuance->fund_cluster);
         $this->assertSame('Department Chair', $issuance->recipient_designation);
+        $this->assertMatchesRegularExpression('/^RIS-\d{4}-\d{2}-\d{4}$/', $request->ris_number);
+        $this->assertSame($request->ris_number, $issuance->ris_number);
+    }
+
+    public function test_supply_request_generates_and_preserves_official_ris_number(): void
+    {
+        $coordinator = $this->user('Supply Coordinator');
+        $custodian = $this->user('Property Custodian');
+        $item = $this->item(100);
+
+        $request1 = $this->submit($coordinator, $item, 5);
+        $request2 = $this->submit($coordinator, $item, 8);
+
+        $this->assertMatchesRegularExpression('/^RIS-\d{4}-\d{2}-\d{4}$/', $request1->ris_number);
+        $this->assertMatchesRegularExpression('/^RIS-\d{4}-\d{2}-\d{4}$/', $request2->ris_number);
+        $this->assertNotSame($request1->ris_number, $request2->ris_number);
+
+        $line1 = $request1->items()->firstOrFail();
+        $this->actingAs($custodian)->post(route('inventory.requests.approve', $request1), [
+            'approved_quantities' => [$line1->id => 5],
+        ])->assertRedirect();
+
+        $originalRis1 = $request1->ris_number;
+        $request1->refresh();
+        $this->assertSame($originalRis1, $request1->ris_number);
+
+        $this->actingAs($custodian)->post(route('inventory.requests.release', $request1), [
+            'signed_ris_presented' => true,
+        ])->assertRedirect();
+
+        $request1->refresh();
+        $this->assertSame($originalRis1, $request1->ris_number);
+        $this->assertSame($originalRis1, $request1->issuance->ris_number);
     }
 }
+

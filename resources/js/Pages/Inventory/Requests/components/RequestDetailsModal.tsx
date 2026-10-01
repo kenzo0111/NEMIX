@@ -34,10 +34,10 @@ export function RequestDetailsModal({
                         </div>
                         <div>
                             <h3 className="text-base font-bold font-serif text-gray-900 dark:text-slate-100">
-                                Supply Request #{request.id}
+                                {request.ris_number ? `Official RIS No. ${request.ris_number}` : `Supply Request #${request.id}`}
                             </h3>
                             <p className="text-xs text-gray-500 dark:text-slate-400">
-                                Requisition details, custodian review, and item quantities
+                                Requisition details, custodian review, and item quantities (Req #{request.id})
                             </p>
                         </div>
                     </div>
@@ -62,10 +62,10 @@ export function RequestDetailsModal({
                         </div>
                         <div className="text-right">
                             <span className="block text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-1">
-                                RIS Reference No.
+                                Official RIS No.
                             </span>
                             <span className="font-mono font-bold text-sm text-red-950 dark:text-red-400">
-                                {request.ris_number || 'Assigned upon approval'}
+                                {request.ris_number || `RIS-${String(request.id).padStart(4, '0')}`}
                             </span>
                         </div>
                     </div>

@@ -2,11 +2,14 @@
 
 namespace Modules\Inventory\Services;
 
+use App\Models\SystemSetting;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Modules\AuditLogs\Models\TransactionTrail;
+use Modules\Inventory\Models\Issuance;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\SupplyRequest;
-use Modules\AuditLogs\Models\TransactionTrail;
 
 class SupplyRequestService
 {
@@ -38,6 +41,38 @@ class SupplyRequestService
             'subject_id' => (string) $request->id,
             'metadata' => ['request_id' => $request->id, 'status' => $request->status, 'issuance_id' => $request->issuance_id],
         ]);
+    }
+
+    public static function generateOfficialRisNumber(?string $date = null): string
+    {
+        $risPrefix = class_exists(SystemSetting::class)
+            ? (SystemSetting::get('numbering.ris_prefix') ?: 'RIS-')
+            : 'RIS-';
+
+        $dateCarbon = $date ? Carbon::parse($date) : now();
+        $yearMonth = $dateCarbon->format('Y-m');
+        $pattern = $risPrefix . $yearMonth . '-%';
+
+        $issuanceCount = DB::table('issuances')
+            ->where('ris_number', 'like', $pattern)
+            ->count();
+
+        $requestCount = DB::table('supply_requests')
+            ->where('ris_number', 'like', $pattern)
+            ->count();
+
+        $seq = max($issuanceCount, $requestCount) + 1;
+
+        do {
+            $candidate = sprintf('%s%s-%04d', $risPrefix, $yearMonth, $seq);
+            $inIssuances = DB::table('issuances')->where('ris_number', $candidate)->exists();
+            $inRequests = DB::table('supply_requests')->where('ris_number', $candidate)->exists();
+
+            if (!$inIssuances && !$inRequests) {
+                return $candidate;
+            }
+            $seq++;
+        } while (true);
     }
 
     public function approve(SupplyRequest $request, array $quantities, int $reviewerId, ?string $remarks): void
@@ -73,7 +108,7 @@ class SupplyRequestService
                 'reviewed_by' => $reviewerId,
                 'reviewed_at' => now(),
                 'review_remarks' => $remarks,
-                'ris_number' => $request->ris_number ?: sprintf('RIS-REQ-%s-%06d', now()->format('Y'), $request->id),
+                'ris_number' => $request->ris_number ?: self::generateOfficialRisNumber($request->date_requested ? $request->date_requested->toDateString() : null),
             ]);
             self::audit($request, $reviewerId, $revising ? 'Revised Supply Approval' : 'Approved Supply Request');
         });

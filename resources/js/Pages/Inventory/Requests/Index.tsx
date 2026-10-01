@@ -333,7 +333,7 @@ export default function MyRequests({
                                 <thead className="bg-gray-50/80 dark:bg-slate-900/80 border-b border-gray-200 dark:border-slate-800">
                                     <tr>
                                         {[
-                                            'Request / RIS No.',
+                                            'Official RIS No.',
                                             'Recipient & Department',
                                             'Fund Cluster / Purpose',
                                             'Items (Requested vs Final)',
@@ -388,17 +388,15 @@ export default function MyRequests({
                                                     key={request.id}
                                                     className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0"
                                                 >
-                                                    {/* Request / RIS No. */}
+                                                    {/* Official RIS No. */}
                                                     <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-900 dark:text-slate-100 font-mono tracking-wide">
                                                         <div className="flex flex-col">
-                                                            <span>
-                                                                {request.ris_number || `REQ-${String(request.id).padStart(4, '0')}`}
+                                                            <span className="text-red-950 dark:text-red-400 font-bold">
+                                                                {request.ris_number || `RIS-${String(request.id).padStart(4, '0')}`}
                                                             </span>
-                                                            {request.ris_number && (
-                                                                <span className="text-[10px] text-gray-400 font-normal">
-                                                                    ID #{request.id}
-                                                                </span>
-                                                            )}
+                                                            <span className="text-[10px] text-gray-400 font-normal">
+                                                                Req #{request.id}
+                                                            </span>
                                                         </div>
                                                     </td>
 

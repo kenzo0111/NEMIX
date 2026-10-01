@@ -368,9 +368,17 @@ export function SupplyRequestQueue({
                                 {/* Request Header Ribbon */}
                                 <div className="p-4 sm:px-5 border-b border-gray-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-gray-50/40 dark:bg-slate-900/40">
                                     <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                                        <span className="font-mono font-bold text-sm text-gray-900 dark:text-slate-100">
-                                            {request.ris_number || `REQ-${String(request.id).padStart(4, '0')}`}
-                                        </span>
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 font-mono">
+                                                Official RIS No.
+                                            </span>
+                                            <span className="font-mono font-bold text-sm text-red-950 dark:text-red-400">
+                                                {request.ris_number || `RIS-${String(request.id).padStart(4, '0')}`}
+                                            </span>
+                                            <span className="text-[10px] text-gray-400 font-mono">
+                                                (Req #{request.id})
+                                            </span>
+                                        </div>
                                         <RequestStatusBadge status={request.status} />
                                         <span className="text-[11px] text-gray-400 font-mono">
                                             Submitted {formatDisplayDate(request.date_requested || request.created_at, 'MM/DD/YYYY') || request.date_requested || request.created_at}
@@ -647,7 +655,7 @@ export function SupplyRequestQueue({
                                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                                 <div>
                                                     <div className="font-bold text-xs text-blue-950 dark:text-blue-200">
-                                                        Assigned RIS: {request.ris_number}
+                                                        Official RIS No.: {request.ris_number || `RIS-${String(request.id).padStart(4, '0')}`}
                                                     </div>
                                                     <div className="text-[11px] text-blue-800 dark:text-blue-300">
                                                         Approved by {request.reviewer?.name || 'Property Custodian'} on{' '}
@@ -757,7 +765,7 @@ export function SupplyRequestQueue({
                             </div>
                             <div>
                                 <h3 className="text-base font-bold text-gray-900 dark:text-slate-100">
-                                    Reject Supply Request #{rejectingRequest?.id}
+                                    Reject {rejectingRequest?.ris_number ? `RIS ${rejectingRequest.ris_number}` : `Supply Request #${rejectingRequest?.id}`}
                                 </h3>
                                 <p className="text-xs text-gray-500 dark:text-slate-400">
                                     Please provide an explanation or reason for the rejection so the Supply Coordinator can review and adjust accordingly.

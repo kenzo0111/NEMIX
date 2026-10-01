@@ -98,7 +98,7 @@ class SupplyRequestController extends Controller
                 'issue_quantity' => $issued ? $line->approved_quantity : '',
                 'remarks' => '',
             ])->values()->all();
-        $fileName = preg_replace('/[^A-Za-z0-9_-]/', '_', $supplyRequest->ris_number ?: "RIS-REQ-{$supplyRequest->id}") . '.pdf';
+        $fileName = preg_replace('/[^A-Za-z0-9_-]/', '_', $supplyRequest->ris_number ?: "RIS-{$supplyRequest->id}") . '.pdf';
         $pdf = Pdf::loadView('compliance.pdf.requisition_issue_slip', [
             'ris' => $ris, 'items' => $items, 'dataset' => [],
         ])->setPaper('A4', 'portrait')->setOption([
@@ -126,7 +126,9 @@ class SupplyRequestController extends Controller
         ]);
 
         DB::transaction(function () use ($data, $request) {
+            $risNumber = SupplyRequestService::generateOfficialRisNumber($data['date_requested'] ?? null);
             $supplyRequest = SupplyRequest::create([
+                'ris_number' => $risNumber,
                 'requested_by' => $request->user()->id,
                 'recipient' => $data['recipient'] ?? $request->user()->name,
                 'recipient_designation' => $data['recipient_designation'] ?? null,

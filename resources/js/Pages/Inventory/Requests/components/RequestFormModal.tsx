@@ -195,7 +195,7 @@ export function RequestFormModal({
                         </div>
                         <div className="min-w-0">
                             <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight truncate">
-                                {request ? `Edit Supply Request #${request.id}` : 'Create Supply Request'}
+                                {request ? (request.ris_number ? `Edit Requisition (${request.ris_number})` : `Edit Supply Request #${request.id}`) : 'Create Supply Requisition (RIS)'}
                             </h3>
                             <p className="text-xs text-gray-500 dark:text-slate-400 font-medium truncate">
                                 Administrative Requisition & Issue Slip (RIS) Entry for Property Custodian Review
