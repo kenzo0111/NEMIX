@@ -383,50 +383,89 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                 4. Authorization (System Signatories)
                             </h4>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-4">
+                            {/* Approved By Row */}
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
-                                    Approved By (Read-Only)
-                                </label>
-                                <input
-                                    type="text"
-                                    value={form.data.approved_by}
-                                    readOnly
-                                    className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
-                                />
+                                <span className="block text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-2 font-mono">
+                                    Approved By (Section B)
+                                </span>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                            Name (Read-Only)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={form.data.approved_by}
+                                            readOnly
+                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                            Designation (Read-Only)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={form.data.approved_by_designation}
+                                            readOnly
+                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                            Approved Date (Read-Only)
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={form.data.date_issued}
+                                            readOnly
+                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-mono font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                        />
+                                    </div>
+                                </div>
                             </div>
+
+                            {/* Issued By Row */}
                             <div>
-                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
-                                    Approved By Designation (Read-Only)
-                                </label>
-                                <input
-                                    type="text"
-                                    value={form.data.approved_by_designation}
-                                    readOnly
-                                    className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
-                                    Issued By (Read-Only)
-                                </label>
-                                <input
-                                    type="text"
-                                    value={form.data.issued_by_name}
-                                    readOnly
-                                    className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
-                                    Issued By Designation (Read-Only)
-                                </label>
-                                <input
-                                    type="text"
-                                    value={form.data.issued_by_position}
-                                    readOnly
-                                    className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
-                                />
+                                <span className="block text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-2 font-mono">
+                                    Issued By (Section C)
+                                </span>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                            Name (Read-Only)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={form.data.issued_by_name}
+                                            readOnly
+                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                            Designation (Read-Only)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={form.data.issued_by_position}
+                                            readOnly
+                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                            Issued Date (Read-Only)
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={form.data.date_issued}
+                                            readOnly
+                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-mono font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

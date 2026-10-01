@@ -23,16 +23,37 @@ class SystemSettingsService
      */
     public function getIssuanceSignatories(): array
     {
+        $isOic = (bool) SystemSetting::get('signatories.ris_oic_active', false);
+        $oicPrefix = $isOic ? (SystemSetting::get('signatories.ris_oic_prefix') ?: 'OIC, ') : '';
+
         $approvedByName = (string) (SystemSetting::get('signatories.ris_approved_by_name') ?: 'ARSENIO GEM A. GARCILLANOSA');
         $approvedByDesignation = (string) (SystemSetting::get('signatories.ris_approved_by_designation') ?: 'SUPPLY OFFICER III/ADMIN OFFICER V');
+
+        if ($approvedId = SystemSetting::get('signatories.ris_approved_by_id')) {
+            $sig = \App\Models\Signatory::find($approvedId);
+            if ($sig && $sig->name) {
+                $approvedByName = $sig->name;
+                $approvedByDesignation = $sig->designation ?: $approvedByDesignation;
+            }
+        }
+
         $issuedByName = (string) (SystemSetting::get('signatories.ris_issued_by_name') ?: 'Supply Custodian / Storekeeper');
         $issuedByPosition = (string) (SystemSetting::get('signatories.ris_issued_by_designation') ?: 'Administrative Aide VI / Storekeeper');
 
+        if ($issuedId = SystemSetting::get('signatories.ris_issued_by_id')) {
+            $sig = \App\Models\Signatory::find($issuedId);
+            if ($sig && $sig->name) {
+                $issuedByName = $sig->name;
+                $issuedByPosition = $sig->designation ?: $issuedByPosition;
+            }
+        }
+
         return [
-            'approved_by_name' => $approvedByName,
+            'approved_by_name' => $oicPrefix . $approvedByName,
             'approved_by_designation' => $approvedByDesignation,
             'issued_by_name' => $issuedByName,
             'issued_by_position' => $issuedByPosition,
+            'issued_by_designation' => $issuedByPosition,
         ];
     }
 
@@ -95,12 +116,7 @@ class SystemSettingsService
                 'appendixNumber' => (string) (SystemSetting::get('compliance.mor_appendix_number') ?: 'Appendix 59-A'),
                 'appendix_number' => (string) (SystemSetting::get('compliance.mor_appendix_number') ?: 'Appendix 59-A'),
             ],
-            'RIS' => [
-                'approved_by_name' => (string) (SystemSetting::get('signatories.ris_approved_by_name') ?: 'ARSENIO GEM A. GARCILLANOSA'),
-                'approved_by_designation' => (string) (SystemSetting::get('signatories.ris_approved_by_designation') ?: 'SUPPLY OFFICER III/ADMIN OFFICER V'),
-                'issued_by_name' => (string) (SystemSetting::get('signatories.ris_issued_by_name') ?: 'Supply Custodian / Storekeeper'),
-                'issued_by_position' => (string) (SystemSetting::get('signatories.ris_issued_by_designation') ?: 'Administrative Aide VI / Storekeeper'),
-            ],
+            'RIS' => $this->getIssuanceSignatories(),
             default => [],
         };
     }

@@ -31,18 +31,11 @@ class SupplyRequestController extends Controller
     {
         $this->coordinator($request);
 
-        $defaultApprovedBy = class_exists(SystemSetting::class)
-            ? SystemSetting::get('signatories.ris_approved_by_name', 'ARSENIO GEM A. GARCILLANOSA')
-            : 'ARSENIO GEM A. GARCILLANOSA';
-        $defaultApprovedByDesignation = class_exists(SystemSetting::class)
-            ? SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V')
-            : 'SUPPLY OFFICER III/ADMIN OFFICER V';
-        $defaultIssuedBy = class_exists(SystemSetting::class)
-            ? SystemSetting::get('signatories.ris_issued_by_name', 'Supply Custodian / Storekeeper')
-            : 'Supply Custodian / Storekeeper';
-        $defaultIssuedByDesignation = class_exists(SystemSetting::class)
-            ? SystemSetting::get('signatories.ris_issued_by_designation', 'Administrative Aide VI / Storekeeper')
-            : 'Administrative Aide VI / Storekeeper';
+        $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
+        $defaultApprovedBy = $signatories['approved_by_name'];
+        $defaultApprovedByDesignation = $signatories['approved_by_designation'];
+        $defaultIssuedBy = $signatories['issued_by_name'];
+        $defaultIssuedByDesignation = $signatories['issued_by_position'];
 
         return Inertia::render('Inventory/Requests/Index', [
             'requests' => SupplyRequest::with(['items.item', 'requester', 'reviewer', 'issuance'])
@@ -68,6 +61,8 @@ class SupplyRequestController extends Controller
         $supplyRequest->load(['items.item', 'requester', 'reviewer', 'issuance']);
         $issued = $supplyRequest->status === 'Issued';
         $issuance = $supplyRequest->issuance;
+        $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
+
         $ris = [
             'entity_name' => SystemSetting::get('institution.name', 'University of Camarines Norte'),
             'fund_cluster' => $supplyRequest->fund_cluster ?: ($issuance?->fund_cluster ?: '01 - Regular Agency Fund'),
@@ -78,15 +73,15 @@ class SupplyRequestController extends Controller
             'purpose' => $supplyRequest->purpose,
             'requested_by_name' => $supplyRequest->recipient ?: ($supplyRequest->requester?->name),
             'requested_by_designation' => $supplyRequest->recipient_designation ?: 'Requesting Personnel',
-            'requested_by_date' => $supplyRequest->date_requested ? $supplyRequest->date_requested->format('Y-m-d') : $supplyRequest->created_at,
-            'approved_by_name' => $supplyRequest->reviewer?->name,
-            'approved_by_designation' => 'Property Custodian',
-            'approved_by_date' => $supplyRequest->reviewed_at,
-            'issued_by_name' => $issued ? $issuance?->issued_by_name : null,
-            'issued_by_designation' => $issued ? $issuance?->issued_by_position : null,
-            'issued_by_date' => $issued ? $issuance?->date_issued : null,
+            'requested_by_date' => $supplyRequest->date_requested ? $supplyRequest->date_requested->format('Y-m-d') : ($supplyRequest->created_at ? $supplyRequest->created_at->format('Y-m-d') : date('Y-m-d')),
+            'approved_by_name' => $signatories['approved_by_name'],
+            'approved_by_designation' => $signatories['approved_by_designation'],
+            'approved_by_date' => $supplyRequest->reviewed_at ? $supplyRequest->reviewed_at->format('Y-m-d') : null,
+            'issued_by_name' => $issued ? ($issuance?->issued_by_name ?: $signatories['issued_by_name']) : null,
+            'issued_by_designation' => $issued ? ($issuance?->issued_by_position ?: $signatories['issued_by_position']) : null,
+            'issued_by_date' => $issued ? ($issuance?->date_issued ? $issuance->date_issued->format('Y-m-d') : null) : null,
             'received_by_name' => $issued ? ($supplyRequest->recipient ?: $supplyRequest->requester?->name) : null,
-            'received_by_date' => $issued ? $issuance?->date_issued : null,
+            'received_by_date' => $issued ? ($issuance?->date_issued ? $issuance->date_issued->format('Y-m-d') : null) : null,
         ];
         $items = $supplyRequest->items->filter(fn ($line) => $line->approved_quantity > 0)
             ->map(fn ($line) => [

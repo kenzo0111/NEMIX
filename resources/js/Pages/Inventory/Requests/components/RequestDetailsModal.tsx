@@ -11,11 +11,19 @@ export function RequestDetailsModal({
     request,
     onClose,
     onOpenRis,
+    defaultApprovedBy,
+    defaultApprovedByDesignation,
+    defaultIssuedBy,
+    defaultIssuedByDesignation,
 }: {
     show: boolean;
     request: SupplyRequest | null;
     onClose: () => void;
     onOpenRis?: (request: SupplyRequest) => void;
+    defaultApprovedBy?: string;
+    defaultApprovedByDesignation?: string;
+    defaultIssuedBy?: string;
+    defaultIssuedByDesignation?: string;
 }) {
     if (!request) return null;
 
@@ -184,7 +192,7 @@ export function RequestDetailsModal({
                                         Reviewed By
                                     </span>
                                     <span className="font-semibold text-gray-800 dark:text-slate-200">
-                                        {request.reviewer?.name || 'Property Custodian'}
+                                        {defaultApprovedBy || request.reviewer?.name || 'Property Custodian'}
                                     </span>
                                 </div>
                                 <div>
@@ -221,11 +229,11 @@ export function RequestDetailsModal({
                                         Issued By
                                     </span>
                                     <span className="font-semibold text-gray-800 dark:text-slate-200">
-                                        {request.issuance.issued_by_name || 'Supply Storekeeper'}
+                                        {request.issuance.issued_by_name || defaultIssuedBy || 'Supply Storekeeper'}
                                     </span>
-                                    {request.issuance.issued_by_position && (
+                                    {(request.issuance.issued_by_position || defaultIssuedByDesignation) && (
                                         <span className="block text-[11px] text-gray-500">
-                                            {request.issuance.issued_by_position}
+                                            {request.issuance.issued_by_position || defaultIssuedByDesignation}
                                         </span>
                                     )}
                                 </div>

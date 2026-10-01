@@ -208,6 +208,28 @@ class SystemSetting extends Model
             if (isset($settings['institution_default_fund_cluster'])) {
                 $settings['default_fund_cluster'] = $settings['institution_default_fund_cluster'];
             }
+            if (!empty($settings['signatories_ris_approved_by_id'])) {
+                try {
+                    $sig = \App\Models\Signatory::find($settings['signatories_ris_approved_by_id']);
+                    if ($sig && $sig->name) {
+                        $settings['signatories_ris_approved_by_name'] = $sig->name;
+                        if (!empty($sig->designation)) {
+                            $settings['signatories_ris_approved_by_designation'] = $sig->designation;
+                        }
+                    }
+                } catch (\Throwable $e) {}
+            }
+            if (!empty($settings['signatories_ris_issued_by_id'])) {
+                try {
+                    $sig = \App\Models\Signatory::find($settings['signatories_ris_issued_by_id']);
+                    if ($sig && $sig->name) {
+                        $settings['signatories_ris_issued_by_name'] = $sig->name;
+                        if (!empty($sig->designation)) {
+                            $settings['signatories_ris_issued_by_designation'] = $sig->designation;
+                        }
+                    }
+                } catch (\Throwable $e) {}
+            }
             if (isset($settings['signatories_ris_issued_by_name'])) {
                 $settings['issued_by_name'] = $settings['signatories_ris_issued_by_name'];
                 $settings['issued_by'] = $settings['signatories_ris_issued_by_name'];
@@ -216,9 +238,11 @@ class SystemSetting extends Model
                 $settings['issued_by_position'] = $settings['signatories_ris_issued_by_designation'];
                 $settings['issued_by_designation'] = $settings['signatories_ris_issued_by_designation'];
             }
+            $isOic = !empty($settings['signatories_ris_oic_active']);
+            $oicPrefix = $isOic ? ($settings['signatories_ris_oic_prefix'] ?? 'OIC, ') : '';
             if (isset($settings['signatories_ris_approved_by_name'])) {
-                $settings['approved_by_name'] = $settings['signatories_ris_approved_by_name'];
-                $settings['approved_by'] = $settings['signatories_ris_approved_by_name'];
+                $settings['approved_by_name'] = $oicPrefix . $settings['signatories_ris_approved_by_name'];
+                $settings['approved_by'] = $settings['approved_by_name'];
             }
             if (isset($settings['signatories_ris_approved_by_designation'])) {
                 $settings['approved_by_position'] = $settings['signatories_ris_approved_by_designation'];

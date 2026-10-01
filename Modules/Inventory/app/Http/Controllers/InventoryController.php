@@ -666,18 +666,11 @@ class InventoryController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $defaultApprovedBy = class_exists(\App\Models\SystemSetting::class)
-            ? \App\Models\SystemSetting::get('signatories.ris_approved_by_name', 'ARSENIO GEM A. GARCILLANOSA')
-            : 'ARSENIO GEM A. GARCILLANOSA';
-        $defaultApprovedByDesignation = class_exists(\App\Models\SystemSetting::class)
-            ? \App\Models\SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V')
-            : 'SUPPLY OFFICER III/ADMIN OFFICER V';
-        $defaultIssuedBy = class_exists(\App\Models\SystemSetting::class)
-            ? \App\Models\SystemSetting::get('signatories.ris_issued_by_name', 'Supply Custodian / Storekeeper')
-            : 'Supply Custodian / Storekeeper';
-        $defaultIssuedByDesignation = class_exists(\App\Models\SystemSetting::class)
-            ? \App\Models\SystemSetting::get('signatories.ris_issued_by_designation', 'Administrative Aide VI / Storekeeper')
-            : 'Administrative Aide VI / Storekeeper';
+        $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
+        $defaultApprovedBy = $signatories['approved_by_name'];
+        $defaultApprovedByDesignation = $signatories['approved_by_designation'];
+        $defaultIssuedBy = $signatories['issued_by_name'];
+        $defaultIssuedByDesignation = $signatories['issued_by_position'];
 
         $transformed = $paginated->through(function ($issuance) use ($defaultApprovedBy, $defaultApprovedByDesignation, $defaultIssuedBy, $defaultIssuedByDesignation) {
             $dateFormatted = $issuance->date_issued ? $issuance->date_issued->format('Y-m-d') : '';
@@ -808,6 +801,10 @@ class InventoryController extends Controller
             'items' => $itemsQuery->get(['id', 'name', 'sku', 'stock', 'unit_of_issue', 'unit_cost']),
             'recipients' => $recipientsQuery->distinct()->pluck('recipient')->filter()->values()->all(),
             'divisions' => config('university.divisions', []),
+            'defaultApprovedBy' => $defaultApprovedBy,
+            'defaultApprovedByDesignation' => $defaultApprovedByDesignation,
+            'defaultIssuedBy' => $defaultIssuedBy,
+            'defaultIssuedByDesignation' => $defaultIssuedByDesignation,
             'filters' => [
                 'search' => $search,
                 'recipient' => $recipient,
@@ -819,18 +816,11 @@ class InventoryController extends Controller
     {
         $normalizedDate = $this->normalizeDate($request->date_issued);
 
-        $approvedBy = $request->approved_by ?: (class_exists(\App\Models\SystemSetting::class)
-            ? \App\Models\SystemSetting::get('signatories.ris_approved_by_name', 'ARSENIO GEM A. GARCILLANOSA')
-            : 'ARSENIO GEM A. GARCILLANOSA');
-        $approvedByDesignation = $request->approved_by_designation ?: (class_exists(\App\Models\SystemSetting::class)
-            ? \App\Models\SystemSetting::get('signatories.ris_approved_by_designation', 'SUPPLY OFFICER III/ADMIN OFFICER V')
-            : 'SUPPLY OFFICER III/ADMIN OFFICER V');
-        $issuedByName = $request->issued_by_name ?: (class_exists(\App\Models\SystemSetting::class)
-            ? \App\Models\SystemSetting::get('signatories.ris_issued_by_name', 'Supply Custodian / Storekeeper')
-            : 'Supply Custodian / Storekeeper');
-        $issuedByPosition = $request->issued_by_position ?: (class_exists(\App\Models\SystemSetting::class)
-            ? \App\Models\SystemSetting::get('signatories.ris_issued_by_designation', 'Administrative Aide VI / Storekeeper')
-            : 'Administrative Aide VI / Storekeeper');
+        $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
+        $approvedBy = $request->approved_by ?: $signatories['approved_by_name'];
+        $approvedByDesignation = $request->approved_by_designation ?: $signatories['approved_by_designation'];
+        $issuedByName = $request->issued_by_name ?: $signatories['issued_by_name'];
+        $issuedByPosition = $request->issued_by_position ?: $signatories['issued_by_position'];
 
         $data = [
             'recipient' => $request->recipient,

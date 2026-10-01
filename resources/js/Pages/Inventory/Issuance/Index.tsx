@@ -22,7 +22,18 @@ export default function IssuanceIndex({
     filters = {},
     supplyRequests = [],
     canCreateIssuance = false,
-}: IssuancePageProps & { supplyRequests?: QueueRequest[]; canCreateIssuance?: boolean }) {
+    defaultApprovedBy: propApprovedBy,
+    defaultApprovedByDesignation: propApprovedByDesignation,
+    defaultIssuedBy: propIssuedBy,
+    defaultIssuedByDesignation: propIssuedByDesignation,
+}: IssuancePageProps & {
+    supplyRequests?: QueueRequest[];
+    canCreateIssuance?: boolean;
+    defaultApprovedBy?: string;
+    defaultApprovedByDesignation?: string;
+    defaultIssuedBy?: string;
+    defaultIssuedByDesignation?: string;
+}) {
     const user = auth.user;
     const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const pageProps = usePage().props as any;
@@ -31,15 +42,18 @@ export default function IssuanceIndex({
 
     // System Signatories & Institutions
     const defaultApprovedBy =
-        (publicSettings['signatories_ris_oic_active']
+        propApprovedBy ||
+        ((publicSettings['signatories_ris_oic_active']
             ? publicSettings['signatories_ris_oic_prefix'] || 'OIC, '
             : '') +
         (systemSettings?.approved_by_name ||
             publicSettings['approved_by_name'] ||
             publicSettings['signatories_ris_approved_by_name'] ||
             publicSettings['signatories.ris_approved_by_name'] ||
-            'ARSENIO GEM A. GARCILLANOSA');
+            'ARSENIO GEM A. GARCILLANOSA'));
     const defaultApprovedByDesignation =
+        propApprovedByDesignation ||
+        systemSettings?.approved_by_designation ||
         systemSettings?.approved_by_position ||
         publicSettings['approved_by_position'] ||
         publicSettings['signatories_ris_approved_by_designation'] ||
@@ -52,13 +66,16 @@ export default function IssuanceIndex({
         'University of Camarines Norte';
     const responsibilityCenterCode = publicSettings['institution_responsibility_center_code'] || '';
     const defaultIssuedBy =
+        propIssuedBy ||
         systemSettings?.issued_by_name ||
         publicSettings['issued_by_name'] ||
         publicSettings['signatories_ris_issued_by_name'] ||
         publicSettings['signatories.ris_issued_by_name'] ||
         'Supply Custodian / Storekeeper';
     const defaultIssuedByDesignation =
+        propIssuedByDesignation ||
         systemSettings?.issued_by_position ||
+        systemSettings?.issued_by_designation ||
         publicSettings['issued_by_position'] ||
         publicSettings['signatories_ris_issued_by_designation'] ||
         publicSettings['signatories.ris_issued_by_designation'] ||
@@ -196,12 +213,11 @@ export default function IssuanceIndex({
             requested_at: (request.date_requested || request.created_at)?.slice(0, 10),
             reviewed_at: request.reviewed_at?.slice(0, 10),
             date_issued: request.status === 'Issued' ? request.issuance?.date_issued || '' : '',
-            date: '',
-            approved_by: request.reviewer?.name || defaultApprovedBy,
+            approved_by: defaultApprovedBy,
             approved_by_designation: defaultApprovedByDesignation,
             issued_by: '',
-            issued_by_name: request.status === 'Issued' ? request.issuance?.issued_by_name || defaultIssuedBy : '',
-            issued_by_position: request.status === 'Issued' ? request.issuance?.issued_by_position || defaultIssuedByDesignation : '',
+            issued_by_name: request.status === 'Issued' ? request.issuance?.issued_by_name || defaultIssuedBy : defaultIssuedBy,
+            issued_by_position: request.status === 'Issued' ? request.issuance?.issued_by_position || defaultIssuedByDesignation : defaultIssuedByDesignation,
             total_quantity: lines.reduce((sum, line) => sum + line.quantity, 0),
             total_amount: lines.reduce((sum, line) => sum + line.amount, 0),
             items: lines,
@@ -319,6 +335,7 @@ export default function IssuanceIndex({
                             <SupplyRequestQueue
                                 requests={supplyRequests}
                                 onPreview={handlePreviewApprovedRequest}
+                                defaultApprovedBy={defaultApprovedBy}
                             />
                         </div>
                     )}

@@ -31,10 +31,10 @@ export default function MyRequests({
     requests = [],
     items = [],
     divisions = [],
-    defaultApprovedBy = 'ARSENIO GEM A. GARCILLANOSA',
-    defaultApprovedByDesignation = 'SUPPLY OFFICER III/ADMIN OFFICER V',
-    defaultIssuedBy = 'Supply Custodian / Storekeeper',
-    defaultIssuedByDesignation = 'Administrative Aide VI / Storekeeper',
+    defaultApprovedBy: propApprovedBy,
+    defaultApprovedByDesignation: propApprovedByDesignation,
+    defaultIssuedBy: propIssuedBy,
+    defaultIssuedByDesignation: propIssuedByDesignation,
 }: {
     auth: { user: { id: number; name: string; email: string } };
     requests: SupplyRequest[];
@@ -47,6 +47,45 @@ export default function MyRequests({
 }) {
     const [collapsed, toggle] = useSidebarCollapse();
     const pageProps = usePage().props as any;
+    const systemSettings = (pageProps.systemSettings || {}) as Record<string, any>;
+    const publicSettings = pageProps.system?.settings || {};
+
+    const defaultApprovedBy =
+        propApprovedBy ||
+        systemSettings?.approved_by_name ||
+        ((publicSettings['signatories_ris_oic_active']
+            ? publicSettings['signatories_ris_oic_prefix'] || 'OIC, '
+            : '') +
+        (publicSettings['approved_by_name'] ||
+            publicSettings['signatories_ris_approved_by_name'] ||
+            publicSettings['signatories.ris_approved_by_name'] ||
+            'ARSENIO GEM A. GARCILLANOSA'));
+
+    const defaultApprovedByDesignation =
+        propApprovedByDesignation ||
+        systemSettings?.approved_by_designation ||
+        systemSettings?.approved_by_position ||
+        publicSettings['approved_by_position'] ||
+        publicSettings['signatories_ris_approved_by_designation'] ||
+        publicSettings['signatories.ris_approved_by_designation'] ||
+        'SUPPLY OFFICER III/ADMIN OFFICER V';
+
+    const defaultIssuedBy =
+        propIssuedBy ||
+        systemSettings?.issued_by_name ||
+        publicSettings['issued_by_name'] ||
+        publicSettings['signatories_ris_issued_by_name'] ||
+        publicSettings['signatories.ris_issued_by_name'] ||
+        'Supply Custodian / Storekeeper';
+
+    const defaultIssuedByDesignation =
+        propIssuedByDesignation ||
+        systemSettings?.issued_by_position ||
+        systemSettings?.issued_by_designation ||
+        publicSettings['issued_by_position'] ||
+        publicSettings['signatories_ris_issued_by_designation'] ||
+        publicSettings['signatories.ris_issued_by_designation'] ||
+        'Administrative Aide VI / Storekeeper';
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -164,11 +203,11 @@ export default function MyRequests({
             reviewed_at: request.reviewed_at?.slice(0, 10),
             date_issued: issued ? request.issuance?.date_issued || '' : '',
             date: '',
-            approved_by: request.reviewer?.name || defaultApprovedBy,
+            approved_by: defaultApprovedBy,
             approved_by_designation: defaultApprovedByDesignation,
             issued_by: '',
-            issued_by_name: issued ? request.issuance?.issued_by_name || defaultIssuedBy : '',
-            issued_by_position: issued ? request.issuance?.issued_by_position || defaultIssuedByDesignation : '',
+            issued_by_name: issued ? (request.issuance?.issued_by_name || defaultIssuedBy) : defaultIssuedBy,
+            issued_by_position: issued ? (request.issuance?.issued_by_position || defaultIssuedByDesignation) : defaultIssuedByDesignation,
             total_quantity: lines.reduce((sum, line) => sum + line.quantity, 0),
             total_amount: lines.reduce((sum, line) => sum + line.amount, 0),
             items: lines,
@@ -584,6 +623,10 @@ export default function MyRequests({
             <RequestDetailsModal
                 show={!!detailsRequest}
                 request={detailsRequest}
+                defaultApprovedBy={defaultApprovedBy}
+                defaultApprovedByDesignation={defaultApprovedByDesignation}
+                defaultIssuedBy={defaultIssuedBy}
+                defaultIssuedByDesignation={defaultIssuedByDesignation}
                 onClose={() => setDetailsRequest(null)}
                 onOpenRis={(req) => {
                     setDetailsRequest(null);

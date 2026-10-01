@@ -183,6 +183,9 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                             </span>
                             <span className="font-bold text-gray-900 dark:text-slate-100 block">{issuance.approved_by}</span>
                             <span className="text-[11px] text-gray-500 dark:text-slate-400 block">{issuance.approved_by_designation}</span>
+                            <span className="text-[11px] text-gray-500 dark:text-slate-400 font-mono mt-1 block">
+                                Date: {issuance.date_issued || issuance.date || '—'}
+                            </span>
                         </div>
                         <div>
                             <span className="text-[11px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider block">
@@ -190,6 +193,9 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                             </span>
                             <span className="font-semibold text-gray-900 dark:text-slate-100 block">{issuance.issued_by_name || issuance.issued_by}</span>
                             <span className="text-[11px] text-gray-500 dark:text-slate-400 block">{issuance.issued_by_position || 'Supply Custodian / Storekeeper'}</span>
+                            <span className="text-[11px] text-gray-500 dark:text-slate-400 font-mono mt-1 block">
+                                Date: {issuance.date_issued || issuance.date || '—'}
+                            </span>
                         </div>
                     </div>
                 </div>

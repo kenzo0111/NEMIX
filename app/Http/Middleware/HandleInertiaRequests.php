@@ -123,6 +123,13 @@ class HandleInertiaRequests extends Middleware
             'logoUrl' => $publicSettings['institution_logo_path'] ?? '/images/ucnlogo.png',
         ];
 
+        $issuanceSignatories = [];
+        try {
+            $issuanceSignatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
+        } catch (\Throwable $e) {
+            // Fallback gracefully
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -136,8 +143,12 @@ class HandleInertiaRequests extends Middleware
             'systemSettings' => [
                 'entity_name' => $publicSettings['entity_name'] ?? 'University of Camarines Norte',
                 'default_fund_cluster' => $publicSettings['default_fund_cluster'] ?? '01 - Regular Agency Fund',
-                'issued_by_name' => $publicSettings['issued_by_name'] ?? 'Supply Custodian / Storekeeper',
-                'issued_by_position' => $publicSettings['issued_by_position'] ?? 'Administrative Aide VI / Storekeeper',
+                'approved_by_name' => $issuanceSignatories['approved_by_name'] ?? ($publicSettings['approved_by_name'] ?? 'ARSENIO GEM A. GARCILLANOSA'),
+                'approved_by_position' => $issuanceSignatories['approved_by_designation'] ?? ($publicSettings['approved_by_position'] ?? 'SUPPLY OFFICER III/ADMIN OFFICER V'),
+                'approved_by_designation' => $issuanceSignatories['approved_by_designation'] ?? ($publicSettings['approved_by_designation'] ?? 'SUPPLY OFFICER III/ADMIN OFFICER V'),
+                'issued_by_name' => $issuanceSignatories['issued_by_name'] ?? ($publicSettings['issued_by_name'] ?? 'Supply Custodian / Storekeeper'),
+                'issued_by_position' => $issuanceSignatories['issued_by_position'] ?? ($publicSettings['issued_by_position'] ?? 'Administrative Aide VI / Storekeeper'),
+                'issued_by_designation' => $issuanceSignatories['issued_by_designation'] ?? ($publicSettings['issued_by_designation'] ?? 'Administrative Aide VI / Storekeeper'),
             ],
             'system' => $user ? [
                 'mode' => $sysConfig->active_mode,

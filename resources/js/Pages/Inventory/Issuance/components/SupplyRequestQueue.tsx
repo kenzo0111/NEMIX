@@ -54,9 +54,11 @@ export type QueueRequest = {
 export function SupplyRequestQueue({
     requests,
     onPreview,
+    defaultApprovedBy,
 }: {
     requests: QueueRequest[];
     onPreview: (request: QueueRequest) => void;
+    defaultApprovedBy?: string;
 }) {
     // Workspace tabs: 'pending' | 'approved' | 'all'
     const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'all'>('pending');
@@ -658,7 +660,7 @@ export function SupplyRequestQueue({
                                                         Official RIS No.: {request.ris_number || `RIS-${String(request.id).padStart(4, '0')}`}
                                                     </div>
                                                     <div className="text-[11px] text-blue-800 dark:text-blue-300">
-                                                        Approved by {request.reviewer?.name || 'Property Custodian'} on{' '}
+                                                        Approved by {defaultApprovedBy || request.reviewer?.name || 'Property Custodian'} on{' '}
                                                         {request.reviewed_at ? formatDisplayDate(request.reviewed_at, 'MM/DD/YYYY') : '—'}.
                                                     </div>
                                                 </div>

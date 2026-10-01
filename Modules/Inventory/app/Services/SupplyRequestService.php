@@ -126,6 +126,8 @@ class SupplyRequestService
             $lines = $request->items->filter(fn ($line) => $line->approved_quantity > 0)
                 ->map(fn ($line) => ['item_id' => $line->item_id, 'quantity' => $line->approved_quantity])->values()->all();
 
+            $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
+
             $issuance = $this->issuanceService->issue([
                 'date_issued' => now()->toDateString(),
                 'ris_number' => $request->ris_number,
@@ -135,8 +137,10 @@ class SupplyRequestService
                 'fund_cluster' => $request->fund_cluster ?: '01',
                 'recipient_designation' => $request->recipient_designation,
                 'purpose' => $request->purpose,
-                'approved_by' => $request->reviewer?->name,
-                'issued_by_name' => auth()->user()?->name,
+                'approved_by' => $signatories['approved_by_name'],
+                'approved_by_designation' => $signatories['approved_by_designation'],
+                'issued_by_name' => $signatories['issued_by_name'],
+                'issued_by_position' => $signatories['issued_by_position'],
             ], $lines, $issuerId);
 
             $request->update(['status' => 'Issued', 'issuance_id' => $issuance->id, 'released_at' => now()]);
