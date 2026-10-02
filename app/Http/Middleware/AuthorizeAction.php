@@ -78,6 +78,8 @@ class AuthorizeAction
     private function routePermissionName(string $routeName): string
     {
         $rfidPermissions = [
+            'inventory.request-alerts.index' => 'route:inventory.issuance',
+            'inventory.request-alerts.read' => 'route:inventory.issuance',
             'inventory.requests.ris-pdf' => 'route:inventory.requests.index',
             'inventory.receiving.rfid.store' => 'route:inventory.receiving.store',
             'rfid-scanner.index' => 'rfid.view',

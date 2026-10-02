@@ -12,6 +12,7 @@ import SidebarSection from './SidebarSection';
 import SidebarItem from './SidebarItem';
 import SidebarUser from './SidebarUser';
 import SignOutDialog from './SignOutDialog';
+import SupplyRequestAlerts from './SupplyRequestAlerts';
 
 export default function Sidebar({
     modules: initialModules,
@@ -187,6 +188,9 @@ export default function Sidebar({
 
                 {/* Main Navigation Body */}
                 <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-3 space-y-3 relative z-10 scrollbar-hide no-scrollbar">
+                    {(authUser?.roles?.includes('Property Custodian') || isSystemAdmin) && capabilities?.inventory?.issuance && (
+                        <SupplyRequestAlerts collapsed={effectiveCollapsed} onExpand={onToggleCollapse} />
+                    )}
                     {orderedCategoryKeys.map((catKey) => {
                         const categoryModules = filteredModules.filter(
                             (m) => m.category === catKey

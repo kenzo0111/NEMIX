@@ -791,6 +791,7 @@ class InventoryController extends Controller
         $recipientsQuery = ResourceOwnershipPolicy::scopeQuery(Issuance::query(), auth()->user(), 'issued_by');
 
         return Inertia::render('Inventory/Issuance', [
+            'focusRequestId' => $request->integer('request') ?: null,
             'issuances' => $transformed,
             'supplyRequests' => auth()->user()->hasAnyRole(['Property Custodian', 'System Admin', 'System Administrator'])
                 ? SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'issuance.items.allocations.inventoryBatch'])

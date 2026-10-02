@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import {
     CheckCircle2,
@@ -58,10 +58,12 @@ export function SupplyRequestQueue({
     requests,
     onPreview,
     defaultApprovedBy,
+    focusRequestId,
 }: {
     requests: QueueRequest[];
     onPreview: (request: QueueRequest) => void;
     defaultApprovedBy?: string;
+    focusRequestId?: number | null;
 }) {
     // Workspace tabs: 'pending' | 'approved' | 'all'
     const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'all'>('pending');
@@ -87,6 +89,16 @@ export function SupplyRequestQueue({
     const pendingList = useMemo(() => requests.filter((r) => r.status === 'Pending'), [requests]);
     const approvedList = useMemo(() => requests.filter((r) => r.status === 'Approved'), [requests]);
     const allList = requests;
+
+    useEffect(() => {
+        if (!focusRequestId) return;
+        const focused = requests.find((request) => request.id === focusRequestId);
+        if (!focused) return;
+        setActiveTab(focused.status === 'Pending' ? 'pending' : focused.status === 'Approved' ? 'approved' : 'all');
+        setSearchQuery(focused.ris_number || String(focusRequestId));
+        const timer = window.setTimeout(() => document.getElementById(`supply-request-${focusRequestId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+        return () => window.clearTimeout(timer);
+    }, [focusRequestId, requests]);
 
     // Filter by search
     const filteredRequests = useMemo(() => {
@@ -360,6 +372,7 @@ export function SupplyRequestQueue({
                         return (
                             <article
                                 key={request.id}
+                                id={`supply-request-${request.id}`}
                                 className={`rounded-xl border transition-all ${
                                     isPending
                                         ? 'border-amber-200/80 dark:border-amber-900/40 bg-white dark:bg-slate-900/90 shadow-2xs'

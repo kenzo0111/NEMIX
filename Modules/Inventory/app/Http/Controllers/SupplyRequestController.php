@@ -4,6 +4,7 @@ namespace Modules\Inventory\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\SystemSetting;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,7 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\SupplyRequest;
+use Modules\Inventory\Models\SupplyRequestAlert;
 use Modules\Inventory\Services\SupplyRequestService;
 
 class SupplyRequestController extends Controller
@@ -156,6 +158,17 @@ class SupplyRequestController extends Controller
             ]);
             $supplyRequest->items()->createMany($data['items']);
             SupplyRequestService::audit($supplyRequest, $request->user()->id, 'Submitted Supply Request');
+            $approverIds = User::query()
+                ->where('is_active', true)
+                ->whereHas('roles', fn ($query) => $query->whereIn('name', [
+                    'Property Custodian', 'System Admin', 'System Administrator',
+                ]))->pluck('id');
+            foreach ($approverIds as $approverId) {
+                SupplyRequestAlert::create([
+                    'user_id' => $approverId,
+                    'supply_request_id' => $supplyRequest->id,
+                ]);
+            }
         });
         return redirect()->route('inventory.requests.index')->with('success', 'Request submitted to the Property Custodian.');
     }

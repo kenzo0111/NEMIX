@@ -21,6 +21,7 @@ export default function IssuanceIndex({
     divisions = [],
     filters = {},
     supplyRequests = [],
+    focusRequestId = null,
     canCreateIssuance = false,
     defaultApprovedBy: propApprovedBy,
     defaultApprovedByDesignation: propApprovedByDesignation,
@@ -28,6 +29,7 @@ export default function IssuanceIndex({
     defaultIssuedByDesignation: propIssuedByDesignation,
 }: IssuancePageProps & {
     supplyRequests?: QueueRequest[];
+    focusRequestId?: number | null;
     canCreateIssuance?: boolean;
     defaultApprovedBy?: string;
     defaultApprovedByDesignation?: string;
@@ -120,6 +122,12 @@ export default function IssuanceIndex({
     const approvedCount = useMemo(() => {
         return supplyRequests.filter((r) => r.status === 'Approved').length;
     }, [supplyRequests]);
+
+    useEffect(() => {
+        const refreshQueue = () => router.reload({ only: ['supplyRequests'] });
+        window.addEventListener('supply-requests-changed', refreshQueue);
+        return () => window.removeEventListener('supply-requests-changed', refreshQueue);
+    }, []);
 
     // Recipient options for dropdown
     const recipientOptions = useMemo(() => {
@@ -338,6 +346,7 @@ export default function IssuanceIndex({
                         <div className="space-y-6">
                             <SupplyRequestQueue
                                 requests={supplyRequests}
+                                focusRequestId={focusRequestId}
                                 onPreview={handlePreviewApprovedRequest}
                                 defaultApprovedBy={defaultApprovedBy}
                             />

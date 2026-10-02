@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Inventory\Http\Controllers\InventoryController;
 use Modules\Inventory\Http\Controllers\SupplyRequestController;
+use Modules\Inventory\Http\Controllers\SupplyRequestAlertController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('inventories', InventoryController::class)->names('inventory');
@@ -17,6 +18,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('inventory/issuance/{issuance}', [InventoryController::class, 'updateIssuance'])->name('inventory.issuance.update');
     Route::delete('inventory/issuance/{issuance}', [InventoryController::class, 'destroyIssuance'])->name('inventory.issuance.destroy');
     Route::get('inventory/my-requests', [SupplyRequestController::class, 'index'])->name('inventory.requests.index');
+    Route::get('inventory/request-alerts', [SupplyRequestAlertController::class, 'index'])->name('inventory.request-alerts.index');
+    Route::post('inventory/request-alerts/{alert}/read', [SupplyRequestAlertController::class, 'read'])->name('inventory.request-alerts.read');
     Route::get('inventory/my-requests/{supplyRequest}/ris.pdf', [SupplyRequestController::class, 'risPdf'])->name('inventory.requests.ris-pdf');
     Route::post('inventory/my-requests', [SupplyRequestController::class, 'store'])->name('inventory.requests.store');
     Route::put('inventory/my-requests/{supplyRequest}', [SupplyRequestController::class, 'update'])->name('inventory.requests.update');
