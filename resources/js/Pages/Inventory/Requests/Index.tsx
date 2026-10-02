@@ -15,7 +15,7 @@ import { RequestFormModal } from './components/RequestFormModal';
 import { RequestStatusBadge } from './components/RequestStatusBadge';
 import { ReceivingStatusNotice } from '../Receiving/components/ReceivingStatusNotice';
 import { DivisionGroup, RequestItem, SupplyRequest } from './types';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, FileText } from 'lucide-react';
 
 const PAGE_SIZE = 10;
 const statusOptions = [
