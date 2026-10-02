@@ -72,6 +72,7 @@ class HandleInertiaRequests extends Middleware
 
             $capabilities = [
                 'dashboard' => true,
+                'requests' => $hasPerm('inventory.requests.index', false),
                 'inventory' => [
                     'view' => $hasPerm('inventory.index', $defaultForStaff),
                     'receiving' => $hasPerm('inventory.receiving', $defaultForStaff),

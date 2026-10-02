@@ -1,5 +1,6 @@
 import {
     LayoutDashboard,
+    ClipboardList,
     Package,
     ScanLine,
     Building2,
@@ -64,7 +65,6 @@ function normalizeSubmoduleActive(
         if (subItemKey === 'all-items' && routeCurrentName === 'inventory.index') return true;
         if (subItemKey === 'receiving' && routeCurrentName.startsWith('inventory.receiving')) return true;
         if (subItemKey === 'issuance' && routeCurrentName.startsWith('inventory.issuance')) return true;
-        if (subItemKey === 'my-requests' && routeCurrentName.startsWith('inventory.requests.')) return true;
         if (subItemKey === 'supplier-registry' && routeCurrentName.startsWith('suppliers.')) return true;
         if (subItemKey === 'manage-reports' && routeCurrentName.startsWith('compliance.reports')) return true;
         if (subItemKey === 'manage-analytics' && routeCurrentName.startsWith('compliance.analytics')) return true;
@@ -81,16 +81,39 @@ function normalizeModuleActive(
     itemKey: string,
     activeModule?: string,
     hasActiveSubmodule?: boolean,
-    routeCurrentName?: string
+    routeCurrentName?: string,
+    activeSubmodule?: string
 ): boolean {
     if (hasActiveSubmodule) {
         return true;
     }
 
-    if (activeModule) {
-        const normMod = activeModule.toLowerCase().trim();
+    const normMod = activeModule?.toLowerCase().trim();
+    const normSub = activeSubmodule?.toLowerCase().trim();
+
+    if (
+        itemKey === 'my-requests' &&
+        (normMod === 'my requests' ||
+            normMod === 'my request' ||
+            normMod === 'requests' ||
+            normSub === 'my requests' ||
+            normSub === 'my request' ||
+            normSub === 'requests')
+    ) {
+        return true;
+    }
+
+    if (normMod) {
         if (itemKey === 'dashboard' && normMod === 'dashboard') return true;
-        if (itemKey === 'inventory' && normMod === 'inventory') return true;
+        if (
+            itemKey === 'inventory' &&
+            normMod === 'inventory' &&
+            normSub !== 'my requests' &&
+            normSub !== 'my request' &&
+            normSub !== 'requests'
+        ) {
+            return true;
+        }
         if (itemKey === 'rfid-scanner' && (normMod === 'rfid scanner' || normMod === 'rfid')) return true;
         if (itemKey === 'suppliers' && (normMod === 'suppliers' || normMod === 'contract suppliers')) return true;
         if (itemKey === 'compliance' && normMod === 'compliance') return true;
@@ -101,6 +124,7 @@ function normalizeModuleActive(
 
     if (routeCurrentName) {
         if (itemKey === 'dashboard' && routeCurrentName === 'dashboard') return true;
+        if (itemKey === 'my-requests' && routeCurrentName.startsWith('inventory.requests.')) return true;
         if (itemKey === 'rfid-scanner' && routeCurrentName.startsWith('rfid-scanner.')) return true;
         if (itemKey === 'system-settings' && routeCurrentName.startsWith('system.settings.')) return true;
     }
@@ -129,6 +153,16 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
             requiredCapability: (caps) => caps.dashboard,
             requiredPermission: 'route:dashboard',
         },
+        {
+            key: 'my-requests',
+            category: 'overview',
+            categoryTitle: SIDEBAR_CATEGORIES.overview.title,
+            title: 'My Requests',
+            icon: ClipboardList,
+            href: route('inventory.requests.index'),
+            requiredCapability: (caps) => Boolean(caps.requests ?? caps.inventory?.requests),
+            requiredPermission: 'route:inventory.requests.index',
+        },
 
         // LOGISTICS & OPERATIONS
         {
@@ -139,7 +173,7 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
             icon: Package,
             href: '#',
             requiredCapability: (caps) =>
-                caps.inventory.view || caps.inventory.receiving || caps.inventory.issuance || caps.inventory.requests,
+                caps.inventory.view || caps.inventory.receiving || caps.inventory.issuance,
             requiredPermission: 'route:inventory.index',
             submodules: [
                 {
@@ -162,13 +196,6 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
                     href: route('inventory.issuance'),
                     requiredCapability: (caps) => caps.inventory.issuance,
                     requiredPermission: 'route:inventory.issuance',
-                },
-                {
-                    key: 'my-requests',
-                    title: 'My Requests',
-                    href: route('inventory.requests.index'),
-                    requiredCapability: (caps) => caps.inventory.requests,
-                    requiredPermission: 'route:inventory.requests.index',
                 },
             ],
         },
@@ -317,7 +344,8 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
             module.key,
             activeModule,
             hasActiveSubmodule,
-            routeCurrentName
+            routeCurrentName,
+            activeSubmodule
         );
 
         return {

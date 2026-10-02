@@ -232,9 +232,9 @@ export default function MyRequests({
 
     return (
         <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 overflow-x-hidden selection:bg-red-900 selection:text-white">
-            <Head title="Inventory - My Requests" />
+            <Head title="My Requests" />
             <Sidebar
-                modules={getSidebarModules('Inventory', 'My Requests')}
+                modules={getSidebarModules('My Requests')}
                 user={auth.user}
                 collapsed={collapsed}
                 onToggleCollapse={toggle}
@@ -242,9 +242,9 @@ export default function MyRequests({
 
             <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
                 <PageHeader
-                    title="Inventory Management"
+                    title="My Requests"
                     description="Supply requests, requisition tracking, and approval history"
-                    breadcrumbs={[{ name: 'Inventory' }, { name: 'My Requests' }]}
+                    breadcrumbs={[{ name: 'Overview' }, { name: 'My Requests' }]}
                 />
 
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden pb-16 min-w-0 space-y-5">

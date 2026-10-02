@@ -10,6 +10,7 @@ export interface SidebarCategory {
 
 export interface AuthCapabilities {
     dashboard: boolean;
+    requests?: boolean;
     inventory: {
         view: boolean;
         receiving: boolean;
