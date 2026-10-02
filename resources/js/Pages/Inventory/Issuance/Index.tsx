@@ -227,6 +227,7 @@ export default function IssuanceIndex({
             requested_at: (request.date_requested || request.created_at)?.slice(0, 10),
             reviewed_at: request.reviewed_at?.slice(0, 10),
             date_issued: request.status === 'Issued' ? request.issuance?.date_issued || '' : '',
+            date: request.status === 'Issued' ? request.issuance?.date_issued || '' : '',
             approved_by: defaultApprovedBy,
             approved_by_designation: defaultApprovedByDesignation,
             issued_by: '',
