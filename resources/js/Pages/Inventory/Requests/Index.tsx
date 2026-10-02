@@ -12,7 +12,7 @@ import { IssuanceRecord } from '../Issuance/types';
 import { getFundClusterDisplay } from '../Issuance/constants';
 import { RequestDetailsModal } from './components/RequestDetailsModal';
 import { RequestFormModal } from './components/RequestFormModal';
-import { RequestStatusBadge, ItemQuantityDisplay } from './components/RequestStatusBadge';
+import { RequestStatusBadge } from './components/RequestStatusBadge';
 import { DivisionGroup, RequestItem, SupplyRequest } from './types';
 import { Plus, Search, FileText, Eye, Edit3, XCircle } from 'lucide-react';
 
@@ -246,7 +246,7 @@ export default function MyRequests({
                     breadcrumbs={[{ name: 'Inventory' }, { name: 'My Requests' }]}
                 />
 
-                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden pb-16 min-w-0 space-y-6">
+                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden pb-16 min-w-0 space-y-5">
                     {/* Notification Toast */}
                     {notification && (
                         <div
@@ -270,75 +270,83 @@ export default function MyRequests({
                     )}
 
                     {/* Operational Summary Cards */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-200/80 dark:border-slate-800 shadow-2xs">
-                            <span className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 font-mono">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                        <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs flex flex-col justify-between">
+                            <span className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono">
                                 Total Submissions
                             </span>
-                            <div className="mt-1 flex items-baseline justify-between">
-                                <span className="text-2xl font-black font-mono text-gray-900 dark:text-slate-100">
+                            <div className="mt-1.5 flex items-baseline justify-between">
+                                <span className="text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-slate-100">
                                     {counts.total}
                                 </span>
-                                <span className="text-xs text-gray-500 font-sans">requisitions</span>
+                                <span className="text-[11px] text-slate-400 dark:text-slate-500 font-sans">
+                                    requisitions
+                                </span>
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-amber-200/80 dark:border-amber-900/50 shadow-2xs">
-                            <span className="block text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 font-mono">
+                        <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-amber-200/80 dark:border-amber-900/40 shadow-2xs flex flex-col justify-between">
+                            <span className="block text-[11px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400 font-mono">
                                 Pending Custodian Review
                             </span>
-                            <div className="mt-1 flex items-baseline justify-between">
-                                <span className="text-2xl font-black font-mono text-amber-700 dark:text-amber-400">
+                            <div className="mt-1.5 flex items-baseline justify-between">
+                                <span className="text-2xl font-bold font-mono tracking-tight text-amber-600 dark:text-amber-400">
                                     {counts.pending}
                                 </span>
-                                <span className="text-xs text-amber-600 dark:text-amber-400 font-sans">awaiting</span>
+                                <span className="text-[11px] text-amber-600/80 dark:text-amber-400/80 font-sans">
+                                    awaiting
+                                </span>
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-blue-200/80 dark:border-blue-900/50 shadow-2xs">
-                            <span className="block text-[11px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400 font-mono">
+                        <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-blue-200/80 dark:border-blue-900/40 shadow-2xs flex flex-col justify-between">
+                            <span className="block text-[11px] font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400 font-mono">
                                 Approved · Ready for Release
                             </span>
-                            <div className="mt-1 flex items-baseline justify-between">
-                                <span className="text-2xl font-black font-mono text-blue-700 dark:text-blue-400">
+                            <div className="mt-1.5 flex items-baseline justify-between">
+                                <span className="text-2xl font-bold font-mono tracking-tight text-blue-600 dark:text-blue-400">
                                     {counts.approved}
                                 </span>
-                                <span className="text-xs text-blue-600 dark:text-blue-400 font-sans">for pickup</span>
+                                <span className="text-[11px] text-blue-600/80 dark:text-blue-400/80 font-sans">
+                                    for pickup
+                                </span>
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-emerald-200/80 dark:border-emerald-900/50 shadow-2xs">
-                            <span className="block text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 font-mono">
+                        <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-emerald-200/80 dark:border-emerald-900/40 shadow-2xs flex flex-col justify-between">
+                            <span className="block text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 font-mono">
                                 Completed Issuances
                             </span>
-                            <div className="mt-1 flex items-baseline justify-between">
-                                <span className="text-2xl font-black font-mono text-emerald-700 dark:text-emerald-400">
+                            <div className="mt-1.5 flex items-baseline justify-between">
+                                <span className="text-2xl font-bold font-mono tracking-tight text-emerald-600 dark:text-emerald-400">
                                     {counts.issued}
                                 </span>
-                                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-sans">released</span>
+                                <span className="text-[11px] text-emerald-600/80 dark:text-emerald-400/80 font-sans">
+                                    released
+                                </span>
                             </div>
                         </div>
                     </div>
 
                     {/* Main Requisitions Table Card */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-gray-200/80 dark:border-slate-800 overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-slate-200/90 dark:border-slate-800 overflow-hidden">
                         {/* Toolbar */}
-                        <div className="p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-50/50 dark:bg-slate-900/50">
+                        <div className="p-4 sm:px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
                             <div>
-                                <h2 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight">
+                                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-serif tracking-tight">
                                     My Supply Requests
                                 </h2>
-                                <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mt-0.5">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
                                     Track submitted supply requisitions, custodian review remarks, final approved quantities, and RIS vouchers.
                                 </p>
                             </div>
 
-                            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 w-full xl:w-auto">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full xl:w-auto">
                                 <div className="relative w-full sm:w-64">
                                     <label htmlFor="request-search-input" className="sr-only">
                                         Search my requests
                                     </label>
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                                         <Search className="w-4 h-4" />
                                     </div>
                                     <input
@@ -350,7 +358,7 @@ export default function MyRequests({
                                             setCurrentPage(1);
                                         }}
                                         placeholder="Search by RIS, recipient, item..."
-                                        className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-xs font-medium focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-xs placeholder-gray-400 dark:placeholder-slate-500"
+                                        className="w-full h-10 pl-9 pr-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-xs sm:text-sm font-medium focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs placeholder-slate-400 dark:placeholder-slate-500"
                                     />
                                 </div>
 
@@ -372,7 +380,7 @@ export default function MyRequests({
                                 <button
                                     type="button"
                                     onClick={openCreate}
-                                    className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer min-h-[38px] transition-colors"
+                                    className="w-full sm:w-auto h-10 px-4 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-semibold text-xs tracking-wider rounded-lg shadow-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono cursor-pointer transition-colors shrink-0"
                                 >
                                     <Plus className="w-4 h-4 text-amber-300" />
                                     New Request
@@ -383,20 +391,20 @@ export default function MyRequests({
                         {/* Table */}
                         <div className="overflow-x-auto min-w-0">
                             <table className="w-full text-left border-collapse min-w-[900px]">
-                                <thead className="bg-gray-50/80 dark:bg-slate-900/80 border-b border-gray-200 dark:border-slate-800">
+                                <thead className="bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
                                     <tr>
                                         {[
-                                            'Official RIS No.',
+                                            'RIS No.',
                                             'Recipient & Department',
                                             'Fund Cluster / Purpose',
-                                            'Items (Requested vs Final)',
+                                            'Items',
                                             'Date Requested',
                                             'Approval Status',
                                             'Actions',
                                         ].map((label) => (
                                             <th
                                                 key={label}
-                                                className={`px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 dark:text-slate-300 uppercase font-mono ${
+                                                className={`px-4 lg:px-5 py-3 text-[11px] font-bold tracking-wider text-slate-600 dark:text-slate-400 uppercase font-mono ${
                                                     label === 'Actions' ? 'text-right' : ''
                                                 }`}
                                             >
@@ -405,16 +413,16 @@ export default function MyRequests({
                                         ))}
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
+                                <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
                                     {visible.length === 0 ? (
                                         <tr>
                                             <td colSpan={7} className="px-6 py-12 text-center">
                                                 <div className="flex flex-col items-center">
-                                                    <FileText className="w-10 h-10 text-gray-300 dark:text-slate-600 mb-2" />
-                                                    <p className="font-semibold text-sm text-gray-800 dark:text-slate-200">
+                                                    <FileText className="w-9 h-9 text-slate-300 dark:text-slate-600 mb-2" />
+                                                    <p className="font-semibold text-sm text-slate-800 dark:text-slate-200">
                                                         No supply requests found
                                                     </p>
-                                                    <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
                                                         {searchTerm || statusFilter
                                                             ? 'Try adjusting your search criteria or status filter.'
                                                             : 'Submit a new supply requisition to begin tracking approval from the Property Custodian.'}
@@ -439,112 +447,131 @@ export default function MyRequests({
                                             return (
                                                 <tr
                                                     key={request.id}
-                                                    className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0"
+                                                    className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-100 dark:border-slate-800/80 last:border-0"
                                                 >
-                                                    {/* Official RIS No. */}
-                                                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-900 dark:text-slate-100 font-mono tracking-wide">
+                                                    {/* RIS No. */}
+                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap">
                                                         <div className="flex flex-col">
-                                                            <span className="text-red-950 dark:text-red-400 font-bold">
+                                                            <span className="font-mono font-bold text-xs text-slate-800 dark:text-slate-200 tracking-tight">
                                                                 {request.ris_number || `RIS-${String(request.id).padStart(4, '0')}`}
                                                             </span>
-                                                            <span className="text-[10px] text-gray-400 font-normal">
+                                                            <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 font-normal">
                                                                 Req #{request.id}
                                                             </span>
                                                         </div>
                                                     </td>
 
-                                                    {/* Recipient & Office/Department */}
-                                                    <td className="px-4 lg:px-6 py-4 text-xs">
-                                                        <div className="font-bold text-gray-900 dark:text-slate-100 leading-tight">
-                                                            {request.recipient || request.requester?.name || 'Supply Coordinator'}
+                                                    {/* Recipient & Department */}
+                                                    <td className="px-4 lg:px-5 py-3.5 align-top">
+                                                        <div className="flex flex-col min-w-0 max-w-xs sm:max-w-sm">
+                                                            <span
+                                                                className="font-bold text-xs text-slate-900 dark:text-slate-100 leading-snug truncate"
+                                                                title={request.recipient || request.requester?.name || 'Supply Coordinator'}
+                                                            >
+                                                                {request.recipient || request.requester?.name || 'Supply Coordinator'}
+                                                            </span>
+                                                            <span
+                                                                className="text-[11px] text-slate-600 dark:text-slate-400 font-medium leading-snug line-clamp-2 mt-0.5"
+                                                                title={request.department}
+                                                            >
+                                                                {request.department}
+                                                            </span>
+                                                            {request.recipient_designation && (
+                                                                <span
+                                                                    className="text-[10px] text-slate-400 dark:text-slate-500 font-normal mt-0.5 truncate"
+                                                                    title={request.recipient_designation}
+                                                                >
+                                                                    {request.recipient_designation}
+                                                                </span>
+                                                            )}
                                                         </div>
-                                                        <div className="text-[11px] text-gray-600 dark:text-slate-400 font-medium mt-0.5">
-                                                            {request.department}
-                                                        </div>
-                                                        {request.recipient_designation && (
-                                                            <div className="text-[10px] text-gray-400 italic">
-                                                                {request.recipient_designation}
-                                                            </div>
-                                                        )}
                                                     </td>
 
                                                     {/* Fund Cluster / Purpose */}
-                                                    <td className="px-4 lg:px-6 py-4 text-xs">
-                                                        <div className="font-mono text-[11px] text-gray-600 dark:text-slate-400">
-                                                            {getFundClusterDisplay(request.fund_cluster) || '01 - Regular Agency Fund'}
-                                                        </div>
-                                                        <div
-                                                            className="text-gray-800 dark:text-slate-200 mt-0.5 max-w-xs truncate"
-                                                            title={request.purpose}
-                                                        >
-                                                            {request.purpose}
+                                                    <td className="px-4 lg:px-5 py-3.5 align-top">
+                                                        <div className="flex flex-col min-w-0 max-w-xs">
+                                                            <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                                                                {(getFundClusterDisplay(request.fund_cluster) || '01 · Regular Agency Fund').replace(' - ', ' · ')}
+                                                            </span>
+                                                            <span
+                                                                className="text-xs text-slate-700 dark:text-slate-300 font-medium line-clamp-2 mt-0.5"
+                                                                title={request.purpose}
+                                                            >
+                                                                {request.purpose}
+                                                            </span>
                                                         </div>
                                                     </td>
 
-                                                    {/* Items (Requested vs Final) */}
-                                                    <td className="px-4 lg:px-6 py-4 text-xs">
-                                                        <div className="flex flex-col gap-1">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="font-mono font-bold text-gray-900 dark:text-slate-100">
-                                                                    {request.items.length}{' '}
-                                                                    {request.items.length === 1 ? 'item' : 'items'}
+                                                    {/* Items */}
+                                                    <td className="px-4 lg:px-5 py-3.5 align-top">
+                                                        <div className="flex flex-col min-w-0">
+                                                            <div className="flex items-center gap-1.5 font-mono text-xs">
+                                                                <span className="font-bold text-slate-900 dark:text-slate-100">
+                                                                    {request.items.length} {request.items.length === 1 ? 'item' : 'items'}
                                                                 </span>
-                                                                <span className="text-gray-400 text-[11px]">
-                                                                    ({totalRequestedQty} requested)
-                                                                </span>
-                                                            </div>
-
-                                                            {isReviewed ? (
-                                                                <div className="flex items-center gap-1.5 font-mono text-[11px]">
-                                                                    <span className="text-emerald-700 dark:text-emerald-400 font-bold">
-                                                                        Final: {totalApprovedQty} units approved
+                                                                {hasQuantityAdjustment && (
+                                                                    <span className="px-1.5 py-0.5 rounded text-[10px] font-sans font-semibold bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800/60 leading-none">
+                                                                        Adjusted
                                                                     </span>
-                                                                    {hasQuantityAdjustment && (
-                                                                        <span className="px-1.5 py-0.2 rounded text-[10px] font-sans font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-                                                                            Adjusted
-                                                                        </span>
-                                                                    )}
+                                                                )}
+                                                            </div>
+                                                            {isReviewed ? (
+                                                                <div className="text-[11px] font-mono mt-0.5 flex items-center gap-1">
+                                                                    <span className="text-slate-500 dark:text-slate-400">
+                                                                        {totalRequestedQty} requested
+                                                                    </span>
+                                                                    <span className="text-slate-300 dark:text-slate-600">·</span>
+                                                                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                                                                        {totalApprovedQty} approved
+                                                                    </span>
                                                                 </div>
                                                             ) : (
-                                                                <div className="text-[11px] text-gray-500 dark:text-slate-400 truncate max-w-xs">
-                                                                    {request.items[0]?.item?.name || 'Item'}
-                                                                    {request.items.length > 1 && ` +${request.items.length - 1} more`}
+                                                                <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-0.5">
+                                                                    <span>{totalRequestedQty} requested</span>
+                                                                    {request.items[0]?.item?.name && (
+                                                                        <span className="block truncate max-w-[180px] font-sans text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                                                                            {request.items[0].item.name}
+                                                                            {request.items.length > 1 && ` +${request.items.length - 1} more`}
+                                                                        </span>
+                                                                    )}
                                                                 </div>
                                                             )}
                                                         </div>
                                                     </td>
 
                                                     {/* Date Requested */}
-                                                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs text-gray-600 dark:text-slate-400 font-mono">
+                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap text-xs text-slate-600 dark:text-slate-400 font-mono">
                                                         {formatDisplayDate(request.date_requested || request.created_at, 'MM/DD/YYYY') ||
                                                             request.date_requested ||
                                                             request.created_at}
                                                     </td>
 
                                                     {/* Approval Status */}
-                                                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap">
                                                         <RequestStatusBadge status={request.status} />
                                                     </td>
 
                                                     {/* Actions */}
-                                                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right">
-                                                        <div className="inline-flex items-center gap-2">
+                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap text-right">
+                                                        <div className="inline-flex items-center justify-end gap-1.5">
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setDetailsRequest(request)}
-                                                                className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-xs py-1 px-2 rounded hover:bg-gray-100 dark:hover:bg-slate-800 inline-flex items-center gap-1 cursor-pointer transition-colors"
+                                                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 cursor-pointer transition-colors shadow-2xs"
+                                                                title="View requisition details"
                                                             >
-                                                                <Eye className="w-3.5 h-3.5" />
-                                                                <span>View</span>
+                                                                <Eye className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                                                                <span>Details</span>
                                                             </button>
 
                                                             {request.status === 'Pending' && (
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => openEdit(request)}
-                                                                    className="text-red-950 dark:text-red-400 font-semibold text-xs py-1 px-2 rounded hover:bg-red-50 dark:hover:bg-red-950/40 inline-flex items-center gap-1 cursor-pointer transition-colors"
+                                                                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
+                                                                    title="Edit request"
                                                                 >
-                                                                    <Edit3 className="w-3.5 h-3.5" />
+                                                                    <Edit3 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                                                                     <span>Edit</span>
                                                                 </button>
                                                             )}
@@ -553,10 +580,11 @@ export default function MyRequests({
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => openRis(request)}
-                                                                    className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 font-semibold text-xs px-2.5 py-1 rounded shadow-2xs inline-flex items-center gap-1 cursor-pointer transition-colors"
+                                                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold text-slate-800 hover:text-slate-950 dark:text-slate-200 dark:hover:text-white bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-300 dark:border-slate-700 cursor-pointer transition-colors shadow-2xs"
+                                                                    title="View and print RIS slip"
                                                                 >
-                                                                    <FileText className="w-3.5 h-3.5" />
-                                                                    <span>View RIS</span>
+                                                                    <FileText className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
+                                                                    <span>RIS</span>
                                                                 </button>
                                                             )}
 
@@ -565,11 +593,11 @@ export default function MyRequests({
                                                                     type="button"
                                                                     disabled={busy === request.id}
                                                                     onClick={() => cancel(request)}
-                                                                    className="text-gray-400 hover:text-rose-700 dark:hover:text-rose-400 font-semibold text-xs py-1 px-1.5 rounded hover:bg-rose-50 dark:hover:bg-rose-950/30 inline-flex items-center gap-1 cursor-pointer disabled:opacity-50 transition-colors"
+                                                                    className="inline-flex items-center gap-1 px-1.5 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 cursor-pointer disabled:opacity-40 transition-colors"
                                                                     title="Cancel Request"
                                                                 >
                                                                     <XCircle className="w-3.5 h-3.5" />
-                                                                    <span>Cancel</span>
+                                                                    <span className="sr-only sm:not-sr-only">Cancel</span>
                                                                 </button>
                                                             )}
                                                         </div>
@@ -584,10 +612,9 @@ export default function MyRequests({
 
                         {/* Pagination */}
                         {filtered.length > 0 && (
-                            <div className="px-4 sm:px-6 lg:px-8 py-3.5 border-t border-gray-200/80 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-                                <span className="text-gray-600 dark:text-slate-400 font-medium">
-                                    Showing <strong>{from}</strong>–<strong>{to}</strong> of <strong>{filtered.length}</strong>{' '}
-                                    records
+                            <div className="px-4 sm:px-6 py-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                                <span className="text-slate-500 dark:text-slate-400 font-medium">
+                                    Showing <strong className="text-slate-700 dark:text-slate-200">{from}</strong>–<strong className="text-slate-700 dark:text-slate-200">{to}</strong> of <strong className="text-slate-700 dark:text-slate-200">{filtered.length}</strong> records
                                 </span>
                                 <div className="flex items-center gap-2">
                                     <button
@@ -595,19 +622,19 @@ export default function MyRequests({
                                         onClick={() => setCurrentPage(Math.max(1, safePage - 1))}
                                         disabled={safePage <= 1}
                                         aria-label="Go to previous page"
-                                        className="min-h-[36px] px-3.5 py-1.5 border border-gray-300 dark:border-slate-700 rounded text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-950 disabled:opacity-40 cursor-pointer"
+                                        className="h-8 px-3 border border-slate-300 dark:border-slate-700 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors shadow-2xs"
                                     >
                                         Previous
                                     </button>
-                                    <span className="px-1 text-gray-600 dark:text-slate-400">
-                                        Page <strong>{safePage}</strong> of <strong>{lastPage}</strong>
+                                    <span className="px-1 text-slate-500 dark:text-slate-400">
+                                        Page <strong className="text-slate-700 dark:text-slate-200">{safePage}</strong> of <strong className="text-slate-700 dark:text-slate-200">{lastPage}</strong>
                                     </span>
                                     <button
                                         type="button"
                                         onClick={() => setCurrentPage(Math.min(lastPage, safePage + 1))}
                                         disabled={safePage >= lastPage}
                                         aria-label="Go to next page"
-                                        className="min-h-[36px] px-3.5 py-1.5 border border-gray-300 dark:border-slate-700 rounded text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-950 disabled:opacity-40 cursor-pointer"
+                                        className="h-8 px-3 border border-slate-300 dark:border-slate-700 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors shadow-2xs"
                                     >
                                         Next
                                     </button>

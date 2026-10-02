@@ -47,10 +47,10 @@ export function RequestStatusBadge({ status }: { status: SupplyRequest['status']
 
     return (
         <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${item.bg} ${item.text} ${item.border}`}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide border leading-none whitespace-nowrap ${item.bg} ${item.text} ${item.border}`}
         >
-            <span className={`w-1.5 h-1.5 rounded-full ${item.dot}`} />
-            {item.label}
+            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${item.dot}`} />
+            <span>{item.label}</span>
         </span>
     );
 }

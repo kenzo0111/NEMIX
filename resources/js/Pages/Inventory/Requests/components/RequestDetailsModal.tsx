@@ -72,7 +72,7 @@ export function RequestDetailsModal({
                             <span className="block text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-1">
                                 Official RIS No.
                             </span>
-                            <span className="font-mono font-bold text-sm text-red-950 dark:text-red-400">
+                            <span className="font-mono font-bold text-sm text-slate-900 dark:text-slate-100">
                                 {request.ris_number || `RIS-${String(request.id).padStart(4, '0')}`}
                             </span>
                         </div>
