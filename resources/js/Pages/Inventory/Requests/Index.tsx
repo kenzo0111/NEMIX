@@ -13,8 +13,9 @@ import { getFundClusterDisplay } from '../Issuance/constants';
 import { RequestDetailsModal } from './components/RequestDetailsModal';
 import { RequestFormModal } from './components/RequestFormModal';
 import { RequestStatusBadge } from './components/RequestStatusBadge';
+import { ReceivingStatusNotice } from '../Receiving/components/ReceivingStatusNotice';
 import { DivisionGroup, RequestItem, SupplyRequest } from './types';
-import { Plus, Search, FileText, Eye, Edit3, XCircle } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 
 const PAGE_SIZE = 10;
 const statusOptions = [
@@ -247,27 +248,11 @@ export default function MyRequests({
                 />
 
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden pb-16 min-w-0 space-y-5">
-                    {/* Notification Toast */}
-                    {notification && (
-                        <div
-                            role="status"
-                            className={`px-4 py-3 rounded-lg border text-xs font-semibold flex items-center justify-between shadow-xs ${
-                                notification.type === 'success'
-                                    ? 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200'
-                                    : 'bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200'
-                            }`}
-                        >
-                            <span>{notification.message}</span>
-                            <button
-                                type="button"
-                                onClick={() => setNotification(null)}
-                                aria-label="Dismiss notification"
-                                className="ml-3 text-lg leading-none cursor-pointer"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    )}
+                    {/* Flash Notification Banner */}
+                    <ReceivingStatusNotice
+                        notification={notification}
+                        onDismiss={() => setNotification(null)}
+                    />
 
                     {/* Operational Summary Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -553,26 +538,22 @@ export default function MyRequests({
 
                                                     {/* Actions */}
                                                     <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap text-right">
-                                                        <div className="inline-flex items-center justify-end gap-1.5">
+                                                        <div className="inline-flex items-center gap-2.5">
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setDetailsRequest(request)}
-                                                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 cursor-pointer transition-colors shadow-2xs"
-                                                                title="View requisition details"
+                                                                className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-xs transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
                                                             >
-                                                                <Eye className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                                                                <span>Details</span>
+                                                                View
                                                             </button>
 
                                                             {request.status === 'Pending' && (
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => openEdit(request)}
-                                                                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
-                                                                    title="Edit request"
+                                                                    className="text-red-950 dark:text-red-400 font-semibold text-xs py-1 px-1.5 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
                                                                 >
-                                                                    <Edit3 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                                                                    <span>Edit</span>
+                                                                    Edit
                                                                 </button>
                                                             )}
 
@@ -580,11 +561,9 @@ export default function MyRequests({
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => openRis(request)}
-                                                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold text-slate-800 hover:text-slate-950 dark:text-slate-200 dark:hover:text-white bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-300 dark:border-slate-700 cursor-pointer transition-colors shadow-2xs"
-                                                                    title="View and print RIS slip"
+                                                                    className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 font-semibold text-xs px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
                                                                 >
-                                                                    <FileText className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
-                                                                    <span>RIS</span>
+                                                                    View RIS
                                                                 </button>
                                                             )}
 
@@ -593,11 +572,10 @@ export default function MyRequests({
                                                                     type="button"
                                                                     disabled={busy === request.id}
                                                                     onClick={() => cancel(request)}
-                                                                    className="inline-flex items-center gap-1 px-1.5 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 cursor-pointer disabled:opacity-40 transition-colors"
+                                                                    className="text-gray-400 hover:text-rose-700 dark:hover:text-rose-400 font-semibold text-xs py-1 px-1.5 rounded hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer disabled:opacity-50"
                                                                     title="Cancel Request"
                                                                 >
-                                                                    <XCircle className="w-3.5 h-3.5" />
-                                                                    <span className="sr-only sm:not-sr-only">Cancel</span>
+                                                                    Cancel
                                                                 </button>
                                                             )}
                                                         </div>
