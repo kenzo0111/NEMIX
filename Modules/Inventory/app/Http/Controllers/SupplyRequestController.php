@@ -38,7 +38,7 @@ class SupplyRequestController extends Controller
         $defaultIssuedByDesignation = $signatories['issued_by_position'];
 
         return Inertia::render('Inventory/Requests/Index', [
-            'requests' => SupplyRequest::with(['items.item', 'requester', 'reviewer', 'issuance'])
+            'requests' => SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'issuance.items.allocations.inventoryBatch'])
                 ->where('requested_by', $request->user()->id)->latest()->get(),
             'items' => Item::orderBy('name')->get(['id', 'name', 'sku', 'stock', 'unit_of_issue', 'unit_cost']),
             'divisions' => config('university.divisions', []),
@@ -58,7 +58,7 @@ class SupplyRequestController extends Controller
         );
         abort_unless(in_array($supplyRequest->status, ['Approved', 'Issued'], true), 404);
 
-        $supplyRequest->load(['items.item', 'requester', 'reviewer', 'issuance']);
+        $supplyRequest->load(['items.item.activeBatches', 'requester', 'reviewer', 'issuance.items.allocations.inventoryBatch']);
         $issued = $supplyRequest->status === 'Issued';
         $issuance = $supplyRequest->issuance;
         $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
@@ -80,19 +80,40 @@ class SupplyRequestController extends Controller
             'issued_by_name' => $issued ? ($issuance?->issued_by_name ?: $signatories['issued_by_name']) : null,
             'issued_by_designation' => $issued ? ($issuance?->issued_by_position ?: $signatories['issued_by_position']) : null,
             'issued_by_date' => $issued ? ($issuance?->date_issued ? $issuance->date_issued->format('Y-m-d') : null) : null,
-            'received_by_name' => $issued ? ($supplyRequest->recipient ?: $supplyRequest->requester?->name) : null,
+            'received_by_name' => $supplyRequest->recipient ?: ($supplyRequest->requester?->name),
+            'received_by_designation' => $supplyRequest->recipient_designation ?: ($issuance?->recipient_designation ?: 'Requesting Personnel'),
             'received_by_date' => $issued ? ($issuance?->date_issued ? $issuance->date_issued->format('Y-m-d') : null) : null,
         ];
         $items = $supplyRequest->items->filter(fn ($line) => $line->approved_quantity > 0)
-            ->map(fn ($line) => [
-                'stock_no' => '-',
-                'unit' => $line->item?->unit_of_issue ?: 'pcs',
-                'description' => $line->item?->name ?: 'Unavailable item',
-                'quantity' => $line->approved_quantity,
-                'stock_available' => true,
-                'issue_quantity' => $issued ? $line->approved_quantity : '',
-                'remarks' => '',
-            ])->values()->all();
+            ->map(function ($line) use ($issued, $issuance) {
+                $stockNo = null;
+                if ($issuance && $issuance->relationLoaded('items')) {
+                    $issuanceItem = $issuance->items->firstWhere('item_id', $line->item_id);
+                    if ($issuanceItem && $issuanceItem->relationLoaded('allocations')) {
+                        $stockNumbers = $issuanceItem->allocations
+                            ->map(fn ($al) => $al->inventoryBatch?->supplier_stock_no)
+                            ->filter()
+                            ->unique()
+                            ->values();
+                        if ($stockNumbers->isNotEmpty()) {
+                            $stockNo = $stockNumbers->implode(', ');
+                        }
+                    }
+                }
+                if (!$stockNo) {
+                    $stockNo = $line->item?->stock_no ?: ($line->item?->supplier_stock_no ?: null);
+                }
+
+                return [
+                    'stock_no' => $stockNo ?: '-',
+                    'unit' => $line->item?->unit_of_issue ?: 'pcs',
+                    'description' => $line->item?->name ?: 'Unavailable item',
+                    'quantity' => $line->approved_quantity,
+                    'stock_available' => true,
+                    'issue_quantity' => $issued ? $line->approved_quantity : '',
+                    'remarks' => '',
+                ];
+            })->values()->all();
         $fileName = preg_replace('/[^A-Za-z0-9_-]/', '_', $supplyRequest->ris_number ?: "RIS-{$supplyRequest->id}") . '.pdf';
         $pdf = Pdf::loadView('compliance.pdf.requisition_issue_slip', [
             'ris' => $ris, 'items' => $items, 'dataset' => [],

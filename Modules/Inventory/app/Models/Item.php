@@ -68,7 +68,66 @@ class Item extends Model
 
     protected $appends = [
         'inventory_value',
+        'stock_no',
     ];
+
+    public function getStockNoAttribute(): ?string
+    {
+        if (!empty($this->attributes['stock_no'])) {
+            return trim((string) $this->attributes['stock_no']);
+        }
+
+        if (!empty($this->attributes['supplier_stock_no'])) {
+            return trim((string) $this->attributes['supplier_stock_no']);
+        }
+
+        if ($this->relationLoaded('activeBatches') && $this->activeBatches->isNotEmpty()) {
+            $batch = $this->activeBatches->first(fn ($b) => !empty($b->supplier_stock_no));
+            if ($batch) {
+                return trim((string) $batch->supplier_stock_no);
+            }
+        }
+
+        if ($this->relationLoaded('batches') && $this->batches->isNotEmpty()) {
+            $batch = $this->batches->first(fn ($b) => !empty($b->supplier_stock_no));
+            if ($batch) {
+                return trim((string) $batch->supplier_stock_no);
+            }
+        }
+
+        if (class_exists(InventoryBatch::class)) {
+            $stockNo = InventoryBatch::where('item_id', $this->id)
+                ->whereNotNull('supplier_stock_no')
+                ->where('supplier_stock_no', '!=', '')
+                ->orderBy('date_received', 'desc')
+                ->orderBy('id', 'desc')
+                ->value('supplier_stock_no');
+
+            if (!empty($stockNo)) {
+                return trim((string) $stockNo);
+            }
+        }
+
+        if (class_exists(Receiving::class)) {
+            $stockNo = Receiving::where('item_id', $this->id)
+                ->whereNotNull('supplier_stock_no')
+                ->where('supplier_stock_no', '!=', '')
+                ->orderBy('date_received', 'desc')
+                ->orderBy('id', 'desc')
+                ->value('supplier_stock_no');
+
+            if (!empty($stockNo)) {
+                return trim((string) $stockNo);
+            }
+        }
+
+        return null;
+    }
+
+    public function getSupplierStockNoAttribute(): ?string
+    {
+        return $this->stock_no;
+    }
 
     public function batches(): \Illuminate\Database\Eloquent\Relations\HasMany
     {

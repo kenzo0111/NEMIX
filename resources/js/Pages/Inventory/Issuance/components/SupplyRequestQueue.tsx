@@ -38,16 +38,19 @@ export type QueueRequest = {
     issuance?: {
         id?: number;
         ris_number?: string | null;
+        recipient?: string | null;
+        recipient_designation?: string | null;
         issued_by_name?: string | null;
         issued_by_position?: string | null;
         date_issued?: string | null;
+        items?: any[];
     } | null;
     items: {
         id: number;
         item_id: number;
         quantity: number;
         approved_quantity: number | null;
-        item: { name: string; sku: string; unit_of_issue?: string; stock: number; unit_cost?: number };
+        item: { name: string; sku: string; unit_of_issue?: string; stock: number; unit_cost?: number; stock_no?: string | null; supplier_stock_no?: string | null };
     }[];
 };
 

@@ -176,25 +176,39 @@ export default function MyRequests({
 
     const openRis = (request: SupplyRequest) => {
         const issued = request.status === 'Issued';
+        const recipientDesignation = request.recipient_designation || request.issuance?.recipient_designation || '';
         const lines = request.items
             .filter((line) => (line.approved_quantity ?? 0) > 0)
-            .map((line) => ({
-                id: line.id,
-                item_id: line.item_id,
-                item: line.item?.name || '',
-                sku: line.item?.sku || '',
-                quantity: line.approved_quantity || line.quantity,
-                unit: line.item?.unit_of_issue || 'pcs',
-                stock_no: '-',
-                unit_cost: line.item?.unit_cost || 0,
-                amount: (line.approved_quantity || line.quantity) * (line.item?.unit_cost || 0),
-                allocations: [],
-            }));
+            .map((line) => {
+                const issuanceItem = request.issuance?.items?.find((i: any) => i.item_id === line.item_id);
+                const allocatedStockNos = issuanceItem?.allocations
+                    ?.map((a: any) => a.inventory_batch?.supplier_stock_no || a.supplier_stock_no)
+                    ?.filter(Boolean);
+                const stockNoFromAllocations = allocatedStockNos && allocatedStockNos.length > 0
+                    ? Array.from(new Set(allocatedStockNos)).join(', ')
+                    : undefined;
+
+                const stockNo = stockNoFromAllocations || line.item?.stock_no || line.item?.supplier_stock_no || '-';
+
+                return {
+                    id: line.id,
+                    item_id: line.item_id,
+                    item: line.item?.name || '',
+                    sku: line.item?.sku || '',
+                    quantity: line.approved_quantity || line.quantity,
+                    unit: line.item?.unit_of_issue || 'pcs',
+                    stock_no: stockNo,
+                    unit_cost: line.item?.unit_cost || 0,
+                    amount: (line.approved_quantity || line.quantity) * (line.item?.unit_cost || 0),
+                    allocations: issuanceItem?.allocations || [],
+                };
+            });
 
         setPreview({
             id: request.id,
             ris_number: request.ris_number || '',
             recipient: request.recipient || auth.user.name,
+            recipient_designation: recipientDesignation,
             department: request.department,
             purpose: request.purpose,
             fund_cluster: request.fund_cluster || '01',

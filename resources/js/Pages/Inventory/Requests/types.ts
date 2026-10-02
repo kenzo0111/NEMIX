@@ -7,6 +7,8 @@ export type RequestItem = {
     stock: number;
     unit_of_issue?: string;
     unit_cost?: number;
+    stock_no?: string | null;
+    supplier_stock_no?: string | null;
 };
 
 export type RequestLine = {
@@ -38,10 +40,13 @@ export type SupplyRequest = {
     issuance?: {
         id?: number;
         ris_number?: string | null;
+        recipient?: string | null;
+        recipient_designation?: string | null;
         issued_by_name?: string | null;
         issued_by_position?: string | null;
         date_issued?: string | null;
         fund_cluster?: string | null;
+        items?: any[];
     } | null;
 };
 

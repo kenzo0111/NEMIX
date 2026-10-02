@@ -5,6 +5,8 @@ export interface InventoryItem {
     stock: number;
     unit_of_issue?: string;
     unit_cost?: number;
+    stock_no?: string | null;
+    supplier_stock_no?: string | null;
 }
 
 export interface IssuanceLine {

@@ -54,7 +54,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
         items: items.flatMap((line) => {
             const allocations = line.allocations || [];
             const rows = allocations.map((allocation) => ({
-                stock_no: allocation.supplier_stock_no || '-',
+                stock_no: allocation.supplier_stock_no || line.stock_no || '-',
                 unit: line.unit || 'pcs',
                 description: line.item || line.item_name,
                 quantity: allocation.quantity,
@@ -66,7 +66,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
 
             if (unallocatedQuantity > 0 || rows.length === 0) {
                 rows.push({
-                    stock_no: rows.length === 0 ? line.stock_no || '-' : '-',
+                    stock_no: (line.stock_no && line.stock_no !== '-') ? line.stock_no : (rows.length === 0 ? line.stock_no || '-' : '-'),
                     unit: line.unit || 'pcs',
                     description: line.item || line.item_name,
                     quantity: rows.length === 0 ? line.quantity : unallocatedQuantity,
@@ -87,8 +87,8 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
         issued_by_name: awaitingRelease ? '' : (issuance.issued_by_name || issuance.issued_by || defaultIssuedBy),
         issued_by_designation: awaitingRelease ? '' : (issuance.issued_by_position || defaultIssuedByDesignation),
         issued_by_date: awaitingRelease ? '' : (issuance.date_issued || issuance.date),
-        received_by_name: awaitingRelease ? '' : issuance.recipient,
-        received_by_designation: awaitingRelease ? '' : issuance.recipient_designation,
+        received_by_name: issuance.recipient,
+        received_by_designation: issuance.recipient_designation,
         received_by_date: awaitingRelease ? '' : (issuance.date_issued || issuance.date),
     };
 

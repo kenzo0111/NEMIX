@@ -727,7 +727,7 @@ class InventoryController extends Controller
                         'item' => $itemName,
                         'item_name' => $itemName,
                         'sku' => $sku,
-                        'stock_no' => '-',
+                        'stock_no' => $issuance->item?->stock_no ?: '-',
                         'quantity' => $qty,
                         'unit_cost' => $unitCost,
                         'amount' => $amt,
@@ -793,7 +793,7 @@ class InventoryController extends Controller
         return Inertia::render('Inventory/Issuance', [
             'issuances' => $transformed,
             'supplyRequests' => auth()->user()->hasAnyRole(['Property Custodian', 'System Admin', 'System Administrator'])
-                ? SupplyRequest::with(['items.item', 'requester', 'reviewer', 'issuance'])
+                ? SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'issuance.items.allocations.inventoryBatch'])
                     ->latest()->get()
                 : [],
             'canCreateIssuance' => auth()->user()->hasAnyRole(['System Admin', 'System Administrator'])

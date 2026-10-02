@@ -279,5 +279,92 @@ class SupplyRequestWorkflowTest extends TestCase
         $this->assertSame($originalRis1, $request1->ris_number);
         $this->assertSame($originalRis1, $request1->issuance->ris_number);
     }
+
+    public function test_ris_displays_actual_stock_number_and_recipient_designation(): void
+    {
+        $coordinator = $this->user('Supply Coordinator');
+        $custodian = $this->user('Property Custodian');
+        $item = $this->item(100);
+
+        $supplier = \Modules\Suppliers\Models\Supplier::create([
+            'name' => 'Apex Supplies Corp.',
+            'tin' => '123-456-789-000',
+            'reg_number' => 'REG-101',
+            'category' => 'Office Supplies',
+            'address' => 'Daet, Camarines Norte',
+            'status' => 'active',
+            'created_by' => $coordinator->id,
+        ]);
+
+        \Modules\Inventory\Models\InventoryBatch::create([
+            'item_id' => $item->id,
+            'supplier_id' => $supplier->id,
+            'supplier_stock_no' => 'STK-2026-FILAMENT-001',
+            'quantity_received' => 100,
+            'quantity_remaining' => 100,
+            'unit_cost' => 10,
+            'date_received' => '2026-10-01',
+        ]);
+
+        $this->assertSame('STK-2026-FILAMENT-001', $item->fresh()->stock_no);
+
+        $this->actingAs($coordinator)->post(route('inventory.requests.store'), [
+            'recipient' => 'Cherry Ann Quila',
+            'recipient_designation' => 'CEID Coordinator',
+            'fund_cluster' => '01',
+            'date_requested' => '2026-10-01',
+            'department' => 'Center for Equity, Inclusivity and Diversity (CEID)',
+            'purpose' => 'Office Supplies',
+            'items' => [
+                ['item_id' => $item->id, 'quantity' => 22],
+            ],
+        ])->assertRedirect(route('inventory.requests.index'));
+
+        $request = SupplyRequest::latest('id')->firstOrFail();
+        $this->assertSame('Cherry Ann Quila', $request->recipient);
+        $this->assertSame('CEID Coordinator', $request->recipient_designation);
+
+        $line = $request->items()->firstOrFail();
+        $this->actingAs($custodian)->post(route('inventory.requests.approve', $request), [
+            'approved_quantities' => [$line->id => 22],
+        ])->assertRedirect();
+
+        // 1. Verify My Requests page inertia payload has stock_no and recipient_designation
+        Permission::firstOrCreate(['name' => 'route:inventory.requests.index', 'guard_name' => 'web']);
+        $coordinator->givePermissionTo('route:inventory.requests.index');
+        $this->actingAs($coordinator)->get(route('inventory.requests.index'))
+            ->assertOk()
+            ->assertInertia(function ($page) {
+                $reqs = $page->toArray()['props']['requests'];
+                $this->assertNotEmpty($reqs);
+                $this->assertSame('CEID Coordinator', $reqs[0]['recipient_designation']);
+                $this->assertSame('STK-2026-FILAMENT-001', $reqs[0]['items'][0]['item']['stock_no']);
+            });
+
+        // 2. Verify Issuance Queue inertia payload has stock_no and recipient_designation
+        $this->actingAs($custodian)->get(route('inventory.issuance'))
+            ->assertOk()
+            ->assertInertia(function ($page) {
+                $queue = $page->toArray()['props']['supplyRequests'];
+                $this->assertNotEmpty($queue);
+                $this->assertSame('CEID Coordinator', $queue[0]['recipient_designation']);
+                $this->assertSame('STK-2026-FILAMENT-001', $queue[0]['items'][0]['item']['stock_no']);
+            });
+
+        // 3. Verify RIS PDF has the stock number and recipient designation
+        $pdfResponse = $this->actingAs($coordinator)->get(route('inventory.requests.ris-pdf', $request));
+        $pdfResponse->assertOk()->assertHeader('content-type', 'application/pdf');
+
+        // 4. Release and verify issuance preserves recipient designation and allocation stock number
+        $this->actingAs($custodian)->post(route('inventory.requests.release', $request), [
+            'signed_ris_presented' => true,
+        ])->assertRedirect();
+
+        $request->refresh();
+        $this->assertSame('Issued', $request->status);
+        $this->assertNotNull($request->issuance);
+        $this->assertSame('CEID Coordinator', $request->issuance->recipient_designation);
+    }
 }
+
 
