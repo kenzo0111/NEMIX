@@ -76,7 +76,7 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                     />
                 </div>
 
-                {/* Record Issuance Button */}
+                {/* Direct Stock Issuance Button */}
                 {canCreateIssuance && <button
                     type="button"
                     onClick={onRecordIssuance}
@@ -85,7 +85,7 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                     <svg className="w-4 h-4 text-amber-300" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
-                    Record Issuance
+                    Direct Stock Issuance
                 </button>}
             </div>
         </div>

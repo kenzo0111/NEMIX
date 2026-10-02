@@ -11,7 +11,7 @@ import { IssuanceFormModal } from './components/IssuanceFormModal';
 import { IssuanceDetailsModal } from './components/IssuanceDetailsModal';
 import { RisPreviewModal } from './components/RisPreviewModal';
 import { SupplyRequestQueue, QueueRequest } from './components/SupplyRequestQueue';
-import { ClipboardCheck, FileSpreadsheet, PackageCheck } from 'lucide-react';
+import { ClipboardCheck, PackageCheck } from 'lucide-react';
 
 export default function IssuanceIndex({
     auth,
@@ -331,17 +331,6 @@ export default function IssuanceIndex({
                                 </span>
                             </button>
                         </div>
-
-                        {canCreateIssuance && (
-                            <button
-                                type="button"
-                                onClick={handleOpenRecordModal}
-                                className="text-xs font-bold text-red-950 dark:text-red-400 hover:underline flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer self-start sm:self-auto"
-                            >
-                                <FileSpreadsheet className="w-3.5 h-3.5" />
-                                <span>+ Direct Stock Issuance Entry</span>
-                            </button>
-                        )}
                     </div>
 
                     {/* View 1: Property Custodian Approval Workspace */}
