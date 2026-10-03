@@ -4,6 +4,7 @@ import PageHeader from '@/Components/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
+import { useAuthorization } from '@/Hooks/useAuthorization';
 import { IssuancePageProps, IssuanceRecord, PaginatedData } from './types';
 import { IssuanceToolbar } from './components/IssuanceToolbar';
 import { IssuanceTable } from './components/IssuanceTable';
@@ -37,6 +38,8 @@ export default function IssuanceIndex({
     defaultIssuedByDesignation?: string;
 }) {
     const user = auth.user;
+    const { canAny } = useAuthorization();
+    const canReviewRequests = canAny(['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release']);
     const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const pageProps = usePage().props as any;
     const systemSettings = (pageProps.systemSettings || {}) as Record<string, any>;
@@ -89,7 +92,7 @@ export default function IssuanceIndex({
     const paginationMeta = isPaginated ? (issuances as PaginatedData<IssuanceRecord>) : null;
 
     // View tab: 'approvals' | 'issuances'
-    const [viewMode, setViewMode] = useState<'approvals' | 'issuances'>('approvals');
+    const [viewMode, setViewMode] = useState<'approvals' | 'issuances'>(canReviewRequests ? 'approvals' : 'issuances');
 
     // Filters state (initialized from server filters)
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
@@ -305,7 +308,7 @@ export default function IssuanceIndex({
                     {/* Custodian Workspace View Switcher Tabs */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-slate-800 pb-2">
                         <div className="flex items-center gap-2">
-                            <button
+                            {canReviewRequests && <button
                                 type="button"
                                 onClick={() => setViewMode('approvals')}
                                 className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
@@ -321,7 +324,7 @@ export default function IssuanceIndex({
                                         {pendingCount + approvedCount}
                                     </span>
                                 )}
-                            </button>
+                            </button>}
 
                             <button
                                 type="button"
@@ -342,7 +345,7 @@ export default function IssuanceIndex({
                     </div>
 
                     {/* View 1: Property Custodian Approval Workspace */}
-                    {viewMode === 'approvals' && (
+                    {canReviewRequests && viewMode === 'approvals' && (
                         <div className="space-y-6">
                             <SupplyRequestQueue
                                 requests={supplyRequests}

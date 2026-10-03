@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { RFIDInventoryItem } from '../types';
+import useAuthorization from '@/Hooks/useAuthorization';
 import {
     Box,
     Tag,
@@ -27,6 +28,7 @@ export default function SelectedItemSummary({
     onStartReplaceTag,
     onPromptUnassign,
 }: SelectedItemSummaryProps) {
+    const { can } = useAuthorization();
     const [copiedSku, setCopiedSku] = useState(false);
     const [copiedTag, setCopiedTag] = useState(false);
 
@@ -183,7 +185,7 @@ export default function SelectedItemSummary({
 
                     {/* Tag management actions */}
                     <div className="flex items-center gap-2 pt-0.5">
-                        <button
+                        {can('rfid.assign') && <button
                             type="button"
                             onClick={onStartReplaceTag}
                             className={`flex-1 py-1.5 px-3 text-xs font-medium rounded-lg border transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 ${
@@ -194,15 +196,15 @@ export default function SelectedItemSummary({
                         >
                             <RotateCcw className="w-3 h-3" />
                             <span>{isReplacingTag ? 'Ready for New Scan...' : 'Replace Tag'}</span>
-                        </button>
-                        <button
+                        </button>}
+                        {can('rfid.unassign') && <button
                             type="button"
                             onClick={onPromptUnassign}
                             className="py-1.5 px-3 text-xs font-medium text-red-800 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 bg-white dark:bg-slate-800 hover:bg-red-50/70 dark:hover:bg-red-950/40 border border-red-200/80 dark:border-red-900/50 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1"
                         >
                             <Trash2 className="w-3 h-3 text-red-700 dark:text-red-400" />
                             <span>Unassign</span>
-                        </button>
+                        </button>}
                     </div>
                 </div>
             ) : (

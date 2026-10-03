@@ -2,6 +2,7 @@ import React from 'react';
 import Select from 'react-select';
 import { SupplierToolbarProps, StatusOption } from '../types';
 import { STATUS_OPTIONS, institutionalSelectStyles } from '../constants';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 export const SupplierToolbar: React.FC<SupplierToolbarProps> = ({
     searchTerm,
@@ -12,6 +13,7 @@ export const SupplierToolbar: React.FC<SupplierToolbarProps> = ({
     hasActiveFilters,
     onOpenCreateModal,
 }) => {
+    const { can } = useAuthorization();
     return (
         <div className="p-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 bg-gray-50/40 dark:bg-slate-900/40 border-b border-gray-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-between gap-3">
             <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 flex-1 min-w-0">
@@ -57,7 +59,7 @@ export const SupplierToolbar: React.FC<SupplierToolbarProps> = ({
             </div>
 
             {/* Register Supplier Action (Matching Issuance primary action button styling) */}
-            <button
+            {can('suppliers.store') && <button
                 type="button"
                 onClick={onOpenCreateModal}
                 className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer"
@@ -66,7 +68,7 @@ export const SupplierToolbar: React.FC<SupplierToolbarProps> = ({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                 </svg>
                 Register Supplier
-            </button>
+            </button>}
         </div>
     );
 };

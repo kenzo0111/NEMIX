@@ -4,6 +4,7 @@ import Sidebar from '@/Components/Sidebar';
 import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
+import { useAuthorization } from '@/Hooks/useAuthorization';
 import { PaginationMeta, RFIDInventoryItem } from './types';
 import { useRfidScanner } from './hooks/useRfidScanner';
 import { useRfidTaggingWorkflow } from './hooks/useRfidTaggingWorkflow';
@@ -56,6 +57,7 @@ export default function Index({
     flash,
 }: PageProps) {
     const user = auth.user;
+    const { can } = useAuthorization();
     const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const [isReplacingTag, setIsReplacingTag] = useState(false);
     const [showUnassignModal, setShowUnassignModal] = useState(false);
@@ -256,14 +258,14 @@ export default function Index({
                                 </p>
                             </div>
                             <div className="pt-3 flex items-center justify-center gap-3">
-                                <button
+                                {can('inventory.receiving') && <button
                                     type="button"
                                     onClick={() => router.visit(route('inventory.receiving'))}
                                     className="px-4 py-2.5 bg-red-950 hover:bg-red-900 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
                                 >
                                     <span>Proceed to Receiving</span>
                                     <ArrowRight className="w-3.5 h-3.5" />
-                                </button>
+                                </button>}
                                 <button
                                     type="button"
                                     onClick={() => setIsCompletionDismissed(true)}
@@ -293,14 +295,14 @@ export default function Index({
                                                 </p>
                                             </div>
                                         </div>
-                                        <button
+                                        {can('inventory.index') && <button
                                             type="button"
                                             onClick={() => router.visit(route('inventory.index'))}
                                             className="inline-flex items-center gap-1 text-xs text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 font-medium hover:underline cursor-pointer"
                                         >
                                             <span>Manage</span>
                                             <ExternalLink className="w-3 h-3" />
-                                        </button>
+                                        </button>}
                                     </div>
 
                                     {/* Searchable Item Selector */}

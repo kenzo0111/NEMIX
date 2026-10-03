@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from '@inertiajs/react';
 import { SystemSettings } from '../types';
 import { Info, Send } from 'lucide-react';
+import { useAuthorization } from '@/Hooks/useAuthorization';
 
 interface NotificationSettingsProps {
     settings: SystemSettings;
@@ -18,6 +19,7 @@ export default function NotificationSettings({
     defaultAdminEmail = 'admin@ucn.edu.ph',
     onToast,
 }: NotificationSettingsProps) {
+    const { can } = useAuthorization();
     // Independent form for testing SMTP diagnostics without saving general settings
     const testEmailForm = useForm<{ recipient: string }>({
         recipient: '',
@@ -112,7 +114,7 @@ export default function NotificationSettings({
             <hr className="border-slate-200/80 dark:border-slate-800" />
 
             {/* TEST EMAIL DIAGNOSTICS */}
-            <div className="space-y-4">
+            {can('system.settings.test-email') && <div className="space-y-4">
                 <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
                         Test Email Delivery
@@ -144,7 +146,7 @@ export default function NotificationSettings({
                         <span>{testEmailForm.processing ? 'Testing Connection...' : 'Send Test'}</span>
                     </button>
                 </form>
-            </div>
+            </div>}
         </div>
     );
 }

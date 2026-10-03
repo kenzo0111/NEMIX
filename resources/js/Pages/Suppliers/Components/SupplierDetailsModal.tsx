@@ -17,6 +17,7 @@ import {
 import { SupplierDetailsModalProps } from '../types';
 import { SupplierStatusBadge } from './SupplierStatusBadge';
 import { CATEGORY_DISPLAY_LABEL } from '../constants';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
     show,
@@ -24,6 +25,7 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
     onClose,
     onEdit,
 }) => {
+    const { can } = useAuthorization();
     if (!supplier) return null;
 
     const formatCurrency = (val: number | string | null | undefined) => {
@@ -228,7 +230,7 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                     >
                         Close
                     </button>
-                    <button
+                    {can('suppliers.update') && <button
                         type="button"
                         onClick={() => {
                             onClose();
@@ -238,7 +240,7 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                     >
                         <Edit3 className="w-3.5 h-3.5 text-amber-300" />
                         <span>Update Supplier</span>
-                    </button>
+                    </button>}
                 </div>
             </div>
         </Modal>

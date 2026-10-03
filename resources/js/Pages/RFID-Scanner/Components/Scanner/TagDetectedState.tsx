@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { RFIDInventoryItem } from '../../types';
+import useAuthorization from '@/Hooks/useAuthorization';
 import { Radio, ArrowDown, Check, Copy, RotateCcw, Link2, Sparkles, Loader2 } from 'lucide-react';
 
 interface TagDetectedStateProps {
@@ -18,6 +19,7 @@ export default function TagDetectedState({
     onRescan,
 }: TagDetectedStateProps) {
     const [copied, setCopied] = useState(false);
+    const { can } = useAuthorization();
 
     const handleCopy = () => {
         navigator.clipboard.writeText(tag);
@@ -97,7 +99,7 @@ export default function TagDetectedState({
                     <RotateCcw className="w-3.5 h-3.5 text-gray-500" />
                     <span>Rescan</span>
                 </button>
-                <button
+                {can('rfid.assign') && <button
                     type="button"
                     onClick={onAssign}
                     disabled={isAssigning}
@@ -114,7 +116,7 @@ export default function TagDetectedState({
                             <span>Assign RFID Tag</span>
                         </>
                     )}
-                </button>
+                </button>}
             </div>
         </div>
     );

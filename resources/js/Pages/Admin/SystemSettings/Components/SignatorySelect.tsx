@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useAuthorization } from '@/Hooks/useAuthorization';
 import CreatableSelect from 'react-select/creatable';
 import { components, OptionProps } from 'react-select';
 import { Trash2 } from 'lucide-react';
@@ -37,6 +38,9 @@ export default function SignatorySelect({
     onDeleteSignatory,
     id,
 }: SignatorySelectProps) {
+    const { can } = useAuthorization();
+    const canCreateSignatory = Boolean(onCreateSignatory) && can('admin.signatories.store');
+    const canDeleteSignatory = Boolean(onDeleteSignatory) && can('admin.signatories.destroy');
     // Transform directory list into react-select options
     const options: SignatoryOption[] = useMemo(() => {
         return signatories.map((sig) => ({
@@ -145,7 +149,7 @@ export default function SignatorySelect({
         const handleDelete = (e: React.MouseEvent) => {
             e.stopPropagation();
             e.preventDefault();
-            if (onDeleteSignatory && sig.id > 0) {
+            if (canDeleteSignatory && onDeleteSignatory && sig.id > 0) {
                 onDeleteSignatory(sig);
             }
         };
@@ -180,7 +184,7 @@ export default function SignatorySelect({
                     </div>
 
                     {/* Allow deleting/removing a signatory from directory */}
-                    {onDeleteSignatory && sig.id > 0 && (
+                    {canDeleteSignatory && sig.id > 0 && (
                         <button
                             type="button"
                             onMouseDown={(e) => {
@@ -240,8 +244,9 @@ export default function SignatorySelect({
                     return labelMatch || nameMatch || desigMatch;
                 }}
                 formatCreateLabel={(inputValue) => `+ Add "${inputValue}"`}
+                isValidNewOption={(inputValue) => canCreateSignatory && Boolean(inputValue.trim())}
                 onCreateOption={(inputValue) => {
-                    if (onCreateSignatory) {
+                    if (canCreateSignatory && onCreateSignatory) {
                         onCreateSignatory(inputValue);
                     }
                 }}

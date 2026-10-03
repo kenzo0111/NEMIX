@@ -2,12 +2,14 @@ import React from 'react';
 import { SupplierRowProps } from '../types';
 import { SupplierStatusBadge } from './SupplierStatusBadge';
 import { CATEGORY_DISPLAY_LABEL } from '../constants';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 export const SupplierRow: React.FC<SupplierRowProps> = ({
     supplier,
     onView,
     onEdit,
 }) => {
+    const { can } = useAuthorization();
     return (
         <tr className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0">
             {/* Supplier Business Name */}
@@ -49,13 +51,13 @@ export const SupplierRow: React.FC<SupplierRowProps> = ({
                     >
                         View
                     </button>
-                    <button
+                    {can('suppliers.update') && <button
                         type="button"
                         onClick={() => onEdit(supplier)}
                         className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-600 font-semibold text-xs px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
                     >
                         Update
-                    </button>
+                    </button>}
                 </div>
             </td>
         </tr>

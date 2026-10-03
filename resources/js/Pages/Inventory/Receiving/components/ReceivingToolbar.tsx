@@ -2,6 +2,7 @@ import React from 'react';
 import Select from 'react-select';
 import { institutionalSelectStyles } from '@/styles/selectStyles';
 import { Supplier } from '../types';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 interface ReceivingToolbarProps {
     searchTerm: string;
@@ -22,6 +23,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
     onScanRfid,
     onRecordReceiving,
 }) => {
+    const { can } = useAuthorization();
     const supplierOptions = React.useMemo(() => {
         return suppliers.map((s) => ({ value: s.id, label: s.name }));
     }, [suppliers]);
@@ -83,7 +85,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
                 </div>
 
                 {/* Scan RFID Button (Secondary Outlined Maroon) */}
-                <button
+                {can('inventory.receiving.store') && <button
                     type="button"
                     onClick={onScanRfid}
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3.5 py-2 border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 rounded-md font-semibold text-xs transition-colors shadow-2xs cursor-pointer whitespace-nowrap min-h-[38px]"
@@ -97,10 +99,10 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
                         />
                     </svg>
                     <span>Scan RFID</span>
-                </button>
+                </button>}
 
                 {/* Record Receiving Button (Primary Institutional Maroon) */}
-                <button
+                {can('inventory.receiving.store') && <button
                     type="button"
                     onClick={onRecordReceiving}
                     className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer min-h-[38px]"
@@ -109,7 +111,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
                     <span>Record Receiving</span>
-                </button>
+                </button>}
             </div>
         </div>
     );

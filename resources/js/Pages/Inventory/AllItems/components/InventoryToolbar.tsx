@@ -3,6 +3,7 @@ import Select from 'react-select';
 import { Search, Plus, RotateCcw } from 'lucide-react';
 import { Supplier, SelectOption, InventoryStatus } from '../types';
 import { customSelectStyles, STATUS_OPTIONS } from '../constants';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 interface InventoryToolbarProps {
     searchTerm: string;
@@ -27,6 +28,7 @@ export default function InventoryToolbar({
     onResetFilters,
     onOpenCreateModal,
 }: InventoryToolbarProps) {
+    const { can } = useAuthorization();
     const isFiltered = Boolean(searchTerm.trim() || filterSupplier || filterStatus);
 
     const supplierOptions: SelectOption<number>[] = suppliers.map((s) => ({
@@ -107,14 +109,14 @@ export default function InventoryToolbar({
                 )}
 
                 {/* Primary Action: Add Item */}
-                <button
+                {can('inventory.store') && <button
                     type="button"
                     onClick={onOpenCreateModal}
                     className="w-full sm:w-auto bg-red-950 hover:bg-red-900 text-white font-semibold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase tracking-wider cursor-pointer min-h-[38px]"
                 >
                     <Plus className="w-4 h-4 text-amber-300" aria-hidden="true" />
                     <span>Add Item</span>
-                </button>
+                </button>}
             </div>
         </div>
     );

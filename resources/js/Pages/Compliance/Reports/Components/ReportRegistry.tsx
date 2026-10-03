@@ -2,6 +2,7 @@ import React from 'react';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { getReportTypeShortLabel } from '../constants';
 import { ComplianceReport } from '../types';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 interface ReportRegistryProps {
     reports: ComplianceReport[];
@@ -14,6 +15,7 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
     onViewReport,
     onOpenGenerate,
 }) => {
+    const { can } = useAuthorization();
     return (
         <div className="overflow-hidden">
             {reports.length > 0 ? (
@@ -118,7 +120,7 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                     <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
                         There are no documents matching your search or filter criteria. You can generate a new report or migrate historical records.
                     </p>
-                    <button
+                    {can('compliance.reports.store') && can('compliance.reports.preview_dataset') && <button
                         type="button"
                         onClick={onOpenGenerate}
                         className="mt-4 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-xs inline-flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer"
@@ -127,7 +129,7 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                         </svg>
                         Generate Report
-                    </button>
+                    </button>}
                 </div>
             )}
         </div>

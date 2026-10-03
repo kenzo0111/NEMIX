@@ -1,6 +1,7 @@
 import React from 'react';
 import { ReceivingRecord } from '../types';
 import { formatDisplayDate } from '@/utils/dateUtils';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 interface ReceivingRowProps {
     receiving: ReceivingRecord;
@@ -13,6 +14,7 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
     onView,
     onUpdate,
 }) => {
+    const { can } = useAuthorization();
     return (
         <tr className="hover:bg-red-50/20 dark:hover:bg-slate-800/50 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0">
             {/* Item Received & SKU */}
@@ -101,13 +103,13 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
                     >
                         View
                     </button>
-                    <button
+                    {can('inventory.receiving.update') && <button
                         type="button"
                         onClick={() => onUpdate(receiving)}
                         className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 font-semibold text-xs px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
                     >
                         Update
-                    </button>
+                    </button>}
                 </div>
             </td>
         </tr>

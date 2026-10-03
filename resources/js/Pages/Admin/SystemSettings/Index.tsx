@@ -4,6 +4,7 @@ import Sidebar from '@/Components/Sidebar';
 import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
+import { useAuthorization } from '@/Hooks/useAuthorization';
 import {
     Save,
     RotateCcw,
@@ -41,6 +42,8 @@ export default function Index({
     rfidDevices = [],
 }: SystemSettingsPageProps) {
     const user = auth?.user;
+    const { can } = useAuthorization();
+    const canUpdateSettings = can('system.settings.update');
 
     // Centralized Signatories directory state
     const [signatoriesList, setSignatoriesList] = useState<Signatory[]>(
@@ -112,6 +115,7 @@ export default function Index({
         key: K,
         value: SystemSettings[K]
     ) => {
+        if (!canUpdateSettings) return;
         setData((prev) => ({
             ...prev,
             settings: {
@@ -123,6 +127,7 @@ export default function Index({
 
     // Atomic batch updates for related fields (e.g. signatory ID, name, designation)
     const handleBatchChange = (updates: Partial<SystemSettings>) => {
+        if (!canUpdateSettings) return;
         setData((prev) => ({
             ...prev,
             settings: {
@@ -140,6 +145,7 @@ export default function Index({
     // Single primary save submission
     const handleSave = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
+        if (!canUpdateSettings) return;
 
         if (hasThresholdError) {
             showToast(
@@ -195,14 +201,14 @@ export default function Index({
                     ]}
                     actions={
                         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                            {isDirty && (
+                            {canUpdateSettings && isDirty && (
                                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/60 text-amber-800 dark:text-amber-400 text-xs font-medium">
                                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                     <span>Unsaved changes</span>
                                 </div>
                             )}
 
-                            {isDirty && (
+                            {canUpdateSettings && isDirty && (
                                 <button
                                     type="button"
                                     onClick={() => reset()}
@@ -214,7 +220,7 @@ export default function Index({
                                 </button>
                             )}
 
-                            <button
+                            {canUpdateSettings && <button
                                 type="button"
                                 onClick={handleSave}
                                 disabled={processing || !isDirty || hasThresholdError}
@@ -226,7 +232,7 @@ export default function Index({
                             >
                                 <Save className="w-3.5 h-3.5" />
                                 <span>{processing ? 'Saving...' : 'Save Settings'}</span>
-                            </button>
+                            </button>}
                         </div>
                     }
                 />

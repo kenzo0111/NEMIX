@@ -1,6 +1,7 @@
 import React from 'react';
 import { SystemSettings, TelemetryData } from '../types';
 import { Clock, Download, Server } from 'lucide-react';
+import { useAuthorization } from '@/Hooks/useAuthorization';
 
 interface OperationsSettingsProps {
     settings: SystemSettings;
@@ -15,6 +16,7 @@ export default function OperationsSettings({
     telemetry,
     errors = {},
 }: OperationsSettingsProps) {
+    const { can } = useAuthorization();
     return (
         <div className="space-y-8">
             {/* SUBSECTION 1: SESSION SECURITY */}
@@ -76,7 +78,7 @@ export default function OperationsSettings({
                     </p>
                 </div>
 
-                <div className="max-w-md">
+                {can('system.settings.backup') && <div className="max-w-md">
                     <a
                         href={route('system.settings.backup')}
                         className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold shadow-2xs transition-all cursor-pointer"
@@ -84,7 +86,7 @@ export default function OperationsSettings({
                         <Download className="w-4 h-4 text-red-900 dark:text-red-400" />
                         <span>Download Policy Snapshot (JSON)</span>
                     </a>
-                </div>
+                </div>}
             </div>
 
             <hr className="border-slate-200/80 dark:border-slate-800" />

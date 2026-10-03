@@ -3,6 +3,7 @@ import Select from 'react-select';
 import { institutionalSelectStyles } from '@/styles/selectStyles';
 import { REPORT_TYPE_OPTIONS } from '../constants';
 import { ReportType } from '../types';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 interface ReportToolbarProps {
     searchTerm: string;
@@ -21,6 +22,7 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
     onOpenGenerate,
     onOpenMigration,
 }) => {
+    const { can, canAny } = useAuthorization();
     const filterOptions = [
         { value: '', label: 'All Report Types' },
         ...REPORT_TYPE_OPTIONS.map((opt) => ({ value: opt.value, label: opt.label })),
@@ -75,7 +77,7 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
                 </div>
 
                 {/* Migrate Historical Data Button */}
-                <button
+                {canAny(['compliance.migrations.store', 'compliance.migrate.stock_card', 'compliance.migrate.memorandum_receipt']) && <button
                     type="button"
                     onClick={onOpenMigration}
                     className="w-full sm:w-auto border border-red-900/30 dark:border-red-800/50 text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-800 font-bold py-2 px-3.5 rounded-md transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer shadow-2xs"
@@ -84,10 +86,10 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
                     </svg>
                     Migrate Data
-                </button>
+                </button>}
 
                 {/* Generate Report Button (Primary action button matching Record Issuance) */}
-                <button
+                {can('compliance.reports.store') && can('compliance.reports.preview_dataset') && <button
                     type="button"
                     onClick={onOpenGenerate}
                     className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer"
@@ -96,7 +98,7 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
                     Generate Report
-                </button>
+                </button>}
             </div>
         </div>
     );

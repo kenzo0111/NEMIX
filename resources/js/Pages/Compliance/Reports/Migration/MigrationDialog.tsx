@@ -1,10 +1,11 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import Modal from '@/Components/Modal';
 import Select from 'react-select';
 import { customSelectStyles, REPORT_TYPE_OPTIONS } from '../constants';
 import { getFieldMappingMatrix } from './parsers/fieldMapping';
 import { useHistoricalMigration } from '../hooks/useHistoricalMigration';
 import { MigrationFormType } from './migrationTypes';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 interface MigrationDialogProps {
     show: boolean;
@@ -19,6 +20,12 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
     migration,
     onCompleteNotification,
 }) => {
+    const { can } = useAuthorization();
+    const allowedFormTypes = REPORT_TYPE_OPTIONS.filter(({ value }) => can(
+        value === 'RSMI' || value === 'RPCI' ? 'compliance.migrations.store'
+            : value === 'STOCK_CARD' ? 'compliance.migrate.stock_card'
+            : 'compliance.migrate.memorandum_receipt'
+    ));
     const {
         formType,
         setFormType,
@@ -35,6 +42,12 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
     } = migration;
 
     const [selectedSheetTab, setSelectedSheetTab] = useState<string>('ALL');
+
+    useEffect(() => {
+        if (show && allowedFormTypes.length > 0 && !allowedFormTypes.some(({ value }) => value === formType)) {
+            setFormType(allowedFormTypes[0].value as MigrationFormType);
+        }
+    }, [show, formType, allowedFormTypes, setFormType]);
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -132,9 +145,12 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                     Form Type <span className="text-red-700">*</span>
                                 </label>
                                 <Select
-                                    options={REPORT_TYPE_OPTIONS}
-                                    value={REPORT_TYPE_OPTIONS.find((opt) => opt.value === formType)}
-                                    onChange={(opt: any) => setFormType(opt ? (opt.value as MigrationFormType) : 'RSMI')}
+                                    options={allowedFormTypes}
+                                    value={allowedFormTypes.find((opt) => opt.value === formType)}
+                                    onChange={(opt: any) => {
+                                        const nextType = opt?.value ?? allowedFormTypes[0]?.value;
+                                        if (nextType) setFormType(nextType as MigrationFormType);
+                                    }}
                                     styles={customSelectStyles}
                                     isSearchable={false}
                                 />

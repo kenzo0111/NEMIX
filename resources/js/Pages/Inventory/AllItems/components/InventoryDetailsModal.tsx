@@ -3,6 +3,7 @@ import { formatRisNumber } from '@/utils/risFormatter';
 import Modal from '@/Components/Modal';
 import { Link } from '@inertiajs/react';
 import { X, Edit3, Tag, Package, History, Layers } from 'lucide-react';
+import useAuthorization from '@/Hooks/useAuthorization';
 import { InventoryItem } from '../types';
 import { formatCurrency, formatNumber } from '../utils/inventory';
 import InventoryStatus from './InventoryStatus';
@@ -21,6 +22,7 @@ export default function InventoryDetailsModal({
     onClose,
     onEdit,
 }: InventoryDetailsModalProps) {
+    const { can } = useAuthorization();
     if (!item) return null;
 
     const batches = item.receiving_batches || [];
@@ -314,15 +316,15 @@ export default function InventoryDetailsModal({
                     </button>
 
                     <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2">
-                        <Link
+                        {can('rfid.view') && can('rfid.assign') && <Link
                             href={route('rfid-scanner.index', { item_id: item.id })}
                             className="w-full sm:w-auto px-3 py-2 text-xs font-medium text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors inline-flex items-center justify-center gap-1.5"
                         >
                             <Tag className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
                             <span>Tag RFID</span>
-                        </Link>
+                        </Link>}
 
-                        <button
+                        {can('inventory.update') && <button
                             type="button"
                             onClick={() => {
                                 onClose();
@@ -332,7 +334,7 @@ export default function InventoryDetailsModal({
                         >
                             <Edit3 className="w-3.5 h-3.5" />
                             <span>Edit Item Identity</span>
-                        </button>
+                        </button>}
                     </div>
                 </div>
             </div>

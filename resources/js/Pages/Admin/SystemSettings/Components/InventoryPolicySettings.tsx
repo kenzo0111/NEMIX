@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuthorization } from '@/Hooks/useAuthorization';
 import { SystemSettings } from '../types';
 import { Info, Plus, X, AlertTriangle } from 'lucide-react';
 
@@ -13,6 +14,8 @@ export default function InventoryPolicySettings({
     onChange,
     errors = {},
 }: InventoryPolicySettingsProps) {
+    const { can } = useAuthorization();
+    const canUpdateSettings = can('system.settings.update');
     const [newUnitInput, setNewUnitInput] = useState('');
 
     const lowStock = Number(settings['inventory.low_stock_threshold'] ?? 10);
@@ -202,7 +205,7 @@ export default function InventoryPolicySettings({
                             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
                         >
                             <span>{unit}</span>
-                            <button
+                            {canUpdateSettings && <button
                                 type="button"
                                 onClick={() => handleRemoveUnit(unit)}
                                 className="text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 p-0.5 rounded transition-colors cursor-pointer"
@@ -210,13 +213,13 @@ export default function InventoryPolicySettings({
                                 aria-label={`Remove unit ${unit}`}
                             >
                                 <X className="w-3 h-3" />
-                            </button>
+                            </button>}
                         </span>
                     ))}
                 </div>
 
                 {/* Add new unit input */}
-                <form onSubmit={handleAddUnit} className="flex items-center gap-2 max-w-sm pt-1">
+                {canUpdateSettings && <form onSubmit={handleAddUnit} className="flex items-center gap-2 max-w-sm pt-1">
                     <input
                         type="text"
                         value={newUnitInput}
@@ -232,7 +235,7 @@ export default function InventoryPolicySettings({
                         <Plus className="w-3.5 h-3.5" />
                         <span>Add</span>
                     </button>
-                </form>
+                </form>}
             </div>
         </div>
     );
