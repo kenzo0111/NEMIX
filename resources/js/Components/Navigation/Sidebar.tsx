@@ -13,6 +13,7 @@ import SidebarItem from './SidebarItem';
 import SidebarUser from './SidebarUser';
 import SignOutDialog from './SignOutDialog';
 import SupplyRequestAlerts from './SupplyRequestAlerts';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 export default function Sidebar({
     modules: initialModules,
@@ -27,6 +28,7 @@ export default function Sidebar({
     const authUser = propUser || (pageProps.auth?.user as SidebarUserType | undefined);
     const capabilities = pageProps.auth?.capabilities;
     const isSystemAdmin = pageProps.auth?.is_system_admin ?? false;
+    const { canAny } = useAuthorization();
 
     // Load modules if not explicitly passed
     const rawModules = useMemo(() => {
@@ -188,7 +190,7 @@ export default function Sidebar({
 
                 {/* Main Navigation Body */}
                 <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-3 space-y-3 relative z-10 scrollbar-hide no-scrollbar">
-                    {(authUser?.roles?.includes('Property Custodian') || isSystemAdmin) && capabilities?.inventory?.issuance && (
+                    {canAny(['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release']) && capabilities?.inventory?.issuance && (
                         <SupplyRequestAlerts collapsed={effectiveCollapsed} onExpand={onToggleCollapse} />
                     )}
                     {orderedCategoryKeys.map((catKey) => {

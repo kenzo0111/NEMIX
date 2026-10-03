@@ -27,6 +27,12 @@ const getActionBadgeColor = (action: string) => {
     if (act.includes('delete') || act.includes('destroy') || act.includes('remove')) {
         return 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200/80 dark:border-rose-800/50';
     }
+    if (act.includes('cancel') || act.includes('reject')) {
+        return 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200/80 dark:border-rose-800/50';
+    }
+    if (act.includes('release')) {
+        return 'bg-purple-50 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300 border-purple-200/80 dark:border-purple-800/50';
+    }
     if (act.includes('approve') || act.includes('verify') || act.includes('audit')) {
         return 'bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 border-teal-200/80 dark:border-teal-800/50';
     }
@@ -88,7 +94,9 @@ export default function PermissionList({
                             </span>
                         </div>
                         <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
-                            Manage granular capabilities and operational actions for {moduleName}.
+                            {moduleName === 'Requests'
+                                ? 'Choose what staff can do with supply requests. Viewing your own requests and reviewing others are separate permissions.'
+                                : `Choose the actions this role can perform in ${moduleName}.`}
                         </p>
                     </div>
 
@@ -103,7 +111,7 @@ export default function PermissionList({
                             className="w-4 h-4 text-red-900 border-gray-300 dark:border-slate-600 rounded focus:ring-red-900 focus:ring-1 cursor-pointer"
                         />
                         <span className="text-xs font-semibold text-gray-700 dark:text-slate-300">
-                            Select all in {moduleName}
+                            Grant all in {moduleName}
                         </span>
                     </label>
                 </div>
@@ -177,9 +185,6 @@ export default function PermissionList({
                                                 </p>
                                             )}
 
-                                            <span className="text-[10px] text-gray-400 dark:text-slate-500 font-mono mt-1">
-                                                {perm.name}
-                                            </span>
                                         </div>
                                     </div>
 

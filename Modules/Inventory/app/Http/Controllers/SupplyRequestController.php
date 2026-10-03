@@ -5,6 +5,7 @@ namespace Modules\Inventory\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\SystemSetting;
 use App\Models\User;
+use App\Services\AccessControl\PermissionResolver;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,19 +20,20 @@ class SupplyRequestController extends Controller
 {
     public function __construct(private SupplyRequestService $service) {}
 
-    private function coordinator(Request $request): void
+    private function authorizeRequestAction(Request $request): void
     {
-        abort_unless($request->user()->hasAnyRole(['Supply Coordinator', 'System Admin', 'System Administrator']), 403);
+        abort_unless(PermissionResolver::hasPermission($request->user(), 'route:'.$request->route()->getName()), 403);
     }
 
-    private function custodian(Request $request): void
+    private function canReviewRequests(User $user): bool
     {
-        abort_unless($request->user()->hasAnyRole(['Property Custodian', 'System Admin', 'System Administrator']), 403);
+        return collect(['approve', 'reject', 'release'])
+            ->contains(fn ($action) => PermissionResolver::hasPermission($user, 'route:inventory.requests.'.$action));
     }
 
     public function index(Request $request)
     {
-        $this->coordinator($request);
+        $this->authorizeRequestAction($request);
 
         $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
         $defaultApprovedBy = $signatories['approved_by_name'];
@@ -55,7 +57,7 @@ class SupplyRequestController extends Controller
     {
         abort_unless(
             $request->user()->id === $supplyRequest->requested_by
-                || $request->user()->hasAnyRole(['Property Custodian', 'System Admin', 'System Administrator']),
+                || $this->canReviewRequests($request->user()),
             403
         );
         abort_unless(in_array($supplyRequest->status, ['Approved', 'Issued'], true), 404);
@@ -130,7 +132,7 @@ class SupplyRequestController extends Controller
 
     public function store(Request $request)
     {
-        $this->coordinator($request);
+        $this->authorizeRequestAction($request);
         $data = $request->validate([
             'recipient' => ['nullable', 'string', 'max:255'],
             'recipient_designation' => ['nullable', 'string', 'max:255'],
@@ -158,11 +160,8 @@ class SupplyRequestController extends Controller
             ]);
             $supplyRequest->items()->createMany($data['items']);
             SupplyRequestService::audit($supplyRequest, $request->user()->id, 'Submitted Supply Request');
-            $approverIds = User::query()
-                ->where('is_active', true)
-                ->whereHas('roles', fn ($query) => $query->whereIn('name', [
-                    'Property Custodian', 'System Admin', 'System Administrator',
-                ]))->pluck('id');
+            $approverIds = User::query()->where('is_active', true)->get()
+                ->filter(fn (User $user) => $this->canReviewRequests($user))->pluck('id');
             foreach ($approverIds as $approverId) {
                 SupplyRequestAlert::create([
                     'user_id' => $approverId,
@@ -223,7 +222,7 @@ class SupplyRequestController extends Controller
 
     public function approve(Request $request, SupplyRequest $supplyRequest)
     {
-        $this->custodian($request);
+        $this->authorizeRequestAction($request);
         $data = $request->validate([
             'approved_quantities' => ['required', 'array'],
             'approved_quantities.*' => ['required', 'integer', 'min:0'],
@@ -235,7 +234,7 @@ class SupplyRequestController extends Controller
 
     public function reject(Request $request, SupplyRequest $supplyRequest)
     {
-        $this->custodian($request);
+        $this->authorizeRequestAction($request);
         $data = $request->validate(['remarks' => ['required', 'string', 'max:2000']]);
         DB::transaction(function () use ($supplyRequest, $request, $data) {
             $locked = SupplyRequest::whereKey($supplyRequest->id)->lockForUpdate()->firstOrFail();
@@ -250,7 +249,7 @@ class SupplyRequestController extends Controller
 
     public function release(Request $request, SupplyRequest $supplyRequest)
     {
-        $this->custodian($request);
+        $this->authorizeRequestAction($request);
         $request->validate(['signed_ris_presented' => ['required', 'accepted']]);
         $this->service->release($supplyRequest, $request->user()->id);
         return back()->with('success', 'Items released and inventory updated.');

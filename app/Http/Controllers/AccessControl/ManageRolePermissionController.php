@@ -28,9 +28,10 @@ class ManageRolePermissionController extends Controller
             ->withCount('users')
             ->orderBy('name')
             ->get()
-            ->map(function (Role $role) {
+            ->map(function (Role $role) use ($user) {
                 $isSystem = $this->isProtectedRole($role);
                 $usersCount = (int) ($role->users_count ?? 0);
+                $canManage = $user->isSystemAdmin() || $role->permissions->pluck('id')->diff($user->getAllPermissions()->pluck('id'))->isEmpty();
 
                 return [
                     'id' => $role->id,
@@ -38,8 +39,8 @@ class ManageRolePermissionController extends Controller
                     'permissions' => $role->permissions->pluck('id')->toArray(),
                     'permissions_count' => $role->permissions->count(),
                     'is_system' => $isSystem,
-                    'is_deletable' => ! $isSystem && $usersCount === 0,
-                    'is_editable' => true,
+                    'is_deletable' => ! $isSystem && $usersCount === 0 && $canManage,
+                    'is_editable' => (! $isSystem || $user->isSystemAdmin()) && $canManage,
                     'users_count' => $usersCount,
                 ];
             });
@@ -48,10 +49,19 @@ class ManageRolePermissionController extends Controller
             ->get()
             ->filter(fn (Permission $permission) =>
                 ! str_starts_with($permission->name, 'route:')
-                || $this->isSidebarRoute(str_replace('route:', '', $permission->name))
+                || ($this->isSidebarRoute(str_replace('route:', '', $permission->name))
+                    && ! in_array($permission->name, [
+                        'route:inventory.request-alerts.index',
+                        'route:inventory.request-alerts.read',
+                        'route:inventory.requests.ris-pdf',
+                    ], true))
             )
             ->map(fn (Permission $permission) => $this->enrichPermission($permission))
             ->values();
+
+        $assignablePermissionIds = $user->isSystemAdmin()
+            ? $permissions->pluck('id')->all()
+            : $user->getAllPermissions()->pluck('id')->all();
 
         $capabilities = [
             'canCreate' => $user->can('roles.create'),
@@ -62,6 +72,7 @@ class ManageRolePermissionController extends Controller
         return Inertia::render('AccessControl/ManageRolePermission', [
             'roles' => $roles,
             'permissions' => $permissions,
+            'assignablePermissionIds' => $assignablePermissionIds,
             'capabilities' => $capabilities,
         ]);
     }
@@ -110,6 +121,8 @@ class ManageRolePermissionController extends Controller
             abort(403, 'Unauthorized action. System Admin role can only be modified by System Administrators.');
         }
 
+        $this->authorizeManageableRole($user, $role);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\-_]+$/', 'unique:roles,name,' . $role->id],
             'permissions' => ['sometimes', 'array'],
@@ -147,6 +160,8 @@ class ManageRolePermissionController extends Controller
     {
         Gate::authorize('roles.delete');
 
+        $this->authorizeManageableRole(request()->user(), $role);
+
         // Backend-authoritative protection check
         if ($this->isProtectedRole($role)) {
             abort(403, "System role '{$role->name}' is protected and cannot be deleted.");
@@ -171,6 +186,14 @@ class ManageRolePermissionController extends Controller
     private function isProtectedRole(Role|string $role): bool
     {
         return PermissionResolver::isProtectedRole($role);
+    }
+
+    private function authorizeManageableRole(\App\Models\User $user, Role $role): void
+    {
+        if (! $user->isSystemAdmin()
+            && $role->permissions()->pluck('permissions.id')->diff($user->getAllPermissions()->pluck('id'))->isNotEmpty()) {
+            abort(403, 'You cannot manage a role with permissions you do not possess.');
+        }
     }
 
     private function ensureRoutePermissionsExist(): void
@@ -250,6 +273,15 @@ class ManageRolePermissionController extends Controller
             'inventory.issuance.update' => ['module' => 'Issuance', 'action' => 'update', 'display_name' => 'Update Issuance Voucher', 'description' => 'Allows modifying issuance slips and recipient records.'],
             'inventory.issuance.destroy' => ['module' => 'Issuance', 'action' => 'delete', 'display_name' => 'Delete Issuance Voucher', 'description' => 'Allows voiding or deleting item issuance records.'],
 
+            // Supply Requests
+            'inventory.requests.index' => ['module' => 'Requests', 'action' => 'view', 'display_name' => 'View My Requests', 'description' => 'View your own supply requests and their status.'],
+            'inventory.requests.store' => ['module' => 'Requests', 'action' => 'create', 'display_name' => 'Submit Request', 'description' => 'Submit a supply request for review.'],
+            'inventory.requests.update' => ['module' => 'Requests', 'action' => 'update', 'display_name' => 'Edit Request', 'description' => 'Edit your own request while it is pending.'],
+            'inventory.requests.cancel' => ['module' => 'Requests', 'action' => 'cancel', 'display_name' => 'Cancel Request', 'description' => 'Cancel your own request before supplies are issued.'],
+            'inventory.requests.approve' => ['module' => 'Requests', 'action' => 'approve', 'display_name' => 'Approve Request', 'description' => 'Review and approve requested quantities.'],
+            'inventory.requests.reject' => ['module' => 'Requests', 'action' => 'reject', 'display_name' => 'Reject Request', 'description' => 'Reject a supply request with a reason.'],
+            'inventory.requests.release' => ['module' => 'Requests', 'action' => 'release', 'display_name' => 'Release Supplies', 'description' => 'Release approved supplies after checking the signed RIS.'],
+
             // Receiving
             'inventory.receiving' => ['module' => 'Receiving', 'action' => 'view', 'display_name' => 'View Receiving', 'description' => 'Allows viewing received deliveries and inspection acceptance reports (IAR).'],
             'inventory.receiving.store' => ['module' => 'Receiving', 'action' => 'create', 'display_name' => 'Create Receiving Record', 'description' => 'Allows registering incoming supplier deliveries into inventory.'],
@@ -319,7 +351,7 @@ class ManageRolePermissionController extends Controller
         $actionKey = end($parts);
 
         $moduleName = match ($moduleKey) {
-            'inventory' => (isset($parts[1]) && in_array($parts[1], ['issuance', 'receiving'], true)) ? ucfirst($parts[1]) : 'Inventory',
+            'inventory' => (isset($parts[1]) && in_array($parts[1], ['issuance', 'receiving', 'requests'], true)) ? ucfirst($parts[1]) : 'Inventory',
             'suppliers' => 'Suppliers',
             'compliance' => 'Compliance',
             'audit-logs' => 'Audit Logs',

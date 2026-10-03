@@ -340,4 +340,83 @@ class AccessControlRbacSecurityTest extends TestCase
         $this->assertNotContains('System Administrator', $roles);
         $this->assertContains('Custom Department Head', $roles);
     }
+
+    public function test_request_permissions_are_grouped_and_helper_routes_are_hidden(): void
+    {
+        $response = $this->actingAs($this->adminUser)->get(route('access-control.role-permission'));
+        $response->assertOk();
+
+        $props = $response->original->getData()['page']['props'];
+        $permissions = collect($props['permissions'])->keyBy('name');
+
+        foreach (['index', 'store', 'update', 'cancel', 'approve', 'reject', 'release'] as $action) {
+            $permission = $permissions->get('route:inventory.requests.'.$action);
+            $this->assertNotNull($permission);
+            $this->assertSame('Requests', $permission['module']);
+        }
+
+        $this->assertFalse($permissions->has('route:inventory.requests.ris-pdf'));
+        $this->assertFalse($permissions->has('route:inventory.request-alerts.index'));
+        $this->assertFalse($permissions->has('route:inventory.request-alerts.read'));
+    }
+
+    public function test_role_editor_cannot_change_role_with_permissions_outside_their_own_access(): void
+    {
+        $editor = User::factory()->create(['email_verified_at' => now(), 'is_active' => true]);
+        $manager = Role::firstOrCreate(['name' => 'Limited Role Manager']);
+        foreach (['roles.view', 'roles.update', 'roles.delete'] as $permission) {
+            $manager->givePermissionTo($permission);
+        }
+        $editor->assignRole($manager);
+
+        $privileged = Role::firstOrCreate(['name' => 'Privileged Request Reviewer']);
+        $approve = Permission::firstOrCreate(['name' => 'route:inventory.requests.approve']);
+        $privileged->givePermissionTo($approve);
+
+        $response = $this->actingAs($editor)->get(route('access-control.role-permission'));
+        $response->assertOk();
+        $props = $response->original->getData()['page']['props'];
+        $role = collect($props['roles'])->firstWhere('id', $privileged->id);
+        $this->assertFalse($role['is_editable']);
+        $this->assertFalse($role['is_deletable']);
+        $this->assertNotContains($approve->id, $props['assignablePermissionIds']);
+
+        $this->actingAs($editor)->put(route('access-control.role-permission.update', $privileged), [
+            'name' => $privileged->name,
+            'permissions' => [$approve->id],
+        ])->assertForbidden();
+        $this->actingAs($editor)->delete(route('access-control.role-permission.destroy', $privileged))->assertForbidden();
+    }
+
+    public function test_staff_update_does_not_implicitly_allow_role_assignment(): void
+    {
+        $this->assertFalse($this->editorUser->can('users.assign-role'));
+
+        $this->actingAs($this->editorUser)->put(route('access-control.staffs.update', $this->regularStaff), [
+            'name' => $this->regularStaff->name,
+            'email' => $this->regularStaff->email,
+            'role' => 'Staff Viewer',
+        ])->assertForbidden();
+
+        $this->assertTrue($this->regularStaff->fresh()->hasRole('Custom Department Head'));
+    }
+
+    public function test_role_assignment_cannot_grant_permissions_the_editor_does_not_have(): void
+    {
+        $assigner = User::factory()->create(['email_verified_at' => now(), 'is_active' => true]);
+        $assignerRole = Role::firstOrCreate(['name' => 'Limited Staff Assigner']);
+        $assignerRole->givePermissionTo(['users.view', 'users.update', 'users.assign-role']);
+        $assigner->assignRole($assignerRole);
+
+        $privileged = Role::firstOrCreate(['name' => 'Request Approver']);
+        $privileged->givePermissionTo(Permission::firstOrCreate(['name' => 'route:inventory.requests.approve']));
+
+        $this->actingAs($assigner)->put(route('access-control.staffs.update', $this->regularStaff), [
+            'name' => $this->regularStaff->name,
+            'email' => $this->regularStaff->email,
+            'role' => $privileged->name,
+        ])->assertForbidden();
+
+        $this->assertTrue($this->regularStaff->fresh()->hasRole('Custom Department Head'));
+    }
 }

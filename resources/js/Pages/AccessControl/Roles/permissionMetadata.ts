@@ -43,6 +43,13 @@ const KNOWN_PERMISSION_CATALOG: Record<
         displayName: 'Delete Inventory Item',
         description: 'Allows removing or archiving catalog items from inventory.',
     },
+    'inventory.requests.index': { module: 'Requests', action: 'view', displayName: 'View My Requests', description: 'View your own supply requests and their status.' },
+    'inventory.requests.store': { module: 'Requests', action: 'create', displayName: 'Submit Request', description: 'Submit a supply request for review.' },
+    'inventory.requests.update': { module: 'Requests', action: 'update', displayName: 'Edit Request', description: 'Edit your own request while it is pending.' },
+    'inventory.requests.cancel': { module: 'Requests', action: 'cancel', displayName: 'Cancel Request', description: 'Cancel your own request before supplies are issued.' },
+    'inventory.requests.approve': { module: 'Requests', action: 'approve', displayName: 'Approve Request', description: 'Review and approve requested quantities.' },
+    'inventory.requests.reject': { module: 'Requests', action: 'reject', displayName: 'Reject Request', description: 'Reject a supply request with a reason.' },
+    'inventory.requests.release': { module: 'Requests', action: 'release', displayName: 'Release Supplies', description: 'Release approved supplies after checking the signed RIS.' },
 
     // Issuance
     'inventory.issuance': {
@@ -352,7 +359,7 @@ export function normalizePermission(raw: Partial<Permission> & { name: string; i
     const actionKey = parts[parts.length - 1] || 'view';
 
     let moduleName = titleCase(moduleKey);
-    if (moduleKey === 'inventory' && parts[1] && ['issuance', 'receiving'].includes(parts[1])) {
+    if (moduleKey === 'inventory' && parts[1] && ['issuance', 'receiving', 'requests'].includes(parts[1])) {
         moduleName = titleCase(parts[1]);
     } else if (moduleKey === 'rfid-scanner') {
         moduleName = 'RFID Scanner';
@@ -444,6 +451,12 @@ export function formatActionLabel(action: PermissionAction): string {
             return 'Resend';
         case 'migrate':
             return 'Migrate';
+        case 'cancel':
+            return 'Cancel';
+        case 'reject':
+            return 'Reject';
+        case 'release':
+            return 'Release';
         default:
             return titleCase(String(action));
     }

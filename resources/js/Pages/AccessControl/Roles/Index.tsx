@@ -24,6 +24,7 @@ export default function RoleManagementIndex({
     auth,
     roles = [],
     permissions: rawPermissions = [],
+    assignablePermissionIds,
     capabilities: providedCapabilities,
 }: ManageRolePermissionPageProps) {
     const { flash } = usePage<ManageRolePermissionPageProps>().props;
@@ -43,7 +44,7 @@ export default function RoleManagementIndex({
 
     const moduleNames = useMemo(() => Object.keys(permissionsByModule), [permissionsByModule]);
 
-    const { can, isSystemAdmin } = useAuthorization();
+    const { can } = useAuthorization();
 
     // Capability authorization
     const capabilities: RoleCapabilities = useMemo(() => {
@@ -105,6 +106,10 @@ export default function RoleManagementIndex({
     };
 
     const handleOpenEdit = (role: Role) => {
+        if (!role.is_editable) {
+            setNotification({ type: 'warning', message: 'This role contains access outside your authority to manage.' });
+            return;
+        }
         if (!capabilities.canUpdate) {
             setNotification({
                 type: 'warning',
@@ -200,7 +205,6 @@ export default function RoleManagementIndex({
                     {/* 3. Role Directory */}
                     <RoleTable
                         roles={filteredRoles}
-                        totalPermissionsCount={normalizedPermissions.length}
                         searchQuery={searchQuery}
                         onSearchChange={setSearchQuery}
                         canCreate={capabilities.canCreate}
@@ -247,6 +251,7 @@ export default function RoleManagementIndex({
                     role={editingRole}
                     totalSystemPermissionsCount={normalizedPermissions.length}
                     permissionsByModule={permissionsByModule}
+                    assignablePermissionIds={assignablePermissionIds}
                     onClose={handleCloseEdit}
                 />
 

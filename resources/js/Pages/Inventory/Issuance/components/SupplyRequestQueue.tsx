@@ -19,6 +19,7 @@ import Modal from '@/Components/Modal';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { getFundClusterDisplay } from '../constants';
 import { RequestStatusBadge, ItemQuantityDisplay } from '../../Requests/components/RequestStatusBadge';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 export type QueueRequest = {
     id: number;
@@ -65,6 +66,10 @@ export function SupplyRequestQueue({
     defaultApprovedBy?: string;
     focusRequestId?: number | null;
 }) {
+    const { can } = useAuthorization();
+    const canApprove = can('inventory.requests.approve');
+    const canReject = can('inventory.requests.reject');
+    const canRelease = can('inventory.requests.release');
     // Workspace tabs: 'pending' | 'approved' | 'all'
     const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'all'>('pending');
     const [searchQuery, setSearchQuery] = useState('');
@@ -470,7 +475,7 @@ export function SupplyRequestQueue({
                                             </div>
 
                                             {/* Quantity adjustment helper buttons if reviewing/pending */}
-                                            {(isPending || isApproved) && (
+                                            {(isPending || isApproved) && canApprove && (
                                                 <div className="flex items-center gap-2 text-xs">
                                                     <span className="text-gray-400 text-[11px] hidden sm:inline">Quick Adjust:</span>
                                                     <button
@@ -548,7 +553,7 @@ export function SupplyRequestQueue({
 
                                                                 {/* Approved / Adjustable Qty */}
                                                                 <td className="px-3 py-2.5 text-right">
-                                                                    {isPending || isApproved ? (
+                                                                    {(isPending || isApproved) && canApprove ? (
                                                                         <div className="flex items-center justify-end gap-2">
                                                                             {isExceedingStock && (
                                                                                 <span
@@ -601,7 +606,7 @@ export function SupplyRequestQueue({
                                     </div>
 
                                     {/* Review Remarks Field (Custodian Notes) */}
-                                    {(isPending || isApproved) && (
+                                    {(isPending || isApproved) && canApprove && (
                                         <div className="space-y-1">
                                             <label
                                                 htmlFor={`remarks-${request.id}`}
@@ -635,7 +640,7 @@ export function SupplyRequestQueue({
                                     )}
 
                                     {/* Actions Bar for Pending Requisitions */}
-                                    {isPending && (
+                                    {isPending && (canApprove || canReject) && (
                                         <div className="pt-3 border-t border-gray-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-[11px] text-gray-500 font-sans">
@@ -644,7 +649,7 @@ export function SupplyRequestQueue({
                                             </div>
 
                                             <div className="flex items-center gap-2.5">
-                                                <button
+                                                {canReject && <button
                                                     type="button"
                                                     disabled={isBusy}
                                                     onClick={() => openRejectModal(request)}
@@ -652,9 +657,9 @@ export function SupplyRequestQueue({
                                                 >
                                                     <XCircle className="w-3.5 h-3.5" />
                                                     <span>Reject Requisition</span>
-                                                </button>
+                                                </button>}
 
-                                                <button
+                                                {canApprove && <button
                                                     type="button"
                                                     disabled={isBusy}
                                                     onClick={() => handleApprove(request)}
@@ -662,7 +667,7 @@ export function SupplyRequestQueue({
                                                 >
                                                     <CheckCircle2 className="w-3.5 h-3.5 text-amber-300" />
                                                     <span>{isBusy ? 'Processing...' : 'Approve Requisition'}</span>
-                                                </button>
+                                                </button>}
                                             </div>
                                         </div>
                                     )}
@@ -691,7 +696,7 @@ export function SupplyRequestQueue({
                                                         <span>Preview / Print RIS</span>
                                                     </button>
 
-                                                    <button
+                                                    {canApprove && <button
                                                         type="button"
                                                         disabled={isBusy}
                                                         onClick={() => handleApprove(request)}
@@ -699,12 +704,12 @@ export function SupplyRequestQueue({
                                                         title="Save modified quantity adjustments"
                                                     >
                                                         Update Quantities
-                                                    </button>
+                                                    </button>}
                                                 </div>
                                             </div>
 
                                             {/* Release Confirmation */}
-                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-blue-200/50 dark:border-blue-900/40">
+                                            {canRelease && <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-blue-200/50 dark:border-blue-900/40">
                                                 <label className="flex items-start sm:items-center gap-2 text-xs font-medium text-blue-950 dark:text-blue-200 cursor-pointer">
                                                     <input
                                                         type="checkbox"
@@ -731,7 +736,7 @@ export function SupplyRequestQueue({
                                                     <PackageCheck className="w-3.5 h-3.5 text-amber-300" />
                                                     <span>{isBusy ? 'Releasing...' : 'Confirm Release & Deduct Stock'}</span>
                                                 </button>
-                                            </div>
+                                            </div>}
                                         </div>
                                     )}
 

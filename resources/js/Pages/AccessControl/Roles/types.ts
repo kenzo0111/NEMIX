@@ -54,6 +54,7 @@ export type FlashMessages = BaseFlashMessages;
 export type ManageRolePermissionPageProps = BasePageProps<{
     roles: Role[];
     permissions: Permission[];
+    assignablePermissionIds?: number[];
     capabilities?: RoleCapabilities;
 }>;
 

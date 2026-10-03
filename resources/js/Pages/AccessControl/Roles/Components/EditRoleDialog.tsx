@@ -11,6 +11,7 @@ interface EditRoleDialogProps {
     role: Role | null;
     totalSystemPermissionsCount: number;
     permissionsByModule: Record<string, Permission[]>;
+    assignablePermissionIds?: number[];
     onClose: () => void;
 }
 
@@ -19,6 +20,7 @@ export default function EditRoleDialog({
     role,
     totalSystemPermissionsCount,
     permissionsByModule,
+    assignablePermissionIds,
     onClose,
 }: EditRoleDialogProps) {
     const { data, setData, put, processing, errors, clearErrors } = useForm<EditRoleFormData>({
@@ -26,7 +28,13 @@ export default function EditRoleDialog({
         permissions: [],
     });
 
-    const moduleNames = useMemo(() => Object.keys(permissionsByModule), [permissionsByModule]);
+    const visiblePermissionsByModule = useMemo(() => {
+        const allowed = new Set(assignablePermissionIds ?? Object.values(permissionsByModule).flat().map((permission) => permission.id));
+        return Object.fromEntries(Object.entries(permissionsByModule)
+            .map(([name, permissions]) => [name, permissions.filter((permission) => allowed.has(permission.id))] as const)
+            .filter(([, permissions]) => permissions.length > 0));
+    }, [permissionsByModule, assignablePermissionIds]);
+    const moduleNames = useMemo(() => Object.keys(visiblePermissionsByModule), [visiblePermissionsByModule]);
     const [activeModuleTab, setActiveModuleTab] = useState<string>('');
     const [permSearchQuery, setPermSearchQuery] = useState<string>('');
 
@@ -42,11 +50,11 @@ export default function EditRoleDialog({
 
             if (moduleNames.length > 0) {
                 setActiveModuleTab((prev) =>
-                    prev && permissionsByModule[prev] ? prev : moduleNames[0]
+                    prev && visiblePermissionsByModule[prev] ? prev : moduleNames[0]
                 );
             }
         }
-    }, [role, isOpen, moduleNames, permissionsByModule, setData, clearErrors]);
+    }, [role, isOpen, moduleNames, visiblePermissionsByModule, setData, clearErrors]);
 
     // Clear search query when switching modules
     const handleSelectModule = (mod: string) => {
@@ -57,12 +65,12 @@ export default function EditRoleDialog({
     // Module stats
     const getModuleStats = useCallback(
         (moduleName: string): ModuleStats => {
-            const perms = permissionsByModule[moduleName] || [];
+            const perms = visiblePermissionsByModule[moduleName] || [];
             const total = perms.length;
             const assigned = perms.filter((p) => data.permissions.includes(p.id)).length;
             return { assigned, total };
         },
-        [permissionsByModule, data.permissions]
+        [visiblePermissionsByModule, data.permissions]
     );
 
     // Toggle single permission
@@ -77,9 +85,9 @@ export default function EditRoleDialog({
 
     // Select all in current module
     const handleSelectAllModule = (selectAll: boolean) => {
-        if (!activeModuleTab || !permissionsByModule[activeModuleTab]) return;
+        if (!activeModuleTab || !visiblePermissionsByModule[activeModuleTab]) return;
 
-        const currentModulePermIds = permissionsByModule[activeModuleTab].map((p) => p.id);
+        const currentModulePermIds = visiblePermissionsByModule[activeModuleTab].map((p) => p.id);
         let updated = [...data.permissions];
 
         if (selectAll) {
@@ -109,7 +117,7 @@ export default function EditRoleDialog({
 
     if (!role) return null;
 
-    const currentModulePermissions = permissionsByModule[activeModuleTab] || [];
+    const currentModulePermissions = visiblePermissionsByModule[activeModuleTab] || [];
     const isSystemRole = role.is_system;
 
     return (

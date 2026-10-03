@@ -1,11 +1,9 @@
 import React from 'react';
 import { Plus, Search, Shield, ShieldCheck, Lock, Users } from 'lucide-react';
-import useAuthorization from '@/Hooks/useAuthorization';
 import { Role } from '../types';
 
 interface RoleTableProps {
     roles: Role[];
-    totalPermissionsCount: number;
     searchQuery: string;
     onSearchChange: (query: string) => void;
     canCreate: boolean;
@@ -18,7 +16,6 @@ interface RoleTableProps {
 
 export default function RoleTable({
     roles,
-    totalPermissionsCount,
     searchQuery,
     onSearchChange,
     canCreate,
@@ -28,8 +25,6 @@ export default function RoleTable({
     onEditRole,
     onDeleteRole,
 }: RoleTableProps) {
-    const { isSystemAdmin } = useAuthorization();
-
     return (
         <section
             aria-labelledby="roles-heading"
@@ -45,7 +40,7 @@ export default function RoleTable({
                         Configured Roles
                     </h2>
                     <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
-                        Manage institutional roles and configure granular capability assignments across modules.
+                        Choose a role to review and change what its staff can do.
                     </p>
                 </div>
 
@@ -94,7 +89,7 @@ export default function RoleTable({
                                 Role
                             </th>
                             <th scope="col" className="px-6 py-3.5 w-1/4">
-                                Permissions Coverage
+                                Access granted
                             </th>
                             <th scope="col" className="px-6 py-3.5 w-1/6">
                                 Type
@@ -110,10 +105,6 @@ export default function RoleTable({
                                 const assignedCount =
                                     role.permissions_count ?? role.permissions?.length ?? 0;
                                 const isSystem = role.is_system;
-                                const percentage =
-                                    totalPermissionsCount > 0
-                                        ? Math.round((assignedCount / totalPermissionsCount) * 100)
-                                        : 0;
 
                                 return (
                                     <tr
@@ -159,45 +150,11 @@ export default function RoleTable({
                                             </div>
                                         </td>
 
-                                        {/* Permissions Count & Progress Bar */}
+                                        {/* Permissions Count */}
                                         <td className="px-6 py-4">
-                                            <div className="flex flex-col gap-1 max-w-[220px]">
-                                                <div className="flex items-center justify-between text-xs">
-                                                    <span className="font-semibold text-gray-800 dark:text-slate-200 tabular-nums">
-                                                        {assignedCount}{' '}
-                                                        <span className="text-gray-400 dark:text-slate-500 font-normal">
-                                                            / {totalPermissionsCount}
-                                                        </span>
-                                                    </span>
-                                                    <span
-                                                        className={`text-[10px] font-semibold px-1.5 py-0.2 rounded border ${
-                                                            percentage === 100
-                                                                ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60'
-                                                                : percentage >= 50
-                                                                ? 'bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300 border-red-200/70 dark:border-red-800/60'
-                                                                : percentage > 0
-                                                                ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-800/60'
-                                                                : 'bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 border-gray-200 dark:border-slate-700'
-                                                        }`}
-                                                    >
-                                                        {percentage === 100 ? '100% Full' : `${percentage}%`}
-                                                    </span>
-                                                </div>
-                                                <div className="w-full h-1.5 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                                    <div
-                                                        className={`h-full rounded-full transition-all duration-300 ${
-                                                            percentage === 100
-                                                                ? 'bg-emerald-600 dark:bg-emerald-500'
-                                                                : percentage >= 50
-                                                                ? 'bg-red-900 dark:bg-red-700'
-                                                                : percentage > 0
-                                                                ? 'bg-amber-600 dark:bg-amber-500'
-                                                                : 'bg-transparent'
-                                                        }`}
-                                                        style={{ width: `${percentage}%` }}
-                                                    />
-                                                </div>
-                                            </div>
+                                            <span className="font-semibold text-gray-800 dark:text-slate-200 tabular-nums">
+                                                {assignedCount} {assignedCount === 1 ? 'permission' : 'permissions'}
+                                            </span>
                                         </td>
 
                                         {/* Role Type */}
@@ -218,7 +175,7 @@ export default function RoleTable({
                                         {/* Actions */}
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
                                             <div className="inline-flex items-center justify-end gap-2.5">
-                                                {canUpdate && (isSystemAdmin || !isSystem) && (
+                                                {canUpdate && role.is_editable && (
                                                     <button
                                                         type="button"
                                                         onClick={() => onEditRole(role)}
@@ -239,7 +196,7 @@ export default function RoleTable({
                                                     </button>
                                                 )}
 
-                                                {(!canUpdate || (!isSystemAdmin && isSystem)) && (!canDelete || isSystem || !role.is_deletable) && (
+                                                {(!canUpdate || !role.is_editable) && (!canDelete || !role.is_deletable) && (
                                                     <span className="text-xs text-gray-400 dark:text-slate-600 select-none px-2">—</span>
                                                 )}
                                             </div>

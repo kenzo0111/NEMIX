@@ -3,6 +3,7 @@
 namespace Modules\Inventory\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Services\AccessControl\PermissionResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Inventory\Models\SupplyRequest;
@@ -12,7 +13,9 @@ class SupplyRequestAlertController extends Controller
 {
     private function authorizeApprover(Request $request): void
     {
-        abort_unless($request->user()->hasAnyRole(['Property Custodian', 'System Admin', 'System Administrator']), 403);
+        abort_unless(collect(['approve', 'reject', 'release'])->contains(
+            fn ($action) => PermissionResolver::hasPermission($request->user(), 'route:inventory.requests.'.$action)
+        ), 403);
     }
 
     public function index(Request $request): JsonResponse

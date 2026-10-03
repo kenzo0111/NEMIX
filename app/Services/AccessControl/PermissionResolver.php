@@ -42,9 +42,6 @@ class PermissionResolver
         ],
         'users.assign-role' => [
             'users.assign-role',
-            'users.update',
-            'access-control.staffs.update',
-            'route:access-control.staffs.update',
         ],
 
         // Roles
@@ -285,9 +282,24 @@ class PermissionResolver
 
         if (! $user->isSystemAdmin()) {
             $query->whereNotIn('name', ['System Admin', 'System Administrator']);
+            $ownedPermissionIds = $user->getAllPermissions()->pluck('id')->all();
+            $query->whereDoesntHave('permissions', fn (Builder $permissions) =>
+                $permissions->whereNotIn('permissions.id', $ownedPermissionIds));
         }
 
         return $query;
+    }
+
+    public static function validateAssignableRole(User $user, string $roleName): void
+    {
+        if ($user->isSystemAdmin()) {
+            return;
+        }
+
+        $assignable = self::getAssignableRolesQuery($user)->where('name', $roleName)->exists();
+        if (! $assignable) {
+            abort(403, 'You cannot assign a role with permissions you do not possess.');
+        }
     }
 
     /**

@@ -90,6 +90,36 @@ class SupplyRequestWorkflowTest extends TestCase
         $this->assertSame(40, $item->fresh()->stock);
     }
 
+    public function test_custom_roles_can_use_request_permissions_without_builtin_role_names(): void
+    {
+        $requesterRole = Role::firstOrCreate(['name' => 'Department Requester']);
+        $reviewerRole = Role::firstOrCreate(['name' => 'Department Reviewer']);
+        foreach (['index', 'store'] as $action) {
+            $requesterRole->givePermissionTo(Permission::firstOrCreate(['name' => 'route:inventory.requests.'.$action]));
+        }
+        $reviewerRole->givePermissionTo(Permission::firstOrCreate(['name' => 'route:inventory.requests.approve']));
+
+        $requester = $this->user($requesterRole->name);
+        $reviewer = $this->user($reviewerRole->name);
+        $item = $this->item();
+        $request = $this->submit($requester, $item, 4);
+
+        $this->actingAs($requester)->get(route('inventory.requests.index'))->assertOk();
+        $this->actingAs($reviewer)->get(route('inventory.issuance'))
+            ->assertOk()->assertInertia(fn ($page) => $page->has('supplyRequests', 1));
+        $this->actingAs($reviewer)->get(route('inventory.request-alerts.index'))->assertOk();
+        $line = $request->items()->firstOrFail();
+        $this->actingAs($reviewer)->post(route('inventory.requests.approve', $request), [
+            'approved_quantities' => [$line->id => 4],
+        ])->assertRedirect();
+        $this->actingAs($reviewer)->get(route('inventory.requests.ris-pdf', $request))
+            ->assertOk()->assertHeader('content-type', 'application/pdf');
+        $this->actingAs($reviewer)->post(route('inventory.requests.release', $request), [
+            'signed_ris_presented' => true,
+        ])->assertForbidden();
+        $this->assertSame('Approved', $request->fresh()->status);
+    }
+
     public function test_coordinator_sees_only_own_requests_and_cannot_edit_after_approval(): void
     {
         $first = $this->user('Supply Coordinator');

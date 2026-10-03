@@ -72,6 +72,7 @@ class ManageStaffController extends Controller
         if (PermissionResolver::isProtectedRole($validated['role']) && ! $request->user()->isSystemAdmin()) {
             abort(403, 'Unauthorized action. You cannot assign administrative privileges.');
         }
+        PermissionResolver::validateAssignableRole($request->user(), $validated['role']);
 
         $user = User::create([
             'name' => $validated['name'],
@@ -164,6 +165,9 @@ class ManageStaffController extends Controller
         // Modifying target role requires users.assign-role permission
         if ($validated['role'] !== $currentRole && ! $currentUser->isSystemAdmin() && ! $currentUser->can('users.assign-role')) {
             abort(403, 'Unauthorized action. Permission users.assign-role required to modify staff roles.');
+        }
+        if ($validated['role'] !== $currentRole) {
+            PermissionResolver::validateAssignableRole($currentUser, $validated['role']);
         }
 
         $user->update([

@@ -16,6 +16,7 @@ import { RequestStatusBadge } from './components/RequestStatusBadge';
 import { ReceivingStatusNotice } from '../Receiving/components/ReceivingStatusNotice';
 import { DivisionGroup, RequestItem, SupplyRequest } from './types';
 import { Plus, Search, FileText } from 'lucide-react';
+import useAuthorization from '@/Hooks/useAuthorization';
 
 const PAGE_SIZE = 10;
 const statusOptions = [
@@ -47,6 +48,7 @@ export default function MyRequests({
     defaultIssuedByDesignation?: string;
 }) {
     const [collapsed, toggle] = useSidebarCollapse();
+    const { can } = useAuthorization();
     const pageProps = usePage().props as any;
     const systemSettings = (pageProps.systemSettings || {}) as Record<string, any>;
     const publicSettings = pageProps.system?.settings || {};
@@ -362,14 +364,14 @@ export default function MyRequests({
                                     />
                                 </div>
 
-                                <button
+                                {can('inventory.requests.store') && <button
                                     type="button"
                                     onClick={openCreate}
                                     className="w-full sm:w-auto h-10 px-4 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-semibold text-xs tracking-wider rounded-lg shadow-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono cursor-pointer transition-colors shrink-0"
                                 >
                                     <Plus className="w-4 h-4 text-amber-300" />
                                     New Request
-                                </button>
+                                </button>}
                             </div>
                         </div>
 
@@ -547,7 +549,7 @@ export default function MyRequests({
                                                                 View
                                                             </button>
 
-                                                            {request.status === 'Pending' && (
+                                                            {request.status === 'Pending' && can('inventory.requests.update') && (
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => openEdit(request)}
@@ -567,7 +569,7 @@ export default function MyRequests({
                                                                 </button>
                                                             )}
 
-                                                            {['Pending', 'Approved'].includes(request.status) && (
+                                                            {['Pending', 'Approved'].includes(request.status) && can('inventory.requests.cancel') && (
                                                                 <button
                                                                     type="button"
                                                                     disabled={busy === request.id}

@@ -631,6 +631,11 @@ class InventoryController extends Controller
 
     public function issuance(Request $request)
     {
+        $canReviewRequests = collect(['approve', 'reject', 'release'])->contains(
+            fn ($action) => \App\Services\AccessControl\PermissionResolver::hasPermission(
+                $request->user(), 'route:inventory.requests.'.$action
+            )
+        );
         $search = trim($request->input('search', ''));
         $recipient = trim($request->input('recipient', ''));
 
@@ -785,7 +790,7 @@ class InventoryController extends Controller
             ];
         });
 
-        $itemsQuery = auth()->user()->hasRole('Property Custodian')
+        $itemsQuery = $canReviewRequests
             ? Item::query()
             : ResourceOwnershipPolicy::scopeQuery(Item::query(), auth()->user());
         $recipientsQuery = ResourceOwnershipPolicy::scopeQuery(Issuance::query(), auth()->user(), 'issued_by');
@@ -793,7 +798,7 @@ class InventoryController extends Controller
         return Inertia::render('Inventory/Issuance', [
             'focusRequestId' => $request->integer('request') ?: null,
             'issuances' => $transformed,
-            'supplyRequests' => auth()->user()->hasAnyRole(['Property Custodian', 'System Admin', 'System Administrator'])
+            'supplyRequests' => $canReviewRequests
                 ? SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'issuance.items.allocations.inventoryBatch'])
                     ->latest()->get()
                 : [],

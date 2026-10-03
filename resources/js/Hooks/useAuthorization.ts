@@ -27,9 +27,6 @@ const PERMISSION_ALIASES: Record<string, string[]> = {
     ],
     'users.assign-role': [
         'users.assign-role',
-        'users.update',
-        'access-control.staffs.update',
-        'route:access-control.staffs.update',
     ],
     'roles.view': [
         'roles.view',
