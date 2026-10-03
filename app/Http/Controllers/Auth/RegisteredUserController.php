@@ -42,7 +42,7 @@ class RegisteredUserController extends Controller
         ]);
 
         if ($request->filled('token')) {
-            $status = Password::reset(
+            $status = Password::broker('staff_invitations')->reset(
                 $request->only('email', 'password', 'password_confirmation', 'token'),
                 function ($user) use ($request) {
                     $user->forceFill([

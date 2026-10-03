@@ -60,6 +60,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         ResetPassword::toMailUsing(function (object $notifiable, string $token): MailMessage {
+            $expirationMinutes = (int) config('auth.passwords.'.config('auth.defaults.passwords').'.expire');
             $resetUrl = url(route('password.reset', [
                 'token' => $token,
                 'email' => $notifiable->getEmailForPasswordReset(),
@@ -70,7 +71,7 @@ class AppServiceProvider extends ServiceProvider
                 '<tr><td class="notice-cell notice-expiration callout-cell callout-expiration" style="padding: 12px 16px; vertical-align: middle;">' .
                 '<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="width: 100%; margin: 0;"><tr>' .
                 '<td style="width: 20px; vertical-align: middle; padding-right: 10px;"><img src="' . \App\Services\MailAssetService::url('images/mail/icon-clock.png') . '" width="16" height="16" alt="Clock" style="width: 16px; height: 16px; display: block; border: 0;"></td>' .
-                '<td style="vertical-align: middle; font-size: 13px; font-weight: 500; color: #991b1b; line-height: 1.4;">This password reset link will expire in 60 minutes.</td>' .
+                '<td style="vertical-align: middle; font-size: 13px; font-weight: 500; color: #991b1b; line-height: 1.4;">This password reset link will expire in ' . $expirationMinutes . ' minutes.</td>' .
                 '</tr></table>' .
                 '</td></tr></table>'
             );

@@ -51,7 +51,7 @@ class RegistrationTest extends TestCase
         $user->assignRole('Property Staff');
 
         /** @var PasswordBroker $broker */
-        $broker = Password::broker();
+        $broker = Password::broker('staff_invitations');
         $token = $broker->createToken($user);
 
         // GET invitation screen
@@ -77,6 +77,10 @@ class RegistrationTest extends TestCase
         $this->assertTrue($user->is_active);
         $this->assertEquals('Activated Staff Name', $user->name);
         $this->assertTrue(Hash::check('new-secure-pass1234', $user->password));
+
+        $this->get(route('register.invitation', ['token' => $token, 'email' => $user->email]))
+            ->assertStatus(410)
+            ->assertSee('resend the invitation email');
 
         // Account can now authenticate
         $loginResponse = $this->post('/login', [
@@ -117,11 +121,13 @@ class RegistrationTest extends TestCase
         ]);
 
         /** @var PasswordBroker $broker */
-        $broker = Password::broker();
+        $broker = Password::broker('staff_invitations');
         $token = $broker->createToken($user);
 
         // Travel 61 minutes into the future (default password reset timeout is 60 minutes)
         $this->travel(61)->minutes();
+
+        $this->get(route('register.invitation', ['token' => $token, 'email' => $user->email]))->assertStatus(410);
 
         $response = $this->from(route('register.invitation', ['token' => $token, 'email' => $user->email]))
             ->post(route('register.invitation.store'), [
@@ -135,5 +141,42 @@ class RegistrationTest extends TestCase
 
         $user->refresh();
         $this->assertFalse($user->is_active);
+    }
+
+    public function test_resending_invitation_invalidates_previous_link(): void
+    {
+        $user = User::factory()->create(['is_active' => false]);
+        $broker = Password::broker('staff_invitations');
+        $oldToken = $broker->createToken($user);
+        $newToken = $broker->createToken($user);
+
+        $this->get(route('register.invitation', ['token' => $oldToken, 'email' => $user->email]))->assertStatus(410);
+        $this->get(route('register.invitation', ['token' => $newToken, 'email' => $user->email]))->assertOk();
+    }
+
+    public function test_reset_and_invitation_tokens_cannot_be_used_in_the_other_flow(): void
+    {
+        $activeUser = User::factory()->create();
+        $resetToken = Password::broker('users')->createToken($activeUser);
+
+        $this->get(route('register.invitation', ['token' => $resetToken, 'email' => $activeUser->email]))->assertStatus(410);
+        $this->post(route('register.invitation.store'), [
+            'token' => $resetToken,
+            'email' => $activeUser->email,
+            'password' => 'new-password1234',
+            'password_confirmation' => 'new-password1234',
+        ])->assertSessionHasErrors('email');
+
+        $inactiveUser = User::factory()->create(['is_active' => false]);
+        $inviteToken = Password::broker('staff_invitations')->createToken($inactiveUser);
+
+        $this->get(route('password.reset', ['token' => $inviteToken, 'email' => $inactiveUser->email]))->assertStatus(410);
+        $this->post(route('password.store'), [
+            'token' => $inviteToken,
+            'email' => $inactiveUser->email,
+            'password' => 'new-password1234',
+            'password_confirmation' => 'new-password1234',
+        ])->assertSessionHasErrors('email');
+        $this->assertFalse($inactiveUser->fresh()->is_active);
     }
 }

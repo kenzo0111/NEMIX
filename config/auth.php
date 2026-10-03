@@ -97,6 +97,12 @@ return [
             'expire' => (int) env('AUTH_PASSWORD_RESET_EXPIRE', 60),
             'throttle' => (int) env('AUTH_PASSWORD_RESET_THROTTLE', 60),
         ],
+        'staff_invitations' => [
+            'provider' => 'users',
+            'table' => 'staff_invitation_tokens',
+            'expire' => (int) env('AUTH_STAFF_INVITATION_EXPIRE', 60),
+            'throttle' => 60,
+        ],
     ],
 
     /*

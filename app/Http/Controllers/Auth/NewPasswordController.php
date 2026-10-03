@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,6 +22,8 @@ class NewPasswordController extends Controller
      */
     public function create(Request $request): Response
     {
+        $this->ensureValidLink($request, false);
+
         return Inertia::render('Auth/ResetPassword', [
             'email' => $request->email,
             'token' => $request->route('token'),
@@ -33,6 +36,8 @@ class NewPasswordController extends Controller
      */
     public function createFromInvitation(Request $request): Response
     {
+        $this->ensureValidLink($request, true);
+
         return Inertia::render('Auth/Register', [
             'email' => $request->email,
             'token' => $request->route('token'),
@@ -72,17 +77,27 @@ class NewPasswordController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $user = User::where('email', $request->email)->first();
+        if (! $user || ($isInvitationFlow ? $user->is_active : ! $user->is_active)) {
+            throw ValidationException::withMessages([
+                'email' => ['This link is invalid or no longer available. Please request a new one.'],
+            ]);
+        }
+
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the
         // database. Otherwise we will parse the error and return the response.
-        $status = Password::reset(
+        $status = Password::broker($isInvitationFlow ? 'staff_invitations' : null)->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) use ($request, $isInvitationFlow) {
                 $userData = [
                     'password' => Hash::make($request->password),
-                    'is_active' => true,
                     'remember_token' => Str::random(60),
                 ];
+
+                if ($isInvitationFlow) {
+                    $userData['is_active'] = true;
+                }
 
                 if ($request->filled('name')) {
                     $userData['name'] = $request->string('name')->trim()->value();
@@ -112,5 +127,20 @@ class NewPasswordController extends Controller
         throw ValidationException::withMessages([
             'email' => [trans($status)],
         ]);
+    }
+
+    private function ensureValidLink(Request $request, bool $isInvitationFlow): void
+    {
+        $email = $request->query('email');
+        $token = $request->route('token');
+        $user = is_string($email) ? User::where('email', $email)->first() : null;
+
+        if (! $user || ! is_string($token)
+            || ($isInvitationFlow ? $user->is_active : ! $user->is_active)
+            || ! Password::broker($isInvitationFlow ? 'staff_invitations' : null)->tokenExists($user, $token)) {
+            abort(410, $isInvitationFlow
+                ? 'This invitation has expired or has already been used. Ask an administrator to resend it.'
+                : 'This password reset link has expired or has already been used. Request a new reset email.');
+        }
     }
 }

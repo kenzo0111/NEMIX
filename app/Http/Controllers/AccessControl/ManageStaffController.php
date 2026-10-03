@@ -86,7 +86,7 @@ class ManageStaffController extends Controller
         $mailSent = true;
         try {
             /** @var PasswordBroker $passwordBroker */
-            $passwordBroker = Password::broker();
+            $passwordBroker = Password::broker('staff_invitations');
             $token = $passwordBroker->createToken($user);
             $user->notify(new StaffRegistrationInvitation($token));
         } catch (\Throwable $e) {
@@ -116,7 +116,7 @@ class ManageStaffController extends Controller
 
         try {
             /** @var PasswordBroker $passwordBroker */
-            $passwordBroker = Password::broker();
+            $passwordBroker = Password::broker('staff_invitations');
             $token = $passwordBroker->createToken($user);
             $user->notify(new StaffRegistrationInvitation($token));
         } catch (\Throwable $e) {
