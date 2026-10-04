@@ -45,6 +45,7 @@ interface GenerateReportDialogProps {
     items?: any[];
     suppliers?: any[];
     issuances?: any[];
+    endUsers?: string[];
     migratedRecords?: any[];
     user?: any;
     publicSettings?: Record<string, any>;
@@ -65,6 +66,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
     items = [],
     suppliers = [],
     issuances = [],
+    endUsers = [],
     migratedRecords = [],
     user,
     publicSettings = {},
@@ -98,6 +100,9 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
     // End user options for MR
     const endUserOptions = React.useMemo(() => {
         const set = new Set<string>();
+        endUsers.forEach((name) => {
+            if (name) set.add(name);
+        });
         issuances.forEach((i: any) => {
             if (i.recipient) set.add(i.recipient);
         });
@@ -106,7 +111,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
             if (name) set.add(name);
         });
         return Array.from(set).sort().map((name) => ({ value: name, label: name }));
-    }, [issuances, migratedRecords]);
+    }, [endUsers, issuances, migratedRecords]);
 
     const isLandscape = formData.type === 'RPCI';
 
@@ -500,7 +505,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                             <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
                                             3. Property Recipient Filter
                                         </span>
-                                        <span className="text-[10px] font-medium text-gray-400 dark:text-slate-500">Optional</span>
+                                        <span className="text-[10px] font-medium text-red-700 dark:text-red-300">Required for MR</span>
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
@@ -510,7 +515,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                             options={endUserOptions}
                                             value={formData.endUser ? { value: formData.endUser, label: formData.endUser } : null}
                                             onChange={(opt: any) => updateField('endUser', opt ? opt.value : '')}
-                                            placeholder="All accountable officers (or select to filter)..."
+                                            placeholder="Select the accountable officer..."
                                             styles={customSelectStyles}
                                             isClearable
                                         />
@@ -592,6 +597,12 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                 </div>
                             </div>
 
+                            {formData.type === 'MR' && !previewDataset?.mr?.items?.length && (
+                                <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 print:hidden">
+                                    No issued items were found for this officer and coverage period. Check the selected officer and dates before recording the MR.
+                                </p>
+                            )}
+
                             {/* Official COA Paper Preview in realistic workspace canvas */}
                             <div
                                 ref={reportPaperRef}
@@ -638,7 +649,8 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                 disabled={
                                     isLoadingPreview ||
                                     !formData.type ||
-                                    (formData.type === 'STOCK_CARD' && !formData.itemName)
+                                    (formData.type === 'STOCK_CARD' && !formData.itemName) ||
+                                    (formData.type === 'MR' && !formData.endUser)
                                 }
                                 className="inline-flex items-center justify-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-red-900 rounded-lg hover:bg-red-950 disabled:opacity-50 transition-all shadow-xs active:scale-[0.99] cursor-pointer w-full sm:w-auto"
                             >
@@ -662,7 +674,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                 <button
                                     type="button"
                                     onClick={handlePrintPreview}
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || (formData.type === 'MR' && !previewDataset?.mr?.items?.length)}
                                     className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 shadow-2xs hover:border-gray-400 transition-all cursor-pointer w-full sm:w-auto"
                                 >
                                     <svg className="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -674,7 +686,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
                                 <button
                                     type="button"
                                     onClick={onSubmitReport}
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || (formData.type === 'MR' && !previewDataset?.mr?.items?.length)}
                                     className="inline-flex items-center justify-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-red-900 rounded-lg hover:bg-red-950 disabled:opacity-50 transition-all shadow-xs active:scale-[0.99] cursor-pointer w-full sm:w-auto"
                                 >
                                     {isSubmitting ? (

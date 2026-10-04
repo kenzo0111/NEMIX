@@ -209,6 +209,7 @@ export type ManageReportsPageProps = PageProps<{
     items?: any[];
     reports?: ComplianceReport[];
     issuances?: any[];
+    endUsers?: string[];
     receivings?: any[];
     suppliers?: any[];
     migratedRecords?: any[];

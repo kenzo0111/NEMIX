@@ -19,6 +19,7 @@ export default function ReportsIndex({
     items = [],
     reports = [],
     issuances = [],
+    endUsers = [],
     receivings = [],
     suppliers = [],
     migratedRecords = [],
@@ -166,6 +167,7 @@ export default function ReportsIndex({
                     items={items}
                     suppliers={suppliers}
                     issuances={issuances}
+                    endUsers={endUsers}
                     migratedRecords={migratedRecords}
                     user={user}
                     publicSettings={publicSettings}

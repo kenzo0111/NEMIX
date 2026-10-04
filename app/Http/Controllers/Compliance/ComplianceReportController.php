@@ -50,6 +50,15 @@ class ComplianceReportController extends Controller
             })->values()
             : collect();
 
+        $endUsers = class_exists(\Modules\Inventory\Models\Issuance::class)
+            ? \Modules\Inventory\Models\Issuance::query()
+                ->whereNotNull('recipient')
+                ->where('recipient', '<>', '')
+                ->distinct()
+                ->orderBy('recipient')
+                ->pluck('recipient')
+            : collect();
+
         $receivings = class_exists(\Modules\Inventory\Models\Receiving::class)
             ? \Modules\Inventory\Models\Receiving::with(['item', 'supplier'])->latest()->limit(100)->get()->map(function ($receiving) use ($tz) {
                 $rawDate = $receiving->date_received ?? $receiving->created_at;
@@ -233,6 +242,11 @@ class ComplianceReportController extends Controller
         }
 
         if (\Illuminate\Support\Facades\Schema::hasTable('memorandum_receipt_migrated_records')) {
+            $endUsers = $endUsers->concat(\App\Models\Compliance\MemorandumReceiptMigratedRecord::query()
+                ->whereNotNull('received_by')
+                ->where('received_by', '<>', '')
+                ->distinct()
+                ->pluck('received_by'));
             $mrRecords = \App\Models\Compliance\MemorandumReceiptMigratedRecord::query()->latest()->limit(50)->get()->map(function ($record) {
                 $raw = $record->raw_data ?? [];
                 $itemName = data_get($raw, 'item_name') ?? data_get($raw, 'item') ?? data_get($raw, 'description') ?? $record->remarks ?? 'Property Item';
@@ -362,6 +376,7 @@ class ComplianceReportController extends Controller
             'items' => $items,
             'reports' => $reports,
             'issuances' => $issuances,
+            'endUsers' => $endUsers->unique(fn ($name) => mb_strtolower(trim((string) $name)))->values(),
             'receivings' => $receivings,
             'suppliers' => $suppliers,
             'migratedRecords' => $migratedRecords->values(),
@@ -405,6 +420,7 @@ class ComplianceReportController extends Controller
             'itemName' => ['nullable', 'string', 'max:255'],
             'supplierId' => ['nullable', 'integer', 'exists:suppliers,id'],
             'supplierName' => ['nullable', 'string', 'max:255'],
+            'endUser' => ['nullable', 'string', 'max:255'],
             'periodType' => ['required', 'in:all,specific,range,monthly,yearly'],
             'date' => ['nullable', 'date'],
             'startDate' => ['nullable', 'date'],

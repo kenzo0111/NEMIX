@@ -1697,21 +1697,20 @@ class ComplianceReportDataService
     public function getMemorandumReceiptRecords(array $filters): array
     {
         $endUser = trim((string) ($filters['endUser'] ?? $filters['end_user'] ?? ''));
-        $endUserLower = strtolower($endUser);
+        $endUserLower = mb_strtolower($endUser);
         $records = collect();
 
         // 1. Live issuances
         if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
             $query = \Modules\Inventory\Models\Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches']);
             $this->applyPeriodScopeToQuery($query, $filters, 'date_issued', 'created_at');
+            if ($endUser !== '') {
+                $query->whereRaw('LOWER(TRIM(recipient)) = ?', [$endUserLower]);
+            }
             $issuances = $query
                 ->latest()
-                ->limit(2000)
                 ->get()
-                ->filter(function ($iss) use ($endUserLower, $filters) {
-                    if ($endUserLower && strtolower((string)$iss->recipient) !== $endUserLower) {
-                        return false;
-                    }
+                ->filter(function ($iss) use ($filters) {
                     $dt = $iss->date_issued ?? $iss->created_at;
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
                 })
@@ -1786,7 +1785,6 @@ class ComplianceReportDataService
             $this->applyPeriodScopeToQuery($migratedQuery, $filters, 'date_received', 'created_at');
             $migrated = $migratedQuery
                 ->latest()
-                ->limit(2000)
                 ->get()
                 ->filter(function ($rec) use ($endUserLower, $filters) {
                     if ($endUserLower) {

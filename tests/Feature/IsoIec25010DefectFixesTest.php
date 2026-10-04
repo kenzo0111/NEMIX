@@ -461,6 +461,55 @@ class IsoIec25010DefectFixesTest extends TestCase
         $this->assertEquals(3100.00, $mor['grandTotal']);
     }
 
+    public function test_memorandum_receipt_finds_recipient_beyond_recent_issuance_limit(): void
+    {
+        $item = Item::create([
+            'name' => 'Issued Monitor',
+            'sku' => 'MON-MR-001',
+            'supplier_id' => $this->supplier->id,
+            'stock' => 1,
+            'unit_cost' => 5000,
+            'status' => 'Available',
+            'created_by' => $this->adminUser->id,
+        ]);
+
+        Issuance::create([
+            'ris_number' => 'RIS-MR-OLD',
+            'item_id' => $item->id,
+            'quantity' => 1,
+            'recipient' => 'Older Accountable Officer',
+            'date_issued' => '2025-01-10',
+            'status' => 'Issued',
+            'issued_by' => $this->adminUser->id,
+        ]);
+
+        for ($offset = 0; $offset < 2000; $offset += 250) {
+            $rows = [];
+            for ($index = $offset; $index < $offset + 250; $index++) {
+                $rows[] = [
+                    'ris_number' => 'RIS-MR-NEW-' . $index,
+                    'item_id' => $item->id,
+                    'quantity' => 1,
+                    'recipient' => 'Another Officer',
+                    'date_issued' => '2026-09-01',
+                    'status' => 'Issued',
+                    'issued_by' => $this->adminUser->id,
+                    'created_at' => '2026-09-01 00:00:00',
+                    'updated_at' => '2026-09-01 00:00:00',
+                ];
+            }
+            DB::table('issuances')->insert($rows);
+        }
+
+        $mr = app(ComplianceReportDataService::class)->getMemorandumReceiptRecords([
+            'endUser' => 'Older Accountable Officer',
+            'periodType' => 'all',
+        ]);
+
+        $this->assertSame(1, $mr['summary']['recordCount']);
+        $this->assertSame('Issued Monitor', $mr['items'][0]['description']);
+    }
+
     /**
      * TEST 6 — RFID Unauthorized Request
      * Without credentials: GET /rfid-scanner/lookup/TAG001. Expected: 401.

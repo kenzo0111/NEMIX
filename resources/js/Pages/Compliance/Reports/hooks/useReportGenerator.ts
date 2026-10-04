@@ -57,7 +57,10 @@ export function useReportGenerator(
                 if (value === 'RSMI') next.title = 'RSMI - Supplies and Materials Issued';
                 else if (value === 'RPCI') next.title = 'RPCI - Physical Count of Inventories';
                 else if (value === 'STOCK_CARD') next.title = next.itemName ? `Stock Card - ${next.itemName}` : 'Stock Card';
-                else if (value === 'MR') next.title = next.endUser ? `Memorandum Receipt - ${next.endUser}` : 'Memorandum Receipt for Property';
+                else if (value === 'MR') {
+                    next.title = next.endUser ? `Memorandum Receipt - ${next.endUser}` : 'Memorandum Receipt for Property';
+                    next.periodType = 'all';
+                }
             }
             if (field === 'itemName' && next.type === 'STOCK_CARD') {
                 next.title = value ? `Stock Card - ${value}` : 'Stock Card';
@@ -101,8 +104,6 @@ export function useReportGenerator(
             return false;
         } catch (err) {
             console.error('Failed to fetch authoritative preview dataset:', err);
-            // Fallback step change even if offline/failed
-            setCurrentStep('preview');
             return false;
         } finally {
             setIsLoadingPreview(false);
