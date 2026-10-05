@@ -23,10 +23,15 @@ class SupplyRequestAlertController extends Controller
         $this->authorizeApprover($request);
         $userId = $request->user()->id;
 
-        $alerts = SupplyRequestAlert::query()
+        $validated = $request->validate(['before' => ['sometimes', 'integer', 'min:1']]);
+
+        $rows = SupplyRequestAlert::query()
             ->where('user_id', $userId)
+            ->when(isset($validated['before']), fn ($query) => $query->where('id', '<', $validated['before']))
             ->with(['supplyRequest.requester'])
-            ->latest()->limit(10)->get()
+            ->orderByDesc('id')->limit(11)->get();
+        $hasMore = $rows->count() > 10;
+        $alerts = $rows->take(10)
             ->filter(fn ($alert) => $alert->supplyRequest !== null)
             ->map(fn ($alert) => [
                 'id' => $alert->id,
@@ -42,6 +47,7 @@ class SupplyRequestAlertController extends Controller
             'unread_count' => SupplyRequestAlert::query()->where('user_id', $userId)->whereNull('read_at')->count(),
             'pending_count' => SupplyRequest::query()->where('status', 'Pending')->count(),
             'alerts' => $alerts,
+            'has_more' => $hasMore,
         ]);
     }
 

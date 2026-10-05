@@ -14,6 +14,15 @@ class Item extends Model
     {
         parent::boot();
 
+        static::updated(function (Item $item) {
+            if (! $item->wasChanged('stock')) {
+                return;
+            }
+
+            app(\Modules\Inventory\Services\LowStockAlertService::class)
+                ->scheduleIfThresholdCrossed($item, (int) $item->getRawOriginal('stock'), (int) $item->stock);
+        });
+
         static::deleting(function ($item) {
             if ($item->isForceDeleting() && $item->hasHistoricalTransactions()) {
                 throw new \RuntimeException('This record cannot be permanently deleted because it is referenced by existing inventory transactions. Archive or deactivate the record instead.');

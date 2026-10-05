@@ -17,6 +17,7 @@ type AlertResponse = {
     unread_count: number;
     pending_count: number;
     alerts: Alert[];
+    has_more: boolean;
 };
 
 export default function SupplyRequestAlerts({
@@ -26,9 +27,10 @@ export default function SupplyRequestAlerts({
     collapsed: boolean;
     onExpand?: () => void;
 }) {
-    const [data, setData] = useState<AlertResponse>({ unread_count: 0, pending_count: 0, alerts: [] });
+    const [data, setData] = useState<AlertResponse>({ unread_count: 0, pending_count: 0, alerts: [], has_more: false });
     const [open, setOpen] = useState(false);
     const [newAlert, setNewAlert] = useState<Alert | null>(null);
+    const [loadingOlder, setLoadingOlder] = useState(false);
     const previousIds = useRef<Set<number> | null>(null);
     const previousPending = useRef<number | null>(null);
 
@@ -46,7 +48,14 @@ export default function SupplyRequestAlerts({
             }
             previousIds.current = new Set(next.alerts.map((alert) => alert.id));
             previousPending.current = next.pending_count;
-            setData(next);
+            setData((current) => {
+                const seen = new Set(next.alerts.map((alert) => alert.id));
+                return {
+                    ...next,
+                    alerts: [...next.alerts, ...current.alerts.filter((alert) => !seen.has(alert.id))],
+                    has_more: current.alerts.length > 10 ? current.has_more : next.has_more,
+                };
+            });
         } catch {
             // Keep the last known count; the next poll will retry.
         }
@@ -63,6 +72,31 @@ export default function SupplyRequestAlerts({
         const timer = window.setTimeout(() => setNewAlert(null), 6000);
         return () => window.clearTimeout(timer);
     }, [newAlert]);
+
+    const loadOlder = async () => {
+        const oldest = data.alerts[data.alerts.length - 1];
+        if (!oldest || loadingOlder) return;
+        setLoadingOlder(true);
+        try {
+            const response = await axios.get<AlertResponse>(route('inventory.request-alerts.index'), {
+                params: { before: oldest.id },
+            });
+            setData((current) => {
+                const seen = new Set(current.alerts.map((alert) => alert.id));
+                return {
+                    ...current,
+                    alerts: [...current.alerts, ...response.data.alerts.filter((alert) => !seen.has(alert.id))],
+                    has_more: response.data.has_more,
+                    unread_count: response.data.unread_count,
+                    pending_count: response.data.pending_count,
+                };
+            });
+        } catch {
+            // Keep the current list so the user can retry.
+        } finally {
+            setLoadingOlder(false);
+        }
+    };
 
     const openRequest = async (alert: Alert) => {
         try {
@@ -111,6 +145,10 @@ export default function SupplyRequestAlerts({
                                 <span className="block text-[11px]">{alert.requester || 'Supply Coordinator'} · {alert.status}</span>
                             </button>
                         ))}
+                        {data.has_more && <button type="button" onClick={() => void loadOlder()} disabled={loadingOlder}
+                            className="w-full rounded-md px-2 py-2 text-center text-xs font-semibold text-amber-300 hover:bg-white/10 disabled:opacity-50">
+                            {loadingOlder ? 'Loading...' : 'Load older alerts'}
+                        </button>}
                     </div>
                 </div>
             )}

@@ -106,7 +106,7 @@ export default function NotificationSettings({
                     )}
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
                         <Info className="w-3 h-3 text-slate-400 shrink-0" />
-                        Leave blank to route alerts to the currently logged-in administrator's email.
+                        Leave blank to use the current administrator's email, or an active system administrator when stock is updated by other staff.
                     </p>
                 </div>
             </div>

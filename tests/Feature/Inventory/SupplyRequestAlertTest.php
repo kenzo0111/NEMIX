@@ -85,4 +85,34 @@ class SupplyRequestAlertTest extends TestCase
         $this->actingAs($custodian)->get(route('inventory.request-alerts.index'))
             ->assertOk()->assertJsonPath('pending_count', 0)->assertJsonPath('alerts.0.status', 'Approved');
     }
+
+    public function test_older_unread_alerts_can_be_loaded_and_read(): void
+    {
+        $custodian = $this->user('Property Custodian');
+        $coordinator = $this->user('Supply Coordinator');
+
+        for ($number = 1; $number <= 12; $number++) {
+            $request = SupplyRequest::create([
+                'ris_number' => 'RIS-ALERT-'.$number,
+                'requested_by' => $coordinator->id,
+                'department' => 'Registrar',
+                'purpose' => 'Office work',
+                'date_requested' => now()->toDateString(),
+                'status' => 'Pending',
+            ]);
+            SupplyRequestAlert::create(['user_id' => $custodian->id, 'supply_request_id' => $request->id]);
+        }
+
+        $firstPage = $this->actingAs($custodian)->getJson(route('inventory.request-alerts.index'))
+            ->assertOk()->assertJsonPath('unread_count', 12)->assertJsonPath('has_more', true)
+            ->assertJsonCount(10, 'alerts')->json();
+
+        $oldestVisibleId = $firstPage['alerts'][9]['id'];
+        $older = $this->actingAs($custodian)->getJson(route('inventory.request-alerts.index', ['before' => $oldestVisibleId]))
+            ->assertOk()->assertJsonPath('has_more', false)->assertJsonCount(2, 'alerts')->json();
+
+        $this->actingAs($custodian)->postJson(route('inventory.request-alerts.read', $older['alerts'][1]['id']))->assertOk();
+        $this->actingAs($custodian)->getJson(route('inventory.request-alerts.index'))
+            ->assertJsonPath('unread_count', 11);
+    }
 }
