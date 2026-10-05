@@ -29,7 +29,7 @@ export default function PageHeader({
 
   return (
     <header className="sticky top-0 z-30 shadow-xs">
-      <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 transition-colors">
+      <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-4 sm:px-6 lg:px-8 py-3 flex flex-col xl:flex-row xl:items-center justify-between gap-3 transition-colors">
         <div className="flex items-start gap-2 min-w-0 flex-1">
           <button
             type="button"
@@ -41,7 +41,7 @@ export default function PageHeader({
           </button>
 
           <div className="min-w-0 flex-1">
-            {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
+            {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} currentPage={title} />}
             <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight break-words">
               {title}
             </h1>
@@ -53,10 +53,10 @@ export default function PageHeader({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 shrink-0 justify-between md:justify-end">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 shrink-0 justify-between xl:justify-end">
           <SystemModeBadge />
           <ThemeToggle variant="compact" />
-          <div className="text-right hidden sm:block border-l border-gray-200 dark:border-slate-800 pl-4">
+          <div className="text-right hidden xl:block border-l border-gray-200 dark:border-slate-800 pl-4">
             <span className="block text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
               {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
             </span>

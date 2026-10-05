@@ -59,7 +59,7 @@ export default function DashboardHeader({ onToggleSidebar }: DashboardHeaderProp
             )}
 
             {/* Single Merged Header Row */}
-            <div className="border-b border-gray-200 dark:border-slate-800 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="border-b border-gray-200 dark:border-slate-800 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                 <div className="flex items-start gap-2 min-w-0 flex-1">
                     <button
                         type="button"
@@ -85,10 +85,10 @@ export default function DashboardHeader({ onToggleSidebar }: DashboardHeaderProp
                     </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4 shrink-0 justify-between sm:justify-end">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 shrink-0 justify-between xl:justify-end">
                     <SystemModeBadge />
                     <ThemeToggle variant="compact" />
-                    <div className="text-right hidden sm:block border-l border-gray-200 dark:border-slate-800 pl-4">
+                    <div className="text-right hidden xl:block border-l border-gray-200 dark:border-slate-800 pl-4">
                         <span className="block text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
                             {todayDate}
                         </span>
