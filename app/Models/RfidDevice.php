@@ -30,6 +30,10 @@ class RfidDevice extends Model
 
     public function isOnline(): bool
     {
+        if ($this->status === 'disabled') {
+            return false;
+        }
+
         $interval = max(10, (int) ($this->settings?->heartbeat_interval ?? 30));
 
         return $this->last_seen_at?->greaterThan(now()->subSeconds($interval * 3)) ?? false;

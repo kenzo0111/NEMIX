@@ -69,7 +69,7 @@ export function useRfidScanner({
 
                 const data = await response.json();
                 consecutiveFailuresRef.current = 0;
-                setConnectionState('connected');
+                setConnectionState(data.status === 'online' ? 'connected' : 'offline');
 
                 // Inspect incoming scan event from hardware
                 if (data?.scan?.tag && data?.scan?.timestamp) {
@@ -119,12 +119,14 @@ export function useRfidScanner({
 
         try {
             const response = await fetch('/rfid-scanner/status', {
+                cache: 'no-store',
                 headers: { Accept: 'application/json' },
             });
 
             if (response.ok) {
+                const data = await response.json();
                 consecutiveFailuresRef.current = 0;
-                setConnectionState('connected');
+                setConnectionState(data.status === 'online' ? 'connected' : 'offline');
             } else {
                 setConnectionState('offline');
             }

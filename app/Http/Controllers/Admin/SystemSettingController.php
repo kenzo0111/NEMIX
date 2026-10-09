@@ -68,7 +68,7 @@ class SystemSettingController extends Controller
                 'device_uuid' => $device->device_uuid,
                 'device_name' => $device->device_name,
                 'firmware_version' => $device->firmware_version,
-                'status' => $device->isOnline() ? 'online' : 'offline',
+                'status' => $device->status === 'disabled' ? 'disabled' : ($device->isOnline() ? 'online' : 'offline'),
                 'ip_address' => $device->ip_address,
                 'last_seen_at' => $device->last_seen_at?->toIso8601String(),
                 'config_version' => $device->config_version,

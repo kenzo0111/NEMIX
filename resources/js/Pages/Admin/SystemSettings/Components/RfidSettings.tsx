@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import axios from 'axios';
+import { usePoll } from '@inertiajs/react';
 import { RfidDeviceConfiguration, SystemSettings } from '../types';
 import { Info, Radio, Save, Wifi, Plus, Activity } from 'lucide-react';
 import { useAuthorization } from '@/Hooks/useAuthorization';
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function RfidSettings({ settings, onChange, errors = {}, devices, onToast }: Props) {
+    usePoll(5000, { only: ['rfidDevices'] });
     const { can } = useAuthorization();
     const [selectedId, setSelectedId] = useState<number | null>(devices[0]?.id ?? null);
     const selected = useMemo(() => devices.find((d) => d.id === selectedId), [devices, selectedId]);

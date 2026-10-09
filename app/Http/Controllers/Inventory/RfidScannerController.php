@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Inventory;
 
 use App\Http\Controllers\Controller;
+use App\Models\RfidDevice;
 use App\Policies\ResourceOwnershipPolicy;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -276,13 +277,24 @@ class RfidScannerController extends Controller
         });
     }
 
-    public function status(): JsonResponse
+    private function hardwareStatus(Request $request): string
     {
+        $devices = RfidDevice::with('settings')
+            ->when($request->filled('device_uuid'), fn ($query) => $query->where('device_uuid', $request->query('device_uuid')))
+            ->get();
+
+        return $devices->contains(fn (RfidDevice $device) => $device->isOnline()) ? 'online' : 'offline';
+    }
+
+    public function status(Request $request): JsonResponse
+    {
+        $status = $this->hardwareStatus($request);
+
         return response()->json([
-            'status' => 'online',
+            'status' => $status,
             'timestamp' => microtime(true),
-            'message' => 'RFID Scanner API service is operational.',
-        ]);
+            'message' => $status === 'online' ? 'The scanner heartbeat is current.' : 'No recent scanner heartbeat was received.',
+        ], 200, ['Cache-Control' => 'no-store']);
     }
 
     public function lookup(Request $request, string $tag): JsonResponse
@@ -331,6 +343,7 @@ class RfidScannerController extends Controller
 
     public function liveFeed(Request $request): JsonResponse
     {
+        $status = $this->hardwareStatus($request);
         $scan = Cache::get('latest_rfid_hardware_scan');
         $deviceUuid = $request->query('device_uuid');
         $stationId = $request->query('station') ?? $request->query('station_id');
@@ -349,7 +362,7 @@ class RfidScannerController extends Controller
 
         if ($request->boolean('initialize')) {
             return response()->json([
-                'status' => 'online',
+                'status' => $status,
                 'events' => [],
                 'latest_event_id' => (int) ($query->max('id') ?? 0),
                 'server_time' => microtime(true),
@@ -371,7 +384,7 @@ class RfidScannerController extends Controller
         $latestEventId = $events->last()?->id ?? $sinceParam;
 
         return response()->json([
-            'status' => 'online',
+            'status' => $status,
             'scan' => $scan,
             'events' => $events,
             'latest_event_id' => $latestEventId,

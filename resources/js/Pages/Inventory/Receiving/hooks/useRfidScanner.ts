@@ -207,7 +207,7 @@ export function useRfidScanner({
                 const data = await response.json();
                 if (controller.signal.aborted) return;
 
-                setConnectionState('connected');
+                setConnectionState(data.status === 'online' ? 'connected' : 'offline');
 
                 // The first response arms this device from a server cursor. Earlier events are not replayed.
                 const incomingLatestId = Number(data.latest_event_id ?? 0);

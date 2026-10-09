@@ -3,6 +3,7 @@
 namespace Tests\Feature\Inventory;
 
 use App\Models\User;
+use App\Models\RfidDevice;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Inventory\Models\Item;
 use Modules\Suppliers\Models\Supplier;
@@ -54,6 +55,54 @@ class RfidScannerTest extends TestCase
     {
         $response = $this->actingAs($this->adminUser)->get(route('rfid-scanner.index'));
         $response->assertOk();
+    }
+
+    public function test_hardware_status_expires_when_heartbeats_stop(): void
+    {
+        $this->freezeTime();
+        $device = RfidDevice::create([
+            'device_uuid' => 'RFID-STATUS-TEST', 'device_name' => 'Status test scanner',
+            'device_token_hash' => 'test', 'status' => 'online', 'last_seen_at' => now(),
+        ]);
+        $device->settings()->create(['server_url' => 'https://example.test', 'heartbeat_interval' => 10]);
+        $this->actingAs($this->adminUser);
+
+        foreach (['rfid-scanner.status', 'rfid-scanner.live-feed'] as $endpoint) {
+            $this->getJson(route($endpoint))->assertOk()->assertJsonPath('status', 'online');
+        }
+
+        $this->travel(30)->seconds();
+        foreach (['rfid-scanner.status', 'rfid-scanner.live-feed'] as $endpoint) {
+            $this->getJson(route($endpoint))->assertOk()->assertJsonPath('status', 'offline');
+        }
+
+        $device->update(['last_seen_at' => now()]);
+        $this->getJson(route('rfid-scanner.status'))->assertJsonPath('status', 'online');
+        $device->update(['status' => 'disabled']);
+        $this->getJson(route('rfid-scanner.status'))->assertJsonPath('status', 'offline');
+    }
+
+    public function test_live_feed_checks_the_selected_scanner_even_if_another_is_online(): void
+    {
+        RfidDevice::create([
+            'device_uuid' => 'RFID-ONLINE', 'device_name' => 'Online scanner',
+            'device_token_hash' => 'test', 'status' => 'online', 'last_seen_at' => now(),
+        ]);
+        RfidDevice::create([
+            'device_uuid' => 'RFID-OFFLINE', 'device_name' => 'Offline scanner',
+            'device_token_hash' => 'test', 'status' => 'online', 'last_seen_at' => now()->subMinutes(5),
+        ]);
+        $this->actingAs($this->adminUser);
+
+        foreach ([[], ['initialize' => 1], ['since' => 0]] as $params) {
+            $this->getJson(route('rfid-scanner.live-feed', $params + ['device_uuid' => 'RFID-OFFLINE']))
+                ->assertOk()->assertJsonPath('status', 'offline');
+            $this->getJson(route('rfid-scanner.live-feed', $params + ['device_uuid' => 'RFID-ONLINE']))
+                ->assertOk()->assertJsonPath('status', 'online');
+        }
+        $this->getJson(route('rfid-scanner.status', ['device_uuid' => 'UNKNOWN']))->assertJsonPath('status', 'offline');
+        RfidDevice::query()->delete();
+        $this->getJson(route('rfid-scanner.status'))->assertJsonPath('status', 'offline');
     }
 
     public function test_rfid_tag_can_be_assigned_to_item(): void
