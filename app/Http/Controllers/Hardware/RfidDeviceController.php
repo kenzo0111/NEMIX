@@ -82,7 +82,8 @@ class RfidDeviceController extends Controller
             'wifi_rssi' => $data['wifi_rssi'] ?? null,
             'uptime_seconds' => $data['uptime'],
             'scanner_ready' => $data['scanner_ready'],
-            'last_seen_at' => now(),
+            // PostgreSQL interprets timezone-less timestamp values as UTC.
+            'last_seen_at' => now()->utc(),
         ]);
 
         return response()->json([
