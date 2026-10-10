@@ -183,6 +183,8 @@ export default function ReceivingIndex({
         cancelSubmission,
         isSearching: isRfidSearching,
         errorMessage: rfidError,
+        scanNotices,
+        dismissScanNotice,
         lookupTag,
         removeItem,
         resetScanner,
@@ -460,6 +462,8 @@ export default function ReceivingIndex({
                 isSearching={isRfidSearching}
                 processing={rfidProcessing}
                 errorMessage={rfidError}
+                scanNotices={scanNotices}
+                onDismissScanNotice={dismissScanNotice}
                 submitError={rfidSubmitError}
                 onSubmit={handleRfidSubmit}
                 devices={devices}

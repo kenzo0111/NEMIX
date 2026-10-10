@@ -4,6 +4,14 @@ export interface Supplier {
     status?: string;
 }
 
+export interface RfidScanNotice {
+    id: string;
+    kind: 'duplicate' | 'unassigned';
+    message: string;
+    count: number;
+    expiresAt: number;
+}
+
 export interface RfidDeviceOption {
     id: number;
     device_uuid: string;

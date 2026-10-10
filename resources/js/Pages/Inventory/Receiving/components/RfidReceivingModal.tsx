@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import Modal from '@/Components/Modal';
-import { InventoryItem, RfidDeviceOption, Supplier } from '../types';
+import { InventoryItem, RfidDeviceOption, RfidScanNotice, Supplier } from '../types';
 import { AlertCircle, CheckCircle2, Info, Loader2, Radio, Server, X } from 'lucide-react';
 
 interface Props {
@@ -26,6 +26,8 @@ interface Props {
     isSearching: boolean;
     processing: boolean;
     errorMessage: string | null;
+    scanNotices: RfidScanNotice[];
+    onDismissScanNotice: (id: string) => void;
     submitError: string | null;
     onSubmit: () => void;
     devices?: RfidDeviceOption[];
@@ -67,6 +69,8 @@ export const RfidReceivingModal: React.FC<Props> = ({
     isSearching,
     processing,
     errorMessage,
+    scanNotices,
+    onDismissScanNotice,
     submitError,
     onSubmit,
     devices = [],
@@ -289,6 +293,21 @@ export const RfidReceivingModal: React.FC<Props> = ({
                             </button>
                         </div>
                     </form>
+
+                    <div role="status" aria-live="polite" aria-relevant="additions text" className="space-y-2">
+                        {scanNotices.map(notice => (
+                            <div key={notice.id} className={`flex items-start gap-2 rounded-xl border p-3 text-xs ${notice.kind === 'duplicate' ? 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300' : 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300'}`}>
+                                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                                <div className="min-w-0 flex-1 break-words">
+                                    <p className="font-semibold">{notice.kind === 'duplicate' ? 'Duplicate tag' : 'Unassigned tag'}{notice.count > 1 && <span className="ml-2 font-mono">×{notice.count}</span>}</p>
+                                    <p className="mt-0.5">{notice.message}</p>
+                                </div>
+                                <button type="button" onClick={() => onDismissScanNotice(notice.id)} aria-label={`Dismiss notification: ${notice.message}`} className="shrink-0 rounded p-1 opacity-70 transition-opacity hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+                                    <X className="h-3.5 w-3.5" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
 
                     {isSearching && (
                         <p className="text-xs text-gray-600 dark:text-slate-400 flex items-center gap-2 py-1">

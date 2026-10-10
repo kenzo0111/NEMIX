@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { InventoryItem } from '../types';
+import { InventoryItem, RfidScanNotice } from '../types';
 import { playScanChime } from '@/Pages/RFID-Scanner/utils/scannerAudio';
 
 export interface UseRfidScannerOptions {
@@ -22,6 +22,7 @@ export function useRfidScanner({
     const [queuedItems, setQueuedItems] = useState<InventoryItem[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [scanNotices, setScanNotices] = useState<RfidScanNotice[]>([]);
     const [connectionState, setConnectionState] = useState<'connecting' | 'connected' | 'offline'>('connecting');
     const [scanFeedback, setScanFeedback] = useState('Ready for keyboard, manual, or hardware scans.');
 
@@ -34,6 +35,36 @@ export function useRfidScanner({
     const acceptingRef = useRef(false);
     const generationRef = useRef(0);
     const cursorRef = useRef<number | null>(null);
+
+    const notifyScan = useCallback((kind: RfidScanNotice['kind'], tag: string, message: string) => {
+        const now = Date.now();
+        const id = `${kind}:${tag}`;
+        setScanNotices(current => {
+            const active = current.filter(notice => notice.expiresAt > now);
+            const previous = active.find(notice => notice.id === id);
+            return [...active.filter(notice => notice.id !== id), {
+                id, kind, message, count: (previous?.count ?? 0) + 1, expiresAt: now + 5000,
+            }].slice(-5);
+        });
+        setScanFeedback('Waiting for another RFID tag.');
+    }, []);
+
+    const dismissScanNotice = useCallback((id: string) => {
+        setScanNotices(current => current.filter(notice => notice.id !== id));
+    }, []);
+
+    useEffect(() => {
+        if (!scanNotices.length) return;
+        const nextExpiry = Math.min(...scanNotices.map(notice => notice.expiresAt));
+        const timer = window.setTimeout(() => {
+            setScanNotices(current => current.filter(notice => notice.expiresAt > Date.now()));
+        }, Math.max(0, nextExpiry - Date.now()));
+        return () => window.clearTimeout(timer);
+    }, [scanNotices]);
+
+    useEffect(() => {
+        if (!enabled) setScanNotices([]);
+    }, [enabled]);
 
     // Keyboard buffer refs for hardware wedge scanner
     const bufferRef = useRef('');
@@ -55,6 +86,7 @@ export function useRfidScanner({
         setQueuedItems([]);
         setScanInput('');
         setErrorMessage(null);
+        setScanNotices([]);
         setScanFeedback('Ready for keyboard, manual, or hardware scans.');
         setIsSearching(false);
     }, []);
@@ -70,6 +102,7 @@ export function useRfidScanner({
         setQueuedItems([]);
         setScanInput('');
         setErrorMessage(null);
+        setScanNotices([]);
         return carried;
     }, []);
 
@@ -97,14 +130,12 @@ export function useRfidScanner({
 
         // Check if already in active scanned items or in queued items
         if (scannedRef.current.some(item => item.rfid_tag?.trim().toUpperCase() === tag)) {
-            setErrorMessage(`RFID tag ${tag} is already in this receipt.`);
-            setScanFeedback(`${tag} was already added.`);
+            notifyScan('duplicate', tag, `RFID tag ${tag} is already in this receipt.`);
             return;
         }
 
         if (queuedRef.current.some(item => item.rfid_tag?.trim().toUpperCase() === tag)) {
-            setErrorMessage(`RFID tag ${tag} is already queued for the next session.`);
-            setScanFeedback(`${tag} is already queued.`);
+            notifyScan('duplicate', tag, `RFID tag ${tag} is already queued for the next session.`);
             return;
         }
 
@@ -116,7 +147,7 @@ export function useRfidScanner({
         }
 
         if (pendingTagsRef.current.has(tag)) {
-            setErrorMessage(`RFID tag ${tag} is already being looked up.`);
+            notifyScan('duplicate', tag, `RFID tag ${tag} is already being looked up.`);
             return;
         }
 
@@ -140,12 +171,11 @@ export function useRfidScanner({
             if (generation !== generationRef.current) return;
 
             if (!item?.rfid_tag) {
-                setErrorMessage(`No inventory item is associated with RFID tag ${tag}.`);
-                setScanFeedback(`${tag} was not found.`);
+                notifyScan('unassigned', tag, `No inventory item is associated with RFID tag ${tag}.`);
             } else if (scannedRef.current.some(candidate => candidate.rfid_tag?.trim().toUpperCase() === tag)) {
-                setErrorMessage(`RFID tag ${tag} is already in this receipt.`);
+                notifyScan('duplicate', tag, `RFID tag ${tag} is already in this receipt.`);
             } else if (queuedRef.current.some(candidate => candidate.rfid_tag?.trim().toUpperCase() === tag)) {
-                setErrorMessage(`RFID tag ${tag} is already queued for the next session.`);
+                notifyScan('duplicate', tag, `RFID tag ${tag} is already queued for the next session.`);
             } else {
                 playScanChime();
 
@@ -170,7 +200,7 @@ export function useRfidScanner({
                 setIsSearching(pendingTagsRef.current.size > 0);
             }
         }
-    }, [items]);
+    }, [items, notifyScan]);
 
     // Live Feed polling with device/station scoping and server session cursor
     useEffect(() => {
@@ -320,6 +350,8 @@ export function useRfidScanner({
         cancelSubmission,
         isSearching,
         errorMessage,
+        scanNotices,
+        dismissScanNotice,
         connectionState,
         scanFeedback,
         lookupTag,
