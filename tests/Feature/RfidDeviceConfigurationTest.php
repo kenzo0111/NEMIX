@@ -153,6 +153,151 @@ class RfidDeviceConfigurationTest extends TestCase
         $this->assertSame('correct horse battery staple', $device->settings->wifi_password_encrypted);
     }
 
+    private function settingsPayload(): array
+    {
+        return [
+            'device_name' => 'Updated Scanner', 'wifi_ssid' => 'Private Network', 'wifi_password' => '',
+            'server_url' => 'https://inventory.example.edu', 'scan_mode' => 'inventory', 'rf_power' => 18,
+            'scan_timeout' => 5000, 'heartbeat_interval' => 20, 'buzzer_enabled' => true, 'auto_reconnect' => true,
+            'station_id' => 'STATION-1',
+        ];
+    }
+
+    public function test_save_queues_version_without_claiming_device_applied_it(): void
+    {
+        [$device] = $this->device();
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::firstOrCreate(['name' => 'System Admin']));
+        $this->actingAs($admin)->putJson(route('system.settings.rfid-devices.update', $device), $this->settingsPayload())
+            ->assertOk()->assertJsonPath('version', 3);
+        $device->refresh();
+        $this->assertSame('pending', $device->configuration_status);
+        $this->assertSame(0, $device->applied_config_version);
+        $this->assertSame('STATION-1', $device->station_id);
+        $this->assertSame('correct horse battery staple', $device->settings->wifi_password_encrypted);
+    }
+
+    public function test_open_network_and_special_characters_survive_candidate_snapshot(): void
+    {
+        [$device] = $this->device();
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::firstOrCreate(['name' => 'System Admin']));
+        $payload = $this->settingsPayload();
+        $payload['wifi_ssid'] = ' Network "\\角" ';
+        $payload['wifi_password'] = 'special"\\password';
+        $this->actingAs($admin)->putJson(route('system.settings.rfid-devices.update', $device), $payload)->assertOk();
+        $device->refresh();
+        $path = '/api/hardware/rfid/config/candidate';
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path))->postJson($path, [])
+            ->assertOk()->assertHeader('Cache-Control', 'no-store, private')
+            ->assertJsonPath('configuration.version', 3)
+            ->assertJsonPath('configuration.wifi_ssid', $payload['wifi_ssid'])
+            ->assertJsonPath('configuration.wifi_password', $payload['wifi_password']);
+        $payload['wifi_password'] = '';
+        $payload['wifi_open_network'] = true;
+        $this->actingAs($admin)->putJson(route('system.settings.rfid-devices.update', $device), $payload)->assertOk();
+        $device->refresh();
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path))->postJson($path, [])
+            ->assertJsonPath('configuration.version', 4)->assertJsonPath('configuration.wifi_password', '');
+    }
+
+    public function test_stale_status_cannot_overwrite_new_save_and_heartbeat_confirms_applied_version(): void
+    {
+        [$device] = $this->device();
+        $device->update(['config_version' => 3, 'configuration_status' => 'pending']);
+        $device->settings->update(['configuration_version' => 3]);
+        $path = '/api/hardware/rfid/config/status';
+        $body = ['version' => 2, 'status' => 'applied'];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertOk();
+        $this->assertSame('pending', $device->fresh()->configuration_status);
+        $body = ['version' => 3, 'status' => 'rolled_back', 'message' => 'New server unreachable'];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertOk();
+        $this->assertSame('rolled_back', $device->fresh()->configuration_status);
+        $path = '/api/hardware/rfid/heartbeat';
+        $body = ['firmware_version' => '2.1.0', 'configuration_version' => 2, 'uptime' => 90, 'scanner_ready' => true];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)
+            ->assertOk()->assertJsonPath('configuration_available', true);
+        $this->assertSame(2, $device->fresh()->applied_config_version);
+        $this->assertSame('rolled_back', $device->fresh()->configuration_status);
+        $body['configuration_version'] = 3;
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertOk();
+        $this->assertSame('applied', $device->fresh()->configuration_status);
+        $this->assertSame(3, $device->fresh()->applied_config_version);
+    }
+
+    public function test_future_configuration_report_is_rejected(): void
+    {
+        [$device] = $this->device();
+        $path = '/api/hardware/rfid/config/status';
+        $body = ['version' => 999, 'status' => 'applied'];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertStatus(422);
+        $this->assertSame(0, $device->fresh()->applied_config_version);
+    }
+
+    public function test_batch_delivery_retry_is_idempotent_and_uses_assigned_station(): void
+    {
+        [$device] = $this->device();
+        $device->update(['station_id' => 'STATION-1']);
+        $path = '/api/hardware/rfid/scans';
+        $body = ['scans' => [
+            ['epc' => 'ABCDEF01', 'rssi' => -45, 'event_uuid' => str_repeat('a', 32)],
+            ['epc' => 'ABCDEF02', 'rssi' => -48, 'event_uuid' => str_repeat('b', 32)],
+        ]];
+        for ($attempt = 0; $attempt < 2; $attempt++) {
+            $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)
+                ->assertOk()->assertJsonPath('accepted', [str_repeat('a', 32), str_repeat('b', 32)]);
+        }
+        $this->assertSame(2, DB::table('rfid_scan_events')->count());
+        $this->assertSame(2, DB::table('rfid_scan_events')->where('station_id', 'STATION-1')->count());
+        $body['scans'][1]['epc'] = 'NOT-HEX';
+        $body['scans'][0]['event_uuid'] = str_repeat('c', 32);
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertStatus(422);
+        $this->assertSame(2, DB::table('rfid_scan_events')->count());
+    }
+
+    public function test_delivery_limit_does_not_block_configuration_traffic(): void
+    {
+        [$device] = $this->device();
+        $path = '/api/hardware/rfid/scans';
+        $body = ['scans' => [['epc' => 'ABCDEF01', 'rssi' => -45, 'event_uuid' => str_repeat('a', 32)]]];
+        for ($attempt = 0; $attempt < 120; $attempt++) {
+            $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertOk();
+        }
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertStatus(429);
+        $path = '/api/hardware/rfid/config';
+        $this->withHeaders($this->signedHeaders($device, 'GET', $path))->getJson($path)->assertOk();
+    }
+
+    public function test_event_identifier_collision_rolls_back_the_entire_batch(): void
+    {
+        [$device] = $this->device();
+        $path = '/api/hardware/rfid/scans';
+        $body = ['scans' => [['epc' => 'ABCDEF01', 'rssi' => -45, 'event_uuid' => str_repeat('a', 32)]]];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertOk();
+        $body = ['scans' => [
+            ['epc' => 'ABCDEF02', 'rssi' => -45, 'event_uuid' => str_repeat('b', 32)],
+            ['epc' => 'ABCDEF03', 'rssi' => -45, 'event_uuid' => str_repeat('a', 32)],
+        ]];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertStatus(409);
+        $this->assertSame(1, DB::table('rfid_scan_events')->count());
+    }
+
+    public function test_invalid_origins_and_oversized_ssid_bytes_are_rejected(): void
+    {
+        [$device] = $this->device();
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::firstOrCreate(['name' => 'System Admin']));
+        $payload = $this->settingsPayload();
+        $payload['server_url'] = 'https://inventory.example.edu/subpath';
+        $this->actingAs($admin)->putJson(route('system.settings.rfid-devices.update', $device), $payload)
+            ->assertStatus(422)->assertJsonValidationErrors('server_url');
+        $payload['server_url'] = 'https://inventory.example.edu/';
+        $payload['wifi_ssid'] = str_repeat('角', 11);
+        $this->actingAs($admin)->putJson(route('system.settings.rfid-devices.update', $device), $payload)
+            ->assertStatus(422)->assertJsonValidationErrors('wifi_ssid');
+        $this->assertSame(2, $device->fresh()->config_version);
+    }
+
     public function test_device_can_be_disabled_and_secret_rotated_only_by_admin(): void
     {
         [$device] = $this->device();

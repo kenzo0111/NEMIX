@@ -128,6 +128,12 @@ export interface RfidDeviceConfiguration {
     ip_address: string | null;
     last_seen_at: string | null;
     config_version: number;
+    applied_config_version: number;
+    configuration_status: 'pending' | 'applied' | 'failed' | 'rolled_back';
+    configuration_message: string | null;
+    configuration_reported_at: string | null;
+    scanner_ready: boolean;
+    station_id: string | null;
     wifi_ssid: string | null;
     server_url: string;
     scan_mode: 'single' | 'inventory';

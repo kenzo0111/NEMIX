@@ -22,13 +22,12 @@ public:
     bool fetchConfiguration(DeviceConfiguration& candidate);
     bool fetchNetworkConfiguration(DeviceConfiguration& candidate, uint32_t currentVersion);
     bool reportConfigurationStatus(uint32_t version, const char* status, const String& message = "");
+    bool verifyConnection(uint32_t expectedVersion = 0);
+    bool submitScans(const String& body, size_t expectedCount);
 
 private:
     String _baseUrl;
     String _deviceId;
     String _token;
     int request(const String& method, const String& path, const String& json, String& response);
-    static String jsonString(const String& json, const char* key, const String& fallback = "");
-    static long jsonLong(const String& json, const char* key, long fallback);
-    static bool jsonBool(const String& json, const char* key, bool fallback);
 };

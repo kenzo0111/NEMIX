@@ -22,10 +22,10 @@ static bool isPrintableAscii(const String& s) {
 }
 
 static bool isValidIdentifier(const String& s) {
-    if (s.length() < 1 || s.length() > 64) return false;
+    if (s.length() < 1 || s.length() > 100) return false;
     for (size_t i = 0; i < s.length(); ++i) {
         char c = s[i];
-        if (!isalnum(c) && c != '-' && c != '_') return false;
+        if (!isalnum((unsigned char)c) && c != '-') return false;
     }
     return true;
 }
@@ -57,8 +57,9 @@ String ProvisioningPortal::page() const {
     h += "<label>Wi-Fi SSID</label><input name=ssid list=n value='" + htmlEscape(_config.wifiSsid) + "' required maxlength=32>";
     h += "<datalist id=n>" + options + "</datalist>";
     h += "<label>Wi-Fi Password</label><input type=password name=password maxlength=63 placeholder='Leave blank to keep current password'>";
+    h += "<label><input type=checkbox name=open_network value=1 style='width:auto'> Open network (clear saved password)</label>";
     h += "<label>Laravel Server URL (HTTPS only)</label><input name=url value='" + htmlEscape(_config.serverUrl) + "' required maxlength=255 placeholder='https://nemix.example.com'>";
-    h += "<label>Device ID</label><input name=device_id value='" + htmlEscape(_config.deviceId) + "' required maxlength=64>";
+    h += "<label>Device ID</label><input name=device_id value='" + htmlEscape(_config.deviceId) + "' required maxlength=100>";
     h += "<label>Device Token / Secret</label><input type=password name=token maxlength=128 placeholder='Leave blank to keep current token'>";
     h += "<button>Save and connect</button></form>";
     return h;
@@ -75,17 +76,22 @@ void ProvisioningPortal::begin() {
         : "NEW";
     String apSsid = "RFID-SETUP-" + suffix;
     String setupPin = ConfigManager::getOrGenerateSetupPin();
+    if(setupPin.length()<8) { Serial.println(F("[PORTAL] Cannot store setup PIN; access point not opened.")); WiFi.mode(WIFI_STA); return; }
 
     // Secure SoftAP with WPA2 setup PIN (at least 8 characters)
-    WiFi.softAP(apSsid.c_str(), setupPin.c_str());
+    if(!WiFi.softAP(apSsid.c_str(), setupPin.c_str())) return;
+    // The local operator needs this random PIN to provision the device over WPA2.
+    Serial.printf("[PORTAL] Setup PIN (local operator only): %s\n", setupPin.c_str());
 
     Serial.printf("[PORTAL] SoftAP started: SSID='%s' (WPA2 PIN protected, 5-min inactivity timeout).\n", apSsid.c_str());
 
     _server.on("/", HTTP_GET, [this]() {
+        _startedAt=millis();
         _server.send(200, "text/html", page());
     });
 
     _server.on("/save", HTTP_POST, [this]() {
+        _startedAt=millis();
         if (_failedAttempts >= 5) {
             _server.send(429, "text/plain", "Too many failed attempts. Setup locked.");
             return;
@@ -98,9 +104,9 @@ void ProvisioningPortal::begin() {
         String token = _server.arg("token");
 
         // Validate SSID: 1-32 printable ASCII chars
-        if (ssid.length() == 0 || ssid.length() > 32 || !isPrintableAscii(ssid)) {
+        if (ssid.length() == 0 || ssid.length() > 32) {
             _failedAttempts++;
-            _server.send(400, "text/plain", "Invalid Wi-Fi SSID (1-32 printable ASCII characters required)");
+            _server.send(400, "text/plain", "Invalid Wi-Fi SSID (1-32 bytes required)");
             return;
         }
 
@@ -121,7 +127,7 @@ void ProvisioningPortal::begin() {
         // Validate Device ID: 1-64 alphanumeric + hyphen/underscore
         if (!isValidIdentifier(devId)) {
             _failedAttempts++;
-            _server.send(400, "text/plain", "Invalid Device ID (1-64 alphanumeric, hyphen, or underscore characters)");
+            _server.send(400, "text/plain", "Invalid Device ID (1-100 alphanumeric or hyphen characters)");
             return;
         }
 
@@ -134,7 +140,9 @@ void ProvisioningPortal::begin() {
 
         DeviceConfiguration next = _config;
         next.wifiSsid = ssid;
-        if (pass.length() > 0) next.wifiPassword = pass;
+        if (_server.arg("open_network")=="1") next.wifiPassword="";
+        else if (pass.length() > 0) next.wifiPassword = pass;
+        while(url.endsWith("/")) url.remove(url.length()-1);
         next.serverUrl = url;
         next.deviceId = devId;
         if (token.length() > 0) next.deviceToken = token;
@@ -145,7 +153,9 @@ void ProvisioningPortal::begin() {
             return;
         }
 
-        _manager.savePendingConfiguration(next);
+        if(!_manager.savePendingConfiguration(next)) {
+            _server.send(500,"text/plain","Unable to save configuration. Keep the device powered and retry."); return;
+        }
         _server.send(200, "text/html", "<h2>Saved</h2><p>Credentials stored securely. SoftAP disabled. Rebooting...</p>");
 
         // Never log secrets/passwords to serial output

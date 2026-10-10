@@ -451,7 +451,7 @@ class InventoryController extends Controller
             }),
             'suppliers' => $suppliersQuery->get(['id', 'name', 'status']),
             'devices' => class_exists(\App\Models\RfidDevice::class)
-                ? \App\Models\RfidDevice::orderBy('device_name')->get(['id', 'device_uuid', 'device_name', 'status'])
+                ? \App\Models\RfidDevice::where('status', '!=', 'disabled')->orderBy('device_name')->get(['id', 'device_uuid', 'device_name', 'status', 'station_id'])
                 : [],
             'filters' => [
                 'search' => $search,

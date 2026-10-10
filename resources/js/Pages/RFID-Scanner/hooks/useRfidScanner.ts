@@ -7,22 +7,27 @@ interface UseRfidScannerOptions {
     onScan: (scan: RFIDScan) => void;
     pollIntervalMs?: number;
     maxConsecutiveFailures?: number;
+    selectedDeviceUuid?: string;
+    canAcceptScan?: boolean;
 }
 
 export function useRfidScanner({
     enabled,
     onScan,
-    pollIntervalMs = 300,
+    pollIntervalMs = 1000,
     maxConsecutiveFailures = 10,
+    selectedDeviceUuid,
+    canAcceptScan = true,
 }: UseRfidScannerOptions) {
     const [connectionState, setConnectionState] = useState<RFIDConnectionState>('connecting');
     const [isRetrying, setIsRetrying] = useState(false);
     const [lastScan, setLastScan] = useState<RFIDScan | null>(null);
 
     const inputRef = useRef<HTMLInputElement>(null);
-    const lastScanTimestampRef = useRef<number>(0);
+    const queuedScansRef = useRef<string[]>([]);
+    const [pendingScanCount, setPendingScanCount] = useState(0);
+    const deliveredRef = useRef(false);
     const consecutiveFailuresRef = useRef<number>(0);
-    const isFetchingRef = useRef<boolean>(false);
     const onScanCallbackRef = useRef(onScan);
 
     // Keep callback ref fresh without triggering effects
@@ -45,19 +50,40 @@ export function useRfidScanner({
         onScanCallbackRef.current(scanObj);
     }, []);
 
+    useEffect(() => {
+        if (!canAcceptScan) { deliveredRef.current = false; return; }
+        if (deliveredRef.current || !queuedScansRef.current.length) return;
+        deliveredRef.current = true;
+        const tag = queuedScansRef.current.shift()!;
+        setPendingScanCount(queuedScansRef.current.length);
+        processRawScan(tag);
+    }, [canAcceptScan, pendingScanCount, processRawScan]);
+
     // Active polling for ESP32 hardware reader live-feed
     useEffect(() => {
-        if (!enabled) return;
+        if (!enabled || !selectedDeviceUuid) {
+            queuedScansRef.current = [];
+            setPendingScanCount(0);
+            setConnectionState('offline');
+            return;
+        }
 
         const abortController = new AbortController();
-        const enabledAt = Date.now() / 1000;
+        let cursor: number | null = null;
+        queuedScansRef.current = [];
+        setPendingScanCount(0);
+        deliveredRef.current = false;
+        let fetching = false;
 
         const pollLiveFeed = async () => {
-            if (isFetchingRef.current) return;
-            isFetchingRef.current = true;
+            if (fetching || queuedScansRef.current.length >= 200) return;
+            fetching = true;
 
             try {
-                const response = await fetch('/rfid-scanner/live-feed', {
+                const params = new URLSearchParams({ device_uuid: selectedDeviceUuid });
+                if (cursor === null) params.set('initialize', '1');
+                else params.set('since', String(cursor));
+                const response = await fetch(`/rfid-scanner/live-feed?${params}`, {
                     signal: abortController.signal,
                     cache: 'no-store',
                     headers: { Accept: 'application/json' },
@@ -68,24 +94,17 @@ export function useRfidScanner({
                 }
 
                 const data = await response.json();
+                if (abortController.signal.aborted) return;
                 consecutiveFailuresRef.current = 0;
                 setConnectionState(data.status === 'online' ? 'connected' : 'offline');
 
-                // Inspect incoming scan event from hardware
-                if (data?.scan?.tag && data?.scan?.timestamp) {
-                    const scanTs = Number(data.scan.timestamp);
-                    if (lastScanTimestampRef.current === 0) {
-                        lastScanTimestampRef.current = scanTs;
-                        // Ignore a stale cached scan, but do not lose a real scan that
-                        // arrived just after this scanner session was armed.
-                        if (scanTs >= enabledAt) {
-                            processRawScan(data.scan.tag);
-                        }
-                    } else if (scanTs > lastScanTimestampRef.current) {
-                        lastScanTimestampRef.current = scanTs;
-                        processRawScan(data.scan.tag);
-                    }
+                if (cursor === null) cursor = Number(data.latest_event_id ?? 0);
+                for (const event of data.events ?? []) {
+                    if (queuedScansRef.current.length >= 200) break;
+                    queuedScansRef.current.push(event.tag);
+                    cursor = Number(event.id);
                 }
+                setPendingScanCount(queuedScansRef.current.length);
             } catch (err: unknown) {
                 if ((err as Error)?.name === 'AbortError') return;
 
@@ -96,7 +115,7 @@ export function useRfidScanner({
                     setConnectionState('degraded');
                 }
             } finally {
-                isFetchingRef.current = false;
+                fetching = false;
             }
         };
 
@@ -108,9 +127,9 @@ export function useRfidScanner({
         return () => {
             clearInterval(intervalId);
             abortController.abort();
-            isFetchingRef.current = false;
+            fetching = false;
         };
-    }, [enabled, pollIntervalMs, maxConsecutiveFailures, processRawScan]);
+    }, [enabled, selectedDeviceUuid, pollIntervalMs, maxConsecutiveFailures]);
 
     // Real backend probe for connection retry
     const retryConnection = useCallback(async () => {
@@ -118,7 +137,7 @@ export function useRfidScanner({
         setConnectionState('connecting');
 
         try {
-            const response = await fetch('/rfid-scanner/status', {
+            const response = await fetch(`/rfid-scanner/status?${new URLSearchParams({ device_uuid: selectedDeviceUuid || '' })}`, {
                 cache: 'no-store',
                 headers: { Accept: 'application/json' },
             });
@@ -135,7 +154,7 @@ export function useRfidScanner({
         } finally {
             setIsRetrying(false);
         }
-    }, []);
+    }, [selectedDeviceUuid]);
 
     // Hidden input keyboard listener for USB / Bluetooth keyboard-wedge RFID readers
     const handleScanKeyDown = useCallback(
@@ -209,5 +228,6 @@ export function useRfidScanner({
         processManualScan: processRawScan,
         retryConnection,
         focusScannerInput,
+        pendingScanCount,
     };
 }

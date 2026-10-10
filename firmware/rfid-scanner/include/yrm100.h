@@ -18,8 +18,8 @@ public:
     void wake();
     void sleep();
 
-    // Trigger single inventory poll and parse all detected tags within window
-    std::vector<RfidTag> scanTags(uint32_t timeoutMs = 350, bool stopAfterFirst = false);
+    // Repeat inventory rounds within the window; optionally stop at the first EPC.
+    std::vector<RfidTag> scanTags(uint32_t timeoutMs = 350, bool stopAfterFirst = false, size_t maxTags = 100);
 
     // Query reader version string
     String getVersion(uint32_t timeoutMs = 300);

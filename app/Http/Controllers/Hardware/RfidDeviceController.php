@@ -18,6 +18,22 @@ class RfidDeviceController extends Controller
         return $request->attributes->get('rfidDevice');
     }
 
+    /** One snapshot prevents settings and Wi-Fi from crossing configuration versions. */
+    public function candidate(Request $request): JsonResponse
+    {
+        $settings = $this->device($request)->settings;
+
+        return response()->json([
+            'success' => true,
+            'configuration' => $settings->only(['server_url', 'scan_mode', 'rf_power', 'scan_timeout', 'heartbeat_interval', 'buzzer_enabled', 'auto_reconnect']) + [
+                'version' => $settings->configuration_version,
+                'network_available' => strlen($settings->wifi_ssid ?? '') > 0,
+                'wifi_ssid' => $settings->wifi_ssid,
+                'wifi_password' => $settings->wifi_password_encrypted,
+            ],
+        ], 200, ['Cache-Control' => 'no-store'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
     public function configuration(Request $request): JsonResponse
     {
         $device = $this->device($request);
@@ -75,16 +91,31 @@ class RfidDeviceController extends Controller
             'scanner_ready' => ['required', 'boolean'],
         ]);
         $device = $this->device($request);
-        $device->update([
-            'firmware_version' => $data['firmware_version'],
-            'status' => 'online',
-            'ip_address' => $data['ip_address'] ?? $request->ip(),
-            'wifi_rssi' => $data['wifi_rssi'] ?? null,
-            'uptime_seconds' => $data['uptime'],
-            'scanner_ready' => $data['scanner_ready'],
-            // PostgreSQL interprets timezone-less timestamp values as UTC.
-            'last_seen_at' => now()->utc(),
-        ]);
+        DB::transaction(function () use ($device, $data, $request) {
+            $device = RfidDevice::whereKey($device->id)->lockForUpdate()->firstOrFail();
+            abort_if($device->status === 'disabled' || ! $device->device_secret_encrypted, 401, 'RFID device access is disabled.');
+            abort_if($data['configuration_version'] > $device->config_version, 422, 'Unknown configuration version.');
+            $device->update([
+                'firmware_version' => $data['firmware_version'],
+                'status' => 'online',
+                'ip_address' => $data['ip_address'] ?? $request->ip(),
+                'wifi_rssi' => $data['wifi_rssi'] ?? null,
+                'uptime_seconds' => $data['uptime'],
+                'scanner_ready' => $data['scanner_ready'],
+                // PostgreSQL interprets timezone-less timestamp values as UTC.
+                'last_seen_at' => now()->utc(),
+                'applied_config_version' => $data['configuration_version'],
+            ]);
+            if ($data['configuration_version'] === $device->config_version) {
+                $device->update([
+                    'configuration_status' => 'applied', 'configuration_status_version' => $data['configuration_version'],
+                    'configuration_message' => null, 'configuration_reported_at' => now()->utc(),
+                ]);
+            } elseif ($device->configuration_status === 'applied') {
+                $device->update(['configuration_status' => 'pending']);
+            }
+        });
+        $device->refresh();
 
         return response()->json([
             'success' => true,
@@ -101,7 +132,19 @@ class RfidDeviceController extends Controller
             'message' => ['nullable', 'string', 'max:255'],
         ]);
         $device = $this->device($request);
-        Cache::put("rfid_config_status:{$device->id}", $data + ['reported_at' => now()->toIso8601String()], now()->addDay());
+        DB::transaction(function () use ($device, $data) {
+            $device = RfidDevice::whereKey($device->id)->lockForUpdate()->firstOrFail();
+            abort_if($data['version'] > $device->config_version, 422, 'Unknown configuration version.');
+            // A delayed report must not replace the outcome of a newer save.
+            if ($data['version'] !== $device->config_version) {
+                return;
+            }
+            $device->update([
+                'configuration_status' => $data['status'], 'configuration_status_version' => $data['version'],
+                'configuration_message' => $data['message'] ?? null, 'configuration_reported_at' => now()->utc(),
+                ...($data['status'] === 'applied' ? ['applied_config_version' => $data['version']] : []),
+            ]);
+        });
 
         return response()->json(['success' => true]);
     }
@@ -112,25 +155,56 @@ class RfidDeviceController extends Controller
             'epc' => ['required', 'string', 'max:100', 'regex:/^[A-Fa-f0-9]+$/'],
             'rssi' => ['nullable', 'integer', 'between:-127,0'],
             'station_id' => ['nullable', 'string', 'max:100'],
+            'event_uuid' => ['nullable', 'string', 'regex:/^[a-f0-9]{32}$/'],
         ]);
         $device = $this->device($request);
-        $stationId = $data['station_id'] ?? null;
+        $stationId = $device->station_id ?? ($data['station_id'] ?? null);
         $item = Item::where('rfid_tag', strtoupper($data['epc']))->first();
-        Cache::put('latest_rfid_hardware_scan', [
-            'tag' => strtoupper($data['epc']), 'found' => (bool) $item,
-            'device_id' => $device->device_uuid, 'station_id' => $stationId,
-            'timestamp' => microtime(true),
-            'scanned_at' => now()->format('h:i:s A'),
-        ], 60);
-        DB::table('rfid_scan_events')->insert([
-            'tag' => strtoupper($data['epc']),
-            'device_uuid' => $device->device_uuid,
-            'station_id' => $stationId,
-            'occurred_at' => microtime(true),
-            'created_at' => now(),
-        ]);
-        DB::table('rfid_scan_events')->where('created_at', '<', now()->subDay())->delete();
+        $inserted = $this->recordScan($device, $data, $stationId);
+        if ($inserted) {
+            Cache::put('latest_rfid_hardware_scan', [
+                'tag' => strtoupper($data['epc']), 'found' => (bool) $item,
+                'device_id' => $device->device_uuid, 'station_id' => $stationId,
+                'timestamp' => microtime(true),
+                'scanned_at' => now()->format('h:i:s A'),
+            ], 60);
+        }
 
         return response()->json(['success' => true, 'found' => (bool) $item, 'item' => $item?->only(['id', 'name', 'sku', 'stock', 'unit_of_issue'])], $item ? 200 : 404);
+    }
+
+    public function scans(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'scans' => ['required', 'array', 'min:1', 'max:20'],
+            'scans.*.epc' => ['required', 'string', 'max:100', 'regex:/^[A-Fa-f0-9]+$/'],
+            'scans.*.rssi' => ['required', 'integer', 'between:-127,0'],
+            'scans.*.event_uuid' => ['required', 'string', 'distinct', 'regex:/^[a-f0-9]{32}$/'],
+        ]);
+        $device = $this->device($request);
+        DB::transaction(function () use ($device, $data) {
+            foreach ($data['scans'] as $scan) {
+                $this->recordScan($device, $scan, $device->station_id);
+            }
+        });
+
+        return response()->json(['success' => true, 'accepted' => array_column($data['scans'], 'event_uuid')]);
+    }
+
+    private function recordScan(RfidDevice $device, array $scan, ?string $stationId): bool
+    {
+        $row = [
+            'tag' => strtoupper($scan['epc']), 'device_uuid' => $device->device_uuid,
+            'station_id' => $stationId, 'occurred_at' => microtime(true), 'created_at' => now(),
+            'event_uuid' => $scan['event_uuid'] ?? null,
+        ];
+        // The unique device/event key makes a lost response safe to retry.
+        $inserted = DB::table('rfid_scan_events')->insertOrIgnore($row) === 1;
+        if (! $inserted && isset($scan['event_uuid'])) {
+            $existing = DB::table('rfid_scan_events')->where('device_uuid', $device->device_uuid)->where('event_uuid', $scan['event_uuid'])->first();
+            abort_unless($existing && $existing->tag === strtoupper($scan['epc']), 409, 'Event identifier already used for a different tag.');
+        }
+
+        return $inserted;
     }
 }

@@ -464,7 +464,10 @@ export default function ReceivingIndex({
                 onSubmit={handleRfidSubmit}
                 devices={devices}
                 selectedDeviceUuid={selectedDeviceUuid}
-                onDeviceChange={setSelectedDeviceUuid}
+                onDeviceChange={deviceUuid => {
+                    setSelectedDeviceUuid(deviceUuid);
+                    setSelectedStation(devices.find(device => device.device_uuid === deviceUuid)?.station_id || '');
+                }}
                 selectedStation={selectedStation}
                 onStationChange={setSelectedStation}
             />

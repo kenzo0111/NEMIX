@@ -5,16 +5,20 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSystemSettingsRequest;
 use App\Models\RfidDevice;
+use App\Models\Signatory;
 use App\Models\SystemConfiguration;
 use App\Models\SystemSetting;
+use App\Notifications\DiagnosticTestNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Modules\AuditLogs\Models\TransactionTrail;
+use Modules\AuditLogs\Support\AuditGroupContext;
 
 class SystemSettingController extends Controller
 {
@@ -62,7 +66,7 @@ class SystemSettingController extends Controller
         return Inertia::render('Admin/SystemSettings/Index', [
             'groupedSettings' => $groupedSettings,
             'telemetry' => $telemetry,
-            'signatories' => \App\Models\Signatory::orderBy('name')->get(),
+            'signatories' => Signatory::orderBy('name')->get(),
             'rfidDevices' => RfidDevice::with('settings')->get()->map(fn (RfidDevice $device) => [
                 'id' => $device->id,
                 'device_uuid' => $device->device_uuid,
@@ -72,6 +76,12 @@ class SystemSettingController extends Controller
                 'ip_address' => $device->ip_address,
                 'last_seen_at' => $device->last_seen_at?->toIso8601String(),
                 'config_version' => $device->config_version,
+                'applied_config_version' => $device->applied_config_version,
+                'configuration_status' => $device->configuration_status,
+                'configuration_message' => $device->configuration_message,
+                'configuration_reported_at' => $device->configuration_reported_at?->toIso8601String(),
+                'scanner_ready' => $device->scanner_ready,
+                'station_id' => $device->station_id,
                 'wifi_ssid' => $device->settings?->wifi_ssid,
                 'server_url' => $device->settings?->server_url,
                 'scan_mode' => $device->settings?->scan_mode,
@@ -96,9 +106,9 @@ class SystemSettingController extends Controller
 
         $updatedKeys = [];
         $auditDiffs = [];
-        $groupId = 'settings:'.\Illuminate\Support\Str::uuid()->toString();
+        $groupId = 'settings:'.Str::uuid()->toString();
 
-        \Modules\AuditLogs\Support\AuditGroupContext::start($groupId, 'CONFIG-BATCH', 'Administration', 'system.settings.updated');
+        AuditGroupContext::start($groupId, 'CONFIG-BATCH', 'Administration', 'system.settings.updated');
 
         try {
             DB::transaction(function () use ($settingsData, &$updatedKeys, &$auditDiffs) {
@@ -173,7 +183,7 @@ class SystemSettingController extends Controller
                 }
             });
         } finally {
-            \Modules\AuditLogs\Support\AuditGroupContext::stop();
+            AuditGroupContext::stop();
         }
 
         // Invalidate settings caches
@@ -223,8 +233,8 @@ class SystemSettingController extends Controller
         $recipient = $validated['recipient'] ?: $request->user()->email;
 
         try {
-            \Illuminate\Support\Facades\Notification::route('mail', $recipient)
-                ->notify(new \App\Notifications\DiagnosticTestNotification());
+            Notification::route('mail', $recipient)
+                ->notify(new DiagnosticTestNotification);
 
             return back()->with('success', "Diagnostic test email dispatched successfully to {$recipient}.");
         } catch (\Throwable $e) {

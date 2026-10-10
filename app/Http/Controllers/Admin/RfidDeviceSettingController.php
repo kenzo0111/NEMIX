@@ -7,21 +7,24 @@ use App\Http\Requests\Admin\UpdateRfidDeviceRequest;
 use App\Models\RfidDevice;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class RfidDeviceSettingController extends Controller
 {
     public function store(Request $request): JsonResponse
     {
         abort_unless($request->user()?->hasRole('System Admin') || $request->user()?->hasRole('System Administrator') || $request->user()?->can('system.settings.update'), 403);
+        if (is_string($request->input('server_url'))) {
+            $request->merge(['server_url' => rtrim($request->input('server_url'), '/')]);
+        }
         $data = $request->validate([
             'device_uuid' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z0-9-]+$/', 'unique:rfid_devices,device_uuid'],
             'device_name' => ['required', 'string', 'max:100'],
             'server_url' => ['required', 'url:https', 'max:2048'],
         ]);
+        $origin = parse_url($data['server_url']);
+        abort_if(isset($origin['path']) || isset($origin['query']) || isset($origin['fragment']) || isset($origin['user']) || isset($origin['pass']), 422, 'Use an HTTPS server origin without a path, query or credentials.');
         $plainToken = bin2hex(random_bytes(32));
         $device = DB::transaction(function () use ($data, $plainToken) {
             $device = RfidDevice::create([
@@ -91,14 +94,21 @@ class RfidDeviceSettingController extends Controller
             $device = RfidDevice::whereKey($device->getKey())->lockForUpdate()->firstOrFail();
             $settings = $device->settings()->lockForUpdate()->firstOrFail();
             $version = max($device->config_version, $settings->configuration_version) + 1;
-            $device->update(['device_name' => $data['device_name'], 'config_version' => $version]);
+            $device->update([
+                'device_name' => $data['device_name'], 'config_version' => $version,
+                'station_id' => $data['station_id'] ?? null,
+                'configuration_status' => 'pending', 'configuration_status_version' => $version,
+                'configuration_message' => null, 'configuration_reported_at' => null,
+            ]);
 
-            $settingsData = collect($data)->except(['device_name', 'wifi_password', 'wifi_ssid'])->all();
+            $settingsData = collect($data)->except(['device_name', 'wifi_password', 'wifi_ssid', 'wifi_open_network', 'station_id'])->all();
             $settingsData['configuration_version'] = $version;
-            if (filled($data['wifi_ssid'] ?? null)) {
+            if (strlen($data['wifi_ssid'] ?? '') > 0) {
                 $settingsData['wifi_ssid'] = $data['wifi_ssid'];
             }
-            if (filled($data['wifi_password'] ?? null)) {
+            if ($data['wifi_open_network'] ?? false) {
+                $settingsData['wifi_password_encrypted'] = '';
+            } elseif (strlen($data['wifi_password'] ?? '') > 0) {
                 $settingsData['wifi_password_encrypted'] = $data['wifi_password'];
             }
             $settings->update($settingsData);
@@ -114,7 +124,9 @@ class RfidDeviceSettingController extends Controller
         return response()->json([
             'success' => $device->isOnline(),
             'message' => $device->isOnline() ? 'The scanner heartbeat is current.' : 'No recent scanner heartbeat was received.',
-            'configuration_status' => Cache::get("rfid_config_status:{$device->id}"),
+            'configuration_status' => $device->configuration_status,
+            'applied_config_version' => $device->applied_config_version,
+            'scanner_ready' => $device->scanner_ready,
         ], $device->isOnline() ? 200 : 422);
     }
 }

@@ -40,6 +40,7 @@ interface PageProps {
         status?: string;
     };
     selectedItemId?: string | number | null;
+    rfidDevices?: { device_uuid: string; device_name: string }[];
     errors?: Record<string, string>;
     flash?: {
         success?: string | null;
@@ -54,6 +55,7 @@ export default function Index({
     recordsPagination,
     recordsFilters,
     selectedItemId = null,
+    rfidDevices = [],
     flash,
 }: PageProps) {
     const user = auth.user;
@@ -62,6 +64,7 @@ export default function Index({
     const [isReplacingTag, setIsReplacingTag] = useState(false);
     const [showUnassignModal, setShowUnassignModal] = useState(false);
     const [isCompletionDismissed, setIsCompletionDismissed] = useState(false);
+    const [selectedDeviceUuid, setSelectedDeviceUuid] = useState(rfidDevices[0]?.device_uuid || '');
 
     // Initial item resolution
     const initialItem = useMemo(() => {
@@ -96,8 +99,11 @@ export default function Index({
         handleScanKeyDown,
         processManualScan,
         retryConnection,
+        pendingScanCount,
     } = useRfidScanner({
         enabled: isScanningActive,
+        selectedDeviceUuid,
+        canAcceptScan: workflowState.type === 'ready',
         onScan: (scan) => {
             setIsReplacingTag(false);
             handleScan(scan);
@@ -144,6 +150,13 @@ export default function Index({
                     description="Assign RFID identification tags to inventory items before receiving."
                     breadcrumbs={[{ name: 'RFID Scanner', href: '#' }]}
                 />
+                <div className="mx-6 my-4 flex flex-wrap items-center gap-3 text-sm">
+                    <label>Hardware scanner <select className="ml-2 rounded-lg border-slate-300 dark:bg-slate-900" value={selectedDeviceUuid} onChange={e=>setSelectedDeviceUuid(e.target.value)}>
+                        <option value="">Keyboard / manual only</option>
+                        {rfidDevices.map(device=><option key={device.device_uuid} value={device.device_uuid}>{device.device_name}</option>)}
+                    </select></label>
+                    <span>{pendingScanCount} hardware scan(s) waiting for the next item.</span>
+                </div>
 
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1500px] mx-auto pb-16 min-w-0 w-full">
                     {/* Optional Flash Notification */}

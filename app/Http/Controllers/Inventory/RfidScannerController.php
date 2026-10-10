@@ -62,11 +62,11 @@ class RfidScannerController extends Controller
         if (class_exists(Item::class)) {
             $recordsQuery = Item::with('supplier:id,name');
 
-            if (!empty($search)) {
+            if (! empty($search)) {
                 $recordsQuery->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('sku', 'like', "%{$search}%")
-                      ->orWhere('rfid_tag', 'like', "%{$search}%");
+                        ->orWhere('sku', 'like', "%{$search}%")
+                        ->orWhere('rfid_tag', 'like', "%{$search}%");
                 });
             }
 
@@ -114,6 +114,9 @@ class RfidScannerController extends Controller
                 'status' => $statusFilter,
             ],
             'selectedItemId' => $validated['item_id'] ?? null,
+            'rfidDevices' => RfidDevice::with('settings')->where('status', '!=', 'disabled')->get()->map(fn ($device) => [
+                'device_uuid' => $device->device_uuid, 'device_name' => $device->device_name,
+            ]),
         ]);
     }
 
@@ -131,7 +134,7 @@ class RfidScannerController extends Controller
         abort_unless($user && ($user->hasAnyRole(['System Admin', 'System Administrator']) || $user->can('rfid.assign')), 403);
 
         try {
-            return DB::transaction(function () use ($request, $itemId, $rfidTag, $user) {
+            return DB::transaction(function () use ($itemId, $rfidTag, $user) {
                 // Lock inventory item for concurrent safety
                 $item = Item::lockForUpdate()->findOrFail($itemId);
                 ResourceOwnershipPolicy::authorize($user, $item, 'created_by');
@@ -315,9 +318,11 @@ class RfidScannerController extends Controller
         $item = Item::where('rfid_tag', $sanitizedTag)
             ->with('supplier')
             ->first();
-        if ($item) ResourceOwnershipPolicy::authorize($request->user(), $item, 'created_by');
+        if ($item) {
+            ResourceOwnershipPolicy::authorize($request->user(), $item, 'created_by');
+        }
 
-        if (!$item) {
+        if (! $item) {
             return response()->json([
                 'found' => false,
                 'message' => "No item associated with RFID tag '{$sanitizedTag}'.",
@@ -352,11 +357,11 @@ class RfidScannerController extends Controller
 
         $query = DB::table('rfid_scan_events');
 
-        if (!empty($deviceUuid)) {
+        if (! empty($deviceUuid)) {
             $query->where('device_uuid', $deviceUuid);
         }
 
-        if (!empty($stationId)) {
+        if (! empty($stationId)) {
             $query->where('station_id', $stationId);
         }
 

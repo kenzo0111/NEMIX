@@ -9,6 +9,7 @@ export interface RfidDeviceOption {
     device_uuid: string;
     device_name: string;
     status: string;
+    station_id?: string | null;
 }
 
 export interface InventoryItem {

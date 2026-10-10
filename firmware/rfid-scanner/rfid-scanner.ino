@@ -6,27 +6,107 @@
 #include "include/provisioning_portal.h"
 #include "include/yrm100.h"
 #include "include/api_client.h"
+#include "include/scan_queue.h"
 
 Yrm100Reader reader(Serial2,PIN_YRM100_EN,PIN_YRM100_RX,PIN_YRM100_TX);
-ConfigManager configManager;DeviceConfiguration config;DeviceWiFiManager wifiManager;ProvisioningPortal portal(configManager,config);NemixApiClient apiClient;
-bool scannerReady=false,scanTriggered=false;int lastButton=HIGH;uint32_t pressedAt=0,lastHeartbeat=0;
-void startSetupMode(){if(!portal.active()){Serial.println(F("[RECOVERY] Starting local setup access point."));portal.begin();}}
-bool applyCandidate(DeviceConfiguration candidate){
-    if(!configManager.validateConfiguration(candidate,true)){Serial.printf("[CONFIG] ERROR: Invalid candidate (ssid=%u url=%u id=%u token=%u mode=%s rf=%u scan=%lu heartbeat=%lu).\n",candidate.wifiSsid.length(),candidate.serverUrl.length(),candidate.deviceId.length(),candidate.deviceToken.length(),candidate.scanMode.c_str(),candidate.rfPower,candidate.scanTimeout,candidate.heartbeatInterval);apiClient.reportConfigurationStatus(candidate.configVersion,"failed","validation failed");return false;}
-    if(!configManager.savePendingConfiguration(candidate)){Serial.println(F("[CONFIG] ERROR: Could not save pending configuration to NVS."));apiClient.reportConfigurationStatus(candidate.configVersion,"failed","pending NVS save failed");return false;}
-    bool networkChanged=candidate.wifiSsid!=config.wifiSsid||candidate.wifiPassword!=config.wifiPassword;
-    if(networkChanged&&!wifiManager.connect(candidate,WIFI_CONNECT_TIMEOUT_MS)){
-        configManager.rollbackPendingConfiguration();wifiManager.connect(config,WIFI_CONNECT_TIMEOUT_MS);
-        Serial.println(F("[CONFIG] ROLLBACK: New Wi-Fi connection failed."));apiClient.reportConfigurationStatus(candidate.configVersion,"rolled_back","new Wi-Fi connection failed");return false;
+ConfigManager configManager;
+DeviceConfiguration config;
+DeviceWiFiManager wifiManager;
+ProvisioningPortal portal(configManager,config);
+NemixApiClient apiClient;
+ScanQueue scanQueue;
+bool scannerReady=false,scanTriggered=false,automaticPortalOpened=false;
+int lastButton=HIGH;
+uint32_t pressedAt=0,lastHeartbeat=0;
+
+void startSetupMode() { if(!portal.active()) portal.begin(); }
+
+bool applyCandidate(const DeviceConfiguration& candidate) {
+    const DeviceConfiguration previous=config;
+    if(!configManager.validateConfiguration(candidate,true)) {
+        apiClient.reportConfigurationStatus(candidate.configVersion,"failed","Invalid configuration"); return false;
     }
-    bool rfPowerChanged=candidate.rfPower!=config.rfPower;
-    if(rfPowerChanged&&!reader.setTransmitPower(candidate.rfPower)){
-        configManager.rollbackPendingConfiguration();if(networkChanged)wifiManager.connect(config,WIFI_CONNECT_TIMEOUT_MS);
-        Serial.println(F("[CONFIG] ROLLBACK: Reader rejected changed RF power."));apiClient.reportConfigurationStatus(candidate.configVersion,"rolled_back","reader rejected RF power");return false;
+    if(!configManager.savePendingConfiguration(candidate)) {
+        configManager.rollbackPendingConfiguration();
+        apiClient.reportConfigurationStatus(candidate.configVersion,"failed","Could not persist pending configuration"); return false;
     }
-    if(!configManager.commitPendingConfiguration(config)){Serial.println(F("[CONFIG] ERROR: NVS commit failed."));apiClient.reportConfigurationStatus(candidate.configVersion,"failed","NVS commit failed");return false;}
-    Serial.printf("[CONFIG] Applied version %lu.%s\n",config.configVersion,rfPowerChanged?" RF power acknowledged.":"");apiClient.reportConfigurationStatus(config.configVersion,"applied");apiClient.configure(config);return true;
+    bool networkChanged=candidate.wifiSsid!=previous.wifiSsid||candidate.wifiPassword!=previous.wifiPassword;
+    bool powerChanged=candidate.rfPower!=previous.rfPower;
+    String error; bool commitAttempted=false;
+    if((networkChanged||!wifiManager.connected())&&!wifiManager.connect(candidate,WIFI_CONNECT_TIMEOUT_MS)) error="New Wi-Fi connection failed";
+    if(!error.length()) {
+        apiClient.configure(candidate);
+        if(!apiClient.verifyConnection(candidate.configVersion)) error="New network or server cannot authenticate this version";
+    }
+    if(!error.length()&&(!scannerReady||(powerChanged&&!reader.setTransmitPower(candidate.rfPower)))) error="Reader is unavailable or rejected RF power";
+    if(!error.length()) {
+        commitAttempted=true;
+        if(!configManager.commitPendingConfiguration(config)) error="Configuration storage commit failed";
+    }
+    if(error.length()) {
+        bool restored=true;
+        if(powerChanged&&!reader.setTransmitPower(previous.rfPower)) { scannerReady=false; restored=false; }
+        configManager.rollbackPendingConfiguration();
+        if(configManager.validateConfiguration(previous,true)) {
+            if(commitAttempted&&!configManager.saveConfiguration(previous)) restored=false;
+            if((networkChanged||!wifiManager.connected())&&!wifiManager.connect(previous,WIFI_CONNECT_TIMEOUT_MS)) restored=false;
+        } else restored=false;
+        config=previous; apiClient.configure(previous);
+        if(!restored) error+="; recovery incomplete, use local setup";
+        apiClient.reportConfigurationStatus(candidate.configVersion,restored?"rolled_back":"failed",error);
+        Serial.printf("[CONFIG] %s: %s\n",restored?"Rolled back":"Failed",error.c_str()); return false;
+    }
+    apiClient.configure(config); apiClient.reportConfigurationStatus(config.configVersion,"applied");
+    Serial.printf("[CONFIG] Applied version %lu\n",(unsigned long)config.configVersion); return true;
 }
-void executeScan(){uint32_t start=millis();auto tags=reader.scanTags(config.scanTimeout,config.scanMode=="single");Serial.printf("[SCAN] %u tag(s) in %lu ms.\n",tags.size(),millis()-start);if(wifiManager.connected())for(const auto& tag:tags)apiClient.submitScan(tag.epc,tag.rssiDbm);}
-void setup(){Serial.begin(SERIAL_DEBUG_BAUD);pinMode(PIN_TRIGGER_BUTTON,INPUT_PULLUP);pinMode(PIN_YRM100_EN,OUTPUT);digitalWrite(PIN_YRM100_EN,LOW);configManager.begin();bool hasActive=configManager.loadConfiguration(config);if(!hasActive){config.deviceId=ConfigManager::generateDeviceId();config.serverUrl="https://example.invalid";}if(configManager.hasPendingConfiguration()){DeviceConfiguration pending;if(configManager.loadPendingConfiguration(pending)&&wifiManager.connect(pending,WIFI_CONNECT_TIMEOUT_MS))configManager.commitPendingConfiguration(config);else{configManager.rollbackPendingConfiguration();if(hasActive)wifiManager.connect(config,WIFI_CONNECT_TIMEOUT_MS);}}else if(hasActive&&configManager.validateConfiguration(config,true))wifiManager.connect(config,WIFI_CONNECT_TIMEOUT_MS);apiClient.configure(config);if(!wifiManager.connected())startSetupMode();reader.begin(YRM100_DEFAULT_BAUD);scannerReady=reader.getVersion()!="Unknown";if(scannerReady){if(reader.setTransmitPower(config.rfPower))Serial.printf("[RFID] RF power %u dBm acknowledged.\n",config.rfPower);else Serial.println(F("[RFID] RF power setting rejected; defaults retained."));}else Serial.println(F("[RFID] ERROR: YRM100 did not answer the version request."));Serial.printf("[READY] Device %s firmware %s\n",config.deviceId.c_str(),FIRMWARE_VERSION);}
-void loop(){portal.loop();wifiManager.loop(config);int button=digitalRead(PIN_TRIGGER_BUTTON);if(button==LOW&&lastButton==HIGH)pressedAt=millis();if(button==LOW&&!scanTriggered&&millis()-pressedAt>=RECOVERY_HOLD_MS){scanTriggered=true;startSetupMode();}if(button==HIGH&&lastButton==LOW){if(!scanTriggered&&millis()-pressedAt>50)executeScan();scanTriggered=false;pressedAt=0;}lastButton=button;if(wifiManager.prolongedFailure())startSetupMode();if(wifiManager.connected()&&millis()-lastHeartbeat>=config.heartbeatInterval*1000UL){lastHeartbeat=millis();uint32_t serverVersion=config.configVersion;if(apiClient.sendHeartbeat(millis()/1000,scannerReady,serverVersion)){Serial.printf("[HEARTBEAT] Accepted. Local=%lu Server=%lu\n",config.configVersion,serverVersion);if(serverVersion>config.configVersion){DeviceConfiguration candidate=config;if(apiClient.fetchConfiguration(candidate)){apiClient.fetchNetworkConfiguration(candidate,config.configVersion);applyCandidate(candidate);}}}else Serial.println(F("[HEARTBEAT] ERROR: Laravel did not accept the heartbeat."));}if(Serial.available()&&Serial.read()=='s')executeScan();delay(2);}
+
+void executeScan() {
+    if(!scannerReady||!scanQueue.canScan()) { Serial.println(F("[SCAN] Reader unavailable or delivery queue full.")); return; }
+    auto tags=reader.scanTags(config.scanTimeout,config.scanMode=="single",scanQueue.availableSlots());
+    Serial.printf("[SCAN] Captured %u unique tag(s).\n",tags.size());
+    if(!tags.empty()&&!scanQueue.enqueue(tags)) Serial.println(F("[SCAN] Storage failed; keep device powered while delivery retries."));
+}
+
+void setup() {
+    Serial.begin(SERIAL_DEBUG_BAUD);
+    pinMode(PIN_TRIGGER_BUTTON,INPUT_PULLUP); pinMode(PIN_YRM100_EN,OUTPUT); digitalWrite(PIN_YRM100_EN,LOW);
+    configManager.begin(); scanQueue.begin();
+    bool hasActive=configManager.loadConfiguration(config);
+    if(!hasActive) { config.deviceId=ConfigManager::generateDeviceId(); config.serverUrl="https://example.invalid"; }
+    if(hasActive&&configManager.validateConfiguration(config,true)) wifiManager.connect(config,WIFI_CONNECT_TIMEOUT_MS);
+    apiClient.configure(config);
+    reader.begin(YRM100_DEFAULT_BAUD); scannerReady=reader.getVersion()!="Unknown";
+    if(scannerReady&&!reader.setTransmitPower(config.rfPower)) scannerReady=false;
+    if(configManager.hasPendingConfiguration()) {
+        DeviceConfiguration pending;
+        if(configManager.loadPendingConfiguration(pending)) applyCandidate(pending);
+        else configManager.rollbackPendingConfiguration();
+    }
+    if(!wifiManager.connected()) { startSetupMode(); automaticPortalOpened=true; }
+    Serial.printf("[READY] Device %s firmware %s\n",config.deviceId.c_str(),FIRMWARE_VERSION);
+}
+
+void loop() {
+    portal.loop(); wifiManager.loop(config);
+    int button=digitalRead(PIN_TRIGGER_BUTTON);
+    if(button==LOW&&lastButton==HIGH) pressedAt=millis();
+    if(button==LOW&&!scanTriggered&&millis()-pressedAt>=RECOVERY_HOLD_MS) { scanTriggered=true; startSetupMode(); }
+    if(button==HIGH&&lastButton==LOW) {
+        if(!scanTriggered&&millis()-pressedAt>50) executeScan();
+        scanTriggered=false; pressedAt=0;
+    }
+    lastButton=button;
+    if(wifiManager.connected()) automaticPortalOpened=false;
+    if(wifiManager.prolongedFailure()&&!automaticPortalOpened) { startSetupMode(); automaticPortalOpened=true; }
+    if(wifiManager.connected()&&millis()-lastHeartbeat>=config.heartbeatInterval*1000UL) {
+        lastHeartbeat=millis(); uint32_t serverVersion=config.configVersion;
+        if(apiClient.sendHeartbeat(millis()/1000,scannerReady,serverVersion)&&serverVersion>config.configVersion) {
+            DeviceConfiguration candidate=config;
+            if(apiClient.fetchConfiguration(candidate)) applyCandidate(candidate);
+            else Serial.println(F("[CONFIG] Download failed; version unchanged, retrying on next heartbeat."));
+        }
+    }
+    scanQueue.loop(apiClient,wifiManager.connected());
+    if(Serial.available()&&Serial.read()=='s') executeScan();
+    delay(2);
+}

@@ -142,19 +142,20 @@ bool Yrm100Reader::readFrame(uint8_t& outType, uint8_t& outCmd, std::vector<uint
     return (actualChecksum == expectedChecksum);
 }
 
-std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs, bool stopAfterFirst) {
+std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs, bool stopAfterFirst, size_t maxTags) {
     std::vector<RfidTag> foundTags;
-
-    // Send Single Poll command: BB 00 22 00 00 22 7E
-    sendFrame(0x00, 0x22, nullptr, 0);
 
     unsigned long start = millis();
     while ((millis() - start) < timeoutMs) {
+        // Start another inventory round after each single-poll response.
+        sendFrame(0x00, 0x22, nullptr, 0);
         uint8_t type = 0;
         uint8_t cmd  = 0;
         std::vector<uint8_t> payload;
 
-        if (readFrame(type, cmd, payload, 80)) {
+        uint32_t elapsed=millis()-start;
+        if(elapsed>=timeoutMs) break;
+        if (readFrame(type, cmd, payload, min((uint32_t)300,timeoutMs-elapsed))) {
             // Check if tag notification frame
             if (cmd == 0x22 && type == 0x02 && payload.size() >= 7) {
                 // Byte 0: RSSI
@@ -169,7 +170,7 @@ std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs, bool stopAfterFi
                 uint8_t epcBytes = epcWords * 2;
 
                 // Validate payload size bounds: 1 (RSSI) + 2 (PC) + epcBytes + 2 (CRC)
-                if (epcBytes > 0 && (3 + epcBytes) <= payload.size()) {
+                if (epcBytes > 0 && epcBytes <= 50 && (5 + epcBytes) <= payload.size()) {
                     String epcStr = bytesToHex(&payload[3], epcBytes);
 
                     // Deduplicate within this single scan
@@ -191,12 +192,13 @@ std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs, bool stopAfterFi
 
                         // Single-trigger mode only needs the first valid EPC. Returning here
                         // avoids waiting out the full scan timeout after a tag is already read.
-                        if (stopAfterFirst) return foundTags;
+                        if (stopAfterFirst || foundTags.size()>=maxTags) return foundTags;
                     }
                 }
             } else if (type == 0x01 && cmd == 0xFF) {
                 // Fail response (e.g. no tag found / timeout)
-                break;
+                // No tag in this round; keep scanning until the window expires.
+                delay(5);
             }
         }
     }

@@ -207,11 +207,11 @@ export const RfidReceivingModal: React.FC<Props> = ({
                             {onStationChange && (
                                 <input
                                     type="text"
-                                    placeholder="Station ID"
+                                    placeholder="Station ID from RFID settings"
                                     value={selectedStation}
                                     onChange={e => onStationChange(e.target.value)}
                                     disabled={processing}
-                                    title="Receiving Station Identifier"
+                                    title="Match the Station ID assigned to this device in System Settings → RFID"
                                     className="w-24 rounded-lg border-gray-300 dark:border-slate-700 text-xs py-1 px-2 bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 font-mono focus:ring-1 focus:ring-red-900"
                                 />
                             )}

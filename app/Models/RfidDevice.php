@@ -10,7 +10,8 @@ class RfidDevice extends Model
     protected $fillable = [
         'device_uuid', 'device_name', 'device_token_hash', 'device_secret_encrypted', 'firmware_version',
         'status', 'ip_address', 'wifi_rssi', 'uptime_seconds', 'scanner_ready',
-        'last_seen_at', 'config_version',
+        'last_seen_at', 'config_version', 'applied_config_version', 'configuration_status',
+        'configuration_status_version', 'configuration_message', 'configuration_reported_at', 'station_id',
     ];
 
     protected $hidden = ['device_token_hash', 'device_secret_encrypted'];
@@ -20,6 +21,9 @@ class RfidDevice extends Model
         'last_seen_at' => 'datetime',
         'scanner_ready' => 'boolean',
         'config_version' => 'integer',
+        'applied_config_version' => 'integer',
+        'configuration_status_version' => 'integer',
+        'configuration_reported_at' => 'datetime',
         'uptime_seconds' => 'integer',
     ];
 

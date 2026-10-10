@@ -3,16 +3,20 @@
 namespace App\Providers;
 
 use App\Listeners\LogAuthenticationActivity;
-use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Auth\Notifications\VerifyEmail;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Mail\Markdown;
 use App\Models\User;
 use App\Services\AccessControl\PermissionResolver;
+use App\Services\MailAssetService;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Mail\Markdown;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -31,6 +35,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('rfid-control', fn ($request) => Limit::perMinute(60)->by('device:'.$request->attributes->get('rfidDevice')?->id));
+        RateLimiter::for('rfid-delivery', fn ($request) => Limit::perMinute(120)->by('device:'.$request->attributes->get('rfidDevice')?->id));
+        RateLimiter::for('rfid-browser', fn ($request) => Limit::perMinute(180)->by('user:'.$request->user()?->id));
         if (app()->environment('production') || config('app.force_https', false)) {
             URL::forceScheme('https');
         }
@@ -66,13 +73,13 @@ class AppServiceProvider extends ServiceProvider
                 'email' => $notifiable->getEmailForPasswordReset(),
             ], false));
 
-            $expirationNotice = new \Illuminate\Support\HtmlString(
-                '<table class="notice notice-expiration callout callout-expiration" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin: 20px 0; background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; width: 100%;">' .
-                '<tr><td class="notice-cell notice-expiration callout-cell callout-expiration" style="padding: 12px 16px; vertical-align: middle;">' .
-                '<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="width: 100%; margin: 0;"><tr>' .
-                '<td style="width: 20px; vertical-align: middle; padding-right: 10px;"><img src="' . \App\Services\MailAssetService::url('images/mail/icon-clock.png') . '" width="16" height="16" alt="Clock" style="width: 16px; height: 16px; display: block; border: 0;"></td>' .
-                '<td style="vertical-align: middle; font-size: 13px; font-weight: 500; color: #991b1b; line-height: 1.4;">This password reset link will expire in ' . $expirationMinutes . ' minutes.</td>' .
-                '</tr></table>' .
+            $expirationNotice = new HtmlString(
+                '<table class="notice notice-expiration callout callout-expiration" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin: 20px 0; background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; width: 100%;">'.
+                '<tr><td class="notice-cell notice-expiration callout-cell callout-expiration" style="padding: 12px 16px; vertical-align: middle;">'.
+                '<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="width: 100%; margin: 0;"><tr>'.
+                '<td style="width: 20px; vertical-align: middle; padding-right: 10px;"><img src="'.MailAssetService::url('images/mail/icon-clock.png').'" width="16" height="16" alt="Clock" style="width: 16px; height: 16px; display: block; border: 0;"></td>'.
+                '<td style="vertical-align: middle; font-size: 13px; font-weight: 500; color: #991b1b; line-height: 1.4;">This password reset link will expire in '.$expirationMinutes.' minutes.</td>'.
+                '</tr></table>'.
                 '</td></tr></table>'
             );
 
