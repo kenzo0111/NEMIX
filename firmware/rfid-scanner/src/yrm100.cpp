@@ -207,23 +207,24 @@ std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs, bool stopAfterFi
 }
 
 String Yrm100Reader::getVersion(uint32_t timeoutMs) {
-    // Send Get Version: BB 00 03 00 00 03 7E
-    sendFrame(0x00, 0x03, nullptr, 0);
+    // Hardware information requires selector 0x00: BB 00 03 00 01 00 04 7E.
+    const uint8_t selector = 0x00;
+    sendFrame(0x00, 0x03, &selector, 1);
 
     uint8_t type = 0;
     uint8_t cmd  = 0;
     std::vector<uint8_t> payload;
 
     if (readFrame(type, cmd, payload, timeoutMs)) {
-        if (cmd == 0x03 && payload.size() > 0) {
+        if (type == 0x01 && cmd == 0x03 && payload.size() > 1 && payload[0] == selector) {
             String ver = "";
-            for (size_t i = 0; i < payload.size(); i++) {
+            for (size_t i = 1; i < payload.size(); i++) {
                 char c = static_cast<char>(payload[i]);
                 if (isprint(c)) {
                     ver += c;
                 }
             }
-            return ver;
+            if (ver.length()) return ver;
         }
     }
     return "Unknown";

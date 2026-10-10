@@ -75,8 +75,18 @@ void setup() {
     if(!hasActive) { config.deviceId=ConfigManager::generateDeviceId(); config.serverUrl="https://example.invalid"; }
     if(hasActive&&configManager.validateConfiguration(config,true)) wifiManager.connect(config,WIFI_CONNECT_TIMEOUT_MS);
     apiClient.configure(config);
-    reader.begin(YRM100_DEFAULT_BAUD); scannerReady=reader.getVersion()!="Unknown";
-    if(scannerReady&&!reader.setTransmitPower(config.rfPower)) scannerReady=false;
+    reader.begin(YRM100_DEFAULT_BAUD);
+    String readerVersion="Unknown";
+    for(uint8_t attempt=0;attempt<3&&readerVersion=="Unknown";++attempt) {
+        readerVersion=reader.getVersion(500);
+        if(readerVersion=="Unknown") delay(200);
+    }
+    scannerReady=readerVersion!="Unknown";
+    if(scannerReady) {
+        Serial.printf("[RFID] Reader %s detected.\n",readerVersion.c_str());
+        scannerReady=reader.setTransmitPower(config.rfPower,500);
+        Serial.println(scannerReady?F("[RFID] RF power acknowledged; reader ready."):F("[RFID] ERROR: Reader rejected RF power; scanning disabled."));
+    } else Serial.println(F("[RFID] ERROR: No valid reader information response; check module power, UART wiring and baud rate."));
     if(configManager.hasPendingConfiguration()) {
         DeviceConfiguration pending;
         if(configManager.loadPendingConfiguration(pending)) applyCandidate(pending);
