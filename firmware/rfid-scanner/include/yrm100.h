@@ -21,6 +21,10 @@ public:
     // Repeat inventory rounds within the window; optionally stop at the first EPC.
     std::vector<RfidTag> scanTags(uint32_t timeoutMs = 350, bool stopAfterFirst = false, size_t maxTags = 100);
 
+    // Cooperative single-poll rounds; returns immediately when no UART data is available.
+    bool pollHeldTag(RfidTag& tag);
+    void cancelHeldPoll();
+
     // Query reader version string
     String getVersion(uint32_t timeoutMs = 300);
     bool setTransmitPower(uint8_t dbm, uint32_t timeoutMs = 300);
@@ -31,6 +35,9 @@ private:
     int8_t _rxPin;
     int8_t _txPin;
     uint32_t _baud;
+    bool _heldPolling=false;
+    uint32_t _heldStarted=0;
+    std::vector<uint8_t> _heldFrame;
 
     void sendFrame(uint8_t type, uint8_t cmd, const uint8_t* payload, uint16_t len);
     bool readFrame(uint8_t& outType, uint8_t& outCmd, std::vector<uint8_t>& outPayload, uint32_t timeoutMs);

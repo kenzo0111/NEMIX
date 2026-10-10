@@ -1,6 +1,6 @@
 #pragma once
 
-#define FIRMWARE_VERSION "2.1.1"
+#define FIRMWARE_VERSION "2.2.0"
 #define API_CANDIDATE_PATH "/api/hardware/rfid/config/candidate"
 #define API_SCANS_PATH "/api/hardware/rfid/scans"
 #define API_CONFIG_PATH "/api/hardware/rfid/config"
@@ -13,7 +13,6 @@
 #define WIFI_FAILURE_SETUP_MS 180000UL
 #define WIFI_RECONNECT_MIN_MS 2000UL
 #define WIFI_RECONNECT_MAX_MS 60000UL
-#define RECOVERY_HOLD_MS 8000UL
 #define DEFAULT_SCAN_TIMEOUT_MS 3000UL
 #define DEFAULT_HEARTBEAT_INTERVAL 30UL
 #define DEFAULT_RF_POWER 20

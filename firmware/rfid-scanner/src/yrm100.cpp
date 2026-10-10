@@ -206,6 +206,44 @@ std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs, bool stopAfterFi
     return foundTags;
 }
 
+void Yrm100Reader::cancelHeldPoll() {
+    _heldPolling=false; _heldFrame.clear();
+}
+
+bool Yrm100Reader::pollHeldTag(RfidTag& tag) {
+    if(!_heldPolling) {
+        sendFrame(0x00,0x22,nullptr,0);
+        _heldStarted=millis(); _heldFrame.clear(); _heldPolling=true;
+    }
+    // Bound each loop's work so a trigger release is handled promptly.
+    for(size_t count=0;count<128&&_serial.available()>0;++count) {
+        uint8_t byte=_serial.read();
+        if(_heldFrame.empty()&&byte!=FRAME_HEADER) continue;
+        _heldFrame.push_back(byte);
+        if(_heldFrame.size()<5) continue;
+        uint16_t length=((uint16_t)_heldFrame[3]<<8)|_heldFrame[4];
+        if(length>256) { _heldFrame.clear(); continue; }
+        if(_heldFrame.size()<length+7) continue;
+        uint8_t type=_heldFrame[1],cmd=_heldFrame[2];
+        bool valid=_heldFrame[length+6]==FRAME_END&&
+            _heldFrame[length+5]==calculateChecksum(type,cmd,_heldFrame.data()+5,length);
+        if(valid&&type==0x02&&cmd==0x22&&length>=7) {
+            const uint8_t* payload=_heldFrame.data()+5;
+            uint16_t pc=((uint16_t)payload[1]<<8)|payload[2];
+            uint8_t epcLength=((pc>>11)&0x1f)*2;
+            if(epcLength>0&&epcLength<=50&&epcLength+5<=length) {
+                tag.epc=bytesToHex(payload+3,epcLength); tag.pc=pc;
+                tag.rssiRaw=payload[0]; tag.rssiDbm=(int8_t)payload[0];
+                cancelHeldPoll(); return true;
+            }
+        }
+        _heldFrame.clear();
+        if(valid&&type==0x01&&cmd==0xff) { _heldPolling=false; return false; }
+    }
+    if(millis()-_heldStarted>=300) cancelHeldPoll();
+    return false;
+}
+
 String Yrm100Reader::getVersion(uint32_t timeoutMs) {
     // Hardware information requires selector 0x00: BB 00 03 00 01 00 04 7E.
     const uint8_t selector = 0x00;

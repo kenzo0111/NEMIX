@@ -7,6 +7,7 @@
 #include "include/yrm100.h"
 #include "include/api_client.h"
 #include "include/scan_queue.h"
+#include "include/trigger_control.h"
 
 Yrm100Reader reader(Serial2,PIN_YRM100_EN,PIN_YRM100_RX,PIN_YRM100_TX);
 ConfigManager configManager;
@@ -15,9 +16,12 @@ DeviceWiFiManager wifiManager;
 ProvisioningPortal portal(configManager,config);
 NemixApiClient apiClient;
 ScanQueue scanQueue;
-bool scannerReady=false,scanTriggered=false,automaticPortalOpened=false;
-int lastButton=HIGH;
-uint32_t pressedAt=0,lastHeartbeat=0;
+bool scannerReady=false,automaticPortalOpened=false,inventoryHeld=false;
+TriggerControl trigger;
+uint32_t lastHeartbeat=0,lastHeldSave=0;
+size_t heldCapacity=0;
+std::vector<String> heldEpcs;
+std::vector<RfidTag> heldPending;
 
 void startSetupMode() { if(!portal.active()) portal.begin(); }
 
@@ -62,18 +66,65 @@ bool applyCandidate(const DeviceConfiguration& candidate) {
 
 void executeScan() {
     if(!scannerReady||!scanQueue.canScan()) { Serial.println(F("[SCAN] Reader unavailable or delivery queue full.")); return; }
-    auto tags=reader.scanTags(config.scanTimeout,config.scanMode=="single",scanQueue.availableSlots());
+    // A single press can produce at most one EPC, even if the button remains held.
+    auto tags=reader.scanTags(config.scanTimeout,true,1);
     Serial.printf("[SCAN] Captured %u unique tag(s).\n",tags.size());
     if(!tags.empty()&&!scanQueue.enqueue(tags)) Serial.println(F("[SCAN] Storage failed; keep device powered while delivery retries."));
+}
+
+void persistHeldTags() {
+    if(heldPending.empty()) return;
+    if(!scanQueue.enqueue(heldPending)) Serial.println(F("[SCAN] Storage failed; keep device powered while delivery retries."));
+    heldPending.clear(); lastHeldSave=millis();
+}
+
+void beginHeldInventory() {
+    if(!scannerReady||!scanQueue.canScan()) { Serial.println(F("[SCAN] Reader unavailable or delivery queue full.")); return; }
+    heldEpcs.clear(); heldPending.clear(); heldCapacity=scanQueue.availableSlots();
+    inventoryHeld=true; lastHeldSave=millis(); reader.cancelHeldPoll();
+    Serial.println(F("[SCAN] Inventory started; release trigger to stop and deliver."));
+}
+
+void finishHeldInventory() {
+    reader.cancelHeldPoll(); persistHeldTags(); inventoryHeld=false;
+    Serial.printf("[SCAN] Inventory stopped: %u unique tag(s).\n",heldEpcs.size());
+    heldEpcs.clear();
+}
+
+void pollHeldInventory() {
+    if(heldEpcs.size()>=heldCapacity||!scanQueue.canScan()) return;
+    RfidTag tag;
+    if(reader.pollHeldTag(tag)) {
+        bool seen=false;
+        for(const auto& epc:heldEpcs) if(epc==tag.epc) { seen=true; break; }
+        if(!seen) {
+            heldEpcs.push_back(tag.epc); heldPending.push_back(tag);
+            Serial.printf("[SCAN] Inventory captured %u unique tag(s).\n",heldEpcs.size());
+        }
+    }
+    if(heldPending.size()>=20||(!heldPending.empty()&&millis()-lastHeldSave>=1000)||heldEpcs.size()>=heldCapacity) persistHeldTags();
+    if(heldEpcs.size()>=heldCapacity) {
+        reader.cancelHeldPoll(); Serial.println(F("[SCAN] Delivery capacity reached; release trigger to upload."));
+    }
 }
 
 void setup() {
     Serial.begin(SERIAL_DEBUG_BAUD);
     pinMode(PIN_TRIGGER_BUTTON,INPUT_PULLUP); pinMode(PIN_YRM100_EN,OUTPUT); digitalWrite(PIN_YRM100_EN,LOW);
+    // Recovery is available only when held from boot, never during an inventory hold.
+    bool setupRequested=false;
+    trigger=TriggerControl(digitalRead(PIN_TRIGGER_BUTTON)==LOW,millis());
+    if(trigger.held()) {
+        Serial.println(F("[RECOVERY] Keep trigger held for eight seconds to open Wi-Fi setup."));
+        while(trigger.held()&&!setupRequested) {
+            setupRequested=trigger.update(digitalRead(PIN_TRIGGER_BUTTON)==LOW,millis())==TriggerControl::Event::Setup;
+            delay(2);
+        }
+    }
     configManager.begin(); scanQueue.begin();
     bool hasActive=configManager.loadConfiguration(config);
     if(!hasActive) { config.deviceId=ConfigManager::generateDeviceId(); config.serverUrl="https://example.invalid"; }
-    if(hasActive&&configManager.validateConfiguration(config,true)) wifiManager.connect(config,WIFI_CONNECT_TIMEOUT_MS);
+    if(!setupRequested&&hasActive&&configManager.validateConfiguration(config,true)) wifiManager.connect(config,WIFI_CONNECT_TIMEOUT_MS);
     apiClient.configure(config);
     reader.begin(YRM100_DEFAULT_BAUD);
     String readerVersion="Unknown";
@@ -92,20 +143,26 @@ void setup() {
         if(configManager.loadPendingConfiguration(pending)) applyCandidate(pending);
         else configManager.rollbackPendingConfiguration();
     }
-    if(!wifiManager.connected()) { startSetupMode(); automaticPortalOpened=true; }
+    if(setupRequested||!wifiManager.connected()) { startSetupMode(); automaticPortalOpened=true; }
     Serial.printf("[READY] Device %s firmware %s\n",config.deviceId.c_str(),FIRMWARE_VERSION);
 }
 
 void loop() {
-    portal.loop(); wifiManager.loop(config);
-    int button=digitalRead(PIN_TRIGGER_BUTTON);
-    if(button==LOW&&lastButton==HIGH) pressedAt=millis();
-    if(button==LOW&&!scanTriggered&&millis()-pressedAt>=RECOVERY_HOLD_MS) { scanTriggered=true; startSetupMode(); }
-    if(button==HIGH&&lastButton==LOW) {
-        if(!scanTriggered&&millis()-pressedAt>50) executeScan();
-        scanTriggered=false; pressedAt=0;
+    bool buttonHeld=digitalRead(PIN_TRIGGER_BUTTON)==LOW;
+    auto action=trigger.update(buttonHeld,millis());
+    if(action==TriggerControl::Event::Press) {
+        if(config.scanMode=="inventory") beginHeldInventory();
+        else executeScan();
     }
-    lastButton=button;
+    if(action==TriggerControl::Event::Release&&inventoryHeld) finishHeldInventory();
+    if(inventoryHeld) {
+        // Stop issuing polls on the physical release; debounce only controls session completion.
+        if(buttonHeld) pollHeldInventory(); else reader.cancelHeldPoll();
+        delay(2); return;
+    }
+    // Defer blocking HTTPS and clock synchronization until the trigger is released.
+    if(buttonHeld) { delay(2); return; }
+    portal.loop(); wifiManager.loop(config);
     if(wifiManager.connected()) automaticPortalOpened=false;
     if(wifiManager.prolongedFailure()&&!automaticPortalOpened) { startSetupMode(); automaticPortalOpened=true; }
     if(wifiManager.connected()&&millis()-lastHeartbeat>=config.heartbeatInterval*1000UL) {
@@ -117,6 +174,10 @@ void loop() {
         }
     }
     scanQueue.loop(apiClient,wifiManager.connected());
-    if(Serial.available()&&Serial.read()=='s') executeScan();
+    if(Serial.available()) {
+        char command=Serial.read();
+        if(command=='s') executeScan();
+        else if(command=='d') Serial.printf("[CONFIG] Firmware %s mode=%s version=%lu reader=%s\n",FIRMWARE_VERSION,config.scanMode.c_str(),(unsigned long)config.configVersion,scannerReady?"ready":"not ready");
+    }
     delay(2);
 }

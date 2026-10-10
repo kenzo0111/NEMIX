@@ -37,7 +37,7 @@ Write-Host "=================================================================" -
 
 # Step A: Check if device is ALREADY in download mode (e.g. plugged in with BOOT held)
 Write-Host "Checking if ESP32 is already in download mode (no-reset)..." -ForegroundColor Yellow
-& $Esptool --chip esp32 --port $Port --baud $Baud --before no-reset chip-id 2>$null
+& $Esptool --chip esp32 --port $Port --baud $Baud --before no-reset --after no-reset chip-id 2>$null
 if ($LASTEXITCODE -eq 0) {
     Write-Host "==> ESP32 is in download mode! Flashing now..." -ForegroundColor Green
     # Do not flash the merged 4 MB image: it overwrites the NVS credentials/token.
@@ -76,4 +76,5 @@ if ($success) {
     Write-Host " 4. Release the 'BOOT' button.                                  " -ForegroundColor Yellow
     Write-Host " 5. Run this script again: .\\flash_firmware.ps1                 " -ForegroundColor Green
     Write-Host "=================================================================" -ForegroundColor Red
+    exit 1
 }
