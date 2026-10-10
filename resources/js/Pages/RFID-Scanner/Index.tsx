@@ -150,14 +150,6 @@ export default function Index({
                     description="Assign RFID identification tags to inventory items before receiving."
                     breadcrumbs={[{ name: 'RFID Scanner', href: '#' }]}
                 />
-                <div className="mx-6 my-4 flex flex-wrap items-center gap-3 text-sm">
-                    <label>Hardware scanner <select className="ml-2 rounded-lg border-slate-300 dark:bg-slate-900" value={selectedDeviceUuid} onChange={e=>setSelectedDeviceUuid(e.target.value)}>
-                        <option value="">Keyboard / manual only</option>
-                        {rfidDevices.map(device=><option key={device.device_uuid} value={device.device_uuid}>{device.device_name}</option>)}
-                    </select></label>
-                    <span>{pendingScanCount} hardware scan(s) waiting for the next item.</span>
-                </div>
-
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1500px] mx-auto pb-16 min-w-0 w-full">
                     {/* Optional Flash Notification */}
                     {flash?.success && (
@@ -172,6 +164,28 @@ export default function Index({
                             <span>{flash.error}</span>
                         </div>
                     )}
+
+                    <section aria-label="Hardware scanner" className="flex flex-col gap-4 rounded-xl border border-gray-200/90 bg-white p-4 shadow-2xs dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 items-center gap-3">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-100/80 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40">
+                                <Radio className="h-5 w-5 text-red-900 dark:text-red-400" />
+                            </div>
+                            <div className="min-w-0 flex-1 sm:w-80 sm:flex-none">
+                                <label htmlFor="rfid-hardware-scanner" className="mb-1.5 block text-xs font-medium text-gray-600 dark:text-slate-400">Hardware scanner</label>
+                                <select id="rfid-hardware-scanner" className="block w-full min-w-0 truncate rounded-lg border-gray-300 bg-white py-2 pl-3 pr-9 text-sm text-gray-900 focus:border-red-800 focus:ring-red-900/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-red-500 dark:focus:ring-red-500/20" value={selectedDeviceUuid} onChange={e => setSelectedDeviceUuid(e.target.value)}>
+                                    <option value="">Keyboard / manual only</option>
+                                    {rfidDevices.map(device => <option key={device.device_uuid} value={device.device_uuid}>{device.device_name}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                        <div role="status" aria-live="polite" aria-atomic="true" className="flex min-w-0 flex-wrap items-center gap-2 text-xs">
+                            <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-medium ${pendingScanCount > 0 ? 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-300' : 'border-gray-200 bg-gray-50 text-gray-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'}`}>
+                                <Tag className="h-3.5 w-3.5 shrink-0" />
+                                <span>{pendingScanCount} queued {pendingScanCount === 1 ? 'scan' : 'scans'}</span>
+                            </span>
+                            <span className="text-gray-500 dark:text-slate-400">{pendingScanCount > 0 ? 'Waiting for the next item.' : 'No hardware scans waiting.'}</span>
+                        </div>
+                    </section>
 
                     {/* Operational Metric Overview Strip */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
