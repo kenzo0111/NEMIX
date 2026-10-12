@@ -18,6 +18,17 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
     const { can } = useAuthorization();
     const [selectedId, setSelectedId] = useState<number | null>(devices[0]?.id ?? null);
     const selected = useMemo(() => devices.find((d) => d.id === selectedId), [devices, selectedId]);
+    const readerLabel = (device: RfidDeviceConfiguration | undefined) => {
+        if (!device || device.status !== 'online') return 'unknown — no current heartbeat';
+        if (!device.scanner_ready) return device.reader_diagnostics ? 'recovering — communication or RF power check failed' : 'unavailable';
+        return device.reader_diagnostics ? 'responding — RF power verified' : 'startup check passed — update firmware for diagnostics';
+    };
+    const blockLabels = {
+        none: 'Scan enabled', reader_unavailable: 'Scanning blocked: reader recovery pending',
+        queue_full: 'Scanning blocked: delivery queue full; release trigger and restore delivery',
+        storage_pending: 'Scanning blocked: saving pending scans; keep device powered',
+        storage_invalid: 'Scanning blocked: saved queue is invalid; storage recovery required',
+    };
     const [draft, setDraft] = useState<Partial<RfidDeviceConfiguration> & { wifi_password?: string; wifi_open_network?: boolean }>({});
     useEffect(() => {
         if (selectedId === null && devices.length) setSelectedId(devices[0].id);
@@ -51,7 +62,7 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
     const testDevice = async () => {
         if (!selected) return;
         setBusy(true);
-        try { const r = await axios.post(route('system.settings.rfid-devices.test', { device: selected.id })); onToast('info', `${r.data.message} Configuration: ${r.data.configuration_status}; device version ${r.data.applied_config_version}. Reader ${r.data.scanner_ready ? 'ready' : 'not ready'}.`); }
+        try { const r = await axios.post(route('system.settings.rfid-devices.test', { device: selected.id })); onToast('info', `${r.data.message} Configuration: ${r.data.configuration_status}; device version ${r.data.applied_config_version}. Reader ${r.data.scanner_ready ? 'communication check passed; tag reading is not verified by this test' : 'unavailable'}.`); }
         catch (error: any) { onToast('error', error.response?.data?.message || 'The scanner is not responding.'); }
         finally { setBusy(false); }
     };
@@ -124,7 +135,14 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
             {can('system.settings.rfid-devices.update') && <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="md:col-span-2 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-xs space-y-1" role="status">
                     <strong>Configuration: {selected?.configuration_status?.replace('_', ' ') || 'pending'}</strong>
-                    <p>Requested version {selected?.config_version}; device confirmed version {selected?.applied_config_version ?? 0}. Reader: {selected?.scanner_ready ? 'ready' : 'not ready'}.</p>
+                    <p>Requested version {selected?.config_version}; device confirmed version {selected?.applied_config_version ?? 0}. Reader: {readerLabel(selected)}.</p>
+                    {selected?.status === 'online' && selected.reader_diagnostics && <div className="space-y-1">
+                        <p>{blockLabels[selected.reader_diagnostics.scan_block_reason]}. Delivery queue: {selected.reader_diagnostics.queue_count}/100.</p>
+                        <p>{selected.reader_diagnostics.tags > 0 ? `${selected.reader_diagnostics.tags} tag response(s) captured since boot.` : 'No tags captured since boot. Communication success does not verify tag reading.'}</p>
+                        <p>UART timeouts: {selected.reader_diagnostics.timeouts}; invalid frames: {selected.reader_diagnostics.invalid_frames}; recovery attempts: {selected.reader_diagnostics.recovery_attempts}.</p>
+                        {selected.reader_diagnostics.last_error >= 0 && <p>Last reader error: 0x{selected.reader_diagnostics.last_error.toString(16).toUpperCase().padStart(2, '0')}{selected.reader_diagnostics.last_error === 0x15 ? ' — no tag reply or tag CRC error' : selected.reader_diagnostics.last_error === 0x20 ? ' — frequency channel search timed out' : selected.reader_diagnostics.last_error === 0x17 ? ' — command rejected' : ''}.</p>}
+                        <p>Diagnostics are from the last heartbeat. Release the trigger to upload captured tags and report status.</p>
+                    </div>}
                     {selected?.configuration_message && <p className="text-amber-700 dark:text-amber-300">{selected.configuration_message}</p>}
                     {selected?.configuration_reported_at && <p>Reported {new Date(selected.configuration_reported_at).toLocaleString()}</p>}
                 </div>

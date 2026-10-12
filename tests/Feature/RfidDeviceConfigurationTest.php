@@ -298,6 +298,81 @@ class RfidDeviceConfigurationTest extends TestCase
         $this->assertSame(2, $device->fresh()->config_version);
     }
 
+    private function readerDiagnostics(): array
+    {
+        return [
+            'responses' => 4, 'tags' => 0, 'timeouts' => 3, 'invalid_frames' => 1,
+            'reader_errors' => 1, 'last_error' => 21, 'queue_count' => 100,
+            'scan_block_reason' => 'queue_full', 'recovery_attempts' => 2,
+            'last_response_age_ms' => 100, 'last_tag_age_ms' => null,
+        ];
+    }
+
+    public function test_heartbeat_stores_reader_diagnostics_without_claiming_a_tag_was_read(): void
+    {
+        [$device] = $this->device();
+        $path = '/api/hardware/rfid/heartbeat';
+        $body = ['firmware_version' => '2.3.0', 'configuration_version' => 2, 'uptime' => 90,
+            'scanner_ready' => true, 'reader_diagnostics' => $this->readerDiagnostics()];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))
+            ->postJson($path, $body)->assertOk();
+        $device->refresh();
+        $this->assertTrue($device->scanner_ready);
+        $this->assertTrue($device->hasCurrentReader());
+        $this->assertSame($body['reader_diagnostics'], $device->reader_diagnostics);
+        $this->assertSame(0, DB::table('rfid_scan_events')->count());
+        $body['scanner_ready'] = false;
+        $body['reader_diagnostics']['scan_block_reason'] = 'reader_unavailable';
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))
+            ->postJson($path, $body)->assertOk();
+        $this->assertFalse($device->fresh()->scanner_ready);
+    }
+
+    public function test_legacy_heartbeat_clears_previous_session_diagnostics(): void
+    {
+        [$device] = $this->device();
+        $device->update(['reader_diagnostics' => $this->readerDiagnostics()]);
+        $path = '/api/hardware/rfid/heartbeat';
+        $body = ['firmware_version' => '2.2.0', 'configuration_version' => 2, 'uptime' => 5, 'scanner_ready' => true];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))
+            ->postJson($path, $body)->assertOk();
+        $this->assertNull($device->fresh()->reader_diagnostics);
+    }
+
+    public function test_invalid_reader_diagnostics_do_not_replace_last_heartbeat(): void
+    {
+        [$device] = $this->device();
+        $path = '/api/hardware/rfid/heartbeat';
+        $body = ['firmware_version' => '2.3.0', 'configuration_version' => 2, 'uptime' => 90,
+            'scanner_ready' => true, 'reader_diagnostics' => $this->readerDiagnostics()];
+        $body['reader_diagnostics']['queue_count'] = 101;
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))
+            ->postJson($path, $body)->assertUnprocessable()->assertJsonValidationErrors('reader_diagnostics.queue_count');
+        $this->assertNull($device->fresh()->last_seen_at);
+        $body['reader_diagnostics'] = ['unexpected' => 'value'];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))
+            ->postJson($path, $body)->assertUnprocessable()->assertJsonValidationErrors('reader_diagnostics');
+    }
+
+    public function test_expired_heartbeat_masks_reader_readiness_and_diagnostics(): void
+    {
+        $this->freezeTime();
+        [$device] = $this->device();
+        $device->update(['status' => 'online', 'last_seen_at' => now(), 'scanner_ready' => true,
+            'reader_diagnostics' => $this->readerDiagnostics()]);
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::firstOrCreate(['name' => 'System Admin']));
+        $this->actingAs($admin)->postJson(route('system.settings.rfid-devices.test', $device))
+            ->assertOk()->assertJsonPath('scanner_ready', true)->assertJsonPath('reader_diagnostics.queue_count', 100);
+        $this->travel(90)->seconds();
+        $this->postJson(route('system.settings.rfid-devices.test', $device))
+            ->assertStatus(422)->assertJsonPath('scanner_ready', false)->assertJsonPath('reader_diagnostics', null);
+        $this->assertTrue($device->fresh()->scanner_ready);
+        $this->assertFalse($device->fresh()->hasCurrentReader());
+        $this->get(route('system.settings.index'))->assertInertia(fn ($page) => $page
+            ->where('rfidDevices.0.scanner_ready', false)->where('rfidDevices.0.reader_diagnostics', null));
+    }
+
     public function test_device_can_be_disabled_and_secret_rotated_only_by_admin(): void
     {
         [$device] = $this->device();

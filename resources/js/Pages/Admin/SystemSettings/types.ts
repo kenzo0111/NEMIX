@@ -119,6 +119,20 @@ export interface TelemetryData {
     cached_at: string | null;
 }
 
+export interface RfidReaderDiagnostics {
+    responses: number;
+    tags: number;
+    timeouts: number;
+    invalid_frames: number;
+    reader_errors: number;
+    last_error: number;
+    queue_count: number;
+    scan_block_reason: 'none' | 'reader_unavailable' | 'queue_full' | 'storage_pending' | 'storage_invalid';
+    recovery_attempts: number;
+    last_response_age_ms: number | null;
+    last_tag_age_ms: number | null;
+}
+
 export interface RfidDeviceConfiguration {
     id: number;
     device_uuid: string;
@@ -133,6 +147,7 @@ export interface RfidDeviceConfiguration {
     configuration_message: string | null;
     configuration_reported_at: string | null;
     scanner_ready: boolean;
+    reader_diagnostics?: RfidReaderDiagnostics | null;
     station_id: string | null;
     wifi_ssid: string | null;
     server_url: string;

@@ -126,7 +126,8 @@ class RfidDeviceSettingController extends Controller
             'message' => $device->isOnline() ? 'The scanner heartbeat is current.' : 'No recent scanner heartbeat was received.',
             'configuration_status' => $device->configuration_status,
             'applied_config_version' => $device->applied_config_version,
-            'scanner_ready' => $device->scanner_ready,
+            'scanner_ready' => $device->hasCurrentReader(),
+            'reader_diagnostics' => $device->isOnline() ? $device->reader_diagnostics : null,
         ], $device->isOnline() ? 200 : 422);
     }
 }

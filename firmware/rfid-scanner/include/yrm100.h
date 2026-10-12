@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <vector>
+#include "reader_health.h"
 
 struct RfidTag {
     String epc;       // Hex string, e.g. "E2843611000010000FD08ED7"
@@ -17,6 +18,8 @@ public:
     void begin(uint32_t baudRate = 115200);
     void wake();
     void sleep();
+    void restart();
+    const ReaderHealth& health() const { return _health; }
 
     // Repeat inventory rounds within the window; optionally stop at the first EPC.
     std::vector<RfidTag> scanTags(uint32_t timeoutMs = 350, bool stopAfterFirst = false, size_t maxTags = 100);
@@ -28,6 +31,7 @@ public:
     // Query reader version string
     String getVersion(uint32_t timeoutMs = 300);
     bool setTransmitPower(uint8_t dbm, uint32_t timeoutMs = 300);
+    bool verifyTransmitPower(uint8_t dbm, uint32_t timeoutMs = 300);
 
 private:
     HardwareSerial& _serial;
@@ -38,6 +42,7 @@ private:
     bool _heldPolling=false;
     uint32_t _heldStarted=0;
     std::vector<uint8_t> _heldFrame;
+    ReaderHealth _health;
 
     void sendFrame(uint8_t type, uint8_t cmd, const uint8_t* payload, uint16_t len);
     bool readFrame(uint8_t& outType, uint8_t& outCmd, std::vector<uint8_t>& outPayload, uint32_t timeoutMs);

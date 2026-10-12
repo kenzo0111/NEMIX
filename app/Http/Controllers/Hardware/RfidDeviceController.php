@@ -89,6 +89,18 @@ class RfidDeviceController extends Controller
             'wifi_rssi' => ['nullable', 'integer', 'between:-127,0'],
             'uptime' => ['required', 'integer', 'min:0'],
             'scanner_ready' => ['required', 'boolean'],
+            'reader_diagnostics' => ['sometimes', 'nullable', 'array:responses,tags,timeouts,invalid_frames,reader_errors,last_error,queue_count,scan_block_reason,recovery_attempts,last_response_age_ms,last_tag_age_ms'],
+            'reader_diagnostics.responses' => ['required_with:reader_diagnostics', 'integer', 'min:0', 'max:4294967295'],
+            'reader_diagnostics.tags' => ['required_with:reader_diagnostics', 'integer', 'min:0', 'max:4294967295'],
+            'reader_diagnostics.timeouts' => ['required_with:reader_diagnostics', 'integer', 'min:0', 'max:4294967295'],
+            'reader_diagnostics.invalid_frames' => ['required_with:reader_diagnostics', 'integer', 'min:0', 'max:4294967295'],
+            'reader_diagnostics.reader_errors' => ['required_with:reader_diagnostics', 'integer', 'min:0', 'max:4294967295'],
+            'reader_diagnostics.last_error' => ['required_with:reader_diagnostics', 'integer', 'between:-1,255'],
+            'reader_diagnostics.queue_count' => ['required_with:reader_diagnostics', 'integer', 'between:0,100'],
+            'reader_diagnostics.scan_block_reason' => ['required_with:reader_diagnostics', 'in:none,reader_unavailable,queue_full,storage_pending,storage_invalid'],
+            'reader_diagnostics.recovery_attempts' => ['required_with:reader_diagnostics', 'integer', 'min:0', 'max:4294967295'],
+            'reader_diagnostics.last_response_age_ms' => ['present_with:reader_diagnostics', 'nullable', 'integer', 'min:0', 'max:4294967295'],
+            'reader_diagnostics.last_tag_age_ms' => ['present_with:reader_diagnostics', 'nullable', 'integer', 'min:0', 'max:4294967295'],
         ]);
         $device = $this->device($request);
         DB::transaction(function () use ($device, $data, $request) {
@@ -102,8 +114,10 @@ class RfidDeviceController extends Controller
                 'wifi_rssi' => $data['wifi_rssi'] ?? null,
                 'uptime_seconds' => $data['uptime'],
                 'scanner_ready' => $data['scanner_ready'],
-                // PostgreSQL interprets timezone-less timestamp values as UTC.
-                'last_seen_at' => now()->utc(),
+                // An older firmware heartbeat must not retain diagnostics from a newer session.
+                'reader_diagnostics' => $data['reader_diagnostics'] ?? null,
+                // PostgreSQL timestamptz expects UTC; SQLite/MySQL datetime casts use app time.
+                'last_seen_at' => DB::getDriverName() === 'pgsql' ? now()->utc() : now(),
                 'applied_config_version' => $data['configuration_version'],
             ]);
             if ($data['configuration_version'] === $device->config_version) {

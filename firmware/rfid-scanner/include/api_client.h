@@ -4,6 +4,7 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include "config_manager.h"
+#include "reader_health.h"
 
 struct ItemLookupResult {
     bool success;
@@ -18,7 +19,8 @@ public:
     void configure(const DeviceConfiguration& config);
     bool checkWifi();
     ItemLookupResult submitScan(const String& epc, int rssi);
-    bool sendHeartbeat(uint32_t uptimeSeconds, bool scannerReady, uint32_t& serverVersion);
+    bool sendHeartbeat(uint32_t uptimeSeconds, bool scannerReady, uint32_t& serverVersion,
+        const ReaderHealth& health, size_t queueCount, const char* blockReason, uint32_t recoveryAttempts);
     bool fetchConfiguration(DeviceConfiguration& candidate);
     bool fetchNetworkConfiguration(DeviceConfiguration& candidate, uint32_t currentVersion);
     bool reportConfigurationStatus(uint32_t version, const char* status, const String& message = "");
