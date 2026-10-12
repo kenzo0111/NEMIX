@@ -28,12 +28,6 @@ void Yrm100Reader::sleep() {
     }
 }
 
-void Yrm100Reader::restart() {
-    cancelHeldPoll();
-    sleep(); delay(100); wake(); delay(500);
-    while(_serial.available()>0) _serial.read();
-}
-
 uint8_t Yrm100Reader::calculateChecksum(uint8_t type, uint8_t cmd, const uint8_t* payload, uint16_t len) {
     uint32_t sum = type + cmd + ((len >> 8) & 0xFF) + (len & 0xFF);
     for (uint16_t i = 0; i < len; i++) {
@@ -92,7 +86,7 @@ bool Yrm100Reader::readFrame(uint8_t& outType, uint8_t& outCmd, std::vector<uint
         }
         delay(1);
     }
-    if (!headerFound) { _health.failure(true); return false; }
+    if (!headerFound) return false;
 
     // 2. Read Type, Cmd, Length (4 bytes)
     uint8_t meta[4];
@@ -104,14 +98,14 @@ bool Yrm100Reader::readFrame(uint8_t& outType, uint8_t& outCmd, std::vector<uint
             delay(1);
         }
     }
-    if (metaRead < 4) { _health.failure(true); return false; }
+    if (metaRead < 4) return false;
 
     outType = meta[0];
     outCmd  = meta[1];
     uint16_t len = (static_cast<uint16_t>(meta[2]) << 8) | meta[3];
 
     // Sanity check length
-    if (len > 256) { _health.failure(false); return false; }
+    if (len > 256) return false;
 
     // 3. Read Payload
     if (len > 0) {
@@ -124,7 +118,7 @@ bool Yrm100Reader::readFrame(uint8_t& outType, uint8_t& outCmd, std::vector<uint
                 delay(1);
             }
         }
-        if (payloadRead < len) { _health.failure(true); return false; }
+        if (payloadRead < len) return false;
     }
 
     // 4. Read Checksum & End Byte (2 bytes)
@@ -137,18 +131,15 @@ bool Yrm100Reader::readFrame(uint8_t& outType, uint8_t& outCmd, std::vector<uint
             delay(1);
         }
     }
-    if (tailRead < 2) { _health.failure(true); return false; }
+    if (tailRead < 2) return false;
 
     uint8_t expectedChecksum = tail[0];
     uint8_t endByte = tail[1];
 
-    if (endByte != FRAME_END) { _health.failure(false); return false; }
+    if (endByte != FRAME_END) return false;
 
     uint8_t actualChecksum = calculateChecksum(outType, outCmd, outPayload.data(), len);
-    if(actualChecksum!=expectedChecksum) { _health.failure(false); return false; }
-    _health.response(millis());
-    if(outType==0x01&&outCmd==0xff&&!outPayload.empty()) _health.error(outPayload[0]);
-    return true;
+    return (actualChecksum == expectedChecksum);
 }
 
 std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs, bool stopAfterFirst, size_t maxTags) {
@@ -169,7 +160,7 @@ std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs, bool stopAfterFi
             if (cmd == 0x22 && type == 0x02 && payload.size() >= 7) {
                 // Byte 0: RSSI
                 int rssiRaw = payload[0];
-                int rssiDbm = (int8_t)payload[0];
+                int rssiDbm = rssiRaw - 256; // Standard negative dBm approximation
 
                 // Bytes 1-2: PC Word
                 uint16_t pc = (static_cast<uint16_t>(payload[1]) << 8) | payload[2];
@@ -180,7 +171,6 @@ std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs, bool stopAfterFi
 
                 // Validate payload size bounds: 1 (RSSI) + 2 (PC) + epcBytes + 2 (CRC)
                 if (epcBytes > 0 && epcBytes <= 50 && (5 + epcBytes) <= payload.size()) {
-                    _health.tag(millis());
                     String epcStr = bytesToHex(&payload[3], epcBytes);
 
                     // Deduplicate within this single scan
@@ -204,14 +194,13 @@ std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs, bool stopAfterFi
                         // avoids waiting out the full scan timeout after a tag is already read.
                         if (stopAfterFirst || foundTags.size()>=maxTags) return foundTags;
                     }
-                } else _health.failure(false);
+                }
             } else if (type == 0x01 && cmd == 0xFF) {
                 // Fail response (e.g. no tag found / timeout)
                 // No tag in this round; keep scanning until the window expires.
                 delay(5);
             }
         }
-        if(_health.needsRecovery()) break;
     }
 
     return foundTags;
@@ -233,14 +222,11 @@ bool Yrm100Reader::pollHeldTag(RfidTag& tag) {
         _heldFrame.push_back(byte);
         if(_heldFrame.size()<5) continue;
         uint16_t length=((uint16_t)_heldFrame[3]<<8)|_heldFrame[4];
-        if(length>256) { _health.failure(false); cancelHeldPoll(); return false; }
+        if(length>256) { _heldFrame.clear(); continue; }
         if(_heldFrame.size()<length+7) continue;
         uint8_t type=_heldFrame[1],cmd=_heldFrame[2];
         bool valid=_heldFrame[length+6]==FRAME_END&&
             _heldFrame[length+5]==calculateChecksum(type,cmd,_heldFrame.data()+5,length);
-        if(!valid) { _health.failure(false); cancelHeldPoll(); return false; }
-        _health.response(millis());
-        if(type==0x01&&cmd==0xff&&length>0) _health.error(_heldFrame[5]);
         if(valid&&type==0x02&&cmd==0x22&&length>=7) {
             const uint8_t* payload=_heldFrame.data()+5;
             uint16_t pc=((uint16_t)payload[1]<<8)|payload[2];
@@ -248,14 +234,13 @@ bool Yrm100Reader::pollHeldTag(RfidTag& tag) {
             if(epcLength>0&&epcLength<=50&&epcLength+5<=length) {
                 tag.epc=bytesToHex(payload+3,epcLength); tag.pc=pc;
                 tag.rssiRaw=payload[0]; tag.rssiDbm=(int8_t)payload[0];
-                _health.tag(millis());
                 cancelHeldPoll(); return true;
-            } else { _health.failure(false); cancelHeldPoll(); return false; }
+            }
         }
         _heldFrame.clear();
         if(valid&&type==0x01&&cmd==0xff) { _heldPolling=false; return false; }
     }
-    if(millis()-_heldStarted>=300) { _health.failure(true); cancelHeldPoll(); }
+    if(millis()-_heldStarted>=300) cancelHeldPoll();
     return false;
 }
 
@@ -291,11 +276,4 @@ bool Yrm100Reader::setTransmitPower(uint8_t dbm, uint32_t timeoutMs) {
     uint8_t type=0, cmd=0; std::vector<uint8_t> response;
     return readFrame(type, cmd, response, timeoutMs) && type == 0x01 && cmd == 0xB6 &&
         !response.empty() && response[0] == 0x00;
-}
-
-bool Yrm100Reader::verifyTransmitPower(uint8_t dbm, uint32_t timeoutMs) {
-    sendFrame(0x00,0xB7,nullptr,0);
-    uint8_t type=0,cmd=0; std::vector<uint8_t> response;
-    return readFrame(type,cmd,response,timeoutMs)&&type==0x01&&cmd==0xB7&&response.size()==2&&
-        (((uint16_t)response[0]<<8)|response[1])==(uint16_t)dbm*100;
 }

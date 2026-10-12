@@ -72,28 +72,13 @@ ItemLookupResult NemixApiClient::submitScan(const String& epc,int rssi) {
     result.found=result.success&&result.httpCode==200; cJSON_Delete(response); return result;
 }
 
-bool NemixApiClient::sendHeartbeat(uint32_t uptime,bool ready,uint32_t& version,
-    const ReaderHealth& health,size_t queueCount,const char* blockReason,uint32_t recoveryAttempts) {
+bool NemixApiClient::sendHeartbeat(uint32_t uptime,bool ready,uint32_t& version) {
     cJSON* object=cJSON_CreateObject(); if(!object) return false;
     cJSON_AddStringToObject(object,"firmware_version",FIRMWARE_VERSION);
     cJSON_AddStringToObject(object,"ip_address",WiFi.localIP().toString().c_str());
     cJSON_AddNumberToObject(object,"configuration_version",version);
     cJSON_AddNumberToObject(object,"wifi_rssi",WiFi.RSSI()); cJSON_AddNumberToObject(object,"uptime",uptime);
     cJSON_AddBoolToObject(object,"scanner_ready",ready);
-    cJSON* diagnostics=cJSON_AddObjectToObject(object,"reader_diagnostics");
-    cJSON_AddNumberToObject(diagnostics,"responses",health.responses);
-    cJSON_AddNumberToObject(diagnostics,"tags",health.tags);
-    cJSON_AddNumberToObject(diagnostics,"timeouts",health.timeouts);
-    cJSON_AddNumberToObject(diagnostics,"invalid_frames",health.invalidFrames);
-    cJSON_AddNumberToObject(diagnostics,"reader_errors",health.readerErrors);
-    cJSON_AddNumberToObject(diagnostics,"last_error",health.lastError);
-    cJSON_AddNumberToObject(diagnostics,"queue_count",queueCount);
-    cJSON_AddStringToObject(diagnostics,"scan_block_reason",blockReason);
-    cJSON_AddNumberToObject(diagnostics,"recovery_attempts",recoveryAttempts);
-    if(health.responses) cJSON_AddNumberToObject(diagnostics,"last_response_age_ms",millis()-health.lastResponseMs);
-    else cJSON_AddNullToObject(diagnostics,"last_response_age_ms");
-    if(health.tags) cJSON_AddNumberToObject(diagnostics,"last_tag_age_ms",millis()-health.lastTagMs);
-    else cJSON_AddNullToObject(diagnostics,"last_tag_age_ms");
     String body=jsonEncode(object), response; cJSON_Delete(object);
     if(request("POST",API_HEARTBEAT_PATH,body,response)!=200) return false;
     cJSON* parsed=cJSON_Parse(response.c_str());

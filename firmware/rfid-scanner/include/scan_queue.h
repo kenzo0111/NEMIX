@@ -69,13 +69,6 @@ public:
     }
     size_t availableSlots() const { return dirty||!healthy ? 0 : 100-events.size(); }
     bool canScan() const { return availableSlots()>0; }
-    size_t count() const { return events.size(); }
-    const char* blockReason() const {
-        if(!healthy) return "storage_invalid";
-        if(dirty) return "storage_pending";
-        if(events.size()>=100) return "queue_full";
-        return "none";
-    }
     void loop(NemixApiClient& api,bool connected) {
         if(!healthy||(events.empty()&&!dirty)||millis()-lastAttempt<backoff) return;
         lastAttempt=millis();
