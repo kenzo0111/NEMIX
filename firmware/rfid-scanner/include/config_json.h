@@ -50,6 +50,8 @@ inline String encodeConfiguration(const DeviceConfiguration& c) {
     cJSON_AddNumberToObject(object,"scan_timeout",c.scanTimeout);
     cJSON_AddNumberToObject(object,"heartbeat_interval",c.heartbeatInterval);
     cJSON_AddNumberToObject(object,"version",c.configVersion);
+    cJSON_AddNumberToObject(object,"network_version",c.networkVersion);
+    cJSON_AddBoolToObject(object,"rebase_network",c.rebaseNetwork);
     cJSON_AddBoolToObject(object,"buzzer_enabled",c.buzzerEnabled);
     cJSON_AddBoolToObject(object,"auto_reconnect",c.autoReconnect);
     String result = jsonEncode(object); cJSON_Delete(object); return result;
@@ -59,5 +61,9 @@ inline bool decodeConfiguration(const String& encoded, DeviceConfiguration& c) {
     bool valid = object && parseScannerSettings(object,c) && jsonText(object,"wifi_ssid",c.wifiSsid) &&
         jsonText(object,"wifi_password",c.wifiPassword) && jsonText(object,"device_id",c.deviceId) &&
         jsonText(object,"device_token",c.deviceToken);
+    // Existing records remain readable after an upgrade.
+    c.networkVersion=0; c.rebaseNetwork=!cJSON_HasObjectItem(object,"network_version");
+    if(cJSON_HasObjectItem(object,"network_version")) valid=valid&&jsonUInt(object,"network_version",c.networkVersion);
+    if(cJSON_HasObjectItem(object,"rebase_network")) valid=valid&&jsonFlag(object,"rebase_network",c.rebaseNetwork);
     cJSON_Delete(object); return valid;
 }

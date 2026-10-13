@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class RfidDeviceSettingController extends Controller
 {
@@ -93,6 +94,20 @@ class RfidDeviceSettingController extends Controller
         DB::transaction(function () use ($device, $data) {
             $device = RfidDevice::whereKey($device->getKey())->lockForUpdate()->firstOrFail();
             $settings = $device->settings()->lockForUpdate()->firstOrFail();
+            $ssid = array_key_exists('wifi_ssid', $data) ? ($data['wifi_ssid'] ?? '') : ($settings->wifi_ssid ?? '');
+            $ssidChanged = $ssid !== ($settings->wifi_ssid ?? '');
+            $password = $data['wifi_password'] ?? '';
+            $open = $data['wifi_open_network'] ?? false;
+            if ($ssidChanged && $ssid !== '' && $password === '' && ! $open) {
+                throw ValidationException::withMessages(['wifi_password' => 'Enter the new network password or select Open Wi-Fi network when changing SSID.']);
+            }
+            if ($ssid === '' && ($password !== '' || $open || ($data['wifi_apply'] ?? false))) {
+                throw ValidationException::withMessages(['wifi_ssid' => 'Enter an SSID before applying Wi-Fi credentials.']);
+            }
+            $networkChanged = $ssidChanged || $password !== '' || $open || ($data['wifi_apply'] ?? false);
+            if ($networkChanged && $ssid !== '' && $password === '' && ! $open && $settings->wifi_password_encrypted === null) {
+                throw ValidationException::withMessages(['wifi_password' => 'No saved password is available. Enter the password or select Open Wi-Fi network.']);
+            }
             $version = max($device->config_version, $settings->configuration_version) + 1;
             $device->update([
                 'device_name' => $data['device_name'], 'config_version' => $version,
@@ -101,15 +116,16 @@ class RfidDeviceSettingController extends Controller
                 'configuration_message' => null, 'configuration_reported_at' => null,
             ]);
 
-            $settingsData = collect($data)->except(['device_name', 'wifi_password', 'wifi_ssid', 'wifi_open_network', 'station_id'])->all();
+            $settingsData = collect($data)->except(['device_name', 'wifi_password', 'wifi_ssid', 'wifi_open_network', 'wifi_apply', 'station_id'])->all();
             $settingsData['configuration_version'] = $version;
-            if (strlen($data['wifi_ssid'] ?? '') > 0) {
-                $settingsData['wifi_ssid'] = $data['wifi_ssid'];
+            if ($networkChanged) {
+                $settingsData['network_version'] = $version;
+                $settingsData['wifi_ssid'] = $ssid === '' ? null : $ssid;
             }
-            if ($data['wifi_open_network'] ?? false) {
+            if ($ssid === '' || $open) {
                 $settingsData['wifi_password_encrypted'] = '';
-            } elseif (strlen($data['wifi_password'] ?? '') > 0) {
-                $settingsData['wifi_password_encrypted'] = $data['wifi_password'];
+            } elseif ($password !== '') {
+                $settingsData['wifi_password_encrypted'] = $password;
             }
             $settings->update($settingsData);
         });

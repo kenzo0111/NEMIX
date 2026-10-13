@@ -10,7 +10,7 @@ class RfidDeviceSetting extends Model
     protected $fillable = [
         'device_id', 'wifi_ssid', 'wifi_password_encrypted', 'server_url',
         'scan_mode', 'rf_power', 'scan_timeout', 'heartbeat_interval',
-        'buzzer_enabled', 'auto_reconnect', 'configuration_version',
+        'buzzer_enabled', 'auto_reconnect', 'configuration_version', 'network_version',
     ];
 
     protected $hidden = ['wifi_password_encrypted'];
@@ -23,6 +23,7 @@ class RfidDeviceSetting extends Model
         'buzzer_enabled' => 'boolean',
         'auto_reconnect' => 'boolean',
         'configuration_version' => 'integer',
+        'network_version' => 'integer',
     ];
 
     public function device(): BelongsTo

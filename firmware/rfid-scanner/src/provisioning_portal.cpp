@@ -140,6 +140,11 @@ void ProvisioningPortal::begin() {
 
         DeviceConfiguration next = _config;
         next.wifiSsid = ssid;
+        if(ssid!=_config.wifiSsid&&!pass.length()&&_server.arg("open_network")!="1") {
+            _failedAttempts++;
+            _server.send(422,"text/plain","Enter the new network password or select Open network when changing SSID."); return;
+        }
+        next.rebaseNetwork=true;
         if (_server.arg("open_network")=="1") next.wifiPassword="";
         else if (pass.length() > 0) next.wifiPassword = pass;
         while(url.endsWith("/")) url.remove(url.length()-1);

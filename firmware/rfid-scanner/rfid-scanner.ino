@@ -19,13 +19,14 @@ ScanQueue scanQueue;
 bool scannerReady=false,automaticPortalOpened=false,inventoryHeld=false;
 TriggerControl trigger;
 uint32_t lastHeartbeat=0,lastHeldSave=0;
+uint32_t lastReaderCheck=0,recoveryAttempts=0;
 size_t heldCapacity=0;
 std::vector<String> heldEpcs;
 std::vector<RfidTag> heldPending;
 
 void startSetupMode() { if(!portal.active()) portal.begin(); }
 
-bool applyCandidate(const DeviceConfiguration& candidate) {
+bool applyCandidate(DeviceConfiguration candidate) {
     const DeviceConfiguration previous=config;
     if(!configManager.validateConfiguration(candidate,true)) {
         apiClient.reportConfigurationStatus(candidate.configVersion,"failed","Invalid configuration"); return false;
@@ -40,12 +41,16 @@ bool applyCandidate(const DeviceConfiguration& candidate) {
     if((networkChanged||!wifiManager.connected())&&!wifiManager.connect(candidate,WIFI_CONNECT_TIMEOUT_MS)) error="New Wi-Fi connection failed";
     if(!error.length()) {
         apiClient.configure(candidate);
-        if(!apiClient.verifyConnection(candidate.configVersion)) error="New network or server cannot authenticate this version";
+        if(!apiClient.verifyConnection(candidate)) error="New network or server cannot authenticate this version";
     }
-    if(!error.length()&&(!scannerReady||(powerChanged&&!reader.setTransmitPower(candidate.rfPower)))) error="Reader is unavailable or rejected RF power";
+    // Network-only recovery remains available when the reader is disconnected.
+    if(!error.length()&&powerChanged&&(!scannerReady||!reader.setTransmitPower(candidate.rfPower))) error="Reader is unavailable or rejected RF power";
     if(!error.length()) {
-        commitAttempted=true;
-        if(!configManager.commitPendingConfiguration(config)) error="Configuration storage commit failed";
+        if(!configManager.savePendingConfiguration(candidate)) error="Could not persist verified configuration";
+        else {
+            commitAttempted=true;
+            if(!configManager.commitPendingConfiguration(config)) error="Configuration storage commit failed";
+        }
     }
     if(error.length()) {
         bool restored=true;
@@ -68,6 +73,7 @@ void executeScan() {
     if(!scannerReady||!scanQueue.canScan()) { Serial.println(F("[SCAN] Reader unavailable or delivery queue full.")); return; }
     // A single press can produce at most one EPC, even if the button remains held.
     auto tags=reader.scanTags(config.scanTimeout,true,1);
+    if(reader.health().needsRecovery()) scannerReady=false;
     Serial.printf("[SCAN] Captured %u unique tag(s).\n",tags.size());
     if(!tags.empty()&&!scanQueue.enqueue(tags)) Serial.println(F("[SCAN] Storage failed; keep device powered while delivery retries."));
 }
@@ -92,6 +98,7 @@ void finishHeldInventory() {
 }
 
 void pollHeldInventory() {
+    if(!scannerReady) return;
     if(heldEpcs.size()>=heldCapacity||!scanQueue.canScan()) return;
     RfidTag tag;
     if(reader.pollHeldTag(tag)) {
@@ -102,6 +109,7 @@ void pollHeldInventory() {
             Serial.printf("[SCAN] Inventory captured %u unique tag(s).\n",heldEpcs.size());
         }
     }
+    if(reader.health().needsRecovery()) { scannerReady=false; reader.cancelHeldPoll(); }
     if(heldPending.size()>=20||(!heldPending.empty()&&millis()-lastHeldSave>=1000)||heldEpcs.size()>=heldCapacity) persistHeldTags();
     if(heldEpcs.size()>=heldCapacity) {
         reader.cancelHeldPoll(); Serial.println(F("[SCAN] Delivery capacity reached; release trigger to upload."));
@@ -143,8 +151,37 @@ void setup() {
         if(configManager.loadPendingConfiguration(pending)) applyCandidate(pending);
         else configManager.rollbackPendingConfiguration();
     }
+    else if(hasActive&&config.rebaseNetwork&&wifiManager.connected()) applyCandidate(config);
     if(setupRequested||!wifiManager.connected()) { startSetupMode(); automaticPortalOpened=true; }
+    lastReaderCheck=millis();
     Serial.printf("[READY] Device %s firmware %s\n",config.deviceId.c_str(),FIRMWARE_VERSION);
+}
+
+void checkReaderWhileIdle() {
+    if(millis()-lastReaderCheck<(scannerReady?30000UL:5000UL)) return;
+    lastReaderCheck=millis();
+    if(!scannerReady) { ++recoveryAttempts; reader.wake(); }
+    scannerReady=reader.getVersion(300)!="Unknown"&&reader.setTransmitPower(config.rfPower,300);
+    Serial.println(scannerReady?F("[RFID] Reader communication and RF power acknowledged."):F("[RFID] Reader unavailable; will retry while idle."));
+}
+
+String readerDiagnostics() {
+    const auto& health=reader.health();
+    cJSON* object=cJSON_CreateObject(); if(!object) return "";
+    cJSON_AddNumberToObject(object,"responses",health.responses);
+    cJSON_AddNumberToObject(object,"tags",health.tags);
+    cJSON_AddNumberToObject(object,"timeouts",health.timeouts);
+    cJSON_AddNumberToObject(object,"invalid_frames",health.invalidFrames);
+    cJSON_AddNumberToObject(object,"reader_errors",health.readerErrors);
+    cJSON_AddNumberToObject(object,"last_error",health.lastError);
+    cJSON_AddNumberToObject(object,"queue_count",scanQueue.count());
+    cJSON_AddStringToObject(object,"scan_block_reason",scannerReady?scanQueue.blockReason():"reader_unavailable");
+    cJSON_AddNumberToObject(object,"recovery_attempts",recoveryAttempts);
+    if(health.responses) cJSON_AddNumberToObject(object,"last_response_age_ms",(uint32_t)(millis()-health.lastResponse));
+    else cJSON_AddNullToObject(object,"last_response_age_ms");
+    if(health.tags) cJSON_AddNumberToObject(object,"last_tag_age_ms",(uint32_t)(millis()-health.lastTag));
+    else cJSON_AddNullToObject(object,"last_tag_age_ms");
+    String result=jsonEncode(object); cJSON_Delete(object); return result;
 }
 
 void loop() {
@@ -162,12 +199,15 @@ void loop() {
     }
     // Defer blocking HTTPS and clock synchronization until the trigger is released.
     if(buttonHeld) { delay(2); return; }
+    checkReaderWhileIdle();
     portal.loop(); wifiManager.loop(config);
     if(wifiManager.connected()) automaticPortalOpened=false;
     if(wifiManager.prolongedFailure()&&!automaticPortalOpened) { startSetupMode(); automaticPortalOpened=true; }
     if(wifiManager.connected()&&millis()-lastHeartbeat>=config.heartbeatInterval*1000UL) {
         lastHeartbeat=millis(); uint32_t serverVersion=config.configVersion;
-        if(apiClient.sendHeartbeat(millis()/1000,scannerReady,serverVersion)&&serverVersion>config.configVersion) {
+        // Complete local recovery/legacy upgrade before fetching dashboard Wi-Fi.
+        if(config.rebaseNetwork&&!applyCandidate(config)) { delay(2); return; }
+        if(apiClient.sendHeartbeat(millis()/1000,scannerReady,serverVersion,config.networkVersion,readerDiagnostics())&&serverVersion>config.configVersion) {
             DeviceConfiguration candidate=config;
             if(apiClient.fetchConfiguration(candidate)) applyCandidate(candidate);
             else Serial.println(F("[CONFIG] Download failed; version unchanged, retrying on next heartbeat."));

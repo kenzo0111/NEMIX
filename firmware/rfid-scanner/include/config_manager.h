@@ -8,6 +8,9 @@ struct DeviceConfiguration {
     uint32_t scanTimeout = 3000, heartbeatInterval = 30;
     bool buzzerEnabled = true, autoReconnect = true;
     uint32_t configVersion = 0;
+    uint32_t networkVersion = 0;
+    // A local pending setup acknowledges existing server Wi-Fi revisions.
+    bool rebaseNetwork = false;
 };
 
 class ConfigManager {

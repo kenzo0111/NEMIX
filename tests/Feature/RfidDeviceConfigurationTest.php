@@ -29,7 +29,7 @@ class RfidDeviceConfigurationTest extends TestCase
             'server_url' => 'https://inventory.example.edu',
             'scan_mode' => 'single', 'rf_power' => 20, 'scan_timeout' => 3000,
             'heartbeat_interval' => 30, 'buzzer_enabled' => true,
-            'auto_reconnect' => true, 'configuration_version' => 2,
+            'auto_reconnect' => true, 'configuration_version' => 2, 'network_version' => 2,
         ]);
 
         return [$device, $token];
@@ -175,6 +175,118 @@ class RfidDeviceConfigurationTest extends TestCase
         $this->assertSame(0, $device->applied_config_version);
         $this->assertSame('STATION-1', $device->station_id);
         $this->assertSame('correct horse battery staple', $device->settings->wifi_password_encrypted);
+    }
+
+    public function test_other_settings_do_not_reapply_acknowledged_wifi(): void
+    {
+        [$device] = $this->device();
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::firstOrCreate(['name' => 'System Admin']));
+        $this->actingAs($admin)->putJson(route('system.settings.rfid-devices.update', $device), $this->settingsPayload())->assertOk();
+        $this->assertSame(2, $device->fresh()->settings->network_version);
+        $path = '/api/hardware/rfid/config/candidate';
+        $body = ['current_network_version' => 2];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)
+            ->assertOk()->assertJsonPath('configuration.version', 3)
+            ->assertJsonPath('configuration.network_version', 2)
+            ->assertJsonPath('configuration.network_available', false)
+            ->assertJsonPath('configuration.wifi_ssid', null)
+            ->assertJsonPath('configuration.wifi_password', null);
+    }
+
+    public function test_explicit_reapply_creates_a_new_network_revision(): void
+    {
+        [$device] = $this->device();
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::firstOrCreate(['name' => 'System Admin']));
+        $payload = $this->settingsPayload() + ['wifi_apply' => true];
+        $this->actingAs($admin)->putJson(route('system.settings.rfid-devices.update', $device), $payload)->assertOk();
+        $path = '/api/hardware/rfid/config/candidate';
+        $body = ['current_network_version' => 2];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)
+            ->assertOk()->assertJsonPath('configuration.network_version', 3)
+            ->assertJsonPath('configuration.network_available', true)
+            ->assertJsonPath('configuration.wifi_password', 'correct horse battery staple');
+        $body['current_network_version'] = 3;
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)
+            ->assertOk()->assertJsonPath('configuration.network_available', false);
+    }
+
+    public function test_new_ssid_requires_explicit_credentials_without_partial_save(): void
+    {
+        [$device] = $this->device();
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::firstOrCreate(['name' => 'System Admin']));
+        $payload = $this->settingsPayload();
+        $payload['wifi_ssid'] = 'New Network';
+        $this->actingAs($admin)->putJson(route('system.settings.rfid-devices.update', $device), $payload)
+            ->assertUnprocessable()->assertJsonValidationErrors('wifi_password');
+        $this->assertSame(2, $device->fresh()->config_version);
+        $this->assertSame('Private Network', $device->fresh()->settings->wifi_ssid);
+        $payload['wifi_open_network'] = true;
+        $this->putJson(route('system.settings.rfid-devices.update', $device), $payload)->assertOk();
+        $this->assertSame('', $device->fresh()->settings->wifi_password_encrypted);
+        $this->assertSame(3, $device->fresh()->settings->network_version);
+    }
+
+    public function test_clearing_server_ssid_retains_the_device_network(): void
+    {
+        [$device] = $this->device();
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::firstOrCreate(['name' => 'System Admin']));
+        $payload = $this->settingsPayload();
+        $payload['wifi_ssid'] = '';
+        $this->actingAs($admin)->putJson(route('system.settings.rfid-devices.update', $device), $payload)->assertOk();
+        $this->assertNull($device->fresh()->settings->wifi_ssid);
+        $this->assertSame('', $device->fresh()->settings->wifi_password_encrypted);
+        $path = '/api/hardware/rfid/config/candidate';
+        $body = ['current_network_version' => 2];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)
+            ->assertOk()->assertJsonPath('configuration.network_version', 3)
+            ->assertJsonPath('configuration.network_available', false);
+    }
+
+    public function test_reapplying_an_unknown_saved_password_requires_explicit_credentials(): void
+    {
+        [$device] = $this->device();
+        $device->settings->update(['wifi_password_encrypted' => null]);
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::firstOrCreate(['name' => 'System Admin']));
+        $payload = $this->settingsPayload() + ['wifi_apply' => true];
+        $this->actingAs($admin)->putJson(route('system.settings.rfid-devices.update', $device), $payload)
+            ->assertUnprocessable()->assertJsonValidationErrors('wifi_password');
+        $this->assertSame(2, $device->fresh()->config_version);
+    }
+
+    public function test_heartbeat_reports_local_network_independently_and_legacy_clears_it(): void
+    {
+        [$device] = $this->device();
+        $path = '/api/hardware/rfid/heartbeat';
+        $body = ['firmware_version' => '2.4.0', 'configuration_version' => 2, 'uptime' => 120,
+            'scanner_ready' => false, 'connected_ssid' => 'Local Recovery Network', 'network_version' => 2];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertOk();
+        $this->assertSame('Local Recovery Network', $device->fresh()->connected_ssid);
+        $this->assertSame('Private Network', $device->fresh()->settings->wifi_ssid);
+        $this->assertSame(2, $device->fresh()->reported_network_version);
+        $body['network_version'] = 999;
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertUnprocessable();
+        $this->assertSame(2, $device->fresh()->reported_network_version);
+        unset($body['connected_ssid'], $body['network_version']);
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertOk();
+        $this->assertNull($device->fresh()->connected_ssid);
+        $this->assertNull($device->fresh()->reported_network_version);
+    }
+
+    public function test_upgrade_backfills_only_configured_network_revisions(): void
+    {
+        [$device] = $this->device();
+        $migration = require database_path('migrations/2026_10_13_120000_add_rfid_network_revisions.php');
+        $migration->down();
+        $other = RfidDevice::create(['device_uuid' => 'RFID-HH-NOWIFI', 'device_name' => 'Local only', 'device_token_hash' => $device->device_token_hash]);
+        $other->settings()->create(['server_url' => 'https://inventory.example.edu', 'configuration_version' => 4]);
+        $migration->up();
+        $this->assertSame(2, $device->fresh()->settings->network_version);
+        $this->assertSame(0, $other->fresh()->settings->network_version);
     }
 
     public function test_open_network_and_special_characters_survive_candidate_snapshot(): void

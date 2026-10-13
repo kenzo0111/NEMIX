@@ -21,7 +21,7 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
     const readerLabel = (device: RfidDeviceConfiguration | undefined) => {
         if (!device || device.status !== 'online') return 'unknown — no current heartbeat';
         if (!device.scanner_ready) return device.reader_diagnostics ? 'recovering — communication or RF power check failed' : 'unavailable';
-        return device.reader_diagnostics ? 'responding — RF power verified' : 'startup check passed — update firmware for diagnostics';
+        return device.reader_diagnostics ? 'responding — RF power acknowledged' : 'startup check passed — update firmware for diagnostics';
     };
     const blockLabels = {
         none: 'Scan enabled', reader_unavailable: 'Scanning blocked: reader recovery pending',
@@ -29,7 +29,7 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
         storage_pending: 'Scanning blocked: saving pending scans; keep device powered',
         storage_invalid: 'Scanning blocked: saved queue is invalid; storage recovery required',
     };
-    const [draft, setDraft] = useState<Partial<RfidDeviceConfiguration> & { wifi_password?: string; wifi_open_network?: boolean }>({});
+    const [draft, setDraft] = useState<Partial<RfidDeviceConfiguration> & { wifi_password?: string; wifi_open_network?: boolean; wifi_apply?: boolean }>({});
     useEffect(() => {
         if (selectedId === null && devices.length) setSelectedId(devices[0].id);
     }, [devices, selectedId]);
@@ -47,6 +47,7 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
                 device_name: value('device_name'), wifi_ssid: value('wifi_ssid') || '',
                 wifi_password: draft.wifi_password || '', server_url: value('server_url'),
                 wifi_open_network: draft.wifi_open_network ?? false, station_id: value('station_id') || '',
+                wifi_apply: draft.wifi_apply ?? false,
                 scan_mode: value('scan_mode'), rf_power: Number(value('rf_power')),
                 scan_timeout: Number(value('scan_timeout')), heartbeat_interval: Number(value('heartbeat_interval')),
                 buzzer_enabled: Boolean(value('buzzer_enabled')), auto_reconnect: Boolean(value('auto_reconnect')),
@@ -136,6 +137,9 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
                 <div className="md:col-span-2 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-xs space-y-1" role="status">
                     <strong>Configuration: {selected?.configuration_status?.replace('_', ' ') || 'pending'}</strong>
                     <p>Requested version {selected?.config_version}; device confirmed version {selected?.applied_config_version ?? 0}. Reader: {readerLabel(selected)}.</p>
+                    <p>Saved Wi-Fi: {selected?.wifi_ssid || 'Keep locally configured network'} (revision {selected?.network_version ?? 0}). Connected Wi-Fi: {selected?.connected_ssid || 'Not reported by a current heartbeat'}.</p>
+                    <p>{selected?.reported_network_version == null ? 'Update firmware to report the connected network and Wi-Fi revision.' : `Device acknowledged Wi-Fi revision ${selected.reported_network_version}.`}</p>
+                    {selected?.connected_ssid && selected.wifi_ssid && selected.connected_ssid !== selected.wifi_ssid && <p className="text-amber-700 dark:text-amber-300">The connected network differs from the saved network. Other settings preserve it; select Apply saved Wi-Fi again to request a migration.</p>}
                     {selected?.status === 'online' && selected.reader_diagnostics && <div className="space-y-1">
                         <p>{blockLabels[selected.reader_diagnostics.scan_block_reason]}. Delivery queue: {selected.reader_diagnostics.queue_count}/100.</p>
                         <p>{selected.reader_diagnostics.tags > 0 ? `${selected.reader_diagnostics.tags} tag response(s) captured since boot.` : 'No tags captured since boot. Communication success does not verify tag reading.'}</p>
@@ -148,8 +152,9 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
                 </div>
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Station ID (optional)<input className={fieldClass} value={value('station_id') || ''} placeholder="STATION-1" onChange={e=>set('station_id',e.target.value)}/><span className="font-normal">Scans from this device are assigned to this station by the server.</span></label>
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300"><input type="checkbox" className="mr-2" checked={draft.wifi_open_network ?? false} onChange={e=>setDraft(old=>({...old,wifi_open_network:e.target.checked,wifi_password:''}))}/>Open Wi-Fi network (clear saved password)</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300"><input type="checkbox" className="mr-2" checked={draft.wifi_apply ?? false} onChange={e=>setDraft(old=>({...old,wifi_apply:e.target.checked}))}/>Apply saved Wi-Fi again (firmware 2.4.0+)</label>
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Device name<input className={fieldClass} value={value('device_name') || ''} onChange={e=>set('device_name',e.target.value)}/></label>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Wi-Fi SSID<input className={fieldClass} value={value('wifi_ssid') || ''} onChange={e=>set('wifi_ssid',e.target.value)}/></label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Wi-Fi SSID<input className={fieldClass} value={value('wifi_ssid') || ''} onChange={e=>set('wifi_ssid',e.target.value)}/><span className="font-normal">Changing SSID requires a new password or Open Wi-Fi network. Clearing SSID keeps the device's locally configured network. Firmware 2.4.0+ preserves Wi-Fi when only other settings change.</span></label>
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Wi-Fi password<input type="password" autoComplete="new-password" disabled={draft.wifi_open_network} className={fieldClass} value={draft.wifi_password || ''} placeholder={selected?.has_wifi_password?'•••••••• (leave blank to keep)':'Enter password'} onChange={e=>set('wifi_password',e.target.value)}/></label>
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Server URL<input className={fieldClass} value={value('server_url') || ''} onChange={e=>set('server_url',e.target.value)}/></label>
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Scan mode<select className={fieldClass} value={value('scan_mode') || 'single'} onChange={e=>set('scan_mode',e.target.value)}><option value="single">Single trigger — one tag per press</option><option value="inventory">Inventory window — hold to scan tags</option></select><span className="font-normal">Firmware 2.2.0+: hold the trigger to inventory, then release to stop and upload. Each EPC is captured once per hold, up to the remaining 100-tag buffer capacity.</span></label>

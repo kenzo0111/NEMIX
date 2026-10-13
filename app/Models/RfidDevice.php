@@ -10,7 +10,7 @@ class RfidDevice extends Model
     protected $fillable = [
         'device_uuid', 'device_name', 'device_token_hash', 'device_secret_encrypted', 'firmware_version',
         'status', 'ip_address', 'wifi_rssi', 'uptime_seconds', 'scanner_ready',
-        'last_seen_at', 'reader_diagnostics', 'config_version', 'applied_config_version', 'configuration_status',
+        'last_seen_at', 'reader_diagnostics', 'connected_ssid', 'reported_network_version', 'config_version', 'applied_config_version', 'configuration_status',
         'configuration_status_version', 'configuration_message', 'configuration_reported_at', 'station_id',
     ];
 
@@ -21,6 +21,7 @@ class RfidDevice extends Model
         'last_seen_at' => 'datetime',
         'scanner_ready' => 'boolean',
         'reader_diagnostics' => 'array',
+        'reported_network_version' => 'integer',
         'config_version' => 'integer',
         'applied_config_version' => 'integer',
         'configuration_status_version' => 'integer',

@@ -21,15 +21,19 @@ class RfidDeviceController extends Controller
     /** One snapshot prevents settings and Wi-Fi from crossing configuration versions. */
     public function candidate(Request $request): JsonResponse
     {
+        $data = $request->validate(['current_network_version' => ['sometimes', 'integer', 'min:0', 'max:4294967295']]);
         $settings = $this->device($request)->settings;
+        $networkAvailable = strlen($settings->wifi_ssid ?? '') > 0
+            && (! isset($data['current_network_version']) || $settings->network_version > $data['current_network_version']);
 
         return response()->json([
             'success' => true,
             'configuration' => $settings->only(['server_url', 'scan_mode', 'rf_power', 'scan_timeout', 'heartbeat_interval', 'buzzer_enabled', 'auto_reconnect']) + [
                 'version' => $settings->configuration_version,
-                'network_available' => strlen($settings->wifi_ssid ?? '') > 0,
-                'wifi_ssid' => $settings->wifi_ssid,
-                'wifi_password' => $settings->wifi_password_encrypted,
+                'network_version' => $settings->network_version,
+                'network_available' => $networkAvailable,
+                'wifi_ssid' => $networkAvailable ? $settings->wifi_ssid : null,
+                'wifi_password' => $networkAvailable ? $settings->wifi_password_encrypted : null,
             ],
         ], 200, ['Cache-Control' => 'no-store'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
@@ -43,6 +47,7 @@ class RfidDeviceController extends Controller
             'success' => true,
             'configuration' => [
                 'version' => $settings->configuration_version,
+                'network_version' => $settings->network_version,
                 'server_url' => $settings->server_url,
                 'scan_mode' => $settings->scan_mode,
                 'rf_power' => $settings->rf_power,
@@ -87,6 +92,8 @@ class RfidDeviceController extends Controller
             'ip_address' => ['nullable', 'ip'],
             'configuration_version' => ['required', 'integer', 'min:0'],
             'wifi_rssi' => ['nullable', 'integer', 'between:-127,0'],
+            'connected_ssid' => ['sometimes', 'required', 'string', 'max:32'],
+            'network_version' => ['sometimes', 'required', 'integer', 'min:0', 'max:4294967295'],
             'uptime' => ['required', 'integer', 'min:0'],
             'scanner_ready' => ['required', 'boolean'],
             'reader_diagnostics' => ['sometimes', 'nullable', 'array:responses,tags,timeouts,invalid_frames,reader_errors,last_error,queue_count,scan_block_reason,recovery_attempts,last_response_age_ms,last_tag_age_ms'],
@@ -107,6 +114,8 @@ class RfidDeviceController extends Controller
             $device = RfidDevice::whereKey($device->id)->lockForUpdate()->firstOrFail();
             abort_if($device->status === 'disabled' || ! $device->device_secret_encrypted, 401, 'RFID device access is disabled.');
             abort_if($data['configuration_version'] > $device->config_version, 422, 'Unknown configuration version.');
+            abort_if(isset($data['network_version']) && $data['network_version'] > $device->settings->network_version, 422, 'Unknown network version.');
+            abort_if(isset($data['connected_ssid']) && strlen($data['connected_ssid']) > 32, 422, 'SSID must not exceed 32 bytes.');
             $device->update([
                 'firmware_version' => $data['firmware_version'],
                 'status' => 'online',
@@ -116,6 +125,8 @@ class RfidDeviceController extends Controller
                 'scanner_ready' => $data['scanner_ready'],
                 // An older firmware heartbeat must not retain diagnostics from a newer session.
                 'reader_diagnostics' => $data['reader_diagnostics'] ?? null,
+                'connected_ssid' => $data['connected_ssid'] ?? null,
+                'reported_network_version' => $data['network_version'] ?? null,
                 // PostgreSQL timestamptz expects UTC; SQLite/MySQL datetime casts use app time.
                 'last_seen_at' => DB::getDriverName() === 'pgsql' ? now()->utc() : now(),
                 'applied_config_version' => $data['configuration_version'],

@@ -28,6 +28,7 @@ class UpdateRfidDeviceRequest extends FormRequest
             'wifi_ssid' => ['nullable', 'string', 'max:32'],
             'wifi_password' => ['nullable', 'string', 'min:8', 'max:63'],
             'wifi_open_network' => ['sometimes', 'boolean'],
+            'wifi_apply' => ['sometimes', 'boolean'],
             'station_id' => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-z0-9_-]+$/'],
             'server_url' => ['required', 'url:https', 'max:2048'],
             'scan_mode' => ['required', Rule::in(['single', 'inventory'])],

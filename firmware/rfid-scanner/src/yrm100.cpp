@@ -71,6 +71,16 @@ void Yrm100Reader::sendFrame(uint8_t type, uint8_t cmd, const uint8_t* payload, 
 }
 
 bool Yrm100Reader::readFrame(uint8_t& outType, uint8_t& outCmd, std::vector<uint8_t>& outPayload, uint32_t timeoutMs) {
+    _frameInvalid=false;
+    bool valid=readFrameRaw(outType,outCmd,outPayload,timeoutMs);
+    if(valid) {
+        _health.response(millis());
+        if(outType==0x01&&outCmd==0xff&&!outPayload.empty()) _health.error(outPayload[0]);
+    } else _health.transportFailure(_frameInvalid);
+    return valid;
+}
+
+bool Yrm100Reader::readFrameRaw(uint8_t& outType, uint8_t& outCmd, std::vector<uint8_t>& outPayload, uint32_t timeoutMs) {
     outPayload.clear();
     unsigned long startTime = millis();
 
@@ -105,7 +115,7 @@ bool Yrm100Reader::readFrame(uint8_t& outType, uint8_t& outCmd, std::vector<uint
     uint16_t len = (static_cast<uint16_t>(meta[2]) << 8) | meta[3];
 
     // Sanity check length
-    if (len > 256) return false;
+    if (len > 256) { _frameInvalid=true; return false; }
 
     // 3. Read Payload
     if (len > 0) {
@@ -136,10 +146,11 @@ bool Yrm100Reader::readFrame(uint8_t& outType, uint8_t& outCmd, std::vector<uint
     uint8_t expectedChecksum = tail[0];
     uint8_t endByte = tail[1];
 
-    if (endByte != FRAME_END) return false;
+    if (endByte != FRAME_END) { _frameInvalid=true; return false; }
 
     uint8_t actualChecksum = calculateChecksum(outType, outCmd, outPayload.data(), len);
-    return (actualChecksum == expectedChecksum);
+    _frameInvalid=actualChecksum!=expectedChecksum;
+    return !_frameInvalid;
 }
 
 std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs, bool stopAfterFirst, size_t maxTags) {
@@ -189,6 +200,7 @@ std::vector<RfidTag> Yrm100Reader::scanTags(uint32_t timeoutMs, bool stopAfterFi
                         tag.rssiDbm = rssiDbm;
                         tag.pc = pc;
                         foundTags.push_back(tag);
+                        _health.tag(millis());
 
                         // Single-trigger mode only needs the first valid EPC. Returning here
                         // avoids waiting out the full scan timeout after a tag is already read.
@@ -222,11 +234,14 @@ bool Yrm100Reader::pollHeldTag(RfidTag& tag) {
         _heldFrame.push_back(byte);
         if(_heldFrame.size()<5) continue;
         uint16_t length=((uint16_t)_heldFrame[3]<<8)|_heldFrame[4];
-        if(length>256) { _heldFrame.clear(); continue; }
+        if(length>256) { _health.transportFailure(true); cancelHeldPoll(); return false; }
         if(_heldFrame.size()<length+7) continue;
         uint8_t type=_heldFrame[1],cmd=_heldFrame[2];
         bool valid=_heldFrame[length+6]==FRAME_END&&
             _heldFrame[length+5]==calculateChecksum(type,cmd,_heldFrame.data()+5,length);
+        if(!valid) { _health.transportFailure(true); cancelHeldPoll(); return false; }
+        _health.response(millis());
+        if(type==0x01&&cmd==0xff&&length) _health.error(_heldFrame[5]);
         if(valid&&type==0x02&&cmd==0x22&&length>=7) {
             const uint8_t* payload=_heldFrame.data()+5;
             uint16_t pc=((uint16_t)payload[1]<<8)|payload[2];
@@ -234,13 +249,14 @@ bool Yrm100Reader::pollHeldTag(RfidTag& tag) {
             if(epcLength>0&&epcLength<=50&&epcLength+5<=length) {
                 tag.epc=bytesToHex(payload+3,epcLength); tag.pc=pc;
                 tag.rssiRaw=payload[0]; tag.rssiDbm=(int8_t)payload[0];
+                _health.tag(millis());
                 cancelHeldPoll(); return true;
             }
         }
         _heldFrame.clear();
         if(valid&&type==0x01&&cmd==0xff) { _heldPolling=false; return false; }
     }
-    if(millis()-_heldStarted>=300) cancelHeldPoll();
+    if(millis()-_heldStarted>=300) { _health.transportFailure(false); cancelHeldPoll(); }
     return false;
 }
 

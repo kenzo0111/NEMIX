@@ -18,11 +18,11 @@ public:
     void configure(const DeviceConfiguration& config);
     bool checkWifi();
     ItemLookupResult submitScan(const String& epc, int rssi);
-    bool sendHeartbeat(uint32_t uptimeSeconds, bool scannerReady, uint32_t& serverVersion);
+    bool sendHeartbeat(uint32_t uptimeSeconds, bool scannerReady, uint32_t& serverVersion, uint32_t networkVersion, const String& diagnostics);
     bool fetchConfiguration(DeviceConfiguration& candidate);
     bool fetchNetworkConfiguration(DeviceConfiguration& candidate, uint32_t currentVersion);
     bool reportConfigurationStatus(uint32_t version, const char* status, const String& message = "");
-    bool verifyConnection(uint32_t expectedVersion = 0);
+    bool verifyConnection(DeviceConfiguration& candidate);
     bool submitScans(const String& body, size_t expectedCount);
 
 private:

@@ -150,6 +150,9 @@ export interface RfidDeviceConfiguration {
     reader_diagnostics?: RfidReaderDiagnostics | null;
     station_id: string | null;
     wifi_ssid: string | null;
+    network_version: number;
+    connected_ssid: string | null;
+    reported_network_version: number | null;
     server_url: string;
     scan_mode: 'single' | 'inventory';
     rf_power: number;

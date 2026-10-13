@@ -72,13 +72,18 @@ ItemLookupResult NemixApiClient::submitScan(const String& epc,int rssi) {
     result.found=result.success&&result.httpCode==200; cJSON_Delete(response); return result;
 }
 
-bool NemixApiClient::sendHeartbeat(uint32_t uptime,bool ready,uint32_t& version) {
+bool NemixApiClient::sendHeartbeat(uint32_t uptime,bool ready,uint32_t& version,uint32_t networkVersion,const String& diagnostics) {
     cJSON* object=cJSON_CreateObject(); if(!object) return false;
     cJSON_AddStringToObject(object,"firmware_version",FIRMWARE_VERSION);
     cJSON_AddStringToObject(object,"ip_address",WiFi.localIP().toString().c_str());
     cJSON_AddNumberToObject(object,"configuration_version",version);
     cJSON_AddNumberToObject(object,"wifi_rssi",WiFi.RSSI()); cJSON_AddNumberToObject(object,"uptime",uptime);
     cJSON_AddBoolToObject(object,"scanner_ready",ready);
+    cJSON_AddStringToObject(object,"connected_ssid",WiFi.SSID().c_str());
+    cJSON_AddNumberToObject(object,"network_version",networkVersion);
+    cJSON* readerDiagnostics=cJSON_Parse(diagnostics.c_str());
+    if(!readerDiagnostics) { cJSON_Delete(object); return false; }
+    cJSON_AddItemToObject(object,"reader_diagnostics",readerDiagnostics);
     String body=jsonEncode(object), response; cJSON_Delete(object);
     if(request("POST",API_HEARTBEAT_PATH,body,response)!=200) return false;
     cJSON* parsed=cJSON_Parse(response.c_str());
@@ -87,18 +92,22 @@ bool NemixApiClient::sendHeartbeat(uint32_t uptime,bool ready,uint32_t& version)
 }
 
 bool NemixApiClient::fetchConfiguration(DeviceConfiguration& c) {
-    String response; if(request("POST",API_CANDIDATE_PATH,"{}",response)!=200) return false;
+    cJSON* query=cJSON_CreateObject(); if(!query) return false;
+    cJSON_AddNumberToObject(query,"current_network_version",c.networkVersion);
+    String body=jsonEncode(query); cJSON_Delete(query);
+    String response; if(request("POST",API_CANDIDATE_PATH,body,response)!=200) return false;
     cJSON* parsed=cJSON_Parse(response.c_str());
     const cJSON* object=cJSON_GetObjectItemCaseSensitive(parsed,"configuration");
     DeviceConfiguration candidate=c; bool networkAvailable=false;
     bool valid=cJSON_IsTrue(cJSON_GetObjectItemCaseSensitive(parsed,"success")) &&
         parseScannerSettings(object,candidate)&&candidate.configVersion>c.configVersion&&
-        jsonFlag(object,"network_available",networkAvailable);
+        jsonFlag(object,"network_available",networkAvailable)&&jsonUInt(object,"network_version",candidate.networkVersion);
+    valid=valid&&candidate.networkVersion>=c.networkVersion;
     if(valid&&networkAvailable) {
         valid=jsonText(object,"wifi_ssid",candidate.wifiSsid);
         const cJSON* password=cJSON_GetObjectItemCaseSensitive(object,"wifi_password");
         if(cJSON_IsString(password)) candidate.wifiPassword=password->valuestring;
-        else if(!cJSON_IsNull(password)) valid=false;
+        else valid=false; // A network migration never reuses unrelated local credentials.
     }
     cJSON_Delete(parsed);
     if(valid) c=candidate;
@@ -108,12 +117,16 @@ bool NemixApiClient::fetchConfiguration(DeviceConfiguration& c) {
 // Kept for legacy callers; new firmware downloads one complete candidate snapshot.
 bool NemixApiClient::fetchNetworkConfiguration(DeviceConfiguration&,uint32_t) { return false; }
 
-bool NemixApiClient::verifyConnection(uint32_t expectedVersion) {
+bool NemixApiClient::verifyConnection(DeviceConfiguration& candidate) {
     String response; if(request("GET",API_CONFIG_PATH,"",response)!=200) return false;
     cJSON* parsed=cJSON_Parse(response.c_str());
     uint32_t serverVersion=0;
     bool ok=cJSON_IsTrue(cJSON_GetObjectItemCaseSensitive(parsed,"success"))&&
-        jsonUInt(cJSON_GetObjectItemCaseSensitive(parsed,"configuration"),"version",serverVersion)&&serverVersion>=expectedVersion;
+        jsonUInt(cJSON_GetObjectItemCaseSensitive(parsed,"configuration"),"version",serverVersion)&&serverVersion>=candidate.configVersion;
+    if(ok&&candidate.rebaseNetwork) {
+        ok=jsonUInt(cJSON_GetObjectItemCaseSensitive(parsed,"configuration"),"network_version",candidate.networkVersion);
+        if(ok) candidate.rebaseNetwork=false;
+    }
     cJSON_Delete(parsed); return ok;
 }
 

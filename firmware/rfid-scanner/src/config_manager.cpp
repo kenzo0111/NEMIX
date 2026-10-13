@@ -27,6 +27,7 @@ bool ConfigManager::read(bool pending, DeviceConfiguration& c) {
     c.buzzerEnabled = p.getBool(nvsKey(pending,"buzz").c_str(), true);
     c.autoReconnect = p.getBool(nvsKey(pending,"reconn").c_str(), true);
     c.configVersion = p.getUInt(nvsKey(pending,"ver").c_str(), 0);
+    c.networkVersion = 0; c.rebaseNetwork=true;
     bool exists = p.getBool(nvsKey(pending,"valid").c_str(), false); p.end(); return exists;
 }
 
