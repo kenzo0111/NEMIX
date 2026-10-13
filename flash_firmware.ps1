@@ -8,7 +8,8 @@ param(
     [ValidateRange(9600, 921600)]
     [int]$Baud = 115200,
     [switch]$ManualBoot,
-    [switch]$DiagnoseOnly
+    [switch]$DiagnoseOnly,
+    [switch]$NoStub
 )
 
 $ErrorActionPreference = 'Stop'
@@ -42,25 +43,40 @@ $PartitionsBin = "$BuildDir/rfid-scanner.ino.partitions.bin"
 $BootAppBin = "$BuildDir/boot_app0.bin"
 $ApplicationBin = "$BuildDir/rfid-scanner.ino.bin"
 
-# Check communication before a lengthy build. Keep an existing manual boot mode.
-Write-Host "==> Checking ESP32 on $Port. Close any serial monitor first." -ForegroundColor Cyan
-& $Esptool --chip esp32 --port $Port --baud $Baud --before no-reset --after no-reset chip-id
-$Connected = $LASTEXITCODE -eq 0
-if (!$Connected -and !$ManualBoot) {
-    & $Esptool --chip esp32 --port $Port --baud $Baud --before default-reset --after no-reset chip-id
-    $Connected = $LASTEXITCODE -eq 0
+# A readable MAC does not establish that the SPI flash is working.
+# Check at 115200 baud; $Baud controls the later upload speed.
+$ResetMode = if ($ManualBoot) { 'no-reset' } else { 'default-reset' }
+$StubOptions = @()
+if ($NoStub) { $StubOptions = @('--no-stub') }
+
+function Confirm-Flash {
+    param([string]$Before)
+    Write-Host "==> Checking flash memory on $Port. Close any serial monitor first." -ForegroundColor Cyan
+    $FlashOutput = @(& $Esptool --chip esp32 --port $Port --baud 115200 --before $Before --after no-reset @StubOptions flash-id |
+        ForEach-Object { Write-Host $_; $_ })
+    $FlashExitCode = $LASTEXITCODE
+    $FlashText = $FlashOutput -join "`n"
+    if ($FlashExitCode -ne 0) {
+        Write-Host 'Connection/check failed. No firmware was written by this run.' -ForegroundColor Red
+        Write-Host 'Close serial monitors and check the USB cable and port.'
+        Write-Host 'Hold BOOT, tap EN/RESET, release BOOT, then retry with -ManualBoot.'
+        exit 1
+    }
+    if ($FlashText -match '(?i)Failed to communicate with the flash chip|Manufacturer:\s*(?:0x)?(?:ff|00)\b|Device:\s*(?:0x)?(?:ffff|0000|00)\b|Detected flash size:\s*Unknown' -or
+        $FlashText -notmatch '(?im)^\s*Manufacturer:\s*(?:0x)?[0-9a-f]+\s*$' -or
+        $FlashText -notmatch '(?im)^\s*Device:\s*(?:0x)?[0-9a-f]+\s*$') {
+        Write-Host 'STOP: Flash memory did not return a valid ID. No firmware was written by this run.' -ForegroundColor Red
+        Write-Host 'Power off and disconnect external wiring/battery; test the ESP32 on USB alone.'
+        Write-Host 'Try a different USB data cable/port. Persistent failure needs board/power inspection.'
+        Write-Host 'Do not erase flash to fix this error. Tap EN/RESET to leave download mode.'
+        exit 1
+    }
+    Write-Host 'Flash ID check passed.' -ForegroundColor Green
 }
-if (!$Connected) {
-    Write-Host 'No firmware was written. See the connection error above.' -ForegroundColor Red
-    Write-Host 'Access denied: close other programs using the COM port.'
-    Write-Host 'No serial data: hold BOOT, tap EN/RESET, then release BOOT.'
-    Write-Host "Retry: .\flash_firmware.ps1 -Port $Port -ManualBoot"
-    Write-Host 'If it still fails, try a known USB data cable and a direct USB port.'
-    Write-Host 'Power off before disconnecting the external RFID module; retry with the ESP32 alone.'
-    exit 1
-}
+
+Confirm-Flash -Before $ResetMode
 if ($DiagnoseOnly) {
-    Write-Host 'Bootloader connection confirmed; no firmware written. Tap EN/RESET to boot normally.' -ForegroundColor Green
+    Write-Host 'Flash detection passed; no firmware written. Tap EN/RESET to boot normally.' -ForegroundColor Green
     exit 0
 }
 
@@ -88,48 +104,14 @@ Write-Host "=================================================================" -
 Write-Host "  ESP32 UHF RFID Scanner Flasher - Port: $Port" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
 
-# Step A: Check if device is ALREADY in download mode (e.g. plugged in with BOOT held)
-Write-Host "Checking if ESP32 is already in download mode (no-reset)..." -ForegroundColor Yellow
-& $Esptool --chip esp32 --port $Port --baud $Baud --before no-reset --after no-reset chip-id
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "==> ESP32 is in download mode! Flashing now..." -ForegroundColor Green
-    # Do not flash the merged 4 MB image: it overwrites the NVS credentials/token.
-    Write-Host 'Release BOOT before the upload finishes so the board can start normally.'
-    & $Esptool --chip esp32 --port $Port --baud $Baud --before no-reset --after hard-reset write-flash -z --flash-mode dio --flash-freq 80m --flash-size 4MB @FirmwareImages
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "`nSUCCESS! Firmware flashed successfully!" -ForegroundColor Green
-        exit 0
-    }
-}
-
-# Step B: Auto-retry with standard reset while prompting the user
-Write-Host "`nDevice is in normal mode. Attempting connection with reset..." -ForegroundColor Cyan
-Write-Host "TIP: Press and HOLD the physical 'BOOT' button on the board now!" -ForegroundColor Yellow
-
-$success = $false
-for ($attempt = 1; $attempt -le 2; $attempt++) {
-    Write-Host "`n[Attempt $attempt/2] Connecting to $Port at 115200 baud..." -ForegroundColor Cyan
-    $ResetMode = if ($ManualBoot) { 'no-reset' } else { 'default-reset' }
-    & $Esptool --chip esp32 --port $Port --baud 115200 --before $ResetMode --after hard-reset write-flash -z --flash-mode dio --flash-freq 80m --flash-size 4MB @FirmwareImages
-    if ($LASTEXITCODE -eq 0) {
-        $success = $true
-        break
-    }
-    Start-Sleep -Seconds 2
-}
-
-if ($success) {
-    Write-Host "`n=================================================================" -ForegroundColor Green
-    Write-Host " SUCCESS! Firmware flashed successfully to the ESP32!           " -ForegroundColor Green
-    Write-Host "=================================================================" -ForegroundColor Green
-} else {
-    Write-Host "`n=================================================================" -ForegroundColor Red
-    Write-Host " Upload failed. Check the esptool error above.                 " -ForegroundColor Red
-    Write-Host " 1. Unplug the ESP32 USB cable from your laptop.                " -ForegroundColor Yellow
-    Write-Host " 2. Press and HOLD the 'BOOT' button on the ESP32 board.        " -ForegroundColor Yellow
-    Write-Host " 3. While still holding 'BOOT', plug the USB cable back in.     " -ForegroundColor Yellow
-    Write-Host " 4. Release the 'BOOT' button.                                  " -ForegroundColor Yellow
-    Write-Host " 5. Retry: .\flash_firmware.ps1 -Port $Port -ManualBoot" -ForegroundColor Green
-    Write-Host "=================================================================" -ForegroundColor Red
+# Recheck after compilation in case USB or flash communication was lost.
+Confirm-Flash -Before 'no-reset'
+# Selective writes preserve NVS; never use erase-all or the merged image.
+Write-Host "==> Uploading at $Baud baud. Release BOOT before upload completes." -ForegroundColor Cyan
+& $Esptool --chip esp32 --port $Port --baud $Baud --before no-reset --after hard-reset @StubOptions write-flash -z --flash-mode dio --flash-freq 80m --flash-size 4MB @FirmwareImages
+if ($LASTEXITCODE -ne 0) {
+    Write-Host 'Upload failed; the firmware may be partially written. See the error above.' -ForegroundColor Red
+    Write-Host 'No automatic write retries were performed. Resolve the connection/flash fault first.'
     exit 1
 }
+Write-Host "`nSUCCESS! Firmware flashed successfully to the ESP32!" -ForegroundColor Green
