@@ -12,6 +12,7 @@ use App\Notifications\DiagnosticTestNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
@@ -84,6 +85,7 @@ class SystemSettingController extends Controller
                 'reader_diagnostics' => $device->isOnline() ? $device->reader_diagnostics : null,
                 'station_id' => $device->station_id,
                 'wifi_ssid' => $device->settings?->wifi_ssid,
+                'wifi_scan' => Cache::get('rfid_wifi_networks:'.$device->id),
                 'network_version' => $device->settings?->network_version ?? 0,
                 'connected_ssid' => $device->isOnline() ? $device->connected_ssid : null,
                 'reported_network_version' => $device->isOnline() ? $device->reported_network_version : null,

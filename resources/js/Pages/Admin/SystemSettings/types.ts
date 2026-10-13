@@ -150,6 +150,7 @@ export interface RfidDeviceConfiguration {
     reader_diagnostics?: RfidReaderDiagnostics | null;
     station_id: string | null;
     wifi_ssid: string | null;
+    wifi_scan?: { networks: { ssid: string; rssi: number; secure: boolean }[]; scanned_at: string; request_id: string | null } | null;
     network_version: number;
     connected_ssid: string | null;
     reported_network_version: number | null;

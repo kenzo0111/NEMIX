@@ -17,6 +17,7 @@ class SanitizeInput
         'current_password',
         'wifi_password',
         'wifi_ssid',
+        'wifi_networks',
         'wifi_password_encrypted',
         'device_token',
         'secret',

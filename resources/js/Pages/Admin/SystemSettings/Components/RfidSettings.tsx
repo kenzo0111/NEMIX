@@ -4,6 +4,7 @@ import { router, usePoll } from '@inertiajs/react';
 import { RfidDeviceConfiguration, SystemSettings } from '../types';
 import { Info, Radio, Save, Wifi, Plus, Activity } from 'lucide-react';
 import { useAuthorization } from '@/Hooks/useAuthorization';
+import RfidWifiSettings from './RfidWifiSettings';
 
 interface Props {
     settings: SystemSettings;
@@ -34,6 +35,7 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
         if (selectedId === null && devices.length) setSelectedId(devices[0].id);
     }, [devices, selectedId]);
     const [busy, setBusy] = useState(false);
+    const [deviceErrors, setDeviceErrors] = useState<Record<string, string>>({});
     const [oneTimeToken, setOneTimeToken] = useState<string | null>(null);
     const [registration, setRegistration] = useState({ device_uuid: '', device_name: '', server_url: window.location.origin });
     const value = <K extends keyof RfidDeviceConfiguration>(key: K) => (draft[key] ?? selected?.[key]) as RfidDeviceConfiguration[K];
@@ -41,6 +43,12 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
 
     const saveDevice = async () => {
         if (!selected) return;
+        setDeviceErrors({});
+        const ssid = value('wifi_ssid') || '';
+        if (ssid && !draft.wifi_open_network && ssid !== selected.wifi_ssid && !draft.wifi_password) {
+            setDeviceErrors({ wifi_password: 'Enter the password for the selected network.' });
+            return;
+        }
         setBusy(true);
         try {
             const payload = {
@@ -56,7 +64,10 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
             onToast('success', `${response.data.message} Version ${response.data.version}.`);
             setDraft({});
             router.reload({ only: ['rfidDevices'] });
-        } catch (error: any) { onToast('error', error.response?.data?.message || 'Unable to save scanner configuration.'); }
+        } catch (error: any) {
+            setDeviceErrors(Object.fromEntries(Object.entries(error.response?.data?.errors || {}).map(([key, messages]) => [key, (messages as string[])[0]])));
+            onToast('error', error.response?.data?.message || 'Unable to save scanner configuration.');
+        }
         finally { setBusy(false); }
     };
 
@@ -151,11 +162,8 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
                     {selected?.configuration_reported_at && <p>Reported {new Date(selected.configuration_reported_at).toLocaleString()}</p>}
                 </div>
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Station ID (optional)<input className={fieldClass} value={value('station_id') || ''} placeholder="STATION-1" onChange={e=>set('station_id',e.target.value)}/><span className="font-normal">Scans from this device are assigned to this station by the server.</span></label>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300"><input type="checkbox" className="mr-2" checked={draft.wifi_open_network ?? false} onChange={e=>setDraft(old=>({...old,wifi_open_network:e.target.checked,wifi_password:''}))}/>Open Wi-Fi network (clear saved password)</label>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300"><input type="checkbox" className="mr-2" checked={draft.wifi_apply ?? false} onChange={e=>setDraft(old=>({...old,wifi_apply:e.target.checked}))}/>Apply saved Wi-Fi again (firmware 2.4.0+)</label>
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Device name<input className={fieldClass} value={value('device_name') || ''} onChange={e=>set('device_name',e.target.value)}/></label>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Wi-Fi SSID<input className={fieldClass} value={value('wifi_ssid') || ''} onChange={e=>set('wifi_ssid',e.target.value)}/><span className="font-normal">Changing SSID requires a new password or Open Wi-Fi network. Clearing SSID keeps the device's locally configured network. Firmware 2.4.0+ preserves Wi-Fi when only other settings change.</span></label>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Wi-Fi password<input type="password" autoComplete="new-password" disabled={draft.wifi_open_network} className={fieldClass} value={draft.wifi_password || ''} placeholder={selected?.has_wifi_password?'•••••••• (leave blank to keep)':'Enter password'} onChange={e=>set('wifi_password',e.target.value)}/></label>
+                {selected && <RfidWifiSettings key={selected.id} device={selected} ssid={value('wifi_ssid') || ''} password={draft.wifi_password || ''} open={draft.wifi_open_network ?? false} apply={draft.wifi_apply ?? false} busy={busy} errors={deviceErrors} onChange={values => { setDraft(old => ({ ...old, ...values })); setDeviceErrors({}); }}/>}
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Server URL<input className={fieldClass} value={value('server_url') || ''} onChange={e=>set('server_url',e.target.value)}/></label>
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Scan mode<select className={fieldClass} value={value('scan_mode') || 'single'} onChange={e=>set('scan_mode',e.target.value)}><option value="single">Single trigger — one tag per press</option><option value="inventory">Inventory window — hold to scan tags</option></select><span className="font-normal">Firmware 2.2.0+: hold the trigger to inventory, then release to stop and upload. Each EPC is captured once per hold, up to the remaining 100-tag buffer capacity.</span></label>
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">RF power (0–26 dBm)<input type="number" min="0" max="26" className={fieldClass} value={value('rf_power') ?? 20} onChange={e=>set('rf_power',Number(e.target.value))}/></label>

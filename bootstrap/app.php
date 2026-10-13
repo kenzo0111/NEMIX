@@ -22,7 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->trimStrings(except: ['wifi_ssid', 'wifi_password']);
+        $middleware->trimStrings(except: ['wifi_ssid', 'wifi_password', 'wifi_networks.*.ssid']);
         // Supply only the reverse proxy addresses controlled by the operator.
         // Direct origin clients must never be trusted to set Forwarded headers.
         // This callback runs before Laravel's config repository is available.

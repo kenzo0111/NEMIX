@@ -17,6 +17,8 @@ public:
     NemixApiClient();
     void configure(const DeviceConfiguration& config);
     bool checkWifi();
+    void pollWifiScan();
+    bool wifiScanReady() const { return _wifiNetworks.length() > 0; }
     ItemLookupResult submitScan(const String& epc, int rssi);
     bool sendHeartbeat(uint32_t uptimeSeconds, bool scannerReady, uint32_t& serverVersion, uint32_t networkVersion, const String& diagnostics);
     bool fetchConfiguration(DeviceConfiguration& candidate);
@@ -26,6 +28,12 @@ public:
     bool submitScans(const String& body, size_t expectedCount);
 
 private:
+    bool _wifiScanRunning = false;
+    bool _wifiScanRequested = false;
+    String _wifiScanRequestId;
+    String _wifiNetworks;
+    uint32_t _wifiScannedAt = 0;
+    uint32_t _wifiScanAttemptAt = 0;
     String _baseUrl;
     String _deviceId;
     String _token;

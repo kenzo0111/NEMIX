@@ -6,6 +6,8 @@
 #include <mbedtls/md.h>
 #include <mbedtls/sha256.h>
 #include <time.h>
+#include <vector>
+#include <algorithm>
 #include "../include/config_json.h"
 
 static String hexBytes(const unsigned char* bytes, size_t length) {
@@ -22,6 +24,40 @@ static String hexBytes(const unsigned char* bytes, size_t length) {
 NemixApiClient::NemixApiClient() {}
 void NemixApiClient::configure(const DeviceConfiguration& c){_baseUrl=c.serverUrl;_deviceId=c.deviceId;_token=c.deviceToken;}
 bool NemixApiClient::checkWifi(){return WiFi.status()==WL_CONNECTED;}
+void NemixApiClient::pollWifiScan() {
+    if (_wifiScanRunning) {
+        int count = WiFi.scanComplete();
+        if (count == WIFI_SCAN_RUNNING) return;
+        _wifiScanRunning = false;
+        if (count >= 0) {
+            std::vector<int> indices;
+            for (int i = 0; i < count; ++i) indices.push_back(i);
+            std::sort(indices.begin(), indices.end(), [](int a, int b) { return WiFi.RSSI(a) > WiFi.RSSI(b); });
+            std::vector<String> names;
+            cJSON* networks = cJSON_CreateArray();
+            if (!networks) { WiFi.scanDelete(); return; }
+            for (int i : indices) {
+                String ssid = WiFi.SSID(i);
+                if (!ssid.length() || ssid.length() > 32 || std::find(names.begin(), names.end(), ssid) != names.end()) continue;
+                cJSON* network = cJSON_CreateObject();
+                if (!network) break;
+                cJSON_AddStringToObject(network, "ssid", ssid.c_str());
+                cJSON_AddNumberToObject(network, "rssi", constrain(WiFi.RSSI(i), -127, 0));
+                cJSON_AddBoolToObject(network, "secure", WiFi.encryptionType(i) != WIFI_AUTH_OPEN);
+                cJSON_AddItemToArray(networks, network);
+                names.push_back(ssid);
+                if (names.size() >= 20) break;
+            }
+            _wifiNetworks = jsonEncode(networks); cJSON_Delete(networks);
+            _wifiScannedAt = millis(); _wifiScanRequested = false;
+        }
+        WiFi.scanDelete();
+    }
+    if (_wifiScanRequested && millis() - _wifiScanAttemptAt >= 10000UL) {
+        _wifiScanAttemptAt = millis();
+        _wifiScanRunning = WiFi.scanNetworks(true) == WIFI_SCAN_RUNNING;
+    }
+}
 int NemixApiClient::request(const String& method,const String& path,const String& json,String& response){
     if(!checkWifi()){Serial.println(F("[API] ERROR: Request skipped because Wi-Fi is disconnected."));return 0;}
     if(!_baseUrl.startsWith("https://")){Serial.println(F("[API] ERROR: HTTPS server URL required."));return 0;}
@@ -81,6 +117,14 @@ bool NemixApiClient::sendHeartbeat(uint32_t uptime,bool ready,uint32_t& version,
     cJSON_AddBoolToObject(object,"scanner_ready",ready);
     cJSON_AddStringToObject(object,"connected_ssid",WiFi.SSID().c_str());
     cJSON_AddNumberToObject(object,"network_version",networkVersion);
+    bool reportingNetworks = _wifiNetworks.length() && millis() - _wifiScannedAt <= 120000UL;
+    if (reportingNetworks) {
+        cJSON_AddItemToObject(object, "wifi_networks", cJSON_Parse(_wifiNetworks.c_str()));
+        cJSON_AddStringToObject(object, "wifi_scan_request_id", _wifiScanRequestId.c_str());
+        cJSON_AddNumberToObject(object, "wifi_scan_age_ms", (uint32_t)(millis() - _wifiScannedAt));
+    } else if (_wifiNetworks.length()) {
+        _wifiNetworks = ""; _wifiScanRequested = true;
+    }
     cJSON* readerDiagnostics=cJSON_Parse(diagnostics.c_str());
     if(!readerDiagnostics) { cJSON_Delete(object); return false; }
     cJSON_AddItemToObject(object,"reader_diagnostics",readerDiagnostics);
@@ -88,6 +132,18 @@ bool NemixApiClient::sendHeartbeat(uint32_t uptime,bool ready,uint32_t& version,
     if(request("POST",API_HEARTBEAT_PATH,body,response)!=200) return false;
     cJSON* parsed=cJSON_Parse(response.c_str());
     bool ok=cJSON_IsTrue(cJSON_GetObjectItemCaseSensitive(parsed,"success"))&&jsonUInt(parsed,"server_configuration_version",version);
+    if (ok) {
+        if (reportingNetworks) _wifiNetworks = "";
+        const cJSON* scanRequest = cJSON_GetObjectItemCaseSensitive(parsed, "wifi_scan_request_id");
+        if (cJSON_IsString(scanRequest) && strlen(scanRequest->valuestring) == 32 &&
+            ((!_wifiScanRunning && !_wifiScanRequested) || _wifiScanRequestId != scanRequest->valuestring)) {
+            // Finish an active scan before accepting another request.
+            if (!_wifiScanRunning) {
+                _wifiScanRequestId = scanRequest->valuestring;
+                _wifiScanRequested = true;
+            }
+        }
+    }
     cJSON_Delete(parsed); return ok;
 }
 

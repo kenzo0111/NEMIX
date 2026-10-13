@@ -8,11 +8,23 @@ use App\Models\RfidDevice;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class RfidDeviceSettingController extends Controller
 {
+    public function scanWifi(Request $request, RfidDevice $device): JsonResponse
+    {
+        abort_unless($request->user()?->hasAnyRole(['System Admin', 'System Administrator']) || $request->user()?->can('system.settings.update'), 403);
+        abort_unless($device->isOnline(), 422, 'Turn on the scanner and connect it to Wi-Fi before refreshing networks.');
+        abort_unless(version_compare($device->firmware_version ?? '0', '2.5.0', '>='), 422, 'Update the scanner to firmware 2.5.0 or newer to discover nearby networks.');
+        $requestId = bin2hex(random_bytes(16));
+        Cache::put('rfid_wifi_scan_request:'.$device->id, $requestId, 7200);
+
+        return response()->json(['request_id' => $requestId], 202, ['Cache-Control' => 'no-store']);
+    }
+
     public function store(Request $request): JsonResponse
     {
         abort_unless($request->user()?->hasRole('System Admin') || $request->user()?->hasRole('System Administrator') || $request->user()?->can('system.settings.update'), 403);

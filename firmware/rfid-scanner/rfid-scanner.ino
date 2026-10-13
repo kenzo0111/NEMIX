@@ -201,9 +201,10 @@ void loop() {
     if(buttonHeld) { delay(2); return; }
     checkReaderWhileIdle();
     portal.loop(); wifiManager.loop(config);
+    if (!portal.active() && wifiManager.connected()) apiClient.pollWifiScan();
     if(wifiManager.connected()) automaticPortalOpened=false;
     if(wifiManager.prolongedFailure()&&!automaticPortalOpened) { startSetupMode(); automaticPortalOpened=true; }
-    if(wifiManager.connected()&&millis()-lastHeartbeat>=config.heartbeatInterval*1000UL) {
+    if(wifiManager.connected()&&(millis()-lastHeartbeat>=config.heartbeatInterval*1000UL || (apiClient.wifiScanReady()&&millis()-lastHeartbeat>=10000UL))) {
         lastHeartbeat=millis(); uint32_t serverVersion=config.configVersion;
         // Complete local recovery/legacy upgrade before fetching dashboard Wi-Fi.
         if(config.rebaseNetwork&&!applyCandidate(config)) { delay(2); return; }

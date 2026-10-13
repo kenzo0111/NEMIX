@@ -92,6 +92,17 @@ class RfidDeviceController extends Controller
             'ip_address' => ['nullable', 'ip'],
             'configuration_version' => ['required', 'integer', 'min:0'],
             'wifi_rssi' => ['nullable', 'integer', 'between:-127,0'],
+            'wifi_networks' => ['sometimes', 'array', 'max:20'],
+            'wifi_networks.*' => ['required', 'array:ssid,rssi,secure'],
+            'wifi_networks.*.ssid' => ['required', 'string', 'max:32', function ($attribute, $value, $fail) {
+                if (! is_string($value) || strlen($value) > 32 || str_contains($value, "\0")) {
+                    $fail('Invalid network name.');
+                }
+            }],
+            'wifi_networks.*.rssi' => ['required', 'integer', 'between:-127,0'],
+            'wifi_networks.*.secure' => ['required', 'boolean'],
+            'wifi_scan_request_id' => ['nullable', 'string', 'size:32', 'regex:/^[a-f0-9]+$/'],
+            'wifi_scan_age_ms' => [\Illuminate\Validation\Rule::requiredIf($request->exists('wifi_networks')), 'integer', 'between:0,120000'],
             'connected_ssid' => ['sometimes', 'required', 'string', 'max:32'],
             'network_version' => ['sometimes', 'required', 'integer', 'min:0', 'max:4294967295'],
             'uptime' => ['required', 'integer', 'min:0'],
@@ -142,9 +153,22 @@ class RfidDeviceController extends Controller
         });
         $device->refresh();
 
+        if (array_key_exists('wifi_networks', $data)) {
+            $networks = collect($data['wifi_networks'])->sortByDesc('rssi')->unique('ssid')->values()->all();
+            Cache::put('rfid_wifi_networks:'.$device->id, [
+                'networks' => $networks,
+                'scanned_at' => now()->subMilliseconds($data['wifi_scan_age_ms'])->toIso8601String(),
+                'request_id' => $data['wifi_scan_request_id'] ?? null,
+            ], 600);
+            if (isset($data['wifi_scan_request_id']) && Cache::get('rfid_wifi_scan_request:'.$device->id) === $data['wifi_scan_request_id']) {
+                Cache::forget('rfid_wifi_scan_request:'.$device->id);
+            }
+        }
+
         return response()->json([
             'success' => true,
             'server_configuration_version' => $device->settings->configuration_version,
+            'wifi_scan_request_id' => Cache::get('rfid_wifi_scan_request:'.$device->id),
             'configuration_available' => $device->settings->configuration_version > $data['configuration_version'],
         ]);
     }

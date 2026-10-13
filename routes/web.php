@@ -67,6 +67,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/admin/system-settings/rfid-devices', [RfidDeviceSettingController::class, 'store'])->name('system.settings.rfid-devices.store');
     Route::put('/admin/system-settings/rfid-devices/{device}', [RfidDeviceSettingController::class, 'update'])->name('system.settings.rfid-devices.update');
     Route::post('/admin/system-settings/rfid-devices/{device}/test', [RfidDeviceSettingController::class, 'test'])->name('system.settings.rfid-devices.test');
+    Route::post('/admin/system-settings/rfid-devices/{device}/wifi-scan', [RfidDeviceSettingController::class, 'scanWifi'])->name('system.settings.rfid-devices.wifi-scan');
     Route::post('/admin/system-settings/rfid-devices/{device}/rotate', [RfidDeviceSettingController::class, 'rotate'])->name('system.settings.rfid-devices.rotate');
     Route::patch('/admin/system-settings/rfid-devices/{device}/enabled', [RfidDeviceSettingController::class, 'setEnabled'])->name('system.settings.rfid-devices.enabled');
     Route::post('/admin/system-settings/rfid-devices/{device}/revoke', [RfidDeviceSettingController::class, 'revoke'])->name('system.settings.rfid-devices.revoke');

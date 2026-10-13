@@ -6,6 +6,7 @@ use App\Models\RfidDevice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -54,6 +55,67 @@ class RfidDeviceConfigurationTest extends TestCase
     {
         $this->device();
         $this->getJson('/api/hardware/rfid/config')->assertUnauthorized();
+    }
+
+    public function test_admin_can_request_network_discovery_and_scanner_acknowledges_results(): void
+    {
+        [$device] = $this->device();
+        $device->update(['status' => 'online', 'firmware_version' => '2.5.0', 'last_seen_at' => now()]);
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::firstOrCreate(['name' => 'System Admin']));
+        $requestId = $this->actingAs($admin)->postJson('/admin/system-settings/rfid-devices/'.$device->id.'/wifi-scan')
+            ->assertStatus(202)->json('request_id');
+        $path = '/api/hardware/rfid/heartbeat';
+        $body = ['firmware_version' => '2.5.0', 'configuration_version' => 2, 'uptime' => 90, 'scanner_ready' => true];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)
+            ->assertOk()->assertJsonPath('wifi_scan_request_id', $requestId);
+        $body += ['wifi_scan_request_id' => $requestId, 'wifi_scan_age_ms' => 1000, 'wifi_networks' => [
+            ['ssid' => ' Campus <WiFi> ', 'rssi' => -80, 'secure' => true],
+            ['ssid' => 'Guest', 'rssi' => -60, 'secure' => false],
+            ['ssid' => ' Campus <WiFi> ', 'rssi' => -40, 'secure' => true],
+        ]];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)
+            ->assertOk()->assertJsonPath('wifi_scan_request_id', null);
+        $snapshot = Cache::get('rfid_wifi_networks:'.$device->id);
+        $this->assertSame($requestId, $snapshot['request_id']);
+        $this->assertSame([
+            ['ssid' => ' Campus <WiFi> ', 'rssi' => -40, 'secure' => true],
+            ['ssid' => 'Guest', 'rssi' => -60, 'secure' => false],
+        ], $snapshot['networks']);
+        $this->assertSame('Private Network', $device->fresh()->settings->wifi_ssid);
+    }
+
+    public function test_wifi_discovery_rejects_offline_old_and_unauthorized_scanners(): void
+    {
+        [$device] = $this->device();
+        $path = '/admin/system-settings/rfid-devices/'.$device->id.'/wifi-scan';
+        $this->actingAs(User::factory()->create())->postJson($path)->assertForbidden();
+        $admin = User::factory()->create();
+        $admin->assignRole(Role::firstOrCreate(['name' => 'System Admin']));
+        $this->actingAs($admin)->postJson($path)->assertUnprocessable();
+        $device->update(['status' => 'online', 'last_seen_at' => now(), 'firmware_version' => '2.4.0']);
+        $this->postJson($path)->assertUnprocessable();
+        $this->assertNull(Cache::get('rfid_wifi_scan_request:'.$device->id));
+    }
+
+    public function test_empty_wifi_scan_requires_age_and_invalid_results_do_not_update_heartbeat(): void
+    {
+        [$device] = $this->device();
+        $path = '/api/hardware/rfid/heartbeat';
+        $body = ['firmware_version' => '2.5.0', 'configuration_version' => 2, 'uptime' => 90, 'scanner_ready' => true, 'wifi_networks' => []];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)
+            ->assertUnprocessable()->assertJsonValidationErrors('wifi_scan_age_ms');
+        $body['wifi_scan_age_ms'] = 1000;
+        $body['wifi_networks'] = [['ssid' => str_repeat('角', 11), 'rssi' => -40, 'secure' => true]];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertUnprocessable();
+        $this->assertNull($device->fresh()->last_seen_at);
+        $this->assertNull(Cache::get('rfid_wifi_networks:'.$device->id));
+        $body['wifi_networks'][0]['ssid'] = ['invalid'];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)
+            ->assertUnprocessable()->assertJsonValidationErrors('wifi_networks.0.ssid');
+        $body['wifi_networks'] = [];
+        $this->withHeaders($this->signedHeaders($device, 'POST', $path, $body))->postJson($path, $body)->assertOk();
+        $this->assertSame([], Cache::get('rfid_wifi_networks:'.$device->id)['networks']);
     }
 
     public function test_human_readable_esp32_identifier_can_be_registered(): void
