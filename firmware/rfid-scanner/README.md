@@ -109,6 +109,22 @@ arduino-cli compile --fqbn esp32:esp32:esp32 firmware/rfid-scanner
 
 ## 6. How to Upload
 
+From the repository root, use the selective-image flasher to rebuild current sources and preserve saved NVS credentials:
+
+```powershell
+.\flash_firmware.ps1 -Port COM11
+```
+
+Replace COM11 with your connected port. With one serial port connected, `-Port` can be omitted. The default transfer speed is 115200 baud. The script checks bootloader communication before compiling and displays connection errors.
+
+For manual download mode, hold BOOT, press and release EN/RESET, then release BOOT. Run:
+
+```powershell
+.\flash_firmware.ps1 -Port COM11 -ManualBoot
+```
+
+Use `-DiagnoseOnly` to check communication without compiling or writing firmware. Tap EN/RESET afterwards to return to normal operation. Close any serial monitor before running the flasher. If esptool still reports **No serial data received**, try a known USB data cable and a direct USB port. Power off before disconnecting the external reader and retry with the ESP32 alone. Repeated BOOT attempts cannot fix a missing serial response caused by wiring, power, or USB hardware. See [Espressif troubleshooting](https://docs.espressif.com/projects/esptool/en/latest/esp32/troubleshooting.html).
+
 > [!NOTE]
 > **TO BE DONE AFTER THE PHYSICAL ESP32 IS CONNECTED.**
 > Do not execute the upload command until the physical ESP32 is attached and its COM port is identified.
