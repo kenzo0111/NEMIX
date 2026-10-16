@@ -214,7 +214,8 @@
                     <td class="text-center">{{ $issueQty !== null && $issueQty !== '' ? $issueQty : '' }}</td>
                     <td class="text-center">{{ data_get($entry, 'issue_office') ?? data_get($entry, 'department') ?? '' }}</td>
                     <td class="text-center">{{ $balanceQty !== null && $balanceQty !== '' ? $balanceQty : '' }}</td>
-                    <td class="text-center">{{ data_get($entry, 'days_to_consume') ?? '' }}</td>
+                    {{-- Keep the official column blank, including for older saved snapshots. --}}
+                    <td class="text-center">&nbsp;</td>
                 </tr>
             @endforeach
         </tbody>

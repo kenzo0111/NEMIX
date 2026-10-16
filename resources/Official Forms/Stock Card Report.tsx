@@ -230,7 +230,8 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
                 <td className="text-center">{entry.issue_qty !== undefined && entry.issue_qty !== null && entry.issue_qty !== '' ? entry.issue_qty : '\u00A0'}</td>
                 <td className="text-center">{entry.issue_office || '\u00A0'}</td>
                 <td className="text-center">{entry.balance_qty !== undefined && entry.balance_qty !== null && entry.balance_qty !== '' ? entry.balance_qty : '\u00A0'}</td>
-                <td className="text-center">{entry.days_to_consume || '\u00A0'}</td>
+                {/* Keep the official column blank, including for older saved snapshots. */}
+                <td className="text-center">{'\u00A0'}</td>
               </tr>
             ))}
 

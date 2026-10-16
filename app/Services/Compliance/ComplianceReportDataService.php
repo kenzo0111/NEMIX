@@ -1548,7 +1548,7 @@ class ComplianceReportDataService
                                 'receipt_qty' => '',
                                 'issue_qty' => $qty > 0 ? $qty : '',
                                 'issue_office' => $office,
-                                'days_to_consume' => $iss->purpose ?? '',
+                                'days_to_consume' => '',
                                 '_type' => 'issue',
                             ];
                         });
@@ -1571,7 +1571,7 @@ class ComplianceReportDataService
                         'receipt_qty' => '',
                         'issue_qty' => $qty > 0 ? $qty : '',
                         'issue_office' => $office,
-                        'days_to_consume' => $iss->purpose ?? '',
+                        'days_to_consume' => '',
                         '_type' => 'issue',
                     ]];
                 });
@@ -1614,7 +1614,7 @@ class ComplianceReportDataService
                         'issue_qty' => $issueQty > 0 ? $issueQty : '',
                         'balance_qty' => $balQty,
                         'issue_office' => $office,
-                        'days_to_consume' => $rec->remarks ?? 'Historical Migration',
+                        'days_to_consume' => '',
                         '_type' => $receiptQty > 0 ? 'receipt' : 'issue',
                     ];
                 });
@@ -1662,7 +1662,8 @@ class ComplianceReportDataService
                 'issue_qty' => $tx['issue_qty'] ?? '',
                 'issue_office' => $tx['issue_office'] ?? '',
                 'balance_qty' => $tx['balance_qty'] ?? max(0, $runningBalance),
-                'days_to_consume' => $tx['days_to_consume'] ?? '',
+                // No consumption-duration data is recorded; purpose/remarks are unrelated.
+                'days_to_consume' => '',
             ];
         }
 
