@@ -28,7 +28,8 @@ class SupplyRequest extends Model
         'requested_by' => 'integer',
         'reviewed_at' => 'datetime',
         'released_at' => 'datetime',
-        'date_requested' => 'date',
+        // A requisition date is a calendar day, not a UTC instant.
+        'date_requested' => 'date:Y-m-d',
     ];
 
     public function items() { return $this->hasMany(SupplyRequestItem::class); }
