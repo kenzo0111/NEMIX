@@ -198,7 +198,7 @@ export default function IssuanceIndex({
     };
 
     const handlePreviewApprovedRequest = (request: QueueRequest) => {
-        const recipientDesignation = request.recipient_designation || (request.issuance as any)?.recipient_designation || '';
+        const recipientDesignation = request.recipient_designation?.trim() || request.issuance?.recipient_designation?.trim() || '';
         const lines = request.items
             .filter((line) => (line.approved_quantity ?? 0) > 0)
             .map((line) => {

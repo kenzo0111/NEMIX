@@ -76,17 +76,18 @@ class SupplyRequestController extends Controller
             'ris_no' => preg_replace('/^RIS-/i', '', $supplyRequest->ris_number ?? ''),
             'purpose' => $supplyRequest->purpose,
             'requested_by_name' => $supplyRequest->recipient ?: ($supplyRequest->requester?->name),
-            'requested_by_designation' => $supplyRequest->recipient_designation ?: 'Requesting Personnel',
+            'requested_by_designation' => trim($supplyRequest->recipient_designation ?? '') ?: (trim($issuance?->recipient_designation ?? '') ?: 'Requesting Personnel'),
             'requested_by_date' => $supplyRequest->date_requested ? $supplyRequest->date_requested->format('Y-m-d') : ($supplyRequest->created_at ? $supplyRequest->created_at->format('Y-m-d') : date('Y-m-d')),
             'approved_by_name' => $signatories['approved_by_name'],
             'approved_by_designation' => $signatories['approved_by_designation'],
             'approved_by_date' => $supplyRequest->reviewed_at ? $supplyRequest->reviewed_at->format('Y-m-d') : null,
-            'issued_by_name' => $issued ? ($issuance?->issued_by_name ?: $signatories['issued_by_name']) : null,
-            'issued_by_designation' => $issued ? ($issuance?->issued_by_position ?: $signatories['issued_by_position']) : null,
-            'issued_by_date' => $issued ? ($issuance?->date_issued ? $issuance->date_issued->format('Y-m-d') : null) : null,
+            'issued_by_name' => $issuance?->issued_by_name ?: $signatories['issued_by_name'],
+            'issued_by_designation' => $issuance?->issued_by_position ?: $signatories['issued_by_position'],
+            // A blank physical signature date is distinct from a recorded stock release.
+            'issued_by_date' => $issuance?->date_issued?->format('Y-m-d'),
             'received_by_name' => $supplyRequest->recipient ?: ($supplyRequest->requester?->name),
-            'received_by_designation' => $supplyRequest->recipient_designation ?: ($issuance?->recipient_designation ?: 'Requesting Personnel'),
-            'received_by_date' => $issued ? ($issuance?->date_issued ? $issuance->date_issued->format('Y-m-d') : null) : null,
+            'received_by_designation' => trim($supplyRequest->recipient_designation ?? '') ?: (trim($issuance?->recipient_designation ?? '') ?: 'Requesting Personnel'),
+            'received_by_date' => $issuance?->date_issued?->format('Y-m-d'),
         ];
         $items = $supplyRequest->items->filter(fn ($line) => $line->approved_quantity > 0)
             ->map(function ($line) use ($issued, $issuance) {

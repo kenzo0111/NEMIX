@@ -179,7 +179,7 @@ export default function MyRequests({
 
     const openRis = (request: SupplyRequest) => {
         const issued = request.status === 'Issued';
-        const recipientDesignation = request.recipient_designation || request.issuance?.recipient_designation || '';
+        const recipientDesignation = request.recipient_designation?.trim() || request.issuance?.recipient_designation?.trim() || '';
         const lines = request.items
             .filter((line) => (line.approved_quantity ?? 0) > 0)
             .map((line) => {

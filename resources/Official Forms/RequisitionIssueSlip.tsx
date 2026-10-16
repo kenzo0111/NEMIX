@@ -421,8 +421,8 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
                       <td style={{ borderLeft: 'none', borderBottom: 'none' }}>Date :</td>
                       <td className="text-center" style={{ borderBottom: 'none' }}>{formatDate(data.requested_by_date)}</td>
                       <td className="text-center" style={{ borderBottom: 'none' }}>{formatDate(data.approved_by_date)}</td>
-                      <td className="text-center" style={{ borderBottom: 'none' }}>{formatDate(data.issued_by_date)}</td>
-                      <td className="text-center" style={{ borderRight: 'none', borderBottom: 'none' }}>{formatDate(data.received_by_date)}</td>
+                      <td className="text-center" style={{ borderBottom: 'none' }}>{formatDate(data.issued_by_date) || '____________'}</td>
+                      <td className="text-center" style={{ borderRight: 'none', borderBottom: 'none' }}>{formatDate(data.received_by_date) || '____________'}</td>
                     </tr>
                   </tbody>
                 </table>

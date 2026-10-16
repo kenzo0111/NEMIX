@@ -395,6 +395,47 @@ class SupplyRequestWorkflowTest extends TestCase
         $this->assertNotNull($request->issuance);
         $this->assertSame('CEID Coordinator', $request->issuance->recipient_designation);
     }
+
+    public function test_approved_ris_prints_signatories_without_releasing_stock(): void
+    {
+        $coordinator = $this->user('Supply Coordinator');
+        $custodian = $this->user('Property Custodian');
+        $item = $this->item();
+        $request = $this->submit($coordinator, $item, 10);
+        $line = $request->items()->firstOrFail();
+        $this->actingAs($custodian)->post(route('inventory.requests.approve', $request), [
+            'approved_quantities' => [$line->id => 10],
+        ])->assertRedirect();
+
+        $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
+        foreach ([null, 'Department Chair', '   '] as $designation) {
+            $request->update(['recipient_designation' => $designation]);
+            $expectedDesignation = trim($designation ?? '') ?: 'Requesting Personnel';
+            $pdf = \Mockery::mock();
+            \Barryvdh\DomPDF\Facade\Pdf::shouldReceive('loadView')->once()
+                ->withArgs(function ($view, $data) use ($signatories, $expectedDesignation) {
+                    $ris = $data['ris'];
+                    $this->assertSame($signatories['issued_by_name'], $ris['issued_by_name']);
+                    $this->assertSame($signatories['issued_by_position'], $ris['issued_by_designation']);
+                    $this->assertSame($expectedDesignation, $ris['requested_by_designation']);
+                    $this->assertSame($expectedDesignation, $ris['received_by_designation']);
+                    $this->assertNull($ris['issued_by_date']);
+                    $this->assertNull($ris['received_by_date']);
+                    $this->assertSame('', $data['items'][0]['issue_quantity']);
+                    $html = view($view, $data)->render();
+                    $this->assertStringContainsString($expectedDesignation, $html);
+                    $this->assertSame(2, substr_count($html, '____________'));
+                    return true;
+                })->andReturn($pdf);
+            $pdf->shouldReceive('setPaper')->once()->with('A4', 'portrait')->andReturnSelf();
+            $pdf->shouldReceive('setOption')->once()->andReturnSelf();
+            $pdf->shouldReceive('download')->once()->andReturn(response('PDF'));
+            $this->actingAs($coordinator)->get(route('inventory.requests.ris-pdf', $request))->assertOk();
+            $this->assertSame('Approved', $request->fresh()->status);
+            $this->assertSame(50, $item->fresh()->stock);
+            $this->assertSame(0, Issuance::count());
+        }
+    }
 }
 
 

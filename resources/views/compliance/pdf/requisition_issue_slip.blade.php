@@ -262,8 +262,8 @@
                                 <td style="border-left: none; border-bottom: none;">Date :</td>
                                 <td class="text-center" style="border-bottom: none;">{{ data_get($ris, 'requested_by_date') ? \Carbon\Carbon::parse(data_get($ris, 'requested_by_date'))->format('m/d/Y') : '' }}</td>
                                 <td class="text-center" style="border-bottom: none;">{{ data_get($ris, 'approved_by_date') ? \Carbon\Carbon::parse(data_get($ris, 'approved_by_date'))->format('m/d/Y') : '' }}</td>
-                                <td class="text-center" style="border-bottom: none;">{{ data_get($ris, 'issued_by_date') ? \Carbon\Carbon::parse(data_get($ris, 'issued_by_date'))->format('m/d/Y') : '' }}</td>
-                                <td class="text-center" style="border-right: none; border-bottom: none;">{{ data_get($ris, 'received_by_date') ? \Carbon\Carbon::parse(data_get($ris, 'received_by_date'))->format('m/d/Y') : '' }}</td>
+                                <td class="text-center" style="border-bottom: none;">{{ data_get($ris, 'issued_by_date') ? \Carbon\Carbon::parse(data_get($ris, 'issued_by_date'))->format('m/d/Y') : '____________' }}</td>
+                                <td class="text-center" style="border-right: none; border-bottom: none;">{{ data_get($ris, 'received_by_date') ? \Carbon\Carbon::parse(data_get($ris, 'received_by_date'))->format('m/d/Y') : '____________' }}</td>
                             </tr>
                         </tbody>
                     </table>
