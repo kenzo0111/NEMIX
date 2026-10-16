@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Modal from '@/Components/Modal';
+import { Portal } from '@headlessui/react';
 import Select from 'react-select';
 import axios from 'axios';
 import { X, Loader2, Lock, PackagePlus, Edit3, ChevronDown, ChevronUp, Check, AlertCircle } from 'lucide-react';
@@ -54,6 +55,18 @@ export default function InventoryFormModal({
     onViewExistingItem,
 }: InventoryFormModalProps) {
     const [isGeneratingStockNo, setIsGeneratingStockNo] = useState(false);
+    const [selectPortal, setSelectPortal] = useState<HTMLDivElement | null>(null);
+    const formSelectStyles = {
+        ...customSelectStyles,
+        control: (base: Record<string, unknown>, state: { isFocused: boolean }) => ({
+            ...customSelectStyles.control(base, state),
+            minHeight: '44px',
+            minWidth: 0,
+            fontSize: '0.875rem',
+            borderRadius: '0.5rem',
+        }),
+        menuPortal: (base: Record<string, unknown>) => ({ ...base, zIndex: 100 }),
+    };
 
     // Initial batch accordion state: collapsed by default when registering empty item,
     // auto-expanded if there are errors, stock already entered, or when editing.
@@ -66,6 +79,10 @@ export default function InventoryFormModal({
             setIsBatchExpanded(true);
         }
     }, [hasBatchErrors, hasInitialStockData, isEditing]);
+
+    useEffect(() => {
+        if (!show) setIsBatchExpanded(false);
+    }, [show]);
 
     // Duplicate master item detection based on canonical name and unit
     const potentialDuplicate = React.useMemo(() => {
@@ -147,16 +164,17 @@ export default function InventoryFormModal({
         <Modal
             show={show}
             onClose={onClose}
-            maxWidth="lg"
+            maxWidth="3xl"
             closeable={!processing}
             ariaLabel={isEditing ? 'Edit Item Master' : 'Register New Item Master'}
         >
-            <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden">
+            <div className="relative flex max-h-[calc(100dvh-3rem)] flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden">
+                <Portal><div ref={setSelectPortal} /></Portal>
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Modal Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <div className="shrink-0 flex items-center justify-between px-6 py-5 sm:px-8 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-2xs shrink-0">
                             {isEditing ? (
@@ -166,13 +184,13 @@ export default function InventoryFormModal({
                             )}
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 tracking-tight font-serif truncate">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 tracking-tight font-serif truncate">
                                 {isEditing ? 'Edit Item Master' : 'Register Item Master'}
                             </h3>
-                            <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mt-0.5 truncate">
+                            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
                                 {isEditing
                                     ? 'Update standardized item master specifications.'
-                                    : 'Create a standardized catalog entry for university supplies.'}
+                                    : 'Add item details. Opening stock can be recorded now or later.'}
                             </p>
                         </div>
                     </div>
@@ -189,7 +207,7 @@ export default function InventoryFormModal({
 
                 {/* Duplicate Item Master Warning Banner */}
                 {potentialDuplicate && (
-                    <div className="mx-5 mt-4 p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-xl text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                    <div className="shrink-0 mx-6 mt-4 p-3 sm:mx-8 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-xl text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
                         <div className="text-xs">
                             <p className="font-semibold flex items-center gap-1.5 text-amber-950 dark:text-amber-200">
                                 <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
@@ -220,26 +238,13 @@ export default function InventoryFormModal({
                 )}
 
                 {/* Modal Form */}
-                <form onSubmit={onSubmit}>
-                    <div className="p-5 space-y-4 max-h-[calc(85vh-8.5rem)] overflow-y-auto">
+                <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
+                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-6 sm:px-8 space-y-6">
                         {/* 1. Item Information Card */}
-                        <div className="border border-gray-200/90 dark:border-slate-800 rounded-xl p-4 bg-white dark:bg-slate-900 shadow-2xs space-y-3.5">
-                            <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
-                                <span className="text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
-                                    Item Information
-                                </span>
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                                    data.status === 'Available'
-                                        ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
-                                        : 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
-                                }`}>
-                                    ● {data.status || 'Available'}
-                                </span>
-                            </div>
-
-                            <div className="space-y-3.5">
+                        <div className="space-y-5">
+                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
                                 <div>
-                                    <label htmlFor="inventory_item_name" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                    <label htmlFor="inventory_item_name" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                         Item Name <span className="text-red-600" aria-hidden="true">*</span>
                                         <span className="sr-only"> (required)</span>
                                     </label>
@@ -255,7 +260,7 @@ export default function InventoryFormModal({
                                         aria-invalid={Boolean(errors.name)}
                                         aria-describedby={errors.name ? 'inventory_item_name-error' : undefined}
                                         disabled={processing}
-                                        className={`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-lg text-xs font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all ${
+                                        className={`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all ${
                                             errors.name ? 'border-red-300 dark:border-red-700' : 'border-gray-300 dark:border-slate-700'
                                         }`}
                                     />
@@ -267,7 +272,7 @@ export default function InventoryFormModal({
                                 </div>
 
                                 <div>
-                                    <label htmlFor="inventory_unit_of_issue" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                    <label htmlFor="inventory_unit_of_issue" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                         Unit of Issue <span className="text-red-600" aria-hidden="true">*</span>
                                         <span className="sr-only"> (required)</span>
                                     </label>
@@ -280,8 +285,13 @@ export default function InventoryFormModal({
                                         value={selectedUnitOption}
                                         onChange={(opt) => setData('unit_of_issue', opt ? opt.value : '')}
                                         options={unitOptions}
-                                        placeholder="Select unit (e.g. ream, piece, box)..."
-                                        styles={customSelectStyles}
+                                        placeholder="Select unit..."
+                                        styles={formSelectStyles}
+                                        menuPortalTarget={selectPortal}
+                                        menuPosition="fixed"
+                                        menuPlacement="auto"
+                                        menuShouldScrollIntoView={false}
+                                        maxMenuHeight={220}
                                         isClearable
                                         classNamePrefix="react-select"
                                         isDisabled={processing}
@@ -293,8 +303,8 @@ export default function InventoryFormModal({
                                     )}
                                 </div>
 
-                                <div>
-                                    <label htmlFor="inventory_description" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                <div className="sm:col-span-2">
+                                    <label htmlFor="inventory_description" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                         Description / Specifications <span className="text-gray-400 dark:text-slate-500 font-normal">(Optional)</span>
                                     </label>
                                     <textarea
@@ -303,11 +313,11 @@ export default function InventoryFormModal({
                                         value={data.description}
                                         onChange={(e) => setData('description', e.target.value)}
                                         placeholder="Specifications, dimensions, material, or packaging details..."
-                                        rows={2}
+                                        rows={3}
                                         disabled={processing}
                                         aria-invalid={Boolean(errors.description)}
                                         aria-describedby={errors.description ? 'inventory_description-error' : undefined}
-                                        className={`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-lg text-xs font-normal text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all ${
+                                        className={`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm font-normal text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 transition-all ${
                                             errors.description ? 'border-red-300 dark:border-red-700' : 'border-gray-300 dark:border-slate-700'
                                         }`}
                                     />
@@ -320,11 +330,11 @@ export default function InventoryFormModal({
                             </div>
                         </div>
 
-                        {/* 2. Initial Receiving Batch / Stock Baseline (Accordion Card) */}
+                        {/* 2. Opening stock / Stock Baseline (Accordion Card) */}
                         {isEditing ? (
                             <div className="border border-gray-200/90 dark:border-slate-800 rounded-xl p-4 bg-gray-50/50 dark:bg-slate-900/50 space-y-3">
                                 <div className="flex items-center justify-between pb-2 border-b border-gray-200/70 dark:border-slate-800">
-                                    <span className="text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
+                                    <span className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                                         Current Stock & Valuation
                                     </span>
                                     <span className="text-[11px] text-gray-500 dark:text-slate-400">
@@ -356,17 +366,17 @@ export default function InventoryFormModal({
                                 </div>
                             </div>
                         ) : (
-                            <div className="border border-gray-200/90 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs transition-all">
+                            <div className="border border-gray-200 dark:border-slate-700 rounded-xl bg-gray-50/50 dark:bg-slate-950/30">
                                 <button
                                     type="button"
                                     onClick={() => setIsBatchExpanded(!isBatchExpanded)}
-                                    className="w-full px-4 py-3 bg-gray-50/70 dark:bg-slate-800/70 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center justify-between transition-colors text-left cursor-pointer"
+                                    className="w-full px-5 py-4 rounded-xl bg-gray-50/70 dark:bg-slate-800/30 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center justify-between transition-colors text-left cursor-pointer"
                                     aria-expanded={isBatchExpanded}
                                 >
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
-                                                Initial Receiving Batch
+                                            <span className="text-sm font-semibold text-gray-800 dark:text-slate-200">
+                                                Opening stock
                                             </span>
                                             <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 text-gray-500 dark:text-slate-400 bg-gray-200/70 dark:bg-slate-700 rounded">
                                                 Optional
@@ -379,8 +389,8 @@ export default function InventoryFormModal({
                                         </div>
                                         <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5">
                                             {isBatchExpanded
-                                                ? 'Specify initial baseline stock and preferred vendor'
-                                                : 'Click to record opening inventory or link a baseline vendor'}
+                                                ? 'Record the supplier, quantity, and unit cost.'
+                                                : 'Optional. You can receive stock later.'}
                                         </p>
                                     </div>
                                     <div className="p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-slate-200">
@@ -393,10 +403,10 @@ export default function InventoryFormModal({
                                 </button>
 
                                 {isBatchExpanded && (
-                                    <div className="p-4 border-t border-gray-200/70 dark:border-slate-800 space-y-3.5 bg-white dark:bg-slate-900">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                    <div className="p-5 border-t border-gray-200/70 dark:border-slate-800 space-y-5">
+                                        <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-5">
                                             <div>
-                                                <label htmlFor="inventory_supplier_id" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                                <label htmlFor="inventory_supplier_id" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                                     Preferred Supplier {Number(data.stock) > 0 && <span className="text-red-600" aria-hidden="true">*</span>}
                                                     {Number(data.stock) > 0 && <span className="sr-only"> (required)</span>}
                                                 </label>
@@ -410,7 +420,12 @@ export default function InventoryFormModal({
                                                     onChange={(opt) => setData('supplier_id', opt ? opt.value : '')}
                                                     options={supplierOptions}
                                                     placeholder="Select supplier..."
-                                                    styles={customSelectStyles}
+                                                    styles={formSelectStyles}
+                                        menuPortalTarget={selectPortal}
+                                        menuPosition="fixed"
+                                        menuPlacement="auto"
+                                        menuShouldScrollIntoView={false}
+                                        maxMenuHeight={220}
                                                     isClearable
                                                     classNamePrefix="react-select"
                                                     isDisabled={processing}
@@ -423,7 +438,7 @@ export default function InventoryFormModal({
                                             </div>
 
                                             <div>
-                                                <label htmlFor="inventory_supplier_stock_no" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                                <label htmlFor="inventory_supplier_stock_no" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                                     Supplier Stock No. / SKU
                                                 </label>
                                                 <div className="relative">
@@ -436,7 +451,7 @@ export default function InventoryFormModal({
                                                         placeholder={data.supplier_id ? 'Generating SKU...' : 'Auto-generated with vendor'}
                                                         aria-invalid={Boolean(errors.supplier_stock_no)}
                                                         aria-describedby={errors.supplier_stock_no ? 'inventory_supplier_stock_no-error' : undefined}
-                                                        className={`w-full px-3 py-2 pr-8 bg-gray-50 dark:bg-slate-800/60 border rounded-lg text-xs font-mono font-medium text-gray-900 dark:text-slate-100 cursor-not-allowed ${
+                                                        className={`w-full px-3 py-2 pr-8 bg-gray-50 dark:bg-slate-800/60 border rounded-lg text-sm font-mono font-medium text-gray-900 dark:text-slate-100 cursor-not-allowed ${
                                                             errors.supplier_stock_no ? 'border-red-300 dark:border-red-700' : 'border-gray-200 dark:border-slate-700'
                                                         }`}
                                                     />
@@ -456,9 +471,9 @@ export default function InventoryFormModal({
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                                             <div>
-                                                <label htmlFor="inventory_stock" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                                <label htmlFor="inventory_stock" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                                     Initial Stock
                                                 </label>
                                                 <input
@@ -476,7 +491,7 @@ export default function InventoryFormModal({
                                                     disabled={processing}
                                                     aria-invalid={Boolean(errors.stock)}
                                                     aria-describedby={errors.stock ? 'inventory_stock-error' : undefined}
-                                                    className={`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-lg text-xs font-mono font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${
+                                                    className={`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm font-mono font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${
                                                         errors.stock ? 'border-red-300 dark:border-red-700' : 'border-gray-300 dark:border-slate-700'
                                                     }`}
                                                 />
@@ -488,7 +503,7 @@ export default function InventoryFormModal({
                                             </div>
 
                                             <div>
-                                                <label htmlFor="inventory_unit_cost" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                                <label htmlFor="inventory_unit_cost" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                                     Unit Cost (₱) {Number(data.stock) > 0 && <span className="text-red-600" aria-hidden="true">*</span>}
                                                     {Number(data.stock) > 0 && <span className="sr-only"> (required)</span>}
                                                 </label>
@@ -509,7 +524,7 @@ export default function InventoryFormModal({
                                                     disabled={processing}
                                                     aria-invalid={Boolean(errors.unit_cost)}
                                                     aria-describedby={errors.unit_cost ? 'inventory_unit_cost-error' : undefined}
-                                                    className={`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-lg text-xs font-mono font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${
+                                                    className={`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm font-mono font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${
                                                         errors.unit_cost ? 'border-red-300 dark:border-red-700' : 'border-gray-300 dark:border-slate-700'
                                                     }`}
                                                 />
@@ -521,7 +536,7 @@ export default function InventoryFormModal({
                                             </div>
 
                                             <div>
-                                                <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                                     Batch Total
                                                 </label>
                                                 <div className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700 rounded-lg text-xs font-mono font-bold text-gray-900 dark:text-slate-100 flex items-center justify-between">
@@ -536,20 +551,20 @@ export default function InventoryFormModal({
                         )}
                     </div>
 
-                    {/* Modal Footer Actions - Obvious Primary Action (Image 2 style) */}
-                    <div className="px-5 py-3.5 bg-gray-50/80 dark:bg-slate-950/60 border-t border-gray-200/80 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+                    {/* Keep actions visible while the form body scrolls. */}
+                    <div className="shrink-0 px-6 py-4 sm:px-8 bg-gray-50/80 dark:bg-slate-950/60 border-t border-gray-200/80 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={processing}
-                            className="w-full sm:w-auto px-4 py-2 text-xs font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none transition-colors disabled:opacity-50 text-center cursor-pointer"
+                            className="w-full sm:w-auto px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none transition-colors disabled:opacity-50 text-center cursor-pointer"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={processing}
-                            className="w-full sm:w-auto px-6 py-2 text-xs font-semibold text-white bg-red-950 hover:bg-red-900 rounded-xl transition-all shadow-xs hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-1.5 cursor-pointer"
+                            className="w-full sm:w-auto px-6 py-2.5 text-sm font-semibold text-white bg-red-950 hover:bg-red-900 rounded-xl transition-all shadow-xs hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                             {processing ? (
                                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
