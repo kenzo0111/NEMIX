@@ -156,6 +156,7 @@ export interface DashboardPageProps {
     criticalStock?: CriticalStockItem[];
     lowStockAlerts?: CriticalStockItem[];
     rfidSummary?: RfidSummary;
+    showRfidAlert?: boolean;
     supplierSummary?: SupplierSummary;
     complianceSummary?: ComplianceSummary;
     recentActivity?: RecentActivity[];

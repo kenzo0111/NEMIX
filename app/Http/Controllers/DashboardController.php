@@ -49,6 +49,7 @@ class DashboardController
             'recentIssuance' => $recentIssuance,
             'criticalStock' => $criticalStock,
             'rfidSummary' => $rfidSummary,
+            'showRfidAlert' => $request->user()->hasAnyRole(['System Admin', 'System Administrator', 'Property Staff']),
             'supplierSummary' => $supplierSummary,
             'complianceSummary' => $complianceSummary,
             'recentActivity' => $recentActivity,

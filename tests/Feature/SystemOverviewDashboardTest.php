@@ -81,6 +81,36 @@ class SystemOverviewDashboardTest extends TestCase
         );
     }
 
+    public function test_rfid_alert_is_visible_only_to_admin_and_property_staff_roles(): void
+    {
+        $this->item->update(['rfid_tag' => null]);
+
+        foreach ([
+            [['System Admin'], true],
+            [['System Administrator'], true],
+            [['Property Staff'], true],
+            [['Supply Coordinator'], false],
+            [['Property Custodian'], false],
+            [['RFID Operator'], false],
+            [[], false],
+            [['Supply Coordinator', 'Property Staff'], true],
+        ] as [$roles, $expected]) {
+            $user = User::factory()->create(['is_active' => true]);
+            foreach ($roles as $role) {
+                $user->assignRole(Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']));
+            }
+            // Scanner access by itself must not enable this role-specific notification.
+            $user->givePermissionTo(\Spatie\Permission\Models\Permission::firstOrCreate([
+                'name' => 'route:rfid-scanner.index', 'guard_name' => 'web',
+            ]));
+
+            $this->actingAs($user)->get(route('dashboard'))->assertOk()
+                ->assertInertia(fn (Assert $page) => $page
+                    ->where('showRfidAlert', $expected)
+                    ->where('rfidSummary.untagged', 1));
+        }
+    }
+
     public function test_dashboard_authoritatively_reflects_rfid_coverage(): void
     {
         // 1 tagged item exists from setUp

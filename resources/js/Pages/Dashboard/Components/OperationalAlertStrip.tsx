@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import { Radio, ArrowRight, FileText, AlertTriangle } from 'lucide-react';
 
 interface OperationalAlertStripProps {
+    showRfidAlert?: boolean;
     untaggedRfidCount?: number;
     pendingSupplierCount?: number;
     criticalStockCount?: number;
@@ -10,12 +11,14 @@ interface OperationalAlertStripProps {
 }
 
 export default function OperationalAlertStrip({
+    showRfidAlert = false,
     untaggedRfidCount = 0,
     pendingSupplierCount = 0,
     criticalStockCount = 0,
     className = '',
 }: OperationalAlertStripProps) {
-    const hasAlerts = untaggedRfidCount > 0 || pendingSupplierCount > 0;
+    const hasRfidAlert = showRfidAlert && untaggedRfidCount > 0;
+    const hasAlerts = hasRfidAlert || pendingSupplierCount > 0;
 
     if (!hasAlerts) {
         return null;
@@ -24,7 +27,7 @@ export default function OperationalAlertStrip({
     return (
         <section aria-label="System Operational Alerts" className={`w-full space-y-2 ${className}`}>
             {/* 1. Missing RFID Alert */}
-            {untaggedRfidCount > 0 && (
+            {hasRfidAlert && (
                 <div className="bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-800/80 rounded-xl px-3 py-2 sm:px-4 sm:py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-xs">
                     <div className="flex items-center gap-2.5 min-w-0">
                         <div className="p-1 rounded-md bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-300 shrink-0">

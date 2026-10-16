@@ -30,6 +30,7 @@ export default function DashboardIndex({
     criticalStock = [],
     lowStockAlerts = [],
     rfidSummary,
+    showRfidAlert = false,
     supplierSummary,
     complianceSummary,
     recentActivity = [],
@@ -71,6 +72,7 @@ export default function DashboardIndex({
                     
                     {/* Operational Alert Banner (e.g. Missing RFIDs / Supplier accreditation notices) */}
                     <OperationalAlertStrip
+                        showRfidAlert={showRfidAlert}
                         untaggedRfidCount={untaggedRfid}
                         pendingSupplierCount={pendingSuppliers}
                         criticalStockCount={criticalCount}
