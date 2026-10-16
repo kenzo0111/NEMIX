@@ -16,9 +16,10 @@ class InventoryValuationService
     public function getCurrentInventoryValue(): float
     {
         if (class_exists(InventoryBatch::class) && InventoryBatch::whereNull('deleted_at')->exists()) {
-            return round((float) InventoryBatch::whereNull('deleted_at')
-                ->where('quantity_remaining', '>', 0)
-                ->sum(DB::raw('quantity_remaining * COALESCE(unit_cost, 0)')), 2);
+            return round((float) InventoryBatch::query()
+                ->groupBy('item_id')
+                ->selectRaw('item_id, SUM(quantity_remaining * COALESCE(unit_cost, 0)) as balance_value')
+                ->get()->sum(fn ($row) => max(0, (float) $row->balance_value)), 2);
         }
 
         if (class_exists(Item::class)) {
@@ -67,9 +68,9 @@ class InventoryValuationService
             ->select(
                 'supplier_id',
                 DB::raw('SUM(quantity_received * COALESCE(unit_cost, 0)) as total_received_val'),
-                DB::raw('SUM(CASE WHEN quantity_remaining > 0 THEN quantity_remaining * COALESCE(unit_cost, 0) ELSE 0 END) as current_inv_val'),
+                DB::raw('SUM(quantity_remaining * COALESCE(unit_cost, 0)) as current_inv_val'),
                 DB::raw('SUM(quantity_received) as total_rec_qty'),
-                DB::raw('SUM(CASE WHEN quantity_remaining > 0 THEN quantity_remaining ELSE 0 END) as cur_qty'),
+                DB::raw('SUM(quantity_remaining) as cur_qty'),
                 DB::raw('COUNT(id) as total_batches')
             )
             ->get();
@@ -129,10 +130,9 @@ class InventoryValuationService
             return $item ? round((float) $item->stock * (float) ($item->unit_cost ?? 0), 2) : 0.00;
         }
 
-        return round((float) InventoryBatch::where('item_id', $itemId)
+        return max(0, round((float) InventoryBatch::where('item_id', $itemId)
             ->whereNull('deleted_at')
-            ->where('quantity_remaining', '>', 0)
-            ->sum(DB::raw('quantity_remaining * COALESCE(unit_cost, 0)')), 2);
+            ->sum(DB::raw('quantity_remaining * COALESCE(unit_cost, 0)')), 2));
     }
 
     /**
@@ -154,7 +154,6 @@ class InventoryValuationService
         if (class_exists(InventoryBatch::class)) {
             $unassignedCurrent = round((float) InventoryBatch::whereNull('supplier_id')
                 ->whereNull('deleted_at')
-                ->where('quantity_remaining', '>', 0)
                 ->sum(DB::raw('quantity_remaining * COALESCE(unit_cost, 0)')), 2);
 
             $unassignedReceived = round((float) InventoryBatch::whereNull('supplier_id')

@@ -135,9 +135,26 @@ class UpdateSystemSettingsRequest extends FormRequest
             // 3. Units of Issue
             if (array_key_exists('inventory.units_of_issue', $settings)) {
                 $units = $settings['inventory.units_of_issue'];
-                if (! is_array($units)) {
+                if (! is_array($units) || !array_is_list($units) || count($units) < 1 || count($units) > 100) {
                     $v->errors()->add('settings.inventory.units_of_issue', 'Units of issue must be a list of unit names.');
+                } else {
+                    $normalized = [];
+                    foreach ($units as $unit) {
+                        if (!is_string($unit) || trim($unit) === '' || mb_strlen($unit) > 50) {
+                            $v->errors()->add('settings.inventory.units_of_issue', 'Each unit must be a non-empty name of at most 50 characters.');
+                            break;
+                        }
+                        $normalized[] = strtolower(trim($unit));
+                    }
+                    if (count(array_unique($normalized)) !== count($normalized)) {
+                        $v->errors()->add('settings.inventory.units_of_issue', 'Unit names must be unique.');
+                    }
                 }
+            }
+
+            if (array_key_exists('inventory.strict_stock_enforcement', $settings) &&
+                !in_array($settings['inventory.strict_stock_enforcement'], [true, false, 0, 1, '0', '1'], true)) {
+                $v->errors()->add('settings.inventory.strict_stock_enforcement', 'The stock safeguard must be enabled or disabled.');
             }
 
             // 4. RFID debounce & mode

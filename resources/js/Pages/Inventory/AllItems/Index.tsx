@@ -26,6 +26,8 @@ export default function AllItemsIndex({
     pagination,
     filters,
     lowStockThreshold = 10,
+    criticalStockThreshold = 3,
+    unitsOfIssue = [],
 }: AllItemsProps) {
     const { flash } = usePage<AllItemsPageProps>().props;
     const user = auth?.user;
@@ -402,6 +404,8 @@ export default function AllItemsIndex({
                 suppliers={suppliers}
                 existingItems={initialItems}
                 lowStockThreshold={lowStockThreshold}
+                criticalStockThreshold={criticalStockThreshold}
+                unitsOfIssue={unitsOfIssue}
                 onClose={() => {
                     if (!processing) {
                         setIsFormOpen(false);

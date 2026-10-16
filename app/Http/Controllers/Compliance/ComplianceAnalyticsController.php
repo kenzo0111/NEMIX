@@ -19,7 +19,6 @@ class ComplianceAnalyticsController extends Controller
         $batchItemValuations = [];
         if (class_exists(InventoryBatch::class) && InventoryBatch::whereNull('deleted_at')->exists()) {
             $batchItemValuations = InventoryBatch::whereNull('deleted_at')
-                ->where('quantity_remaining', '>', 0)
                 ->groupBy('item_id')
                 ->select('item_id', DB::raw('SUM(quantity_remaining * COALESCE(unit_cost, 0)) as total_val'))
                 ->pluck('total_val', 'item_id')
@@ -38,7 +37,7 @@ class ComplianceAnalyticsController extends Controller
                     'sku' => $item->sku ?? 'No SKU',
                     'stock' => (int) $item->stock,
                     'unitCost' => (float) ($item->unit_cost ?? 0),
-                    'amount' => round($itemAmount, 2),
+                    'amount' => max(0, round($itemAmount, 2)),
                     'status' => $item->status,
                     'unitOfIssue' => $item->unit_of_issue ?? 'Pcs',
                     'description' => $item->description,
@@ -54,7 +53,7 @@ class ComplianceAnalyticsController extends Controller
         $stats = [
             'totalItems' => $items->count(),
             'totalStock' => (int) $items->sum('stock'),
-            'lowStockAlerts' => (int) $items->where('status', 'Low Stock')->count(),
+            'lowStockAlerts' => (int) $items->whereIn('status', ['Low Stock', 'Critical Stock'])->count(),
             'outOfStock' => (int) $items->where('status', 'Out of Stock')->count(),
             'totalValue' => '₱' . number_format($totalInventoryValuation, 2),
             'highestConsumable' => data_get($items->sortByDesc('stock')->first(), 'name', 'N/A'),
@@ -62,7 +61,7 @@ class ComplianceAnalyticsController extends Controller
         ];
 
         $lowStockItems = $items
-            ->where('status', 'Low Stock')
+            ->whereIn('status', ['Low Stock', 'Critical Stock'])
             ->take(6)
             ->values()
             ->map(function ($item) {
@@ -79,6 +78,7 @@ class ComplianceAnalyticsController extends Controller
         $statusCounts = [
             'Available' => (int) $items->where('status', 'Available')->count(),
             'Low Stock' => (int) $items->where('status', 'Low Stock')->count(),
+            'Critical Stock' => (int) $items->where('status', 'Critical Stock')->count(),
             'Out of Stock' => (int) $items->where('status', 'Out of Stock')->count(),
         ];
 
@@ -143,7 +143,7 @@ class ComplianceAnalyticsController extends Controller
             : 10;
 
         $lowStockChartItems = $items
-            ->where('status', 'Low Stock')
+            ->whereIn('status', ['Low Stock', 'Critical Stock'])
             ->take(6)
             ->values()
             ->map(function ($item) use ($lowStockThreshold) {
@@ -172,6 +172,7 @@ class ComplianceAnalyticsController extends Controller
                     'statusSeries' => [
                         ['label' => 'Available', 'value' => $statusCounts['Available'], 'color' => '#059669'],
                         ['label' => 'Low Stock', 'value' => $statusCounts['Low Stock'], 'color' => '#f59e0b'],
+                        ['label' => 'Critical Stock', 'value' => $statusCounts['Critical Stock'], 'color' => '#dc2626'],
                         ['label' => 'Out of Stock', 'value' => $statusCounts['Out of Stock'], 'color' => '#dc2626'],
                     ],
                 ],

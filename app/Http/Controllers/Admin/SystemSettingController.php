@@ -187,6 +187,9 @@ class SystemSettingController extends Controller
                         }
                     }
                 }
+                if (array_intersect($updatedKeys, ['inventory.low_stock_threshold', 'inventory.critical_stock_threshold'])) {
+                    \Modules\Inventory\Services\InventoryPolicy::refreshStatuses();
+                }
             });
         } finally {
             AuditGroupContext::stop();

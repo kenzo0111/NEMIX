@@ -4,7 +4,7 @@ import Select from 'react-select';
 import axios from 'axios';
 import { X, Loader2, Lock, PackagePlus, Edit3, ChevronDown, ChevronUp, Check, AlertCircle } from 'lucide-react';
 import { Supplier, InventoryItem, SelectOption } from '../types';
-import { UNIT_OF_ISSUE_OPTIONS, customSelectStyles } from '../constants';
+import { customSelectStyles } from '../constants';
 import { computeStatusFromStock } from '../utils/inventory';
 
 export interface InventoryFormData {
@@ -30,6 +30,8 @@ interface InventoryFormModalProps {
     suppliers: Supplier[];
     existingItems: InventoryItem[];
     lowStockThreshold?: number;
+    criticalStockThreshold?: number;
+    unitsOfIssue: string[];
     onClose: () => void;
     onSubmit: (e: React.FormEvent) => void;
     onViewExistingItem?: (item: InventoryItem) => void;
@@ -45,6 +47,8 @@ export default function InventoryFormModal({
     suppliers = [],
     existingItems = [],
     lowStockThreshold = 10,
+    criticalStockThreshold = 3,
+    unitsOfIssue,
     onClose,
     onSubmit,
     onViewExistingItem,
@@ -117,8 +121,8 @@ export default function InventoryFormModal({
 
     // Automatically recalculate status preview on stock level change
     useEffect(() => {
-        setData('status', computeStatusFromStock(data.stock, lowStockThreshold));
-    }, [data.stock, lowStockThreshold]);
+        setData('status', computeStatusFromStock(data.stock, lowStockThreshold, criticalStockThreshold));
+    }, [data.stock, lowStockThreshold, criticalStockThreshold]);
 
     const supplierOptions: SelectOption<number>[] = suppliers.map((s) => ({
         value: s.id,
@@ -129,7 +133,11 @@ export default function InventoryFormModal({
         (opt) => String(opt.value) === String(data.supplier_id)
     ) || null;
 
-    const selectedUnitOption = UNIT_OF_ISSUE_OPTIONS.find(
+    const unitOptions = unitsOfIssue.map((unit) => ({ value: unit, label: unit }));
+    if (isEditing && data.unit_of_issue && !unitsOfIssue.includes(data.unit_of_issue)) {
+        unitOptions.push({ value: data.unit_of_issue, label: `${data.unit_of_issue} (existing unit)` });
+    }
+    const selectedUnitOption = unitOptions.find(
         (opt) => opt.value === data.unit_of_issue
     ) || null;
 
@@ -271,7 +279,7 @@ export default function InventoryFormModal({
                                         aria-describedby={errors.unit_of_issue ? 'inventory_unit_of_issue-error' : undefined}
                                         value={selectedUnitOption}
                                         onChange={(opt) => setData('unit_of_issue', opt ? opt.value : '')}
-                                        options={UNIT_OF_ISSUE_OPTIONS}
+                                        options={unitOptions}
                                         placeholder="Select unit (e.g. ream, piece, box)..."
                                         styles={customSelectStyles}
                                         isClearable

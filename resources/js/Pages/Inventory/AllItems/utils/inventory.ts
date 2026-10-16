@@ -29,10 +29,12 @@ export const generateSkuPreview = (
 
 export const computeStatusFromStock = (
     stock: string | number | null | undefined,
-    lowStockThreshold: number = 10
+    lowStockThreshold: number = 10,
+    criticalStockThreshold: number = 3
 ): InventoryStatus => {
     const quantity = Number(stock ?? 0);
     if (quantity <= 0) return 'Out of Stock';
+    if (quantity <= Math.min(criticalStockThreshold, lowStockThreshold)) return 'Critical Stock';
     if (quantity <= lowStockThreshold) return 'Low Stock';
     return 'Available';
 };

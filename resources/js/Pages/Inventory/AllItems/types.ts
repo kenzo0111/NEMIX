@@ -10,7 +10,7 @@ export interface Supplier {
     status?: string | null;
 }
 
-export type InventoryStatus = 'Available' | 'Low Stock' | 'Out of Stock';
+export type InventoryStatus = 'Available' | 'Low Stock' | 'Critical Stock' | 'Out of Stock';
 
 export interface ReceivingBatchRecord {
     id: number;
@@ -96,6 +96,8 @@ export type AllItemsPageProps = BasePageProps<{
     pagination?: PaginationMeta;
     filters?: FilterState;
     lowStockThreshold?: number;
+    criticalStockThreshold?: number;
+    unitsOfIssue?: string[];
 }>;
 
 export type AllItemsProps = AllItemsPageProps;

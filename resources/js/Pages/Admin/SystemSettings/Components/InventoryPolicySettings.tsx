@@ -178,7 +178,7 @@ export default function InventoryPolicySettings({
                             Prevent issuance resulting in negative stock
                         </label>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-                            Strictly disallows approvals or issuances when requested quantities exceed available on-hand physical balance.
+                            When enabled, blocks approvals and issuances that exceed unreserved stock. When disabled, permits shortages and records a negative stock balance.
                         </p>
                     </div>
                 </div>

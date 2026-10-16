@@ -45,12 +45,11 @@ class InventoryBalanceService
 
             $totalValue = (float) ($item->batches()
                 ->whereNull('deleted_at')
-                ->where('quantity_remaining', '>', 0)
                 ->selectRaw('COALESCE(SUM(quantity_remaining * unit_cost), 0) as val')
                 ->value('val') ?? 0.00);
 
             $item->stock = $totalRemaining;
-            $item->amount = round($totalValue, 2);
+            $item->amount = max(0, round($totalValue, 2));
 
             // Keep unit_cost as latest/average reference if active batches exist
             $latestBatch = $item->batches()
@@ -78,6 +77,10 @@ class InventoryBalanceService
     {
         if ($stock <= 0) {
             return 'Out of Stock';
+        }
+
+        if ($stock <= InventoryPolicy::criticalThreshold()) {
+            return 'Critical Stock';
         }
 
         $lowStockThreshold = class_exists(SystemSetting::class)

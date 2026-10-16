@@ -152,6 +152,8 @@ class InventoryController extends Controller
             ],
             'suppliers' => $suppliersQuery->get(['id', 'name']),
             'lowStockThreshold' => $lowStockThreshold,
+            'criticalStockThreshold' => \Modules\Inventory\Services\InventoryPolicy::criticalThreshold(),
+            'unitsOfIssue' => \Modules\Inventory\Services\InventoryPolicy::units(),
         ]);
     }
 
@@ -217,9 +219,9 @@ class InventoryController extends Controller
             'stock' => ['nullable', 'integer', 'min:0', 'max:1000000'],
             'unit_cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
-            'status' => ['nullable', 'string', 'in:Available,Low Stock,Out of Stock'],
+            'status' => ['nullable', 'string', 'in:Available,Low Stock,Critical Stock,Out of Stock'],
             'description' => ['nullable', 'string', 'max:2000'],
-            'unit_of_issue' => ['nullable', 'string', 'max:255'],
+            'unit_of_issue' => ['nullable', 'string', 'max:255', \Modules\Inventory\Services\InventoryPolicy::unitRule()],
         ]);
 
         // 1. Canonical Duplicate Detection
@@ -308,12 +310,12 @@ class InventoryController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'supplier_id' => ['nullable', 'integer', 'exists:suppliers,id'],
             'sku' => ['nullable', 'string', 'max:255', 'unique:items,sku,' . $inventory->id],
-            'stock' => ['nullable', 'integer', 'min:0', 'max:1000000'],
+            'stock' => [\Illuminate\Validation\Rule::excludeIf($inventory->batches()->exists()), 'nullable', 'integer', 'min:0', 'max:1000000'],
             'unit_cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
-            'status' => ['nullable', 'string', 'in:Available,Low Stock,Out of Stock'],
+            'status' => ['nullable', 'string', 'in:Available,Low Stock,Critical Stock,Out of Stock'],
             'description' => ['nullable', 'string', 'max:2000'],
-            'unit_of_issue' => ['nullable', 'string', 'max:255'],
+            'unit_of_issue' => ['nullable', 'string', 'max:255', \Modules\Inventory\Services\InventoryPolicy::unitRule($inventory->unit_of_issue)],
         ]);
 
         // Duplicate check (excluding current item)

@@ -12,6 +12,7 @@ class LowStockNotification extends Notification
         public readonly ?string $sku,
         public readonly int $stock,
         public readonly int $threshold,
+        public readonly bool $critical = false,
     ) {}
 
     public function via(object $notifiable): array
@@ -21,14 +22,15 @@ class LowStockNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        $severity = $this->critical ? 'Critical-stock' : 'Low-stock';
         return (new MailMessage)
-            ->subject('Low-stock warning: '.$this->itemName)
-            ->greeting('Low-stock warning')
-            ->line('An inventory item has reached the low-stock threshold.')
+            ->subject($severity.' warning: '.$this->itemName)
+            ->greeting($severity.' warning')
+            ->line($this->critical ? 'An inventory item requires immediate replenishment.' : 'An inventory item has reached the low-stock threshold.')
             ->line('Item: '.$this->itemName)
             ->line('SKU: '.($this->sku ?: 'N/A'))
             ->line('Current balance: '.$this->stock)
-            ->line('Low-stock threshold: '.$this->threshold)
+            ->line(($this->critical ? 'Critical-stock' : 'Low-stock').' threshold: '.$this->threshold)
             ->action('View inventory', route('inventory.index'));
     }
 }

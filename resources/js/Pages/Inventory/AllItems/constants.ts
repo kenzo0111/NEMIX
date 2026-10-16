@@ -1,25 +1,9 @@
 import { SelectOption, InventoryStatus } from './types';
 
-export const UNIT_OF_ISSUE_OPTIONS: SelectOption<string>[] = [
-    { value: 'piece', label: 'piece' },
-    { value: 'box', label: 'box' },
-    { value: 'pack', label: 'pack' },
-    { value: 'ream', label: 'ream' },
-    { value: 'sheet', label: 'sheet' },
-    { value: 'roll', label: 'roll' },
-    { value: 'set', label: 'set' },
-    { value: 'carton', label: 'carton' },
-    { value: 'bottle', label: 'bottle' },
-    { value: 'tube', label: 'tube' },
-    { value: 'unit', label: 'unit' },
-    { value: 'bundle', label: 'bundle' },
-    { value: 'crate', label: 'crate' },
-    { value: 'packets', label: 'packets' },
-];
-
 export const STATUS_OPTIONS: SelectOption<InventoryStatus>[] = [
     { value: 'Available', label: 'Available' },
     { value: 'Low Stock', label: 'Low Stock' },
+    { value: 'Critical Stock', label: 'Critical Stock' },
     { value: 'Out of Stock', label: 'Out of Stock' },
 ];
 

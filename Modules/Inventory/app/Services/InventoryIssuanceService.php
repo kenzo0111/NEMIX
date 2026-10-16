@@ -66,7 +66,7 @@ class InventoryIssuanceService
             foreach ($condensed as $itemId => $qty) {
                 $item = $lockedItems->get($itemId);
                 $reserved = $item ? SupplyRequestService::reservedQuantity($itemId, $data['supply_request_id'] ?? null) : 0;
-                if (!$item || $item->stock - $reserved < $qty) {
+                if (!$item || ($strict && $item->stock - $reserved < $qty)) {
                     $available = $item ? $item->stock : 0;
                     $name = $item ? $item->name : "Item #{$itemId}";
                     throw ValidationException::withMessages([
@@ -309,7 +309,7 @@ class InventoryIssuanceService
                 foreach ($condensed as $itemId => $qty) {
                     $item = $lockedItems->get($itemId);
                     $reserved = $item ? SupplyRequestService::reservedQuantity($itemId) : 0;
-                    if (!$item || $item->stock - $reserved < $qty) {
+                    if (!$item || ($strict && $item->stock - $reserved < $qty)) {
                         $available = $item ? $item->stock : 0;
                         $name = $item ? $item->name : "Item #{$itemId}";
                         throw ValidationException::withMessages([

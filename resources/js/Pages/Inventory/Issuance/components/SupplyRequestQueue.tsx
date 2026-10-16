@@ -1,5 +1,6 @@
+import { PageProps } from '@/types';
 import React, { useState, useMemo, useEffect } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import {
     CheckCircle2,
     XCircle,
@@ -67,6 +68,7 @@ export function SupplyRequestQueue({
     focusRequestId?: number | null;
 }) {
     const { can } = useAuthorization();
+    const strictStock = usePage<PageProps>().props.system?.settings?.['inventory.strict_stock_enforcement'] !== false;
     const canApprove = can('inventory.requests.approve');
     const canReject = can('inventory.requests.reject');
     const canRelease = can('inventory.requests.release');
@@ -644,7 +646,7 @@ export function SupplyRequestQueue({
                                         <div className="pt-3 border-t border-gray-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-[11px] text-gray-500 font-sans">
-                                                    Ensure adjusted quantities reflect physically ready stock before approving.
+                                                    {strictStock ? 'Ensure adjusted quantities reflect physically ready stock before approving.' : 'Stock safeguard is disabled. Releasing more than available records a negative stock balance.'}
                                                 </span>
                                             </div>
 

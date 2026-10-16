@@ -15,7 +15,10 @@ class LowStockAlertService
     public function scheduleIfThresholdCrossed(Item $item, int $previousStock, int $currentStock): void
     {
         $threshold = (int) SystemSetting::get('inventory.low_stock_threshold', 10);
-        if ($previousStock <= $threshold || $currentStock > $threshold ||
+        $criticalThreshold = InventoryPolicy::criticalThreshold();
+        $critical = $previousStock > $criticalThreshold && $currentStock <= $criticalThreshold;
+        $low = $previousStock > $threshold && $currentStock <= $threshold;
+        if ((!$low && !$critical) ||
             ! (bool) SystemSetting::get('mail.low_stock_email_alerts', true)) {
             return;
         }
@@ -38,10 +41,10 @@ class LowStockAlertService
         $itemId = $item->id;
         $itemName = $item->name;
         $sku = $item->sku;
-        DB::afterCommit(function () use ($recipient, $itemId, $itemName, $sku, $currentStock, $threshold): void {
+        DB::afterCommit(function () use ($recipient, $itemId, $itemName, $sku, $currentStock, $threshold, $criticalThreshold, $critical): void {
             try {
                 Notification::route('mail', $recipient)
-                    ->notify(new LowStockNotification($itemName, $sku, $currentStock, $threshold));
+                    ->notify(new LowStockNotification($itemName, $sku, $currentStock, $critical ? $criticalThreshold : $threshold, $critical));
             } catch (\Throwable $exception) {
                 Log::error('Low-stock email delivery failed.', [
                     'item_id' => $itemId,

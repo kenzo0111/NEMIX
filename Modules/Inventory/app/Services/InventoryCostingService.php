@@ -77,13 +77,26 @@ class InventoryCostingService
             $remainingToAllocate -= $take;
         }
 
-        // If batches didn't exist or didn't cover the full quantity (e.g. legacy items without full batch history)
+        // Preserve an allowed shortfall as a signed batch with a reversible allocation.
+        // Subsequent receipts offset this balance instead of erasing the shortage.
         if ($remainingToAllocate > 0) {
+            if ($strictEnforcement) {
+                throw ValidationException::withMessages(['quantity' => 'Available batches cannot cover the requested quantity.']);
+            }
             $unitCost = (float) ($item->unit_cost ?? 0.00);
             $amount = round($remainingToAllocate * $unitCost, 2);
+            $shortfall = InventoryBatch::create([
+                'item_id' => $item->id,
+                'supplier_id' => $item->supplier_id,
+                'quantity_received' => 0,
+                'quantity_remaining' => -$remainingToAllocate,
+                'unit_cost' => $unitCost,
+                'date_received' => now()->toDateString(),
+                'created_by' => auth()->id(),
+            ]);
             $allocations[] = [
-                'batch' => null,
-                'batch_id' => null,
+                'batch' => $shortfall,
+                'batch_id' => $shortfall->id,
                 'quantity' => $remainingToAllocate,
                 'unit_cost' => $unitCost,
                 'amount' => $amount,

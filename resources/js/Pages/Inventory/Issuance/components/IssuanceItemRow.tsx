@@ -1,3 +1,5 @@
+import { usePage } from '@inertiajs/react';
+import { PageProps } from '@/types';
 import React from 'react';
 import Select from 'react-select';
 import { InventoryItem, IssuanceLine } from '../types';
@@ -28,6 +30,7 @@ export const IssuanceItemRow: React.FC<IssuanceItemRowProps> = ({
     errorItem,
     errorQuantity,
 }) => {
+    const strictStock = usePage<PageProps>().props.system?.settings?.['inventory.strict_stock_enforcement'] !== false;
     const currentItemId = Number(itemLine.item_id);
     const selectedItem = items.find((i) => i.id === currentItemId) || null;
 
@@ -94,7 +97,7 @@ export const IssuanceItemRow: React.FC<IssuanceItemRowProps> = ({
                     <input
                         type="number"
                         min="1"
-                        max={selectedItem ? selectedItem.stock : 1000000}
+                        max={strictStock && selectedItem ? Math.max(0, selectedItem.stock) : 1000000}
                         value={itemLine.quantity}
                         onChange={(e) => onChangeQuantity(index, e.target.value)}
                         placeholder="Qty"

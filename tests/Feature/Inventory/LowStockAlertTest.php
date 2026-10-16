@@ -55,6 +55,24 @@ class LowStockAlertTest extends TestCase
         Notification::assertNothingSent();
     }
 
+    public function test_critical_crossing_escalates_once_after_low_stock_warning(): void
+    {
+        Notification::fake();
+        SystemSetting::set('inventory.low_stock_threshold', 10);
+        SystemSetting::set('inventory.critical_stock_threshold', 5);
+        SystemSetting::set('mail.low_stock_email_alerts', true);
+        SystemSetting::set('mail.alert_recipient_email', 'alerts@example.com');
+        $item = $this->item();
+        $item->update(['stock' => 9]);
+        $item->update(['stock' => 5]);
+        Notification::assertSentOnDemand(LowStockNotification::class, fn ($notice) => $notice->critical && $notice->threshold === 5);
+        $item->update(['stock' => 4]);
+        Notification::assertSentOnDemand(LowStockNotification::class, 2);
+        $item->update(['stock' => 8]);
+        $item->update(['stock' => 5]);
+        Notification::assertSentOnDemand(LowStockNotification::class, 3);
+    }
+
     public function test_blank_recipient_uses_active_system_administrator(): void
     {
         Notification::fake();

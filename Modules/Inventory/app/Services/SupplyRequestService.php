@@ -93,7 +93,7 @@ class SupplyRequestService
                     throw ValidationException::withMessages(['approved_quantities' => 'Approved quantities must be between zero and the requested quantity.']);
                 }
                 $item = $items->get($line->item_id);
-                if (!$item || $quantity > $item->stock - self::reservedQuantity($line->item_id, $revising ? $request->id : null)) {
+                if (!$item || (InventoryPolicy::strict() && $quantity > $item->stock - self::reservedQuantity($line->item_id, $revising ? $request->id : null))) {
                     throw ValidationException::withMessages(['approved_quantities' => "Not enough unreserved stock for {$item?->name}. Please adjust the approved quantity."]);
                 }
                 $line->update(['approved_quantity' => $quantity]);

@@ -41,17 +41,9 @@ class DashboardService
             ? (int) DB::table(DB::raw('(select distinct recipient, date_issued, status, issued_by, created_at from issuances) as distinct_issuances'))->count()
             : 0;
 
-        $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
-            ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
-            : 10;
-
         $criticalAlertsCount = class_exists(\Modules\Inventory\Models\Item::class)
-            ? (int) \Modules\Inventory\Models\Item::where(function ($q) use ($lowStockThreshold) {
-                $q->where('status', 'Low Stock')
-                    ->orWhere(function ($sub) use ($lowStockThreshold) {
-                        $sub->where('stock', '<=', $lowStockThreshold)->where('stock', '>', 0);
-                    });
-            })->count()
+            ? (int) \Modules\Inventory\Models\Item::where('stock', '>', 0)
+                ->where('stock', '<=', \Modules\Inventory\Services\InventoryPolicy::criticalThreshold())->count()
             : 0;
 
         $unserviceableCount = class_exists(\Modules\Inventory\Models\Item::class)
@@ -311,7 +303,7 @@ class DashboardService
             : 10;
 
         return \Modules\Inventory\Models\Item::where(function ($q) use ($lowStockThreshold) {
-                $q->where('status', 'Low Stock')
+                $q->whereIn('status', ['Low Stock', 'Critical Stock'])
                     ->orWhere('status', 'Out of Stock')
                     ->orWhere('stock', '<=', $lowStockThreshold);
             })
@@ -319,7 +311,7 @@ class DashboardService
             ->take($limit)
             ->get()
             ->map(function ($item) use ($lowStockThreshold) {
-                $criticalCutoff = max(1, (int) round($lowStockThreshold / 2));
+                $criticalCutoff = \Modules\Inventory\Services\InventoryPolicy::criticalThreshold();
                 $priority = $item->stock <= 0 ? 'Critical' : ($item->stock <= $criticalCutoff ? 'Critical' : 'Low');
                 return [
                     'id' => $item->id,

@@ -159,10 +159,9 @@ class Item extends Model
     public function getInventoryValueAttribute(): float
     {
         if (class_exists(InventoryBatch::class) && $this->batches()->exists()) {
-            return (float) ($this->batches()
-                ->where('quantity_remaining', '>', 0)
+            return max(0, (float) ($this->batches()
                 ->selectRaw('COALESCE(SUM(quantity_remaining * unit_cost), 0) as total_val')
-                ->value('total_val') ?? 0.00);
+                ->value('total_val') ?? 0.00));
         }
 
         return (float) ($this->amount ?? ((float) $this->stock * (float) ($this->unit_cost ?? 0)));

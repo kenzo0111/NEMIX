@@ -15,6 +15,10 @@ export default function InventoryStatus({ status }: InventoryStatusProps) {
             dot: 'bg-amber-500',
             text: 'text-amber-800 dark:text-amber-300',
         },
+        'Critical Stock': {
+            dot: 'bg-orange-600',
+            text: 'text-orange-800 dark:text-orange-300',
+        },
         'Out of Stock': {
             dot: 'bg-red-500',
             text: 'text-red-800 dark:text-red-400',
