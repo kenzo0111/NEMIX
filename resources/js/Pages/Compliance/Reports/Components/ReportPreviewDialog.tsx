@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useRef, useEffect, useState } from 'react';
+import { notify, notificationError } from '@/utils/notifications';
 import Modal from '@/Components/Modal';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { getReportTypeLabel } from '../constants';
@@ -117,8 +118,9 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                 endDate: report.endDate || report.end_date,
                 payload: report.payload,
             });
+            notify({ type: 'success', message: 'Report PDF generated. Check your browser downloads.' });
         } catch (error) {
-            console.error('Failed to generate compliance PDF:', error);
+            notify({ type: 'error', message: notificationError(error, 'Unable to generate the report PDF. Try again; if the problem continues, use Print Form to save a PDF.') });
         } finally {
             setIsDownloading(false);
         }

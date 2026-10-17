@@ -39,7 +39,6 @@ export default function UpdateProfileInformationCard({
         patch,
         errors,
         processing,
-        recentlySuccessful,
         reset,
         isDirty,
         clearErrors,
@@ -174,13 +173,6 @@ export default function UpdateProfileInformationCard({
                     </div>
 
                     <div className="p-6 sm:p-7">
-                        {/* Success Feedback Banner */}
-                        {recentlySuccessful && (
-                            <div className="mb-6 p-3.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 text-emerald-900 dark:text-emerald-300 flex items-center gap-2.5 text-xs font-medium">
-                                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                                <span>Profile information updated successfully. System records reflect the latest values.</span>
-                            </div>
-                        )}
 
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Editable Fields */}

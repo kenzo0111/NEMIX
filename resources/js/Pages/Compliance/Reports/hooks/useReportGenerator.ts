@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { notify, notificationError } from '@/utils/notifications';
 import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { getLocalDateString } from '@/utils/dateUtils';
@@ -103,7 +104,7 @@ export function useReportGenerator(
             }
             return false;
         } catch (err) {
-            console.error('Failed to fetch authoritative preview dataset:', err);
+            notify({ type: 'error', message: notificationError(err, 'Unable to preview this report. Check the reporting criteria and try again.') });
             return false;
         } finally {
             setIsLoadingPreview(false);

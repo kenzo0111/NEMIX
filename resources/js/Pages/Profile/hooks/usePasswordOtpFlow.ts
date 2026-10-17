@@ -1,3 +1,4 @@
+import { notify, notificationError } from '@/utils/notifications';
 import { useState, useEffect, useRef, FormEventHandler, KeyboardEvent, ClipboardEvent } from 'react';
 import axios from 'axios';
 import { PasswordStep, FieldErrors } from '../types';
@@ -145,8 +146,10 @@ export function usePasswordOtpFlow({ userEmail }: UsePasswordOtpFlowOptions = {}
                 setIsVerifyingSuccess(false);
                 setIsRateLimited(false);
                 setStep('otp');
+                notify({ type: 'info', message: 'Verification code sent. Check your registered email.' });
             }
         } catch (err: any) {
+            notify({ type: 'error', message: notificationError(err, 'Unable to complete this security action. Check the form and try again.') });
             const resData = err.response?.data;
             const status = err.response?.status;
 
@@ -273,9 +276,11 @@ export function usePasswordOtpFlow({ userEmail }: UsePasswordOtpFlowOptions = {}
                     setOtpDigits(['', '', '', '', '', '']);
                     setIsVerifyingSuccess(false);
                     setStep('success');
+                    notify({ type: 'success', message: 'Your password has been changed successfully.' });
                 }, 600);
             }
         } catch (err: any) {
+            notify({ type: 'error', message: notificationError(err, 'Unable to complete this security action. Check the form and try again.') });
             const resData = err.response?.data;
             const status = err.response?.status;
 
@@ -324,6 +329,7 @@ export function usePasswordOtpFlow({ userEmail }: UsePasswordOtpFlowOptions = {}
             });
 
             if (response.data?.success) {
+                notify({ type: 'info', message: 'A new verification code has been sent.' });
                 setResendCooldown(response.data.resend_available_in || 60);
                 if (response.data.expires_at) {
                     setExpiresAt(new Date(response.data.expires_at));
@@ -340,6 +346,7 @@ export function usePasswordOtpFlow({ userEmail }: UsePasswordOtpFlowOptions = {}
                 }, 100);
             }
         } catch (err: any) {
+            notify({ type: 'error', message: notificationError(err, 'Unable to complete this security action. Check the form and try again.') });
             const resData = err.response?.data;
             if (resData?.rate_limited) {
                 setIsRateLimited(true);

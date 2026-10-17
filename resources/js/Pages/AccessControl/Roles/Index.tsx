@@ -1,5 +1,6 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { Head, usePage } from '@inertiajs/react';
+import { notify } from '@/utils/notifications';
+import React, { useState, useMemo, useCallback } from 'react';
+import { Head } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -9,7 +10,6 @@ import {
     ManageRolePermissionPageProps,
     Role,
     RoleCapabilities,
-    NotificationState,
 } from './types';
 import { groupPermissionsByModule, normalizePermission } from './permissionMetadata';
 import AccessControlSummary from './Components/AccessControlSummary';
@@ -17,7 +17,6 @@ import RoleTable from './Components/RoleTable';
 import CreateRoleDialog from './Components/CreateRoleDialog';
 import EditRoleDialog from './Components/EditRoleDialog';
 import DeleteRoleDialog from './Components/DeleteRoleDialog';
-import RoleNotification from './Components/RoleNotification';
 import useAuthorization from '@/Hooks/useAuthorization';
 
 export default function RoleManagementIndex({
@@ -27,7 +26,6 @@ export default function RoleManagementIndex({
     assignablePermissionIds,
     capabilities: providedCapabilities,
 }: ManageRolePermissionPageProps) {
-    const { flash } = usePage<ManageRolePermissionPageProps>().props;
     const user = auth?.user;
 
     // Sidebar collapse state with synchronized hook
@@ -78,25 +76,10 @@ export default function RoleManagementIndex({
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
 
-    // Unified transient notification
-    const [notification, setNotification] = useState<NotificationState | null>(null);
-
-    useEffect(() => {
-        if (flash?.error) {
-            setNotification({ type: 'error', message: flash.error });
-        } else if (flash?.warning) {
-            setNotification({ type: 'warning', message: flash.warning });
-        } else if (flash?.success) {
-            setNotification({ type: 'success', message: flash.success });
-        } else if (flash?.status) {
-            setNotification({ type: 'info', message: flash.status });
-        }
-    }, [flash]);
-
     // Handlers
     const handleOpenCreate = () => {
         if (!capabilities.canCreate) {
-            setNotification({
+            notify({
                 type: 'warning',
                 message: 'You do not have administrative permission to create roles.',
             });
@@ -107,11 +90,11 @@ export default function RoleManagementIndex({
 
     const handleOpenEdit = (role: Role) => {
         if (!role.is_editable) {
-            setNotification({ type: 'warning', message: 'This role contains access outside your authority to manage.' });
+            notify({ type: 'warning', message: 'This role contains access outside your authority to manage.' });
             return;
         }
         if (!capabilities.canUpdate) {
-            setNotification({
+            notify({
                 type: 'warning',
                 message: 'You do not have administrative permission to edit roles.',
             });
@@ -128,7 +111,7 @@ export default function RoleManagementIndex({
 
     const handleOpenDelete = (role: Role) => {
         if (role.is_system) {
-            setNotification({
+            notify({
                 type: 'error',
                 message: `System role '${role.name}' is protected and cannot be deleted.`,
             });
@@ -136,7 +119,7 @@ export default function RoleManagementIndex({
         }
 
         if (!role.is_deletable) {
-            setNotification({
+            notify({
                 type: 'warning',
                 message: `Role '${role.name}' cannot be deleted while staff members are assigned to it.`,
             });
@@ -144,7 +127,7 @@ export default function RoleManagementIndex({
         }
 
         if (!capabilities.canDelete) {
-            setNotification({
+            notify({
                 type: 'warning',
                 message: 'You do not have administrative permission to delete roles.',
             });
@@ -189,11 +172,6 @@ export default function RoleManagementIndex({
                 />
 
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
-                    {/* Unified Notification Feedback */}
-                    <RoleNotification
-                        notification={notification}
-                        onDismiss={() => setNotification(null)}
-                    />
 
                     {/* 2. Compact Access Control Summary */}
                     <AccessControlSummary

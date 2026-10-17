@@ -1,3 +1,4 @@
+import { notify } from '@/utils/notifications';
 import React, { useState, useEffect, useRef } from 'react';
 import { usePage, router } from '@inertiajs/react';
 import {
@@ -104,7 +105,6 @@ export default function SystemModeBadge() {
   );
 
   const [isOpen, setIsOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<string>('');
   const [confirmingMode, setConfirmingMode] = useState<SystemModeType | null>(null);
   const [reasonInput, setReasonInput] = useState<string>('');
@@ -158,14 +158,12 @@ export default function SystemModeBadge() {
           setIsSubmitting(false);
           setConfirmingMode(null);
           setIsOpen(false);
-          setToastMessage(`System mode successfully switched to ${confirmingMode}`);
-          setTimeout(() => setToastMessage(null), 4000);
+          notify({ type: 'success', message: `System mode successfully switched to ${confirmingMode}` });
         },
         onError: (errors) => {
           setIsSubmitting(false);
           const errorMsg = errors.mode || errors.reason || 'Failed to switch system operating mode.';
-          setToastMessage(`Error: ${errorMsg}`);
-          setTimeout(() => setToastMessage(null), 5000);
+          notify({ type: 'error', message: errorMsg });
         },
       }
     );
@@ -450,13 +448,6 @@ export default function SystemModeBadge() {
         </div>
       )}
 
-      {/* Floating Notification Toast */}
-      {toastMessage && (
-        <div className="fixed bottom-4 right-4 bg-gray-900 border border-amber-500/50 text-amber-300 text-xs px-4 py-2.5 rounded-lg shadow-2xl z-50 flex items-center gap-2 animate-bounce">
-          <Activity className="w-4 h-4 text-amber-400" />
-          <span className="font-mono">{toastMessage}</span>
-        </div>
-      )}
     </div>
   );
 }

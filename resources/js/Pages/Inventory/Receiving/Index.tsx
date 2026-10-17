@@ -1,5 +1,6 @@
+import { notify } from '@/utils/notifications';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -16,7 +17,6 @@ import { ReceivingTable } from './components/ReceivingTable';
 import { ReceivingFormModal } from './components/ReceivingFormModal';
 import { ReceivingDetailsModal } from './components/ReceivingDetailsModal';
 import { RfidReceivingModal } from './components/RfidReceivingModal';
-import { ReceivingStatusNotice } from './components/ReceivingStatusNotice';
 import { useRfidScanner } from './hooks/useRfidScanner';
 
 export default function ReceivingIndex({
@@ -29,30 +29,6 @@ export default function ReceivingIndex({
 }: ReceivingPageProps) {
     const user = auth.user;
     const [collapsed, handleToggleCollapse] = useSidebarCollapse();
-    const pageProps = usePage().props as any;
-
-    // Flash notifications
-    const [notification, setNotification] = useState<{
-        type: 'success' | 'error';
-        message: string;
-    } | null>(null);
-
-    // Watch for flash messages from backend
-    useEffect(() => {
-        if (pageProps.flash?.success) {
-            setNotification({ type: 'success', message: pageProps.flash.success });
-        } else if (pageProps.flash?.error) {
-            setNotification({ type: 'error', message: pageProps.flash.error });
-        }
-    }, [pageProps.flash]);
-
-    // Auto-dismiss notification after 5 seconds
-    useEffect(() => {
-        if (notification) {
-            const timer = setTimeout(() => setNotification(null), 5000);
-            return () => clearTimeout(timer);
-        }
-    }, [notification]);
 
     // Data normalization (supports PaginatedData from Laravel or raw array)
     const isPaginated =
@@ -276,7 +252,7 @@ export default function ReceivingIndex({
                 onSuccess: () => {
                     setIsFormModalOpen(false);
                     resetForm();
-                    setNotification({
+                    notify({
                         type: 'success',
                         message: 'Receiving record created successfully.',
                     });
@@ -287,7 +263,7 @@ export default function ReceivingIndex({
                 onSuccess: () => {
                     setIsFormModalOpen(false);
                     resetForm();
-                    setNotification({
+                    notify({
                         type: 'success',
                         message: 'Receiving record updated successfully.',
                     });
@@ -331,7 +307,7 @@ export default function ReceivingIndex({
                 const carried = finishSubmission();
                 if (carried) {
                     rfidSubmissionKey.current = crypto.randomUUID();
-                    setNotification({
+                    notify({
                         type: 'success',
                         message: 'Previous batch received. Scans made during submission are ready for review in a new session.',
                     });
@@ -379,11 +355,6 @@ export default function ReceivingIndex({
                 />
 
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-5 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
-                    {/* Flash Notification Banner */}
-                    <ReceivingStatusNotice
-                        notification={notification}
-                        onDismiss={() => setNotification(null)}
-                    />
 
                     {/* Receiving Ledger Card */}
                     <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xs border border-gray-200 dark:border-slate-800 overflow-hidden">

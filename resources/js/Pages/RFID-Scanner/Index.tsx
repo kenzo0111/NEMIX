@@ -151,20 +151,6 @@ export default function Index({
                     breadcrumbs={[{ name: 'RFID Scanner', href: '#' }]}
                 />
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1500px] mx-auto pb-16 min-w-0 w-full">
-                    {/* Optional Flash Notification */}
-                    {flash?.success && (
-                        <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 text-xs rounded-xl shadow-2xs">
-                            <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                            <span>{flash.success}</span>
-                        </div>
-                    )}
-                    {flash?.error && (
-                        <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-900 dark:text-red-200 text-xs rounded-xl shadow-2xs">
-                            <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
-                            <span>{flash.error}</span>
-                        </div>
-                    )}
-
                     <section aria-label="Hardware scanner" className="flex flex-col gap-4 rounded-xl border border-gray-200/90 bg-white p-4 shadow-2xs dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                         <div className="flex min-w-0 items-center gap-3">
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-100/80 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40">

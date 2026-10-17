@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { notify } from '@/utils/notifications';
+import React, { useState } from 'react';
+import { Head, useForm } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -8,9 +9,6 @@ import { useAuthorization } from '@/Hooks/useAuthorization';
 import {
     Save,
     RotateCcw,
-    CheckCircle2,
-    AlertCircle,
-    X,
 } from 'lucide-react';
 
 import {
@@ -18,7 +16,6 @@ import {
     SystemSettings,
     SystemSettingsPageProps,
     TabId,
-    ToastAlert,
 } from './types';
 import { SETTINGS_TABS } from './tabs';
 import { normalizeSystemSettings } from './normalizeSettings';
@@ -86,29 +83,7 @@ export default function Index({
     const currentTabMeta =
         SETTINGS_TABS.find((t) => t.id === activeTab) || SETTINGS_TABS[0];
 
-    // Lightweight Toast Notifications
-    const [toast, setToast] = useState<ToastAlert | null>(null);
-
-    const showToast = (type: 'success' | 'error' | 'info', message: string) => {
-        setToast({ id: String(Date.now()), type, message });
-    };
-
-    // Synchronize Inertia flash messages into toasts
-    const { flash } = usePage<SystemSettingsPageProps>().props;
-    useEffect(() => {
-        if (flash?.success) {
-            showToast('success', flash.success);
-        } else if (flash?.error) {
-            showToast('error', flash.error);
-        }
-    }, [flash?.success, flash?.error]);
-
-    // Auto-dismiss toast
-    useEffect(() => {
-        if (!toast) return;
-        const timer = setTimeout(() => setToast(null), 5000);
-        return () => clearTimeout(timer);
-    }, [toast]);
+    const showToast = (type: 'success' | 'error' | 'info', message: string) => notify({ type, message });
 
     // Generic setting field change handler with functional updater to avoid stale closures
     const handleFieldChange = <K extends keyof SystemSettings>(
@@ -323,44 +298,7 @@ export default function Index({
                 </div>
             </main>
 
-            {/* Non-intrusive Toast Notification */}
-            {toast && (
-                <div
-                    role="alert"
-                    aria-live="assertive"
-                    className="fixed top-5 right-5 z-50 max-w-md animate-in fade-in slide-in-from-top-2 duration-200"
-                >
-                    <div
-                        className={`rounded-2xl p-4 shadow-xl border flex items-start gap-3 backdrop-blur-md ${
-                            toast.type === 'success'
-                                ? 'bg-emerald-50/95 border-emerald-200 text-emerald-900'
-                                : toast.type === 'error'
-                                ? 'bg-rose-50/95 border-rose-200 text-rose-900'
-                                : 'bg-sky-50/95 border-sky-200 text-sky-900'
-                        }`}
-                    >
-                        <div className="shrink-0 mt-0.5">
-                            {toast.type === 'success' && (
-                                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                            )}
-                            {toast.type === 'error' && (
-                                <AlertCircle className="w-5 h-5 text-rose-600" />
-                            )}
-                        </div>
-                        <div className="flex-1 text-xs font-medium leading-relaxed whitespace-pre-line">
-                            {toast.message}
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => setToast(null)}
-                            className="text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
-                            aria-label="Close notification"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                    </div>
-                </div>
-            )}
+
         </div>
     );
 }

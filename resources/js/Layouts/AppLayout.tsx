@@ -1,7 +1,6 @@
 import React, { PropsWithChildren, ReactNode } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
-import FlashToast from '@/Components/FlashToast';
 import SystemModeBadge from '@/Components/SystemModeBadge';
 import ThemeToggle from '@/Components/ThemeToggle';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -63,8 +62,6 @@ export default function AppLayout({
                 </div>
             )}
 
-            {/* Flash Message Toast */}
-            <FlashToast />
 
             {/* Main Shell Container */}
             <div className="flex flex-1 min-h-0">

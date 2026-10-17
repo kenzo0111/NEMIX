@@ -1,23 +1,21 @@
+import { notify } from '@/utils/notifications';
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import {
     AllItemsProps,
-    AllItemsPageProps,
     InventoryItem,
     SelectOption,
     InventoryStatus as StatusType,
-    NotificationState,
 } from './types';
 import InventoryToolbar from './components/InventoryToolbar';
 import InventoryTable from './components/InventoryTable';
 import InventoryDetailsModal from './components/InventoryDetailsModal';
 import InventoryFormModal from './components/InventoryFormModal';
 import DeleteItemModal from './components/DeleteItemModal';
-import InventoryNotification from './components/InventoryNotification';
 
 export default function AllItemsIndex({
     auth,
@@ -29,34 +27,10 @@ export default function AllItemsIndex({
     criticalStockThreshold = 3,
     unitsOfIssue = [],
 }: AllItemsProps) {
-    const { flash } = usePage<AllItemsPageProps>().props;
     const user = auth?.user;
 
     // Unified persistent sidebar collapse state
     const [collapsed, handleToggleCollapse] = useSidebarCollapse();
-
-    // Transient Notification
-    const [notification, setNotification] = useState<NotificationState | null>(null);
-
-    useEffect(() => {
-        if (flash?.error) {
-            setNotification({ type: 'error', message: flash.error });
-        } else if (flash?.warning) {
-            setNotification({ type: 'warning', message: flash.warning });
-        } else if (flash?.success) {
-            setNotification({ type: 'success', message: flash.success });
-        } else if (flash?.status) {
-            setNotification({ type: 'info', message: flash.status });
-        }
-    }, [flash]);
-
-    useEffect(() => {
-        if (!notification) return;
-        const timer = setTimeout(() => {
-            setNotification(null);
-        }, 5000);
-        return () => clearTimeout(timer);
-    }, [notification]);
 
     // Active Modals & Selected Items
     const [viewItem, setViewItem] = useState<InventoryItem | null>(null);
@@ -257,7 +231,7 @@ export default function AllItemsIndex({
                     setIsFormOpen(false);
                     reset();
                     setEditingItem(null);
-                    setNotification({
+                    notify({
                         type: 'success',
                         message: 'Inventory item updated successfully.',
                     });
@@ -265,7 +239,7 @@ export default function AllItemsIndex({
                 onError: (err) => {
                     const firstError = Object.values(err)[0];
                     if (firstError) {
-                        setNotification({
+                        notify({
                             type: 'error',
                             message: String(firstError),
                         });
@@ -278,7 +252,7 @@ export default function AllItemsIndex({
                 onSuccess: () => {
                     setIsFormOpen(false);
                     reset();
-                    setNotification({
+                    notify({
                         type: 'success',
                         message: 'Inventory item created successfully.',
                     });
@@ -286,7 +260,7 @@ export default function AllItemsIndex({
                 onError: (err) => {
                     const firstError = Object.values(err)[0];
                     if (firstError) {
-                        setNotification({
+                        notify({
                             type: 'error',
                             message: String(firstError),
                         });
@@ -305,14 +279,14 @@ export default function AllItemsIndex({
             onSuccess: () => {
                 setIsDeleting(false);
                 setItemToDelete(null);
-                setNotification({
+                notify({
                     type: 'success',
                     message: 'Inventory item deleted successfully.',
                 });
             },
             onError: () => {
                 setIsDeleting(false);
-                setNotification({
+                notify({
                     type: 'error',
                     message: 'Failed to delete the inventory item. Please try again.',
                 });
@@ -343,11 +317,6 @@ export default function AllItemsIndex({
                 />
 
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-5 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
-                    {/* Transient Notification Alert */}
-                    <InventoryNotification
-                        notification={notification}
-                        onDismiss={() => setNotification(null)}
-                    />
 
                     {/* Main Working Interface: Card & Table */}
                     <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xs border border-gray-200 dark:border-slate-800 overflow-hidden">

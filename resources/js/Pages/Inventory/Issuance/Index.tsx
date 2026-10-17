@@ -1,3 +1,4 @@
+import { notify } from '@/utils/notifications';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
@@ -105,17 +106,6 @@ export default function IssuanceIndex({
     const [isRisPreviewModalOpen, setIsRisPreviewModalOpen] = useState(false);
     const [selectedIssuance, setSelectedIssuance] = useState<IssuanceRecord | null>(null);
     const [previewRequestId, setPreviewRequestId] = useState<number | null>(null);
-
-    // Notification toast state
-    const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-
-    // Dismiss notification automatically
-    useEffect(() => {
-        if (notification) {
-            const timer = setTimeout(() => setNotification(null), 5000);
-            return () => clearTimeout(timer);
-        }
-    }, [notification]);
 
     // Pending count
     const pendingCount = useMemo(() => {
@@ -259,7 +249,7 @@ export default function IssuanceIndex({
     };
 
     const handleSuccessNotification = (message: string) => {
-        setNotification({ type: 'success', message });
+        notify({ type: 'success', message });
     };
 
     const modules = getSidebarModules('Inventory', 'Issuance');
@@ -283,27 +273,6 @@ export default function IssuanceIndex({
                 />
 
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden pb-16 min-w-0 space-y-6">
-                    {/* Inline Notification Banner */}
-                    {notification && (
-                        <div
-                            className={`px-4 py-3 rounded-lg border text-xs font-semibold flex items-center justify-between transition-all ${
-                                notification.type === 'success'
-                                    ? 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200'
-                                    : 'bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200'
-                            }`}
-                        >
-                            <div className="flex items-center gap-2">
-                                <span className="font-bold">{notification.message}</span>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setNotification(null)}
-                                className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 cursor-pointer"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    )}
 
                     {/* Custodian Workspace View Switcher Tabs */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-slate-800 pb-2">

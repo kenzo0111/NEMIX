@@ -1,3 +1,4 @@
+import { notify } from '@/utils/notifications';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import Select from 'react-select';
@@ -13,7 +14,6 @@ import { getFundClusterDisplay } from '../Issuance/constants';
 import { RequestDetailsModal } from './components/RequestDetailsModal';
 import { RequestFormModal } from './components/RequestFormModal';
 import { RequestStatusBadge } from './components/RequestStatusBadge';
-import { ReceivingStatusNotice } from '../Receiving/components/ReceivingStatusNotice';
 import { DivisionGroup, RequestItem, SupplyRequest } from './types';
 import { Plus, Search, FileText } from 'lucide-react';
 import useAuthorization from '@/Hooks/useAuthorization';
@@ -98,19 +98,6 @@ export default function MyRequests({
     const [preview, setPreview] = useState<IssuanceRecord | null>(null);
     const [previewRequestId, setPreviewRequestId] = useState<number | null>(null);
     const [busy, setBusy] = useState<number | null>(null);
-    const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-
-    useEffect(() => {
-        const flash = pageProps.flash || {};
-        if (flash.error) setNotification({ type: 'error', message: flash.error });
-        else if (flash.success) setNotification({ type: 'success', message: flash.success });
-    }, [pageProps.flash?.success, pageProps.flash?.error]);
-
-    useEffect(() => {
-        if (!notification) return;
-        const timer = window.setTimeout(() => setNotification(null), 5000);
-        return () => window.clearTimeout(timer);
-    }, [notification]);
 
     // Summary counts
     const counts = useMemo(() => {
@@ -170,8 +157,8 @@ export default function MyRequests({
             {},
             {
                 preserveScroll: true,
-                onSuccess: () => setNotification({ type: 'success', message: 'Supply request cancelled.' }),
-                onError: (errors) => setNotification({ type: 'error', message: Object.values(errors).join(' ') }),
+                onSuccess: () => notify({ type: 'success', message: 'Supply request cancelled.' }),
+                onError: (errors) => notify({ type: 'error', message: Object.values(errors).join(' ') }),
                 onFinish: () => setBusy(null),
             }
         );
@@ -250,11 +237,6 @@ export default function MyRequests({
                 />
 
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden pb-16 min-w-0 space-y-5">
-                    {/* Flash Notification Banner */}
-                    <ReceivingStatusNotice
-                        notification={notification}
-                        onDismiss={() => setNotification(null)}
-                    />
 
                     {/* Operational Summary Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -637,7 +619,7 @@ export default function MyRequests({
                 defaultIssuedBy={defaultIssuedBy}
                 defaultIssuedByDesignation={defaultIssuedByDesignation}
                 onClose={closeForm}
-                onSaved={(message) => setNotification({ type: 'success', message })}
+                onSaved={(message) => notify({ type: 'success', message })}
             />
 
             {/* Request Details Modal */}

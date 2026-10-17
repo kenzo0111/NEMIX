@@ -1,3 +1,4 @@
+import { notify } from '@/utils/notifications';
 import React, { useMemo, useState } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
@@ -8,7 +9,6 @@ import { ReportToolbar } from './Components/ReportToolbar';
 import { ReportRegistry } from './Components/ReportRegistry';
 import { GenerateReportDialog } from './Components/GenerateReportDialog';
 import { ReportPreviewDialog } from './Components/ReportPreviewDialog';
-import { ActionDialog } from './Components/ActionDialog';
 import { MigrationDialog } from './Migration/MigrationDialog';
 import { useReportGenerator } from './hooks/useReportGenerator';
 import { useHistoricalMigration } from './hooks/useHistoricalMigration';
@@ -37,14 +37,6 @@ export default function ReportsIndex({
     const [showPreviewModal, setShowPreviewModal] = useState(false);
     const [showMigrationModal, setShowMigrationModal] = useState(false);
     const [selectedReportToView, setSelectedReportToView] = useState<ComplianceReport | null>(null);
-
-    // Notifications / Alerts
-    const [actionDialog, setActionDialog] = useState<{
-        show: boolean;
-        type: 'success' | 'confirm' | 'error';
-        title: string;
-        message: string;
-    }>({ show: false, type: 'success', title: '', message: '' });
 
     const modules = getSidebarModules('Compliance', 'Manage Reports');
 
@@ -156,12 +148,7 @@ export default function ReportsIndex({
                             if (res.success) {
                                 setShowGenerateModal(false);
                             }
-                            setActionDialog({
-                                show: true,
-                                type: res.success ? 'success' : 'error',
-                                title: res.success ? 'Report Recorded' : 'Action Failed',
-                                message: res.message,
-                            });
+                            notify({ type: res.success ? 'success' : 'error', message: res.message });
                         });
                     }}
                     items={items}
@@ -192,23 +179,10 @@ export default function ReportsIndex({
                     onClose={() => setShowMigrationModal(false)}
                     migration={migration}
                     onCompleteNotification={(res) => {
-                        setActionDialog({
-                            show: true,
-                            type: res.success ? 'success' : 'error',
-                            title: res.success ? 'Migration Complete' : 'Migration Error',
-                            message: res.message,
-                        });
+                        notify({ type: res.success ? 'success' : 'error', message: res.message });
                     }}
                 />
 
-                {/* General Action / Notification Dialog */}
-                <ActionDialog
-                    show={actionDialog.show}
-                    type={actionDialog.type}
-                    title={actionDialog.title}
-                    message={actionDialog.message}
-                    onClose={() => setActionDialog((prev) => ({ ...prev, show: false }))}
-                />
             </main>
         </div>
     );

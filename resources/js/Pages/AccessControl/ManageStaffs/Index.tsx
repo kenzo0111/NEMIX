@@ -1,5 +1,6 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { Head, router, usePage } from '@inertiajs/react';
+import { notify } from '@/utils/notifications';
+import React, { useState, useMemo, useCallback } from 'react';
+import { Head, router } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -9,7 +10,6 @@ import {
     Staff,
     SelectOption,
     StaffStats,
-    NotificationState,
     StaffCapabilities,
 } from './types';
 import StaffSummary from './components/StaffSummary';
@@ -19,7 +19,6 @@ import CreateStaffModal from './components/CreateStaffModal';
 import EditStaffModal from './components/EditStaffModal';
 import AccountStatusModal from './components/AccountStatusModal';
 import SecurityNotice from './components/SecurityNotice';
-import StaffNotification from './components/StaffNotification';
 import ReadOnlyNotice from './components/ReadOnlyNotice';
 import useAuthorization from '@/Hooks/useAuthorization';
 
@@ -36,7 +35,6 @@ export default function StaffManagementIndex({
     roles = [],
     capabilities: providedCapabilities,
 }: ManageStaffsPageProps) {
-    const { flash } = usePage<ManageStaffsPageProps>().props;
     const user = auth?.user;
 
     // Sidebar collapse state with synchronized hook
@@ -60,28 +58,6 @@ export default function StaffManagementIndex({
     }, [providedCapabilities, can]);
 
     const isReadOnly = !capabilities.canCreate && !capabilities.canUpdate && !capabilities.canToggleStatus;
-
-    // Single unified transient notification state
-    const [notification, setNotification] = useState<NotificationState | null>(null);
-
-    useEffect(() => {
-        if (flash?.error) {
-            setNotification({ type: 'error', message: flash.error });
-        } else if (flash?.warning) {
-            setNotification({ type: 'warning', message: flash.warning, title: 'Mailer Advisory' });
-        } else if (flash?.success) {
-            setNotification({ type: 'success', message: flash.success });
-        } else if (flash?.status) {
-            setNotification({ type: 'info', message: flash.status });
-        }
-    }, [flash]);
-
-    useEffect(() => {
-        if (!notification) return;
-        const duration = notification.type === 'error' || notification.type === 'warning' ? 9000 : 6000;
-        const timer = window.setTimeout(() => setNotification(null), duration);
-        return () => window.clearTimeout(timer);
-    }, [notification]);
 
     // Search and filtering state
     const [searchQuery, setSearchQuery] = useState('');
@@ -143,7 +119,7 @@ export default function StaffManagementIndex({
     // Action Handlers
     const handleOpenCreateModal = useCallback(() => {
         if (!capabilities.canCreate) {
-            setNotification({
+            notify({
                 type: 'error',
                 message: 'Unauthorized action. System Administrator privileges are required to register staff.',
             });
@@ -154,7 +130,7 @@ export default function StaffManagementIndex({
 
     const handleEditClick = useCallback((staff: Staff) => {
         if (!capabilities.canUpdate) {
-            setNotification({
+            notify({
                 type: 'error',
                 message: 'Unauthorized action. System Administrator privileges are required to edit staff.',
             });
@@ -167,14 +143,14 @@ export default function StaffManagementIndex({
     const handleToggleStatusClick = useCallback(
         (staff: Staff) => {
             if (!capabilities.canToggleStatus) {
-                setNotification({
+                notify({
                     type: 'error',
                     message: 'Unauthorized action. System Administrator privileges are required to modify access status.',
                 });
                 return;
             }
             if (staff.id === user?.id) {
-                setNotification({
+                notify({
                     type: 'error',
                     message: 'You cannot disable your own account.',
                 });
@@ -190,7 +166,7 @@ export default function StaffManagementIndex({
         if (!selectedStaff) return;
 
         if (!capabilities.canToggleStatus) {
-            setNotification({
+            notify({
                 type: 'error',
                 message: 'Unauthorized action. System Administrator privileges are required to change account status.',
             });
@@ -200,7 +176,7 @@ export default function StaffManagementIndex({
         }
 
         if (selectedStaff.id === user?.id) {
-            setNotification({
+            notify({
                 type: 'error',
                 message: 'You cannot disable your own account.',
             });
@@ -227,7 +203,7 @@ export default function StaffManagementIndex({
     const handleResendInvitation = useCallback(
         (staff: Staff) => {
             if (!capabilities.canResendInvitation) {
-                setNotification({
+                notify({
                     type: 'error',
                     message: 'Unauthorized action. System Administrator privileges are required to resend invitations.',
                 });
@@ -272,11 +248,6 @@ export default function StaffManagementIndex({
                 />
 
                 <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-5 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
-                    {/* Transient Application Notification (Single Banner) */}
-                    <StaffNotification
-                        notification={notification}
-                        onDismiss={() => setNotification(null)}
-                    />
 
                     {/* Permanent Directory Read-Only Mode Banner */}
                     {isReadOnly && <ReadOnlyNotice />}

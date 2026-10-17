@@ -95,8 +95,10 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
         setBusy(true);
         try {
             await axios.patch(route('system.settings.rfid-devices.enabled', { device: selected.id }), { enabled: selected.status === 'disabled' });
-            window.location.reload();
-        } catch (error: any) { onToast('error', error.response?.data?.message || 'Unable to change scanner access.'); setBusy(false); }
+            onToast('success', selected.status === 'disabled' ? 'Scanner access enabled. Waiting for its next connection.' : 'Scanner access disabled.');
+            router.reload({ only: ['rfidDevices'] });
+        } catch (error: any) { onToast('error', error.response?.data?.message || 'Unable to change scanner access.'); }
+        finally { setBusy(false); }
     };
 
     const revokeDevice = async () => {
@@ -104,8 +106,10 @@ export default function RfidSettings({ settings, onChange, errors = {}, devices,
         setBusy(true);
         try {
             await axios.post(route('system.settings.rfid-devices.revoke', { device: selected.id }));
-            window.location.reload();
-        } catch (error: any) { onToast('error', error.response?.data?.message || 'Unable to revoke scanner.'); setBusy(false); }
+            onToast('success', 'Scanner access revoked and its signing secret removed.');
+            router.reload({ only: ['rfidDevices'] });
+        } catch (error: any) { onToast('error', error.response?.data?.message || 'Unable to revoke scanner.'); }
+        finally { setBusy(false); }
     };
 
     const registerDevice = async () => {
