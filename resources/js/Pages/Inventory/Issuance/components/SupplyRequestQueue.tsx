@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import Modal from '@/Components/Modal';
 import { formatDisplayDate } from '@/utils/dateUtils';
+import { getRisCalendarDate } from '@/utils/risFormatter';
 import { getFundClusterDisplay } from '../constants';
 import { RequestStatusBadge, ItemQuantityDisplay } from '../../Requests/components/RequestStatusBadge';
 import useAuthorization from '@/Hooks/useAuthorization';
@@ -684,7 +685,7 @@ export function SupplyRequestQueue({
                                                     </div>
                                                     <div className="text-[11px] text-blue-800 dark:text-blue-300">
                                                         Approved by {defaultApprovedBy || request.reviewer?.name || 'Property Custodian'} on{' '}
-                                                        {request.reviewed_at ? formatDisplayDate(request.reviewed_at, 'MM/DD/YYYY') : '—'}.
+                                                        {request.reviewed_at ? formatDisplayDate(getRisCalendarDate(request.reviewed_at), 'MM/DD/YYYY') : '—'}.
                                                     </div>
                                                 </div>
 

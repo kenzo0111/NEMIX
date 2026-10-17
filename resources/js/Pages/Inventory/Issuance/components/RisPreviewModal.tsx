@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatRisNumber } from '@/utils/risFormatter';
+import { formatRisNumber, getRisCalendarDate } from '@/utils/risFormatter';
 import Modal from '@/Components/Modal';
 import { IssuanceRecord } from '../types';
 import { getFundClusterDisplay } from '../constants';
@@ -34,6 +34,8 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
 
     const items = issuance.items && issuance.items.length > 0 ? issuance.items : issuance.items_list || [];
     const awaitingRelease = issuance.status === 'Approved';
+    const printDate = getRisCalendarDate();
+    const releaseDate = awaitingRelease ? printDate : getRisCalendarDate(issuance.date_issued || issuance.date);
 
     const handlePrint = () => {
         document.body.classList.add('printing-ris');
@@ -80,17 +82,17 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
         }),
         requested_by_name: issuance.recipient,
         requested_by_designation: issuance.recipient_designation?.trim() || 'Requesting Personnel',
-        requested_by_date: issuance.requested_at || issuance.date_issued || issuance.date,
+        requested_by_date: getRisCalendarDate(issuance.requested_at || issuance.date_issued || issuance.date),
         approved_by_name: issuance.approved_by || defaultApprovedBy,
         approved_by_designation: issuance.approved_by_designation || defaultApprovedByDesignation,
-        approved_by_date: issuance.reviewed_at || issuance.date_issued || issuance.date,
+        approved_by_date: getRisCalendarDate(issuance.reviewed_at || issuance.date_issued || issuance.date),
         issued_by_name: issuance.issued_by_name || issuance.issued_by || defaultIssuedBy,
         issued_by_designation: issuance.issued_by_position || defaultIssuedByDesignation,
-        // Until release, dates are completed on the physical form; never imply stock was issued.
-        issued_by_date: issuance.date_issued || issuance.date,
+        // Pre-release copies use the print date; released copies retain the recorded date.
+        issued_by_date: releaseDate,
         received_by_name: issuance.recipient,
         received_by_designation: issuance.recipient_designation?.trim() || 'Requesting Personnel',
-        received_by_date: issuance.date_issued || issuance.date,
+        received_by_date: releaseDate,
     };
 
     return (

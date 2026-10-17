@@ -65,6 +65,7 @@ class SupplyRequestController extends Controller
         $supplyRequest->load(['items.item.activeBatches', 'requester', 'reviewer', 'issuance.items.allocations.inventoryBatch']);
         $issued = $supplyRequest->status === 'Issued';
         $issuance = $supplyRequest->issuance;
+        $printDate = now('Asia/Manila')->toDateString();
         $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
 
         $ris = [
@@ -80,14 +81,14 @@ class SupplyRequestController extends Controller
             'requested_by_date' => $supplyRequest->date_requested ? $supplyRequest->date_requested->format('Y-m-d') : ($supplyRequest->created_at ? $supplyRequest->created_at->format('Y-m-d') : date('Y-m-d')),
             'approved_by_name' => $signatories['approved_by_name'],
             'approved_by_designation' => $signatories['approved_by_designation'],
-            'approved_by_date' => $supplyRequest->reviewed_at ? $supplyRequest->reviewed_at->format('Y-m-d') : null,
+            'approved_by_date' => $supplyRequest->reviewed_at?->copy()->timezone('Asia/Manila')->format('Y-m-d'),
             'issued_by_name' => $issuance?->issued_by_name ?: $signatories['issued_by_name'],
             'issued_by_designation' => $issuance?->issued_by_position ?: $signatories['issued_by_position'],
-            // A blank physical signature date is distinct from a recorded stock release.
-            'issued_by_date' => $issuance?->date_issued?->format('Y-m-d'),
+            // Printable pre-release dates do not create a stock release.
+            'issued_by_date' => $issued ? $issuance?->date_issued?->format('Y-m-d') : $printDate,
             'received_by_name' => $supplyRequest->recipient ?: ($supplyRequest->requester?->name),
             'received_by_designation' => trim($supplyRequest->recipient_designation ?? '') ?: (trim($issuance?->recipient_designation ?? '') ?: 'Requesting Personnel'),
-            'received_by_date' => $issuance?->date_issued?->format('Y-m-d'),
+            'received_by_date' => $issued ? $issuance?->date_issued?->format('Y-m-d') : $printDate,
         ];
         $items = $supplyRequest->items->filter(fn ($line) => $line->approved_quantity > 0)
             ->map(function ($line) use ($issued, $issuance) {

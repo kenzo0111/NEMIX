@@ -37,9 +37,12 @@ const result = await build({
     }],
 });
 const module = { exports: {} };
+const FixedDate = class extends Date {
+    constructor(...args) { super(...(args.length ? args : ['2026-10-17T16:30:00Z'])); }
+};
 vm.runInNewContext(result.outputFiles[0].text, {
     module, exports: module.exports, require: createRequire(import.meta.url),
-    process, console, Buffer, TextEncoder, TextDecoder, setTimeout, clearTimeout,
+    process, console, Buffer, TextEncoder, TextDecoder, setTimeout, clearTimeout, Date: FixedDate,
 });
 const issuance = {
     id: 1, ris_number: 'RIS-2026-10-0001', recipient: 'Recipient Name',
@@ -51,7 +54,12 @@ const approved = module.exports.render(issuance);
 assert.ok(approved.includes('Assigned Issuer'));
 assert.ok(approved.includes('Storekeeper'));
 assert.equal((approved.match(/Department Chair/g) || []).length, 2);
-assert.equal((approved.match(/____________/g) || []).length, 2);
+assert.ok(!approved.includes('____________'));
+assert.equal((approved.match(/10\/18\/2026/g) || []).length, 2);
+assert.ok(approved.includes('10/15/2026')); // Preserve a genuinely earlier approval.
+const midnightApproval = module.exports.render({ ...issuance, reviewed_at: '2026-10-17T16:15:00.000000Z' });
+assert.equal((midnightApproval.match(/10\/18\/2026/g) || []).length, 3);
+assert.ok(!midnightApproval.includes('10/17/2026'));
 for (const designation of [undefined, '', '   ']) {
     const html = module.exports.render({ ...issuance, recipient_designation: designation });
     assert.equal((html.match(/Requesting Personnel/g) || []).length, 2);

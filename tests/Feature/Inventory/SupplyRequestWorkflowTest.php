@@ -398,6 +398,7 @@ class SupplyRequestWorkflowTest extends TestCase
 
     public function test_approved_ris_prints_signatories_without_releasing_stock(): void
     {
+        $this->travelTo(\Carbon\Carbon::parse('2026-10-18 00:30:00', 'Asia/Manila'));
         $coordinator = $this->user('Supply Coordinator');
         $custodian = $this->user('Property Custodian');
         $item = $this->item();
@@ -419,12 +420,13 @@ class SupplyRequestWorkflowTest extends TestCase
                     $this->assertSame($signatories['issued_by_position'], $ris['issued_by_designation']);
                     $this->assertSame($expectedDesignation, $ris['requested_by_designation']);
                     $this->assertSame($expectedDesignation, $ris['received_by_designation']);
-                    $this->assertNull($ris['issued_by_date']);
-                    $this->assertNull($ris['received_by_date']);
+                    $this->assertSame('2026-10-18', $ris['approved_by_date']);
+                    $this->assertSame('2026-10-18', $ris['issued_by_date']);
+                    $this->assertSame('2026-10-18', $ris['received_by_date']);
                     $this->assertSame('', $data['items'][0]['issue_quantity']);
                     $html = view($view, $data)->render();
                     $this->assertStringContainsString($expectedDesignation, $html);
-                    $this->assertSame(2, substr_count($html, '____________'));
+                    $this->assertStringNotContainsString('____________', $html);
                     return true;
                 })->andReturn($pdf);
             $pdf->shouldReceive('setPaper')->once()->with('A4', 'portrait')->andReturnSelf();
