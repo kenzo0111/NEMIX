@@ -47,6 +47,42 @@ class SupplyRequestWorkflowTest extends TestCase
         return SupplyRequest::latest('id')->firstOrFail();
     }
 
+    public function test_zero_stock_items_are_excluded_from_request_selection_and_return_after_restock(): void
+    {
+        $coordinator = $this->user('Supply Coordinator');
+        $item = $this->item(0);
+        $this->actingAs($coordinator)->get(route('inventory.requests.index'))
+            ->assertInertia(fn ($page) => $page->has('items', 0));
+        $item->update(['stock' => 5]);
+        $this->actingAs($coordinator)->get(route('inventory.requests.index'))
+            ->assertInertia(fn ($page) => $page->has('items', 1)->where('items.0.id', $item->id));
+    }
+
+    public function test_zero_stock_item_cannot_be_submitted_directly(): void
+    {
+        $coordinator = $this->user('Supply Coordinator');
+        $item = $this->item(0);
+        $this->actingAs($coordinator)->post(route('inventory.requests.store'), [
+            'department' => 'Registrar', 'purpose' => 'Office operations',
+            'items' => [['item_id' => $item->id, 'quantity' => 1]],
+        ])->assertSessionHasErrors('items.0.item_id');
+        $this->assertSame(0, SupplyRequest::count());
+    }
+
+    public function test_pending_request_cannot_be_saved_with_a_depleted_item(): void
+    {
+        $coordinator = $this->user('Supply Coordinator');
+        $item = $this->item(5);
+        $request = $this->submit($coordinator, $item, 2);
+        $item->update(['stock' => 0]);
+        $this->actingAs($coordinator)->put(route('inventory.requests.update', $request), [
+            'department' => 'Changed', 'purpose' => 'Changed',
+            'items' => [['item_id' => $item->id, 'quantity' => 3]],
+        ])->assertSessionHasErrors('items.0.item_id');
+        $this->assertSame('Registrar', $request->fresh()->department);
+        $this->assertSame(2, $request->items()->firstOrFail()->quantity);
+    }
+
     public function test_approval_reserves_stock_and_release_creates_one_issuance(): void
     {
         $coordinator = $this->user('Supply Coordinator');

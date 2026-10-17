@@ -132,6 +132,7 @@ export function RequestFormModal({
     };
 
     const handleChangeItem = (index: number, itemId: string) => {
+        if (itemId && !items.some((item) => item.id === Number(itemId) && item.stock > 0)) return;
         const next = [...form.data.items];
         next[index] = { ...next[index], item_id: itemId };
         form.setData('items', next);
@@ -158,6 +159,16 @@ export function RequestFormModal({
             form.setError('items', 'Please add at least one item with a valid requested quantity.');
             return;
         }
+
+        let hasUnavailableItem = false;
+        form.data.items.forEach((line, index) => {
+            if (line.item_id && !items.some((item) => item.id === Number(line.item_id) && item.stock > 0)) {
+                form.setError(`items.${index}.item_id` as keyof typeof form.errors,
+                    'This item is out of stock and unavailable for requisition. Select another item or remove this row.');
+                hasUnavailableItem = true;
+            }
+        });
+        if (hasUnavailableItem) return;
 
         const options = {
             preserveScroll: true,
@@ -397,16 +408,19 @@ export function RequestFormModal({
 
                         <div className="space-y-3">
                             {form.data.items.map((line, index) => {
-                                const selectedItem = items.find((item) => item.id === Number(line.item_id));
+                                const selectedItem = items.find((item) => item.id === Number(line.item_id))
+                                    || request?.items.find((entry) => entry.item_id === Number(line.item_id))?.item;
+                                const unavailable = Boolean(line.item_id) && !items.some((item) => item.id === Number(line.item_id) && item.stock > 0);
                                 const availableItemOptions = items
                                     .filter(
-                                        (item) => item.id === selectedItem?.id || !selectedItemIds.includes(item.id)
+                                        (item) => item.stock > 0 && (item.id === selectedItem?.id || !selectedItemIds.includes(item.id))
                                     )
                                     .map((item) => ({
                                         value: String(item.id),
                                         label: `${item.name} (${item.sku}) — Stock: ${item.stock} ${item.unit_of_issue || 'pcs'}`,
                                     }));
-                                const selectedOption = availableItemOptions.find((opt) => opt.value === line.item_id) || null;
+                                const selectedOption = availableItemOptions.find((opt) => opt.value === line.item_id)
+                                    || (unavailable ? { value: line.item_id, label: `${selectedItem?.name || 'Previously selected item'} — Unserviceable (Out of stock)` } : null);
 
                                 const errorItem = form.errors[`items.${index}.item_id` as keyof typeof form.errors];
                                 const errorQty = form.errors[`items.${index}.quantity` as keyof typeof form.errors];
@@ -434,7 +448,13 @@ export function RequestFormModal({
                                                     styles={getInstitutionalSelectStyles(Boolean(errorItem))}
                                                     classNamePrefix="react-select"
                                                     isClearable
+                                                    noOptionsMessage={() => 'No in-stock items available'}
                                                 />
+                                                {unavailable && (
+                                                    <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
+                                                        Unserviceable for requisition: out of stock. Remove this item or select another.
+                                                    </p>
+                                                )}
                                                 {errorItem && (
                                                     <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
                                                         {errorItem}
@@ -469,6 +489,7 @@ export function RequestFormModal({
                                                     min="1"
                                                     max="1000000"
                                                     required
+                                                    disabled={unavailable}
                                                     value={line.quantity}
                                                     onChange={(e) => handleChangeQuantity(index, e.target.value)}
                                                     placeholder="Qty"

@@ -31,6 +31,22 @@ class SupplyRequestController extends Controller
             ->contains(fn ($action) => PermissionResolver::hasPermission($user, 'route:inventory.requests.'.$action));
     }
 
+    private function validateRequestStock(array $lines): void
+    {
+        $items = Item::whereIn('id', array_column($lines, 'item_id'))
+            ->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+        $errors = [];
+        foreach ($lines as $index => $line) {
+            $item = $items->get($line['item_id']);
+            if (!$item || $item->stock <= 0) {
+                $errors["items.{$index}.item_id"] = 'This item is out of stock and unavailable for requisition. Select another item or remove this row.';
+            }
+        }
+        if ($errors) {
+            throw ValidationException::withMessages($errors);
+        }
+    }
+
     public function index(Request $request)
     {
         $this->authorizeRequestAction($request);
@@ -44,7 +60,7 @@ class SupplyRequestController extends Controller
         return Inertia::render('Inventory/Requests/Index', [
             'requests' => SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'issuance.items.allocations.inventoryBatch'])
                 ->where('requested_by', $request->user()->id)->latest()->get(),
-            'items' => Item::orderBy('name')->get(['id', 'name', 'sku', 'stock', 'unit_of_issue', 'unit_cost']),
+            'items' => Item::where('stock', '>', 0)->orderBy('name')->get(['id', 'name', 'sku', 'stock', 'unit_of_issue', 'unit_cost']),
             'divisions' => config('university.divisions', []),
             'defaultApprovedBy' => $defaultApprovedBy,
             'defaultApprovedByDesignation' => $defaultApprovedByDesignation,
@@ -148,6 +164,7 @@ class SupplyRequestController extends Controller
         ]);
 
         DB::transaction(function () use ($data, $request) {
+            $this->validateRequestStock($data['items']);
             $risNumber = SupplyRequestService::generateOfficialRisNumber($data['date_requested'] ?? null);
             $supplyRequest = SupplyRequest::create([
                 'ris_number' => $risNumber,
@@ -207,6 +224,7 @@ class SupplyRequestController extends Controller
             if ($locked->status !== 'Pending') {
                 throw ValidationException::withMessages(['request' => 'Only pending requests can be edited.']);
             }
+            $this->validateRequestStock($data['items']);
             $locked->update([
                 'recipient' => $data['recipient'] ?? $locked->recipient ?? $request->user()->name,
                 'recipient_designation' => $data['recipient_designation'] ?? $locked->recipient_designation,
