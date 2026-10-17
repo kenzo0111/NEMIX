@@ -258,7 +258,7 @@ export function useRfidScanner({
         };
 
         void poll();
-        const timer = window.setInterval(poll, 1000);
+        const timer = window.setInterval(poll, 500);
         return () => {
             controller.abort();
             window.clearInterval(timer);

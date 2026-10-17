@@ -14,7 +14,7 @@ interface UseRfidScannerOptions {
 export function useRfidScanner({
     enabled,
     onScan,
-    pollIntervalMs = 1000,
+    pollIntervalMs = 500,
     maxConsecutiveFailures = 10,
     selectedDeviceUuid,
     canAcceptScan = true,
