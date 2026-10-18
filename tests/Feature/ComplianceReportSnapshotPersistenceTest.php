@@ -124,7 +124,7 @@ class ComplianceReportSnapshotPersistenceTest extends TestCase
         $saveResponse = $this->actingAs($user)->post(route('compliance.reports.store'), [
             'title' => 'RPCI Report Physical Count',
             'type' => 'RPCI',
-            'reference' => 'RPCI-2026-0001',
+            'reference' => '2026-001',
             'periodType' => 'all',
             'generatedDate' => '2026-08-20',
             'snapshot' => $dataset,
@@ -133,7 +133,7 @@ class ComplianceReportSnapshotPersistenceTest extends TestCase
 
         $saveResponse->assertRedirect(route('compliance.reports'));
 
-        $savedReport = ComplianceReport::where('reference', 'RPCI-2026-0001')->first();
+        $savedReport = ComplianceReport::where('reference', '2026-001')->first();
         $this->assertNotNull($savedReport);
         $this->assertNotEmpty(data_get($savedReport->payload, 'items'));
         $this->assertSame('Desktop Computer i7', data_get($savedReport->payload, 'items.0.article'));
@@ -173,7 +173,7 @@ class ComplianceReportSnapshotPersistenceTest extends TestCase
         $saveResponse = $this->actingAs($user)->post(route('compliance.reports.store'), [
             'title' => 'Stock Card - A4 Bond Paper',
             'type' => 'STOCK_CARD',
-            'reference' => 'SC-2026-0001',
+            'reference' => '2026-00001',
             'itemName' => 'A4 Bond Paper',
             'periodType' => 'all',
             'generatedDate' => '2026-08-20',
@@ -183,7 +183,7 @@ class ComplianceReportSnapshotPersistenceTest extends TestCase
 
         $saveResponse->assertRedirect(route('compliance.reports'));
 
-        $savedReport = ComplianceReport::where('reference', 'SC-2026-0001')->first();
+        $savedReport = ComplianceReport::where('reference', '2026-00001')->first();
         $this->assertNotNull($savedReport);
         $this->assertNotEmpty(data_get($savedReport->payload, 'entries'));
         $this->assertSame('A4 Bond Paper', data_get($savedReport->payload, 'item'));
@@ -227,7 +227,7 @@ class ComplianceReportSnapshotPersistenceTest extends TestCase
         $saveResponse = $this->actingAs($user)->post(route('compliance.reports.store'), [
             'title' => 'MR - Dr. Maria Santos',
             'type' => 'MR',
-            'reference' => 'MR-2026-0001',
+            'reference' => '2026-0001',
             'endUser' => 'Dr. Maria Santos',
             'periodType' => 'all',
             'generatedDate' => '2026-08-20',
@@ -237,7 +237,7 @@ class ComplianceReportSnapshotPersistenceTest extends TestCase
 
         $saveResponse->assertRedirect(route('compliance.reports'));
 
-        $savedReport = ComplianceReport::where('reference', 'MR-2026-0001')->first();
+        $savedReport = ComplianceReport::where('reference', '2026-0001')->first();
         $this->assertNotNull($savedReport);
         $this->assertNotEmpty(data_get($savedReport->payload, 'items'));
         $this->assertSame('Dr. Maria Santos', data_get($savedReport->payload, 'receivedByName'));

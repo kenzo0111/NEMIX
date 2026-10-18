@@ -219,13 +219,13 @@ class RsmiResponsibilityCenterCodeTest extends TestCase
             'title' => 'RSMI - September 2026',
             'type' => 'RSMI',
             'periodType' => 'all',
-            'reference' => 'RSMI-2026-09-TEST',
+            'reference' => '2026-09-001',
             'generatedDate' => '2026-09-12',
         ]);
 
         $saveResponse->assertRedirect();
 
-        $savedReport = ComplianceReport::where('reference', 'RSMI-2026-09-TEST')->first();
+        $savedReport = ComplianceReport::where('reference', '2026-09-001')->first();
         $savedItems = data_get($savedReport->payload, 'issuedItems')
             ?? data_get($savedReport->payload, 'rsmi.issuedItems')
             ?? data_get($savedReport->snapshot_data, 'rsmi.issuedItems');

@@ -64,8 +64,14 @@ class SystemSettingController extends Controller
             'cached_at' => now()->toIso8601String(),
         ];
 
+        $numberingPreviews = [];
+        foreach (['RIS', 'RSMI', 'RPCI', 'STOCK_CARD', 'MR'] as $type) {
+            $numberingPreviews[$type] = app(\App\Services\DocumentNumberService::class)->preview($type);
+        }
+
         return Inertia::render('Admin/SystemSettings/Index', [
             'groupedSettings' => $groupedSettings,
+            'numberingPreviews' => $numberingPreviews,
             'telemetry' => $telemetry,
             'signatories' => Signatory::orderBy('name')->get(),
             'rfidDevices' => RfidDevice::with('settings')->get()->map(fn (RfidDevice $device) => [

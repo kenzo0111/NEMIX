@@ -3,7 +3,6 @@
 namespace Modules\Inventory\Services;
 
 use App\Models\SystemSetting;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Modules\AuditLogs\Models\TransactionTrail;
@@ -45,34 +44,7 @@ class SupplyRequestService
 
     public static function generateOfficialRisNumber(?string $date = null): string
     {
-        $risPrefix = class_exists(SystemSetting::class)
-            ? (SystemSetting::get('numbering.ris_prefix') ?: 'RIS-')
-            : 'RIS-';
-
-        $dateCarbon = $date ? Carbon::parse($date) : now();
-        $yearMonth = $dateCarbon->format('Y-m');
-        $pattern = $risPrefix . $yearMonth . '-%';
-
-        $issuanceCount = DB::table('issuances')
-            ->where('ris_number', 'like', $pattern)
-            ->count();
-
-        $requestCount = DB::table('supply_requests')
-            ->where('ris_number', 'like', $pattern)
-            ->count();
-
-        $seq = max($issuanceCount, $requestCount) + 1;
-
-        do {
-            $candidate = sprintf('%s%s-%04d', $risPrefix, $yearMonth, $seq);
-            $inIssuances = DB::table('issuances')->where('ris_number', $candidate)->exists();
-            $inRequests = DB::table('supply_requests')->where('ris_number', $candidate)->exists();
-
-            if (!$inIssuances && !$inRequests) {
-                return $candidate;
-            }
-            $seq++;
-        } while (true);
+        return app(\App\Services\DocumentNumberService::class)->reserve('RIS', $date);
     }
 
     public function approve(SupplyRequest $request, array $quantities, int $reviewerId, ?string $remarks): void

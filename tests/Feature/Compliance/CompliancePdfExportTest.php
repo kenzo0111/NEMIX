@@ -33,7 +33,7 @@ class CompliancePdfExportTest extends TestCase
         $this->assertStringStartsWith('%PDF-', $response->getContent());
     }
 
-    public function test_rsmi_pdf_displays_ris_number_without_its_prefix()
+    public function test_rsmi_pdf_preserves_the_full_official_ris_number()
     {
         $form = [
             'issuedItems' => [
@@ -53,8 +53,7 @@ class CompliancePdfExportTest extends TestCase
 
         $html = view('compliance.pdf.rsmi', ['forms' => [$form]])->render();
 
-        $this->assertStringContainsString('2026-09-0028', $html);
-        $this->assertStringNotContainsString('RIS-2026-09-0028', $html);
+        $this->assertStringContainsString('RIS-2026-09-0028', $html);
     }
 
     public function test_can_export_yearly_rsmi_pdf_report()

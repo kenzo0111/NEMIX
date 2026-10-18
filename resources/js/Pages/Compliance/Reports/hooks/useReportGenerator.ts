@@ -52,9 +52,11 @@ export function useReportGenerator(
     };
 
     const updateField = (field: keyof ReportFormData, value: any) => {
+        if (field === 'type') setPreviewDataset(null);
         setFormData((prev) => {
             const next = { ...prev, [field]: value };
             if (field === 'type') {
+                next.reference = '';
                 if (value === 'RSMI') next.title = 'RSMI - Supplies and Materials Issued';
                 else if (value === 'RPCI') next.title = 'RPCI - Physical Count of Inventories';
                 else if (value === 'STOCK_CARD') next.title = next.itemName ? `Stock Card - ${next.itemName}` : 'Stock Card';
@@ -81,7 +83,7 @@ export function useReportGenerator(
             const response = await axios.post(route('compliance.reports.preview_dataset'), {
                 type: formData.type,
                 title: formData.title,
-                reference: formData.reference,
+                reference: '',
                 itemName: formData.itemName,
                 supplierId: formData.supplierId || null,
                 endUser: formData.endUser,
@@ -96,7 +98,7 @@ export function useReportGenerator(
 
             if (response.data) {
                 setPreviewDataset(response.data);
-                if (response.data.reference && !formData.reference) {
+                if (response.data.reference) {
                     setFormData((prev) => ({ ...prev, reference: response.data.reference }));
                 }
                 setCurrentStep('preview');
@@ -279,6 +281,7 @@ export function useReportGenerator(
             title: formData.title || `${formData.type} Report`,
             type: formData.type,
             reference: formData.reference || previewDataset?.reference || '',
+            automaticReference: true,
             periodType: formData.periodType || 'all',
             generatedDate: genDate,
             coverageLabel,

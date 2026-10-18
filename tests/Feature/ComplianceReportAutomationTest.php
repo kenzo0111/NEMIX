@@ -18,13 +18,14 @@ class ComplianceReportAutomationTest extends TestCase
         $this->withoutMiddleware();
     }
 
-    public function test_compliance_report_reference_generation_formats_as_yyyy_mm_dd_sequel(): void
+    public function test_reference_preview_starts_with_year_and_uses_existing_maximum(): void
     {
         $today = now()->format('Y-m-d');
+        $month = now()->format('Y-m');
 
         // First report for today should have sequence 0001
         $ref1 = ComplianceReportController::generateReference($today);
-        $this->assertSame("{$today}-0001", $ref1);
+        $this->assertSame("{$month}-001", $ref1);
 
         // Create a report with that reference
         $user = User::factory()->create();
@@ -39,12 +40,12 @@ class ComplianceReportAutomationTest extends TestCase
 
         // Second report for same date should have sequence 0002
         $ref2 = ComplianceReportController::generateReference($today);
-        $this->assertSame("{$today}-0002", $ref2);
+        $this->assertSame("{$month}-002", $ref2);
 
         // Create another report
         ComplianceReport::create([
             'title' => 'Test Report 2',
-            'type' => 'RPCI',
+            'type' => 'RSMI',
             'reference' => $ref2,
             'period_type' => 'specific',
             'date' => $today,
@@ -53,7 +54,7 @@ class ComplianceReportAutomationTest extends TestCase
 
         // Third report for same date should have sequence 0003
         $ref3 = ComplianceReportController::generateReference($today);
-        $this->assertSame("{$today}-0003", $ref3);
+        $this->assertSame("{$month}-003", $ref3);
     }
 
     public function test_store_endpoint_automatically_generates_reference_when_omitted(): void
@@ -73,11 +74,11 @@ class ComplianceReportAutomationTest extends TestCase
         $this->assertDatabaseHas('compliance_reports', [
             'title' => 'Automated Reference Report',
             'type' => 'RSMI',
-            'reference' => '2026-08-24-0001',
+            'reference' => '2026-08-001',
         ]);
     }
 
-    public function test_store_endpoint_increments_sequence_for_subsequent_reports(): void
+    public function test_store_endpoint_uses_independent_document_series(): void
     {
         $user = User::factory()->create();
         $date = '2026-08-24';
@@ -100,16 +101,16 @@ class ComplianceReportAutomationTest extends TestCase
 
         $this->assertDatabaseHas('compliance_reports', [
             'title' => 'Report 1',
-            'reference' => '2026-08-24-0001',
+            'reference' => '2026-08-001',
         ]);
 
         $this->assertDatabaseHas('compliance_reports', [
             'title' => 'Report 2',
-            'reference' => '2026-08-24-0002',
+            'reference' => '2026-00001',
         ]);
     }
 
-    public function test_store_endpoint_preserves_explicit_custom_reference(): void
+    public function test_store_endpoint_replaces_a_word_prefixed_reference_with_a_year_first_number(): void
     {
         $user = User::factory()->create();
         $date = '2026-08-24';
@@ -126,7 +127,7 @@ class ComplianceReportAutomationTest extends TestCase
 
         $this->assertDatabaseHas('compliance_reports', [
             'title' => 'Custom Ref Report',
-            'reference' => 'CUSTOM-REF-999',
+            'reference' => '2026-0001',
         ]);
     }
 }

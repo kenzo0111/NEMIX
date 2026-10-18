@@ -383,17 +383,18 @@ class ComplianceReportController extends Controller
         ]);
     }
 
-    public static function generateReference(?string $dateStr = null): string
+    public static function generateReference(?string $dateStr = null, string $type = 'RSMI'): string
     {
-        return app(ComplianceReportDataService::class)->generateUniqueReference($dateStr);
+        return app(ComplianceReportDataService::class)->generateUniqueReference($dateStr, $type);
     }
 
     public function previewDataset(Request $request, ComplianceReportDataService $dataService): JsonResponse
     {
         $validated = $request->validate([
-            'type' => ['required', 'string', 'max:50'],
+            'type' => ['required', 'string', 'in:RSMI,RPCI,STOCK_CARD,STOCKCARD,MR,MOR,MEMORANDUM_RECEIPT,MEMORANDUM RECEIPT'],
             'title' => ['nullable', 'string', 'max:255'],
             'reference' => ['nullable', 'string', 'max:100'],
+            'automaticReference' => ['sometimes', 'boolean'],
             'itemName' => ['nullable', 'string', 'max:255'],
             'supplierId' => ['nullable', 'integer'],
             'endUser' => ['nullable', 'string', 'max:255'],
@@ -413,10 +414,16 @@ class ComplianceReportController extends Controller
 
     public function store(Request $request, ComplianceReportDataService $dataService): RedirectResponse
     {
+        return \Illuminate\Support\Facades\DB::transaction(fn () => $this->storeReport($request, $dataService), 5);
+    }
+
+    private function storeReport(Request $request, ComplianceReportDataService $dataService): RedirectResponse
+    {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'string', 'max:50'],
+            'type' => ['required', 'string', 'in:RSMI,RPCI,STOCK_CARD,STOCKCARD,MR,MOR,MEMORANDUM_RECEIPT,MEMORANDUM RECEIPT'],
             'reference' => ['nullable', 'string', 'max:100'],
+            'automaticReference' => ['sometimes', 'boolean'],
             'itemName' => ['nullable', 'string', 'max:255'],
             'supplierId' => ['nullable', 'integer', 'exists:suppliers,id'],
             'supplierName' => ['nullable', 'string', 'max:255'],
@@ -464,14 +471,12 @@ class ComplianceReportController extends Controller
             }
         }
 
-        $reference = !empty($validated['reference'])
-            ? trim($validated['reference'])
-            : $dataService->generateUniqueReference($generatedDate);
-
-        // Concurrency protection: if reference is taken, generate next atomic sequence
-        if (ComplianceReport::where('reference', $reference)->exists()) {
-            $reference = $dataService->generateUniqueReference($generatedDate);
-        }
+        // A preview never reserves a number. Reserve the year-first number on creation.
+        $reference = app(\App\Services\DocumentNumberService::class)->reserve(
+            $validated['type'],
+            $generatedDate,
+            $request->boolean('automaticReference') ? null : ($validated['reference'] ?? null),
+        );
 
         $rawPayload = $request->input('payload');
         $rawSnapshot = $request->input('snapshot')
@@ -515,6 +520,10 @@ class ComplianceReportController extends Controller
                 'coverageLabel' => $coverageLabel,
             ]);
             $snapshot = $dataService->getReportDataset($synthFilters);
+        }
+
+        if (is_array($snapshot)) {
+            $snapshot = $dataService->applyDocumentReference($snapshot, $reference);
         }
 
         $currentSystemEntity = \App\Models\SystemSetting::get('institution.name', 'University of Camarines Norte');

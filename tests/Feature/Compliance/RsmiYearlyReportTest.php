@@ -52,7 +52,7 @@ class RsmiYearlyReportTest extends TestCase
         $this->assertArrayHasKey('monthly', $dataset);
         $this->assertArrayHasKey('forms', $dataset);
         $this->assertCount(1, $dataset['forms']);
-        $this->assertEquals('2024-01-001', $dataset['forms'][0]['serialNo']);
+        $this->assertEquals($dataset['reference'], $dataset['forms'][0]['serialNo']);
         $this->assertEquals('January 1–31, 2024', $dataset['forms'][0]['periodLabel']);
     }
 
@@ -116,7 +116,7 @@ class RsmiYearlyReportTest extends TestCase
         $this->assertEquals('January 1–31, 2024', $jan['period_label']);
         $this->assertTrue($jan['has_records']);
         $this->assertCount(1, $jan['forms']);
-        $this->assertEquals('2024-01-001', $jan['forms'][0]['serialNo']);
+        $this->assertEquals($dataset['reference'].'-M01', $jan['forms'][0]['serialNo']);
 
         // Check February month (leap year 2024 should be Feb 1–29, 2024)
         $feb = $yearly['months'][1];

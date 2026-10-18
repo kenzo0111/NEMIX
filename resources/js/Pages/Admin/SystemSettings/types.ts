@@ -71,11 +71,6 @@ export interface SystemSettings {
     'inventory.units_of_issue': string[];
 
     // 4. Document Sequences
-    'numbering.ris_prefix': string;
-    'numbering.rsmi_prefix': string;
-    'numbering.rpci_prefix': string;
-    'numbering.stock_card_prefix': string;
-    'numbering.mor_prefix': string;
 
     // 5. RFID & Storage
     'rfid.scan_debounce_ms': number;
@@ -166,6 +161,7 @@ export interface RfidDeviceConfiguration {
 
 export type SystemSettingsPageProps = PageProps<{
     groupedSettings: Record<string, SettingItem[]>;
+    numberingPreviews: Record<string, string>;
     telemetry: TelemetryData | null;
     signatories?: Signatory[];
     rfidDevices?: RfidDeviceConfiguration[];

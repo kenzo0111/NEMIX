@@ -90,7 +90,7 @@ class SupplyRequestController extends Controller
             'division' => $supplyRequest->department,
             'office' => $supplyRequest->department,
             'responsibility_center_code' => SystemSetting::get('institution_responsibility_center_code', ''),
-            'ris_no' => preg_replace('/^RIS-/i', '', $supplyRequest->ris_number ?? ''),
+            'ris_no' => $supplyRequest->ris_number ?? '',
             'purpose' => $supplyRequest->purpose,
             'requested_by_name' => $supplyRequest->recipient ?: ($supplyRequest->requester?->name),
             'requested_by_designation' => trim($supplyRequest->recipient_designation ?? '') ?: (trim($issuance?->recipient_designation ?? '') ?: 'Requesting Personnel'),

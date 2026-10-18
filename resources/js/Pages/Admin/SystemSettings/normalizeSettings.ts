@@ -58,11 +58,6 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
     ],
 
     // 4. Document Sequences
-    'numbering.ris_prefix': 'RIS-',
-    'numbering.rsmi_prefix': 'RSMI-',
-    'numbering.rpci_prefix': 'RPCI-',
-    'numbering.stock_card_prefix': 'STOCK-',
-    'numbering.mor_prefix': 'MR-',
 
     // 5. RFID & Storage
     'rfid.scan_debounce_ms': 1200,
@@ -194,11 +189,6 @@ export function normalizeSystemSettings(
     }
 
     // Numbering
-    assignString('numbering.ris_prefix');
-    assignString('numbering.rsmi_prefix');
-    assignString('numbering.rpci_prefix');
-    assignString('numbering.stock_card_prefix');
-    assignString('numbering.mor_prefix');
 
     // RFID
     assignNumber('rfid.scan_debounce_ms', 300, 10000);

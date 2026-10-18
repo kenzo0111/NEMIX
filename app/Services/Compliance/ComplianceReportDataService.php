@@ -7,7 +7,6 @@ use App\Models\Compliance\RpcIMigratedRecord;
 use App\Models\Compliance\RsmiMigratedRecord;
 use App\Models\Compliance\StockCardMigratedRecord;
 use App\Models\ComplianceMigratedRecord;
-use App\Models\ComplianceReport;
 use App\Models\SystemSetting;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -39,33 +38,46 @@ class ComplianceReportDataService
         return \App\Models\SystemSetting::get('institution.default_fund_cluster', '01 - Regular Agency Fund');
     }
 
-    /**
-     * Generate an authoritative unique reference safely with sequence incrementing.
-     */
-    public function generateUniqueReference(?string $dateStr = null): string
+    /** Read-only suggestion. The store endpoint reserves the final number. */
+    public function generateUniqueReference(?string $dateStr = null, string $type = 'RSMI'): string
     {
-        $datePrefix = $dateStr
-            ? Carbon::parse($dateStr)->timezone($this->timezone)->format('Y-m-d')
-            : now($this->timezone)->format('Y-m-d');
+        return app(\App\Services\DocumentNumberService::class)->preview($type, $dateStr);
+    }
 
-        return DB::transaction(function () use ($datePrefix) {
-            $existing = ComplianceReport::query()
-                ->where('reference', 'LIKE', $datePrefix . '-%')
-                ->lockForUpdate()
-                ->pluck('reference');
-
-            $maxSeq = 0;
-            foreach ($existing as $ref) {
-                if (preg_match('/^' . preg_quote($datePrefix, '/') . '-(\d+)$/', (string) $ref, $matches)) {
-                    $seq = (int) $matches[1];
-                    if ($seq > $maxSeq) {
-                        $maxSeq = $seq;
-                    }
-                }
+    /** Keep printed headers in sync with the saved registry reference. */
+    public function applyDocumentReference(array $dataset, string $reference): array
+    {
+        $dataset['reference'] = $reference;
+        foreach (['rsmi', 'rpci', 'stockCard', 'mr'] as $key) {
+            if (isset($dataset[$key]) && is_array($dataset[$key])) {
+                $dataset[$key] = $this->applyDocumentReference($dataset[$key], $reference);
             }
+        }
+        if (isset($dataset['serialNo']) || isset($dataset['serial_no'])) {
+            $dataset['serialNo'] = $dataset['serial_no'] = $reference;
+        }
+        if (isset($dataset['mrNo']) || isset($dataset['mr_no'])) {
+            $dataset['mrNo'] = $dataset['mr_no'] = $reference;
+        }
+        if (isset($dataset['forms']) && is_array($dataset['forms'])) {
+            foreach ($dataset['forms'] as $i => &$form) {
+                $form['serialNo'] = $form['serial_no'] = $reference.($i ? '-P'.($i + 1) : '');
+            }
+            unset($form);
+        }
+        foreach (['monthly', 'yearly'] as $period) {
+            if (isset($dataset[$period]) && is_array($dataset[$period])) {
+                $dataset[$period] = $this->applyDocumentReference($dataset[$period], $reference);
+            }
+        }
+        if (isset($dataset['months']) && is_array($dataset['months'])) {
+            foreach ($dataset['months'] as &$month) {
+                $month = $this->applyDocumentReference($month, $reference.'-M'.str_pad((string) $month['month'], 2, '0', STR_PAD_LEFT));
+            }
+            unset($month);
+        }
 
-            return sprintf('%s-%04d', $datePrefix, $maxSeq + 1);
-        });
+        return $dataset;
     }
 
     /**
@@ -1871,7 +1883,7 @@ class ComplianceReportDataService
         $genDate = $this->normalizeDate($filters['generatedDate'] ?? $filters['generated_date'] ?? now($this->timezone)->toDateString());
         $reference = !empty($filters['reference'])
             ? trim((string)$filters['reference'])
-            : $this->generateUniqueReference($genDate);
+            : $this->generateUniqueReference($genDate, $type);
 
         $coverageLabel = $this->buildCoverageLabel($filters);
         $systemEntity = $this->getSystemEntityName();
@@ -1942,6 +1954,6 @@ class ComplianceReportDataService
                 break;
         }
 
-        return $dataset;
+        return $this->applyDocumentReference($dataset, $reference);
     }
 }

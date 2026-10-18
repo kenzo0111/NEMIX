@@ -1,67 +1,50 @@
 import React from 'react';
-import { formatRisNumber } from '@/utils/risFormatter';
-import { SystemSettings } from '../types';
 
 interface NumberingSettingsProps {
-    settings: SystemSettings;
-    onChange: <K extends keyof SystemSettings>(key: K, value: SystemSettings[K]) => void;
-    errors?: Record<string, string>;
+    previews: Record<string, string>;
 }
 
-export default function NumberingSettings({
-    settings,
-    onChange,
-    errors = {},
-}: NumberingSettingsProps) {
-    const currentYear = new Date().getFullYear();
-    const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
-
-    const risPrefix = settings['numbering.ris_prefix'] || 'RIS-';
-    const rsmiPrefix = settings['numbering.rsmi_prefix'] || 'RSMI-';
-    const rpciPrefix = settings['numbering.rpci_prefix'] || 'RPCI-';
-    const stockPrefix = settings['numbering.stock_card_prefix'] || 'STOCK-';
-    const morPrefix = settings['numbering.mor_prefix'] || 'MR-';
-
+export default function NumberingSettings({ previews }: NumberingSettingsProps) {
     const sequences = [
         {
-            key: 'numbering.ris_prefix' as const,
+            key: 'RIS',
+            format: 'YYYY-MM-####',
             name: 'Requisition & Issue Slip (RIS)',
             shortName: 'RIS',
             description: 'Individual supply issuance vouchers (Appendix 63)',
-            resetRule: 'Annual',
-            preview: formatRisNumber(`${risPrefix}${currentYear}-${currentMonth}-0042`),
+            resetRule: 'Monthly',
         },
         {
-            key: 'numbering.rsmi_prefix' as const,
+            key: 'RSMI',
+            format: 'YYYY-MM-###',
             name: 'Report of Supplies & Materials Issued (RSMI)',
             shortName: 'RSMI',
             description: 'Monthly summary issuance ledgers (Appendix 64)',
             resetRule: 'Monthly',
-            preview: `${rsmiPrefix}${currentYear}-${currentMonth}-003`,
         },
         {
-            key: 'numbering.rpci_prefix' as const,
+            key: 'RPCI',
+            format: 'YYYY-###',
             name: 'Report on the Physical Count of Inventories (RPCI)',
             shortName: 'RPCI',
             description: 'Annual physical inventory count verification',
             resetRule: 'Annual',
-            preview: `${rpciPrefix}${currentYear}-001`,
         },
         {
-            key: 'numbering.stock_card_prefix' as const,
-            name: 'Stock Card Reference Prefix',
+            key: 'STOCK_CARD',
+            format: 'YYYY-#####',
+            name: 'Stock Card Reference',
             shortName: 'Stock Card',
-            description: 'Bin-level physical stock card identifier',
+            description: 'Stock card document reference',
             resetRule: 'Continuous',
-            preview: `${stockPrefix}00542`,
         },
         {
-            key: 'numbering.mor_prefix' as const,
+            key: 'MR',
+            format: 'YYYY-####',
             name: 'Memorandum Receipt for Property (MOR / MR)',
             shortName: 'MOR / MR',
             description: 'Property accountability acknowledgment (Appendix 59-A)',
             resetRule: 'Annual',
-            preview: `${morPrefix}${currentYear}-0028`,
         },
     ];
 
@@ -72,7 +55,7 @@ export default function NumberingSettings({
                     Document Sequences & Series
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Configure prefixes used for official inventory documents. Final sequence values are generated and reserved by the system upon creation.
+                    Document numbers start with the year, without document-name prefixes. Existing numbers stay unchanged. Suggestions refresh when this page loads; final numbers are reserved on creation.
                 </p>
             </div>
 
@@ -83,9 +66,9 @@ export default function NumberingSettings({
                         <thead>
                             <tr className="bg-slate-50 dark:bg-slate-850 border-b border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
                                 <th className="px-5 py-3.5">Document Type</th>
-                                <th className="px-5 py-3.5 w-48">Prefix</th>
+                                <th className="px-5 py-3.5 w-48">Number Format</th>
                                 <th className="px-5 py-3.5 w-32">Reset Rule</th>
-                                <th className="px-5 py-3.5 w-52">Format Preview</th>
+                                <th className="px-5 py-3.5 w-52">Suggested Next Number</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -96,15 +79,7 @@ export default function NumberingSettings({
                                         <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{seq.description}</div>
                                     </td>
                                     <td className="px-5 py-4">
-                                        <input
-                                            type="text"
-                                            value={settings[seq.key]}
-                                            onChange={(e) => onChange(seq.key, e.target.value)}
-                                            className="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 font-mono font-semibold text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-800 dark:focus:border-red-600 shadow-2xs"
-                                        />
-                                        {errors[`settings.${seq.key}`] && (
-                                            <p className="text-xs text-red-600 mt-1">{errors[`settings.${seq.key}`]}</p>
-                                        )}
+                                        <span className="font-mono text-slate-700 dark:text-slate-300">{seq.format}</span>
                                     </td>
                                     <td className="px-5 py-4">
                                         <span className="inline-block px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-[11px] font-medium">
@@ -113,7 +88,7 @@ export default function NumberingSettings({
                                     </td>
                                     <td className="px-5 py-4">
                                         <span className="inline-block px-3 py-1 rounded-lg bg-red-50/70 dark:bg-red-950/40 border border-red-200/80 dark:border-red-900/40 font-mono font-bold text-red-950 dark:text-red-300 text-xs">
-                                            {seq.preview}
+                                            {previews?.[seq.key] || '—'}
                                         </span>
                                     </td>
                                 </tr>

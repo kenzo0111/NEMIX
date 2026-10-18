@@ -99,7 +99,7 @@ class RpcISignatoriesTest extends TestCase
         $saveResponse = $this->actingAs($user)->post(route('compliance.reports.store'), [
             'title' => 'RPCI - Physical Count of Inventories',
             'type' => 'RPCI',
-            'reference' => 'RPCI-2026-09-001',
+            'reference' => '2026-001',
             'periodType' => 'all',
             'generatedDate' => '2026-09-14',
             'snapshot' => $dataset,
@@ -107,7 +107,7 @@ class RpcISignatoriesTest extends TestCase
         ]);
         $saveResponse->assertRedirect(route('compliance.reports'));
 
-        $report = ComplianceReport::where('reference', 'RPCI-2026-09-001')->first();
+        $report = ComplianceReport::where('reference', '2026-001')->first();
         $this->assertNotNull($report);
 
         $signatories = data_get($report->payload, 'signatories');

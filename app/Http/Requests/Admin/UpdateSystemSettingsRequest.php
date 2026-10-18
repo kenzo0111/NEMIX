@@ -89,6 +89,13 @@ class UpdateSystemSettingsRequest extends FormRequest
                 }
             }
 
+            foreach (['ris', 'rsmi', 'rpci', 'stock_card', 'mor'] as $type) {
+                $key = 'numbering.'.$type.'_prefix';
+                if (array_key_exists($key, $settings) && (!is_string($settings[$key]) || trim($settings[$key]) === '')) {
+                    $v->errors()->add('settings.'.$key, 'A document prefix is required.');
+                }
+            }
+
             // Signatory ID validations
             foreach ($settings as $key => $val) {
                 if (str_starts_with($key, 'signatories.') && str_ends_with($key, '_id')) {

@@ -34,6 +34,7 @@ import OperationsSettings from './Components/OperationsSettings';
 export default function Index({
     auth,
     groupedSettings,
+    numberingPreviews,
     telemetry,
     signatories: initialSignatories = [],
     rfidDevices = [],
@@ -258,11 +259,7 @@ export default function Index({
                             )}
 
                             {activeTab === 'numbering' && (
-                                <NumberingSettings
-                                    settings={data.settings}
-                                    onChange={handleFieldChange}
-                                    errors={errors}
-                                />
+                                <NumberingSettings previews={numberingPreviews} />
                             )}
 
                             {activeTab === 'rfid' && (

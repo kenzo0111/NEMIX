@@ -209,7 +209,7 @@ class SignatorySynchronizationTest extends TestCase
         $saveRes = $this->post(route('compliance.reports.store'), [
             'title' => 'Historical RSMI Report',
             'type' => 'RSMI',
-            'reference' => 'RSMI-HIST-001',
+            'reference' => '2026-09-001',
             'periodType' => 'monthly',
             'selectedMonth' => 9,
             'selectedYear' => 2026,
@@ -220,7 +220,7 @@ class SignatorySynchronizationTest extends TestCase
         ]);
         $saveRes->assertRedirect(route('compliance.reports'));
 
-        $report = ComplianceReport::where('reference', 'RSMI-HIST-001')->firstOrFail();
+        $report = ComplianceReport::where('reference', '2026-09-001')->firstOrFail();
         $this->assertSame('HISTORICAL CUSTODIAN', data_get($report->payload, 'supplyCustodianName'));
         $this->assertSame('HISTORICAL ACCOUNTANT', data_get($report->payload, 'accountingStaffName'));
 

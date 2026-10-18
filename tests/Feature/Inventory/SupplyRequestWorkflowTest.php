@@ -311,7 +311,7 @@ class SupplyRequestWorkflowTest extends TestCase
         $this->assertSame('Prof. Juan Dela Cruz', $issuance->recipient);
         $this->assertSame('05', $issuance->fund_cluster);
         $this->assertSame('Department Chair', $issuance->recipient_designation);
-        $this->assertMatchesRegularExpression('/^RIS-\d{4}-\d{2}-\d{4}$/', $request->ris_number);
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{4}$/', $request->ris_number);
         $this->assertSame($request->ris_number, $issuance->ris_number);
     }
 
@@ -324,8 +324,8 @@ class SupplyRequestWorkflowTest extends TestCase
         $request1 = $this->submit($coordinator, $item, 5);
         $request2 = $this->submit($coordinator, $item, 8);
 
-        $this->assertMatchesRegularExpression('/^RIS-\d{4}-\d{2}-\d{4}$/', $request1->ris_number);
-        $this->assertMatchesRegularExpression('/^RIS-\d{4}-\d{2}-\d{4}$/', $request2->ris_number);
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{4}$/', $request1->ris_number);
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{4}$/', $request2->ris_number);
         $this->assertNotSame($request1->ris_number, $request2->ris_number);
 
         $line1 = $request1->items()->firstOrFail();
@@ -448,10 +448,11 @@ class SupplyRequestWorkflowTest extends TestCase
         foreach ([null, 'Department Chair', '   '] as $designation) {
             $request->update(['recipient_designation' => $designation]);
             $expectedDesignation = trim($designation ?? '') ?: 'Requesting Personnel';
-            $pdf = \Mockery::mock();
+            $pdf = \Mockery::mock(\Barryvdh\DomPDF\PDF::class);
             \Barryvdh\DomPDF\Facade\Pdf::shouldReceive('loadView')->once()
-                ->withArgs(function ($view, $data) use ($signatories, $expectedDesignation) {
+                ->withArgs(function ($view, $data) use ($signatories, $expectedDesignation, $request) {
                     $ris = $data['ris'];
+                    $this->assertSame($request->ris_number, $ris['ris_no']);
                     $this->assertSame($signatories['issued_by_name'], $ris['issued_by_name']);
                     $this->assertSame($signatories['issued_by_position'], $ris['issued_by_designation']);
                     $this->assertSame($expectedDesignation, $ris['requested_by_designation']);

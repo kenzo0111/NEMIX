@@ -3,7 +3,6 @@
 namespace Modules\Inventory\Services;
 
 use App\Models\SystemSetting;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Modules\AuditLogs\Models\TransactionTrail;
@@ -76,24 +75,18 @@ class InventoryIssuanceService
             }
 
             // 4. Generate RIS number
-            $risPrefix = class_exists(SystemSetting::class)
-                ? SystemSetting::get('numbering.ris_prefix', 'RIS-')
-                : 'RIS-';
-
-            $dateCarbon = Carbon::parse($normalizedDate);
-            $yearMonth = $dateCarbon->format('Y-m');
-
-            $monthCount = Issuance::whereYear('date_issued', $dateCarbon->year)
-                ->whereMonth('date_issued', $dateCarbon->month)
-                ->count();
-            $seq = $monthCount + 1;
-            $risNumber = $data['ris_number'] ?? sprintf('%s%s-%04d', $risPrefix, $yearMonth, $seq);
-            if (!empty($data['ris_number']) && Issuance::where('ris_number', $risNumber)->exists()) {
-                throw ValidationException::withMessages(['request' => 'This RIS number has already been issued.']);
-            }
-            while (empty($data['ris_number']) && Issuance::where('ris_number', $risNumber)->exists()) {
-                $seq++;
-                $risNumber = sprintf('%s%s-%04d', $risPrefix, $yearMonth, $seq);
+            $risNumber = $data['ris_number'] ?? null;
+            if ($risNumber) {
+                // Only a linked approved request may transfer its reserved number.
+                $source = !empty($data['supply_request_id'])
+                    ? SupplyRequest::whereKey($data['supply_request_id'])->lockForUpdate()->first()
+                    : null;
+                if (!$source || $source->status !== 'Approved' || $source->issuance_id || $source->ris_number !== $risNumber
+                    || Issuance::where('ris_number', $risNumber)->exists()) {
+                    throw ValidationException::withMessages(['request' => 'This RIS number is not available for release.']);
+                }
+            } else {
+                $risNumber = app(\App\Services\DocumentNumberService::class)->reserve('RIS', $normalizedDate);
             }
 
             $primaryItemId = $itemIds[0];
