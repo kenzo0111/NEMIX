@@ -234,6 +234,95 @@ class SignatoryDirectoryTest extends TestCase
         $this->assertSame('', SystemSetting::get('signatories.ris_approved_by_name'));
     }
 
+    public function test_retired_stock_card_assignment_does_not_block_directory_cleanup(): void
+    {
+        $sig = Signatory::create(['name' => 'RETIRED STOCK CUSTODIAN', 'designation' => 'Storekeeper']);
+        SystemSetting::set('signatories.stock_card_custodian', $sig->name);
+        SystemSetting::set('signatories.stock_card_custodian_id', $sig->id);
+
+        $this->actingAs($this->adminUser)->deleteJson(route('admin.signatories.destroy', $sig))
+            ->assertOk();
+        $this->assertDatabaseMissing('signatories', ['id' => $sig->id]);
+        $this->assertSame('RETIRED STOCK CUSTODIAN', SystemSetting::get('signatories.stock_card_custodian'));
+    }
+
+    public function test_effective_legacy_chair_is_protected_but_an_overridden_chair_is_not(): void
+    {
+        $old = Signatory::create(['name' => 'LEGACY CHAIR', 'designation' => 'Chair']);
+        $current = Signatory::create(['name' => 'CURRENT CERTIFIER', 'designation' => 'Chair']);
+        SystemSetting::set('signatories.rpci_certified_by_name', '');
+        SystemSetting::set('signatories.rpci_committee_chair', $old->name);
+        SystemSetting::set('signatories.rpci_committee_chair_id', $old->id);
+        $this->actingAs($this->adminUser)->deleteJson(route('admin.signatories.destroy', $old))
+            ->assertStatus(422);
+
+        SystemSetting::set('signatories.rpci_certified_by_name', $current->name);
+        SystemSetting::set('signatories.rpci_certified_by_id', $current->id);
+        $this->deleteJson(route('admin.signatories.destroy', $old))->assertOk();
+        $this->deleteJson(route('admin.signatories.destroy', $current))->assertStatus(422);
+    }
+
+    public function test_clearing_the_consolidated_certifier_clears_its_hidden_fallback(): void
+    {
+        $sig = Signatory::create(['name' => 'FORMER CHAIR', 'designation' => 'Chair']);
+        SystemSetting::set('signatories.rpci_committee_chair', $sig->name);
+        SystemSetting::set('signatories.rpci_committee_chair_id', $sig->id);
+        SystemSetting::set('signatories.rpci_certified_by_name', $sig->name);
+        SystemSetting::set('signatories.rpci_certified_by_id', $sig->id);
+
+        $this->actingAs($this->adminUser)->post(route('system.settings.update'), ['settings' => [
+            'signatories.rpci_certified_by_name' => '',
+            // An old client might still send the previously selected ID.
+            'signatories.rpci_certified_by_id' => $sig->id,
+        ]])->assertSessionHasNoErrors()->assertRedirect();
+
+        $this->assertSame('', SystemSetting::get('signatories.rpci_committee_chair'));
+        $this->assertNull(SystemSetting::get('signatories.rpci_committee_chair_id'));
+        $this->assertNull(SystemSetting::get('signatories.rpci_certified_by_id'));
+        $this->assertSame('', app(\App\Services\SystemSettingsService::class)->getSignatoriesForForm('RPCI')['certified_by_name']);
+        $this->deleteJson(route('admin.signatories.destroy', $sig))->assertOk();
+    }
+
+    public function test_unrelated_save_preserves_retired_values_and_historical_report_snapshots(): void
+    {
+        $retired = [
+            'signatories.rsmi_certified_by_designation' => 'Legacy Custodian Role',
+            'signatories.rsmi_posted_by_designation' => 'Legacy Accounting Role',
+            'signatories.rpci_certified_by_position' => 'Legacy Committee Role',
+            'signatories.stock_card_custodian' => 'Legacy Stock Custodian',
+            'signatories.mor_issued_by_office' => 'Legacy Office',
+        ];
+        foreach ($retired as $key => $value) {
+            SystemSetting::set($key, $value);
+        }
+        $snapshot = ['rsmi' => ['supplyCustodianName' => 'Historical Person', 'supplyCustodianDesignation' => 'Historical Role']];
+        $report = \App\Models\ComplianceReport::create([
+            'title' => 'Saved Historical Report', 'type' => 'RSMI', 'reference' => 'RSMI-HIST-PRESERVE',
+            'period_type' => 'all', 'created_by' => $this->adminUser->id,
+            'payload' => ['snapshot' => $snapshot],
+        ]);
+        $this->actingAs($this->adminUser)->post(route('system.settings.update'), ['settings' => [
+            'signatories.rsmi_certified_by_name' => 'New Custodian',
+        ]])->assertSessionHasNoErrors()->assertRedirect();
+
+        foreach ($retired as $key => $value) {
+            $this->assertSame($value, SystemSetting::get($key));
+        }
+        $this->assertSame($snapshot, $report->fresh()->payload['snapshot']);
+    }
+
+    public function test_each_remaining_role_protects_its_signatory_by_name_even_without_an_id(): void
+    {
+        $sig = Signatory::create(['name' => 'ASSIGNED PERSON', 'designation' => 'Officer']);
+        $this->actingAs($this->adminUser);
+        foreach (['ris_approved_by', 'ris_issued_by', 'rsmi_certified_by', 'rsmi_posted_by',
+            'rpci_accountable_officer', 'rpci_certified_by', 'rpci_verified_by', 'mor_issued_by'] as $role) {
+            SystemSetting::set('signatories.'.$role.'_name', $sig->name);
+            $this->deleteJson(route('admin.signatories.destroy', $sig))->assertStatus(422);
+            SystemSetting::set('signatories.'.$role.'_name', '');
+        }
+    }
+
     public function test_system_settings_saves_all_signatory_selectors_consistently(): void
     {
         $sig1 = Signatory::create(['name' => 'ALBERTO DE VERA JR', 'designation' => 'STUDENT ASSISTANT']);
@@ -290,7 +379,8 @@ class SignatoryDirectoryTest extends TestCase
         $this->assertSame($sig1->id, SystemSetting::get('signatories.rsmi_certified_by_id'));
         $this->assertSame($sig2->id, SystemSetting::get('signatories.rsmi_posted_by_id'));
         $this->assertSame($sig1->id, SystemSetting::get('signatories.rpci_accountable_officer_id'));
-        $this->assertSame($sig2->id, SystemSetting::get('signatories.rpci_committee_chair_id'));
+        $this->assertSame($sig1->id, SystemSetting::get('signatories.rpci_committee_chair_id'));
+        $this->assertSame($sig1->name, SystemSetting::get('signatories.rpci_committee_chair'));
         $this->assertSame($sig1->id, SystemSetting::get('signatories.rpci_certified_by_id'));
         $this->assertSame($sig2->id, SystemSetting::get('signatories.rpci_verified_by_id'));
         $this->assertSame($sig1->id, SystemSetting::get('signatories.stock_card_custodian_id'));

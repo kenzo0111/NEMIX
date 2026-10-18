@@ -36,32 +36,24 @@ export interface SystemSettings {
     'signatories.ris_oic_prefix': string;
 
     'signatories.rsmi_certified_by_name': string;
-    'signatories.rsmi_certified_by_designation': string;
     'signatories.rsmi_certified_by_id'?: number | null;
     'signatories.rsmi_posted_by_name': string;
-    'signatories.rsmi_posted_by_designation': string;
     'signatories.rsmi_posted_by_id'?: number | null;
 
     'signatories.rpci_accountable_officer_name': string;
     'signatories.rpci_accountable_officer_designation': string;
     'signatories.rpci_accountable_officer_id'?: number | null;
-    'signatories.rpci_committee_chair': string;
-    'signatories.rpci_committee_chair_id'?: number | null;
     'signatories.rpci_certified_by_name': string;
-    'signatories.rpci_certified_by_position': string;
     'signatories.rpci_certified_by_id'?: number | null;
     'signatories.rpci_verified_by_name': string;
     'signatories.rpci_verified_by_position': string;
     'signatories.rpci_verified_by_id'?: number | null;
 
-    'signatories.stock_card_custodian': string;
-    'signatories.stock_card_custodian_id'?: number | null;
 
     // 2.5 MOR / Memorandum Receipt Signatories
     'signatories.mor_issued_by_name': string;
     'signatories.mor_issued_by_designation': string;
     'signatories.mor_issued_by_id'?: number | null;
-    'signatories.mor_issued_by_office': string;
     'compliance.mor_appendix_number': string;
 
     // 3. Inventory & Stock Rules

@@ -19,24 +19,18 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
     'signatories.ris_oic_prefix': 'OIC, ',
 
     'signatories.rsmi_certified_by_name': 'ARSENIO GEM A. GARCILLANOSA',
-    'signatories.rsmi_certified_by_designation': 'Supply Officer III / SPMO Head',
     'signatories.rsmi_posted_by_name': 'Accounting Representative / Bookkeeper',
-    'signatories.rsmi_posted_by_designation': 'Administrative Officer IV',
 
     'signatories.rpci_accountable_officer_name': 'Arsenio Gem A. Garcillanosa',
     'signatories.rpci_accountable_officer_designation': 'Supply Custodian / Supply Officer III',
-    'signatories.rpci_committee_chair': 'Inspection Committee Chairman',
     'signatories.rpci_certified_by_name': '',
-    'signatories.rpci_certified_by_position': 'Inventory Committee Chair and Members',
     'signatories.rpci_verified_by_name': '',
     'signatories.rpci_verified_by_position': 'COA Representative',
 
-    'signatories.stock_card_custodian': 'Storekeeper / Property Custodian',
 
     // 2.5 MOR / Memorandum Receipt
     'signatories.mor_issued_by_name': 'ARSENIO GEM A. GARCILLANOSA',
     'signatories.mor_issued_by_designation': 'SUPPLY OFFICER III / PROPERTY CUSTODIAN',
-    'signatories.mor_issued_by_office': 'Supply & Property Management Office (SPMO)',
     'compliance.mor_appendix_number': 'Appendix 59-A',
 
     // 3. Inventory & Stock Rules
@@ -151,30 +145,31 @@ export function normalizeSystemSettings(
     assignBool('signatories.ris_oic_active');
     assignString('signatories.ris_oic_prefix');
     assignString('signatories.rsmi_certified_by_name');
-    assignString('signatories.rsmi_certified_by_designation');
     assignNullableId('signatories.rsmi_certified_by_id');
     assignString('signatories.rsmi_posted_by_name');
-    assignString('signatories.rsmi_posted_by_designation');
     assignNullableId('signatories.rsmi_posted_by_id');
     assignString('signatories.rpci_accountable_officer_name');
     assignString('signatories.rpci_accountable_officer_designation');
     assignNullableId('signatories.rpci_accountable_officer_id');
-    assignString('signatories.rpci_committee_chair');
-    assignNullableId('signatories.rpci_committee_chair_id');
     assignString('signatories.rpci_certified_by_name');
-    assignString('signatories.rpci_certified_by_position');
     assignNullableId('signatories.rpci_certified_by_id');
+    // Promote a legacy chair only when no canonical certifier is configured.
+    // Retired controls must not be submitted as hidden settings on an unrelated save.
+    const legacyChair = flatValues['signatories.rpci_committee_chair'];
+    if (!normalized['signatories.rpci_certified_by_name'].trim() && typeof legacyChair === 'string' && legacyChair.trim()) {
+        normalized['signatories.rpci_certified_by_name'] = legacyChair;
+        const legacyId = Number(flatValues['signatories.rpci_committee_chair_id']);
+        normalized['signatories.rpci_certified_by_id'] = Number.isInteger(legacyId) && legacyId > 0 ? legacyId : null;
+    }
+
     assignString('signatories.rpci_verified_by_name');
     assignString('signatories.rpci_verified_by_position');
     assignNullableId('signatories.rpci_verified_by_id');
-    assignString('signatories.stock_card_custodian');
-    assignNullableId('signatories.stock_card_custodian_id');
 
     // MOR Signatories
     assignString('signatories.mor_issued_by_name');
     assignString('signatories.mor_issued_by_designation');
     assignNullableId('signatories.mor_issued_by_id');
-    assignString('signatories.mor_issued_by_office');
     assignString('compliance.mor_appendix_number');
 
     // Inventory

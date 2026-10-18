@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreSignatoryRequest;
 use App\Models\Signatory;
+use App\Models\SystemSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -76,22 +77,23 @@ class SignatoryController extends Controller
     {
         $this->authorizeSystemAdmin($request, 'system.settings.update');
 
-        // Safeguard: Check if currently assigned to any active role in system_settings
-        $idMatches = \App\Models\SystemSetting::where('category', 'signatories')
-            ->where('key', 'like', '%_id')
-            ->where('value', json_encode($signatory->id))
-            ->exists();
+        // Retired settings and historical snapshots are not active assignments.
+        $assigned = false;
+        foreach (['ris_approved_by', 'ris_issued_by', 'rsmi_certified_by', 'rsmi_posted_by',
+            'rpci_accountable_officer', 'rpci_certified_by', 'rpci_verified_by', 'mor_issued_by'] as $role) {
+            $name = (string) SystemSetting::get('signatories.'.$role.'_name', '');
+            $id = SystemSetting::get('signatories.'.$role.'_id');
+            if ($role === 'rpci_certified_by' && trim($name) === '') {
+                $name = (string) SystemSetting::get('signatories.rpci_committee_chair', '');
+                $id = SystemSetting::get('signatories.rpci_committee_chair_id');
+            }
+            if ((int) $id === $signatory->id || mb_strtolower(trim($name)) === mb_strtolower(trim($signatory->name))) {
+                $assigned = true;
+                break;
+            }
+        }
 
-        $nameMatches = \App\Models\SystemSetting::where('category', 'signatories')
-            ->where(function ($q) {
-                $q->where('key', 'like', '%_name')
-                    ->orWhere('key', 'signatories.rpci_committee_chair')
-                    ->orWhere('key', 'signatories.stock_card_custodian');
-            })
-            ->where('value', json_encode($signatory->name))
-            ->exists();
-
-        if ($idMatches || $nameMatches) {
+        if ($assigned) {
             return response()->json([
                 'message' => "Cannot remove \"{$signatory->name}\" because they are currently assigned to one or more active roles in System Settings. Please reassign those roles before removing this signatory.",
             ], 422);

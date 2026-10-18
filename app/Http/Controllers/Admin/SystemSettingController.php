@@ -116,6 +116,15 @@ class SystemSettingController extends Controller
 
         $settingsData = $request->settingsData();
 
+        // One visible RPCI certifier controls the legacy fallback too. Clearing or
+        // reassigning it must never resurrect a hidden committee-chair assignment.
+        if (array_key_exists('signatories.rpci_certified_by_name', $settingsData)) {
+            $settingsData['signatories.rpci_certified_by_id'] = empty($settingsData['signatories.rpci_certified_by_name'])
+                ? null : ($settingsData['signatories.rpci_certified_by_id'] ?? null);
+            $settingsData['signatories.rpci_committee_chair'] = $settingsData['signatories.rpci_certified_by_name'];
+            $settingsData['signatories.rpci_committee_chair_id'] = $settingsData['signatories.rpci_certified_by_id'];
+        }
+
         $updatedKeys = [];
         $auditDiffs = [];
         $groupId = 'settings:'.Str::uuid()->toString();
