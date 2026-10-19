@@ -2,10 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\Compliance\ComplianceReportController;
 use App\Models\ComplianceReport;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\Receiving;
@@ -20,6 +18,7 @@ class DateHandlingRegressionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        config(['app.timezone' => 'Asia/Manila']);
         $this->withoutMiddleware();
     }
 
@@ -45,7 +44,8 @@ class DateHandlingRegressionTest extends TestCase
         $this->assertNotNull($report);
         $this->assertSame($selectedDate, $report->date ? $report->date->format('Y-m-d') : null);
         $this->assertSame($selectedDate, $report->payload['generatedDate'] ?? null);
-        $this->assertStringStartsWith($selectedDate, $report->reference);
+        $this->assertSame($selectedDate, $report->coverage_label);
+        $this->assertSame('2026-09-001', $report->reference);
     }
 
     public function test_compliance_report_normalizes_utc_midnight_iso_string_to_manila_date(): void
@@ -58,7 +58,7 @@ class DateHandlingRegressionTest extends TestCase
 
         $response = $this->post(route('compliance.reports.store'), [
             'title' => 'Test ISO Date Normalization',
-            'type' => 'Stock Card',
+            'type' => 'STOCK_CARD',
             'periodType' => 'specific',
             'date' => $isoDate,
             'generatedDate' => $isoDate,
@@ -71,7 +71,8 @@ class DateHandlingRegressionTest extends TestCase
         $this->assertNotNull($report);
         $this->assertSame('2026-09-10', $report->date ? $report->date->format('Y-m-d') : null);
         $this->assertSame('2026-09-10', $report->payload['generatedDate'] ?? null);
-        $this->assertStringStartsWith('2026-09-10', $report->reference);
+        $this->assertSame('2026-09-10', $report->coverage_label);
+        $this->assertSame('2026-00001', $report->reference);
     }
 
     public function test_receiving_stores_exact_date_without_regression(): void
