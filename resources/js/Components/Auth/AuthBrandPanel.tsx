@@ -31,11 +31,11 @@ export default function AuthBrandPanel({
                     <div className="bg-white p-3 rounded-2xl shadow-xs shrink-0 flex items-center justify-center">
                         <ApplicationLogo alt={`${institutionName} Seal`} className="h-10 w-10 object-contain" />
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1 text-center">
                         <p className="leading-snug font-sans text-[11px] xl:text-xs uppercase tracking-wide text-amber-300 font-medium">
                             REPUBLIC OF THE PHILIPPINES
                         </p>
-                        <h1 className="text-[14px] xl:text-[17px] font-sans font-bold uppercase leading-snug text-white tracking-tight whitespace-nowrap">
+                        <h1 className="text-[16px] xl:text-[19px] font-sans font-bold uppercase leading-snug text-white tracking-tight whitespace-nowrap">
                             {institutionName}
                         </h1>
                         <p className="leading-snug font-sans text-xs xl:text-sm text-white/85 font-normal">
@@ -51,6 +51,9 @@ export default function AuthBrandPanel({
                 <h2 className="text-5xl xl:text-6xl font-bold tracking-tight text-white leading-tight font-sans">
                     {headline}
                 </h2>
+                <p className="mt-3 text-xs xl:text-sm font-semibold uppercase tracking-[0.18em] text-white/85 leading-relaxed">
+                    Consumables Supply Management System
+                </p>
                 <p className="text-sm xl:text-base text-white/85 leading-relaxed font-sans mt-4 max-w-md [text-wrap:pretty]">
                     {subheadline}
                 </p>

@@ -56,11 +56,11 @@ export default function FullAuthLayout({
                                 <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-stone-200 dark:border-slate-700 shadow-xs shrink-0 flex items-center justify-center">
                                     <ApplicationLogo alt={`${institutionName} Seal`} className="h-10 w-10 object-contain" />
                                 </div>
-                                <div className="min-w-0">
+                                <div className="min-w-0 flex-1 text-center">
                                     <p className="text-[10px] sm:text-xs font-medium uppercase tracking-wide text-[#7B1113] dark:text-amber-300 mb-1">
                                         REPUBLIC OF THE PHILIPPINES
                                     </p>
-                                    <h1 className="text-sm sm:text-base font-sans font-bold uppercase text-stone-900 dark:text-slate-100 leading-snug break-words">
+                                    <h1 className="text-base sm:text-lg font-sans font-bold uppercase text-stone-900 dark:text-slate-100 leading-snug break-words">
                                         {institutionName}
                                     </h1>
                                     <p className="text-xs leading-snug text-stone-600 dark:text-slate-300">{officeName}</p>
@@ -69,6 +69,9 @@ export default function FullAuthLayout({
                             <h2 className="text-xl font-bold tracking-tight text-[#7B1113] dark:text-red-400 leading-snug mt-4">
                                 {headline || 'SupplySync'}
                             </h2>
+                            <p className="mt-2 text-xs font-semibold uppercase tracking-[0.15em] text-stone-600 dark:text-slate-300 leading-relaxed">
+                                Consumables Supply Management System
+                            </p>
                             <p className="text-sm text-stone-600 dark:text-slate-300 leading-relaxed mt-1.5">
                                 {subheadline || 'Consumable Supplies and Requisition Management System'}
                             </p>
