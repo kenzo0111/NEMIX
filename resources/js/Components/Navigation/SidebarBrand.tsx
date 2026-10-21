@@ -1,5 +1,4 @@
 import React from 'react';
-import ApplicationLogo from '@/Components/ApplicationLogo';
 
 interface SidebarBrandProps {
     collapsed?: boolean;
@@ -12,8 +11,8 @@ export default function SidebarBrand({ collapsed = false, onCloseMobile, coordin
         <div className="p-4 border-b border-red-900/60 relative z-10 flex items-center justify-between h-20 gap-3 px-4 overflow-hidden bg-red-950/40 select-none">
             <div className="flex items-center gap-3 min-w-0">
                 <div className="shrink-0 flex items-center justify-center">
-                    <div className={`w-10 h-10 bg-white p-1 border border-amber-400/40 shadow-sm flex items-center justify-center ${coordinator ? 'rounded-xl' : 'rounded-full'}`}>
-                        <ApplicationLogo className="w-7 h-7 object-contain" alt="SupplySync" />
+                    <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl border border-white/60 bg-[#fffffa] shadow-sm">
+                        <img src="/images/supplysync-sidebar-logo.png" className="h-full w-full scale-[1.28] object-contain" alt="SupplySync supply management logo" width={44} height={44} />
                     </div>
                 </div>
 

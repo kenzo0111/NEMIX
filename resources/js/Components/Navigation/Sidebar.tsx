@@ -220,6 +220,20 @@ export default function Sidebar({
                     ${className}
                 `}
             >
+                {isCoordinator && (
+                    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+                        <div className="absolute inset-x-0 bottom-0 h-[60%]">
+                            <img
+                                src="/images/cnsc-campus-bg.jpg"
+                                alt=""
+                                className="h-full w-full object-cover object-[60%_center] opacity-40 mix-blend-luminosity"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-b from-red-950 via-red-950/[0.65] to-red-950/40" />
+                        </div>
+                        <div className="absolute -left-12 bottom-[22%] h-12 w-[140%] -rotate-[25deg] border-y border-red-300/10 bg-red-900/[0.15]" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-red-950/20 to-red-950/[0.45]" />
+                    </div>
+                )}
                 {/* University Institutional Header */}
                 <SidebarBrand
                     coordinator={isCoordinator}
