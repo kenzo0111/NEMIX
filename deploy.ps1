@@ -8,8 +8,8 @@ $RemoteDir = '/var/www/NEMIX'
 $SshOptions = @(
     '-o', 'IPQoS=none',
     '-o', 'BatchMode=yes',
-    '-o', 'ConnectTimeout=15',
-    '-o', 'ConnectionAttempts=1',
+    '-o', 'ConnectTimeout=30',
+    '-o', 'ConnectionAttempts=3',
     '-o', 'ServerAliveInterval=10',
     '-o', 'ServerAliveCountMax=3'
 )
