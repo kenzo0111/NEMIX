@@ -39,11 +39,11 @@ export default function Login({
     return (
         <FullAuthLayout
             badgeText="INSTITUTIONAL ACCESS"
-            headline="SupplySync:"
+            headline="SupplySync"
             subheadline="A Web-Based Consumable Supplies Management System with Digital Requisition Processing and Automated Reports"
             headerSlot={
-                <div className="mb-5 pb-3.5 border-b border-stone-200/80 dark:border-slate-800">
-                    <h2 className="text-xl font-bold text-stone-900 dark:text-slate-100 font-sans tracking-tight">
+                <div className="mb-7">
+                    <h2 className="text-2xl font-bold text-stone-900 dark:text-slate-100 font-sans tracking-tight">
                         Administrative Login
                     </h2>
                     <p className="leading-relaxed text-sm text-stone-500 dark:text-slate-400 mt-1 font-sans">
@@ -60,7 +60,7 @@ export default function Login({
                 </AuthAlert>
             )}
 
-            <form onSubmit={submit} className="space-y-4.5">
+            <form onSubmit={submit} className="space-y-5">
                 {/* Official Email Address */}
                 <div>
                     <InputLabel
@@ -100,7 +100,7 @@ export default function Login({
                 />
 
                 {/* Remember Me & Forgot Password - Connected Alignment */}
-                <div className="flex items-center justify-between pt-1">
+                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                     <label className="inline-flex items-center gap-2.5 min-h-[44px] cursor-pointer select-none">
                         <Checkbox
                             name="remember"
@@ -124,7 +124,7 @@ export default function Login({
                 </div>
 
                 {/* Primary Action Button - with increased space above */}
-                <div className="pt-4 sm:pt-4.5">
+                <div className="pt-1">
                     <AuthSubmitButton
                         processing={processing}
                         loadingText="Signing in..."
@@ -138,7 +138,7 @@ export default function Login({
                     <button
                         type="button"
                         onClick={() => setShowHelpModal(true)}
-                        className="inline-flex items-center justify-center gap-1.5 text-sm text-stone-500 dark:text-slate-400 hover:text-stone-800 dark:hover:text-slate-200 transition-colors font-sans focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7B1113] dark:focus-visible:ring-red-400 rounded px-2 py-1 cursor-pointer"
+                        className="inline-flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-sm text-stone-500 dark:text-slate-400 hover:text-stone-800 dark:hover:text-slate-200 transition-colors font-sans focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7B1113] dark:focus-visible:ring-red-400 rounded px-2 py-1 cursor-pointer"
                         aria-haspopup="dialog"
                     >
                         <span>Need access help?</span>

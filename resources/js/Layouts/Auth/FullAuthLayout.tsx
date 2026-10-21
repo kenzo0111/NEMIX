@@ -24,7 +24,7 @@ export default function FullAuthLayout({
     const institutionName = branding?.institutionName || 'University of Camarines Norte';
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center py-6 sm:py-10 px-4 sm:px-6 lg:px-8 relative login-bg">
+        <div className="min-h-screen flex flex-col items-center justify-center pt-20 pb-8 sm:py-12 px-4 sm:px-6 lg:px-8 relative login-bg">
             {/* Institutional Maroon Overlay + Vignette on Campus Background */}
             <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
                 <div className="absolute inset-0 bg-red-950/85 mix-blend-multiply" />
@@ -37,7 +37,7 @@ export default function FullAuthLayout({
             </div>
 
             {/* Main Centered Institutional Card */}
-            <main className="relative z-10 w-full max-w-5xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-stone-200 dark:border-slate-800">
+            <main className="relative z-10 w-full max-w-xl lg:max-w-5xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-stone-200 dark:border-slate-800">
                 {/* Desktop/Tablet Left Brand Panel */}
                 <AuthBrandPanel
                     badgeText={badgeText}
@@ -46,22 +46,11 @@ export default function FullAuthLayout({
                 />
 
                 {/* Right Form Panel: Primary visual focus */}
-                <div className="relative w-full md:w-7/12 lg:w-[56%] p-6 sm:p-9 lg:p-10 flex flex-col justify-between bg-gradient-to-b from-stone-50/30 via-white to-stone-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 overflow-hidden">
-                    {/* Subtle university watermark accent */}
-                    <div
-                        className="absolute -bottom-14 -right-14 w-60 h-60 pointer-events-none opacity-[0.035] dark:opacity-[0.025] select-none"
-                        aria-hidden="true"
-                    >
-                        <img
-                            src="/images/ucnlogo.png"
-                            alt=""
-                            className="w-full h-full object-contain grayscale"
-                        />
-                    </div>
+                <div className="relative w-full lg:w-[54%] p-6 sm:p-10 lg:p-12 flex flex-col bg-white dark:bg-slate-900">
 
                     <div className="relative z-10 w-full max-w-[470px] mx-auto flex-1 flex flex-col justify-between">
                         {/* Mobile Condensed Brand Header */}
-                        <div className="md:hidden pb-4 mb-4 border-b border-stone-200 dark:border-slate-800">
+                        <div className="lg:hidden pb-6 mb-6 border-b border-stone-200 dark:border-slate-800">
                             <div className="flex items-center gap-3">
                                 <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-stone-200 dark:border-slate-700 shadow-xs shrink-0 flex items-center justify-center">
                                     <ApplicationLogo alt={`${institutionName} Seal`} className="h-10 w-10 object-contain" />
@@ -81,13 +70,13 @@ export default function FullAuthLayout({
                         </div>
 
                         {/* Vertically centered form group: Heading + Form + Actions */}
-                        <div className="my-auto w-full py-2 sm:py-3">
+                        <div className="my-auto w-full">
                             {headerSlot}
                             {children}
                         </div>
 
                         {/* Secondary institutional footer anchored at the bottom */}
-                        <AuthFooter className="pt-4 mt-6 border-t border-stone-200/70 dark:border-slate-800/80" />
+                        <AuthFooter compact className="pt-5 mt-8 border-t border-stone-200/70 dark:border-slate-800/80" />
                     </div>
                 </div>
             </main>
