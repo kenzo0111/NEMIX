@@ -3,7 +3,6 @@ import React from 'react';
 interface SidebarBrandProps {
     collapsed?: boolean;
     onCloseMobile?: () => void;
-    coordinator?: boolean;
 }
 
 export default function SidebarBrand({ collapsed = false, onCloseMobile }: SidebarBrandProps) {

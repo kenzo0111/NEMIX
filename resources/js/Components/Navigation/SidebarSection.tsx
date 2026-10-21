@@ -3,13 +3,12 @@ import React from 'react';
 interface SidebarSectionProps {
     title: string;
     collapsed?: boolean;
-    coordinator?: boolean;
 }
 
-export default function SidebarSection({ title, collapsed = false, coordinator = false }: SidebarSectionProps) {
+export default function SidebarSection({ title, collapsed = false }: SidebarSectionProps) {
     return (
         <div
-            className={`px-3 pt-3 pb-1 flex items-center justify-between ${coordinator ? 'text-xs font-medium text-amber-300' : 'text-sm font-bold text-amber-400/80'} normal-case tracking-normal transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap select-none ${
+            className={`px-3 pt-3 pb-1 flex items-center justify-between text-xs font-medium text-amber-300 normal-case tracking-normal transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap select-none ${
                 collapsed ? 'max-h-0 opacity-0 pointer-events-none py-0' : 'max-h-8 opacity-100'
             }`}
         >

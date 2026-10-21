@@ -214,35 +214,32 @@ export default function Sidebar({
                 className={`
                     fixed inset-y-0 left-0 z-50 bg-red-950 border-r border-red-900/60
                     text-white shadow-xl transition-all duration-300 ease-in-out flex flex-col select-none overflow-x-hidden print:hidden
-                    ${isCoordinator ? 'bg-[radial-gradient(ellipse_at_bottom_left,_#7f1d1d55,_transparent_65%)]' : ''}
+                    bg-[radial-gradient(ellipse_at_bottom_left,_#7f1d1d55,_transparent_65%)]
                     ${collapsed ? 'md:w-20' : 'md:w-72'}
                     ${mobileOpen ? 'w-72 translate-x-0' : 'w-72 -translate-x-full md:translate-x-0'}
                     ${className}
                 `}
             >
-                {isCoordinator && (
-                    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-                        <div className="absolute inset-x-0 bottom-0 h-[60%]">
-                            <img
-                                src="/images/cnsc-campus-bg.jpg"
-                                alt=""
-                                className="h-full w-full object-cover object-[60%_center] opacity-40 mix-blend-luminosity"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-b from-red-950 via-red-950/[0.65] to-red-950/40" />
-                        </div>
-                        <div className="absolute -left-12 bottom-[22%] h-12 w-[140%] -rotate-[25deg] border-y border-red-300/10 bg-red-900/[0.15]" />
-                        <div className="absolute inset-0 bg-gradient-to-r from-red-950/20 to-red-950/[0.45]" />
+                <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+                    <div className="absolute inset-x-0 bottom-0 h-[60%]">
+                        <img
+                            src="/images/cnsc-campus-bg.jpg"
+                            alt=""
+                            className="h-full w-full object-cover object-[60%_center] opacity-40 mix-blend-luminosity"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-b from-red-950 via-red-950/[0.65] to-red-950/40" />
                     </div>
-                )}
+                    <div className="absolute -left-12 bottom-[22%] h-12 w-[140%] -rotate-[25deg] border-y border-red-300/10 bg-red-900/[0.15]" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-950/20 to-red-950/[0.45]" />
+                </div>
                 {/* University Institutional Header */}
                 <SidebarBrand
-                    coordinator={isCoordinator}
                     collapsed={effectiveCollapsed}
                     onCloseMobile={() => setMobileOpen(false)}
                 />
 
                 {/* Main Navigation Body */}
-                <nav aria-label="Workspace pages" className={`flex-1 overflow-y-auto overflow-x-hidden py-3 px-3 relative z-10 scrollbar-hide no-scrollbar ${isCoordinator ? 'space-y-5' : 'space-y-3'}`}>
+                <nav aria-label="Workspace pages" className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-3 relative z-10 scrollbar-hide no-scrollbar space-y-5">
                     {((canAny(['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release', 'inventory.requests.verify-document']) && capabilities?.inventory?.issuance) || (capabilities as any)?.requiresSupportingDocument) && (
                         <SupplyRequestAlerts collapsed={effectiveCollapsed} onExpand={onToggleCollapse} />
                     )}
@@ -255,13 +252,11 @@ export default function Sidebar({
                             <div key={group.key} className="space-y-1">
                                 <SidebarSection
                                     title={group.title}
-                                    coordinator={isCoordinator}
                                     collapsed={effectiveCollapsed}
                                 />
 
                                 {group.items.map((item) => (
                                     <SidebarItem
-                                        coordinator={isCoordinator}
                                         key={item.key}
                                         item={item}
                                         isExpanded={expandedModule === item.title}

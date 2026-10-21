@@ -9,7 +9,6 @@ interface SidebarItemProps {
     isExpanded: boolean;
     onToggle: (title: string) => void;
     collapsed?: boolean;
-    coordinator?: boolean;
 }
 
 export default function SidebarItem({
@@ -17,7 +16,6 @@ export default function SidebarItem({
     isExpanded,
     onToggle,
     collapsed = false,
-    coordinator = false,
 }: SidebarItemProps) {
     const hasSubmodules = Boolean(item.submodules && item.submodules.length > 0);
     const isSubmoduleActive = Boolean(
@@ -38,24 +36,24 @@ export default function SidebarItem({
         <div
             className={`
                 relative w-full flex items-center px-3 text-sm font-medium rounded-lg transition-colors duration-150 cursor-pointer overflow-hidden
-                ${coordinator ? 'min-h-11 py-2.5' : 'py-2'}
+                min-h-11 py-2.5
                 ${
                     isItemActive
-                        ? coordinator ? 'bg-gradient-to-r from-red-800/80 to-red-900/60 text-white ring-1 ring-inset ring-red-400/15' : 'bg-red-900/60 text-white'
+                        ? 'bg-gradient-to-r from-red-800/80 to-red-900/60 text-white ring-1 ring-inset ring-red-400/15'
                         : 'text-red-200/80 hover:bg-white/5 hover:text-white'
                 }
             `}
             title={collapsed ? item.title : undefined}
         >
-            {/* Subtle Gold Left Border Indicator */}
+            {/* Active page indicator */}
             {isItemActive && (
-                <span className={`absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-sm ${coordinator ? 'bg-red-300' : 'bg-amber-400'}`} />
+                <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-sm bg-red-300" />
             )}
 
             <div className="flex items-center gap-3 min-w-0 flex-1">
                 <span
                     className={`shrink-0 flex items-center justify-center transition-colors ${
-                        isItemActive ? coordinator ? 'text-red-100' : 'text-amber-400' : 'text-red-300/80 group-hover:text-amber-300'
+                        isItemActive ? 'text-red-100' : 'text-red-300/80 group-hover:text-amber-300'
                     }`}
                 >
                     {renderIcon()}
