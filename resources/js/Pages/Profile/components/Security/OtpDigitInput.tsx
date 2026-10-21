@@ -33,7 +33,7 @@ export default function OtpDigitInput({
                     onKeyDown={(e) => onKeyDown(idx, e)}
                     disabled={disabled}
                     aria-label={`Digit ${idx + 1}`}
-                    className={`w-11 h-13 sm:w-12 sm:h-14 text-center text-xl font-bold font-mono rounded-lg border text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 transition-all select-none ${
+                    className={`w-11 h-13 sm:w-12 sm:h-14 text-center text-xl font-bold tabular-nums rounded-lg border text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 transition-all select-none ${
                         digit
                             ? 'border-red-900 dark:border-red-500 bg-white dark:bg-slate-900 ring-1 ring-red-900/10 dark:ring-red-500/20'
                             : disabled

@@ -40,7 +40,7 @@ export default function StockQuantityChart({ items }: StockQuantityChartProps) {
     if (!items || items.length === 0) {
         return (
             <div className="h-72 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 p-6 text-center">
-                <p className="text-xs font-medium text-gray-500 dark:text-slate-400">No stock quantity records available.</p>
+                <p className="leading-relaxed text-sm font-medium text-gray-500 dark:text-slate-400">No stock quantity records available.</p>
             </div>
         );
     }
@@ -63,7 +63,7 @@ export default function StockQuantityChart({ items }: StockQuantityChartProps) {
                     tickLine={false}
                     axisLine={false}
                     width={150}
-                    tick={{ fill: 'var(--chart-tick)', fontSize: 11, fontWeight: 500 }}
+                    tick={{ fill: 'var(--chart-tick)', fontSize: 14, fontWeight: 500 }}
                     tickFormatter={(val) => {
                         const str = String(val);
                         return str.length > 20 ? `${str.slice(0, 19)}…` : str;
@@ -74,7 +74,7 @@ export default function StockQuantityChart({ items }: StockQuantityChartProps) {
                     type="number"
                     tickLine={false}
                     axisLine={false}
-                    tick={{ fill: 'var(--chart-tick-muted)', fontSize: 11 }}
+                    tick={{ fill: 'var(--chart-tick-muted)', fontSize: 14 }}
                     tickFormatter={(val) => Number(val).toLocaleString()}
                 />
                 <ChartTooltip

@@ -44,8 +44,8 @@ function Toast({ notification, present, onExited }: PresentedNotification & { on
             }}>
             <Icon className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
             <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold">{notification.title || title}</p>
-                <p className="mt-1 whitespace-pre-line break-words text-sm">{notification.message}</p>
+                <p className="leading-relaxed text-sm font-bold">{notification.title || title}</p>
+                <p className="leading-relaxed mt-1 whitespace-pre-line break-words text-sm">{notification.message}</p>
             </div>
             <button type="button" onClick={() => dismissNotification(notification.id)} disabled={!present}
                 className="shrink-0 rounded-md p-1 opacity-60 transition-opacity duration-150 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 motion-reduce:transition-none"

@@ -20,7 +20,7 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
                         <div className="p-1 rounded-md bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 shrink-0">
                             <AlertCircle className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="text-lg font-bold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
                             Stock Requiring Attention
                         </h3>
                     </div>
@@ -29,15 +29,15 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
                 {/* Compact List / Table */}
                 {items.length === 0 ? (
                     <div className="py-5 text-center text-slate-400 dark:text-slate-500">
-                        <p className="text-xs">
+                        <p className="leading-relaxed text-sm">
                             All tracked inventory items are currently above their critical thresholds.
                         </p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs">
+                        <table className="w-full text-left text-sm">
                             <thead>
-                                <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
+                                <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold normal-case text-sm tracking-normal">
                                     <th className="pb-2 w-auto">Item</th>
                                     <th className="pb-2 text-center w-36 sm:w-44">Available / Min</th>
                                     <th className="pb-2 text-right w-24 sm:w-28">Status</th>
@@ -48,25 +48,25 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
                                     const isCritical = item.priority === 'Critical' || item.current <= 5;
                                     return (
                                         <tr key={item.id ?? idx} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/60 transition-colors">
-                                            <td className="py-2 pr-3 min-w-0">
+                                            <td className="py-3 pr-3 min-w-0">
                                                 <div className="font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[220px] sm:max-w-[360px]">
                                                     {item.name}
                                                 </div>
-                                                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                                                <div className="text-sm text-slate-500 dark:text-slate-400 tabular-nums mt-0.5">
                                                     {item.sku}
                                                 </div>
                                             </td>
-                                            <td className="py-2 px-2 text-center font-mono whitespace-nowrap">
+                                            <td className="py-3 px-2 text-center tabular-nums whitespace-nowrap">
                                                 <span className={`font-bold ${isCritical ? 'text-red-700 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'}`}>
                                                     {item.current}
                                                 </span>
                                                 <span className="text-slate-400 dark:text-slate-500 mx-1">/</span>
                                                 <span className="text-slate-600 dark:text-slate-300">{item.min}</span>
-                                                <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-1">{item.unit}</span>
+                                                <span className="text-sm text-slate-400 dark:text-slate-500 ml-1">{item.unit}</span>
                                             </td>
-                                            <td className="py-2 pl-2 text-right whitespace-nowrap">
+                                            <td className="py-3 pl-2 text-right whitespace-nowrap">
                                                 <span
-                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-bold normal-case tracking-normal ${
                                                         isCritical
                                                             ? 'bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 ring-1 ring-red-600/20 dark:ring-red-500/30'
                                                             : 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 ring-1 ring-amber-600/20 dark:ring-amber-500/30'
@@ -88,7 +88,7 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
             <div className="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                 <Link
                     href={inventoryHref}
-                    className="text-xs font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1"
+                    className="text-sm font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1"
                 >
                     <span>View All Inventory</span>
                     <ArrowRight className="w-3.5 h-3.5" />

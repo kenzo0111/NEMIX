@@ -31,7 +31,7 @@ export default function SidebarUser({
             <div className="p-2 border-t border-red-900/60 bg-red-950/60 relative z-10 flex flex-col items-center gap-2 select-none">
                 {/* User Avatar with Tooltip */}
                 <div
-                    className="w-9 h-9 rounded-lg bg-red-900 border border-amber-400/40 text-amber-300 flex items-center justify-center font-bold text-xs"
+                    className="w-9 h-9 rounded-lg bg-red-900 border border-amber-400/40 text-amber-300 flex items-center justify-center font-bold text-sm"
                     title={`${userName} (${userRole})`}
                 >
                     {initial}
@@ -83,14 +83,14 @@ export default function SidebarUser({
         <div className="p-3 border-t border-red-900/60 bg-red-950/60 relative z-10 space-y-2.5 select-none">
             {/* User Profile Summary */}
             <div className="flex items-center gap-3 px-1">
-                <div className="w-9 h-9 rounded-lg bg-red-900 border border-amber-400/40 text-amber-300 flex items-center justify-center font-bold text-xs shrink-0">
+                <div className="w-9 h-9 rounded-lg bg-red-900 border border-amber-400/40 text-amber-300 flex items-center justify-center font-bold text-sm shrink-0">
                     {initial}
                 </div>
                 <div className="min-w-0 flex-1 truncate">
-                    <p className="text-xs font-semibold text-white truncate leading-tight">
+                    <p className="text-sm font-semibold text-white truncate leading-tight">
                         {userName}
                     </p>
-                    <p className="text-[10px] text-amber-400/90 font-medium truncate">
+                    <p className="leading-relaxed text-sm text-amber-400/90 font-medium truncate">
                         {userRole}
                     </p>
                 </div>
@@ -100,7 +100,7 @@ export default function SidebarUser({
             <Link
                 href={route('profile.edit')}
                 aria-current={isAccountSettingsActive ? 'page' : undefined}
-                className={`block px-2.5 py-1.5 text-xs rounded-md transition-colors ${
+                className={`block px-2.5 py-1.5 text-sm rounded-md transition-colors ${
                     isAccountSettingsActive
                         ? 'bg-red-900/60 text-amber-300 font-medium'
                         : 'text-red-200/80 hover:text-white hover:bg-white/5'
@@ -111,19 +111,19 @@ export default function SidebarUser({
 
             {/* Theme Selector Strip in Sidebar */}
             <div className="pt-1">
-                <div className="flex items-center justify-between px-1 mb-1 text-[10px] uppercase font-bold tracking-wider text-red-300/60">
+                <div className="flex items-center justify-between px-1 mb-1 text-sm normal-case font-bold tracking-normal text-red-300/60">
                     <span>Appearance</span>
                 </div>
                 <ThemeToggle variant="sidebar" />
             </div>
 
             {/* Controls: Collapse & Sign Out */}
-            <div className="flex items-center justify-between pt-2 border-t border-red-900/40 text-xs">
+            <div className="flex items-center justify-between pt-2 border-t border-red-900/40 text-sm">
                 {onToggleCollapse ? (
                     <button
                         type="button"
                         onClick={onToggleCollapse}
-                        className="hidden md:flex items-center gap-1.5 text-red-200/70 hover:text-white py-1 px-1.5 rounded transition-colors text-[11px] font-medium cursor-pointer"
+                        className="hidden md:flex items-center gap-1.5 text-red-200/70 hover:text-white py-1 px-1.5 rounded transition-colors text-sm font-medium cursor-pointer"
                         title="Collapse Sidebar"
                     >
                         <PanelLeftClose className="w-3.5 h-3.5" />
@@ -136,7 +136,7 @@ export default function SidebarUser({
                 <button
                     type="button"
                     onClick={onOpenLogoutModal}
-                    className="flex items-center gap-1.5 text-red-200/70 hover:text-amber-300 py-1 px-1.5 rounded transition-colors text-[11px] font-medium cursor-pointer ml-auto"
+                    className="flex items-center gap-1.5 text-red-200/70 hover:text-amber-300 py-1 px-1.5 rounded transition-colors text-sm font-medium cursor-pointer ml-auto"
                     title="Sign Out"
                 >
                     <LogOut className="w-3.5 h-3.5" />

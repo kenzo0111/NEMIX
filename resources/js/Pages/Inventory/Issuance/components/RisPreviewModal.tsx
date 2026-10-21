@@ -101,10 +101,10 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
                 {/* Neutral Administrative Header */}
                 <div className="ris-print-hide flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-800/75 flex-shrink-0">
                     <div>
-                        <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
                             Requisition and Issue Slip
                         </h3>
-                        <p className="text-xs text-gray-500 dark:text-slate-400 font-mono">
+                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 tabular-nums">
                             RIS Reference: <span className="font-bold text-red-950 dark:text-red-400">{formatRisNumber(issuance.ris_number)}</span>
                         </p>
                     </div>
@@ -132,11 +132,11 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
 
                 {/* Modal Footer */}
                 <div className="ris-print-hide px-4 sm:px-6 py-3.5 bg-gray-50 dark:bg-slate-950/60 border-t border-gray-200 dark:border-slate-800 flex items-center justify-end gap-2.5 flex-shrink-0">
-                    {downloadUrl && <a href={downloadUrl} className="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700">Download PDF</a>}
+                    {downloadUrl && <a href={downloadUrl} className="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700">Download PDF</a>}
                     <button
                         type="button"
                         onClick={handlePrint}
-                        className="px-4 py-2 bg-red-950 hover:bg-red-900 text-white font-semibold text-xs rounded-md shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                        className="px-4 py-2 bg-red-950 hover:bg-red-900 text-white font-semibold text-sm rounded-md shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                     >
                         <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
@@ -151,7 +151,7 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                        className="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                     >
                         Close
                     </button>

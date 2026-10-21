@@ -55,10 +55,10 @@ export default function NotificationSettings({
             {/* EMAIL ALERTS CONFIGURATION */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
                         Stock Alert Email Notifications
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                         Automated notifications dispatched to custodial staff when consumable inventory reaches threshold.
                     </p>
                 </div>
@@ -76,18 +76,18 @@ export default function NotificationSettings({
                     <div className="flex-1">
                         <label
                             htmlFor="low_stock_mail"
-                            className="text-xs font-semibold text-slate-900 dark:text-slate-100 cursor-pointer"
+                            className="text-sm font-semibold text-slate-900 dark:text-slate-100 cursor-pointer"
                         >
                             Dispatch Automated Low-Stock Warning Emails
                         </label>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                             Sends an automated email notification to designated personnel when an item balance dips to or below its reorder point.
                         </p>
                     </div>
                 </div>
 
                 <div className="space-y-1.5 max-w-xl">
-                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 block">
                         Alert Recipient Email
                     </label>
                     <input
@@ -100,11 +100,11 @@ export default function NotificationSettings({
                         placeholder="spmo-alerts@ucn.edu.ph"
                     />
                     {errors['settings.mail.alert_recipient_email'] && (
-                        <p className="text-xs text-red-600 mt-1">
+                        <p className="leading-relaxed text-sm text-red-600 mt-1">
                             {errors['settings.mail.alert_recipient_email']}
                         </p>
                     )}
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
                         <Info className="w-3 h-3 text-slate-400 shrink-0" />
                         Leave blank to use the current administrator's email, or an active system administrator when stock is updated by other staff.
                     </p>
@@ -116,10 +116,10 @@ export default function NotificationSettings({
             {/* TEST EMAIL DIAGNOSTICS */}
             {can('system.settings.test-email') && <div className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
                         Test Email Delivery
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                         Verify outbound SMTP transport connectivity without modifying policy configuration.
                     </p>
                 </div>
@@ -131,16 +131,16 @@ export default function NotificationSettings({
                             value={testEmailForm.data.recipient}
                             onChange={(e) => testEmailForm.setData('recipient', e.target.value)}
                             placeholder={`Recipient (Default: ${defaultAdminEmail})`}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-red-900/15 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 shadow-2xs placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-red-900/15 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 shadow-2xs placeholder:text-slate-400 dark:placeholder:text-slate-500"
                         />
                         {testEmailForm.errors.recipient && (
-                            <p className="text-xs text-red-600 mt-1">{testEmailForm.errors.recipient}</p>
+                            <p className="leading-relaxed text-sm text-red-600 mt-1">{testEmailForm.errors.recipient}</p>
                         )}
                     </div>
                     <button
                         type="submit"
                         disabled={testEmailForm.processing}
-                        className="px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-red-900 hover:bg-red-800 active:bg-red-950 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-xs shrink-0"
+                        className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-900 hover:bg-red-800 active:bg-red-950 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-xs shrink-0"
                     >
                         <Send className="w-3.5 h-3.5" />
                         <span>{testEmailForm.processing ? 'Testing Connection...' : 'Send Test'}</span>

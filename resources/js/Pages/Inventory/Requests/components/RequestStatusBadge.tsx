@@ -47,7 +47,7 @@ export function RequestStatusBadge({ status }: { status: SupplyRequest['status']
 
     return (
         <span
-            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold border leading-none whitespace-nowrap ${item.bg} ${item.text} ${item.border}`}
+            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-sm font-semibold border leading-none whitespace-nowrap ${item.bg} ${item.text} ${item.border}`}
         >
             <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${item.dot}`} />
             <span>{item.label}</span>
@@ -68,8 +68,8 @@ export function ItemQuantityDisplay({
 }) {
     if (status === 'Pending' || approved === null || approved === undefined) {
         return (
-            <span className="font-mono font-medium text-gray-800 dark:text-slate-200">
-                {requested} <span className="text-gray-400 text-[11px] font-sans">{unit}</span>
+            <span className="tabular-nums font-medium text-gray-800 dark:text-slate-200">
+                {requested} <span className="text-gray-400 text-sm font-sans">{unit}</span>
             </span>
         );
     }
@@ -77,17 +77,17 @@ export function ItemQuantityDisplay({
     const isAdjusted = approved !== requested;
 
     return (
-        <div className="inline-flex flex-col items-start font-mono">
+        <div className="inline-flex flex-col items-start tabular-nums">
             <div className="flex items-center gap-1.5">
                 <span className={`font-bold ${isAdjusted ? 'text-amber-700 dark:text-amber-400' : 'text-gray-900 dark:text-slate-100'}`}>
                     {approved}
                 </span>
-                <span className="text-gray-400 text-[11px] font-sans">
+                <span className="text-gray-400 text-sm font-sans">
                     / {requested} {unit}
                 </span>
             </div>
             {isAdjusted && (
-                <span className="text-[10px] uppercase font-sans font-semibold text-amber-600 dark:text-amber-400">
+                <span className="text-sm normal-case font-sans font-semibold text-amber-600 dark:text-amber-400">
                     Adjusted by Custodian
                 </span>
             )}

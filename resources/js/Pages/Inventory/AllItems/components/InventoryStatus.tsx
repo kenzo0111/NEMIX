@@ -29,7 +29,7 @@ export default function InventoryStatus({ status }: InventoryStatusProps) {
     };
 
     return (
-        <div className="inline-flex items-center gap-1.5 text-xs font-medium">
+        <div className="inline-flex items-center gap-1.5 text-sm font-medium">
             <span className={`w-2 h-2 rounded-full shrink-0 ${config.dot}`} aria-hidden="true" />
             <span className={config.text}>{status}</span>
         </div>

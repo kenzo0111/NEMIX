@@ -54,8 +54,8 @@ export const ActionDialog: React.FC<ActionDialogProps> = ({
                         </div>
                     )}
 
-                    <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight mb-1.5">{title}</h3>
-                    <p className="text-xs text-gray-500 dark:text-slate-400 mb-5 leading-relaxed font-medium">{message}</p>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight mb-1.5">{title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-slate-400 mb-5 leading-relaxed font-medium">{message}</p>
 
                     <div className="flex flex-col-reverse sm:flex-row gap-2.5 justify-center w-full">
                         {type === 'confirm' ? (
@@ -63,14 +63,14 @@ export const ActionDialog: React.FC<ActionDialogProps> = ({
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="w-full sm:flex-1 px-4 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 text-xs font-semibold rounded-lg border border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 shadow-2xs hover:border-gray-400 transition-all cursor-pointer text-center"
+                                    className="w-full sm:flex-1 px-4 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 text-sm font-semibold rounded-lg border border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 shadow-2xs hover:border-gray-400 transition-all cursor-pointer text-center"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="button"
                                     onClick={onConfirm}
-                                    className="w-full sm:flex-1 px-4 py-2 bg-red-900 text-white text-xs font-semibold rounded-lg hover:bg-red-950 shadow-xs active:scale-[0.99] transition-all cursor-pointer text-center"
+                                    className="w-full sm:flex-1 px-4 py-2 bg-red-900 text-white text-sm font-semibold rounded-lg hover:bg-red-950 shadow-xs active:scale-[0.99] transition-all cursor-pointer text-center"
                                 >
                                     Confirm
                                 </button>
@@ -79,7 +79,7 @@ export const ActionDialog: React.FC<ActionDialogProps> = ({
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="w-full px-4 py-2.5 bg-red-900 text-white text-xs font-semibold rounded-lg hover:bg-red-950 shadow-xs active:scale-[0.99] transition-all cursor-pointer text-center"
+                                className="w-full px-4 py-2.5 bg-red-900 text-white text-sm font-semibold rounded-lg hover:bg-red-950 shadow-xs active:scale-[0.99] transition-all cursor-pointer text-center"
                             >
                                 Close
                             </button>

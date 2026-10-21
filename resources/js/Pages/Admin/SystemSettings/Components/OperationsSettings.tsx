@@ -22,16 +22,16 @@ export default function OperationsSettings({
             {/* SUBSECTION 1: SESSION SECURITY */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
                         Session Security
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                         Inactivity limits governing stockroom terminal locking and user session expiry.
                     </p>
                 </div>
 
                 <div className="max-w-md space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                         <span>Terminal Inactivity Auto-Logout</span>
                         <span className="text-red-600 font-normal">*</span>
                     </label>
@@ -49,16 +49,16 @@ export default function OperationsSettings({
                             }
                             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
                         />
-                        <span className="absolute right-3.5 top-2.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        <span className="absolute right-3.5 top-2.5 text-sm text-slate-500 dark:text-slate-400 font-medium">
                             Minutes
                         </span>
                     </div>
                     {errors['settings.security.session_timeout_minutes'] && (
-                        <p className="text-xs text-red-600 mt-1">
+                        <p className="leading-relaxed text-sm text-red-600 mt-1">
                             {errors['settings.security.session_timeout_minutes']}
                         </p>
                     )}
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
                         <Clock className="w-3 h-3 text-slate-400 shrink-0" />
                         Valid range: 5 to 480 minutes before automatic lock out.
                     </p>
@@ -70,10 +70,10 @@ export default function OperationsSettings({
             {/* SUBSECTION 2: POLICY BACKUP */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
                         Policy Backup & Archival Export
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                         Download the current system policy configuration and official signatories snapshot.
                     </p>
                 </div>
@@ -81,7 +81,7 @@ export default function OperationsSettings({
                 {can('system.settings.backup') && <div className="max-w-md">
                     <a
                         href={route('system.settings.backup')}
-                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-semibold shadow-2xs transition-all cursor-pointer"
                     >
                         <Download className="w-4 h-4 text-red-900 dark:text-red-400" />
                         <span>Download Policy Snapshot (JSON)</span>
@@ -94,34 +94,34 @@ export default function OperationsSettings({
             {/* SUBSECTION 3: RUNTIME INFORMATION */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 font-serif">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
                         Runtime Environment Information
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                         Server node parameters, framework version, and persistence telemetry.
                     </p>
                 </div>
 
                 <div className="border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs max-w-2xl">
                     <div className="px-5 py-3 bg-slate-50 dark:bg-slate-850 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
-                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                             <Server className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
                             System Environment
                         </span>
                         {telemetry?.cached_at && (
-                            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                            <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums">
                                 Cached: {telemetry.cached_at}
                             </span>
                         )}
                     </div>
 
-                    <table className="w-full text-xs text-left">
+                    <table className="w-full text-sm text-left">
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             <tr>
                                 <th className="px-5 py-3 font-medium text-slate-500 dark:text-slate-400 w-1/3 bg-slate-50/40 dark:bg-slate-850/40">
                                     PHP Runtime
                                 </th>
-                                <td className="px-5 py-3 font-semibold text-slate-900 dark:text-slate-100 font-mono">
+                                <td className="px-5 py-3 font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
                                     {telemetry?.php_version ?? 'Unavailable'}
                                 </td>
                             </tr>
@@ -137,7 +137,7 @@ export default function OperationsSettings({
                                 <th className="px-5 py-3 font-medium text-slate-500 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-850/40">
                                     Database Driver
                                 </th>
-                                <td className="px-5 py-3 font-semibold text-slate-900 dark:text-slate-100 font-mono">
+                                <td className="px-5 py-3 font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
                                     {telemetry?.database_driver ? telemetry.database_driver.toUpperCase() : 'Unavailable'}
                                 </td>
                             </tr>
@@ -153,7 +153,7 @@ export default function OperationsSettings({
                                 <th className="px-5 py-3 font-medium text-slate-500 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-850/40">
                                     Server Node
                                 </th>
-                                <td className="px-5 py-3 font-semibold text-slate-700 dark:text-slate-300 font-mono">
+                                <td className="px-5 py-3 font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
                                     {telemetry?.server_node ?? 'Unavailable'}
                                 </td>
                             </tr>

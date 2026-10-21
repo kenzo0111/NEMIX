@@ -30,25 +30,25 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
                 <table className="w-full text-left border-collapse min-w-[700px]">
                     <thead className="bg-gray-50/80 dark:bg-slate-900/80 border-b border-gray-200 dark:border-slate-800">
                         <tr>
-                            <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 RIS No.
                             </th>
-                            <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Recipient / Office
                             </th>
-                            <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Items Issued
                             </th>
-                            <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Total Quantity
                             </th>
-                            <th className="hidden md:table-cell px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="hidden md:table-cell px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Date Issued
                             </th>
-                            <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Status
                             </th>
-                            <th className="px-4 lg:px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 dark:text-slate-300 uppercase font-mono w-36">
+                            <th className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums w-36">
                                 Actions
                             </th>
                         </tr>
@@ -71,8 +71,8 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
                                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                             />
                                         </svg>
-                                        <p className="font-semibold text-sm text-gray-800 dark:text-slate-200">No issuance records found</p>
-                                        <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                                        <p className="leading-relaxed font-semibold text-sm text-gray-800 dark:text-slate-200">No issuance records found</p>
+                                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
                                             Recorded supply issuances and RIS forms will appear here.
                                         </p>
                                     </div>
@@ -94,7 +94,7 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
 
             {/* Pagination Footer */}
             {totalRecords > 0 && (
-                <div className="px-4 sm:px-6 lg:px-8 py-3.5 border-t border-gray-200/80 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div className="px-4 sm:px-6 lg:px-8 py-3.5 border-t border-gray-200/80 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
                     <span className="text-gray-600 dark:text-slate-400 font-medium">
                         Showing <span className="font-bold text-gray-900 dark:text-slate-100">{fromRecord}</span>–<span className="font-bold text-gray-900 dark:text-slate-100">{toRecord}</span> of{' '}
                         <span className="font-bold text-gray-900 dark:text-slate-100">{totalRecords}</span> records
@@ -106,7 +106,7 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
                             onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
                             disabled={currentPage <= 1}
                             aria-label="Go to previous page"
-                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 dark:border-slate-700 rounded text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer inline-flex items-center justify-center"
+                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 dark:border-slate-700 rounded text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer inline-flex items-center justify-center"
                         >
                             Previous
                         </button>
@@ -119,7 +119,7 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
                             onClick={() => onPageChange(Math.min(currentPage + 1, lastPage))}
                             disabled={currentPage >= lastPage}
                             aria-label="Go to next page"
-                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 dark:border-slate-700 rounded text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer inline-flex items-center justify-center"
+                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 dark:border-slate-700 rounded text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer inline-flex items-center justify-center"
                         >
                             Next
                         </button>

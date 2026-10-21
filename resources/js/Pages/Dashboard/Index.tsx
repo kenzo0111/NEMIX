@@ -128,7 +128,7 @@ export default function DashboardIndex({
                     </section>}
 
                     {isCoordinator && <section aria-label="Delivery Unit requests" className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-4">
-                        <h2 className="font-semibold">{coordinatorName} · Delivery Unit Inventory</h2>
+                        <h2 className="text-xl font-semibold">{coordinatorName} · Delivery Unit Inventory</h2>
                         <div className="flex flex-wrap gap-4 text-sm">
                             {['Pending', 'Approved', 'Issued', 'Rejected', 'Cancelled'].map(status => <span key={status}>{status}: <strong>{requestSummary[status] ?? 0}</strong></span>)}
                         </div>

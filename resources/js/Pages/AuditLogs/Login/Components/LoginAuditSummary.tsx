@@ -26,15 +26,15 @@ export const LoginAuditSummary: React.FC<LoginAuditSummaryProps> = ({
             { label: 'Unique users', count: uniqueUsers, hint: 'Distinct user identities recorded', icon: Users2, color: 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300' },
         ];
         return <section aria-label="Authentication activity overview" className="space-y-3">
-            {hasActiveFilters && <p className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"><Filter size={14} />Summary counts reflect active filter parameters (Search / Role / Status / Date Range).</p>}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 2xl:grid-cols-4">{cards.map(card => <div key={card.label} className="flex min-w-0 items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-700 dark:bg-slate-900"><div className="min-w-0"><p className="text-sm text-slate-600 dark:text-slate-400">{card.label}</p><p className="mt-2 text-2xl font-bold tabular-nums">{card.count.toLocaleString()}</p><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{card.hint}</p></div><span className={`hidden rounded-xl p-2.5 sm:inline-flex ${card.color}`}><card.icon size={20} /></span></div>)}</div>
+            {hasActiveFilters && <p className="leading-relaxed flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"><Filter size={14} />Summary counts reflect active filter parameters (Search / Role / Status / Date Range).</p>}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 2xl:grid-cols-4">{cards.map(card => <div key={card.label} className="flex min-w-0 items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-700 dark:bg-slate-900"><div className="min-w-0"><p className="leading-relaxed text-sm text-slate-600 dark:text-slate-400">{card.label}</p><p className="mt-2 text-2xl font-bold tabular-nums">{card.count.toLocaleString()}</p><p className="leading-relaxed mt-2 text-sm text-slate-500 dark:text-slate-400">{card.hint}</p></div><span className={`hidden rounded-xl p-2.5 sm:inline-flex ${card.color}`}><card.icon size={20} /></span></div>)}</div>
         </section>;
     }
 
     return (
         <div className="space-y-2">
             {hasActiveFilters && (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-800/60 rounded-md text-[11px] text-amber-800 dark:text-amber-300 font-medium">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-800/60 rounded-md text-sm text-amber-800 dark:text-amber-300 font-medium">
                     <Filter className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 shrink-0" />
                     <span>Summary counts reflect active filter parameters (Search / Role / Status / Date Range).</span>
                 </div>
@@ -44,7 +44,7 @@ export const LoginAuditSummary: React.FC<LoginAuditSummaryProps> = ({
                 {/* Total Records */}
                 <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-gray-200/80 dark:border-slate-800 border-t-2 border-t-red-900 dark:border-t-red-700 shadow-2xs hover:shadow-xs transition-shadow">
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                        <span className="text-sm font-bold text-gray-500 dark:text-slate-400 normal-case tracking-normal">
                             Total Records
                         </span>
                         <div className="p-1.5 rounded-md bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-100 dark:border-red-900/40">
@@ -54,7 +54,7 @@ export const LoginAuditSummary: React.FC<LoginAuditSummaryProps> = ({
                     <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 tracking-tight tabular-nums">
                         {total.toLocaleString()}
                     </div>
-                    <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-1 font-medium">
+                    <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 font-medium">
                         All recorded authentication attempts
                     </p>
                 </div>
@@ -62,7 +62,7 @@ export const LoginAuditSummary: React.FC<LoginAuditSummaryProps> = ({
                 {/* Successful */}
                 <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-gray-200/80 dark:border-slate-800 border-t-2 border-t-emerald-600 dark:border-t-emerald-500 shadow-2xs hover:shadow-xs transition-shadow">
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                        <span className="text-sm font-bold text-gray-500 dark:text-slate-400 normal-case tracking-normal">
                             Successful
                         </span>
                         <div className="p-1.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/40">
@@ -72,7 +72,7 @@ export const LoginAuditSummary: React.FC<LoginAuditSummaryProps> = ({
                     <div className="text-2xl font-bold text-emerald-800 dark:text-emerald-400 tracking-tight tabular-nums">
                         {successful.toLocaleString()}
                     </div>
-                    <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-1 font-medium">
+                    <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 font-medium">
                         Authorized access sessions granted
                     </p>
                 </div>
@@ -82,7 +82,7 @@ export const LoginAuditSummary: React.FC<LoginAuditSummaryProps> = ({
                     failed > 0 ? 'border-t-red-600 dark:border-t-red-500 bg-red-50/20 dark:bg-red-950/20' : 'border-t-gray-300 dark:border-t-slate-700'
                 } shadow-2xs hover:shadow-xs transition-shadow`}>
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                        <span className="text-sm font-bold text-gray-500 dark:text-slate-400 normal-case tracking-normal">
                             Failed Logins
                         </span>
                         <div className={`p-1.5 rounded-md border ${
@@ -96,7 +96,7 @@ export const LoginAuditSummary: React.FC<LoginAuditSummaryProps> = ({
                     }`}>
                         {failed.toLocaleString()}
                     </div>
-                    <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-1 font-medium">
+                    <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 font-medium">
                         Denied or unrecognized attempts
                     </p>
                 </div>
@@ -104,7 +104,7 @@ export const LoginAuditSummary: React.FC<LoginAuditSummaryProps> = ({
                 {/* Unique Users */}
                 <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-gray-200/80 dark:border-slate-800 border-t-2 border-t-slate-600 dark:border-t-slate-400 shadow-2xs hover:shadow-xs transition-shadow">
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                        <span className="text-sm font-bold text-gray-500 dark:text-slate-400 normal-case tracking-normal">
                             Unique Users
                         </span>
                         <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
@@ -114,7 +114,7 @@ export const LoginAuditSummary: React.FC<LoginAuditSummaryProps> = ({
                     <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 tracking-tight tabular-nums">
                         {uniqueUsers.toLocaleString()}
                     </div>
-                    <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-1 font-medium">
+                    <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 font-medium">
                         Distinct user identities recorded
                     </p>
                 </div>

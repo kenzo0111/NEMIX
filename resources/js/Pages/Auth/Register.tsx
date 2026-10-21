@@ -42,10 +42,10 @@ export default function Register({
             subheadline="Activate your official credentials for SupplySync."
             headerSlot={
                 <div className="mb-5 pb-3 border-b border-stone-200/80 dark:border-slate-800">
-                    <h2 className="text-xl sm:text-2xl font-bold text-stone-900 dark:text-slate-100 font-serif tracking-tight">
+                    <h2 className="text-xl font-bold text-stone-900 dark:text-slate-100 font-sans tracking-tight">
                         {isInvitation ? 'Complete Registration' : 'Account Registration'}
                     </h2>
-                    <p className="text-xs sm:text-sm text-stone-600 dark:text-slate-400 mt-1">
+                    <p className="leading-relaxed text-sm text-stone-600 dark:text-slate-400 mt-1">
                         {isInvitation
                             ? 'Your staff account has been provisioned. Complete your account activation below.'
                             : 'Register your institutional credentials to activate official SPMO system access.'}
@@ -81,7 +81,7 @@ export default function Register({
                             placeholder="e.g. Juan A. Dela Cruz"
                         />
                     </div>
-                    <InputError message={errors.name} className="mt-1.5 text-xs" />
+                    <InputError message={errors.name} className="mt-1.5 text-sm" />
                 </div>
 
                 {/* Official Email */}
@@ -106,7 +106,7 @@ export default function Register({
                             placeholder="username@ucn.edu.ph"
                         />
                     </div>
-                    <InputError message={errors.email} className="mt-1.5 text-xs" />
+                    <InputError message={errors.email} className="mt-1.5 text-sm" />
                 </div>
 
                 {/* Password */}
@@ -143,7 +143,7 @@ export default function Register({
                     <div className="text-center">
                         <Link
                             href={route('login')}
-                            className="text-xs font-semibold text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 hover:underline transition-colors"
+                            className="text-sm font-semibold text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 hover:underline transition-colors"
                         >
                             &larr; Already have an account? Sign In
                         </Link>

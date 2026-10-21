@@ -150,7 +150,7 @@ export default function TransactionAuditIndex({
                 <div className="print:hidden audit-print-hide">
                     <PageHeader
                         title="Transaction Audit Logs"
-                        description="Review recorded inventory, compliance, configuration, and administrative system activities."
+                        description="Review inventory changes and system activity."
                         breadcrumbs={[
                             { name: 'Audit Logs' },
                             { name: 'Transaction Audit' },
@@ -168,25 +168,25 @@ export default function TransactionAuditIndex({
                                     <ScrollText className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <span className="text-xs font-bold text-gray-900 dark:text-slate-100 uppercase tracking-wide">
+                                    <span className="text-sm font-bold text-gray-900 dark:text-slate-100 normal-case tracking-normal">
                                         Transaction Audit Ledger
                                     </span>
                                     <span className="hidden sm:inline-block mx-2 text-gray-300 dark:text-slate-600">•</span>
-                                    <span className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">
+                                    <span className="text-sm text-gray-500 dark:text-slate-400 font-medium">
                                         Official read-only system activity and audit trail
                                     </span>
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-3 self-end sm:self-auto">
-                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50">
+                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-sm font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse"></span>
                                     Active Ledger
                                 </span>
                                 <button
                                     type="button"
                                     onClick={handlePrintLedger}
-                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 rounded-md transition-colors shadow-2xs cursor-pointer"
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-semibold text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 rounded-md transition-colors shadow-2xs cursor-pointer"
                                     title="Print or export official transaction audit ledger"
                                 >
                                     <Printer className="w-3.5 h-3.5" />

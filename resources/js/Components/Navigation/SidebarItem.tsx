@@ -35,7 +35,7 @@ export default function SidebarItem({
     const buttonContent = (
         <div
             className={`
-                relative w-full flex items-center px-3 py-2 text-xs font-medium rounded-lg transition-colors duration-150 cursor-pointer overflow-hidden
+                relative w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150 cursor-pointer overflow-hidden
                 ${
                     isItemActive
                         ? 'bg-red-900/60 text-white'
@@ -63,9 +63,9 @@ export default function SidebarItem({
                         collapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-[170px] opacity-100'
                     }`}
                 >
-                    <span className="tracking-wide">{item.title}</span>
+                    <span className="tracking-normal">{item.title}</span>
                     {item.badge && (
-                        <span className="ml-2 text-[9px] px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 font-medium">
+                        <span className="ml-2 text-sm px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 font-medium">
                             {item.badge}
                         </span>
                     )}

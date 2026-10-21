@@ -44,7 +44,7 @@ export default function ScannerConnectionStatus({
     return (
         <div className="flex items-center gap-2">
             <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium border shadow-2xs ${config.badgeClass}`}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm tabular-nums font-medium border shadow-2xs ${config.badgeClass}`}
                 title={`Scanner hardware status: ${config.label}`}
             >
                 <Icon className="w-3 h-3 shrink-0" />
@@ -57,7 +57,7 @@ export default function ScannerConnectionStatus({
                     type="button"
                     onClick={onRetry}
                     disabled={isRetrying}
-                    className="inline-flex items-center gap-1 text-xs font-mono text-red-900 hover:text-red-950 font-semibold underline cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1 text-sm tabular-nums text-red-900 hover:text-red-950 font-semibold underline cursor-pointer disabled:opacity-50"
                 >
                     <RefreshCw className={`w-3 h-3 ${isRetrying ? 'animate-spin' : ''}`} />
                     <span>{isRetrying ? 'Checking...' : 'Reconnect'}</span>

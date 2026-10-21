@@ -93,7 +93,7 @@ export default function ThemeToggle({
             <div
                 role="radiogroup"
                 aria-label="Theme mode selection"
-                className={`inline-flex items-center p-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 text-xs font-medium select-none shadow-2xs ${className}`}
+                className={`inline-flex items-center p-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 text-sm font-medium select-none shadow-2xs ${className}`}
             >
                 {options.map(({ mode, label, icon: Icon }) => {
                     const isSelected = theme === mode;
@@ -105,7 +105,7 @@ export default function ThemeToggle({
                             aria-checked={isSelected}
                             onClick={() => setTheme(mode)}
                             title={`Switch to ${label} theme`}
-                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-900/30 dark:focus:ring-amber-400/30 ${
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-900/30 dark:focus:ring-amber-400/30 ${
                                 isSelected
                                     ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-amber-300 shadow-xs border border-slate-200/60 dark:border-slate-700 font-semibold'
                                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
@@ -199,7 +199,7 @@ export default function ThemeToggle({
                             !isPortalled ? 'absolute right-0 mt-1.5 z-50' : ''
                         }`}
                     >
-                        <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 font-mono">
+                        <div className="px-3 py-1 text-sm font-bold normal-case tracking-normal text-slate-400 dark:text-slate-500 tabular-nums">
                             Theme
                         </div>
                         {options.map(({ mode, label, icon: Icon }) => {
@@ -213,7 +213,7 @@ export default function ThemeToggle({
                                         setTheme(mode);
                                         setDropdownOpen(false);
                                     }}
-                                    className={`w-full flex items-center justify-between px-3 py-1.5 text-xs font-medium text-left transition-colors cursor-pointer ${
+                                    className={`w-full flex items-center justify-between px-3 py-1.5 text-sm font-medium text-left transition-colors cursor-pointer ${
                                         isSelected
                                             ? 'text-red-900 dark:text-amber-300 bg-red-50/70 dark:bg-amber-500/10 font-semibold'
                                             : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'

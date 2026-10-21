@@ -21,7 +21,7 @@ export default function RecentIssuance({ issuances = [], className = '' }: Recen
                         <div className="p-1 rounded-md bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 shrink-0">
                             <ArrowUpRight className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="text-lg font-bold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
                             Recent Issuance (RIS)
                         </h3>
                     </div>
@@ -30,7 +30,7 @@ export default function RecentIssuance({ issuances = [], className = '' }: Recen
                 {/* Content Rows - strictly capped at 4 */}
                 {issuances.length === 0 ? (
                     <div className="py-5 text-center text-slate-400 dark:text-slate-500">
-                        <p className="text-xs">No recent issuance transactions.</p>
+                        <p className="leading-relaxed text-sm">No recent issuance transactions.</p>
                     </div>
                 ) : (
                     <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -43,22 +43,22 @@ export default function RecentIssuance({ issuances = [], className = '' }: Recen
                                 <div key={iss.id} className="py-2 flex items-center justify-between gap-3 group">
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-1.5">
-                                            <span className="text-xs font-bold font-mono text-slate-900 dark:text-slate-100 group-hover:text-red-900 dark:group-hover:text-red-400 transition-colors">
+                                            <span className="text-sm font-bold tabular-nums text-slate-900 dark:text-slate-100 group-hover:text-red-900 dark:group-hover:text-red-400 transition-colors">
                                                 {isCoordinator ? iss.ris_number : formatRisNumber(iss.ris_number)}
                                             </span>
                                         </div>
                                         <p
-                                            className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5 pr-1"
+                                            className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 truncate mt-1 pr-1"
                                             title={recipientText}
                                         >
                                             {recipientText}
                                         </p>
                                     </div>
                                     <div className="text-right shrink-0">
-                                        <span className="text-xs font-bold font-mono text-amber-800 dark:text-amber-400 block">
+                                        <span className="text-sm font-bold tabular-nums text-amber-800 dark:text-amber-400 block">
                                             {iss.total_items.toLocaleString()} items
                                         </span>
-                                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium block mt-0.5">
+                                        <span className="text-sm text-slate-400 dark:text-slate-500 font-medium block mt-0.5">
                                             {iss.issued_at}
                                         </span>
                                     </div>
@@ -73,7 +73,7 @@ export default function RecentIssuance({ issuances = [], className = '' }: Recen
             <div className="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                 <Link
                     href={issuanceHref}
-                    className="text-xs font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1"
+                    className="text-sm font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1"
                 >
                     <span>View Ledger</span>
                     <ArrowRight className="w-3.5 h-3.5" />

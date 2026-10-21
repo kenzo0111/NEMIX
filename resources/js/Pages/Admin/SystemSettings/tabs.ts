@@ -15,7 +15,7 @@ export const SETTINGS_TABS: TabMeta[] = [
         num: '01',
         label: 'Institution & Branding',
         shortLabel: 'Institution',
-        description: 'Configure institutional identity, custodial office designations, and letterhead seal parameters.',
+        description: 'Set institution details, custodial office, and letterhead branding.',
         icon: Building2,
     },
     {
@@ -23,7 +23,7 @@ export const SETTINGS_TABS: TabMeta[] = [
         num: '02',
         label: 'Consumable Signatories',
         shortLabel: 'Signatories',
-        description: 'Designate approving authorities, issuing custodians, and accounting officers for official forms.',
+        description: 'Choose approving, issuing, and accounting officers for official forms.',
         icon: PenTool,
     },
     {
@@ -31,7 +31,7 @@ export const SETTINGS_TABS: TabMeta[] = [
         num: '03',
         label: 'Stock & Reorder Rules',
         shortLabel: 'Inventory Rules',
-        description: 'Define inventory thresholds, issuance safeguards, and recognized inventory units.',
+        description: 'Set stock thresholds, issuance rules, and units of issue.',
         icon: PackageSearch,
     },
     {
@@ -47,7 +47,7 @@ export const SETTINGS_TABS: TabMeta[] = [
         num: '05',
         label: 'RFID & Bin Storage',
         shortLabel: 'RFID',
-        description: 'Configure scan debounce delays and active operating modes for stockroom RFID reader hardware.',
+        description: 'Set scan delays and operating modes for RFID readers.',
         icon: Radio,
     },
     {
@@ -55,7 +55,7 @@ export const SETTINGS_TABS: TabMeta[] = [
         num: '06',
         label: 'Email & Notifications',
         shortLabel: 'Notifications',
-        description: 'Automated low-stock email triggers and outbound SMTP connectivity verification.',
+        description: 'Configure low-stock alerts and test email delivery.',
         icon: Mail,
     },
     {
@@ -63,7 +63,7 @@ export const SETTINGS_TABS: TabMeta[] = [
         num: '07',
         label: 'Operations & Telemetry',
         shortLabel: 'Operations',
-        description: 'Terminal session security, policy snapshot backups, and runtime environment telemetry.',
+        description: 'Manage session security, policy backups, and system diagnostics.',
         icon: ShieldCheck,
     },
 ];

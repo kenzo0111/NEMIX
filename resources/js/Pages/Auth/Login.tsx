@@ -43,10 +43,10 @@ export default function Login({
             subheadline="Consumable Supplies and Requisition Management System"
             headerSlot={
                 <div className="mb-5 pb-3.5 border-b border-stone-200/80 dark:border-slate-800">
-                    <h2 className="text-2xl font-bold text-stone-900 dark:text-slate-100 font-serif tracking-tight">
+                    <h2 className="text-xl font-bold text-stone-900 dark:text-slate-100 font-sans tracking-tight">
                         Administrative Login
                     </h2>
-                    <p className="text-xs sm:text-sm text-stone-500 dark:text-slate-400 mt-1 font-sans">
+                    <p className="leading-relaxed text-sm text-stone-500 dark:text-slate-400 mt-1 font-sans">
                         Sign in using your institutional account.
                     </p>
                 </div>
@@ -85,7 +85,7 @@ export default function Login({
                             placeholder="username@ucn.edu.ph"
                         />
                     </div>
-                    <InputError message={errors.email} className="mt-1.5 text-xs sm:text-sm font-medium text-red-700 dark:text-red-400 font-sans" />
+                    <InputError message={errors.email} className="mt-1.5 text-sm font-medium text-red-700 dark:text-red-400 font-sans" />
                 </div>
 
                 {/* Password Field */}
@@ -138,7 +138,7 @@ export default function Login({
                     <button
                         type="button"
                         onClick={() => setShowHelpModal(true)}
-                        className="inline-flex items-center justify-center gap-1.5 text-xs text-stone-500 dark:text-slate-400 hover:text-stone-800 dark:hover:text-slate-200 transition-colors font-sans focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7B1113] dark:focus-visible:ring-red-400 rounded px-2 py-1 cursor-pointer"
+                        className="inline-flex items-center justify-center gap-1.5 text-sm text-stone-500 dark:text-slate-400 hover:text-stone-800 dark:hover:text-slate-200 transition-colors font-sans focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7B1113] dark:focus-visible:ring-red-400 rounded px-2 py-1 cursor-pointer"
                         aria-haspopup="dialog"
                     >
                         <span>Need access help?</span>
@@ -158,25 +158,25 @@ export default function Login({
                             <HelpCircle className="w-5 h-5" strokeWidth={2} aria-hidden="true" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-slate-100 font-serif leading-tight">
+                            <h3 className="text-lg font-bold text-stone-900 dark:text-slate-100 font-sans leading-tight">
                                 Institutional Access Support
                             </h3>
-                            <p className="text-xs text-stone-500 dark:text-slate-400 font-sans truncate mt-0.5">
+                            <p className="leading-relaxed text-sm text-stone-500 dark:text-slate-400 font-sans truncate mt-1">
                                 {institutionName}
                             </p>
                         </div>
                     </div>
 
-                    <div className="mt-4 space-y-3.5 text-xs sm:text-sm text-stone-600 dark:text-slate-300 leading-relaxed font-sans">
+                    <div className="mt-4 space-y-3.5 text-sm text-stone-600 dark:text-slate-300 leading-relaxed font-sans">
                         <p>
                             Access to SupplySync is restricted to authorized personnel of <strong className="text-stone-800 dark:text-slate-100">{institutionName}</strong>.
                         </p>
 
                         <div className="rounded-lg bg-stone-50 dark:bg-slate-800/80 p-3.5 border border-stone-200/80 dark:border-slate-700/80 space-y-2">
-                            <h4 className="font-semibold text-stone-900 dark:text-slate-200 text-xs uppercase tracking-wider">
+                            <h4 className="text-base font-semibold text-stone-900 dark:text-slate-200 normal-case tracking-normal">
                                 Official Assistance Channels
                             </h4>
-                            <ul className="space-y-2 text-xs list-disc pl-4 text-stone-600 dark:text-slate-300">
+                            <ul className="space-y-2 text-sm list-disc pl-4 text-stone-600 dark:text-slate-300">
                                 <li>
                                     <strong className="text-stone-800 dark:text-slate-200">Account Provisioning &amp; Clearances:</strong> Coordinate directly with the <span className="text-[#7B1113] dark:text-red-400 font-medium">{officeName}</span>.
                                 </li>
@@ -194,7 +194,7 @@ export default function Login({
                         {canResetPassword ? (
                             <Link
                                 href={route('password.request')}
-                                className="text-xs font-semibold text-[#7B1113] dark:text-red-400 hover:underline"
+                                className="text-sm font-semibold text-[#7B1113] dark:text-red-400 hover:underline"
                             >
                                 Go to Password Recovery &rarr;
                             </Link>
@@ -204,7 +204,7 @@ export default function Login({
                         <button
                             type="button"
                             onClick={() => setShowHelpModal(false)}
-                            className="w-full sm:w-auto px-4 py-2 text-xs font-semibold rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7B1113] cursor-pointer"
+                            className="w-full sm:w-auto px-4 py-2 text-sm font-semibold rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7B1113] cursor-pointer"
                         >
                             Close
                         </button>

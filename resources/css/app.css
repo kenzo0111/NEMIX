@@ -6,6 +6,35 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    body {
+        @apply font-sans text-base antialiased;
+    }
+
+    button, input, select, textarea {
+        font-family: inherit;
+    }
+}
+
+/* Screen controls grow with readable text, including at browser zoom. */
+@media screen {
+    :where(button, input:not([type='checkbox']):not([type='radio']):not([type='hidden']), select) {
+        min-height: 2.5rem;
+    }
+
+    :where(input, select, textarea) {
+        font-size: 1rem;
+    }
+
+}
+
+@media screen and (max-width: 639px) {
+    /* Keep mobile form text readable without browser focus zoom. */
+    input:not([type='checkbox']):not([type='radio']), select, textarea {
+        font-size: 1rem;
+    }
+}
+
 /* Toasts keep their place while fading out, then gently close the gap. */
 .notification-toast-row {
     display: grid;

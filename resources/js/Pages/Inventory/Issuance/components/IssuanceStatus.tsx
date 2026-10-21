@@ -21,7 +21,7 @@ export const IssuanceStatus: React.FC<IssuanceStatusProps> = ({ status }) => {
 
     return (
         <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${badgeClasses}`}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-semibold border ${badgeClasses}`}
         >
             <span className={`w-1.5 h-1.5 rounded-full ${dotClasses}`} />
             {status}

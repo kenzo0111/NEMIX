@@ -11,10 +11,10 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
     return (
         <Card>
             <CardHeader className="border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 py-4 px-6">
-                <CardTitle className="text-sm font-bold text-gray-900 dark:text-slate-100 font-serif">
+                <CardTitle className="text-sm font-bold text-gray-900 dark:text-slate-100 font-sans">
                     Stock Volume Extremes
                 </CardTitle>
-                <CardDescription className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                <CardDescription className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
                     Highest on-hand consumable holdings compared against lowest inventory levels
                 </CardDescription>
             </CardHeader>
@@ -24,10 +24,10 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
                     {/* Highest Stock Column */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
-                            <h4 className="text-xs font-semibold text-gray-900 dark:text-slate-100">
+                            <h4 className="text-base font-semibold text-gray-900 dark:text-slate-100">
                                 Highest Stock Consumables
                             </h4>
-                            <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
+                            <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
                                 Top Available
                             </span>
                         </div>
@@ -37,24 +37,24 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
                                 {highest.map((item, index) => (
                                     <div
                                         key={`high-${item.id}`}
-                                        className="py-2.5 flex items-center justify-between gap-3 text-xs"
+                                        className="py-2.5 flex items-center justify-between gap-3 text-sm"
                                     >
                                         <div className="flex items-center gap-2.5 min-w-0">
-                                            <span className="text-xs font-semibold text-gray-400 dark:text-slate-500 font-mono w-4 shrink-0">
+                                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 tabular-nums w-4 shrink-0">
                                                 {index + 1}.
                                             </span>
                                             <div className="min-w-0">
                                                 <p className="font-medium text-gray-900 dark:text-slate-100 truncate">{item.name}</p>
-                                                <p className="text-[11px] text-gray-500 dark:text-slate-400 font-mono truncate">
+                                                <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 tabular-nums truncate">
                                                     SKU: {item.sku || 'N/A'}
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="text-right shrink-0">
-                                            <span className="font-semibold text-gray-900 dark:text-slate-100 font-mono">
+                                            <span className="font-semibold text-gray-900 dark:text-slate-100 tabular-nums">
                                                 {Number(item.stock).toLocaleString()}
                                             </span>
-                                            <span className="text-gray-500 dark:text-slate-400 ml-1 text-[11px]">
+                                            <span className="text-gray-500 dark:text-slate-400 ml-1 text-sm">
                                                 {item.unitOfIssue || 'units'}
                                             </span>
                                         </div>
@@ -62,7 +62,7 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
                                 ))}
                             </div>
                         ) : (
-                            <p className="py-6 text-center text-xs text-gray-400 dark:text-slate-500">
+                            <p className="leading-relaxed py-6 text-center text-sm text-gray-400 dark:text-slate-500">
                                 No records recorded.
                             </p>
                         )}
@@ -71,10 +71,10 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
                     {/* Lowest Stock Column */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
-                            <h4 className="text-xs font-semibold text-gray-900 dark:text-slate-100">
+                            <h4 className="text-base font-semibold text-gray-900 dark:text-slate-100">
                                 Lowest Stock Consumables
                             </h4>
-                            <span className="text-[11px] font-medium text-amber-700 dark:text-amber-400">
+                            <span className="text-sm font-medium text-amber-700 dark:text-amber-400">
                                 Replenishment Priority
                             </span>
                         </div>
@@ -84,24 +84,24 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
                                 {lowest.map((item, index) => (
                                     <div
                                         key={`low-${item.id}`}
-                                        className="py-2.5 flex items-center justify-between gap-3 text-xs"
+                                        className="py-2.5 flex items-center justify-between gap-3 text-sm"
                                     >
                                         <div className="flex items-center gap-2.5 min-w-0">
-                                            <span className="text-xs font-semibold text-gray-400 dark:text-slate-500 font-mono w-4 shrink-0">
+                                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 tabular-nums w-4 shrink-0">
                                                 {index + 1}.
                                             </span>
                                             <div className="min-w-0">
                                                 <p className="font-medium text-gray-900 dark:text-slate-100 truncate">{item.name}</p>
-                                                <p className="text-[11px] text-gray-500 dark:text-slate-400 font-mono truncate">
+                                                <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 tabular-nums truncate">
                                                     SKU: {item.sku || 'N/A'}
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="text-right shrink-0">
-                                            <span className="font-semibold text-gray-900 dark:text-slate-100 font-mono">
+                                            <span className="font-semibold text-gray-900 dark:text-slate-100 tabular-nums">
                                                 {Number(item.stock).toLocaleString()}
                                             </span>
-                                            <span className="text-gray-500 dark:text-slate-400 ml-1 text-[11px]">
+                                            <span className="text-gray-500 dark:text-slate-400 ml-1 text-sm">
                                                 {item.unitOfIssue || 'units'}
                                             </span>
                                         </div>
@@ -109,7 +109,7 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
                                 ))}
                             </div>
                         ) : (
-                            <p className="py-6 text-center text-xs text-gray-400 dark:text-slate-500">
+                            <p className="leading-relaxed py-6 text-center text-sm text-gray-400 dark:text-slate-500">
                                 No records recorded.
                             </p>
                         )}

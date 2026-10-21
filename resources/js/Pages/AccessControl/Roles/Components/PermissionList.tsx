@@ -86,14 +86,14 @@ export default function PermissionList({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200 dark:border-slate-800">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-bold text-gray-900 dark:text-slate-100">
+                            <h4 className="text-base font-bold text-gray-900 dark:text-slate-100">
                                 {moduleName}
                             </h4>
-                            <span className="text-[11px] font-semibold text-gray-600 dark:text-slate-300 bg-gray-100 dark:bg-slate-800 border border-gray-200/80 dark:border-slate-700 px-2 py-0.5 rounded">
+                            <span className="text-sm font-semibold text-gray-600 dark:text-slate-300 bg-gray-100 dark:bg-slate-800 border border-gray-200/80 dark:border-slate-700 px-2 py-0.5 rounded">
                                 {assignedInModuleCount} of {permissions.length} granted
                             </span>
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
                             {moduleName === 'Requests'
                                 ? 'Choose what staff can do with supply requests. Viewing your own requests and reviewing others are separate permissions.'
                                 : `Choose the actions this role can perform in ${moduleName}.`}
@@ -110,7 +110,7 @@ export default function PermissionList({
                             onChange={(e) => onSelectAllModule(e.target.checked)}
                             className="w-4 h-4 text-red-900 border-gray-300 dark:border-slate-600 rounded focus:ring-red-900 focus:ring-1 cursor-pointer"
                         />
-                        <span className="text-xs font-semibold text-gray-700 dark:text-slate-300">
+                        <span className="text-sm font-semibold text-gray-700 dark:text-slate-300">
                             Grant all in {moduleName}
                         </span>
                     </label>
@@ -125,14 +125,14 @@ export default function PermissionList({
                             onChange={(e) => onSearchChange(e.target.value)}
                             placeholder={`Search permissions in ${moduleName}...`}
                             aria-label={`Search permissions in ${moduleName}`}
-                            className="w-full pl-8 pr-7 py-1.5 text-xs border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-gray-50/50 dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 shadow-2xs"
+                            className="w-full pl-8 pr-7 py-1.5 text-sm border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-gray-50/50 dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 shadow-2xs"
                         />
                         <Search className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
                         {searchQuery && (
                             <button
                                 type="button"
                                 onClick={() => onSearchChange('')}
-                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 text-xs font-bold"
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 text-sm font-bold"
                                 aria-label="Clear filter"
                             >
                                 ✕
@@ -166,7 +166,7 @@ export default function PermissionList({
                                         <div className="flex flex-col min-w-0 pr-2">
                                             <div className="flex items-center gap-1.5">
                                                 <span
-                                                    className={`text-xs ${
+                                                    className={`text-sm ${
                                                         isChecked
                                                             ? 'text-gray-900 dark:text-slate-100 font-bold'
                                                             : 'text-gray-800 dark:text-slate-200 font-semibold'
@@ -180,7 +180,7 @@ export default function PermissionList({
                                             </div>
 
                                             {perm.description && (
-                                                <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5 leading-normal">
+                                                <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 leading-normal">
                                                     {perm.description}
                                                 </p>
                                             )}
@@ -190,7 +190,7 @@ export default function PermissionList({
 
                                     <div className="shrink-0 ml-2">
                                         <span
-                                            className={`inline-flex items-center px-2 py-0.5 text-[10px] font-semibold rounded border ${getActionBadgeColor(
+                                            className={`inline-flex items-center px-2 py-0.5 text-sm font-semibold rounded border ${getActionBadgeColor(
                                                 perm.action
                                             )}`}
                                         >
@@ -202,7 +202,7 @@ export default function PermissionList({
                         })}
                     </div>
                 ) : (
-                    <div className="p-8 text-center text-gray-500 dark:text-slate-400 text-xs">
+                    <div className="p-8 text-center text-gray-500 dark:text-slate-400 text-sm">
                         {searchQuery ? (
                             <div className="flex flex-col items-center gap-1.5">
                                 <Search className="w-5 h-5 text-gray-300 dark:text-slate-600" />
@@ -210,7 +210,7 @@ export default function PermissionList({
                                 <button
                                     type="button"
                                     onClick={() => onSearchChange('')}
-                                    className="text-xs text-red-900 dark:text-red-400 font-semibold hover:underline mt-1"
+                                    className="text-sm text-red-900 dark:text-red-400 font-semibold hover:underline mt-1"
                                 >
                                     Clear search filter
                                 </button>

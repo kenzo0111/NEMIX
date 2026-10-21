@@ -29,7 +29,7 @@ export const SupplierToolbar: React.FC<SupplierToolbarProps> = ({
                         value={searchTerm}
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search supplier, TIN or registration..."
-                        className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-normal text-gray-900 dark:text-slate-100 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-xs placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
+                        className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-normal text-gray-900 dark:text-slate-100 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-xs placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
                     />
                 </div>
 
@@ -51,7 +51,7 @@ export const SupplierToolbar: React.FC<SupplierToolbarProps> = ({
                     <button
                         type="button"
                         onClick={onResetFilters}
-                        className="text-xs font-medium text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 underline underline-offset-2 py-1.5 px-2 transition-colors cursor-pointer"
+                        className="text-sm font-medium text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 underline underline-offset-2 py-1.5 px-2 transition-colors cursor-pointer"
                     >
                         Reset Filters
                     </button>
@@ -62,7 +62,7 @@ export const SupplierToolbar: React.FC<SupplierToolbarProps> = ({
             {can('suppliers.store') && <button
                 type="button"
                 onClick={onOpenCreateModal}
-                className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer"
+                className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-sm flex items-center justify-center gap-2 whitespace-nowrap normal-case tabular-nums tracking-normal cursor-pointer"
             >
                 <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />

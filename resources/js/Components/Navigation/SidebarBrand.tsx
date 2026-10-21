@@ -21,11 +21,11 @@ export default function SidebarBrand({ collapsed = false, onCloseMobile }: Sideb
                         collapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-[200px] opacity-100'
                     }`}
                 >
-                    <h1 className="font-bold tracking-wider text-sm text-white leading-tight font-serif">
+                    <p className="text-lg font-bold text-white leading-tight font-sans">
                         SupplySync
-                    </h1>
-                    <p className="text-[10px] text-amber-400/90 font-medium uppercase tracking-widest leading-tight truncate">
-                        Supply & Property Management
+                    </p>
+                    <p className="text-sm text-amber-300 font-medium leading-normal">
+                        Supply management
                     </p>
                 </div>
             </div>

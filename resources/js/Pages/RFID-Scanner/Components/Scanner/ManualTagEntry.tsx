@@ -24,7 +24,7 @@ export default function ManualTagEntry({ onSubmit, onCancel }: ManualTagEntryPro
                     <div className="w-6 h-6 rounded-md bg-red-50 text-red-900 flex items-center justify-center">
                         <Keyboard className="w-3.5 h-3.5" />
                     </div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-800 font-mono">
+                    <h3 className="text-lg font-bold normal-case tracking-normal text-gray-800 tabular-nums">
                         Manual Tag Entry
                     </h3>
                 </div>
@@ -37,13 +37,13 @@ export default function ManualTagEntry({ onSubmit, onCancel }: ManualTagEntryPro
                 </button>
             </div>
 
-            <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+            <p className="text-sm text-gray-500 mb-4 leading-relaxed">
                 Type or paste the RFID hex/EPC identifier encoded on the physical label.
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label htmlFor="manual-rfid-input" className="block text-[11px] font-mono font-medium text-gray-600 mb-1.5">
+                    <label htmlFor="manual-rfid-input" className="block text-sm tabular-nums font-medium text-gray-600 mb-1.5">
                         RFID Identifier Code
                     </label>
                     <div className="relative">
@@ -54,7 +54,7 @@ export default function ManualTagEntry({ onSubmit, onCancel }: ManualTagEntryPro
                             onChange={(e) => setTagInput(e.target.value)}
                             placeholder="e.g. 04A7E82B9123 or E2801160..."
                             autoFocus
-                            className="w-full pl-9 pr-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-mono placeholder-gray-400 focus:border-red-950 focus:ring-1 focus:ring-red-950 shadow-2xs transition-colors"
+                            className="w-full pl-9 pr-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-sm tabular-nums placeholder-gray-400 focus:border-red-950 focus:ring-1 focus:ring-red-950 shadow-2xs transition-colors"
                         />
                         <Radio className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
                     </div>
@@ -64,14 +64,14 @@ export default function ManualTagEntry({ onSubmit, onCancel }: ManualTagEntryPro
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="px-3.5 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs"
+                        className="px-3.5 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-2xs"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={!tagInput.trim()}
-                        className="px-4 py-2 bg-red-950 hover:bg-red-900 text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50 cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
+                        className="px-4 py-2 bg-red-950 hover:bg-red-900 text-white text-sm font-medium rounded-lg transition-all disabled:opacity-50 cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
                     >
                         <span>Simulate Scan</span>
                         <ArrowRight className="w-3.5 h-3.5" />

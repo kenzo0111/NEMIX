@@ -47,7 +47,7 @@ export default function RoleNotification({ notification, onDismiss }: RoleNotifi
             <div className={`shrink-0 mt-0.5 ${iconBg}`}>
                 <Icon className="w-4 h-4" />
             </div>
-            <div className="flex-1 text-xs">
+            <div className="flex-1 text-sm">
                 {notification.title && (
                     <strong className="font-semibold block text-sm mb-0.5">{notification.title}</strong>
                 )}

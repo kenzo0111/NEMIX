@@ -75,7 +75,7 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
             <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'} ml-0`}>
                 <PageHeader
                     title="Inventory Performance Analytics"
-                    description="Institutional stock holding, inventory valuation, status distribution, and replenishment analysis"
+                    description="Review stock levels, value, and replenishment needs."
                     breadcrumbs={[{ name: 'Compliance' }, { name: 'Manage Analytics' }]}
                 />
 
@@ -93,10 +93,10 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
                         <div className="xl:col-span-2">
                             <Card className="h-full flex flex-col justify-between">
                                 <CardHeader className="border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 py-4 px-6">
-                                    <CardTitle className="text-sm font-bold text-gray-900 dark:text-slate-100 font-serif">
+                                    <CardTitle className="text-sm font-bold text-gray-900 dark:text-slate-100 font-sans">
                                         Stock Quantity by Item
                                     </CardTitle>
-                                    <CardDescription className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                                    <CardDescription className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
                                         Top inventory items ranked by current available on-hand volume
                                     </CardDescription>
                                 </CardHeader>
@@ -110,10 +110,10 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
                         <div className="xl:col-span-1">
                             <Card className="h-full flex flex-col justify-between">
                                 <CardHeader className="border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 py-4 px-6">
-                                    <CardTitle className="text-sm font-bold text-gray-900 dark:text-slate-100 font-serif">
+                                    <CardTitle className="text-sm font-bold text-gray-900 dark:text-slate-100 font-sans">
                                         Inventory Status
                                     </CardTitle>
-                                    <CardDescription className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                                    <CardDescription className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
                                         Overall distribution by availability threshold
                                     </CardDescription>
                                 </CardHeader>
@@ -127,10 +127,10 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
                     {/* Inventory Valuation Section */}
                     <Card>
                         <CardHeader className="border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 py-4 px-6">
-                            <CardTitle className="text-sm font-bold text-gray-900 dark:text-slate-100 font-serif">
+                            <CardTitle className="text-sm font-bold text-gray-900 dark:text-slate-100 font-sans">
                                 Inventory Valuation by Item
                             </CardTitle>
-                            <CardDescription className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                            <CardDescription className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
                                 Top registered items ranked by calculated financial value in Philippine pesos (₱)
                             </CardDescription>
                         </CardHeader>

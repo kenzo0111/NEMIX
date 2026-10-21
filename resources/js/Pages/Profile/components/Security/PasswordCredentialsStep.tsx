@@ -53,13 +53,13 @@ export default function PasswordCredentialsStep({
     return (
         <form onSubmit={onSubmit} className="space-y-6 max-w-2xl">
             {/* Information Header */}
-            <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                 <span className="font-bold text-slate-900 dark:text-slate-100">Security Verification:</span> To protect institutional integrity, advancing to the next step will verify your active credentials and dispatch a 6-digit one-time code to your registered university email.
             </div>
 
             {/* General Error Banner */}
             {errors.general && (
-                <div className="p-3.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-900 dark:text-rose-200 flex items-start gap-2.5 text-xs">
+                <div className="p-3.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-900 dark:text-rose-200 flex items-start gap-2.5 text-sm">
                     <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
                     <div>
                         <p className="font-bold">Request Error</p>
@@ -72,7 +72,7 @@ export default function PasswordCredentialsStep({
             <div>
                 <label
                     htmlFor="current_password"
-                    className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+                    className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
                 >
                     Current Password <span className="text-rose-600 dark:text-rose-400">*</span>
                 </label>
@@ -89,7 +89,7 @@ export default function PasswordCredentialsStep({
                         required
                         autoComplete="current-password"
                         disabled={isSubmitting}
-                        className={`w-full pl-9 pr-10 py-2 text-xs rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${
+                        className={`w-full pl-9 pr-10 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${
                             errors.current_password
                                 ? 'border-rose-400 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500'
                                 : 'border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600'
@@ -106,7 +106,7 @@ export default function PasswordCredentialsStep({
                     </button>
                 </div>
                 {errors.current_password && (
-                    <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-1 font-medium">
+                    <p className="leading-relaxed mt-1 text-sm text-rose-600 dark:text-rose-400 flex items-center gap-1 font-medium">
                         <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                         <span>{errors.current_password}</span>
                     </p>
@@ -119,7 +119,7 @@ export default function PasswordCredentialsStep({
                 <div>
                     <label
                         htmlFor="new_password"
-                        className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+                        className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
                     >
                         New Password <span className="text-rose-600 dark:text-rose-400">*</span>
                     </label>
@@ -136,7 +136,7 @@ export default function PasswordCredentialsStep({
                             required
                             autoComplete="new-password"
                             disabled={isSubmitting}
-                            className={`w-full pl-9 pr-10 py-2 text-xs rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${
+                            className={`w-full pl-9 pr-10 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${
                                 errors.password
                                     ? 'border-rose-400 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500'
                                     : 'border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600'
@@ -153,7 +153,7 @@ export default function PasswordCredentialsStep({
                         </button>
                     </div>
                     {errors.password && (
-                        <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-1 font-medium">
+                        <p className="leading-relaxed mt-1 text-sm text-rose-600 dark:text-rose-400 flex items-center gap-1 font-medium">
                             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                             <span>{errors.password}</span>
                         </p>
@@ -164,7 +164,7 @@ export default function PasswordCredentialsStep({
                 <div>
                     <label
                         htmlFor="password_confirmation"
-                        className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+                        className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
                     >
                         Confirm New Password <span className="text-rose-600 dark:text-rose-400">*</span>
                     </label>
@@ -180,7 +180,7 @@ export default function PasswordCredentialsStep({
                             required
                             autoComplete="new-password"
                             disabled={isSubmitting}
-                            className={`w-full pl-9 pr-10 py-2 text-xs rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${
+                            className={`w-full pl-9 pr-10 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${
                                 errors.password_confirmation
                                     ? 'border-rose-400 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500'
                                     : 'border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600'
@@ -197,7 +197,7 @@ export default function PasswordCredentialsStep({
                         </button>
                     </div>
                     {errors.password_confirmation && (
-                        <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-1 font-medium">
+                        <p className="leading-relaxed mt-1 text-sm text-rose-600 dark:text-rose-400 flex items-center gap-1 font-medium">
                             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                             <span>{errors.password_confirmation}</span>
                         </p>
@@ -213,7 +213,7 @@ export default function PasswordCredentialsStep({
 
             {/* Form Actions */}
             <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
-                <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
+                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 hidden sm:block">
                     Step 1 of 2: Password details are verified before dispatching security code.
                 </p>
 
@@ -222,7 +222,7 @@ export default function PasswordCredentialsStep({
                         type="button"
                         onClick={onReset}
                         disabled={isSubmitting || (!currentPassword && !newPassword && !confirmPassword)}
-                        className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-750 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-750 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                         <span>Reset</span>
@@ -231,7 +231,7 @@ export default function PasswordCredentialsStep({
                     <button
                         type="submit"
                         disabled={isSubmitting || !isStep1Valid}
-                        className={`px-4 py-2 rounded-xl text-xs font-semibold text-white flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98] ${
+                        className={`px-4 py-2 rounded-xl text-sm font-semibold text-white flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98] ${
                             isStep1Valid && !isSubmitting
                                 ? 'bg-red-900 hover:bg-red-800 active:bg-red-950 shadow-red-950/15 shadow-md'
                                 : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed shadow-none'

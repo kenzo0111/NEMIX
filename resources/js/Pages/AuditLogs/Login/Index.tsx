@@ -151,7 +151,7 @@ export default function LoginAuditIndex({
                 <div className="print:hidden audit-print-hide">
                     {isCoordinator ? <DashboardHeader coordinator /> : <PageHeader
                         title="Login Audit Logs"
-                        description="Review authentication activity, access results, user accounts, and source IP addresses recorded by the system."
+                        description="Review sign-ins, access results, and source IP addresses."
                         breadcrumbs={[
                             { name: 'Audit Logs' },
                             { name: 'Login Audit' },
@@ -163,9 +163,9 @@ export default function LoginAuditIndex({
                     {/* Screen View (Interactive Dashboard Controls) - Hidden on Print */}
                     <div className={`${isCoordinator ? 'space-y-6' : 'space-y-5'} print:hidden audit-print-hide`}>
                         {isCoordinator && <>
-                            <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300">Coordinator Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Login Audit</span></nav>
+                            <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300">Coordinator Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Login Audit</span></nav>
                             <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
-                                <div><p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-red-900 dark:text-red-300">Supply &amp; Property Management Office</p><h1 className="font-serif text-2xl font-bold tracking-tight sm:text-3xl">Login Audit</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Review recorded authentication activity, access results, and session details.</p></div>
+                                <div><p className="leading-relaxed mb-2 text-sm font-bold normal-case tracking-normal text-red-900 dark:text-red-300">Supply &amp; Property Management Office</p><h1 className="text-2xl sm:text-3xl font-sans font-bold tracking-tight ">Login Audit</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Review recorded authentication activity, access results, and session details.</p></div>
                                 <button type="button" onClick={handlePrintLedger} className={secondaryButton} title="Print or export official authentication audit ledger"><Printer size={17} />Print Ledger</button>
                             </section>
                         </>}
@@ -176,25 +176,25 @@ export default function LoginAuditIndex({
                                     <ShieldCheck className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <span className="text-xs font-bold text-gray-900 dark:text-slate-100 uppercase tracking-wide">
+                                    <span className="text-sm font-bold text-gray-900 dark:text-slate-100 normal-case tracking-normal">
                                         Authentication Audit Ledger
                                     </span>
                                     <span className="hidden sm:inline-block mx-2 text-gray-300 dark:text-slate-700">•</span>
-                                    <span className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">
+                                    <span className="text-sm text-gray-500 dark:text-slate-400 font-medium">
                                         Official read-only authentication audit trail
                                     </span>
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-3 self-end sm:self-auto">
-                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50">
+                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-sm font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse"></span>
                                     Active Ledger
                                 </span>
                                 <button
                                     type="button"
                                     onClick={handlePrintLedger}
-                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-gray-700 dark:text-slate-200 hover:text-gray-900 dark:hover:text-white bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 rounded-md transition-colors shadow-2xs cursor-pointer"
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-semibold text-gray-700 dark:text-slate-200 hover:text-gray-900 dark:hover:text-white bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 rounded-md transition-colors shadow-2xs cursor-pointer"
                                     title="Print or export official authentication audit ledger"
                                 >
                                     <Printer className="w-3.5 h-3.5 text-gray-500 dark:text-slate-400" />

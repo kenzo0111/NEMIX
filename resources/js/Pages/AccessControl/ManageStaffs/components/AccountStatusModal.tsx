@@ -49,10 +49,10 @@ export default function AccountStatusModal({
                                 )}
                             </div>
                             <div className="min-w-0">
-                                <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 truncate">
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 truncate">
                                     {isActive ? 'Disable Staff Account' : 'Enable Staff Account'}
                                 </h3>
-                                <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 truncate">
+                                <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 truncate">
                                     Administrative access authorization update
                                 </p>
                             </div>
@@ -67,14 +67,14 @@ export default function AccountStatusModal({
                         </button>
                     </div>
 
-                    <div className="mt-4 text-xs text-gray-600 dark:text-slate-300 space-y-3">
+                    <div className="mt-4 text-sm text-gray-600 dark:text-slate-300 space-y-3">
                         <p className="leading-relaxed">
                             Are you sure you want to {isActive ? 'disable' : 'enable'} access credentials for{' '}
                             <strong className="text-gray-900 dark:text-slate-100 font-semibold">{staff.name}</strong>{' '}
-                            <span className="font-mono text-gray-500 dark:text-slate-400 text-[11px]">({staff.email})</span>?
+                            <span className="tabular-nums text-gray-500 dark:text-slate-400 text-sm">({staff.email})</span>?
                         </p>
                         <div
-                            className={`p-3.5 rounded-lg border text-xs leading-relaxed ${
+                            className={`p-3.5 rounded-lg border text-sm leading-relaxed ${
                                 isActive
                                     ? 'bg-red-50/60 dark:bg-red-950/40 border-red-200/80 dark:border-red-900/50 text-red-900 dark:text-red-300'
                                     : 'bg-emerald-50/60 dark:bg-emerald-950/40 border-emerald-200/80 dark:border-emerald-800/50 text-emerald-900 dark:text-emerald-300'
@@ -92,7 +92,7 @@ export default function AccountStatusModal({
                             type="button"
                             onClick={onClose}
                             disabled={isProcessing}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
                         >
                             Cancel
                         </button>
@@ -100,7 +100,7 @@ export default function AccountStatusModal({
                             type="button"
                             onClick={onConfirm}
                             disabled={isProcessing}
-                            className={`w-full sm:w-auto px-5 py-2.5 text-white text-xs font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 uppercase font-mono tracking-wider cursor-pointer ${
+                            className={`w-full sm:w-auto px-5 py-2.5 text-white text-sm font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 normal-case tabular-nums tracking-normal cursor-pointer ${
                                 isActive
                                     ? 'bg-red-950 hover:bg-red-900 active:bg-red-950'
                                     : 'bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900'

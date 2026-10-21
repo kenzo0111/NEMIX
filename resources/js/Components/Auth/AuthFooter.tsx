@@ -13,13 +13,13 @@ export default function AuthFooter({ className = '' }: AuthFooterProps) {
 
     return (
         <footer className={`text-center space-y-1 select-text ${className}`}>
-            <p className="text-[11px] font-semibold text-stone-500 dark:text-slate-400 font-sans tracking-wider uppercase">
+            <p className="leading-relaxed text-sm font-semibold text-stone-500 dark:text-slate-400 font-sans tracking-normal normal-case">
                 {officeName}
             </p>
-            <p className="text-[11px] text-stone-400 dark:text-slate-500 leading-tight">
+            <p className="text-sm text-stone-400 dark:text-slate-500 leading-tight">
                 &copy; {currentYear} {institutionName.toUpperCase()}. All rights reserved.
             </p>
-            <p className="text-[10px] text-stone-400/80 dark:text-slate-600">
+            <p className="leading-relaxed text-sm text-stone-400/80 dark:text-slate-600">
                 Authorized institutional use only.
             </p>
         </footer>

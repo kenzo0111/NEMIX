@@ -267,56 +267,56 @@ export default function MyRequests({
                     {/* Operational Summary Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                         <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs flex flex-col justify-between">
-                            <span className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono">
+                            <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400 tabular-nums">
                                 Total Submissions
                             </span>
                             <div className="mt-1.5 flex items-baseline justify-between">
-                                <span className="text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-slate-100">
+                                <span className="text-2xl font-bold tabular-nums tracking-tight text-slate-900 dark:text-slate-100">
                                     {counts.total}
                                 </span>
-                                <span className="text-[11px] text-slate-400 dark:text-slate-500 font-sans">
+                                <span className="text-sm text-slate-400 dark:text-slate-500 font-sans">
                                     requisitions
                                 </span>
                             </div>
                         </div>
 
                         <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-amber-200/80 dark:border-amber-900/40 shadow-2xs flex flex-col justify-between">
-                            <span className="block text-[11px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400 font-mono">
+                            <span className="block text-sm font-semibold normal-case tracking-normal text-amber-700 dark:text-amber-400 tabular-nums">
                                 Pending Custodian Review
                             </span>
                             <div className="mt-1.5 flex items-baseline justify-between">
-                                <span className="text-2xl font-bold font-mono tracking-tight text-amber-600 dark:text-amber-400">
+                                <span className="text-2xl font-bold tabular-nums tracking-tight text-amber-600 dark:text-amber-400">
                                     {counts.pending}
                                 </span>
-                                <span className="text-[11px] text-amber-600/80 dark:text-amber-400/80 font-sans">
+                                <span className="text-sm text-amber-600/80 dark:text-amber-400/80 font-sans">
                                     awaiting
                                 </span>
                             </div>
                         </div>
 
                         <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-blue-200/80 dark:border-blue-900/40 shadow-2xs flex flex-col justify-between">
-                            <span className="block text-[11px] font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400 font-mono">
+                            <span className="block text-sm font-semibold normal-case tracking-normal text-blue-700 dark:text-blue-400 tabular-nums">
                                 Approved · Ready for Release
                             </span>
                             <div className="mt-1.5 flex items-baseline justify-between">
-                                <span className="text-2xl font-bold font-mono tracking-tight text-blue-600 dark:text-blue-400">
+                                <span className="text-2xl font-bold tabular-nums tracking-tight text-blue-600 dark:text-blue-400">
                                     {counts.approved}
                                 </span>
-                                <span className="text-[11px] text-blue-600/80 dark:text-blue-400/80 font-sans">
+                                <span className="text-sm text-blue-600/80 dark:text-blue-400/80 font-sans">
                                     for pickup
                                 </span>
                             </div>
                         </div>
 
                         <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-emerald-200/80 dark:border-emerald-900/40 shadow-2xs flex flex-col justify-between">
-                            <span className="block text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 font-mono">
+                            <span className="block text-sm font-semibold normal-case tracking-normal text-emerald-700 dark:text-emerald-400 tabular-nums">
                                 Completed Issuances
                             </span>
                             <div className="mt-1.5 flex items-baseline justify-between">
-                                <span className="text-2xl font-bold font-mono tracking-tight text-emerald-600 dark:text-emerald-400">
+                                <span className="text-2xl font-bold tabular-nums tracking-tight text-emerald-600 dark:text-emerald-400">
                                     {counts.issued}
                                 </span>
-                                <span className="text-[11px] text-emerald-600/80 dark:text-emerald-400/80 font-sans">
+                                <span className="text-sm text-emerald-600/80 dark:text-emerald-400/80 font-sans">
                                     released
                                 </span>
                             </div>
@@ -328,10 +328,10 @@ export default function MyRequests({
                         {/* Toolbar */}
                         <div className="p-4 sm:px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
                             <div>
-                                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 font-serif tracking-tight">
+                                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                                     My Supply Requests
                                 </h2>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
                                     Track submitted supply requisitions, custodian review remarks, final approved quantities, and RIS vouchers.
                                 </p>
                             </div>
@@ -353,7 +353,7 @@ export default function MyRequests({
                                             setCurrentPage(1);
                                         }}
                                         placeholder="Search by RIS, recipient, item..."
-                                        className="w-full h-10 pl-9 pr-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-xs sm:text-sm font-medium focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs placeholder-slate-400 dark:placeholder-slate-500"
+                                        className="w-full h-10 pl-9 pr-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-sm font-medium focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs placeholder-slate-400 dark:placeholder-slate-500"
                                     />
                                 </div>
 
@@ -375,7 +375,7 @@ export default function MyRequests({
                                 {can('inventory.requests.store') && <button
                                     type="button"
                                     onClick={openCreate}
-                                    className="w-full sm:w-auto h-10 px-4 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-semibold text-xs tracking-wider rounded-lg shadow-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono cursor-pointer transition-colors shrink-0"
+                                    className="w-full sm:w-auto h-10 px-4 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-semibold text-sm tracking-normal rounded-lg shadow-xs flex items-center justify-center gap-2 whitespace-nowrap normal-case tabular-nums cursor-pointer transition-colors shrink-0"
                                 >
                                     <Plus className="w-4 h-4 text-amber-300" />
                                     New Request
@@ -399,7 +399,7 @@ export default function MyRequests({
                                         ].map((label) => (
                                             <th
                                                 key={label}
-                                                className={`px-4 lg:px-5 py-3 text-[11px] font-bold tracking-wider text-slate-600 dark:text-slate-400 uppercase font-mono ${
+                                                className={`px-4 lg:px-5 py-3 text-sm font-bold tracking-normal text-slate-600 dark:text-slate-400 normal-case tabular-nums ${
                                                     label === 'Actions' ? 'text-right' : ''
                                                 }`}
                                             >
@@ -414,10 +414,10 @@ export default function MyRequests({
                                             <td colSpan={7} className="px-6 py-12 text-center">
                                                 <div className="flex flex-col items-center">
                                                     <FileText className="w-9 h-9 text-slate-300 dark:text-slate-600 mb-2" />
-                                                    <p className="font-semibold text-sm text-slate-800 dark:text-slate-200">
+                                                    <p className="leading-relaxed font-semibold text-sm text-slate-800 dark:text-slate-200">
                                                         No supply requests found
                                                     </p>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+                                                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
                                                         {searchTerm || statusFilter
                                                             ? 'Try adjusting your search criteria or status filter.'
                                                             : 'Submit a new supply requisition to begin tracking approval from the Property Custodian.'}
@@ -447,10 +447,10 @@ export default function MyRequests({
                                                     {/* RIS No. */}
                                                     <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap">
                                                         <div className="flex flex-col">
-                                                            <span className="font-mono font-bold text-xs text-slate-800 dark:text-slate-200 tracking-tight">
+                                                            <span className="tabular-nums font-bold text-sm text-slate-800 dark:text-slate-200 tracking-tight">
                                                                 {request.ris_number || `RIS-${String(request.id).padStart(4, '0')}`}
                                                             </span>
-                                                            <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 font-normal">
+                                                            <span className="text-sm tabular-nums text-slate-400 dark:text-slate-500 font-normal">
                                                                 Req #{request.id}
                                                             </span>
                                                         </div>
@@ -460,20 +460,20 @@ export default function MyRequests({
                                                     <td className="px-4 lg:px-5 py-3.5 align-top">
                                                         <div className="flex flex-col min-w-0 max-w-xs sm:max-w-sm">
                                                             <span
-                                                                className="font-bold text-xs text-slate-900 dark:text-slate-100 leading-snug truncate"
+                                                                className="font-bold text-sm text-slate-900 dark:text-slate-100 leading-snug truncate"
                                                                 title={request.recipient || request.requester?.name || 'Supply Coordinator'}
                                                             >
                                                                 {request.recipient || request.requester?.name || 'Supply Coordinator'}
                                                             </span>
                                                             <span
-                                                                className="text-[11px] text-slate-600 dark:text-slate-400 font-medium leading-snug line-clamp-2 mt-0.5"
+                                                                className="text-sm text-slate-600 dark:text-slate-400 font-medium leading-snug line-clamp-2 mt-0.5"
                                                                 title={request.department}
                                                             >
                                                                 {request.department}
                                                             </span>
                                                             {request.recipient_designation && (
                                                                 <span
-                                                                    className="text-[10px] text-slate-400 dark:text-slate-500 font-normal mt-0.5 truncate"
+                                                                    className="text-sm text-slate-400 dark:text-slate-500 font-normal mt-0.5 truncate"
                                                                     title={request.recipient_designation}
                                                                 >
                                                                     {request.recipient_designation}
@@ -485,11 +485,11 @@ export default function MyRequests({
                                                     {/* Fund Cluster / Purpose */}
                                                     <td className="px-4 lg:px-5 py-3.5 align-top">
                                                         <div className="flex flex-col min-w-0 max-w-xs">
-                                                            <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                                                            <span className="tabular-nums text-sm text-slate-500 dark:text-slate-400 truncate">
                                                                 {(getFundClusterDisplay(request.fund_cluster) || '01 · Regular Agency Fund').replace(' - ', ' · ')}
                                                             </span>
                                                             <span
-                                                                className="text-xs text-slate-700 dark:text-slate-300 font-medium line-clamp-2 mt-0.5"
+                                                                className="text-sm text-slate-700 dark:text-slate-300 font-medium line-clamp-2 mt-0.5"
                                                                 title={request.purpose}
                                                             >
                                                                 {request.purpose}
@@ -500,18 +500,18 @@ export default function MyRequests({
                                                     {/* Items */}
                                                     <td className="px-4 lg:px-5 py-3.5 align-top">
                                                         <div className="flex flex-col min-w-0">
-                                                            <div className="flex items-center gap-1.5 font-mono text-xs">
+                                                            <div className="flex items-center gap-1.5 tabular-nums text-sm">
                                                                 <span className="font-bold text-slate-900 dark:text-slate-100">
                                                                     {request.items.length} {request.items.length === 1 ? 'item' : 'items'}
                                                                 </span>
                                                                 {hasQuantityAdjustment && (
-                                                                    <span className="px-1.5 py-0.5 rounded text-[10px] font-sans font-semibold bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800/60 leading-none">
+                                                                    <span className="px-1.5 py-0.5 rounded text-sm font-sans font-semibold bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800/60 leading-none">
                                                                         Adjusted
                                                                     </span>
                                                                 )}
                                                             </div>
                                                             {isReviewed ? (
-                                                                <div className="text-[11px] font-mono mt-0.5 flex items-center gap-1">
+                                                                <div className="text-sm tabular-nums mt-0.5 flex items-center gap-1">
                                                                     <span className="text-slate-500 dark:text-slate-400">
                                                                         {totalRequestedQty} requested
                                                                     </span>
@@ -521,10 +521,10 @@ export default function MyRequests({
                                                                     </span>
                                                                 </div>
                                                             ) : (
-                                                                <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-0.5">
+                                                                <div className="text-sm tabular-nums text-slate-500 dark:text-slate-400 mt-0.5">
                                                                     <span>{totalRequestedQty} requested</span>
                                                                     {request.items[0]?.item?.name && (
-                                                                        <span className="block truncate max-w-[180px] font-sans text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                                                                        <span className="block truncate max-w-[180px] font-sans text-sm text-slate-400 dark:text-slate-500 mt-0.5">
                                                                             {request.items[0].item.name}
                                                                             {request.items.length > 1 && ` +${request.items.length - 1} more`}
                                                                         </span>
@@ -535,7 +535,7 @@ export default function MyRequests({
                                                     </td>
 
                                                     {/* Date Requested */}
-                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap text-xs text-slate-600 dark:text-slate-400 font-mono">
+                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap text-sm text-slate-600 dark:text-slate-400 tabular-nums">
                                                         {formatDisplayDate(request.date_requested || request.created_at, 'MM/DD/YYYY') ||
                                                             request.date_requested ||
                                                             request.created_at}
@@ -552,7 +552,7 @@ export default function MyRequests({
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setDetailsRequest(request)}
-                                                                className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-xs transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
+                                                                className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
                                                             >
                                                                 View
                                                             </button>
@@ -561,7 +561,7 @@ export default function MyRequests({
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => openEdit(request)}
-                                                                    className="text-red-950 dark:text-red-400 font-semibold text-xs py-1 px-1.5 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
+                                                                    className="text-red-950 dark:text-red-400 font-semibold text-sm py-1 px-1.5 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
                                                                 >
                                                                     Edit
                                                                 </button>
@@ -571,7 +571,7 @@ export default function MyRequests({
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => openRis(request)}
-                                                                    className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 font-semibold text-xs px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
+                                                                    className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 font-semibold text-sm px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
                                                                 >
                                                                     View RIS
                                                                 </button>
@@ -582,7 +582,7 @@ export default function MyRequests({
                                                                     type="button"
                                                                     disabled={busy === request.id}
                                                                     onClick={() => cancel(request)}
-                                                                    className="text-gray-400 hover:text-rose-700 dark:hover:text-rose-400 font-semibold text-xs py-1 px-1.5 rounded hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer disabled:opacity-50"
+                                                                    className="text-gray-400 hover:text-rose-700 dark:hover:text-rose-400 font-semibold text-sm py-1 px-1.5 rounded hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer disabled:opacity-50"
                                                                     title="Cancel Request"
                                                                 >
                                                                     Cancel
@@ -600,7 +600,7 @@ export default function MyRequests({
 
                         {/* Pagination */}
                         {filtered.length > 0 && (
-                            <div className="px-4 sm:px-6 py-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                            <div className="px-4 sm:px-6 py-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
                                 <span className="text-slate-500 dark:text-slate-400 font-medium">
                                     Showing <strong className="text-slate-700 dark:text-slate-200">{from}</strong>–<strong className="text-slate-700 dark:text-slate-200">{to}</strong> of <strong className="text-slate-700 dark:text-slate-200">{filtered.length}</strong> records
                                 </span>
@@ -610,7 +610,7 @@ export default function MyRequests({
                                         onClick={() => setCurrentPage(Math.max(1, safePage - 1))}
                                         disabled={safePage <= 1}
                                         aria-label="Go to previous page"
-                                        className="h-8 px-3 border border-slate-300 dark:border-slate-700 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors shadow-2xs"
+                                        className="h-8 px-3 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors shadow-2xs"
                                     >
                                         Previous
                                     </button>
@@ -622,7 +622,7 @@ export default function MyRequests({
                                         onClick={() => setCurrentPage(Math.min(lastPage, safePage + 1))}
                                         disabled={safePage >= lastPage}
                                         aria-label="Go to next page"
-                                        className="h-8 px-3 border border-slate-300 dark:border-slate-700 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors shadow-2xs"
+                                        className="h-8 px-3 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors shadow-2xs"
                                     >
                                         Next
                                     </button>

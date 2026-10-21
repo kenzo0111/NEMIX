@@ -53,7 +53,7 @@ export default function InventoryMovementChart({ data }: InventoryMovementChartP
     if (data.length === 0) {
         return (
             <div className="h-64 flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 border border-dashed border-gray-200 dark:border-slate-800 rounded-lg">
-                <p className="text-xs font-medium">No inventory movement recorded for this period.</p>
+                <p className="leading-relaxed text-sm font-medium">No inventory movement recorded for this period.</p>
             </div>
         );
     }
@@ -67,14 +67,14 @@ export default function InventoryMovementChart({ data }: InventoryMovementChartP
                     tickLine={false}
                     axisLine={false}
                     tickMargin={6}
-                    tick={{ fill: 'var(--chart-tick)', fontSize: 11, fontWeight: 600 }}
+                    tick={{ fill: 'var(--chart-tick)', fontSize: 14, fontWeight: 600 }}
                 />
                 <YAxis
                     width={50}
                     tickLine={false}
                     axisLine={false}
                     tickMargin={6}
-                    tick={{ fill: 'var(--chart-tick-muted)', fontSize: 11, fontWeight: 500 }}
+                    tick={{ fill: 'var(--chart-tick-muted)', fontSize: 14, fontWeight: 500 }}
                     tickFormatter={(val) => Number(val).toLocaleString()}
                 />
                 <ChartTooltip

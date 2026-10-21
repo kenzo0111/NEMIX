@@ -66,13 +66,13 @@ export default function FullAuthLayout({
                                 <ApplicationLogo alt={`${institutionName} Seal`} className="h-10 w-10 object-contain" />
                             </div>
                             <div className="min-w-0">
-                                <h1 className="font-serif text-base font-bold text-stone-900 dark:text-slate-100 leading-tight truncate">
+                                <h1 className="text-2xl sm:text-3xl font-sans font-bold text-stone-900 dark:text-slate-100 leading-tight truncate">
                                     {institutionName}
                                 </h1>
-                                <p className="text-sm text-[#7B1113] dark:text-red-400 font-bold mt-0.5">
+                                <p className="leading-relaxed text-sm text-[#7B1113] dark:text-red-400 font-bold mt-1">
                                     SupplySync
                                 </p>
-                                <p className="text-xs text-stone-500 dark:text-slate-400 leading-relaxed mt-0.5">
+                                <p className="text-sm text-stone-500 dark:text-slate-400 leading-relaxed mt-1">
                                     Consumable Supplies and Requisition Management System
                                 </p>
                             </div>

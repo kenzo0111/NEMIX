@@ -21,11 +21,11 @@ export default function ComplianceStatusCard({ summary, className = '' }: Compli
                         <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
                             <FileCheck2 className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="text-lg font-bold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
                             Compliance & Filings
                         </h3>
                     </div>
-                    <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shrink-0">
+                    <span className="text-sm tabular-nums font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shrink-0">
                         {reportsCount} MTD
                     </span>
                 </div>
@@ -35,30 +35,30 @@ export default function ComplianceStatusCard({ summary, className = '' }: Compli
                     {latestReport ? (
                         <div>
                             <div className="flex items-center justify-between gap-2">
-                                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                <span className="text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400">
                                     Latest Filing
                                 </span>
-                                <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
+                                <span className="text-sm font-medium text-slate-400 dark:text-slate-500">
                                     {latestReport.date}
                                 </span>
                             </div>
-                            <h4 className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate mt-1">
+                            <h4 className="text-base font-semibold text-slate-900 dark:text-slate-100 truncate mt-1">
                                 {latestReport.title}
                             </h4>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                                Ref: <span className="font-mono text-slate-700 dark:text-slate-300">{latestReport.reference}</span>
+                            <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 truncate mt-1">
+                                Ref: <span className="tabular-nums text-slate-700 dark:text-slate-300">{latestReport.reference}</span>
                                 {latestReport.created_by && ` • ${latestReport.created_by}`}
                             </p>
                         </div>
                     ) : (
                         <div className="py-2 text-center text-slate-400 dark:text-slate-500">
-                            <p className="text-xs">No formal compliance reports compiled this cycle.</p>
+                            <p className="leading-relaxed text-sm">No formal compliance reports compiled this cycle.</p>
                         </div>
                     )}
                 </div>
 
                 {/* Subtle description */}
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 truncate">
+                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-2 truncate">
                     {reportsCount > 0 ? `${reportsCount} periodic inspection filings submitted.` : 'Awaiting scheduled monthly audit report.'}
                 </p>
             </div>
@@ -67,7 +67,7 @@ export default function ComplianceStatusCard({ summary, className = '' }: Compli
             <div className="pt-2 mt-2.5 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                 <Link
                     href={route('compliance.reports')}
-                    className="text-xs font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1"
+                    className="text-sm font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1"
                 >
                     <span>Manage Official Reports</span>
                     <ArrowRight className="w-3.5 h-3.5" />

@@ -47,11 +47,11 @@ export const getInstitutionalSelectStyles = (hasError: boolean = false): StylesC
     }),
     groupHeading: (provided) => ({
         ...provided,
-        fontSize: '0.75rem',
+        fontSize: '0.875rem',
         fontWeight: 700,
         color: '#7f1d1d',
         letterSpacing: '0.025em',
-        textTransform: 'uppercase',
+        textTransform: 'normal-case',
         paddingTop: '0.5rem',
         paddingBottom: '0.25rem',
         borderBottom: '1px solid var(--border-color, #f3f4f6)',

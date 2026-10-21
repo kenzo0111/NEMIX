@@ -52,7 +52,7 @@ export default function Breadcrumbs({ items, currentPage }: BreadcrumbsProps) {
     if (visibleItems.length === 0) return null;
 
     return (
-        <nav className="max-w-full overflow-hidden text-xs sm:text-sm font-medium text-gray-500 dark:text-slate-400" aria-label="Breadcrumb">
+        <nav className="max-w-full overflow-hidden text-sm font-medium text-gray-500 dark:text-slate-400" aria-label="Breadcrumb">
             <ol className="flex min-w-0 items-center gap-1 whitespace-nowrap">
                 {canOpenDashboard && (
                     <li className="flex shrink-0 items-center">

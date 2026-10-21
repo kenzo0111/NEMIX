@@ -37,7 +37,7 @@ export default function DashboardHeader({ onToggleSidebar, coordinator }: Dashbo
             {/* Non-Production Mode Alert Notice */}
             {systemMode && systemMode !== 'LIVE PRODUCTION' && (
                 <div
-                    className={`px-4 sm:px-6 py-2 text-xs font-semibold text-center flex items-center justify-center gap-2 border-b ${
+                    className={`px-4 sm:px-6 py-2 text-sm font-semibold text-center flex items-center justify-center gap-2 border-b ${
                         systemMode === 'MAINTENANCE MODE'
                             ? 'bg-amber-950 text-amber-200 border-amber-800'
                             : systemMode === 'STAGING SANDBOX'
@@ -51,11 +51,11 @@ export default function DashboardHeader({ onToggleSidebar, coordinator }: Dashbo
                     </span>
                     <span>
                         {systemMode === 'MAINTENANCE MODE' &&
-                            'SYSTEM MAINTENANCE MODE ACTIVE — Data modification restricted to authorized System Administrators.'}
+                            'Maintenance mode: only System Administrators can make changes.'}
                         {systemMode === 'STAGING SANDBOX' &&
-                            'STAGING SANDBOX ENVIRONMENT — Operating with isolated verification database.'}
+                            'Staging environment: using isolated test data.'}
                         {systemMode === 'TRAINING SIMULATION' &&
-                            'TRAINING SIMULATION MODE — Operating with synthetic demonstration data.'}
+                            'Training mode: using sample data.'}
                     </span>
                 </div>
             )}
@@ -74,15 +74,15 @@ export default function DashboardHeader({ onToggleSidebar, coordinator }: Dashbo
 
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-xs font-bold text-red-950 dark:text-red-400 uppercase tracking-widest truncate">
-                                {isCoordinator ? 'Delivery Unit • Supply Coordinator' : 'SPMO • Supply & Property Management Office'}
+                            <span className="text-sm font-medium text-red-950 dark:text-red-400">
+                                {isCoordinator ? 'Supply Coordinator' : 'Supply & Property Management'}
                             </span>
                         </div>
-                        <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight break-words">
-                            SupplySync
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight break-words">
+                            {isCoordinator ? 'My supplies' : 'Dashboard'}
                         </h1>
-                        <p className="text-xs text-gray-600 dark:text-slate-400 font-medium mt-0.5 break-words">
-                            Consumable Supplies and Requisition Management System
+                        <p className="text-sm text-gray-600 dark:text-slate-400 font-normal mt-1 leading-relaxed break-words">
+                            {isCoordinator ? 'Track unit stock, requests, and distributions.' : 'Monitor stock, requests, and recent activity.'}
                         </p>
                     </div>
                 </div>
@@ -91,10 +91,10 @@ export default function DashboardHeader({ onToggleSidebar, coordinator }: Dashbo
                     <SystemModeBadge />
                     <ThemeToggle variant="compact" />
                     <div className="text-right hidden xl:block border-l border-gray-200 dark:border-slate-800 pl-4">
-                        <span className="block text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
+                        <span className="block text-sm font-bold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
                             {todayDate}
                         </span>
-                        <span className="text-xs text-gray-600 dark:text-slate-400 uppercase tracking-wider font-semibold block mt-0.5">
+                        <span className="text-sm text-gray-600 dark:text-slate-400 normal-case tracking-normal font-semibold block mt-0.5">
                             {todayWeekday}
                         </span>
                     </div>

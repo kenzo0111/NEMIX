@@ -217,16 +217,16 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
             {issuanceSummary && (
                 <div className="p-3.5 bg-gray-50/90 dark:bg-slate-800/80 rounded-md border border-gray-200/90 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
                     <div className="space-y-0.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-red-950 dark:text-red-400 block">
+                        <span className="text-sm font-bold normal-case tracking-normal text-red-950 dark:text-red-400 block">
                             {issuanceSummary.title}
                         </span>
                         {issuanceSummary.risNumber && (
-                            <div className="text-xs font-bold font-mono text-gray-900 dark:text-slate-100">
+                            <div className="text-sm font-bold tabular-nums text-gray-900 dark:text-slate-100">
                                 {issuanceSummary.risNumber}
                             </div>
                         )}
                         {issuanceSummary.recipient && (
-                            <div className="text-xs text-gray-700 dark:text-slate-300">
+                            <div className="text-sm text-gray-700 dark:text-slate-300">
                                 <span className="font-semibold text-gray-900 dark:text-slate-100">{issuanceSummary.recipient}</span>
                                 {issuanceSummary.department && (
                                     <span className="text-gray-500 dark:text-slate-400"> • {issuanceSummary.department}</span>
@@ -236,7 +236,7 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
                     </div>
 
                     {issuanceSummary.stats && (
-                        <div className="px-2.5 py-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded text-xs font-semibold text-gray-800 dark:text-slate-200 self-start sm:self-auto shadow-2xs">
+                        <div className="px-2.5 py-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded text-sm font-semibold text-gray-800 dark:text-slate-200 self-start sm:self-auto shadow-2xs">
                             {issuanceSummary.stats}
                         </div>
                     )}
@@ -246,10 +246,10 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
             {/* 2. Action Description (Requirement 26) - plain text only, never raw JSON */}
             {cleanActionDescription && (
                 <div className="p-3 bg-gray-50/60 dark:bg-slate-800/70 rounded-md border border-gray-200 dark:border-slate-700/60">
-                    <span className="text-[11px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wide block mb-1">
+                    <span className="text-sm font-bold text-gray-500 dark:text-slate-400 normal-case tracking-normal block mb-1">
                         Action Description
                     </span>
-                    <p className="text-xs text-gray-800 dark:text-slate-200 leading-relaxed font-sans">
+                    <p className="text-sm text-gray-800 dark:text-slate-200 leading-relaxed font-sans">
                         {cleanActionDescription}
                     </p>
                 </div>
@@ -259,7 +259,7 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
             {structuredFields && structuredFields.length > 0 ? (
                 <div className="space-y-2.5">
                     <div className="flex items-center justify-between pb-1.5 border-b border-gray-100 dark:border-slate-800">
-                        <span className="font-bold text-gray-900 dark:text-slate-100 uppercase tracking-wide text-[11px]">
+                        <span className="font-bold text-gray-900 dark:text-slate-100 normal-case tracking-normal text-sm">
                             Transaction Details
                         </span>
                     </div>
@@ -270,12 +270,12 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
                                 key={item.key}
                                 className="bg-gray-50/60 dark:bg-slate-800/70 p-2.5 rounded-md border border-gray-200/80 dark:border-slate-700/60 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800"
                             >
-                                <span className="text-gray-500 dark:text-slate-400 text-[11px] block font-medium">
+                                <span className="text-gray-500 dark:text-slate-400 text-sm block font-medium">
                                     {item.label}
                                 </span>
                                 <span
-                                    className={`text-xs font-semibold text-gray-900 dark:text-slate-100 mt-1 block break-words ${
-                                        item.isMonospace ? 'font-mono' : ''
+                                    className={`text-sm font-semibold text-gray-900 dark:text-slate-100 mt-1 block break-words ${
+                                        item.isMonospace ? 'tabular-nums' : ''
                                     }`}
                                 >
                                     {item.value}
@@ -290,7 +290,7 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
             {nestedItems && (
                 <div className="space-y-2 pt-1">
                     <div className="flex items-center justify-between pb-1 border-b border-gray-100 dark:border-slate-800">
-                        <span className="font-bold text-gray-900 dark:text-slate-100 uppercase tracking-wide text-[11px]">
+                        <span className="font-bold text-gray-900 dark:text-slate-100 normal-case tracking-normal text-sm">
                             Affected Items ({nestedItems.length})
                         </span>
                     </div>
@@ -309,14 +309,14 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
                             return (
                                 <div
                                     key={idx}
-                                    className="p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs hover:bg-gray-50/60 dark:hover:bg-slate-800/60 transition-colors"
+                                    className="p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-sm hover:bg-gray-50/60 dark:hover:bg-slate-800/60 transition-colors"
                                 >
                                     <div>
                                         <span className="font-bold text-gray-900 dark:text-slate-100 block">
                                             {itemName}
                                         </span>
                                         {itemCode && (
-                                            <span className="text-[10px] text-gray-500 dark:text-slate-400 font-mono">
+                                            <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums">
                                                 Code: {itemCode}
                                             </span>
                                         )}
@@ -329,7 +329,7 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
                                             </span>
                                         )}
                                         {unitCost !== null && !isNaN(unitCost) && (
-                                            <span className="text-[11px] text-gray-500 dark:text-slate-400 font-mono block">
+                                            <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums block">
                                                 Cost: ₱{unitCost.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
                                             </span>
                                         )}
@@ -345,7 +345,7 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
             {diffs && diffs.length > 0 && (
                 <div className="space-y-2 pt-1">
                     <div className="flex items-center justify-between pb-1 border-b border-gray-100 dark:border-slate-800">
-                        <span className="font-bold text-gray-900 dark:text-slate-100 uppercase tracking-wide text-[11px]">
+                        <span className="font-bold text-gray-900 dark:text-slate-100 normal-case tracking-normal text-sm">
                             Changes & Field Updates
                         </span>
                     </div>
@@ -354,13 +354,13 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
                         {diffs.map((diff) => (
                             <div
                                 key={diff.key}
-                                className="p-2.5 bg-gray-50/70 dark:bg-slate-800/70 border border-gray-200 dark:border-slate-700/60 rounded-md space-y-1.5 text-xs"
+                                className="p-2.5 bg-gray-50/70 dark:bg-slate-800/70 border border-gray-200 dark:border-slate-700/60 rounded-md space-y-1.5 text-sm"
                             >
                                 <div className="flex items-center justify-between">
                                     <span className="font-bold text-gray-900 dark:text-slate-100">{diff.label}</span>
                                     {diff.changeText && (
                                         <span
-                                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
+                                            className={`text-sm font-bold px-1.5 py-0.5 rounded border ${
                                                 diff.changeDiff && diff.changeDiff < 0
                                                     ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-900/50'
                                                      : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50'
@@ -371,16 +371,16 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
                                     )}
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-2 pt-0.5 text-[11px]">
+                                <div className="grid grid-cols-2 gap-2 pt-0.5 text-sm">
                                     <div>
                                         <span className="text-gray-500 dark:text-slate-400 block font-medium">Before</span>
-                                        <span className="font-mono text-gray-700 dark:text-slate-300 block truncate" title={diff.before}>
+                                        <span className="tabular-nums text-gray-700 dark:text-slate-300 block truncate" title={diff.before}>
                                             {diff.before}
                                         </span>
                                     </div>
                                     <div>
                                         <span className="text-gray-500 dark:text-slate-400 block font-medium">After</span>
-                                        <span className="font-mono font-bold text-gray-900 dark:text-slate-100 block truncate" title={diff.after}>
+                                        <span className="tabular-nums font-bold text-gray-900 dark:text-slate-100 block truncate" title={diff.after}>
                                             {diff.after}
                                         </span>
                                     </div>
@@ -393,7 +393,7 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
 
             {/* 6. Empty Metadata Fallback (Requirement 18) */}
             {!hasAnyDetails && (
-                <div className="p-3 bg-gray-50/60 dark:bg-slate-800/70 rounded-md border border-gray-200 dark:border-slate-700/60 text-gray-500 dark:text-slate-400 text-xs text-center">
+                <div className="p-3 bg-gray-50/60 dark:bg-slate-800/70 rounded-md border border-gray-200 dark:border-slate-700/60 text-gray-500 dark:text-slate-400 text-sm text-center">
                     No additional transaction details were recorded.
                 </div>
             )}
@@ -403,7 +403,7 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
                 <button
                     type="button"
                     onClick={() => setShowRaw(!showRaw)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 rounded transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-semibold text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 rounded transition-colors cursor-pointer"
                 >
                     <Code className="w-3.5 h-3.5 text-gray-500 dark:text-slate-400" />
                     <span>{showRaw ? 'Hide Raw Metadata' : 'View Raw Metadata'}</span>
@@ -411,14 +411,14 @@ export const AuditMetadataDetails: React.FC<AuditMetadataDetailsProps> = ({
                 </button>
 
                 {showRaw && (
-                    <div className="mt-2.5 p-3 bg-slate-900 dark:bg-slate-950 text-slate-100 rounded-md overflow-x-auto text-[11px] font-mono leading-relaxed space-y-2 shadow-inner border border-slate-800">
-                        <div className="text-slate-400 text-[10px] uppercase font-bold border-b border-slate-800 pb-1 flex justify-between">
+                    <div className="mt-2.5 p-3 bg-slate-900 dark:bg-slate-950 text-slate-100 rounded-md overflow-x-auto text-sm tabular-nums leading-relaxed space-y-2 shadow-inner border border-slate-800">
+                        <div className="text-slate-400 text-sm normal-case font-bold border-b border-slate-800 pb-1 flex justify-between">
                             <span>Raw Technical Metadata (Sanitized)</span>
                             {record?.audit_group_id && (
                                 <span className="truncate max-w-xs">Audit Group: {record.audit_group_id}</span>
                             )}
                         </div>
-                        <pre className="overflow-x-auto whitespace-pre-wrap break-words text-xs">
+                        <pre className="overflow-x-auto whitespace-pre-wrap break-words text-sm">
                             {JSON.stringify(rawPayload, null, 2)}
                         </pre>
                     </div>

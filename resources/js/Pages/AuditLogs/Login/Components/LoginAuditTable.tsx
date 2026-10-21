@@ -67,17 +67,17 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                     </div>
                     {hasActiveFilters ? (
                         <>
-                            <h4 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-1">
+                            <h4 className="text-base font-bold text-gray-900 dark:text-slate-100 mb-1">
                                 No authentication records match the selected filters.
                             </h4>
-                            <p className="text-xs text-gray-500 dark:text-slate-400 mb-4 leading-relaxed">
+                            <p className="text-sm text-gray-500 dark:text-slate-400 mb-4 leading-relaxed">
                                 Please adjust your search keyword, role, status, or date range to inspect other records.
                             </p>
                             {onResetFilters && (
                                 <button
                                     type="button"
                                     onClick={onResetFilters}
-                                    className="px-3.5 py-1.5 text-xs font-semibold text-red-900 dark:text-red-300 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800/60 rounded-md transition-colors"
+                                    className="px-3.5 py-1.5 text-sm font-semibold text-red-900 dark:text-red-300 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800/60 rounded-md transition-colors"
                                 >
                                     Clear Filters
                                 </button>
@@ -85,10 +85,10 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                         </>
                     ) : (
                         <>
-                            <h4 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-1">
+                            <h4 className="text-base font-bold text-gray-900 dark:text-slate-100 mb-1">
                                 No login audit records are available.
                             </h4>
-                            <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
+                            <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">
                                 Authentic authentication activity will automatically appear here as system users log in.
                             </p>
                         </>
@@ -103,7 +103,7 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[760px]">
                     <thead>
-                        <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/80 dark:bg-slate-800/80 text-[11px] font-bold text-gray-600 dark:text-slate-300 uppercase tracking-wider">
+                        <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/80 dark:bg-slate-800/80 text-sm font-bold text-gray-600 dark:text-slate-300 normal-case tracking-normal">
                             <th className="py-3 px-3 w-8"></th>
                             <th className="py-3 px-4">User Details</th>
                             <th className="py-3 px-4">Access Role</th>
@@ -112,7 +112,7 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                             <th className="py-3 px-4 text-center">Result</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-xs">
+                    <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-sm">
                         {records.map((record) => {
                             const isExpanded = expandedRowId === record.id;
                             const isUnknown = !record.user_id && record.event === 'login_failed';
@@ -142,14 +142,14 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                                                 <span className="font-semibold text-gray-900 dark:text-slate-100 group-hover:text-red-950 dark:group-hover:text-red-300 transition-colors">
                                                     {displayName}
                                                 </span>
-                                                <span className="text-[11px] text-gray-500 dark:text-slate-400 font-normal">
+                                                <span className="text-sm text-gray-500 dark:text-slate-400 font-normal">
                                                     {displayEmail}
                                                 </span>
                                             </div>
                                         </td>
                                         <td className="py-3.5 px-4">
                                             {displayRole !== '—' ? (
-                                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border ${
+                                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-medium border ${
                                                     displayRole.toLowerCase().includes('admin')
                                                         ? 'bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300 border-red-200 dark:border-red-800'
                                                         : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
@@ -165,7 +165,7 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                                         </td>
                                         <td className="py-3.5 px-4">
                                             <div className="inline-flex items-center gap-1.5">
-                                                <span className="font-mono text-xs text-gray-700 dark:text-slate-300 bg-gray-50 dark:bg-slate-800 border border-gray-200/90 dark:border-slate-700 px-2 py-0.5 rounded shadow-2xs">
+                                                <span className="tabular-nums text-sm text-gray-700 dark:text-slate-300 bg-gray-50 dark:bg-slate-800 border border-gray-200/90 dark:border-slate-700 px-2 py-0.5 rounded shadow-2xs">
                                                     {rawIp}
                                                 </span>
                                                 {rawIp !== '—' && (
@@ -194,37 +194,37 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                                         <tr className="bg-gray-50/60 dark:bg-slate-800/60 border-b border-gray-200 dark:border-slate-800">
                                             <td colSpan={6} className="px-6 py-4">
                                                 <div className="bg-white dark:bg-slate-900 rounded-md border border-gray-200/80 dark:border-slate-800 p-3.5 shadow-2xs">
-                                                    <div className="flex items-center gap-2 mb-2.5 pb-2 border-b border-gray-100 dark:border-slate-800 text-xs font-bold text-gray-700 dark:text-slate-300">
+                                                    <div className="flex items-center gap-2 mb-2.5 pb-2 border-b border-gray-100 dark:border-slate-800 text-sm font-bold text-gray-700 dark:text-slate-300">
                                                         <Laptop className="w-4 h-4 text-red-900 dark:text-red-400" />
                                                         <span>Authentication Audit Forensics (Record #{record.id})</span>
                                                     </div>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                                                         <div>
-                                                            <span className="text-[11px] font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide block">Account Mapping</span>
+                                                            <span className="text-sm font-semibold text-gray-500 dark:text-slate-400 normal-case tracking-normal block">Account Mapping</span>
                                                             <span className="text-gray-900 dark:text-slate-100 font-medium">
                                                                 {record.user_id ? (
-                                                                    <>User ID: <span className="font-mono font-bold text-red-900 dark:text-red-400">#{record.user_id}</span></>
+                                                                    <>User ID: <span className="tabular-nums font-bold text-red-900 dark:text-red-400">#{record.user_id}</span></>
                                                                 ) : (
                                                                     <span className="italic text-gray-500 dark:text-slate-400">Unmatched / Non-system account</span>
                                                                 )}
                                                             </span>
                                                         </div>
                                                         <div>
-                                                            <span className="text-[11px] font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide block">Source IP</span>
-                                                            <span className="font-mono text-gray-900 dark:text-slate-100 font-medium">{rawIp}</span>
+                                                            <span className="text-sm font-semibold text-gray-500 dark:text-slate-400 normal-case tracking-normal block">Source IP</span>
+                                                            <span className="tabular-nums text-gray-900 dark:text-slate-100 font-medium">{rawIp}</span>
                                                         </div>
                                                         <div>
-                                                            <span className="text-[11px] font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide block">Canonical Event</span>
-                                                            <span className="font-mono text-gray-800 dark:text-slate-200 text-[11px] bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                                                            <span className="text-sm font-semibold text-gray-500 dark:text-slate-400 normal-case tracking-normal block">Canonical Event</span>
+                                                            <span className="tabular-nums text-gray-800 dark:text-slate-200 text-sm bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
                                                                 {record.event}
                                                             </span>
                                                         </div>
                                                     </div>
                                                     <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-slate-800">
-                                                        <span className="text-[11px] font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide block mb-1">
+                                                        <span className="text-sm font-semibold text-gray-500 dark:text-slate-400 normal-case tracking-normal block mb-1">
                                                             Client User Agent
                                                         </span>
-                                                        <div className="font-mono text-[11px] text-gray-700 dark:text-slate-300 bg-gray-50 dark:bg-slate-950 p-2 rounded border border-gray-200/80 dark:border-slate-800 break-all leading-relaxed select-all">
+                                                        <div className="tabular-nums text-sm text-gray-700 dark:text-slate-300 bg-gray-50 dark:bg-slate-950 p-2 rounded border border-gray-200/80 dark:border-slate-800 break-all leading-relaxed select-all">
                                                             {record.user_agent || 'Client user agent was not recorded for this event.'}
                                                         </div>
                                                     </div>

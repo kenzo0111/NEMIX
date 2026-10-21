@@ -23,11 +23,11 @@ export default function RfidOverview({ rfidSummary, className = '' }: RfidOvervi
                         <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
                             <Radio className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="text-lg font-bold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
                             RFID Tagging Status
                         </h3>
                     </div>
-                    <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shrink-0">
+                    <span className="text-sm tabular-nums font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shrink-0">
                         {percentage}%
                     </span>
                 </div>
@@ -35,20 +35,20 @@ export default function RfidOverview({ rfidSummary, className = '' }: RfidOvervi
                 {/* Compact Stats Row */}
                 <div className="grid grid-cols-2 gap-2.5 py-0.5">
                     <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg p-2 sm:p-2.5">
-                        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+                        <span className="text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400 block">
                             Tagged
                         </span>
-                        <span className="text-base font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
+                        <span className="text-base font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
                             {tagged.toLocaleString()}
-                            <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500 ml-1">/ {total.toLocaleString()}</span>
+                            <span className="text-sm font-normal text-slate-400 dark:text-slate-500 ml-1">/ {total.toLocaleString()}</span>
                         </span>
                     </div>
 
                     <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg p-2 sm:p-2.5">
-                        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+                        <span className="text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400 block">
                             Without Tag
                         </span>
-                        <span className="text-base font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
+                        <span className="text-base font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
                             {untagged.toLocaleString()}
                         </span>
                     </div>
@@ -65,7 +65,7 @@ export default function RfidOverview({ rfidSummary, className = '' }: RfidOvervi
                 </div>
 
                 {/* Subtle description */}
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 truncate">
+                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-2 truncate">
                     Optional RFID tagging · {tagged} of {total} inventory items tagged.
                 </p>
             </div>
@@ -74,7 +74,7 @@ export default function RfidOverview({ rfidSummary, className = '' }: RfidOvervi
             <div className="pt-2 mt-2.5 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                 <Link
                     href={route('rfid-scanner.index')}
-                    className="text-xs font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1"
+                    className="text-sm font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1"
                 >
                     <span>Manage RFID</span>
                     <ArrowRight className="w-3.5 h-3.5" />

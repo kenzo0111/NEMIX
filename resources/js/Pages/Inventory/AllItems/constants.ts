@@ -16,7 +16,7 @@ export const customSelectStyles = {
         padding: '1px 2px',
         minWidth: '150px',
         boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
-        fontSize: '0.8125rem',
+        fontSize: '0.875rem',
         fontWeight: '500',
         backgroundColor: 'var(--surface-card, #ffffff)',
         '&:hover': { borderColor: '#7f1d1d' },
@@ -26,14 +26,14 @@ export const customSelectStyles = {
         backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? 'rgba(153, 27, 27, 0.2)' : 'var(--surface-card, #ffffff)',
         color: state.isSelected ? '#ffffff' : 'var(--text-primary, #111827)',
         padding: '7px 12px',
-        fontSize: '0.8125rem',
+        fontSize: '0.875rem',
         fontWeight: '500',
         cursor: 'pointer',
     }),
     singleValue: (provided: Record<string, unknown>) => ({
         ...provided,
         color: 'var(--text-primary, #111827)',
-        fontSize: '0.8125rem',
+        fontSize: '0.875rem',
         fontWeight: '500',
     }),
     input: (provided: Record<string, unknown>) => ({
@@ -43,7 +43,7 @@ export const customSelectStyles = {
     placeholder: (provided: Record<string, unknown>) => ({
         ...provided,
         color: 'var(--text-secondary, #9ca3af)',
-        fontSize: '0.8125rem',
+        fontSize: '0.875rem',
         fontWeight: '400',
     }),
     menu: (provided: Record<string, unknown>) => ({

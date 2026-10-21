@@ -56,12 +56,12 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                         </div>
                         <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight">
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
                                     Supplier Information
                                 </h3>
                                 <SupplierStatusBadge status={supplier.status} />
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mt-0.5">
+                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium mt-1">
                                 Official registry details and inventory consignment ledger.
                             </p>
                         </div>
@@ -77,37 +77,37 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                 </div>
 
                 {/* Content */}
-                <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 text-xs max-h-[75vh] sm:max-h-[80vh] overflow-y-auto">
+                <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 text-sm max-h-[75vh] sm:max-h-[80vh] overflow-y-auto">
                     {/* Hero Business Identity Banner */}
                     <div className="bg-gradient-to-br from-gray-50 via-white to-gray-50/60 dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 p-4 rounded-lg border border-gray-200/80 dark:border-slate-800 shadow-xs">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                             <div>
-                                <span className="inline-block text-[10px] font-bold uppercase tracking-wider font-mono text-red-900 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 px-2 py-0.5 rounded">
+                                <span className="inline-block text-sm font-bold normal-case tracking-normal tabular-nums text-red-900 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 px-2 py-0.5 rounded">
                                     {CATEGORY_DISPLAY_LABEL}
                                 </span>
-                                <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-slate-100 font-serif mt-1.5">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100 font-sans mt-1.5">
                                     {supplier.name}
                                 </h2>
                             </div>
                         </div>
 
                         <div className="mt-3.5 pt-3 border-t border-gray-100 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div className="flex items-center gap-2 text-xs">
+                            <div className="flex items-center gap-2 text-sm">
                                 <div className="w-6 h-6 rounded bg-gray-100 dark:bg-slate-800 flex items-center justify-center shrink-0 text-gray-500 dark:text-slate-400">
                                     <Hash className="w-3.5 h-3.5" />
                                 </div>
                                 <div>
-                                    <div className="text-[10px] font-medium text-gray-400 dark:text-slate-500 uppercase tracking-wider">Tax ID (TIN)</div>
-                                    <div className="font-mono font-bold text-gray-900 dark:text-slate-100">{supplier.tin || '—'}</div>
+                                    <div className="text-sm font-medium text-gray-400 dark:text-slate-500 normal-case tracking-normal">Tax ID (TIN)</div>
+                                    <div className="tabular-nums font-bold text-gray-900 dark:text-slate-100">{supplier.tin || '—'}</div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 text-xs">
+                            <div className="flex items-center gap-2 text-sm">
                                 <div className="w-6 h-6 rounded bg-gray-100 dark:bg-slate-800 flex items-center justify-center shrink-0 text-gray-500 dark:text-slate-400">
                                     <FileText className="w-3.5 h-3.5" />
                                 </div>
                                 <div>
-                                    <div className="text-[10px] font-medium text-gray-400 dark:text-slate-500 uppercase tracking-wider">Registration Number</div>
-                                    <div className="font-mono font-bold text-gray-900 dark:text-slate-100">{supplier.reg_number || '—'}</div>
+                                    <div className="text-sm font-medium text-gray-400 dark:text-slate-500 normal-case tracking-normal">Registration Number</div>
+                                    <div className="tabular-nums font-bold text-gray-900 dark:text-slate-100">{supplier.reg_number || '—'}</div>
                                 </div>
                             </div>
                         </div>
@@ -117,11 +117,11 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                     <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200/80 dark:border-slate-800 p-4 shadow-xs">
                         <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-gray-100 dark:border-slate-800">
                             <MapPin className="w-4 h-4 text-red-900 dark:text-red-400" />
-                            <h4 className="text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
+                            <h4 className="text-base font-bold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
                                 Official Business Address
                             </h4>
                         </div>
-                        <p className="text-xs text-gray-700 dark:text-slate-300 leading-relaxed font-medium mt-1">
+                        <p className="text-sm text-gray-700 dark:text-slate-300 leading-relaxed font-medium mt-1">
                             {supplier.address || 'No official business address registered.'}
                         </p>
                     </div>
@@ -130,7 +130,7 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                     <div>
                         <div className="flex items-center gap-2 mb-3 pb-1.5 border-b border-gray-100 dark:border-slate-800">
                             <Layers className="w-4 h-4 text-red-900 dark:text-red-400" />
-                            <h4 className="text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
+                            <h4 className="text-base font-bold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
                                 Supply Activity & Financial Metrics
                             </h4>
                         </div>
@@ -139,15 +139,15 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                             {/* Total Received Value */}
                             <div className="bg-gray-50/70 dark:bg-slate-950/50 border border-gray-200/70 dark:border-slate-800 rounded-lg p-3.5 flex flex-col justify-between">
                                 <div className="flex items-center justify-between text-gray-500 dark:text-slate-400 mb-1.5">
-                                    <span className="text-[11px] font-semibold uppercase tracking-wider font-mono text-gray-500 dark:text-slate-400">
+                                    <span className="text-sm font-semibold normal-case tracking-normal tabular-nums text-gray-500 dark:text-slate-400">
                                         Received Value
                                     </span>
                                     <PhilippinePeso className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
                                 </div>
-                                <div className="text-sm font-mono font-bold text-gray-900 dark:text-slate-100">
+                                <div className="text-sm tabular-nums font-bold text-gray-900 dark:text-slate-100">
                                     {formatCurrency(totalReceivedVal)}
                                 </div>
-                                <span className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
+                                <span className="text-sm text-gray-400 dark:text-slate-500 mt-1">
                                     Lifetime deliveries
                                 </span>
                             </div>
@@ -155,15 +155,15 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                             {/* Current Inventory Value */}
                             <div className="bg-gray-50/70 dark:bg-slate-950/50 border border-gray-200/70 dark:border-slate-800 rounded-lg p-3.5 flex flex-col justify-between">
                                 <div className="flex items-center justify-between text-gray-500 dark:text-slate-400 mb-1.5">
-                                    <span className="text-[11px] font-semibold uppercase tracking-wider font-mono text-gray-500 dark:text-slate-400">
+                                    <span className="text-sm font-semibold normal-case tracking-normal tabular-nums text-gray-500 dark:text-slate-400">
                                         Inventory Value
                                     </span>
                                     <Package className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
                                 </div>
-                                <div className="text-sm font-mono font-bold text-red-950 dark:text-red-400">
+                                <div className="text-sm tabular-nums font-bold text-red-950 dark:text-red-400">
                                     {formatCurrency(currentInventoryVal)}
                                 </div>
-                                <span className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
+                                <span className="text-sm text-gray-400 dark:text-slate-500 mt-1">
                                     Current stock on hand
                                 </span>
                             </div>
@@ -171,15 +171,15 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                             {/* Receiving Batches */}
                             <div className="bg-gray-50/70 dark:bg-slate-950/50 border border-gray-200/70 dark:border-slate-800 rounded-lg p-3.5 flex flex-col justify-between">
                                 <div className="flex items-center justify-between text-gray-500 dark:text-slate-400 mb-1.5">
-                                    <span className="text-[11px] font-semibold uppercase tracking-wider font-mono text-gray-500 dark:text-slate-400">
+                                    <span className="text-sm font-semibold normal-case tracking-normal tabular-nums text-gray-500 dark:text-slate-400">
                                         Batches Logged
                                     </span>
                                     <Boxes className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
                                 </div>
-                                <div className="text-sm font-mono font-bold text-gray-900 dark:text-slate-100">
+                                <div className="text-sm tabular-nums font-bold text-gray-900 dark:text-slate-100">
                                     {batchCount} {batchCount === 1 ? 'batch' : 'batches'}
                                 </div>
-                                <span className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
+                                <span className="text-sm text-gray-400 dark:text-slate-500 mt-1">
                                     Accepted consignments
                                 </span>
                             </div>
@@ -187,15 +187,15 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                             {/* Stock Movement Quantity */}
                             <div className="bg-gray-50/70 dark:bg-slate-950/50 border border-gray-200/70 dark:border-slate-800 rounded-lg p-3.5 flex flex-col justify-between">
                                 <div className="flex items-center justify-between text-gray-500 dark:text-slate-400 mb-1.5">
-                                    <span className="text-[11px] font-semibold uppercase tracking-wider font-mono text-gray-500 dark:text-slate-400">
+                                    <span className="text-sm font-semibold normal-case tracking-normal tabular-nums text-gray-500 dark:text-slate-400">
                                         Unit Quantity
                                     </span>
                                     <CheckCircle2 className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
                                 </div>
-                                <div className="text-sm font-mono font-bold text-gray-900 dark:text-slate-100">
-                                    {currentQty.toLocaleString()} <span className="text-xs text-gray-500 dark:text-slate-400 font-normal">/ {totalRecQty.toLocaleString()}</span>
+                                <div className="text-sm tabular-nums font-bold text-gray-900 dark:text-slate-100">
+                                    {currentQty.toLocaleString()} <span className="text-sm text-gray-500 dark:text-slate-400 font-normal">/ {totalRecQty.toLocaleString()}</span>
                                 </div>
-                                <span className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
+                                <span className="text-sm text-gray-400 dark:text-slate-500 mt-1">
                                     Remaining / Received units
                                 </span>
                             </div>
@@ -207,13 +207,13 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                         <div className="bg-amber-50/50 dark:bg-amber-950/20 rounded-lg border border-amber-200/70 dark:border-amber-900/40 p-4 shadow-xs">
                             <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-amber-200/50 dark:border-amber-900/40">
                                 <Award className="w-4 h-4 text-amber-700 dark:text-amber-400" />
-                                <h4 className="text-xs font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wider font-mono">
+                                <h4 className="text-base font-bold text-amber-900 dark:text-amber-300 normal-case tracking-normal tabular-nums">
                                     Contract Allocation
                                 </h4>
                             </div>
                             <div className="flex items-baseline justify-between pt-1">
-                                <span className="text-xs font-medium text-amber-800 dark:text-amber-300">Awarded Contract Value:</span>
-                                <span className="text-sm font-mono font-bold text-amber-950 dark:text-amber-200">
+                                <span className="text-sm font-medium text-amber-800 dark:text-amber-300">Awarded Contract Value:</span>
+                                <span className="text-sm tabular-nums font-bold text-amber-950 dark:text-amber-200">
                                     {formatCurrency(supplier.contract_value)}
                                 </span>
                             </div>
@@ -226,7 +226,7 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer text-center"
+                        className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer text-center"
                     >
                         Close
                     </button>
@@ -236,7 +236,7 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                             onClose();
                             onEdit(supplier);
                         }}
-                        className="w-full sm:w-auto px-4 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white rounded-lg text-xs font-semibold transition-colors shadow-2xs inline-flex items-center justify-center gap-1.5 cursor-pointer text-center"
+                        className="w-full sm:w-auto px-4 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white rounded-lg text-sm font-semibold transition-colors shadow-2xs inline-flex items-center justify-center gap-1.5 cursor-pointer text-center"
                     >
                         <Edit3 className="w-3.5 h-3.5 text-amber-300" />
                         <span>Update Supplier</span>

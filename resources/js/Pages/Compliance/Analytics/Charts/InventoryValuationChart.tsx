@@ -54,7 +54,7 @@ export default function InventoryValuationChart({ items }: InventoryValuationCha
     if (!items || items.length === 0) {
         return (
             <div className="h-72 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 p-6 text-center">
-                <p className="text-xs font-medium text-gray-500 dark:text-slate-400">No valuation records available.</p>
+                <p className="leading-relaxed text-sm font-medium text-gray-500 dark:text-slate-400">No valuation records available.</p>
             </div>
         );
     }
@@ -76,7 +76,7 @@ export default function InventoryValuationChart({ items }: InventoryValuationCha
                     tickLine={false}
                     axisLine={false}
                     width={150}
-                    tick={{ fill: 'var(--chart-tick)', fontSize: 11, fontWeight: 500 }}
+                    tick={{ fill: 'var(--chart-tick)', fontSize: 14, fontWeight: 500 }}
                     tickFormatter={(val) => {
                         const str = String(val);
                         return str.length > 20 ? `${str.slice(0, 19)}…` : str;
@@ -87,7 +87,7 @@ export default function InventoryValuationChart({ items }: InventoryValuationCha
                     type="number"
                     tickLine={false}
                     axisLine={false}
-                    tick={{ fill: 'var(--chart-tick-muted)', fontSize: 11 }}
+                    tick={{ fill: 'var(--chart-tick-muted)', fontSize: 14 }}
                     tickFormatter={(val) => formatCompactCurrency(Number(val))}
                 />
                 <ChartTooltip
@@ -96,11 +96,11 @@ export default function InventoryValuationChart({ items }: InventoryValuationCha
                         <ChartTooltipContent
                             formatter={(value, name, item) => (
                                 <div className="space-y-0.5">
-                                    <span className="font-semibold text-gray-900 dark:text-slate-100 font-mono">
+                                    <span className="font-semibold text-gray-900 dark:text-slate-100 tabular-nums">
                                         {formatCurrency(Number(value))}
                                     </span>
                                     {item.payload?.sku && (
-                                        <p className="text-[10px] text-gray-500 dark:text-slate-400">SKU: {item.payload.sku}</p>
+                                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400">SKU: {item.payload.sku}</p>
                                     )}
                                 </div>
                             )}

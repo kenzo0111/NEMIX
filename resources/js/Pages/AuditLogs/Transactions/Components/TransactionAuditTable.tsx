@@ -59,17 +59,17 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                     </div>
                     {hasActiveFilters ? (
                         <>
-                            <h4 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-1">
+                            <h4 className="text-base font-bold text-gray-900 dark:text-slate-100 mb-1">
                                 No transaction records match the selected filters.
                             </h4>
-                            <p className="text-xs text-gray-500 dark:text-slate-400 mb-4 leading-relaxed">
+                            <p className="text-sm text-gray-500 dark:text-slate-400 mb-4 leading-relaxed">
                                 Please adjust your search keyword, module, action, date range, or view mode to inspect other records.
                             </p>
                             {onResetFilters && (
                                 <button
                                     type="button"
                                     onClick={onResetFilters}
-                                    className="px-3.5 py-1.5 text-xs font-semibold text-red-900 dark:text-red-300 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/40 rounded-md transition-colors"
+                                    className="px-3.5 py-1.5 text-sm font-semibold text-red-900 dark:text-red-300 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/40 rounded-md transition-colors"
                                 >
                                     Clear Filters
                                 </button>
@@ -77,10 +77,10 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                         </>
                     ) : (
                         <>
-                            <h4 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-1">
+                            <h4 className="text-base font-bold text-gray-900 dark:text-slate-100 mb-1">
                                 No transaction audit records are available.
                             </h4>
-                            <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
+                            <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">
                                 Recorded business transactions, stock movements, and administrative activities will automatically appear here.
                             </p>
                         </>
@@ -95,7 +95,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
             <div className="overflow-x-auto w-full">
                 <table className="w-full text-left border-collapse min-w-[760px]">
                     <thead>
-                        <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/60 text-[11px] font-bold text-gray-600 dark:text-slate-300 uppercase tracking-wider">
+                        <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/60 text-sm font-bold text-gray-600 dark:text-slate-300 normal-case tracking-normal">
                             <th className="py-3 px-3 w-12 text-center" aria-label="Expand or collapse row"></th>
                             <th className="py-3 px-4 w-1/4">User</th>
                             <th className="py-3 px-4 w-1/3">Activity</th>
@@ -104,7 +104,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                             <th className="py-3 px-4 w-44">Date & Time</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-slate-800 text-xs">
+                    <tbody className="divide-y divide-gray-200 dark:divide-slate-800 text-sm">
                         {records.map((record, index) => {
                             const isExpanded = expandedRowId === record.id;
                             const childrenCount = record.children?.length || 0;
@@ -143,7 +143,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                             <div className="font-semibold text-gray-900 dark:text-slate-100 leading-tight truncate">
                                                 {record.user_name || record.user || 'System Administrator'}
                                             </div>
-                                            <div className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5 leading-tight truncate">
+                                            <div className="text-sm text-gray-500 dark:text-slate-400 mt-0.5 leading-tight truncate">
                                                 {record.role || 'System Role'}
                                             </div>
                                         </td>
@@ -155,13 +155,13 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                                     {record.action || 'Action unavailable'}
                                                 </span>
                                                 {childrenCount > 0 && (
-                                                    <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700">
+                                                    <span className="inline-flex items-center px-1.5 py-0.2 rounded text-sm font-semibold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700">
                                                         {childrenCount} {childrenCount === 1 ? 'event' : 'events'}
                                                     </span>
                                                 )}
                                             </div>
                                             {secondaryText && (
-                                                <div className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5 leading-tight line-clamp-1">
+                                                <div className="text-sm text-gray-500 dark:text-slate-400 mt-0.5 leading-tight line-clamp-1">
                                                     {secondaryText}
                                                 </div>
                                             )}
@@ -169,7 +169,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
 
                                         {/* MODULE (Normalized, Plain text) */}
                                         <td className="py-3.5 px-4">
-                                            <span className="text-xs text-gray-700 dark:text-slate-300 font-medium">
+                                            <span className="text-sm text-gray-700 dark:text-slate-300 font-medium">
                                                 {record.module || 'System'}
                                             </span>
                                         </td>

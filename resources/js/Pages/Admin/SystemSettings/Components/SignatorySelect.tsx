@@ -160,21 +160,21 @@ export default function SignatorySelect({
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                             <span
-                                className={`text-xs font-semibold truncate block ${
+                                className={`text-sm font-semibold truncate block ${
                                     isSelected ? 'text-white' : 'text-slate-900 dark:text-slate-100'
                                 }`}
                             >
                                 {sig.name}
                             </span>
                             {!sig.is_active && (
-                                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                                <span className="px-1.5 py-0.5 rounded text-sm font-medium bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
                                     Inactive
                                 </span>
                             )}
                         </div>
                         {sig.designation && (
                             <div
-                                className={`text-[11px] truncate mt-0.5 ${
+                                className={`text-sm truncate mt-0.5 ${
                                     isSelected ? 'text-red-100' : 'text-slate-500 dark:text-slate-400'
                                 }`}
                             >

@@ -60,7 +60,7 @@ export default function Edit({
                 {/* Unified Institutional Page Header */}
                 <PageHeader
                     title="Profile & Account Settings"
-                    description="Manage your university personnel information, security credentials, and account activity"
+                    description="Update your profile and account security."
                     breadcrumbs={[{ name: 'Account Settings' }]}
                 />
 

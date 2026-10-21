@@ -32,7 +32,7 @@ export default function AuthAlert({
         <div
             role="alert"
             aria-live="polite"
-            className={`border-l-4 p-3.5 rounded-r-lg text-xs leading-relaxed flex items-start gap-2.5 shadow-2xs ${variantStyles[variant]} ${className}`}
+            className={`border-l-4 p-3.5 rounded-r-lg text-sm leading-relaxed flex items-start gap-2.5 shadow-2xs ${variantStyles[variant]} ${className}`}
         >
             {iconMap[variant]}
             <div className="flex-1 font-medium">{children}</div>

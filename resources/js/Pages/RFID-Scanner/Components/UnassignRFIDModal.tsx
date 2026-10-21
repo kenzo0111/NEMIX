@@ -37,16 +37,16 @@ export default function UnassignRFIDModal({
                         <AlertTriangle className="h-6 w-6" />
                     </div>
 
-                    <h3 className="text-base font-bold text-gray-900 mb-1 font-serif tracking-tight">
+                    <h3 className="text-lg font-bold text-gray-900 mb-1 font-sans tracking-tight">
                         Unassign RFID Tag?
                     </h3>
 
-                    <p className="text-xs text-gray-600 mb-4 leading-relaxed max-w-xs mx-auto">
-                        Remove RFID tag <strong className="font-mono text-gray-900 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">{item.rfid_tag}</strong> from{' '}
+                    <p className="text-sm text-gray-600 mb-4 leading-relaxed max-w-xs mx-auto">
+                        Remove RFID tag <strong className="tabular-nums text-gray-900 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">{item.rfid_tag}</strong> from{' '}
                         <strong className="text-gray-900">{item.name}</strong>?
                     </p>
 
-                    <div className="p-3 rounded-lg bg-red-50/70 border border-red-200/80 text-red-900 text-xs leading-relaxed text-left mb-5">
+                    <div className="p-3 rounded-lg bg-red-50/70 border border-red-200/80 text-red-900 text-sm leading-relaxed text-left mb-5">
                         The physical RFID card or sticker will be unlinked and become available for reassignment to another asset.
                     </div>
 
@@ -55,7 +55,7 @@ export default function UnassignRFIDModal({
                             type="button"
                             onClick={onClose}
                             disabled={isProcessing}
-                            className="w-full sm:flex-1 py-2 px-4 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 text-center"
+                            className="w-full sm:flex-1 py-2 px-4 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 text-center"
                         >
                             Cancel
                         </button>
@@ -63,7 +63,7 @@ export default function UnassignRFIDModal({
                             type="button"
                             onClick={onConfirm}
                             disabled={isProcessing}
-                            className="w-full sm:flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs disabled:opacity-50 flex items-center justify-center gap-1.5 text-center"
+                            className="w-full sm:flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer shadow-xs disabled:opacity-50 flex items-center justify-center gap-1.5 text-center"
                         >
                             {isProcessing ? (
                                 <>

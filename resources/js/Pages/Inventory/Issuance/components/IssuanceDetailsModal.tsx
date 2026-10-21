@@ -38,10 +38,10 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                             <ClipboardList className="w-5 h-5 text-red-900 dark:text-red-400" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight truncate">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 Issuance Record Details
                             </h3>
-                            <p className="text-xs text-gray-500 dark:text-slate-400 font-mono truncate">
+                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 tabular-nums truncate">
                                 RIS Reference: <span className="font-bold text-red-950 dark:text-red-400">{formatRisNumber(issuance.ris_number)}</span>
                             </p>
                         </div>
@@ -57,37 +57,37 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                 </div>
 
                 {/* Details Content */}
-                <div className="p-6 overflow-y-auto space-y-6 text-xs text-gray-700 dark:text-slate-300">
+                <div className="p-6 overflow-y-auto space-y-6 text-sm text-gray-700 dark:text-slate-300">
                     {/* General Information Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50/70 dark:bg-slate-950/50 border border-gray-200 dark:border-slate-800 rounded-lg">
                         <div>
-                            <span className="text-[11px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider block">
+                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
                                 Recipient
                             </span>
                             <span className="font-bold text-gray-900 dark:text-slate-100 text-sm">{issuance.recipient}</span>
                             {issuance.recipient_designation && (
-                                <span className="text-gray-500 dark:text-slate-400 block text-xs mt-0.5">
+                                <span className="text-gray-500 dark:text-slate-400 block text-sm mt-0.5">
                                     {issuance.recipient_designation}
                                 </span>
                             )}
                         </div>
 
                         <div>
-                            <span className="text-[11px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider block">
+                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
                                 Division / Office
                             </span>
                             <span className="font-semibold text-gray-800 dark:text-slate-200">{issuance.department || '—'}</span>
                         </div>
 
                         <div>
-                            <span className="text-[11px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider block">
+                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
                                 Date Issued
                             </span>
-                            <span className="font-mono text-gray-800 dark:text-slate-200 font-medium">{displayDate}</span>
+                            <span className="tabular-nums text-gray-800 dark:text-slate-200 font-medium">{displayDate}</span>
                         </div>
 
                         <div>
-                            <span className="text-[11px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider block">
+                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
                                 Status
                             </span>
                             <div className="mt-0.5">
@@ -97,7 +97,7 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
 
                         {issuance.fund_cluster && (
                             <div>
-                                <span className="text-[11px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider block">
+                                <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
                                     Fund Cluster
                                 </span>
                                 <span className="text-gray-800 dark:text-slate-200">{getFundClusterDisplay(issuance.fund_cluster)}</span>
@@ -106,7 +106,7 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
 
                         {issuance.purpose && (
                             <div className="sm:col-span-2">
-                                <span className="text-[11px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider block">
+                                <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
                                     Purpose
                                 </span>
                                 <span className="text-gray-800 dark:text-slate-200">{issuance.purpose}</span>
@@ -117,56 +117,56 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                     {/* Issued Items Ledger */}
                     <div>
                         <div className="pb-1.5 mb-2.5 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-950 dark:text-red-400 font-mono">
+                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 Issued Inventory Items ({items.length})
                             </h4>
-                            <span className="text-xs text-gray-500 dark:text-slate-400 font-mono">
+                            <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums">
                                 Total: <strong className="text-gray-900 dark:text-slate-100">{totalQty} pcs</strong>
                             </span>
                         </div>
 
                         <div className="border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden">
                             <table className="w-full text-left border-collapse">
-                                <thead className="bg-gray-50 dark:bg-slate-950 border-b border-gray-200 dark:border-slate-800 text-[11px] text-gray-600 dark:text-slate-400 uppercase font-mono">
+                                <thead className="bg-gray-50 dark:bg-slate-950 border-b border-gray-200 dark:border-slate-800 text-sm text-gray-600 dark:text-slate-400 normal-case tabular-nums">
                                     <tr>
-                                        <th className="px-3 py-2">Item Description</th>
-                                        <th className="px-3 py-2">Stock No.</th>
-                                        <th className="px-3 py-2 text-right">Quantity</th>
-                                        <th className="px-3 py-2 text-right">Unit Cost</th>
-                                        <th className="px-3 py-2 text-right">Total Amount</th>
+                                        <th className="px-3 py-3">Item Description</th>
+                                        <th className="px-3 py-3">Stock No.</th>
+                                        <th className="px-3 py-3 text-right">Quantity</th>
+                                        <th className="px-3 py-3 text-right">Unit Cost</th>
+                                        <th className="px-3 py-3 text-right">Total Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
                                     {items.map((line, idx) => (
                                         <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50">
-                                            <td className="px-3 py-2.5 font-medium text-gray-900 dark:text-slate-100">
+                                            <td className="px-3 py-3 font-medium text-gray-900 dark:text-slate-100">
                                                 {line.item || line.item_name}
                                             </td>
-                                            <td className="px-3 py-2.5 font-mono text-gray-500 dark:text-slate-400">
+                                            <td className="px-3 py-3 tabular-nums text-gray-500 dark:text-slate-400">
                                                 {line.stock_no || '—'}
                                             </td>
-                                            <td className="px-3 py-2.5 font-mono font-bold text-gray-800 dark:text-slate-200 text-right">
+                                            <td className="px-3 py-3 tabular-nums font-bold text-gray-800 dark:text-slate-200 text-right">
                                                 {line.quantity} {line.unit || 'pcs'}
                                             </td>
-                                            <td className="px-3 py-2.5 font-mono text-gray-600 dark:text-slate-400 text-right">
+                                            <td className="px-3 py-3 tabular-nums text-gray-600 dark:text-slate-400 text-right">
                                                 ₱{Number(line.unit_cost || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                             </td>
-                                            <td className="px-3 py-2.5 font-mono font-semibold text-gray-900 dark:text-slate-100 text-right">
+                                            <td className="px-3 py-3 tabular-nums font-semibold text-gray-900 dark:text-slate-100 text-right">
                                                 ₱{Number(line.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
-                                <tfoot className="bg-gray-50 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800 font-mono text-xs">
+                                <tfoot className="bg-gray-50 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800 tabular-nums text-sm">
                                     <tr>
-                                        <td colSpan={2} className="px-3 py-2 font-bold text-gray-700 dark:text-slate-300 uppercase">
+                                        <td colSpan={2} className="px-3 py-3 font-bold text-gray-700 dark:text-slate-300 normal-case">
                                             Transaction Total
                                         </td>
-                                        <td className="px-3 py-2 text-right font-bold text-gray-900 dark:text-slate-100">
+                                        <td className="px-3 py-3 text-right font-bold text-gray-900 dark:text-slate-100">
                                             {totalQty} pcs
                                         </td>
-                                        <td className="px-3 py-2 text-right text-gray-400 dark:text-slate-500">—</td>
-                                        <td className="px-3 py-2 text-right font-bold text-red-950 dark:text-red-400">
+                                        <td className="px-3 py-3 text-right text-gray-400 dark:text-slate-500">—</td>
+                                        <td className="px-3 py-3 text-right font-bold text-red-950 dark:text-red-400">
                                             ₱{Number(totalAmt).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                         </td>
                                     </tr>
@@ -178,22 +178,22 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                     {/* Signatories & Custody */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-200 dark:border-slate-800">
                         <div>
-                            <span className="text-[11px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider block">
+                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
                                 Approved By
                             </span>
                             <span className="font-bold text-gray-900 dark:text-slate-100 block">{issuance.approved_by}</span>
-                            <span className="text-[11px] text-gray-500 dark:text-slate-400 block">{issuance.approved_by_designation}</span>
-                            <span className="text-[11px] text-gray-500 dark:text-slate-400 font-mono mt-1 block">
+                            <span className="text-sm text-gray-500 dark:text-slate-400 block">{issuance.approved_by_designation}</span>
+                            <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums mt-1 block">
                                 Date: {issuance.date_issued || issuance.date || '—'}
                             </span>
                         </div>
                         <div>
-                            <span className="text-[11px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider block">
+                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
                                 Issued By
                             </span>
                             <span className="font-semibold text-gray-900 dark:text-slate-100 block">{issuance.issued_by_name || issuance.issued_by}</span>
-                            <span className="text-[11px] text-gray-500 dark:text-slate-400 block">{issuance.issued_by_position || 'Supply Custodian / Storekeeper'}</span>
-                            <span className="text-[11px] text-gray-500 dark:text-slate-400 font-mono mt-1 block">
+                            <span className="text-sm text-gray-500 dark:text-slate-400 block">{issuance.issued_by_position || 'Supply Custodian / Storekeeper'}</span>
+                            <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums mt-1 block">
                                 Date: {issuance.date_issued || issuance.date || '—'}
                             </span>
                         </div>
@@ -205,7 +205,7 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                        className="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                     >
                         Close
                     </button>

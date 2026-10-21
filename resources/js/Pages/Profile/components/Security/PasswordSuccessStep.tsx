@@ -13,15 +13,15 @@ export default function PasswordSuccessStep({ onDone }: Props) {
             </div>
 
             <div className="space-y-1">
-                <h3 className="text-base font-bold font-serif text-slate-900 dark:text-slate-100">
+                <h3 className="text-lg font-bold font-sans text-slate-900 dark:text-slate-100">
                     Password Updated Successfully
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-sm mx-auto">
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-sm mx-auto">
                     Your institutional account credentials have been updated. A security confirmation notice has been transmitted to your registered email address.
                 </p>
             </div>
 
-            <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+            <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-sm text-slate-500 dark:text-slate-400 tabular-nums">
                 Institutional audit event logged • Authenticated session active
             </div>
 
@@ -29,7 +29,7 @@ export default function PasswordSuccessStep({ onDone }: Props) {
                 <button
                     type="button"
                     onClick={onDone}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-white inline-flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98] bg-red-900 hover:bg-red-800 active:bg-red-950 shadow-red-950/15 shadow-md"
+                    className="px-4 py-2 rounded-xl text-sm font-semibold text-white inline-flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98] bg-red-900 hover:bg-red-800 active:bg-red-950 shadow-red-950/15 shadow-md"
                 >
                     <span>Return to Security Settings</span>
                 </button>

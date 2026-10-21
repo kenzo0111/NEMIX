@@ -268,7 +268,7 @@ export default function IssuanceIndex({
             <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
                 <PageHeader
                     title="Inventory Management"
-                    description="Property Custodian approval workspace and official stock issuance records"
+                    description="Approve requests and track issued supplies."
                     breadcrumbs={[{ name: 'Inventory' }, { name: 'Issuance & Approvals' }]}
                 />
 
@@ -280,7 +280,7 @@ export default function IssuanceIndex({
                             {canReviewRequests && <button
                                 type="button"
                                 onClick={() => setViewMode('approvals')}
-                                className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                                className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
                                     viewMode === 'approvals'
                                         ? 'bg-red-950 text-white shadow-xs'
                                         : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800'
@@ -289,7 +289,7 @@ export default function IssuanceIndex({
                                 <ClipboardCheck className="w-4 h-4 text-amber-300" />
                                 <span>Requisition Approval Workspace</span>
                                 {(pendingCount > 0 || approvedCount > 0) && (
-                                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-amber-500 text-slate-950 font-black">
+                                    <span className="px-1.5 py-0.5 rounded-full text-sm tabular-nums bg-amber-500 text-slate-950 font-bold">
                                         {pendingCount + approvedCount}
                                     </span>
                                 )}
@@ -298,7 +298,7 @@ export default function IssuanceIndex({
                             <button
                                 type="button"
                                 onClick={() => setViewMode('issuances')}
-                                className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                                className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
                                     viewMode === 'issuances'
                                         ? 'bg-red-950 text-white shadow-xs'
                                         : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800'
@@ -306,7 +306,7 @@ export default function IssuanceIndex({
                             >
                                 <PackageCheck className="w-4 h-4 text-amber-300" />
                                 <span>Issuance Registry & Slips</span>
-                                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-slate-300 font-bold">
+                                <span className="px-1.5 py-0.5 rounded-full text-sm tabular-nums bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-slate-300 font-bold">
                                     {rawList.length}
                                 </span>
                             </button>

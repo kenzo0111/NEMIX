@@ -25,7 +25,7 @@ export default function SystemSummary({
 
     return (
         <section aria-label="Immediate Operational Status" className="w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-4">
                 {/* 1. Critical Stock - Highest Alert Priority */}
                 <Link
                     href={inventoryHref}
@@ -33,18 +33,18 @@ export default function SystemSummary({
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-red-950 dark:text-red-200 truncate">
+                            <span className="text-sm font-bold normal-case tracking-normal text-red-950 dark:text-red-200 truncate">
                                 Critical Stock
                             </span>
                             <div className="p-1 rounded-md bg-red-200/60 dark:bg-red-900/60 text-red-900 dark:text-red-300 shrink-0">
                                 <AlertTriangle className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-xl sm:text-2xl font-bold font-mono text-red-950 dark:text-red-200 tabular-nums">
+                        <div className="text-xl sm:text-2xl font-bold tabular-nums text-red-950 dark:text-red-200 tabular-nums">
                             {criticalCount.toLocaleString()}
                         </div>
                     </div>
-                    <div className="mt-2 pt-1.5 border-t border-red-200/60 dark:border-red-800/60 flex items-center justify-between text-[11px] text-red-900 dark:text-red-300 font-medium">
+                    <div className="mt-2 pt-1.5 border-t border-red-200/60 dark:border-red-800/60 flex items-center justify-between text-sm text-red-900 dark:text-red-300 font-medium">
                         <span className="truncate">
                             {criticalCount === 1 ? '1 item needs reorder' : `${criticalCount} items need reorder`}
                         </span>
@@ -59,18 +59,18 @@ export default function SystemSummary({
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
-                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 truncate">
+                            <span className="text-sm font-semibold normal-case tracking-normal text-slate-600 dark:text-slate-400 truncate">
                                 Inventory Value
                             </span>
                             <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:text-red-900 dark:group-hover:text-amber-300 transition-colors shrink-0">
                                 <Boxes className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-lg sm:text-xl font-bold font-serif text-slate-900 dark:text-slate-100 tracking-tight tabular-nums truncate">
+                        <div className="text-lg sm:text-xl font-bold font-sans text-slate-900 dark:text-slate-100 tracking-tight tabular-nums truncate">
                             {formattedVal}
                         </div>
                     </div>
-                    <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                    <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
                         Total on-hand valuation
                     </div>
                 </Link>
@@ -82,18 +82,18 @@ export default function SystemSummary({
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
-                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 truncate">
+                            <span className="text-sm font-semibold normal-case tracking-normal text-slate-600 dark:text-slate-400 truncate">
                                 Available Items
                             </span>
                             <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:text-red-900 dark:group-hover:text-amber-300 transition-colors shrink-0">
                                 <Package className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-slate-100 tabular-nums">
+                        <div className="text-xl sm:text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100 tabular-nums">
                             {availableItems.toLocaleString()}
                         </div>
                     </div>
-                    <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                    <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
                         Active stock lines
                     </div>
                 </Link>
@@ -105,18 +105,18 @@ export default function SystemSummary({
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
-                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 truncate">
+                            <span className="text-sm font-semibold normal-case tracking-normal text-slate-600 dark:text-slate-400 truncate">
                                 Issued This Month
                             </span>
                             <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:text-red-900 dark:group-hover:text-amber-300 transition-colors shrink-0">
                                 <TrendingUp className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-slate-100 tabular-nums">
+                        <div className="text-xl sm:text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100 tabular-nums">
                             {issuedMtd.toLocaleString()}
                         </div>
                     </div>
-                    <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                    <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
                         {isCoordinator ? 'Issued within your Delivery Unit MTD' : 'Disbursed via RIS MTD'}
                     </div>
                 </Link>
@@ -128,18 +128,18 @@ export default function SystemSummary({
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
-                            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 truncate">
+                            <span className="text-sm font-semibold normal-case tracking-normal text-slate-600 dark:text-slate-400 truncate">
                                 {isCoordinator ? 'Out of Stock' : 'Unserviceable'}
                             </span>
                             <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:text-red-900 dark:group-hover:text-amber-300 transition-colors shrink-0">
                                 <ShieldAlert className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-slate-100 tabular-nums">
+                        <div className="text-xl sm:text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100 tabular-nums">
                             {unserviceable.toLocaleString()}
                         </div>
                     </div>
-                    <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                    <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
                         {isCoordinator ? 'Request replenishment from Supply Office' : 'Awaiting disposal'}
                     </div>
                 </Link>

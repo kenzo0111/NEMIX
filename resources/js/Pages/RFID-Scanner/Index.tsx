@@ -157,14 +157,14 @@ export default function Index({
                                 <Radio className="h-5 w-5 text-red-900 dark:text-red-400" />
                             </div>
                             <div className="min-w-0 flex-1 sm:w-80 sm:flex-none">
-                                <label htmlFor="rfid-hardware-scanner" className="mb-1.5 block text-xs font-medium text-gray-600 dark:text-slate-400">Hardware scanner</label>
+                                <label htmlFor="rfid-hardware-scanner" className="mb-1.5 block text-sm font-medium text-gray-600 dark:text-slate-400">Hardware scanner</label>
                                 <select id="rfid-hardware-scanner" className="block w-full min-w-0 truncate rounded-lg border-gray-300 bg-white py-2 pl-3 pr-9 text-sm text-gray-900 focus:border-red-800 focus:ring-red-900/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-red-500 dark:focus:ring-red-500/20" value={selectedDeviceUuid} onChange={e => setSelectedDeviceUuid(e.target.value)}>
                                     <option value="">Keyboard / manual only</option>
                                     {rfidDevices.map(device => <option key={device.device_uuid} value={device.device_uuid}>{device.device_name}</option>)}
                                 </select>
                             </div>
                         </div>
-                        <div role="status" aria-live="polite" aria-atomic="true" className="flex min-w-0 flex-wrap items-center gap-2 text-xs">
+                        <div role="status" aria-live="polite" aria-atomic="true" className="flex min-w-0 flex-wrap items-center gap-2 text-sm">
                             <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-medium ${pendingScanCount > 0 ? 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-300' : 'border-gray-200 bg-gray-50 text-gray-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'}`}>
                                 <Tag className="h-3.5 w-3.5 shrink-0" />
                                 <span>{pendingScanCount} queued {pendingScanCount === 1 ? 'scan' : 'scans'}</span>
@@ -178,11 +178,11 @@ export default function Index({
                         {/* 1. Total Catalog Items */}
                         <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200/90 dark:border-slate-800 shadow-2xs flex items-center justify-between">
                             <div>
-                                <p className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Catalog Registry</p>
-                                <p className="text-xl font-bold font-mono text-gray-900 dark:text-slate-100 mt-1">
+                                <p className="leading-relaxed text-sm font-medium text-gray-500 dark:text-slate-400">Catalog Registry</p>
+                                <p className="text-xl font-bold tabular-nums text-gray-900 dark:text-slate-100 mt-1">
                                     {items.length}
                                 </p>
-                                <p className="text-[10px] text-gray-400 dark:text-slate-500 mt-0.5">Total registered items</p>
+                                <p className="leading-relaxed text-sm text-gray-400 dark:text-slate-500 mt-1">Total registered items</p>
                             </div>
                             <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-100 dark:border-slate-700 flex items-center justify-center shrink-0">
                                 <Package className="w-5 h-5 text-gray-600 dark:text-slate-400" />
@@ -193,15 +193,15 @@ export default function Index({
                         <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200/90 dark:border-slate-800 shadow-2xs flex items-center justify-between">
                             <div>
                                 <div className="flex items-center gap-1.5">
-                                    <p className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Tagged & Linked</p>
-                                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60">
+                                    <p className="leading-relaxed text-sm font-medium text-gray-500 dark:text-slate-400">Tagged & Linked</p>
+                                    <span className="text-sm tabular-nums font-bold px-1.5 py-0.2 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60">
                                         {taggedPercent}%
                                     </span>
                                 </div>
-                                <p className="text-xl font-bold font-mono text-emerald-950 dark:text-emerald-400 mt-1">
+                                <p className="text-xl font-bold tabular-nums text-emerald-950 dark:text-emerald-400 mt-1">
                                     {taggedCount}
                                 </p>
-                                <p className="text-[10px] text-gray-400 dark:text-slate-500 mt-0.5">Active transponders</p>
+                                <p className="leading-relaxed text-sm text-gray-400 dark:text-slate-500 mt-1">Active transponders</p>
                             </div>
                             <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50 flex items-center justify-center shrink-0">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -211,11 +211,11 @@ export default function Index({
                         {/* 3. Untagged Pending Items */}
                         <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200/90 dark:border-slate-800 shadow-2xs flex items-center justify-between">
                             <div>
-                                <p className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Pending Tagging</p>
-                                <p className="text-xl font-bold font-mono text-amber-950 dark:text-amber-400 mt-1">
+                                <p className="leading-relaxed text-sm font-medium text-gray-500 dark:text-slate-400">Pending Tagging</p>
+                                <p className="text-xl font-bold tabular-nums text-amber-950 dark:text-amber-400 mt-1">
                                     {untaggedCount}
                                 </p>
-                                <p className="text-[10px] text-gray-400 dark:text-slate-500 mt-0.5">Awaiting physical scan</p>
+                                <p className="leading-relaxed text-sm text-gray-400 dark:text-slate-500 mt-1">Awaiting physical scan</p>
                             </div>
                             <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-900/50 flex items-center justify-center shrink-0">
                                 <Tag className="w-5 h-5 text-amber-600 dark:text-amber-400" />
@@ -225,7 +225,7 @@ export default function Index({
                         {/* 4. Hardware Scanner Station */}
                         <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200/90 dark:border-slate-800 shadow-2xs flex items-center justify-between">
                             <div>
-                                <p className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Hardware Reader</p>
+                                <p className="leading-relaxed text-sm font-medium text-gray-500 dark:text-slate-400">Hardware Reader</p>
                                 <div className="flex items-center gap-1.5 mt-1">
                                     <span
                                         className={`w-2 h-2 rounded-full ${
@@ -236,7 +236,7 @@ export default function Index({
                                                 : 'bg-amber-500 animate-pulse'
                                         }`}
                                     />
-                                    <p className="text-sm font-bold font-mono text-gray-900 dark:text-slate-100 capitalize">
+                                    <p className="leading-relaxed text-sm font-bold tabular-nums text-gray-900 dark:text-slate-100 capitalize">
                                         {connectionState === 'connected'
                                             ? 'Online'
                                             : connectionState === 'offline'
@@ -244,7 +244,7 @@ export default function Index({
                                             : connectionState}
                                     </p>
                                 </div>
-                                <p className="text-[10px] text-gray-400 dark:text-slate-500 mt-0.5">USB HID Wedge ready</p>
+                                <p className="leading-relaxed text-sm text-gray-400 dark:text-slate-500 mt-1">USB HID Wedge ready</p>
                             </div>
                             <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 border border-red-100/80 dark:border-red-900/50 flex items-center justify-center shrink-0">
                                 <Radio className="w-5 h-5 text-red-900 dark:text-red-400" />
@@ -259,14 +259,14 @@ export default function Index({
                                 <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
                             </div>
                             <div>
-                                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-[10px] font-medium border border-emerald-200 dark:border-emerald-800/60 mb-2">
+                                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-sm font-medium border border-emerald-200 dark:border-emerald-800/60 mb-2">
                                     <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                                     <span>All Inventory Items Tagged</span>
                                 </div>
-                                <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-serif">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 font-sans">
                                     RFID Tagging Complete
                                 </h2>
-                                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 max-w-md mx-auto leading-relaxed">
+                                <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 max-w-md mx-auto leading-relaxed">
                                     All current inventory items have RFID transponders assigned. You may review the records registry or proceed directly to Receiving.
                                 </p>
                             </div>
@@ -274,7 +274,7 @@ export default function Index({
                                 {can('inventory.receiving') && <button
                                     type="button"
                                     onClick={() => router.visit(route('inventory.receiving'))}
-                                    className="px-4 py-2.5 bg-red-950 hover:bg-red-900 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
+                                    className="px-4 py-2.5 bg-red-950 hover:bg-red-900 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
                                 >
                                     <span>Proceed to Receiving</span>
                                     <ArrowRight className="w-3.5 h-3.5" />
@@ -282,7 +282,7 @@ export default function Index({
                                 <button
                                     type="button"
                                     onClick={() => setIsCompletionDismissed(true)}
-                                    className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-300 text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs"
+                                    className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-300 text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-2xs"
                                 >
                                     Review Tag Registry
                                 </button>
@@ -300,10 +300,10 @@ export default function Index({
                                                 <Box className="w-4 h-4 text-red-950 dark:text-red-400" />
                                             </div>
                                             <div>
-                                                <h2 className="text-base font-semibold text-gray-900 dark:text-slate-100 font-serif tracking-tight">
+                                                <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
                                                     Selected Item
                                                 </h2>
-                                                <p className="text-xs text-gray-500 dark:text-slate-400">
+                                                <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400">
                                                     Select item to pair with an RFID tag
                                                 </p>
                                             </div>
@@ -311,7 +311,7 @@ export default function Index({
                                         {can('inventory.index') && <button
                                             type="button"
                                             onClick={() => router.visit(route('inventory.index'))}
-                                            className="inline-flex items-center gap-1 text-xs text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 font-medium hover:underline cursor-pointer"
+                                            className="inline-flex items-center gap-1 text-sm text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 font-medium hover:underline cursor-pointer"
                                         >
                                             <span>Manage</span>
                                             <ExternalLink className="w-3 h-3" />
@@ -320,7 +320,7 @@ export default function Index({
 
                                     {/* Searchable Item Selector */}
                                     <div className="mb-4">
-                                        <label className="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1.5">
+                                        <label className="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1.5">
                                             Search Item Catalog
                                         </label>
                                         <ItemSelector

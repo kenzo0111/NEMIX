@@ -18,7 +18,7 @@ export const ReceivingStatusNotice: React.FC<ReceivingStatusNoticeProps> = ({
 
     return (
         <div
-            className={`p-4 rounded-lg border text-xs font-medium flex items-center justify-between shadow-xs transition-all animate-in fade-in slide-in-from-top-2 ${
+            className={`p-4 rounded-lg border text-sm font-medium flex items-center justify-between shadow-xs transition-all animate-in fade-in slide-in-from-top-2 ${
                 isSuccess
                     ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-300'
                     : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-red-900 dark:text-red-300'

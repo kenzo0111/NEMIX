@@ -60,7 +60,7 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
                             placeholder="username@ucn.edu.ph"
                         />
                     </div>
-                    <InputError message={errors.email} className="mt-1.5 text-xs" />
+                    <InputError message={errors.email} className="mt-1.5 text-sm" />
                 </div>
 
                 <div className="pt-2 space-y-3">
@@ -74,7 +74,7 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
                     <div className="text-center">
                         <Link
                             href={route('login')}
-                            className="text-xs font-semibold text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 hover:underline transition-colors"
+                            className="text-sm font-semibold text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 hover:underline transition-colors"
                         >
                             &larr; Return to Sign In
                         </Link>

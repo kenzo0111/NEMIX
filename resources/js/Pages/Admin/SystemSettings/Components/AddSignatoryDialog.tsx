@@ -102,10 +102,10 @@ export default function AddSignatoryDialog({
                             <UserPlus className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight truncate">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 Add New Signatory
                             </h3>
-                            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 truncate">
+                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 truncate">
                                 Register authorized personnel to the official directory.
                             </p>
                         </div>
@@ -125,14 +125,14 @@ export default function AddSignatoryDialog({
                 <form onSubmit={handleSubmit}>
                     <div className="p-4 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
                         {errorMessage && (
-                            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 flex items-start gap-2.5 text-xs text-red-700 dark:text-red-300 leading-relaxed">
+                            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 flex items-start gap-2.5 text-sm text-red-700 dark:text-red-300 leading-relaxed">
                                 <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
                                 <span>{errorMessage}</span>
                             </div>
                         )}
 
                         <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">
+                            <label className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5">
                                 Full Name <span className="text-red-600">*</span>
                             </label>
                             <input
@@ -148,7 +148,7 @@ export default function AddSignatoryDialog({
                         </div>
 
                         <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">
+                            <label className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5">
                                 Official Designation / Title <span className="text-red-600">*</span>
                             </label>
                             <input
@@ -163,8 +163,8 @@ export default function AddSignatoryDialog({
                         </div>
 
                         <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">
-                                Office / Department <span className="text-gray-400 dark:text-slate-500 text-[11px] font-normal normal-case">(Optional)</span>
+                            <label className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5">
+                                Office / Department <span className="text-gray-400 dark:text-slate-500 text-sm font-normal normal-case">(Optional)</span>
                             </label>
                             <input
                                 type="text"
@@ -183,14 +183,14 @@ export default function AddSignatoryDialog({
                             type="button"
                             onClick={onClose}
                             disabled={submitting}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={submitting || !name.trim() || !designation.trim()}
-                            className="w-full sm:w-auto px-5 py-2.5 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-xs font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 uppercase font-mono tracking-wider cursor-pointer"
+                            className="w-full sm:w-auto px-5 py-2.5 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-sm font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 normal-case tabular-nums tracking-normal cursor-pointer"
                         >
                             {submitting ? (
                                 <>

@@ -42,11 +42,11 @@ export default function PageHeader({
 
           <div className="min-w-0 flex-1">
             {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} currentPage={title} />}
-            <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight break-words">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight break-words">
               {title}
             </h1>
             {description && (
-              <p className="text-xs text-gray-500 dark:text-slate-400 font-medium break-words mt-0.5">
+              <p className="text-sm text-gray-600 dark:text-slate-400 font-normal leading-relaxed break-words mt-1 max-w-prose">
                 {description}
               </p>
             )}
@@ -57,10 +57,10 @@ export default function PageHeader({
           <SystemModeBadge />
           <ThemeToggle variant="compact" />
           <div className="text-right hidden xl:block border-l border-gray-200 dark:border-slate-800 pl-4">
-            <span className="block text-xs font-bold text-gray-800 dark:text-slate-200 uppercase tracking-wider font-mono">
+            <span className="block text-sm font-bold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
               {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
             </span>
-            <span className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-widest font-semibold block mt-0.5">
+            <span className="text-sm text-gray-500 dark:text-slate-400 normal-case tracking-normal font-semibold block mt-0.5">
               {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
             </span>
           </div>

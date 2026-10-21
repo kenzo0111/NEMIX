@@ -63,7 +63,7 @@ export default function ResetPassword({
                             readOnly={true}
                         />
                     </div>
-                    <InputError message={errors.email} className="mt-1.5 text-xs" />
+                    <InputError message={errors.email} className="mt-1.5 text-sm" />
                 </div>
 
                 {/* New Password */}

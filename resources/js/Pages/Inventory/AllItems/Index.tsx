@@ -312,7 +312,7 @@ export default function AllItemsIndex({
                 {/* Unified Institutional Header */}
                 <PageHeader
                     title="Inventory Management"
-                    description="Master list of university consumable inventory items and property assets."
+                    description="Track consumable supplies and property assets."
                     breadcrumbs={[{ name: 'Inventory' }, { name: 'All Items' }]}
                 />
 

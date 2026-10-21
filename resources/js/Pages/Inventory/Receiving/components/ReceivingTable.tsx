@@ -32,28 +32,28 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
                     <thead className="bg-gray-50/80 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800">
                         <tr>
-                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Item Received
                             </th>
-                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Supplier
                             </th>
-                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Received
                             </th>
-                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Remaining
                             </th>
-                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Unit Cost
                             </th>
-                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Batch Amount
                             </th>
-                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-left text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Date Received
                             </th>
-                            <th className="px-6 py-3.5 text-[11px] font-bold tracking-wider text-right text-gray-700 dark:text-slate-300 uppercase font-mono">
+                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Actions
                             </th>
                         </tr>
@@ -76,15 +76,15 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                                                 d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
                                             />
                                         </svg>
-                                        <p className="font-semibold text-sm text-gray-800 dark:text-slate-200">
+                                        <p className="leading-relaxed font-semibold text-sm text-gray-800 dark:text-slate-200">
                                             No receiving records found
                                         </p>
                                         {isFiltered ? (
-                                            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
                                                 Try adjusting your search or supplier filter.
                                             </p>
                                         ) : (
-                                            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
                                                 Incoming deliveries and supply acquisitions will appear here.
                                             </p>
                                         )}
@@ -107,7 +107,7 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
 
             {/* Pagination Controls */}
             <div className="px-6 lg:px-8 py-4 border-t border-gray-200/80 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <span className="text-xs text-gray-600 dark:text-slate-400 font-medium">
+                <span className="text-sm text-gray-600 dark:text-slate-400 font-medium">
                     Showing <span className="font-semibold text-gray-900 dark:text-slate-200">{fromRecord}</span> to{' '}
                     <span className="font-semibold text-gray-900 dark:text-slate-200">{toRecord}</span> of{' '}
                     <span className="font-semibold text-gray-900 dark:text-slate-200">{totalRecords}</span> receiving records
@@ -120,11 +120,11 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
                             disabled={currentPage <= 1}
                             aria-label="Go to previous page"
-                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs inline-flex items-center justify-center cursor-pointer"
+                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs inline-flex items-center justify-center cursor-pointer"
                         >
                             Previous
                         </button>
-                        <span className="px-2 text-xs text-gray-600 dark:text-slate-400 font-medium">
+                        <span className="px-2 text-sm text-gray-600 dark:text-slate-400 font-medium">
                             Page {currentPage} of {lastPage}
                         </span>
                         <button
@@ -132,7 +132,7 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                             onClick={() => onPageChange(Math.min(lastPage, currentPage + 1))}
                             disabled={currentPage >= lastPage}
                             aria-label="Go to next page"
-                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs inline-flex items-center justify-center cursor-pointer"
+                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs inline-flex items-center justify-center cursor-pointer"
                         >
                             Next
                         </button>

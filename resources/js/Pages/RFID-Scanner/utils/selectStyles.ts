@@ -8,7 +8,7 @@ export const institutionalSelectStyles: StylesConfig<any, false> = {
         borderWidth: '1px',
         padding: '2px 4px',
         boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
-        fontSize: '0.8125rem',
+        fontSize: '0.875rem',
         backgroundColor: 'var(--surface-card, #ffffff)',
         cursor: 'pointer',
         transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
@@ -49,6 +49,6 @@ export const institutionalSelectStyles: StylesConfig<any, false> = {
     placeholder: (provided) => ({
         ...provided,
         color: 'var(--text-secondary, #9ca3af)',
-        fontSize: '0.8125rem',
+        fontSize: '0.875rem',
     }),
 };

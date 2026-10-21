@@ -54,10 +54,10 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
                             )}
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight truncate">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 {mode === 'edit' ? `Edit Receiving Record #${recordId}` : 'Record Receiving'}
                             </h3>
-                            <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mt-0.5 truncate">
+                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium mt-1 truncate">
                                 {mode === 'edit'
                                     ? 'Update incoming inventory delivery specifications.'
                                     : 'Register incoming inventory delivered to the university.'}

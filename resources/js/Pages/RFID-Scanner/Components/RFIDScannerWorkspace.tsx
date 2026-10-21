@@ -74,14 +74,14 @@ export default function RFIDScannerWorkspace({
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
-                            <h2 className="text-base font-semibold text-gray-900 dark:text-slate-100 font-serif tracking-tight">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
                                 RFID Reader Station
                             </h2>
-                            <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 font-semibold border border-gray-200/70 dark:border-slate-700">
+                            <span className="text-sm normal-case tabular-nums px-2 py-0.5 rounded bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 font-semibold border border-gray-200/70 dark:border-slate-700">
                                 Live HID Wedge
                             </span>
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
                             {hasSelectedItem
                                 ? 'Armed for input: scan tag via handheld reader or type code'
                                 : 'Awaiting item selection from catalog to arm scanner'}

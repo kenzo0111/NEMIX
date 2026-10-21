@@ -63,10 +63,10 @@ export default function ItemSelector({
                     return (
                         <div className="flex items-center justify-between py-1">
                             <div className="min-w-0 pr-3">
-                                <div className="font-medium text-gray-900 dark:text-slate-100 text-xs truncate">
+                                <div className="font-medium text-gray-900 dark:text-slate-100 text-sm truncate">
                                     {item.name}
                                 </div>
-                                <div className="text-[11px] text-gray-500 dark:text-slate-400 flex items-center gap-2 mt-0.5 font-mono">
+                                <div className="text-sm text-gray-500 dark:text-slate-400 flex items-center gap-2 mt-0.5 tabular-nums">
                                     <span>
                                         Prop: <strong className="text-gray-700 dark:text-slate-300 font-semibold">{item.sku || 'N/A'}</strong>
                                     </span>
@@ -91,7 +91,7 @@ export default function ItemSelector({
 
                             {/* Crisp status pill */}
                             <span
-                                className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${
+                                className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-medium border ${
                                     isTagged
                                         ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/90 dark:border-emerald-800/60'
                                         : 'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60'

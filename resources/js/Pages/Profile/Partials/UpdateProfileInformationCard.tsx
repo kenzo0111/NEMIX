@@ -70,19 +70,19 @@ export default function UpdateProfileInformationCard({
                     <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-850/60 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <FileText className="w-4 h-4 text-red-900 dark:text-red-400" />
-                            <h3 className="text-xs font-bold font-serif text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                            <h3 className="text-lg font-bold font-sans text-slate-900 dark:text-slate-100 normal-case tracking-normal">
                                 Personnel Dossier
                             </h3>
                         </div>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold">
+                        <span className="text-sm tabular-nums px-2 py-0.5 rounded bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold">
                             {formattedId}
                         </span>
                     </div>
 
-                    <div className="p-5 space-y-4 text-xs">
+                    <div className="p-5 space-y-4 text-sm">
                         {/* Unit / Office */}
                         <div className="space-y-1">
-                            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">
                                 Office Assignment
                             </span>
                             <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-medium">
@@ -93,7 +93,7 @@ export default function UpdateProfileInformationCard({
 
                         {/* Official Role */}
                         <div className="space-y-1 pt-3 border-t border-slate-100 dark:border-slate-800">
-                            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">
                                 Primary Role & Clearance
                             </span>
                             <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-medium">
@@ -104,7 +104,7 @@ export default function UpdateProfileInformationCard({
 
                         {/* Account Verification */}
                         <div className="space-y-1 pt-3 border-t border-slate-100 dark:border-slate-800">
-                            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">
                                 Verification Status
                             </span>
                             <div className="flex items-center gap-2 font-medium">
@@ -124,7 +124,7 @@ export default function UpdateProfileInformationCard({
 
                         {/* Record Timestamp */}
                         <div className="space-y-1 pt-3 border-t border-slate-100 dark:border-slate-800">
-                            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">
                                 System Tenure
                             </span>
                             <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
@@ -135,7 +135,7 @@ export default function UpdateProfileInformationCard({
                     </div>
 
                     {/* Legal Notice Footer */}
-                    <div className="p-4 bg-red-950/5 dark:bg-red-950/20 border-t border-red-950/10 dark:border-red-900/30 text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                    <div className="p-4 bg-red-950/5 dark:bg-red-950/20 border-t border-red-950/10 dark:border-red-900/30 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                         <span className="font-bold text-red-950 dark:text-red-300 block mb-0.5">COA Accountability Notice:</span>
                         Official name and institutional email are legally binding on Property Acknowledgement Receipts (PAR) and Inventory Custodian Slips (ICS).
                     </div>
@@ -155,17 +155,17 @@ export default function UpdateProfileInformationCard({
                                 <User className="w-4 h-4" />
                             </div>
                             <div>
-                                <h2 className="text-sm font-bold font-serif text-slate-900 dark:text-slate-100">
+                                <h2 className="text-xl font-bold font-sans text-slate-900 dark:text-slate-100">
                                     Personnel Information
                                 </h2>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
                                     Update your official profile records used in reports and communications
                                 </p>
                             </div>
                         </div>
 
                         {isDirty && (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium font-mono bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-400 border border-amber-200/80 dark:border-amber-900/50">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium tabular-nums bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-400 border border-amber-200/80 dark:border-amber-900/50">
                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                                 Unsaved changes
                             </span>
@@ -181,7 +181,7 @@ export default function UpdateProfileInformationCard({
                                 <div>
                                     <label
                                         htmlFor="profile_name"
-                                        className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+                                        className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
                                     >
                                         Full Legal Name <span className="text-red-900">*</span>
                                     </label>
@@ -197,7 +197,7 @@ export default function UpdateProfileInformationCard({
                                             required
                                             autoComplete="name"
                                             disabled={processing}
-                                            className={`w-full pl-9 pr-3.5 py-2.5 text-xs rounded-lg border text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
+                                            className={`w-full pl-9 pr-3.5 py-2.5 text-sm rounded-lg border text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
                                                 errors.name
                                                     ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20'
                                                     : 'border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900/15 dark:focus:ring-red-500/20'
@@ -206,12 +206,12 @@ export default function UpdateProfileInformationCard({
                                         />
                                     </div>
                                     {errors.name ? (
-                                        <p className="mt-1.5 text-xs text-rose-600 flex items-center gap-1 font-medium">
+                                        <p className="leading-relaxed mt-1.5 text-sm text-rose-600 flex items-center gap-1 font-medium">
                                             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                                             <span>{errors.name}</span>
                                         </p>
                                     ) : (
-                                        <p className="mt-1.5 text-[11px] text-slate-400 dark:text-slate-500 leading-tight">
+                                        <p className="mt-1.5 text-sm text-slate-400 dark:text-slate-500 leading-tight">
                                             Official name recorded on property transfer receipts and custodian forms.
                                         </p>
                                     )}
@@ -221,7 +221,7 @@ export default function UpdateProfileInformationCard({
                                 <div>
                                     <label
                                         htmlFor="profile_email"
-                                        className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+                                        className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
                                     >
                                         Institutional Email <span className="text-red-900">*</span>
                                     </label>
@@ -237,7 +237,7 @@ export default function UpdateProfileInformationCard({
                                             required
                                             autoComplete="username"
                                             disabled={processing}
-                                            className={`w-full pl-9 pr-3.5 py-2.5 text-xs rounded-lg border text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
+                                            className={`w-full pl-9 pr-3.5 py-2.5 text-sm rounded-lg border text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
                                                 errors.email
                                                     ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20'
                                                     : 'border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900/15 dark:focus:ring-red-500/20'
@@ -246,12 +246,12 @@ export default function UpdateProfileInformationCard({
                                         />
                                     </div>
                                     {errors.email ? (
-                                        <p className="mt-1.5 text-xs text-rose-600 flex items-center gap-1 font-medium">
+                                        <p className="leading-relaxed mt-1.5 text-sm text-rose-600 flex items-center gap-1 font-medium">
                                             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                                             <span>{errors.email}</span>
                                         </p>
                                     ) : (
-                                        <p className="mt-1.5 text-[11px] text-slate-400 dark:text-slate-500 leading-tight">
+                                        <p className="mt-1.5 text-sm text-slate-400 dark:text-slate-500 leading-tight">
                                             Primary address for security codes, OTP dispatches, and audit warnings.
                                         </p>
                                     )}
@@ -261,7 +261,7 @@ export default function UpdateProfileInformationCard({
                             {/* Institutional Read-Only Properties */}
                             <div className="pt-5 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-5">
                                 <div className="space-y-1.5">
-                                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                    <label className="block text-sm font-semibold text-slate-500 dark:text-slate-400">
                                         Institutional Office Assignment
                                     </label>
                                     <div className="relative">
@@ -270,18 +270,18 @@ export default function UpdateProfileInformationCard({
                                             readOnly
                                             disabled
                                             value="Supply & Property Management Office"
-                                            className="w-full pl-9 pr-8 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-850/80 text-slate-600 dark:text-slate-400 cursor-not-allowed select-none"
+                                            className="w-full pl-9 pr-8 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-850/80 text-slate-600 dark:text-slate-400 cursor-not-allowed select-none"
                                         />
                                         <Building2 className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                                         <Lock className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-2.5" />
                                     </div>
-                                    <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                                    <p className="leading-relaxed text-sm text-slate-400 dark:text-slate-500">
                                         Assigned by University HR & Administration.
                                     </p>
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                    <label className="block text-sm font-semibold text-slate-500 dark:text-slate-400">
                                         System Authority Role
                                     </label>
                                     <div className="relative">
@@ -290,12 +290,12 @@ export default function UpdateProfileInformationCard({
                                             readOnly
                                             disabled
                                             value={currentUser.role}
-                                            className="w-full pl-9 pr-8 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-850/80 text-slate-600 dark:text-slate-400 cursor-not-allowed select-none"
+                                            className="w-full pl-9 pr-8 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-850/80 text-slate-600 dark:text-slate-400 cursor-not-allowed select-none"
                                         />
                                         <Shield className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                                         <Lock className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-2.5" />
                                     </div>
-                                    <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                                    <p className="leading-relaxed text-sm text-slate-400 dark:text-slate-500">
                                         Role adjustments require Administrator authorization.
                                     </p>
                                 </div>
@@ -303,7 +303,7 @@ export default function UpdateProfileInformationCard({
 
                             {/* Email Verification Warning if Unverified */}
                             {mustVerifyEmail && currentUser.email_verified_at === null && (
-                                <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-950 dark:text-amber-200 flex items-start gap-3 text-xs">
+                                <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-950 dark:text-amber-200 flex items-start gap-3 text-sm">
                                     <Info className="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
                                     <div className="space-y-1.5">
                                         <p className="font-bold text-amber-950 dark:text-amber-200">Email Verification Pending</p>
@@ -332,7 +332,7 @@ export default function UpdateProfileInformationCard({
 
                             {/* Form Action Row */}
                             <div className="pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-tight">
+                                <p className="text-sm text-slate-400 dark:text-slate-500 leading-tight">
                                     Changes take effect immediately across all inventory forms and logged entries.
                                 </p>
 
@@ -341,7 +341,7 @@ export default function UpdateProfileInformationCard({
                                         type="button"
                                         onClick={handleCancel}
                                         disabled={processing || !isDirty}
-                                        className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-400 dark:hover:border-slate-600 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                                        className="px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-400 dark:hover:border-slate-600 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
                                     >
                                         <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                                         <span>Reset</span>
@@ -350,7 +350,7 @@ export default function UpdateProfileInformationCard({
                                     <button
                                         type="submit"
                                         disabled={processing || !isDirty}
-                                        className={`px-4 py-2 rounded-xl text-xs font-semibold text-white flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98] ${
+                                        className={`px-4 py-2 rounded-xl text-sm font-semibold text-white flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98] ${
                                             isDirty && !processing
                                                 ? 'bg-red-900 hover:bg-red-800 active:bg-red-950 shadow-red-950/15 shadow-md'
                                                 : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed shadow-none'

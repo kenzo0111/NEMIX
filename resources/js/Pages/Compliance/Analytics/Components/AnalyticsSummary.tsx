@@ -66,33 +66,33 @@ export default function AnalyticsSummary({
             <div className="bg-red-950 text-white rounded-lg border border-red-900 border-l-4 border-l-amber-500 p-5 sm:p-6 shadow-xs">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="space-y-1">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-red-900/80 border border-red-800 text-[11px] font-semibold text-amber-300 uppercase tracking-wide">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-red-900/80 border border-red-800 text-sm font-semibold text-amber-300 normal-case tracking-normal">
                             Supply & Property Management Office
                         </div>
-                        <h1 className="text-xl sm:text-2xl font-bold font-serif text-white tracking-tight">
+                        <h1 className="text-2xl sm:text-3xl font-bold font-sans text-white tracking-tight">
                             Inventory Performance Analytics
                         </h1>
-                        <p className="text-red-200/90 text-xs sm:text-sm max-w-2xl font-normal leading-relaxed">
+                        <p className="text-red-200/90 text-sm max-w-2xl font-normal leading-relaxed">
                             Analyze stock quantity, inventory valuation, availability distributions, and replenishment conditions across registered university supplies.
                         </p>
                     </div>
 
                     {/* Inline Restrained Status Overview Strip */}
                     <div className="flex flex-wrap items-center gap-2 self-start md:self-auto shrink-0">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-900/60 border border-red-800 text-xs text-red-100">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-900/60 border border-red-800 text-sm text-red-100">
                             <span className="h-2 w-2 rounded-full bg-emerald-400" />
                             <span className="text-red-200">Available:</span>
-                            <span className="font-bold text-white font-mono">{statusCounts?.Available?.toLocaleString() ?? 0}</span>
+                            <span className="font-bold text-white tabular-nums">{statusCounts?.Available?.toLocaleString() ?? 0}</span>
                         </div>
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-900/60 border border-red-800 text-xs text-red-100">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-900/60 border border-red-800 text-sm text-red-100">
                             <span className="h-2 w-2 rounded-full bg-amber-400" />
                             <span className="text-red-200">Low Stock:</span>
-                            <span className="font-bold text-amber-300 font-mono">{statusCounts?.['Low Stock']?.toLocaleString() ?? 0}</span>
+                            <span className="font-bold text-amber-300 tabular-nums">{statusCounts?.['Low Stock']?.toLocaleString() ?? 0}</span>
                         </div>
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-900/60 border border-red-800 text-xs text-red-100">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-900/60 border border-red-800 text-sm text-red-100">
                             <span className="h-2 w-2 rounded-full bg-red-400" />
                             <span className="text-red-200">Out of Stock:</span>
-                            <span className="font-bold text-red-300 font-mono">{statusCounts?.['Out of Stock']?.toLocaleString() ?? 0}</span>
+                            <span className="font-bold text-red-300 tabular-nums">{statusCounts?.['Out of Stock']?.toLocaleString() ?? 0}</span>
                         </div>
                     </div>
                 </div>
@@ -126,7 +126,7 @@ export default function AnalyticsSummary({
                         >
                             <CardContent className="p-4 flex flex-col justify-between h-full space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-semibold text-gray-600 dark:text-slate-400">
+                                    <span className="text-sm font-semibold text-gray-600 dark:text-slate-400">
                                         {card.title}
                                     </span>
                                     <div className={`p-2 rounded-md border ${card.iconBg}`}>
@@ -137,10 +137,10 @@ export default function AnalyticsSummary({
                                     <div className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-slate-100 font-sans">
                                         {card.value}
                                     </div>
-                                    <div className="text-[11px] font-medium text-gray-500 dark:text-slate-400 mt-0.5 flex items-center justify-between">
+                                    <div className="text-sm font-medium text-gray-500 dark:text-slate-400 mt-0.5 flex items-center justify-between">
                                         <span>{card.description}</span>
                                         {card.clickable && (
-                                            <span className="text-[10px] font-semibold text-red-900 dark:text-red-400 hover:underline">
+                                            <span className="text-sm font-semibold text-red-900 dark:text-red-400 hover:underline">
                                                 Inspect →
                                             </span>
                                         )}

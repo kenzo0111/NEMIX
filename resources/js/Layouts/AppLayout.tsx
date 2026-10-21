@@ -39,7 +39,7 @@ export default function AppLayout({
             {/* Global System Mode Warning Bar */}
             {systemMode !== 'LIVE PRODUCTION' && (
                 <div
-                    className={`px-4 py-1.5 text-xs font-mono font-bold text-center flex items-center justify-center gap-2 shadow-xs border-b z-50 transition-colors ${
+                    className={`px-4 py-1.5 text-sm tabular-nums font-bold text-center flex items-center justify-center gap-2 shadow-xs border-b z-50 transition-colors ${
                         systemMode === 'MAINTENANCE MODE'
                             ? 'bg-amber-900 text-amber-200 border-amber-800'
                             : systemMode === 'STAGING SANDBOX'
@@ -53,11 +53,11 @@ export default function AppLayout({
                     </span>
                     <span>
                         {systemMode === 'MAINTENANCE MODE' &&
-                            'SYSTEM MAINTENANCE MODE ACTIVE — Data mutations restricted to System Administrators.'}
+                            'Maintenance mode: only System Administrators can make changes.'}
                         {systemMode === 'STAGING SANDBOX' &&
-                            'STAGING SANDBOX ENVIRONMENT — Operating with isolated test database records.'}
+                            'Staging environment: using isolated test data.'}
                         {systemMode === 'TRAINING SIMULATION' &&
-                            'TRAINING SIMULATION MODE — Operating with synthetic training data.'}
+                            'Training mode: using sample data.'}
                     </span>
                 </div>
             )}

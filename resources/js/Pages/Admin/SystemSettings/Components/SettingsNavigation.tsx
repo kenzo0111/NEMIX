@@ -26,7 +26,7 @@ export default function SettingsNavigation({
                             key={tab.id}
                             type="button"
                             onClick={() => onChange(tab.id)}
-                            className={`group inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
+                            className={`group inline-flex items-center gap-2 px-3.5 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
                                 isActive
                                     ? 'bg-red-900 text-white shadow-xs'
                                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800'
@@ -43,7 +43,7 @@ export default function SettingsNavigation({
                             </div>
                             <span>{tab.shortLabel}</span>
                             <span
-                                className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                                className={`text-sm tabular-nums px-1.5 py-0.5 rounded ${
                                     isActive
                                         ? 'bg-red-950/70 text-red-200'
                                         : 'text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800'

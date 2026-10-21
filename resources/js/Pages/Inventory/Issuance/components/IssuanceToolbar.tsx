@@ -26,11 +26,11 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
     return (
         <div className="p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-50/50 dark:bg-slate-900/50">
             <div>
-                <h2 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight">
-                    Inventory Issuance Records
+                <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
+                    Issuance records
                 </h2>
-                <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mt-0.5">
-                    Official supply distributions and Requisition and Issue Slips (RIS).
+                <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium mt-1">
+                    Supply distributions and issue slips (RIS).
                 </p>
             </div>
 
@@ -58,7 +58,7 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search issuance..."
                         aria-label="Search issuance records"
-                        className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-xs font-medium focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-xs placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
+                        className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-xs placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
                     />
                 </div>
 
@@ -80,7 +80,7 @@ export const IssuanceToolbar: React.FC<IssuanceToolbarProps> = ({
                 {canCreateIssuance && <button
                     type="button"
                     onClick={onRecordIssuance}
-                    className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-xs flex items-center justify-center gap-2 whitespace-nowrap uppercase font-mono tracking-wider cursor-pointer min-h-[38px]"
+                    className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-sm flex items-center justify-center gap-2 whitespace-nowrap normal-case tabular-nums tracking-normal cursor-pointer min-h-[38px]"
                 >
                     <svg className="w-4 h-4 text-amber-300" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />

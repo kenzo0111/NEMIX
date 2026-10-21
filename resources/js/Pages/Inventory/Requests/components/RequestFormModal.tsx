@@ -207,10 +207,10 @@ export function RequestFormModal({
                             <FileSpreadsheet className="w-5 h-5 text-red-900 dark:text-red-400" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight truncate">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 {request ? (request.ris_number ? `Edit Requisition (${request.ris_number})` : `Edit Supply Request #${request.id}`) : 'Create Supply Requisition (RIS)'}
                             </h3>
-                            <p className="text-xs text-gray-500 dark:text-slate-400 font-medium truncate">
+                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium truncate">
                                 Administrative Requisition & Issue Slip (RIS) Entry for Property Custodian Review
                             </p>
                         </div>
@@ -227,17 +227,17 @@ export function RequestFormModal({
                 </div>
 
                 {/* Form Body */}
-                <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto max-h-[75vh] space-y-6 text-xs">
+                <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto max-h-[75vh] space-y-6 text-sm">
                     {/* SECTION 1: Recipient Information */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-950 dark:text-red-400 font-mono">
+                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 1. Recipient Information
                             </h4>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="req_recipient" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                <label htmlFor="req_recipient" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Recipient Name <span className="text-red-600" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
                                 </label>
@@ -251,17 +251,17 @@ export function RequestFormModal({
                                     value={form.data.recipient}
                                     onChange={(e) => form.setData('recipient', e.target.value)}
                                     placeholder="Full name of requesting personnel"
-                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-xs font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
+                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
                                         form.errors.recipient ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
                                     }`}
                                 />
                                 {form.errors.recipient && (
-                                    <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{form.errors.recipient}</p>
+                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.recipient}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label htmlFor="req_date_requested" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                <label htmlFor="req_date_requested" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Date Requested <span className="text-red-600" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
                                 </label>
@@ -274,17 +274,17 @@ export function RequestFormModal({
                                     aria-invalid={Boolean(form.errors.date_requested)}
                                     value={form.data.date_requested}
                                     onChange={(e) => form.setData('date_requested', e.target.value)}
-                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-xs font-mono font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
+                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
                                         form.errors.date_requested ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
                                     }`}
                                 />
                                 {form.errors.date_requested && (
-                                    <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{form.errors.date_requested}</p>
+                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.date_requested}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label htmlFor="req_department" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                <label htmlFor="req_department" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Division / Office <span className="text-red-600" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
                                 </label>
@@ -302,12 +302,12 @@ export function RequestFormModal({
                                     isSearchable
                                 />
                                 {form.errors.department && (
-                                    <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{form.errors.department}</p>
+                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.department}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label htmlFor="req_recipient_designation" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                <label htmlFor="req_recipient_designation" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Recipient Designation
                                 </label>
                                 <input
@@ -318,12 +318,12 @@ export function RequestFormModal({
                                     value={form.data.recipient_designation}
                                     onChange={(e) => form.setData('recipient_designation', e.target.value)}
                                     placeholder="e.g. Dean, Department Head, Faculty, Coordinator"
-                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-xs font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
+                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
                                         form.errors.recipient_designation ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
                                     }`}
                                 />
                                 {form.errors.recipient_designation && (
-                                    <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
+                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
                                         {form.errors.recipient_designation}
                                     </p>
                                 )}
@@ -334,13 +334,13 @@ export function RequestFormModal({
                     {/* SECTION 2: Accounting Information */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-950 dark:text-red-400 font-mono">
+                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 2. Accounting Information
                             </h4>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="req_fund_cluster" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                <label htmlFor="req_fund_cluster" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Fund Cluster
                                 </label>
                                 <Select
@@ -356,12 +356,12 @@ export function RequestFormModal({
                                     classNamePrefix="react-select"
                                 />
                                 {form.errors.fund_cluster && (
-                                    <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{form.errors.fund_cluster}</p>
+                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.fund_cluster}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label htmlFor="req_purpose" className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                <label htmlFor="req_purpose" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                     Purpose <span className="text-red-600" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
                                 </label>
@@ -375,12 +375,12 @@ export function RequestFormModal({
                                     value={form.data.purpose}
                                     onChange={(e) => form.setData('purpose', e.target.value)}
                                     placeholder="Purpose of supply requisition"
-                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-xs font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
+                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
                                         form.errors.purpose ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
                                     }`}
                                 />
                                 {form.errors.purpose && (
-                                    <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">{form.errors.purpose}</p>
+                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.purpose}</p>
                                 )}
                             </div>
                         </div>
@@ -389,13 +389,13 @@ export function RequestFormModal({
                     {/* SECTION 3: Items Requested */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-950 dark:text-red-400 font-mono">
+                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 3. Items Requested
                             </h4>
                             <button
                                 type="button"
                                 onClick={handleAddItem}
-                                className="text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-semibold text-xs flex items-center gap-1.5 cursor-pointer py-1 px-2 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+                                className="text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-semibold text-sm flex items-center gap-1.5 cursor-pointer py-1 px-2 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
                             >
                                 <Plus className="w-3.5 h-3.5 text-amber-500" />
                                 + Add another item
@@ -403,7 +403,7 @@ export function RequestFormModal({
                         </div>
 
                         {form.errors.items && (
-                            <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded text-xs text-red-700 dark:text-red-300 font-medium">
+                            <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded text-sm text-red-700 dark:text-red-300 font-medium">
                                 {form.errors.items}
                             </div>
                         )}
@@ -437,7 +437,7 @@ export function RequestFormModal({
                                             <div className="flex-1 w-full min-w-0">
                                                 <label
                                                     htmlFor={`req_item_${index}`}
-                                                    className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1"
+                                                    className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1"
                                                 >
                                                     Item #{index + 1} <span className="text-red-600">*</span>
                                                 </label>
@@ -453,12 +453,12 @@ export function RequestFormModal({
                                                     noOptionsMessage={() => 'No in-stock items available'}
                                                 />
                                                 {unavailable && (
-                                                    <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
+                                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
                                                         Unserviceable for requisition: out of stock. Remove this item or select another.
                                                     </p>
                                                 )}
                                                 {errorItem && (
-                                                    <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
+                                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
                                                         {errorItem}
                                                     </p>
                                                 )}
@@ -466,12 +466,12 @@ export function RequestFormModal({
 
                                             {/* Available stock display */}
                                             <div className="w-full sm:w-36 shrink-0">
-                                                <span className="block text-[11px] font-semibold text-gray-500 dark:text-slate-400 mb-1">
+                                                <span className="block text-sm font-semibold text-gray-500 dark:text-slate-400 mb-1">
                                                     On-Hand Stock
                                                 </span>
-                                                <div className="h-10 px-3 flex items-center justify-between bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 rounded-md text-xs font-mono font-bold text-gray-800 dark:text-slate-200">
+                                                <div className="h-10 px-3 flex items-center justify-between bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 rounded-md text-sm tabular-nums font-bold text-gray-800 dark:text-slate-200">
                                                     <span>{selectedItem ? selectedItem.stock : '—'}</span>
-                                                    <span className="text-[10px] text-gray-500 font-normal font-sans">
+                                                    <span className="text-sm text-gray-500 font-normal font-sans">
                                                         {selectedItem ? (selectedItem.unit_of_issue || 'pcs') : ''}
                                                     </span>
                                                 </div>
@@ -481,7 +481,7 @@ export function RequestFormModal({
                                             <div className="w-full sm:w-28 shrink-0">
                                                 <label
                                                     htmlFor={`req_qty_${index}`}
-                                                    className="block text-[11px] font-semibold text-gray-700 dark:text-slate-300 mb-1"
+                                                    className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1"
                                                 >
                                                     Qty <span className="text-red-600">*</span>
                                                 </label>
@@ -495,12 +495,12 @@ export function RequestFormModal({
                                                     value={line.quantity}
                                                     onChange={(e) => handleChangeQuantity(index, e.target.value)}
                                                     placeholder="Qty"
-                                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-xs font-mono font-bold text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
+                                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-bold text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
                                                         errorQty ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
                                                     }`}
                                                 />
                                                 {errorQty && (
-                                                    <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
+                                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
                                                         {errorQty}
                                                     </p>
                                                 )}
@@ -527,41 +527,41 @@ export function RequestFormModal({
                     {/* SECTION 4: Authorization (Signatories) */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-red-950 dark:text-red-400 font-mono">
+                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 4. Authorization (System Signatories)
                             </h4>
                         </div>
                         <div className="space-y-4">
                             {/* Approved By Row */}
                             <div>
-                                <span className="block text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-2 font-mono">
+                                <span className="block text-sm font-bold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
                                     Approved By (Section B)
                                 </span>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                             Name (Read-Only)
                                         </label>
                                         <input
                                             type="text"
                                             value={form.data.approved_by}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                             Designation (Read-Only)
                                         </label>
                                         <input
                                             type="text"
                                             value={form.data.approved_by_designation}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                             Approved Date (Read-Only)
                                         </label>
                                         <input
@@ -574,7 +574,7 @@ export function RequestFormModal({
                                                         : 'Pending Custodian Approval')
                                             }
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-mono font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -582,34 +582,34 @@ export function RequestFormModal({
 
                             {/* Issued By Row */}
                             <div>
-                                <span className="block text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-2 font-mono">
+                                <span className="block text-sm font-bold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
                                     Issued By (Section C)
                                 </span>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                             Name (Read-Only)
                                         </label>
                                         <input
                                             type="text"
                                             value={form.data.issued_by_name}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                             Designation (Read-Only)
                                         </label>
                                         <input
                                             type="text"
                                             value={form.data.issued_by_position}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
                                             Issued Date (Read-Only)
                                         </label>
                                         <input
@@ -622,7 +622,7 @@ export function RequestFormModal({
                                                         : 'Pending Item Release')
                                             }
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-mono font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -636,14 +636,14 @@ export function RequestFormModal({
                             type="button"
                             onClick={handleModalClose}
                             disabled={form.processing}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 cursor-pointer"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 cursor-pointer"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={form.processing}
-                            className="w-full sm:w-auto px-5 py-2 bg-red-950 hover:bg-red-900 text-white text-xs font-bold rounded-md shadow-xs disabled:opacity-50 uppercase font-mono tracking-wider cursor-pointer flex items-center justify-center gap-2"
+                            className="w-full sm:w-auto px-5 py-2 bg-red-950 hover:bg-red-900 text-white text-sm font-bold rounded-md shadow-xs disabled:opacity-50 normal-case tabular-nums tracking-normal cursor-pointer flex items-center justify-center gap-2"
                         >
                             {form.processing ? (
                                 <>

@@ -26,12 +26,12 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                 <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden">
                     <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-850/60 flex items-center gap-2">
                         <Shield className="w-4 h-4 text-red-900 dark:text-red-400" />
-                        <h3 className="text-xs font-bold font-serif text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                        <h3 className="text-lg font-bold font-sans text-slate-900 dark:text-slate-100 normal-case tracking-normal">
                             Security Protocol
                         </h3>
                     </div>
 
-                    <div className="p-5 space-y-4 text-xs">
+                    <div className="p-5 space-y-4 text-sm">
                         <div className="flex items-start gap-3">
                             <div className="w-7 h-7 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 flex items-center justify-center shrink-0 mt-0.5 border border-red-100 dark:border-red-900/50">
                                 <KeyRound className="w-3.5 h-3.5" />
@@ -40,7 +40,7 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                                 <span className="font-semibold text-slate-800 dark:text-slate-200 block">
                                     Two-Factor Authorization
                                 </span>
-                                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-[11px]">
+                                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
                                     Password updates require real-time verification of a 6-digit one-time PIN dispatched to your registered institutional address.
                                 </p>
                             </div>
@@ -54,7 +54,7 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                                 <span className="font-semibold text-slate-800 dark:text-slate-200 block">
                                     Audited Transaction
                                 </span>
-                                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-[11px]">
+                                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
                                     All credential updates are permanently recorded in the institutional security ledger with client IP and browser fingerprints.
                                 </p>
                             </div>
@@ -68,15 +68,15 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                                 <span className="font-semibold text-slate-800 dark:text-slate-200 block">
                                     Session Invalidation
                                 </span>
-                                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-[11px]">
+                                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
                                     Modifying your password ensures active sessions on secondary devices are terminated for institutional safety.
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="p-4 bg-slate-50/80 dark:bg-slate-850/60 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
-                        Institutional Email: <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">{userEmail || 'Configured address'}</span>
+                    <div className="p-4 bg-slate-50/80 dark:bg-slate-850/60 border-t border-slate-100 dark:border-slate-800 text-sm text-slate-500 dark:text-slate-400">
+                        Institutional Email: <span className="tabular-nums font-semibold text-slate-700 dark:text-slate-300">{userEmail || 'Configured address'}</span>
                     </div>
                 </div>
             </div>
@@ -94,10 +94,10 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                                 <KeyRound className="w-4 h-4" />
                             </div>
                             <div>
-                                <h2 className="text-sm font-bold font-serif text-slate-900 dark:text-slate-100">
+                                <h2 className="text-xl font-bold font-sans text-slate-900 dark:text-slate-100">
                                     Security Credentials
                                 </h2>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
                                     Update your account password with two-step institutional verification
                                 </p>
                             </div>
@@ -114,7 +114,7 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                                 return (
                                     <div
                                         key={s.id}
-                                        className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold transition-all ${
+                                        className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-semibold transition-all ${
                                             isCurrent
                                                 ? 'bg-white dark:bg-slate-900 text-red-950 dark:text-red-300 shadow-2xs border border-slate-200/80 dark:border-slate-700'
                                                 : isPast

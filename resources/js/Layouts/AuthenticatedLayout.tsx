@@ -35,7 +35,7 @@ export default function Authenticated({
         <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
             {/* System Operating Mode Global Warning Banner */}
             {systemMode !== 'LIVE PRODUCTION' && (
-                <div className={`px-4 py-2 text-xs font-mono font-bold text-center flex items-center justify-center gap-2 shadow-xs border-b ${
+                <div className={`px-4 py-2 text-sm tabular-nums font-bold text-center flex items-center justify-center gap-2 shadow-xs border-b ${
                     systemMode === 'MAINTENANCE MODE'
                         ? 'bg-amber-900 text-amber-200 border-amber-800'
                         : systemMode === 'STAGING SANDBOX'
@@ -48,7 +48,7 @@ export default function Authenticated({
                     </span>
                     <span>
                         {systemMode === 'MAINTENANCE MODE' && 'SYSTEM MAINTENANCE MODE ACTIVE — Write transactions are restricted to authorized administrators.'}
-                        {systemMode === 'STAGING SANDBOX' && 'STAGING SANDBOX ENVIRONMENT — Operating with isolated test database records.'}
+                        {systemMode === 'STAGING SANDBOX' && 'Staging environment: using isolated test data.'}
                         {systemMode === 'TRAINING SIMULATION' && 'TRAINING SIMULATION MODE — Operating with synthetic demo data.'}
                     </span>
                 </div>
@@ -233,10 +233,10 @@ export default function Authenticated({
                                 </svg>
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900 font-serif tracking-tight">
+                                <h3 className="text-lg font-bold text-gray-900 font-sans tracking-tight">
                                     Confirm Logout Session
                                 </h3>
-                                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                                <p className="text-sm text-gray-500 mt-1 leading-relaxed">
                                     Are you sure you want to end your current authenticated session in SPMO SIMS?
                                 </p>
                             </div>
@@ -244,17 +244,17 @@ export default function Authenticated({
 
                         {user && (
                             <div className="my-4 p-3.5 bg-gray-50 rounded-xl border border-gray-200 flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 border border-yellow-300/60 flex items-center justify-center text-red-950 font-extrabold text-sm shrink-0 shadow-sm">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 border border-yellow-300/60 flex items-center justify-center text-red-950 font-bold text-sm shrink-0 shadow-sm">
                                     {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-xs font-bold text-gray-900 truncate">{user?.name}</p>
-                                    <p className="text-[11px] text-gray-500 font-mono truncate">{user?.email}</p>
+                                    <p className="leading-relaxed text-sm font-bold text-gray-900 truncate">{user?.name}</p>
+                                    <p className="leading-relaxed text-sm text-gray-500 tabular-nums truncate">{user?.email}</p>
                                 </div>
                             </div>
                         )}
 
-                        <p className="text-[11px] text-gray-500 mb-6 flex items-center gap-1.5 bg-amber-50/70 border border-amber-200/60 rounded-lg p-2.5">
+                        <p className="leading-relaxed text-sm text-gray-500 mb-6 flex items-center gap-1.5 bg-amber-50/70 border border-amber-200/60 rounded-lg p-2.5">
                             <svg className="w-4 h-4 text-amber-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                             </svg>
@@ -266,7 +266,7 @@ export default function Authenticated({
                                 type="button"
                                 onClick={() => setShowLogoutModal(false)}
                                 disabled={isLoggingOut}
-                                className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-400 transition-all disabled:opacity-50 cursor-pointer text-center"
+                                className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-400 transition-all disabled:opacity-50 cursor-pointer text-center"
                             >
                                 Stay Signed In
                             </button>
@@ -274,7 +274,7 @@ export default function Authenticated({
                                 type="button"
                                 onClick={handleConfirmLogout}
                                 disabled={isLoggingOut}
-                                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-red-900 hover:bg-red-950 active:bg-black shadow-md shadow-red-950/20 focus:outline-none focus:ring-2 focus:ring-red-900/50 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-red-900 hover:bg-red-950 active:bg-black shadow-md shadow-red-950/20 focus:outline-none focus:ring-2 focus:ring-red-900/50 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                             >
                                 {isLoggingOut ? (
                                     <>

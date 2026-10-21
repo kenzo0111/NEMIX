@@ -37,7 +37,7 @@ export default function InventoryMovementOverview({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800 min-w-0">
                 <div className="flex items-center gap-2 min-w-0">
                     <span className="h-2 w-2 rounded-full bg-red-900 dark:bg-red-400 shrink-0"></span>
-                    <h2 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider truncate">
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 normal-case tracking-normal truncate">
                         Inventory Movement Overview
                     </h2>
                 </div>
@@ -47,13 +47,13 @@ export default function InventoryMovementOverview({
                     <div
                         role="group"
                         aria-label="Movement chart period"
-                        className="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs shrink-0"
+                        className="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm shrink-0"
                     >
                         <button
                             type="button"
                             aria-pressed={currentFilter === 'monthly'}
                             onClick={() => handleFilterChange('monthly')}
-                            className={`px-2 py-0.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                            className={`px-2 py-0.5 rounded-md text-sm font-semibold transition-all cursor-pointer ${
                                 currentFilter === 'monthly'
                                     ? 'bg-white dark:bg-slate-900 text-red-950 dark:text-amber-300 shadow-xs'
                                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -65,7 +65,7 @@ export default function InventoryMovementOverview({
                             type="button"
                             aria-pressed={currentFilter === 'yearly'}
                             onClick={() => handleFilterChange('yearly')}
-                            className={`px-2 py-0.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                            className={`px-2 py-0.5 rounded-md text-sm font-semibold transition-all cursor-pointer ${
                                 currentFilter === 'yearly'
                                     ? 'bg-white dark:bg-slate-900 text-red-950 dark:text-amber-300 shadow-xs'
                                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -77,7 +77,7 @@ export default function InventoryMovementOverview({
 
                     <Link
                         href={analyticsHref}
-                        className="text-xs font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1 shrink-0"
+                        className="text-sm font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1 shrink-0"
                     >
                         <span>{isCoordinator ? 'Unit Stock Cards' : 'Analytics'}</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -89,7 +89,7 @@ export default function InventoryMovementOverview({
             <div className="pt-2.5 flex flex-col min-w-0">
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     {/* Custom Legend */}
-                    <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[11px] font-medium">
+                    <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-sm font-medium">
                         <div className="flex items-center gap-1.5 shrink-0">
                             <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>
                             <span className="text-slate-600 dark:text-slate-300">Stock Received</span>
@@ -104,7 +104,7 @@ export default function InventoryMovementOverview({
                         </div>
                     </div>
 
-                    <div className="text-[11px] text-slate-400 dark:text-slate-500 font-medium shrink-0">
+                    <div className="text-sm text-slate-400 dark:text-slate-500 font-medium shrink-0">
                         {currentFilter === 'yearly' ? 'Annual Consolidated' : 'Monthly Tracking'}
                     </div>
                 </div>
@@ -117,29 +117,29 @@ export default function InventoryMovementOverview({
             {/* Concise Period Movement Summary Row */}
             <div className="mt-2.5 pt-2.5 border-t border-slate-100 dark:border-slate-800 grid grid-cols-3 gap-2 sm:gap-3 text-left shrink-0">
                 <div className="border-r border-slate-100 dark:border-slate-800 pr-2 sm:pr-3">
-                    <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <span className="block text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal">
                         Total Received
                     </span>
-                    <span className="text-sm sm:text-base font-bold font-mono text-emerald-700 dark:text-emerald-400 mt-0.5 block truncate">
-                        +{receivedCount.toLocaleString()} <span className="text-[10px] font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
+                    <span className="text-sm sm:text-base font-bold tabular-nums text-emerald-700 dark:text-emerald-400 mt-0.5 block truncate">
+                        +{receivedCount.toLocaleString()} <span className="text-sm font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
                     </span>
                 </div>
 
                 <div className="border-r border-slate-100 dark:border-slate-800 pr-2 sm:pr-3">
-                    <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <span className="block text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal">
                         Total Dispatched
                     </span>
-                    <span className="text-sm sm:text-base font-bold font-mono text-amber-700 dark:text-amber-400 mt-0.5 block truncate">
-                        -{issuedCount.toLocaleString()} <span className="text-[10px] font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
+                    <span className="text-sm sm:text-base font-bold tabular-nums text-amber-700 dark:text-amber-400 mt-0.5 block truncate">
+                        -{issuedCount.toLocaleString()} <span className="text-sm font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
                     </span>
                 </div>
 
                 <div>
-                    <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <span className="block text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal">
                         Current Balance
                     </span>
-                    <span className="text-sm sm:text-base font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
-                        {endingBalance.toLocaleString()} <span className="text-[10px] font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
+                    <span className="text-sm sm:text-base font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
+                        {endingBalance.toLocaleString()} <span className="text-sm font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
                     </span>
                 </div>
             </div>

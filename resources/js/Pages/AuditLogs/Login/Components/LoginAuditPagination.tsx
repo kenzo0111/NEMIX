@@ -40,7 +40,7 @@ export const LoginAuditPagination: React.FC<LoginAuditPaginationProps> = ({
     };
 
     return (
-        <div className={`bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${coordinatorLayout ? 'rounded-2xl px-4 py-4 sm:px-6 shadow-sm' : 'rounded-lg px-4 py-3 shadow-xs'}`}>
+        <div className={`bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm ${coordinatorLayout ? 'rounded-2xl px-4 py-4 sm:px-6 shadow-sm' : 'rounded-lg px-4 py-3 shadow-xs'}`}>
             <span className="text-gray-600 dark:text-slate-400 font-medium">
                 Showing{' '}
                 <span className="font-bold text-gray-900 dark:text-slate-100">

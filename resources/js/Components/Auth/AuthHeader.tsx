@@ -26,23 +26,23 @@ export default function AuthHeader({
             </div>
 
             <div className="space-y-0.5">
-                <p className="font-serif text-red-900 dark:text-red-400 uppercase tracking-[0.16em] text-[10px] font-bold">
+                <p className="leading-relaxed font-sans text-red-900 dark:text-red-400 normal-case tracking-normal text-sm font-bold">
                     Republic of the Philippines
                 </p>
-                <h2 className="font-serif text-xl font-bold text-stone-900 dark:text-slate-100 tracking-tight">
+                <h2 className="text-xl font-sans font-bold text-stone-900 dark:text-slate-100 tracking-tight">
                     {institutionName}
                 </h2>
-                <p className="text-xs text-stone-500 dark:text-slate-400 font-medium">
+                <p className="leading-relaxed text-sm text-stone-500 dark:text-slate-400 font-medium">
                     {officeName}
                 </p>
             </div>
 
             <div className="pt-3 border-t border-stone-100 dark:border-slate-800">
-                <h3 className="text-lg font-bold text-stone-900 dark:text-slate-100 font-serif tracking-tight">
+                <h3 className="text-lg font-bold text-stone-900 dark:text-slate-100 font-sans tracking-tight">
                     {title}
                 </h3>
                 {description && (
-                    <p className="text-xs text-stone-600 dark:text-slate-400 mt-1.5 leading-relaxed max-w-sm mx-auto">
+                    <p className="text-sm text-stone-600 dark:text-slate-400 mt-1.5 leading-relaxed max-w-sm mx-auto">
                         {description}
                     </p>
                 )}

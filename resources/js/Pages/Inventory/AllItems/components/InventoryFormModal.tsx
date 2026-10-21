@@ -184,10 +184,10 @@ export default function InventoryFormModal({
                             )}
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 tracking-tight font-serif truncate">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 tracking-tight font-sans truncate">
                                 {isEditing ? 'Edit Item Master' : 'Register Item Master'}
                             </h3>
-                            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
+                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
                                 {isEditing
                                     ? 'Update standardized item master specifications.'
                                     : 'Add item details. Opening stock can be recorded now or later.'}
@@ -208,12 +208,12 @@ export default function InventoryFormModal({
                 {/* Duplicate Item Master Warning Banner */}
                 {potentialDuplicate && (
                     <div className="shrink-0 mx-6 mt-4 p-3 sm:mx-8 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-xl text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-                        <div className="text-xs">
+                        <div className="text-sm">
                             <p className="font-semibold flex items-center gap-1.5 text-amber-950 dark:text-amber-200">
                                 <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                                 <span>Existing Item Found: "{potentialDuplicate.name}"</span>
                             </p>
-                            <p className="mt-0.5 text-[11px] text-amber-800 dark:text-amber-300">
+                            <p className="leading-relaxed mt-1 text-sm text-amber-800 dark:text-amber-300">
                                 If receiving from a new supplier or batch, record a Receiving instead.
                             </p>
                         </div>
@@ -222,14 +222,14 @@ export default function InventoryFormModal({
                                 <button
                                     type="button"
                                     onClick={() => onViewExistingItem(potentialDuplicate)}
-                                    className="px-2.5 py-1 text-xs font-semibold text-amber-950 dark:text-amber-100 bg-amber-200 dark:bg-amber-900/60 hover:bg-amber-300 dark:hover:bg-amber-800 rounded-lg transition-colors shadow-2xs cursor-pointer"
+                                    className="px-2.5 py-1 text-sm font-semibold text-amber-950 dark:text-amber-100 bg-amber-200 dark:bg-amber-900/60 hover:bg-amber-300 dark:hover:bg-amber-800 rounded-lg transition-colors shadow-2xs cursor-pointer"
                                 >
                                     View Existing
                                 </button>
                             )}
                             <a
                                 href="/inventory/receiving"
-                                className="px-2.5 py-1 text-xs font-semibold text-white bg-red-950 hover:bg-red-900 rounded-lg transition-colors shadow-2xs"
+                                className="px-2.5 py-1 text-sm font-semibold text-white bg-red-950 hover:bg-red-900 rounded-lg transition-colors shadow-2xs"
                             >
                                 Receiving
                             </a>
@@ -265,7 +265,7 @@ export default function InventoryFormModal({
                                         }`}
                                     />
                                     {errors.name && (
-                                        <p id="inventory_item_name-error" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
+                                        <p id="inventory_item_name-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
                                             {errors.name}
                                         </p>
                                     )}
@@ -297,7 +297,7 @@ export default function InventoryFormModal({
                                         isDisabled={processing}
                                     />
                                     {errors.unit_of_issue && (
-                                        <p id="inventory_unit_of_issue-error" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
+                                        <p id="inventory_unit_of_issue-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
                                             {errors.unit_of_issue}
                                         </p>
                                     )}
@@ -322,7 +322,7 @@ export default function InventoryFormModal({
                                         }`}
                                     />
                                     {errors.description && (
-                                        <p id="inventory_description-error" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
+                                        <p id="inventory_description-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
                                             {errors.description}
                                         </p>
                                     )}
@@ -337,29 +337,29 @@ export default function InventoryFormModal({
                                     <span className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                                         Current Stock & Valuation
                                     </span>
-                                    <span className="text-[11px] text-gray-500 dark:text-slate-400">
+                                    <span className="text-sm text-gray-500 dark:text-slate-400">
                                         Aggregated from active batches
                                     </span>
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-3">
                                     <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
-                                        <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">On Hand</p>
-                                        <p className="text-xs font-bold font-mono text-gray-900 dark:text-slate-100 mt-0.5">
+                                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium">On Hand</p>
+                                        <p className="leading-relaxed text-sm font-bold tabular-nums text-gray-900 dark:text-slate-100 mt-1">
                                             {data.stock} {data.unit_of_issue || 'units'}
                                         </p>
                                     </div>
 
                                     <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
-                                        <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">Unit Cost</p>
-                                        <p className="text-xs font-bold font-mono text-gray-900 dark:text-slate-100 mt-0.5">
+                                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium">Unit Cost</p>
+                                        <p className="leading-relaxed text-sm font-bold tabular-nums text-gray-900 dark:text-slate-100 mt-1">
                                             ₱{Number(data.unit_cost || 0).toFixed(2)}
                                         </p>
                                     </div>
 
                                     <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
-                                        <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">Valuation</p>
-                                        <p className="text-xs font-bold font-mono text-red-950 dark:text-red-400 mt-0.5">
+                                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium">Valuation</p>
+                                        <p className="leading-relaxed text-sm font-bold tabular-nums text-red-950 dark:text-red-400 mt-1">
                                             ₱{computedBatchTotal.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </p>
                                     </div>
@@ -378,16 +378,16 @@ export default function InventoryFormModal({
                                             <span className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                                                 Opening stock
                                             </span>
-                                            <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 text-gray-500 dark:text-slate-400 bg-gray-200/70 dark:bg-slate-700 rounded">
+                                            <span className="text-sm normal-case font-bold tracking-normal px-1.5 py-0.5 text-gray-500 dark:text-slate-400 bg-gray-200/70 dark:bg-slate-700 rounded">
                                                 Optional
                                             </span>
                                             {Number(data.stock) > 0 && (
-                                                <span className="text-[11px] font-semibold text-red-900 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900/50 px-2 py-0.5 rounded-full font-mono">
+                                                <span className="text-sm font-semibold text-red-900 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900/50 px-2 py-0.5 rounded-full tabular-nums">
                                                     {data.stock} units
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5">
+                                        <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
                                             {isBatchExpanded
                                                 ? 'Record the supplier, quantity, and unit cost.'
                                                 : 'Optional. You can receive stock later.'}
@@ -431,7 +431,7 @@ export default function InventoryFormModal({
                                                     isDisabled={processing}
                                                 />
                                                 {errors.supplier_id && (
-                                                    <p id="inventory_supplier_id-error" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
+                                                    <p id="inventory_supplier_id-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
                                                         {errors.supplier_id}
                                                     </p>
                                                 )}
@@ -451,7 +451,7 @@ export default function InventoryFormModal({
                                                         placeholder={data.supplier_id ? 'Generating SKU...' : 'Auto-generated with vendor'}
                                                         aria-invalid={Boolean(errors.supplier_stock_no)}
                                                         aria-describedby={errors.supplier_stock_no ? 'inventory_supplier_stock_no-error' : undefined}
-                                                        className={`w-full px-3 py-2 pr-8 bg-gray-50 dark:bg-slate-800/60 border rounded-lg text-sm font-mono font-medium text-gray-900 dark:text-slate-100 cursor-not-allowed ${
+                                                        className={`w-full px-3 py-2 pr-8 bg-gray-50 dark:bg-slate-800/60 border rounded-lg text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 cursor-not-allowed ${
                                                             errors.supplier_stock_no ? 'border-red-300 dark:border-red-700' : 'border-gray-200 dark:border-slate-700'
                                                         }`}
                                                     />
@@ -464,7 +464,7 @@ export default function InventoryFormModal({
                                                     </div>
                                                 </div>
                                                 {errors.supplier_stock_no && (
-                                                    <p id="inventory_supplier_stock_no-error" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
+                                                    <p id="inventory_supplier_stock_no-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
                                                         {errors.supplier_stock_no}
                                                     </p>
                                                 )}
@@ -491,12 +491,12 @@ export default function InventoryFormModal({
                                                     disabled={processing}
                                                     aria-invalid={Boolean(errors.stock)}
                                                     aria-describedby={errors.stock ? 'inventory_stock-error' : undefined}
-                                                    className={`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm font-mono font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${
+                                                    className={`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${
                                                         errors.stock ? 'border-red-300 dark:border-red-700' : 'border-gray-300 dark:border-slate-700'
                                                     }`}
                                                 />
                                                 {errors.stock && (
-                                                    <p id="inventory_stock-error" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
+                                                    <p id="inventory_stock-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
                                                         {errors.stock}
                                                     </p>
                                                 )}
@@ -524,12 +524,12 @@ export default function InventoryFormModal({
                                                     disabled={processing}
                                                     aria-invalid={Boolean(errors.unit_cost)}
                                                     aria-describedby={errors.unit_cost ? 'inventory_unit_cost-error' : undefined}
-                                                    className={`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm font-mono font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${
+                                                    className={`w-full px-3 py-2.5 bg-white dark:bg-slate-800 border rounded-lg text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-900/20 focus:border-red-900 ${
                                                         errors.unit_cost ? 'border-red-300 dark:border-red-700' : 'border-gray-300 dark:border-slate-700'
                                                     }`}
                                                 />
                                                 {errors.unit_cost && (
-                                                    <p id="inventory_unit_cost-error" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
+                                                    <p id="inventory_unit_cost-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
                                                         {errors.unit_cost}
                                                     </p>
                                                 )}
@@ -539,7 +539,7 @@ export default function InventoryFormModal({
                                                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                                     Batch Total
                                                 </label>
-                                                <div className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700 rounded-lg text-xs font-mono font-bold text-gray-900 dark:text-slate-100 flex items-center justify-between">
+                                                <div className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700 rounded-lg text-sm tabular-nums font-bold text-gray-900 dark:text-slate-100 flex items-center justify-between">
                                                     <span>₱</span>
                                                     <span>{computedBatchTotal.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                                 </div>

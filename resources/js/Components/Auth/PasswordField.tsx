@@ -70,7 +70,7 @@ export default function PasswordField({
                     )}
                 </button>
             </div>
-            <InputError message={error} className="mt-1.5 text-xs sm:text-sm font-medium text-red-700 dark:text-red-400 font-sans" />
+            <InputError message={error} className="mt-1.5 text-sm font-medium text-red-700 dark:text-red-400 font-sans" />
         </div>
     );
 }

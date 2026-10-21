@@ -10,7 +10,7 @@ export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerRe
     return (
         <div className="text-center py-8 px-5 bg-gradient-to-b from-gray-50/40 via-white to-gray-50/20 rounded-xl border border-gray-200/90 flex flex-col items-center justify-center relative overflow-hidden">
             {/* Target Item Ribbon */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-900 border border-red-100 text-xs font-medium mb-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-900 border border-red-100 text-sm font-medium mb-5">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-800 animate-pulse" />
                 <span>Target:</span>
                 <strong className="font-semibold truncate max-w-[200px]">{item.name}</strong>
@@ -28,16 +28,16 @@ export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerRe
 
             {/* Title & Status */}
             <div className="mt-4">
-                <h3 className="text-base font-semibold text-gray-900 font-serif">
+                <h3 className="text-lg font-semibold text-gray-900 font-sans">
                     Scanner Active & Listening
                 </h3>
-                <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1 leading-relaxed">
+                <p className="text-sm text-gray-500 max-w-sm mx-auto mt-1 leading-relaxed">
                     Present the physical RFID card or tag to the handheld reader trigger.
                 </p>
             </div>
 
             {/* Live listening status badge */}
-            <div className="mt-4 flex items-center gap-2 bg-emerald-50/80 px-3 py-1 rounded-full border border-emerald-200/70 text-[11px] font-mono text-emerald-800">
+            <div className="mt-4 flex items-center gap-2 bg-emerald-50/80 px-3 py-1 rounded-full border border-emerald-200/70 text-sm tabular-nums text-emerald-800">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>USB HID Reader Synchronized</span>
             </div>
@@ -45,7 +45,7 @@ export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerRe
             <div className="w-32 border-t border-gray-100 my-4" />
 
             {/* Manual entry fallback option */}
-            <div className="flex items-center justify-center gap-1.5 text-xs text-gray-500">
+            <div className="flex items-center justify-center gap-1.5 text-sm text-gray-500">
                 <span>Scanner unavailable?</span>
                 <button
                     type="button"

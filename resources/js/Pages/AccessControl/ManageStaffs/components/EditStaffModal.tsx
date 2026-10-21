@@ -130,8 +130,8 @@ export default function EditStaffModal({
                             <Edit2 className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 truncate">Edit Staff Account</h3>
-                            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 truncate">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 truncate">Edit Staff Account</h3>
+                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 truncate">
                                 Update credentials and system role for{' '}
                                 <strong className="text-gray-800 dark:text-slate-200 font-semibold">{staff.name}</strong>.
                             </p>
@@ -154,7 +154,7 @@ export default function EditStaffModal({
                         <div>
                             <label
                                 htmlFor="edit-staff-name"
-                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5"
+                                className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5"
                             >
                                 Full Name <span className="text-red-600">*</span>
                             </label>
@@ -178,7 +178,7 @@ export default function EditStaffModal({
                                 />
                             </div>
                             {errors.name && (
-                                <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.name}</p>
+                                <p className="leading-relaxed mt-1.5 text-sm text-red-600 font-medium">{errors.name}</p>
                             )}
                         </div>
 
@@ -186,7 +186,7 @@ export default function EditStaffModal({
                         <div>
                             <label
                                 htmlFor="edit-staff-email"
-                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5"
+                                className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5"
                             >
                                 Email Address
                             </label>
@@ -199,20 +199,20 @@ export default function EditStaffModal({
                                     id="edit-staff-email"
                                     value={data.email}
                                     readOnly
-                                    className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-850 text-gray-500 dark:text-slate-400 cursor-not-allowed select-none font-mono"
+                                    className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-850 text-gray-500 dark:text-slate-400 cursor-not-allowed select-none tabular-nums"
                                 />
                             </div>
                             {errors.email && (
-                                <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.email}</p>
+                                <p className="leading-relaxed mt-1.5 text-sm text-red-600 font-medium">{errors.email}</p>
                             )}
-                            <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">Email address cannot be modified after registration.</p>
+                            <p className="leading-relaxed mt-1 text-sm text-gray-400 dark:text-slate-500">Email address cannot be modified after registration.</p>
                         </div>
 
                         {/* System Role */}
                         <div>
                             <label
                                 htmlFor="edit-staff-role"
-                                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5"
+                                className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5"
                             >
                                 System Role <span className="text-red-600">*</span>
                             </label>
@@ -239,7 +239,7 @@ export default function EditStaffModal({
                                         readOnly
                                         className="w-full pl-3 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-850 text-gray-500 dark:text-slate-400 cursor-not-allowed select-none font-semibold"
                                     />
-                                    <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">
+                                    <p className="leading-relaxed mt-1 text-sm text-gray-400 dark:text-slate-500">
                                         {isSelf
                                             ? 'You cannot modify your own administrative role.'
                                             : 'Role modification requires administrative privileges.'}
@@ -247,7 +247,7 @@ export default function EditStaffModal({
                                 </div>
                             )}
                             {errors.role && (
-                                <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.role}</p>
+                                <p className="leading-relaxed mt-1.5 text-sm text-red-600 font-medium">{errors.role}</p>
                             )}
                         </div>
                     </div>
@@ -258,14 +258,14 @@ export default function EditStaffModal({
                             type="button"
                             onClick={handleClose}
                             disabled={processing}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={processing}
-                            className="w-full sm:w-auto px-5 py-2.5 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-xs font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 uppercase font-mono tracking-wider cursor-pointer"
+                            className="w-full sm:w-auto px-5 py-2.5 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-sm font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 normal-case tabular-nums tracking-normal cursor-pointer"
                         >
                             {processing ? (
                                 <>

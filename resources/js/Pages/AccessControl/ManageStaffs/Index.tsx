@@ -243,7 +243,7 @@ export default function StaffManagementIndex({
             >
                 <PageHeader
                     title="Staff Management"
-                    description="Manage university staff accounts, assign administrative roles, and configure access permissions."
+                    description="Manage staff accounts, roles, and permissions."
                     breadcrumbs={[{ name: 'Access Control' }, { name: 'Manage Staffs' }]}
                 />
 

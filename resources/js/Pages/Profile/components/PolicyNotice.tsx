@@ -15,20 +15,20 @@ export default function PolicyNotice({ className = '' }: Props) {
                     </div>
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-xs font-bold font-serif text-slate-900 uppercase tracking-wider">
+                            <h3 className="text-lg font-bold font-sans text-slate-900 normal-case tracking-normal">
                                 Institutional Account Accountability Policy
                             </h3>
-                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold border border-slate-200">
+                            <span className="text-sm tabular-nums px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold border border-slate-200">
                                 COA Circular 2020-006
                             </span>
                         </div>
-                        <p className="text-xs text-slate-600 leading-relaxed max-w-3xl">
+                        <p className="text-sm text-slate-600 leading-relaxed max-w-3xl">
                             Personnel custodial profiles cannot be self-deleted or deactivated. Under national accounting guidelines and SPMO regulations, custodial account identities are permanently preserved in the institutional ledger to ensure untampered property assignment trails. Role changes or status revisions require System Administrator clearance.
                         </p>
                     </div>
                 </div>
 
-                <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-[11px] text-slate-600 shrink-0 self-start">
+                <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-sm text-slate-600 shrink-0 self-start">
                     <FileCheck className="w-3.5 h-3.5 text-emerald-600" />
                     <span className="font-semibold text-slate-800">Ledger Immutability Enforced</span>
                 </div>

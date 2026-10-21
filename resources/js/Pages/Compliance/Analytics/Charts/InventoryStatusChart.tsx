@@ -71,7 +71,7 @@ export default function InventoryStatusChart({ statusCounts }: InventoryStatusCh
     if (total === 0) {
         return (
             <div className="h-64 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 p-6 text-center">
-                <p className="text-xs font-medium text-gray-500 dark:text-slate-400">No status records available.</p>
+                <p className="leading-relaxed text-sm font-medium text-gray-500 dark:text-slate-400">No status records available.</p>
             </div>
         );
     }
@@ -132,7 +132,7 @@ export default function InventoryStatusChart({ statusCounts }: InventoryStatusCh
                     <span className="text-2xl font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
                         {total.toLocaleString()}
                     </span>
-                    <span className="text-[11px] font-medium text-gray-500 dark:text-slate-400">
+                    <span className="text-sm font-medium text-gray-500 dark:text-slate-400">
                         Total Items
                     </span>
                 </div>
@@ -146,17 +146,17 @@ export default function InventoryStatusChart({ statusCounts }: InventoryStatusCh
                     return (
                         <div
                             key={item.label}
-                            className="flex items-center justify-between text-xs py-1 px-1.5 rounded hover:bg-gray-50 dark:hover:bg-slate-800/60 transition-colors"
+                            className="flex items-center justify-between text-sm py-1 px-1.5 rounded hover:bg-gray-50 dark:hover:bg-slate-800/60 transition-colors"
                         >
                             <div className="flex items-center gap-2">
                                 <span className={`h-2 w-2 rounded-full ${meta?.dotClass || 'bg-gray-400'}`} />
                                 <span className="font-medium text-gray-700 dark:text-slate-300">{item.label}</span>
                             </div>
                             <div className="flex items-center gap-3">
-                                <span className="font-semibold text-gray-900 dark:text-slate-100 font-mono">
+                                <span className="font-semibold text-gray-900 dark:text-slate-100 tabular-nums">
                                     {item.value.toLocaleString()}
                                 </span>
-                                <span className="text-[11px] text-gray-500 dark:text-slate-400 font-mono w-10 text-right">
+                                <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums w-10 text-right">
                                     {pct}%
                                 </span>
                             </div>

@@ -35,10 +35,10 @@ export default function OperationalAlertStrip({
                         </div>
                         <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
-                                <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-200/80 dark:bg-amber-900/80 text-amber-950 dark:text-amber-200 px-1.5 py-0.5 rounded">
+                                <span className="text-sm font-bold normal-case tracking-normal bg-amber-200/80 dark:bg-amber-900/80 text-amber-950 dark:text-amber-200 px-1.5 py-0.5 rounded">
                                     Optional RFID Tagging
                                 </span>
-                                <span className="text-xs font-semibold text-amber-950 dark:text-amber-200 truncate">
+                                <span className="text-sm font-semibold text-amber-950 dark:text-amber-200 truncate">
                                     {untaggedRfidCount} {untaggedRfidCount === 1 ? 'item is' : 'items are'} managed without RFID tags. Tagging is optional.
                                 </span>
                             </div>
@@ -47,7 +47,7 @@ export default function OperationalAlertStrip({
 
                     <Link
                         href={route('rfid-scanner.index')}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-950 dark:text-amber-200 hover:text-amber-900 dark:hover:text-amber-100 bg-amber-100/90 dark:bg-amber-900/60 hover:bg-amber-200/90 dark:hover:bg-amber-800/80 border border-amber-300/80 dark:border-amber-700 px-2.5 py-1 rounded-lg transition-colors shrink-0 self-start sm:self-auto"
+                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-950 dark:text-amber-200 hover:text-amber-900 dark:hover:text-amber-100 bg-amber-100/90 dark:bg-amber-900/60 hover:bg-amber-200/90 dark:hover:bg-amber-800/80 border border-amber-300/80 dark:border-amber-700 px-2.5 py-1 rounded-lg transition-colors shrink-0 self-start sm:self-auto"
                     >
                         <span>Manage RFID Hardware</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -64,10 +64,10 @@ export default function OperationalAlertStrip({
                         </div>
                         <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
-                                <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300 px-1.5 py-0.5 rounded">
+                                <span className="text-sm font-bold normal-case tracking-normal bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300 px-1.5 py-0.5 rounded">
                                     Supplier Notice
                                 </span>
-                                <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
+                                <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
                                     {pendingSupplierCount} supplier {pendingSupplierCount === 1 ? 'application requires' : 'applications require'} accreditation review
                                 </span>
                             </div>
@@ -76,7 +76,7 @@ export default function OperationalAlertStrip({
 
                     <Link
                         href={route('suppliers.index')}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 px-2.5 py-1 rounded-lg transition-colors shrink-0 self-start sm:self-auto"
+                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-900 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 px-2.5 py-1 rounded-lg transition-colors shrink-0 self-start sm:self-auto"
                     >
                         <span>Review Suppliers</span>
                         <ArrowRight className="w-3.5 h-3.5" />
