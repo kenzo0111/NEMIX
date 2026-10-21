@@ -63,7 +63,7 @@ export default function FullAuthLayout({
                                     <h1 className="text-sm sm:text-base font-sans font-bold uppercase text-stone-900 dark:text-slate-100 leading-snug break-words">
                                         {institutionName}
                                     </h1>
-                                    <p className="text-xs leading-snug text-stone-600 dark:text-slate-300 mt-1">{officeName}</p>
+                                    <p className="text-xs leading-snug text-stone-600 dark:text-slate-300">{officeName}</p>
                                 </div>
                             </div>
                             <h2 className="text-xl font-bold tracking-tight text-[#7B1113] dark:text-red-400 leading-snug mt-4">

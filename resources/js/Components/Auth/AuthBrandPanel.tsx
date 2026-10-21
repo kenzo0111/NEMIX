@@ -31,14 +31,14 @@ export default function AuthBrandPanel({
                     <div className="bg-white p-3 rounded-2xl shadow-xs shrink-0 flex items-center justify-center">
                         <ApplicationLogo alt={`${institutionName} Seal`} className="h-10 w-10 object-contain" />
                     </div>
-                    <div className="space-y-0.5 min-w-0">
+                    <div className="min-w-0">
                         <p className="leading-snug font-sans text-[11px] xl:text-xs uppercase tracking-wide text-amber-300 font-medium">
                             REPUBLIC OF THE PHILIPPINES
                         </p>
                         <h1 className="text-[14px] xl:text-[17px] font-sans font-bold uppercase leading-snug text-white tracking-tight whitespace-nowrap">
                             {institutionName}
                         </h1>
-                        <p className="leading-snug font-sans text-xs xl:text-sm text-white/85 font-normal pt-1">
+                        <p className="leading-snug font-sans text-xs xl:text-sm text-white/85 font-normal">
                             {officeName}
                         </p>
                     </div>
