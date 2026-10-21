@@ -24,7 +24,7 @@ export default function SidebarBrand({ collapsed = false, onCloseMobile }: Sideb
                     <p className="text-lg font-bold text-amber-300 leading-tight font-sans">
                         SupplySync
                     </p>
-                    <p className="mt-1 text-xs font-normal leading-snug text-red-100/90">
+                    <p className="mt-1 whitespace-nowrap text-[8px] font-normal leading-tight text-red-100/90 md:text-[9px]">
                         Supply and Property Management Office
                     </p>
                 </div>
