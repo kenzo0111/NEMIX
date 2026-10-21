@@ -227,4 +227,31 @@ class CoordinatorInventoryTest extends TestCase
             ->where('auth.capabilities.audit.transactions', false)->has('movements.data', 0));
         $this->actingAs($this->user('System Admin'))->get(route('audit-logs.transaction-trails'))->assertOk();
     }
+
+    public function test_coordinator_dashboard_renders_with_isolated_unit_metrics_and_request_pipeline(): void
+    {
+        $owner = $this->user();
+        $other = $this->user();
+        $custodian = $this->user('Property Custodian');
+        $ownRequest = $this->requestFor($owner);
+        $otherRequest = $this->requestFor($other);
+        $this->release($ownRequest, $custodian);
+        $this->release($otherRequest, $custodian);
+
+        $this->actingAs($owner)->get(route('dashboard'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Dashboard')
+                ->where('inventoryScope', 'coordinator')
+                ->where('coordinatorName', $owner->name)
+                ->has('summary')
+                ->has('movement')
+                ->has('movementSummary')
+                ->has('requestSummary')
+                ->has('recentReceiving')
+                ->has('recentIssuance')
+                ->has('criticalStock')
+                ->has('recentActivity')
+            );
+    }
 }

@@ -16,6 +16,7 @@ import RfidOverview from './Components/RfidOverview';
 import SupplierStatusCard from './Components/SupplierStatusCard';
 import ComplianceStatusCard from './Components/ComplianceStatusCard';
 import RecentSystemActivity from './Components/RecentSystemActivity';
+import CoordinatorDashboardWorkspace from './Components/CoordinatorDashboardWorkspace';
 
 export default function DashboardIndex({
     auth,
@@ -53,9 +54,8 @@ export default function DashboardIndex({
     const pendingSuppliers = supplierSummary?.pending ?? 0;
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white transition-colors">
-            <Head title="Supply & Inventory Management Dashboard" />
-
+        <div className={`min-h-screen ${isCoordinator ? 'bg-[#F5F6F8]' : 'bg-[#F4F6F8]'} dark:bg-slate-950 flex font-sans ${isCoordinator ? 'text-slate-900' : 'text-gray-900'} dark:text-slate-100 selection:bg-red-900 selection:text-white transition-colors`}>
+            <Head title={isCoordinator ? 'Delivery Unit Dashboard | Supply Coordinator' : 'Supply & Inventory Management Dashboard'} />
 
             <Sidebar
                 modules={modules}
@@ -65,88 +65,93 @@ export default function DashboardIndex({
             />
 
             <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
-                {/* Unified Sticky Header */}
-                <DashboardHeader />
-
-                {/* Dashboard Main Canvas with Clear 4-Tier Hierarchy */}
-                <div className="p-4 sm:p-5 lg:p-6 max-w-[1600px] mx-auto pb-10 lg:pb-12 min-w-0 w-full space-y-4">
-                    
-                    {/* Operational Alert Banner (e.g. Missing RFIDs / Supplier accreditation notices) */}
-                    <OperationalAlertStrip
-                        showRfidAlert={showRfidAlert}
-                        untaggedRfidCount={untaggedRfid}
-                        pendingSupplierCount={pendingSuppliers}
-                        criticalStockCount={criticalCount}
-                    />
-
-                    {/* ========================================================================= */}
-                    {/* TIER 1: IMMEDIATE OPERATIONAL STATUS (5 Unified Responsive Metrics)       */}
-                    {/* ========================================================================= */}
-                    <SystemSummary
+                {isCoordinator ? (
+                    <CoordinatorDashboardWorkspace
+                        auth={auth}
+                        coordinatorName={coordinatorName}
                         summary={summary}
                         stats={stats}
-                        criticalStockCount={criticalCount}
+                        movement={activeMovement}
+                        movementSummary={movementSummary}
+                        recentReceiving={recentReceiving}
+                        recentIssuance={recentIssuance}
+                        criticalStock={activeCriticalStock}
+                        recentActivity={activeRecentActivity}
+                        filters={filters}
+                        requestSummary={requestSummary}
                     />
+                ) : (
+                    <>
+                        {/* Unified Sticky Header */}
+                        <DashboardHeader />
 
-                    {/* ========================================================================= */}
-                    {/* TIER 2: OPERATIONAL ACTIVITY & ATTENTION                                 */}
-                    {/* ========================================================================= */}
-                    <section aria-label="Operational Activity and Stock Attention" className="space-y-4">
-                        {/* Dominant Visualization & Recent Operations */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-                            {/* Dominant Chart: 7 of 12 cols on desktop, full width on smaller screens */}
-                            <div className="lg:col-span-7 xl:col-span-8 flex flex-col">
-                                <InventoryMovementOverview
-                                    movement={activeMovement}
-                                    movementSummary={movementSummary}
-                                    currentFilter={filters?.chartFilter}
-                                />
-                            </div>
+                        {/* Dashboard Main Canvas with Clear 4-Tier Hierarchy */}
+                        <div className="p-4 sm:p-5 lg:p-6 max-w-[1600px] mx-auto pb-10 lg:pb-12 min-w-0 w-full space-y-4">
+                            {/* Operational Alert Banner (e.g. Missing RFIDs / Supplier accreditation notices) */}
+                            <OperationalAlertStrip
+                                showRfidAlert={showRfidAlert}
+                                untaggedRfidCount={untaggedRfid}
+                                pendingSupplierCount={pendingSuppliers}
+                                criticalStockCount={criticalCount}
+                            />
 
-                            {/* Recent Operations: Stacked 4-row compact cards */}
-                            <div className="lg:col-span-5 xl:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-                                <RecentReceiving receivings={recentReceiving} />
-                                <RecentIssuance issuances={recentIssuance} />
-                            </div>
+                            {/* ========================================================================= */}
+                            {/* TIER 1: IMMEDIATE OPERATIONAL STATUS (5 Unified Responsive Metrics)       */}
+                            {/* ========================================================================= */}
+                            <SystemSummary
+                                summary={summary}
+                                stats={stats}
+                                criticalStockCount={criticalCount}
+                            />
+
+                            {/* ========================================================================= */}
+                            {/* TIER 2: OPERATIONAL ACTIVITY & ATTENTION                                 */}
+                            {/* ========================================================================= */}
+                            <section aria-label="Operational Activity and Stock Attention" className="space-y-4">
+                                {/* Dominant Visualization & Recent Operations */}
+                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+                                    {/* Dominant Chart: 7 of 12 cols on desktop, full width on smaller screens */}
+                                    <div className="lg:col-span-7 xl:col-span-8 flex flex-col">
+                                        <InventoryMovementOverview
+                                            movement={activeMovement}
+                                            movementSummary={movementSummary}
+                                            currentFilter={filters?.chartFilter}
+                                        />
+                                    </div>
+
+                                    {/* Recent Operations: Stacked 4-row compact cards */}
+                                    <div className="lg:col-span-5 xl:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+                                        <RecentReceiving receivings={recentReceiving} />
+                                        <RecentIssuance issuances={recentIssuance} />
+                                    </div>
+                                </div>
+
+                                {/* Actionable Critical Stock Table */}
+                                <div>
+                                    <CriticalStockOverview items={activeCriticalStock} />
+                                </div>
+                            </section>
+
+                            {/* ========================================================================= */}
+                            {/* TIER 3: ADMINISTRATIVE STATUS (Matched Height 3-Column Row)              */}
+                            {/* ========================================================================= */}
+                            <section aria-label="Administrative Status">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+                                    <RfidOverview rfidSummary={rfidSummary} />
+                                    <SupplierStatusCard summary={supplierSummary} />
+                                    <ComplianceStatusCard summary={complianceSummary} />
+                                </div>
+                            </section>
+
+                            {/* ========================================================================= */}
+                            {/* TIER 4: AUDIT / SUPPORTING ACTIVITY (Compact Low-Profile Feed)           */}
+                            {/* ========================================================================= */}
+                            <section aria-label="Recent System Activity">
+                                <RecentSystemActivity activities={activeRecentActivity} />
+                            </section>
                         </div>
-
-                        {/* Actionable Critical Stock Table */}
-                        <div>
-                            <CriticalStockOverview items={activeCriticalStock} />
-                        </div>
-                    </section>
-
-                    {/* ========================================================================= */}
-                    {/* TIER 3: ADMINISTRATIVE STATUS (Matched Height 3-Column Row)              */}
-                    {/* ========================================================================= */}
-                    {!isCoordinator && <section aria-label="Administrative Status">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
-                            <RfidOverview rfidSummary={rfidSummary} />
-                            <SupplierStatusCard summary={supplierSummary} />
-                            <ComplianceStatusCard summary={complianceSummary} />
-                        </div>
-                    </section>}
-
-                    {isCoordinator && <section aria-label="Delivery Unit requests" className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-4">
-                        <h2 className="text-xl font-semibold">{coordinatorName} · Delivery Unit Inventory</h2>
-                        <div className="flex flex-wrap gap-4 text-sm">
-                            {['Pending', 'Approved', 'Issued', 'Rejected', 'Cancelled'].map(status => <span key={status}>{status}: <strong>{requestSummary[status] ?? 0}</strong></span>)}
-                        </div>
-                        <div className="flex flex-wrap gap-4 text-sm font-semibold text-red-900 dark:text-red-300">
-                            <Link href={route('inventory.requests.index')}>Request from Supply Office</Link>
-                            <Link href={route('coordinator.catalog.index')}>Browse Central Supply Catalog</Link>
-                            <Link href={route('coordinator.inventory.index')}>Manage Unit Inventory & Generate Stock Cards</Link>
-                        </div>
-                    </section>}
-
-                    {/* ========================================================================= */}
-                    {/* TIER 4: AUDIT / SUPPORTING ACTIVITY (Compact Low-Profile Feed)           */}
-                    {/* ========================================================================= */}
-                    <section aria-label="Recent System Activity">
-                        <RecentSystemActivity activities={activeRecentActivity} />
-                    </section>
-
-                </div>
+                    </>
+                )}
             </main>
         </div>
     );
