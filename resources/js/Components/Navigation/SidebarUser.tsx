@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
-import { LogOut, PanelLeftClose, PanelLeftOpen, User } from 'lucide-react';
+import { LogOut, PanelLeftClose, PanelLeftOpen, Settings, User } from 'lucide-react';
 import { SidebarUser as UserType } from '@/types/navigation';
 import ThemeToggle from '@/Components/ThemeToggle';
 
@@ -9,6 +9,7 @@ interface SidebarUserProps {
     collapsed?: boolean;
     onToggleCollapse?: () => void;
     onOpenLogoutModal: () => void;
+    coordinator?: boolean;
 }
 
 export default function SidebarUser({
@@ -16,6 +17,7 @@ export default function SidebarUser({
     collapsed = false,
     onToggleCollapse,
     onOpenLogoutModal,
+    coordinator = false,
 }: SidebarUserProps) {
     const isAccountSettingsActive = Boolean(
         typeof route === 'function' &&
@@ -23,7 +25,7 @@ export default function SidebarUser({
     );
 
     const userName = user?.name || 'Administrator';
-    const userRole = user?.primary_role || user?.role || 'Supply Officer';
+    const userRole = user?.primary_role || user?.role || (coordinator ? 'Supply Coordinator' : 'Supply Officer');
     const initial = userName.charAt(0).toUpperCase() || 'U';
 
     if (collapsed) {
@@ -75,6 +77,32 @@ export default function SidebarUser({
                 >
                     <LogOut className="w-4 h-4" />
                 </button>
+            </div>
+        );
+    }
+
+    if (coordinator) {
+        return (
+            <div className="relative z-10 space-y-2 border-t border-red-900/60 bg-red-950/70 p-3">
+                <div className="flex items-center gap-3 px-2 py-2">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-400/25 bg-red-900 text-sm font-semibold text-white">{initial}</span>
+                    <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-white" title={userName}>{userName}</p>
+                        <p className="mt-0.5 truncate text-xs text-amber-300" title={userRole}>{userRole}</p>
+                    </div>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                    <Link href={route('profile.edit')} aria-current={isAccountSettingsActive ? 'page' : undefined} className={`flex min-h-10 flex-1 items-center gap-3 rounded-lg px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 ${isAccountSettingsActive ? 'bg-red-900/60 text-white' : 'text-red-200/80 hover:bg-white/5 hover:text-white'}`}>
+                        <Settings size={18} aria-hidden="true" />Account settings
+                    </Link>
+                    <ThemeToggle variant="compact" placement="right-end" />
+                </div>
+                <div className="flex items-center justify-between gap-2 border-t border-red-900/40 pt-1">
+                    <button type="button" onClick={onOpenLogoutModal} className="flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm text-red-200/80 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+                        <LogOut size={18} aria-hidden="true" />Sign Out
+                    </button>
+                    {onToggleCollapse && <button type="button" onClick={onToggleCollapse} aria-label="Collapse sidebar" title="Collapse sidebar" className="hidden h-10 w-10 items-center justify-center rounded-lg text-red-200/70 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 md:inline-flex"><PanelLeftClose size={17} aria-hidden="true" /></button>}
+                </div>
             </div>
         );
     }

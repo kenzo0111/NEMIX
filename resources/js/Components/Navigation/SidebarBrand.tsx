@@ -4,15 +4,16 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 interface SidebarBrandProps {
     collapsed?: boolean;
     onCloseMobile?: () => void;
+    coordinator?: boolean;
 }
 
-export default function SidebarBrand({ collapsed = false, onCloseMobile }: SidebarBrandProps) {
+export default function SidebarBrand({ collapsed = false, onCloseMobile, coordinator = false }: SidebarBrandProps) {
     return (
         <div className="p-4 border-b border-red-900/60 relative z-10 flex items-center justify-between h-20 gap-3 px-4 overflow-hidden bg-red-950/40 select-none">
             <div className="flex items-center gap-3 min-w-0">
                 <div className="shrink-0 flex items-center justify-center">
-                    <div className="w-10 h-10 rounded-full bg-white p-1 border border-amber-400/40 shadow-sm flex items-center justify-center">
-                        <ApplicationLogo className="w-7 h-7 object-contain" alt="UCN Crest" />
+                    <div className={`w-10 h-10 bg-white p-1 border border-amber-400/40 shadow-sm flex items-center justify-center ${coordinator ? 'rounded-xl' : 'rounded-full'}`}>
+                        <ApplicationLogo className="w-7 h-7 object-contain" alt="SupplySync" />
                     </div>
                 </div>
 
@@ -24,8 +25,8 @@ export default function SidebarBrand({ collapsed = false, onCloseMobile }: Sideb
                     <p className="text-lg font-bold text-white leading-tight font-sans">
                         SupplySync
                     </p>
-                    <p className="text-sm text-amber-300 font-medium leading-normal">
-                        Supply management
+                    <p className={`${coordinator ? 'text-xs text-red-200 font-normal' : 'text-sm text-amber-300 font-medium'} leading-normal`}>
+                        Supply Management
                     </p>
                 </div>
             </div>

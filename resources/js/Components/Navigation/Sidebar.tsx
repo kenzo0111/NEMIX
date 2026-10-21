@@ -14,6 +14,7 @@ import SidebarUser from './SidebarUser';
 import SignOutDialog from './SignOutDialog';
 import SupplyRequestAlerts from './SupplyRequestAlerts';
 import useAuthorization from '@/Hooks/useAuthorization';
+import { ArrowLeftRight } from 'lucide-react';
 
 export default function Sidebar({
     modules: initialModules,
@@ -24,9 +25,10 @@ export default function Sidebar({
     activeModule,
     activeSubmodule,
 }: SidebarProps) {
-    const pageProps = usePage<PageProps>().props;
+    const { props: pageProps, url: pageUrl } = usePage<PageProps>();
     const authUser = propUser || (pageProps.auth?.user as SidebarUserType | undefined);
     const capabilities = pageProps.auth?.capabilities;
+    const isCoordinator = Boolean(capabilities?.coordinatorInventory);
     const isSystemAdmin = pageProps.auth?.is_system_admin ?? false;
     const { canAny } = useAuthorization();
 
@@ -71,6 +73,42 @@ export default function Sidebar({
             })
             .filter((mod): mod is SidebarModule => mod !== null);
     }, [rawModules, capabilities, isSystemAdmin]);
+
+    const navigationGroups = useMemo(() => {
+        if (!isCoordinator) {
+            return (['overview', 'logistics', 'governance'] as const).map(key => {
+                const items = filteredModules.filter(item => item.category === key);
+                return { key, title: items[0]?.categoryTitle || SIDEBAR_CATEGORIES[key].title, items };
+            });
+        }
+
+        const unitInventory = filteredModules.find(item => item.key === 'delivery-unit-inventory');
+        const params = new URLSearchParams(pageUrl.split('?')[1] || '');
+        const viewingHistory = params.get('tab') === 'history' || params.has('page');
+        const inventoryItems: SidebarModule[] = unitInventory ? [
+            { ...unitInventory, active: Boolean(unitInventory.active && !viewingHistory) },
+            {
+                ...unitInventory,
+                key: 'unit-stock-movements',
+                title: 'Stock Movements',
+                icon: ArrowLeftRight,
+                href: route('coordinator.inventory.index', { tab: 'history' }),
+                active: Boolean(unitInventory.active && viewingHistory),
+            },
+        ] : [];
+        const assignedKeys = new Set(['dashboard', 'delivery-unit-inventory', 'central-supply-catalog', 'my-requests']);
+        return [
+            { key: 'overview', title: 'Overview', items: filteredModules.filter(item => item.key === 'dashboard') },
+            { key: 'inventory', title: 'Inventory Management', items: inventoryItems },
+            {
+                key: 'requests', title: 'Catalog & Requests',
+                items: ['central-supply-catalog', 'my-requests'].flatMap(key =>
+                    filteredModules.filter(item => item.key === key).map(item => ({ ...item, title: key === 'central-supply-catalog' ? 'Supply Catalog' : 'My Requests' }))
+                ),
+            },
+            { key: 'administration', title: 'Administration', items: filteredModules.filter(item => !assignedKeys.has(item.key)) },
+        ];
+    }, [filteredModules, isCoordinator, pageUrl]);
 
     // Active module detection for accordion
     const activeModuleTitle = useMemo(() => {
@@ -160,9 +198,6 @@ export default function Sidebar({
         );
     };
 
-    // Category grouping in standard institutional order
-    const orderedCategoryKeys = ['overview', 'logistics', 'governance'] as const;
-
     return (
         <>
             {/* Mobile Backdrop */}
@@ -175,9 +210,11 @@ export default function Sidebar({
             )}
 
             <aside
+                aria-label={isCoordinator ? 'Supply coordinator navigation' : 'Main navigation'}
                 className={`
                     fixed inset-y-0 left-0 z-50 bg-red-950 border-r border-red-900/60
                     text-white shadow-xl transition-all duration-300 ease-in-out flex flex-col select-none overflow-x-hidden print:hidden
+                    ${isCoordinator ? 'bg-[radial-gradient(ellipse_at_bottom_left,_#7f1d1d55,_transparent_65%)]' : ''}
                     ${collapsed ? 'md:w-20' : 'md:w-72'}
                     ${mobileOpen ? 'w-72 translate-x-0' : 'w-72 -translate-x-full md:translate-x-0'}
                     ${className}
@@ -185,38 +222,32 @@ export default function Sidebar({
             >
                 {/* University Institutional Header */}
                 <SidebarBrand
+                    coordinator={isCoordinator}
                     collapsed={effectiveCollapsed}
                     onCloseMobile={() => setMobileOpen(false)}
                 />
 
                 {/* Main Navigation Body */}
-                <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-3 space-y-3 relative z-10 scrollbar-hide no-scrollbar">
+                <nav aria-label="Workspace pages" className={`flex-1 overflow-y-auto overflow-x-hidden py-3 px-3 relative z-10 scrollbar-hide no-scrollbar ${isCoordinator ? 'space-y-5' : 'space-y-3'}`}>
                     {canAny(['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release']) && capabilities?.inventory?.issuance && (
                         <SupplyRequestAlerts collapsed={effectiveCollapsed} onExpand={onToggleCollapse} />
                     )}
-                    {orderedCategoryKeys.map((catKey) => {
-                        const categoryModules = filteredModules.filter(
-                            (m) => m.category === catKey
-                        );
-
-                        if (categoryModules.length === 0) {
+                    {navigationGroups.map((group) => {
+                        if (group.items.length === 0) {
                             return null;
                         }
 
-                        const categoryTitle =
-                            categoryModules[0]?.categoryTitle ||
-                            SIDEBAR_CATEGORIES[catKey]?.title ||
-                            catKey;
-
                         return (
-                            <div key={catKey} className="space-y-1">
+                            <div key={group.key} className="space-y-1">
                                 <SidebarSection
-                                    title={categoryTitle}
+                                    title={group.title}
+                                    coordinator={isCoordinator}
                                     collapsed={effectiveCollapsed}
                                 />
 
-                                {categoryModules.map((item) => (
+                                {group.items.map((item) => (
                                     <SidebarItem
+                                        coordinator={isCoordinator}
                                         key={item.key}
                                         item={item}
                                         isExpanded={expandedModule === item.title}
@@ -231,6 +262,7 @@ export default function Sidebar({
 
                 {/* Institutional User Profile Footer & Collapse Controls */}
                 <SidebarUser
+                    coordinator={isCoordinator}
                     user={authUser}
                     collapsed={effectiveCollapsed}
                     onToggleCollapse={onToggleCollapse}

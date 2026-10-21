@@ -9,6 +9,7 @@ interface SidebarItemProps {
     isExpanded: boolean;
     onToggle: (title: string) => void;
     collapsed?: boolean;
+    coordinator?: boolean;
 }
 
 export default function SidebarItem({
@@ -16,6 +17,7 @@ export default function SidebarItem({
     isExpanded,
     onToggle,
     collapsed = false,
+    coordinator = false,
 }: SidebarItemProps) {
     const hasSubmodules = Boolean(item.submodules && item.submodules.length > 0);
     const isSubmoduleActive = Boolean(
@@ -35,10 +37,11 @@ export default function SidebarItem({
     const buttonContent = (
         <div
             className={`
-                relative w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150 cursor-pointer overflow-hidden
+                relative w-full flex items-center px-3 text-sm font-medium rounded-lg transition-colors duration-150 cursor-pointer overflow-hidden
+                ${coordinator ? 'min-h-11 py-2.5' : 'py-2'}
                 ${
                     isItemActive
-                        ? 'bg-red-900/60 text-white'
+                        ? coordinator ? 'bg-gradient-to-r from-red-800/80 to-red-900/60 text-white ring-1 ring-inset ring-red-400/15' : 'bg-red-900/60 text-white'
                         : 'text-red-200/80 hover:bg-white/5 hover:text-white'
                 }
             `}
@@ -46,13 +49,13 @@ export default function SidebarItem({
         >
             {/* Subtle Gold Left Border Indicator */}
             {isItemActive && (
-                <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-amber-400 rounded-r-sm" />
+                <span className={`absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-sm ${coordinator ? 'bg-red-300' : 'bg-amber-400'}`} />
             )}
 
             <div className="flex items-center gap-3 min-w-0 flex-1">
                 <span
                     className={`shrink-0 flex items-center justify-center transition-colors ${
-                        isItemActive ? 'text-amber-400' : 'text-red-300/80 group-hover:text-amber-300'
+                        isItemActive ? coordinator ? 'text-red-100' : 'text-amber-400' : 'text-red-300/80 group-hover:text-amber-300'
                     }`}
                 >
                     {renderIcon()}
@@ -100,6 +103,7 @@ export default function SidebarItem({
                 </button>
             ) : (
                 <Link
+                    aria-label={collapsed ? item.title : undefined}
                     href={item.href || '#'}
                     aria-current={item.active ? 'page' : undefined}
                     className="w-full block focus:outline-none focus:ring-1 focus:ring-amber-400/40 rounded-lg"

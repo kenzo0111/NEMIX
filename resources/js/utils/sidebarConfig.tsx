@@ -372,7 +372,7 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
 
         return {
             ...module,
-            active: isModuleActive,
+            active: module.active ?? isModuleActive,
             submodules,
         };
     });
