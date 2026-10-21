@@ -56,7 +56,7 @@ export default function FullAuthLayout({
                                 <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-stone-200 dark:border-slate-700 shadow-xs shrink-0 flex items-center justify-center">
                                     <ApplicationLogo alt={`${institutionName} Seal`} className="h-10 w-10 object-contain" />
                                 </div>
-                                <div className="min-w-0 text-center">
+                                <div className="min-w-0 text-left">
                                     <p className="text-[10px] sm:text-xs font-medium uppercase tracking-wide text-[#7B1113] dark:text-amber-300 mb-1">
                                         REPUBLIC OF THE PHILIPPINES
                                     </p>
