@@ -13,7 +13,7 @@ class SupplyRequestAlertController extends Controller
 {
     private function authorizeApprover(Request $request): void
     {
-        abort_unless(collect(['approve', 'reject', 'release'])->contains(
+        abort_unless($request->user()->requiresSupportingDocument() || collect(['approve', 'reject', 'release', 'verify-document'])->contains(
             fn ($action) => PermissionResolver::hasPermission($request->user(), 'route:inventory.requests.'.$action)
         ), 403);
     }
@@ -25,11 +25,14 @@ class SupplyRequestAlertController extends Controller
 
         $validated = $request->validate(['before' => ['sometimes', 'integer', 'min:1']]);
 
+        $before = isset($validated['before']) ? SupplyRequestAlert::where('user_id', $userId)->findOrFail($validated['before']) : null;
         $rows = SupplyRequestAlert::query()
             ->where('user_id', $userId)
-            ->when(isset($validated['before']), fn ($query) => $query->where('id', '<', $validated['before']))
+            ->when($before, fn ($query) => $query->where(fn ($older) => $older
+                ->where('updated_at', '<', $before->updated_at)
+                ->orWhere(fn ($same) => $same->where('updated_at', $before->updated_at)->where('id', '<', $before->id))))
             ->with(['supplyRequest.requester'])
-            ->orderByDesc('id')->limit(11)->get();
+            ->orderByDesc('updated_at')->orderByDesc('id')->limit(11)->get();
         $hasMore = $rows->count() > 10;
         $alerts = $rows->take(10)
             ->filter(fn ($alert) => $alert->supplyRequest !== null)
@@ -45,7 +48,7 @@ class SupplyRequestAlertController extends Controller
 
         return response()->json([
             'unread_count' => SupplyRequestAlert::query()->where('user_id', $userId)->whereNull('read_at')->count(),
-            'pending_count' => SupplyRequest::query()->where('status', 'Pending')->count(),
+            'pending_count' => SupplyRequest::query()->when($request->user()->usesCoordinatorInventory(), fn ($query) => $query->where('requested_by', $userId))->whereIn('status', ['Pending', 'Pending Verification', 'Under Review'])->count(),
             'alerts' => $alerts,
             'has_more' => $hasMore,
         ]);
@@ -57,6 +60,7 @@ class SupplyRequestAlertController extends Controller
         abort_unless($alert->user_id === $request->user()->id, 403);
 
         if ($alert->read_at === null) {
+            $alert->timestamps = false;
             $alert->update(['read_at' => now()]);
         }
 

@@ -21,6 +21,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('inventory/request-alerts', [SupplyRequestAlertController::class, 'index'])->name('inventory.request-alerts.index');
     Route::post('inventory/request-alerts/{alert}/read', [SupplyRequestAlertController::class, 'read'])->name('inventory.request-alerts.read');
     Route::get('inventory/my-requests/{supplyRequest}/ris.pdf', [SupplyRequestController::class, 'risPdf'])->name('inventory.requests.ris-pdf');
+    Route::get('inventory/my-requests/{supplyRequest}/supporting-document', [SupplyRequestController::class, 'document'])->name('inventory.requests.document');
+    Route::post('inventory/my-requests/{supplyRequest}/verify-document', [SupplyRequestController::class, 'verifyDocument'])->name('inventory.requests.verify-document');
+    Route::post('inventory/my-requests/{supplyRequest}/ready', [SupplyRequestController::class, 'ready'])->name('inventory.requests.ready');
     Route::post('inventory/my-requests', [SupplyRequestController::class, 'store'])->name('inventory.requests.store');
     Route::put('inventory/my-requests/{supplyRequest}', [SupplyRequestController::class, 'update'])->name('inventory.requests.update');
     Route::post('inventory/my-requests/{supplyRequest}/cancel', [SupplyRequestController::class, 'cancel'])->name('inventory.requests.cancel');

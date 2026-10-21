@@ -10,6 +10,7 @@ interface DashboardHeaderProps {
 }
 
 export default function DashboardHeader({ onToggleSidebar, coordinator }: DashboardHeaderProps) {
+    const isAuthorizedPersonnel = Boolean((usePage().props as any).auth?.capabilities?.requiresSupportingDocument);
     const system = (usePage().props as any).system;
     const isCoordinator = coordinator ?? ((usePage().props as any).inventoryScope === 'coordinator');
     const systemMode = system?.mode || 'LIVE PRODUCTION';
@@ -75,7 +76,7 @@ export default function DashboardHeader({ onToggleSidebar, coordinator }: Dashbo
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-0.5">
                             <span className={isCoordinator ? 'font-serif text-[11px] font-bold uppercase tracking-[0.1em] text-red-950 dark:text-red-300' : 'text-sm font-medium text-red-950 dark:text-red-400'}>
-                                {isCoordinator ? 'Delivery Unit · Supply Coordinator' : 'Supply & Property Management'}
+                                {isCoordinator ? (isAuthorizedPersonnel ? 'Delivery Unit · Authorized Personnel' : 'Delivery Unit · Supply Coordinator') : 'Supply & Property Management'}
                             </span>
                         </div>
                         <h1 className={`font-bold text-gray-900 dark:text-slate-100 tracking-tight break-words ${isCoordinator ? 'font-serif text-xl leading-tight sm:text-2xl' : 'font-sans text-2xl sm:text-3xl'}`}>

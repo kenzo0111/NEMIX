@@ -633,7 +633,7 @@ class InventoryController extends Controller
 
     public function issuance(Request $request)
     {
-        $canReviewRequests = collect(['approve', 'reject', 'release'])->contains(
+        $canReviewRequests = collect(['approve', 'reject', 'release', 'verify-document'])->contains(
             fn ($action) => \App\Services\AccessControl\PermissionResolver::hasPermission(
                 $request->user(), 'route:inventory.requests.'.$action
             )
@@ -801,7 +801,7 @@ class InventoryController extends Controller
             'focusRequestId' => $request->integer('request') ?: null,
             'issuances' => $transformed,
             'supplyRequests' => $canReviewRequests
-                ? SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'issuance.items.allocations.inventoryBatch'])
+                ? SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'documentVerifier', 'issuance.items.allocations.inventoryBatch'])
                     ->latest()->get()
                 : [],
             'canCreateIssuance' => auth()->user()->hasAnyRole(['System Admin', 'System Administrator'])

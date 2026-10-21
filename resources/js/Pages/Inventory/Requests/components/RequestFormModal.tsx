@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { useForm } from '@inertiajs/react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useForm, usePage } from '@inertiajs/react';
 import Select from 'react-select';
 import { FileSpreadsheet, X, Plus, Trash2 } from 'lucide-react';
 import Modal from '@/Components/Modal';
@@ -39,9 +39,13 @@ export function RequestFormModal({
     onClose,
     onSaved,
 }: RequestFormModalProps) {
+    const requiresDocument = Boolean((usePage().props as any).auth?.capabilities?.requiresSupportingDocument || request?.requires_supporting_document);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const divisionList = divisions && divisions.length > 0 ? divisions : FALLBACK_DIVISIONS;
 
     const form = useForm({
+        supporting_document: null as File | null,
+        supporting_document_type: '',
         recipient: '',
         date_requested: getLocalDateString(),
         department: '',
@@ -60,6 +64,8 @@ export function RequestFormModal({
 
         if (request) {
             form.setData({
+                supporting_document: null,
+                supporting_document_type: request?.supporting_document_type || '',
                 recipient: request.recipient || request.requester?.name || defaultRecipient,
                 date_requested: request.date_requested ? request.date_requested.slice(0, 10) : (request.created_at ? request.created_at.slice(0, 10) : getLocalDateString()),
                 department: request.department || '',
@@ -79,6 +85,8 @@ export function RequestFormModal({
             });
         } else {
             form.setData({
+                supporting_document: null,
+                supporting_document_type: '',
                 recipient: defaultRecipient,
                 date_requested: getLocalDateString(),
                 department: '',
@@ -94,6 +102,13 @@ export function RequestFormModal({
         }
         form.clearErrors();
     }, [show, request?.id, initialItemId, defaultRecipient, defaultApprovedBy, defaultApprovedByDesignation, defaultIssuedBy, defaultIssuedByDesignation]);
+
+    useEffect(() => {
+        if (!show || !form.data.supporting_document) { setPreviewUrl(null); return; }
+        const url = URL.createObjectURL(form.data.supporting_document);
+        setPreviewUrl(url);
+        return () => URL.revokeObjectURL(url);
+    }, [show, form.data.supporting_document]);
 
     // Selected division option for react-select
     const selectedDivisionOption = useMemo(() => {
@@ -156,6 +171,10 @@ export function RequestFormModal({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (requiresDocument && (!form.data.supporting_document_type || (!form.data.supporting_document && !request?.supporting_document_name))) {
+            form.setError('supporting_document', 'Select a document type and upload an approved supporting document.');
+            return;
+        }
         const validRows = form.data.items.filter((line) => line.item_id && line.quantity);
         if (validRows.length === 0) {
             form.setError('items', 'Please add at least one item with a valid requested quantity.');
@@ -181,7 +200,12 @@ export function RequestFormModal({
             },
         };
 
-        if (request) {
+        form.transform(data => data);
+        if (!requiresDocument) form.transform(({ supporting_document, supporting_document_type, ...data }) => data);
+        if (request && requiresDocument) {
+            form.transform(data => ({ ...data, _method: 'put' }));
+            form.post(route('inventory.requests.update', request.id), { ...options, forceFormData: true });
+        } else if (request) {
             form.put(route('inventory.requests.update', request.id), options);
         } else {
             form.post(route('inventory.requests.store'), options);
@@ -630,6 +654,37 @@ export function RequestFormModal({
                         </div>
                     </div>
 
+                    {requiresDocument && <section className="space-y-3 rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+                        <h4 className="font-semibold">Supporting Document</h4>
+                        <p className="text-sm text-slate-500">An approved supporting document is required before submission. This is proof of authorization, separate from the RIS. PDF, JPG, JPEG, or PNG, up to 10 MB.</p>
+                        <label className="block text-sm font-medium">Document type
+                            <select required value={form.data.supporting_document_type} onChange={e => form.setData('supporting_document_type', e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 dark:bg-slate-900">
+                                <option value="">Select document type</option>
+                                {['Approved MOA', 'Approved Research', 'Approved Letter', 'Others'].map(type => <option key={type}>{type}</option>)}
+                            </select>
+                        </label>
+                        <label className="block text-sm font-medium">Upload Approved Supporting Document
+                            <input key={`${request?.id || 'new'}-${show}`} type="file" accept=".pdf,.jpg,.jpeg,.png" required={!request?.supporting_document_name && !form.data.supporting_document} onChange={e => {
+                                const file = e.target.files?.[0] || null;
+                                form.clearErrors('supporting_document');
+                                if (file && (!/\.(pdf|jpe?g|png)$/i.test(file.name) || !['application/pdf', 'image/jpeg', 'image/png'].includes(file.type) || file.size > 10 * 1024 * 1024)) {
+                                    form.setData('supporting_document', null);
+                                    form.setError('supporting_document', 'Choose a PDF, JPG, JPEG, or PNG file no larger than 10 MB.');
+                                    e.target.value = '';
+                                    return;
+                                }
+                                form.setData('supporting_document', file);
+                            }} className="mt-2 block w-full text-sm" />
+                        </label>
+                        {form.errors.supporting_document_type && <p role="alert" className="text-sm text-red-600">{form.errors.supporting_document_type}</p>}
+                        {form.errors.supporting_document && <p role="alert" className="text-sm text-red-600">{form.errors.supporting_document}</p>}
+                        {form.data.supporting_document && <div className="flex flex-wrap items-center gap-3 text-sm">
+                            <span>{form.data.supporting_document.name}</span>
+                            {previewUrl && <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-red-900 dark:text-red-300">Preview</a>}
+                            <button type="button" onClick={() => { form.setData('supporting_document', null); const input = document.querySelector<HTMLInputElement>('input[type="file"]'); if (input) input.value = ''; }} className="font-semibold text-red-900 dark:text-red-300">Remove selection</button>
+                        </div>}
+                        {!form.data.supporting_document && request?.supporting_document_name && <p className="text-sm">Current: <a className="underline" href={route('inventory.requests.document', { supplyRequest: request.id, inline: 1 })} target="_blank" rel="noopener noreferrer">{request.supporting_document_name}</a>. Select a file to replace it.</p>}
+                    </section>}
                     {/* Footer Actions */}
                     <div className="pt-4 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
                         <button

@@ -32,8 +32,8 @@ export default function CoordinatorDashboardWorkspace({
     const historyHref = route('coordinator.inventory.index', { tab: 'history' });
     const requestHref = route('inventory.requests.index');
     const catalogHref = route('coordinator.catalog.index');
-    const pending = requestSummary.Pending ?? 0;
-    const approved = requestSummary.Approved ?? 0;
+    const pending = (requestSummary.Pending ?? 0) + (requestSummary['Pending Verification'] ?? 0) + (requestSummary['Under Review'] ?? 0) + (requestSummary['For Correction'] ?? 0);
+    const approved = (requestSummary.Approved ?? 0) + (requestSummary['Ready for Pickup'] ?? 0);
     const criticalCount = summary?.critical_stock ?? stats?.criticalAlerts ?? criticalStock.length;
     const metrics = [
         { label: 'Active requests', value: pending + approved, detail: `${pending} pending · ${approved} awaiting release`, href: requestHref, icon: FileText, tone: 'border-red-200 bg-red-50/50 dark:border-red-800/70 dark:bg-red-950/20', iconTone: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300' },

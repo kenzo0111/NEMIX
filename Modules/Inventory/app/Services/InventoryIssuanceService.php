@@ -81,7 +81,9 @@ class InventoryIssuanceService
                 $source = !empty($data['supply_request_id'])
                     ? SupplyRequest::whereKey($data['supply_request_id'])->lockForUpdate()->first()
                     : null;
-                if (!$source || $source->status !== 'Approved' || $source->issuance_id || $source->ris_number !== $risNumber
+                if (!$source || ($source->requires_supporting_document
+                        ? ($source->status !== 'Ready for Pickup' || !$source->document_verified_at)
+                        : $source->status !== 'Approved') || $source->issuance_id || $source->ris_number !== $risNumber
                     || Issuance::where('ris_number', $risNumber)->exists()) {
                     throw ValidationException::withMessages(['request' => 'This RIS number is not available for release.']);
                 }

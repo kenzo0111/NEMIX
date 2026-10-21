@@ -22,6 +22,7 @@ import CoordinatorRequestsWorkspace from './components/CoordinatorRequestsWorksp
 const PAGE_SIZE = 10;
 const statusOptions = [
     { value: '', label: 'All Statuses' },
+    ...['Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup', 'Released'].map(value => ({ value, label: value })),
     { value: 'Pending', label: 'Pending Review' },
     { value: 'Approved', label: 'Approved · Awaiting Release' },
     { value: 'Issued', label: 'Issued · Released' },
@@ -113,9 +114,9 @@ export default function MyRequests({
     const counts = useMemo(() => {
         return {
             total: requests.length,
-            pending: requests.filter((r) => r.status === 'Pending').length,
-            approved: requests.filter((r) => r.status === 'Approved').length,
-            issued: requests.filter((r) => r.status === 'Issued').length,
+            pending: requests.filter((r) => ['Pending', 'Pending Verification', 'For Correction', 'Under Review'].includes(r.status)).length,
+            approved: requests.filter((r) => ['Approved', 'Ready for Pickup'].includes(r.status)).length,
+            issued: requests.filter((r) => ['Issued', 'Released'].includes(r.status)).length,
             rejectedOrCancelled: requests.filter((r) => ['Rejected', 'Cancelled'].includes(r.status)).length,
         };
     }, [requests]);
@@ -123,7 +124,8 @@ export default function MyRequests({
     const filtered = useMemo(() => {
         const query = searchTerm.trim().toLowerCase();
         return requests.filter((request) => {
-            if (statusFilter && request.status !== statusFilter) return false;
+            const groupedStatuses: Record<string, string[]> = { Pending: ['Pending', 'Pending Verification', 'For Correction', 'Under Review'], Approved: ['Approved', 'Ready for Pickup'], Issued: ['Issued', 'Released'] };
+            if (statusFilter && !(groupedStatuses[statusFilter] || [statusFilter]).includes(request.status)) return false;
             if (!query) return true;
             return [
                 String(request.id),
@@ -175,7 +177,7 @@ export default function MyRequests({
     };
 
     const openRis = (request: SupplyRequest) => {
-        const issued = request.status === 'Issued';
+        const issued = ['Issued', 'Released'].includes(request.status);
         const recipientDesignation = request.recipient_designation?.trim() || request.issuance?.recipient_designation?.trim() || '';
         const lines = request.items
             .filter((line) => (line.approved_quantity ?? 0) > 0)
@@ -438,7 +440,7 @@ export default function MyRequests({
                                                 (sum, line) => sum + (line.approved_quantity ?? 0),
                                                 0
                                             );
-                                            const isReviewed = ['Approved', 'Issued'].includes(request.status);
+                                            const isReviewed = ['Approved', 'Issued', 'Ready for Pickup', 'Released'].includes(request.status);
                                             const hasQuantityAdjustment =
                                                 isReviewed &&
                                                 request.items.some(
@@ -563,7 +565,7 @@ export default function MyRequests({
                                                                 View
                                                             </button>
 
-                                                            {request.status === 'Pending' && can('inventory.requests.update') && (
+                                                            {['Pending', 'Pending Verification', 'For Correction'].includes(request.status) && can('inventory.requests.update') && (
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => openEdit(request)}
@@ -583,7 +585,7 @@ export default function MyRequests({
                                                                 </button>
                                                             )}
 
-                                                            {['Pending', 'Approved'].includes(request.status) && can('inventory.requests.cancel') && (
+                                                            {['Pending', 'Approved', 'Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup'].includes(request.status) && can('inventory.requests.cancel') && (
                                                                 <button
                                                                     type="button"
                                                                     disabled={busy === request.id}

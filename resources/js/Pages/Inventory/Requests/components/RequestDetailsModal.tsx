@@ -1,3 +1,4 @@
+import SupportingDocumentPanel from './SupportingDocumentPanel';
 import React from 'react';
 import { ClipboardList, X, FileText } from 'lucide-react';
 import Modal from '@/Components/Modal';
@@ -29,7 +30,7 @@ export function RequestDetailsModal({
 
     const totalRequested = request.items.reduce((sum, line) => sum + line.quantity, 0);
     const totalApproved = request.items.reduce((sum, line) => sum + (line.approved_quantity ?? 0), 0);
-    const isApprovedOrIssued = ['Approved', 'Issued'].includes(request.status);
+    const isApprovedOrIssued = ['Approved', 'Issued', 'Ready for Pickup', 'Released'].includes(request.status);
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Supply Request Details">
@@ -60,6 +61,7 @@ export function RequestDetailsModal({
                 </div>
 
                 <div className="p-6 overflow-y-auto space-y-6 text-sm">
+                    <SupportingDocumentPanel request={request} />
                     {/* Status & RIS Header */}
                     <div className="p-4 rounded-lg bg-gray-50/70 dark:bg-slate-800/40 border border-gray-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
                         <div>
@@ -218,7 +220,7 @@ export function RequestDetailsModal({
                     )}
 
                     {/* Issuance Release Details */}
-                    {request.status === 'Issued' && request.issuance && (
+                    {['Issued', 'Released'].includes(request.status) && request.issuance && (
                         <div className="p-4 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 space-y-2">
                             <h4 className="text-base font-bold normal-case tracking-normal text-emerald-900 dark:text-emerald-400 tabular-nums">
                                 Release & Distribution Details
@@ -249,9 +251,9 @@ export function RequestDetailsModal({
                         </div>
                     )}
 
-                    {request.status === 'Approved' && (
+                    {['Approved', 'Ready for Pickup'].includes(request.status) && (
                         <div className="rounded-lg border border-blue-200 dark:border-blue-900/60 bg-blue-50/60 dark:bg-blue-950/30 p-3 text-blue-900 dark:text-blue-300 text-sm">
-                            <p className="font-semibold mb-0.5">Approved & Ready for Pickup</p>
+                            <p className="font-semibold mb-0.5">{request.requires_supporting_document && request.status === 'Approved' ? 'Approved · Awaiting Pickup Preparation' : 'Approved & Ready for Pickup'}</p>
                             <p className="leading-relaxed text-sm text-blue-800 dark:text-blue-400">
                                 Please print the official Requisition and Issue Slip (RIS), acquire recipient signatures, and present it to the Property Office upon physical item release.
                             </p>

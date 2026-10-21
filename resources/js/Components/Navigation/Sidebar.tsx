@@ -243,7 +243,7 @@ export default function Sidebar({
 
                 {/* Main Navigation Body */}
                 <nav aria-label="Workspace pages" className={`flex-1 overflow-y-auto overflow-x-hidden py-3 px-3 relative z-10 scrollbar-hide no-scrollbar ${isCoordinator ? 'space-y-5' : 'space-y-3'}`}>
-                    {canAny(['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release']) && capabilities?.inventory?.issuance && (
+                    {((canAny(['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release', 'inventory.requests.verify-document']) && capabilities?.inventory?.issuance) || (capabilities as any)?.requiresSupportingDocument) && (
                         <SupplyRequestAlerts collapsed={effectiveCollapsed} onExpand={onToggleCollapse} />
                     )}
                     {navigationGroups.map((group) => {

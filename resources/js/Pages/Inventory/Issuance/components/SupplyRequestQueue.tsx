@@ -1,3 +1,5 @@
+import SupportingDocumentPanel from '../../Requests/components/SupportingDocumentPanel';
+import { SupplyRequest } from '../../Requests/types';
 import { PageProps } from '@/types';
 import React, { useState, useMemo, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
@@ -25,7 +27,13 @@ import useAuthorization from '@/Hooks/useAuthorization';
 
 export type QueueRequest = {
     id: number;
-    status: 'Pending' | 'Approved' | 'Issued' | 'Rejected' | 'Cancelled';
+    status: SupplyRequest['status'];
+    requires_supporting_document?: boolean;
+    supporting_document_type?: string | null;
+    supporting_document_name?: string | null;
+    document_verified_at?: string | null;
+    document_verification_remarks?: string | null;
+    document_verifier?: { name: string } | null;
     recipient?: string | null;
     recipient_designation?: string | null;
     fund_cluster?: string | null;
@@ -94,15 +102,15 @@ export function SupplyRequestQueue({
     const [actionError, setActionError] = useState<string | null>(null);
 
     // Filter counts
-    const pendingList = useMemo(() => requests.filter((r) => r.status === 'Pending'), [requests]);
-    const approvedList = useMemo(() => requests.filter((r) => r.status === 'Approved'), [requests]);
+    const pendingList = useMemo(() => requests.filter((r) => ['Pending', 'Pending Verification', 'Under Review', 'For Correction'].includes(r.status)), [requests]);
+    const approvedList = useMemo(() => requests.filter((r) => ['Approved', 'Ready for Pickup'].includes(r.status)), [requests]);
     const allList = requests;
 
     useEffect(() => {
         if (!focusRequestId) return;
         const focused = requests.find((request) => request.id === focusRequestId);
         if (!focused) return;
-        setActiveTab(focused.status === 'Pending' ? 'pending' : focused.status === 'Approved' ? 'approved' : 'all');
+        setActiveTab(['Pending', 'Pending Verification', 'Under Review', 'For Correction'].includes(focused.status) ? 'pending' : ['Approved', 'Ready for Pickup'].includes(focused.status) ? 'approved' : 'all');
         setSearchQuery(focused.ris_number || String(focusRequestId));
         const timer = window.setTimeout(() => document.getElementById(`supply-request-${focusRequestId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
         return () => window.clearTimeout(timer);
@@ -369,9 +377,9 @@ export function SupplyRequestQueue({
                     </div>
                 ) : (
                     filteredRequests.map((request) => {
-                        const isPending = request.status === 'Pending';
-                        const isApproved = request.status === 'Approved';
-                        const isIssued = request.status === 'Issued';
+                        const isPending = ['Pending', 'Under Review'].includes(request.status);
+                        const isApproved = ['Approved', 'Ready for Pickup'].includes(request.status);
+                        const isIssued = ['Issued', 'Released'].includes(request.status);
                         const isTerminal = ['Rejected', 'Cancelled'].includes(request.status);
                         const isBusy = busyId === request.id;
 
@@ -478,7 +486,7 @@ export function SupplyRequestQueue({
                                             </div>
 
                                             {/* Quantity adjustment helper buttons if reviewing/pending */}
-                                            {(isPending || isApproved) && canApprove && (
+                                            {(isPending || request.status === 'Approved') && canApprove && (
                                                 <div className="flex items-center gap-2 text-sm">
                                                     <span className="text-gray-400 text-sm hidden sm:inline">Quick Adjust:</span>
                                                     <button
@@ -556,7 +564,7 @@ export function SupplyRequestQueue({
 
                                                                 {/* Approved / Adjustable Qty */}
                                                                 <td className="px-3 py-3 text-right">
-                                                                    {(isPending || isApproved) && canApprove ? (
+                                                                    {(isPending || request.status === 'Approved') && canApprove ? (
                                                                         <div className="flex items-center justify-end gap-2">
                                                                             {isExceedingStock && (
                                                                                 <span
@@ -609,7 +617,7 @@ export function SupplyRequestQueue({
                                     </div>
 
                                     {/* Review Remarks Field (Custodian Notes) */}
-                                    {(isPending || isApproved) && canApprove && (
+                                    {(isPending || request.status === 'Approved') && canApprove && (
                                         <div className="space-y-1">
                                             <label
                                                 htmlFor={`remarks-${request.id}`}
@@ -642,6 +650,7 @@ export function SupplyRequestQueue({
                                         </div>
                                     )}
 
+                                    <SupportingDocumentPanel request={request} review />
                                     {/* Actions Bar for Pending Requisitions */}
                                     {isPending && (canApprove || canReject) && (
                                         <div className="pt-3 border-t border-gray-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
@@ -662,7 +671,7 @@ export function SupplyRequestQueue({
                                                     <span>Reject Requisition</span>
                                                 </button>}
 
-                                                {canApprove && <button
+                                                {canApprove && request.status !== 'Ready for Pickup' && <button
                                                     type="button"
                                                     disabled={isBusy}
                                                     onClick={() => handleApprove(request)}
@@ -699,7 +708,7 @@ export function SupplyRequestQueue({
                                                         <span>Preview / Print RIS</span>
                                                     </button>
 
-                                                    {canApprove && <button
+                                                    {canApprove && request.status !== 'Ready for Pickup' && <button
                                                         type="button"
                                                         disabled={isBusy}
                                                         onClick={() => handleApprove(request)}
@@ -712,7 +721,8 @@ export function SupplyRequestQueue({
                                             </div>
 
                                             {/* Release Confirmation */}
-                                            {canRelease && <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-blue-200/50 dark:border-blue-900/40">
+                                            {request.requires_supporting_document && request.status === 'Approved' && can('inventory.requests.ready') && <button type="button" disabled={isBusy} onClick={() => { setBusyId(request.id); router.post(route('inventory.requests.ready', request.id), {}, { preserveScroll: true, onError: errors => setActionError(Object.values(errors).join(' ')), onFinish: () => setBusyId(null) }); }} className="rounded-md bg-red-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Mark Ready for Pickup & Notify Requester</button>}
+                                            {canRelease && (!request.requires_supporting_document || request.status === 'Ready for Pickup') && <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-blue-200/50 dark:border-blue-900/40">
                                                 <label className="flex items-start sm:items-center gap-2 text-sm font-medium text-blue-950 dark:text-blue-200 cursor-pointer">
                                                     <input
                                                         type="checkbox"

@@ -72,6 +72,7 @@ class HandleInertiaRequests extends Middleware
 
             $capabilities = [
                 'dashboard' => true,
+                'requiresSupportingDocument' => $user->requiresSupportingDocument(),
                 'coordinatorInventory' => $user->usesCoordinatorInventory(),
                 'requests' => $hasPerm('inventory.requests.index', false),
                 'inventory' => [
@@ -80,7 +81,8 @@ class HandleInertiaRequests extends Middleware
                     'issuance' => $hasPerm('inventory.issuance', $defaultForStaff)
                         || $hasPerm('inventory.requests.approve')
                         || $hasPerm('inventory.requests.reject')
-                        || $hasPerm('inventory.requests.release'),
+                        || $hasPerm('inventory.requests.release')
+                        || $hasPerm('inventory.requests.verify-document'),
                     'requests' => $hasPerm('inventory.requests.index', false),
                 ],
                 'rfid' => [

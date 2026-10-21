@@ -21,12 +21,18 @@ export type RequestLine = {
 
 export type SupplyRequest = {
     id: number;
+    requires_supporting_document?: boolean;
+    supporting_document_type?: string | null;
+    supporting_document_name?: string | null;
+    document_verified_at?: string | null;
+    document_verification_remarks?: string | null;
+    document_verifier?: { name: string } | null;
     requested_by?: number;
     recipient?: string | null;
     recipient_designation?: string | null;
     fund_cluster?: string | null;
     date_requested?: string | null;
-    status: 'Pending' | 'Approved' | 'Rejected' | 'Cancelled' | 'Issued';
+    status: 'Pending' | 'Approved' | 'Rejected' | 'Cancelled' | 'Issued' | 'Pending Verification' | 'For Correction' | 'Under Review' | 'Ready for Pickup' | 'Released';
     department: string;
     purpose: string;
     ris_number: string | null;

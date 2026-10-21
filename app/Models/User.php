@@ -140,6 +140,11 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function usesCoordinatorInventory(): bool
     {
-        return ! $this->isSystemAdmin() && $this->hasRole('Supply Coordinator');
+        return ! $this->isSystemAdmin() && $this->hasAnyRole(['Supply Coordinator', 'Authorized Personnel']);
+    }
+
+    public function requiresSupportingDocument(): bool
+    {
+        return $this->hasRole('Authorized Personnel');
     }
 }

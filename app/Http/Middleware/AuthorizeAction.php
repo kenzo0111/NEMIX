@@ -47,8 +47,8 @@ class AuthorizeAction
         if ($user->usesCoordinatorInventory()
             && (Str::startsWith($routeName, ['compliance.', 'rfid-scanner.', 'suppliers.'])
                 || (Str::startsWith($routeName, 'inventory.')
-                    && ! Str::startsWith($routeName, 'inventory.requests.'))
-                || in_array($routeName, ['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release'], true))) {
+                    && ! Str::startsWith($routeName, ['inventory.requests.', 'inventory.request-alerts.']))
+                || in_array($routeName, ['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release', 'inventory.requests.verify-document', 'inventory.requests.ready'], true))) {
             abort(403);
         }
 
@@ -61,8 +61,8 @@ class AuthorizeAction
             return $next($request);
         }
 
-        if (in_array($routeName, ['inventory.issuance', 'inventory.request-alerts.index', 'inventory.request-alerts.read', 'inventory.requests.ris-pdf'], true)
-            && collect(['approve', 'reject', 'release'])->contains(
+        if (in_array($routeName, ['inventory.issuance', 'inventory.request-alerts.index', 'inventory.request-alerts.read', 'inventory.requests.ris-pdf', 'inventory.requests.document'], true)
+            && collect(['approve', 'reject', 'release', 'verify-document'])->contains(
                 fn ($action) => \App\Services\AccessControl\PermissionResolver::hasPermission($user, 'route:inventory.requests.'.$action)
             )) {
             return $next($request);
@@ -101,6 +101,7 @@ class AuthorizeAction
         $rfidPermissions = [
             'inventory.request-alerts.index' => 'route:inventory.issuance',
             'inventory.request-alerts.read' => 'route:inventory.issuance',
+            'inventory.requests.document' => 'route:inventory.requests.index',
             'inventory.requests.ris-pdf' => 'route:inventory.requests.index',
             'inventory.receiving.rfid.store' => 'route:inventory.receiving.store',
             'rfid-scanner.index' => 'rfid.view',

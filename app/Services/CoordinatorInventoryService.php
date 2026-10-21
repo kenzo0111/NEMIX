@@ -17,7 +17,7 @@ class CoordinatorInventoryService
 {
     public function receiveRelease(SupplyRequest $request, int $actorId): void
     {
-        if ($request->status !== 'Issued' || ! $request->issuance_id) {
+        if (!in_array($request->status, ['Issued', 'Released'], true) || ! $request->issuance_id) {
             throw ValidationException::withMessages(['request' => 'Only released requests can enter Delivery Unit inventory.']);
         }
         DB::transaction(function () use ($request, $actorId) {
@@ -167,7 +167,7 @@ class CoordinatorInventoryService
                     ];
                 })->values(), 'showRfidAlert' => false,
             'recentRequests' => SupplyRequest::where('requested_by', $user->id)->with('items.item')
-                ->orderByRaw("CASE WHEN status IN ('Pending', 'Approved') THEN 0 ELSE 1 END")
+                ->orderByRaw("CASE WHEN status IN ('Pending', 'Approved', 'Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup') THEN 0 ELSE 1 END")
                 ->latest('id')->take(4)->get()->map(fn ($request) => [
                     'id' => $request->id, 'reference' => $request->ris_number ?: 'Request #'.$request->id,
                     'status' => $request->status,

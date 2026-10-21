@@ -29,12 +29,12 @@ export default function CentralSupplyCatalog({ items, filters, lowStockThreshold
     });
 
     return <div className="min-h-screen bg-[#F5F6F8] font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-        <Head title="Central Supply Catalog | Supply Coordinator" />
+        <Head title={`Central Supply Catalog | ${auth.capabilities?.requiresSupportingDocument ? 'Authorized Personnel' : 'Supply Coordinator'}`} />
         <Sidebar modules={getSidebarModules()} user={auth.user} collapsed={collapsed} onToggleCollapse={toggle} />
         <main className={`min-w-0 transition-all duration-300 ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
             <CoordinatorPortalHeader />
             <div className="mx-auto max-w-[1600px] space-y-6 p-4 sm:p-7 lg:p-8">
-                <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300">Coordinator Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Central Supply Catalog</span></nav>
+                <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300">Delivery Unit Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Central Supply Catalog</span></nav>
                 <section className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
                     <div><p className="leading-relaxed mb-2 text-sm font-bold normal-case tracking-normal text-red-900 dark:text-red-300">Supply & Property Management Office</p><h1 className="text-2xl sm:text-3xl font-sans font-bold tracking-tight ">Central Supply Catalog</h1><p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Browse consumable supplies in the Supply Office and check what is available for your unit.</p></div>
                     <Link href={route('inventory.requests.index')} className={`${secondaryButton} self-start lg:self-auto`}><ClipboardList size={16} />My Requests<ArrowRight size={14} /></Link>

@@ -56,7 +56,7 @@ export default function DashboardIndex({
 
     return (
         <div className={`min-h-screen ${isCoordinator ? 'bg-[#F5F6F8]' : 'bg-[#F4F6F8]'} dark:bg-slate-950 flex font-sans ${isCoordinator ? 'text-slate-900' : 'text-gray-900'} dark:text-slate-100 selection:bg-red-900 selection:text-white transition-colors`}>
-            <Head title={isCoordinator ? 'Delivery Unit Dashboard | Supply Coordinator' : 'Supply & Inventory Management Dashboard'} />
+            <Head title={isCoordinator ? `Delivery Unit Dashboard | ${(auth as any).capabilities?.requiresSupportingDocument ? 'Authorized Personnel' : 'Supply Coordinator'}` : 'Supply & Inventory Management Dashboard'} />
 
             <Sidebar
                 modules={modules}

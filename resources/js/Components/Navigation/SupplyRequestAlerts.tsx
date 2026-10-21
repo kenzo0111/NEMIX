@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { Bell } from 'lucide-react';
 
@@ -27,11 +27,12 @@ export default function SupplyRequestAlerts({
     collapsed: boolean;
     onExpand?: () => void;
 }) {
+    const requester = Boolean((usePage().props as any).auth?.capabilities?.requiresSupportingDocument);
     const [data, setData] = useState<AlertResponse>({ unread_count: 0, pending_count: 0, alerts: [], has_more: false });
     const [open, setOpen] = useState(false);
     const [newAlert, setNewAlert] = useState<Alert | null>(null);
     const [loadingOlder, setLoadingOlder] = useState(false);
-    const previousIds = useRef<Set<number> | null>(null);
+    const previousIds = useRef<Set<string> | null>(null);
     const previousPending = useRef<number | null>(null);
 
     const refresh = useCallback(async () => {
@@ -39,14 +40,14 @@ export default function SupplyRequestAlerts({
             const response = await axios.get<AlertResponse>(route('inventory.request-alerts.index'));
             const next = response.data;
             if (previousIds.current !== null) {
-                const newest = next.alerts.find((alert) => !previousIds.current?.has(alert.id) && alert.status === 'Pending');
+                const newest = next.alerts.find((alert) => !previousIds.current?.has(`${alert.id}:${alert.status}`) && ['Pending', 'Pending Verification', 'For Correction', 'Ready for Pickup'].includes(alert.status));
                 if (newest) setNewAlert(newest);
             }
             if (previousPending.current !== null && previousPending.current !== next.pending_count
                 && route().current('inventory.issuance')) {
                 window.dispatchEvent(new Event('supply-requests-changed'));
             }
-            previousIds.current = new Set(next.alerts.map((alert) => alert.id));
+            previousIds.current = new Set(next.alerts.map((alert) => `${alert.id}:${alert.status}`));
             previousPending.current = next.pending_count;
             setData((current) => {
                 const seen = new Set(next.alerts.map((alert) => alert.id));
@@ -111,7 +112,7 @@ export default function SupplyRequestAlerts({
         }
         setNewAlert(null);
         setOpen(false);
-        router.visit(`${route('inventory.issuance')}?request=${alert.request_id}`);
+        router.visit(requester ? `${route('inventory.requests.index')}?request_id=${alert.request_id}` : `${route('inventory.issuance')}?request=${alert.request_id}`);
     };
 
     return (
@@ -155,7 +156,7 @@ export default function SupplyRequestAlerts({
             {newAlert && !collapsed && (
                 <button type="button" onClick={() => void openRequest(newAlert)} role="alert"
                     className="mt-2 w-full rounded-lg border border-amber-400 bg-amber-100 px-3 py-2 text-left text-sm font-semibold text-red-950 shadow-lg">
-                    New supply request: {newAlert.ris_number || `#${newAlert.request_id}`} · View request
+                    {requester ? newAlert.status : 'New supply request'}: {newAlert.ris_number || `#${newAlert.request_id}`} · View request
                 </button>
             )}
         </div>

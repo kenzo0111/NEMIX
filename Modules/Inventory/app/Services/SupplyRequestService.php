@@ -18,7 +18,7 @@ class SupplyRequestService
     {
         return (int) DB::table('supply_request_items as lines')
             ->join('supply_requests as requests', 'requests.id', '=', 'lines.supply_request_id')
-            ->where('requests.status', 'Approved')
+            ->whereIn('requests.status', ['Approved', 'Ready for Pickup'])
             ->where('lines.item_id', $itemId)
             ->when($exceptRequestId, fn ($query) => $query->where('requests.id', '<>', $exceptRequestId))
             ->sum('lines.approved_quantity');
@@ -38,7 +38,10 @@ class SupplyRequestService
             'event_key' => 'inventory.supply_request.' . strtolower(str_replace(' ', '_', $action)),
             'subject_type' => SupplyRequest::class,
             'subject_id' => (string) $request->id,
-            'metadata' => ['request_id' => $request->id, 'status' => $request->status, 'issuance_id' => $request->issuance_id],
+            'metadata' => ['request_id' => $request->id, 'status' => $request->status, 'issuance_id' => $request->issuance_id,
+                'document_type' => $request->supporting_document_type, 'document_name' => $request->supporting_document_name,
+                'document_verified_by' => $request->document_verified_by, 'document_verified_at' => $request->document_verified_at?->toIso8601String(),
+                'document_remarks' => $request->document_verification_remarks],
         ]);
     }
 
@@ -51,8 +54,11 @@ class SupplyRequestService
     {
         DB::transaction(function () use ($request, $quantities, $reviewerId, $remarks) {
             $request = SupplyRequest::whereKey($request->id)->lockForUpdate()->firstOrFail();
-            if (!in_array($request->status, ['Pending', 'Approved'], true)) {
+            if (!in_array($request->status, ['Pending', 'Under Review', 'Approved'], true)) {
                 throw ValidationException::withMessages(['request' => 'Only pending or approved requests can be reviewed.']);
+            }
+            if ($request->requires_supporting_document && (!$request->document_verified_at || !$request->document_verified_by || !$request->supporting_document_path)) {
+                throw ValidationException::withMessages(['request' => 'The supporting document must be verified before inventory approval.']);
             }
             $revising = $request->status === 'Approved';
 
@@ -90,7 +96,9 @@ class SupplyRequestService
     {
         DB::transaction(function () use ($request, $issuerId) {
             $request = SupplyRequest::whereKey($request->id)->lockForUpdate()->firstOrFail();
-            if ($request->status !== 'Approved' || $request->issuance_id) {
+            if (($request->requires_supporting_document
+                ? ($request->status !== 'Ready for Pickup' || !$request->document_verified_at)
+                : $request->status !== 'Approved') || $request->issuance_id) {
                 throw ValidationException::withMessages(['request' => 'This request is not awaiting release.']);
             }
 
@@ -115,7 +123,7 @@ class SupplyRequestService
                 'issued_by_position' => $signatories['issued_by_position'],
             ], $lines, $issuerId);
 
-            $request->update(['status' => 'Issued', 'issuance_id' => $issuance->id, 'released_at' => now()]);
+            $request->update(['status' => $request->requires_supporting_document ? 'Released' : 'Issued', 'issuance_id' => $issuance->id, 'released_at' => now()]);
             if ($request->requester->usesCoordinatorInventory()) {
                 app(\App\Services\CoordinatorInventoryService::class)->receiveRelease($request, $issuerId);
             }
