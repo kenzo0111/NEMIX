@@ -1,76 +1,65 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { useMemo, useState } from 'react';
+import { ArrowRight, Boxes, ChevronRight, ClipboardList, FileText, History, Menu, Package, Plus, Search, Wallet, X } from 'lucide-react';
 import Sidebar from '@/Components/Sidebar';
+import ThemeToggle from '@/Components/ThemeToggle';
 import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import DashboardHeader from '@/Pages/Dashboard/Components/DashboardHeader';
+import IssueDialog from './components/IssueDialog';
+import StockCardDialog from './components/StockCardDialog';
+import StockList from './components/StockList';
+import TransactionHistory, { MovementPage } from './components/TransactionHistory';
+import { Stock, money, panel, secondaryButton } from './inventory';
 
-interface Stock { id: number; name: string; sku: string; unit: string; quantity: number; value: string; }
-interface Movement { id: number; type: string; quantity: number; date: string; reference: string; office: string; stock: Stock; }
-interface Props {
-    stocks: Stock[];
-    movements: { data: Movement[]; links: { url: string | null; label: string; active: boolean }[] };
-}
+interface Props { stocks: Stock[]; lowStockThreshold: number; movements: MovementPage; }
 
-export default function CoordinatorInventory({ stocks, movements }: Props) {
-    const { auth, flash } = usePage<any>().props;
+export default function CoordinatorInventory({ stocks, movements, lowStockThreshold }: Props) {
+    const { auth, branding } = usePage<any>().props;
     const [collapsed, toggle] = useSidebarCollapse();
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const form = useForm({ stock_id: '', quantity: '', recipient: '' });
+    const [tab, setTab] = useState<'inventory' | 'history'>(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('page') ? 'history' : 'inventory');
+    const [search, setSearch] = useState('');
+    const [filter, setFilter] = useState('all');
     const [issueStock, setIssueStock] = useState<Stock | null>(null);
-    const invalidRange = Boolean(startDate && endDate && endDate < startDate);
-    const inputStyle = 'rounded-lg border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white text-sm w-full';
-    const cardStyle = 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4';
+    const [reportStock, setReportStock] = useState<Stock | null>(null);
+    const filteredStocks = useMemo(() => stocks.filter(stock => {
+        const matchesSearch = `${stock.name} ${stock.sku}`.toLowerCase().includes(search.trim().toLowerCase());
+        return matchesSearch && (filter === 'all' || (filter === 'available' && stock.quantity > lowStockThreshold)
+            || (filter === 'low' && stock.quantity > 0 && stock.quantity <= lowStockThreshold) || (filter === 'empty' && stock.quantity <= 0));
+    }), [stocks, search, filter, lowStockThreshold]);
+    const available = stocks.filter(stock => stock.quantity > 0).length;
+    const low = stocks.filter(stock => stock.quantity <= lowStockThreshold).length;
+    const totalValue = stocks.reduce((total, stock) => total + Number(stock.value), 0);
 
-    return <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 text-gray-900 dark:text-slate-100">
-        <Head title="Delivery Unit Inventory & Stock Cards" />
-        <Sidebar modules={getSidebarModules('Unit Inventory & Stock Cards')} user={auth.user} collapsed={collapsed} onToggleCollapse={toggle} />
-        <main className={`transition-all ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
-            <DashboardHeader />
-            <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-5">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div><h1 className="text-2xl font-bold">Delivery Unit Inventory & Stock Cards</h1>
-                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{auth.user.name} · Supplies released by the Supply Office appear here automatically.</p></div>
-                    <Link className="rounded-lg bg-red-900 px-4 py-2 text-white text-sm font-semibold" href={route('inventory.requests.index')}>Request Supplies</Link>
-                </div>
-                {flash?.success && <p role="status" className="rounded-lg bg-emerald-50 text-emerald-900 p-4">{flash.success}</p>}
-                <section className={cardStyle} aria-label="Unit stock and automated Stock Cards">
-                    <div className="flex flex-wrap items-end gap-4">
-                        <div className="flex-1 min-w-48"><h2 className="text-lg font-semibold">Your Inventory</h2><p className="text-sm text-slate-500 mt-1">Generate a Stock Card from recorded receipts and unit issues.</p></div>
-                        <label className="text-sm space-y-1">Stock Card from<input type="date" aria-label="Stock Card start date" value={startDate} onChange={e => setStartDate(e.target.value)} className={inputStyle} /></label>
-                        <label className="text-sm space-y-1">Through<input type="date" aria-label="Stock Card end date" value={endDate} min={startDate} onChange={e => setEndDate(e.target.value)} className={inputStyle} /></label>
-                    </div>
-                    {invalidRange && <p role="alert" className="text-sm text-red-700">The end date must be on or after the start date.</p>}
-                    <div className="overflow-x-auto"><table className="w-full text-sm text-left">
-                        <thead className="border-b border-slate-200 dark:border-slate-700"><tr>{['Item', 'Stock No.', 'On Hand', 'Value', 'Actions'].map(label => <th key={label} className="p-3 font-semibold">{label}</th>)}</tr></thead>
-                        <tbody>{stocks.map(stock => <tr key={stock.id} className="border-b border-slate-100 dark:border-slate-800">
-                            <td className="p-3 font-medium">{stock.name}</td><td className="p-3">{stock.sku}</td><td className="p-3 whitespace-nowrap">{stock.quantity} {stock.unit}</td>
-                            <td className="p-3">₱{Number(stock.value).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                            <td className="p-3"><div className="flex gap-4 whitespace-nowrap">
-                                <button type="button" disabled={stock.quantity <= 0} className="text-red-900 dark:text-red-300 font-semibold disabled:opacity-40" onClick={() => { setIssueStock(stock); form.setData({ stock_id: String(stock.id), quantity: '', recipient: '' }); form.clearErrors(); }}>Record Issue</button>
-                                {!invalidRange && <a className="text-red-900 dark:text-red-300 font-semibold" href={route('coordinator.inventory.stock-card', { stock: stock.id, ...(startDate ? { start_date: startDate } : {}), ...(endDate ? { end_date: endDate } : {}) })}>Download Stock Card</a>}
-                            </div></td>
-                        </tr>)}</tbody>
-                    </table>{stocks.length === 0 && <p className="p-8 text-center text-slate-500">No supplies received yet. Approved requests appear after the Supply Office releases them.</p>}</div>
+    return <div className="min-h-screen bg-[#F5F6F8] font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+        <Head title="Delivery Unit Inventory | Supply Coordinator" />
+        <Sidebar modules={getSidebarModules()} user={auth.user} collapsed={collapsed} onToggleCollapse={toggle} />
+        <main className={`min-w-0 transition-all duration-300 ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
+            <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-7 dark:border-slate-800 dark:bg-slate-900/95">
+                <div className="flex min-w-0 items-center gap-3"><button type="button" aria-label="Open navigation" onClick={() => window.dispatchEvent(new CustomEvent('toggle-nemix-mobile-sidebar'))} className="-ml-2 rounded-lg p-2.5 hover:bg-slate-100 md:hidden dark:hover:bg-slate-800"><Menu size={20} /></button><div className="min-w-0"><p className="truncate text-sm font-semibold">{branding?.institutionName ?? 'University of Camarines Norte'}</p><p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Supply Coordinator Portal</p></div></div>
+                <div className="flex shrink-0 items-center gap-4"><span className="hidden text-sm text-slate-500 xl:block dark:text-slate-400">{new Date().toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' })}</span><ThemeToggle variant="compact" /></div>
+            </header>
+            <div className="mx-auto max-w-[1600px] space-y-6 p-4 sm:p-7 lg:p-8">
+                <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300">Coordinator Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Unit Inventory</span></nav>
+                <section className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center"><div><p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-red-900 dark:text-red-300">Supply & Property Management Office</p><h1 className="font-serif text-2xl font-bold tracking-tight sm:text-3xl">Delivery Unit Inventory</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Manage your unit’s supplies, record distributions, and prepare official Stock Cards.</p></div><div className="flex flex-wrap gap-2.5"><Link href={route('inventory.requests.index')} className={secondaryButton}><ClipboardList size={16} />My Requests</Link><Link href={route('inventory.requests.index', { create: 1 })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-red-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2"><Plus size={17} />Request Supplies</Link></div></section>
+                <section aria-label="Unit inventory overview" className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
+                    <div className={`${panel} flex min-w-0 items-start justify-between gap-3 p-4 sm:p-5`}><div className="min-w-0"><p className="text-sm text-slate-600 dark:text-slate-400">Supplies in stock</p><p className="mt-2 text-xl font-bold tabular-nums sm:text-2xl">{available}<span className="ml-2 text-xs font-normal text-slate-500 sm:text-sm">item types</span></p><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Available in your Delivery Unit</p></div><span className="hidden rounded-xl bg-red-50 p-2.5 text-red-900 xl:inline-flex dark:bg-red-950/60 dark:text-red-300"><Boxes size={20} /></span></div>
+                    <div className={`${panel} flex min-w-0 items-start justify-between gap-3 p-4 sm:p-5`}><div className="min-w-0"><p className="text-sm text-slate-600 dark:text-slate-400">Inventory value</p><p className="mt-2 break-words text-lg font-bold tracking-tight tabular-nums sm:text-2xl">{money(totalValue)}</p><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Total value of supplies on hand</p></div><span className="hidden rounded-xl bg-slate-100 p-2.5 text-slate-600 xl:inline-flex dark:bg-slate-800 dark:text-slate-300"><Wallet size={20} /></span></div>
+                    <div className={`${panel} col-span-2 flex items-start justify-between gap-3 p-4 sm:p-5 xl:col-span-1`}><div><p className="text-sm text-slate-600 dark:text-slate-400">For replenishment</p><p className="mt-2 text-xl font-bold tabular-nums sm:text-2xl">{low}<span className="ml-2 text-xs font-normal text-slate-500 sm:text-sm">item types</span></p><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{low ? 'Low or out of stock · request more supplies' : 'No items currently need replenishment'}</p></div><span className={`rounded-xl p-2.5 ${low ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'}`}><Package size={20} /></span></div>
                 </section>
-                {issueStock && <form className={cardStyle} onSubmit={e => { e.preventDefault(); form.post(route('coordinator.inventory.issue'), { preserveScroll: true, onSuccess: () => { setIssueStock(null); form.reset(); } }); }}>
-                    <h2 className="text-lg font-semibold">Record Issue · {issueStock.name}</h2>
-                    <p className="text-sm text-slate-500">This deducts from your Delivery Unit inventory and updates its Stock Card.</p>
-                    <div className="grid sm:grid-cols-2 gap-4">
-                        <label className="text-sm space-y-1">Quantity<input required type="number" min="1" max={issueStock.quantity} value={form.data.quantity} onChange={e => form.setData('quantity', e.target.value)} className={inputStyle} /></label>
-                        <label className="text-sm space-y-1">Office / End User<input required maxLength={255} value={form.data.recipient} onChange={e => form.setData('recipient', e.target.value)} className={inputStyle} /></label>
+                <div className="flex flex-col gap-3 rounded-xl border border-red-100 bg-red-50/60 px-4 py-3.5 text-sm text-red-950 sm:flex-row sm:items-center sm:justify-between dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-200"><p className="leading-relaxed">Supplies are added here after the Supply Office releases your approved request.</p><div className="flex shrink-0 items-center gap-2 text-xs font-semibold"><span>Request</span><ArrowRight size={13} className="opacity-50" /><span>Staff review</span><ArrowRight size={13} className="opacity-50" /><span>Release to unit</span></div></div>
+                <section className={`${panel} overflow-hidden`} aria-label="Delivery Unit inventory workspace">
+                    <div role="tablist" aria-label="Inventory workspace" className="flex gap-5 border-b border-slate-200 px-4 sm:px-6 dark:border-slate-800">{[{ id: 'inventory' as const, label: 'Supplies on Hand', icon: Boxes }, { id: 'history' as const, label: 'Transaction History', icon: History }].map(({ id, label, icon: Icon }) => <button key={id} type="button" id={`tab-${id}`} role="tab" aria-selected={tab === id} aria-controls={`panel-${id}`} tabIndex={tab === id ? 0 : -1} onKeyDown={event => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) { event.preventDefault(); const next = event.key === 'Home' ? 'inventory' : event.key === 'End' ? 'history' : tab === 'inventory' ? 'history' : 'inventory'; setTab(next); document.getElementById(`tab-${next}`)?.focus(); } }} onClick={() => setTab(id)} className={`inline-flex min-h-14 items-center gap-2 border-b-2 py-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-800 ${tab === id ? 'border-red-900 text-red-900 dark:border-red-400 dark:text-red-300' : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'}`}><Icon size={16} /><span>{label}</span>{id === 'inventory' && <span className="hidden rounded-md bg-slate-100 px-1.5 py-0.5 text-xs tabular-nums text-slate-600 sm:inline dark:bg-slate-800 dark:text-slate-300">{stocks.length}</span>}</button>)}</div>
+                    <div id="panel-inventory" role="tabpanel" aria-labelledby="tab-inventory" hidden={tab !== 'inventory'}>
+                        <div className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 dark:border-slate-800"><div className="relative w-full sm:max-w-md"><Search size={17} className="pointer-events-none absolute left-3.5 top-3.5 text-slate-400" /><input type="search" aria-label="Search supplies by item or stock number" placeholder="Search item name or stock number…" value={search} onChange={event => setSearch(event.target.value)} className="min-h-11 w-full rounded-lg border-slate-300 bg-white pl-10 pr-10 text-sm placeholder:text-slate-400 focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100" />{search && <button type="button" onClick={() => setSearch('')} aria-label="Clear search" className="absolute right-1 top-1 rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"><X size={16} /></button>}</div><label className="flex shrink-0 items-center gap-2.5 text-sm text-slate-500 dark:text-slate-400"><span className="whitespace-nowrap">Stock status</span><select value={filter} onChange={event => setFilter(event.target.value)} className="min-h-11 w-full rounded-lg border-slate-300 bg-white py-2 pl-3 pr-9 text-sm text-slate-700 focus:border-red-800 focus:ring-red-800 sm:w-44 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-200"><option value="all">All items</option><option value="available">Available</option><option value="low">Low stock</option><option value="empty">Out of stock</option></select></label></div>
+                        {filteredStocks.length > 0 ? <StockList stocks={filteredStocks} lowStockThreshold={lowStockThreshold} onIssue={setIssueStock} onStockCard={setReportStock} /> : <div className="flex flex-col items-center px-5 py-14 text-center"><div className="mb-4 rounded-full bg-slate-100 p-4 text-slate-400 dark:bg-slate-800"><Package size={25} /></div><h2 className="font-semibold">{stocks.length ? 'No supplies match your search' : 'Your unit inventory starts here'}</h2><p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-500 dark:text-slate-400">{stocks.length ? 'Try another item name or choose a different stock status.' : 'Request supplies from the Supply Office. Items will appear here once your approved request is released.'}</p>{stocks.length > 0 && <button type="button" onClick={() => { setSearch(''); setFilter('all'); }} className="mt-5 text-sm font-semibold text-red-900 dark:text-red-300">Clear search and filters</button>}</div>}
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-4 py-3.5 text-xs text-slate-500 sm:px-6 dark:border-slate-800 dark:text-slate-400"><span role="status">Showing {filteredStocks.length} of {stocks.length} item types</span><span className="inline-flex items-center gap-1.5"><FileText size={13} />Stock Cards are generated per item</span></div>
                     </div>
-                    {Object.entries(form.errors).map(([key, error]) => <p key={key} role="alert" className="text-red-700 text-sm">{error}</p>)}
-                    <div className="flex gap-4"><button disabled={form.processing} className="rounded-lg bg-red-900 text-white px-4 py-2 text-sm disabled:opacity-50">Save Issue</button><button type="button" onClick={() => setIssueStock(null)} className="text-sm">Cancel</button></div>
-                </form>}
-                <section className={cardStyle} aria-label="Unit stock movements"><h2 className="text-lg font-semibold">Stock Movements</h2>
-                    <div className="overflow-x-auto"><table className="w-full text-sm text-left"><thead><tr>{['Date', 'Item', 'Reference', 'Receipt', 'Issue', 'Office / End User'].map(label => <th key={label} className="p-3 border-b font-semibold">{label}</th>)}</tr></thead>
-                        <tbody>{movements.data.map(m => <tr key={m.id} className="border-b border-slate-100 dark:border-slate-800"><td className="p-3 whitespace-nowrap">{m.date.slice(0, 10)}</td><td className="p-3">{m.stock.name}</td><td className="p-3">{m.reference}</td><td className="p-3">{m.type === 'receipt' ? m.quantity : '—'}</td><td className="p-3">{m.type === 'issue' ? m.quantity : '—'}</td><td className="p-3">{m.office}</td></tr>)}</tbody>
-                    </table>{movements.data.length === 0 && <p className="p-6 text-center text-slate-500">No stock movements recorded.</p>}</div>
-                    <nav aria-label="Stock movement pages" className="flex flex-wrap gap-2">{movements.links.map((link, i) => link.url ? <Link key={i} href={link.url} preserveScroll className={`px-3 py-2 rounded text-sm ${link.active ? 'bg-red-900 text-white' : 'border border-slate-300 dark:border-slate-700'}`} dangerouslySetInnerHTML={{ __html: link.label }} /> : <span key={i} className="px-3 py-2 text-sm opacity-40" dangerouslySetInnerHTML={{ __html: link.label }} />)}</nav>
+                    <div id="panel-history" role="tabpanel" aria-labelledby="tab-history" hidden={tab !== 'history'}><TransactionHistory movements={movements} /></div>
                 </section>
+                <footer className="flex flex-wrap justify-between gap-2 pb-2 text-xs text-slate-500 dark:text-slate-400"><span>Delivery Unit workspace · {auth.user.name}</span><span>Need more supplies? Submit a request to the Supply Office.</span></footer>
             </div>
         </main>
+        <IssueDialog stock={issueStock} onClose={() => setIssueStock(null)} />
+        <StockCardDialog stock={reportStock} onClose={() => setReportStock(null)} />
     </div>;
 }

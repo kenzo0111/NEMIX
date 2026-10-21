@@ -9,6 +9,7 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
         './resources/js/**/*.tsx',
+        './resources/js/Pages/Inventory/Coordinator/inventory.ts',
     ],
 
     theme: {

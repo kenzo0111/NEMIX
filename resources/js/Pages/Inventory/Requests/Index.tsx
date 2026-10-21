@@ -92,7 +92,7 @@ export default function MyRequests({
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [formOpen, setFormOpen] = useState(false);
+    const [formOpen, setFormOpen] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('create') === '1');
     const [editingRequest, setEditingRequest] = useState<SupplyRequest | null>(null);
     const [detailsRequest, setDetailsRequest] = useState<SupplyRequest | null>(null);
     const [preview, setPreview] = useState<IssuanceRecord | null>(null);

@@ -17,6 +17,7 @@ class CoordinatorInventoryController extends Controller
 
         return Inertia::render('Inventory/Coordinator/Index', [
             'inventoryScope' => 'coordinator',
+            'lowStockThreshold' => \Modules\Inventory\Services\InventoryPolicy::lowThreshold(),
             'stocks' => CoordinatorStock::where('coordinator_id', $request->user()->id)->orderBy('name')->get(),
             'movements' => CoordinatorMovement::with('stock')
                 ->whereHas('stock', fn ($q) => $q->where('coordinator_id', $request->user()->id))
