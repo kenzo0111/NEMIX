@@ -7,7 +7,7 @@ import { createRoot } from 'react-dom/client';
 import GlobalNotifications from '@/Components/GlobalNotifications';
 import { FlashMessages } from '@/types';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'SupplySync';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

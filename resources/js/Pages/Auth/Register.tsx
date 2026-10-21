@@ -39,7 +39,7 @@ export default function Register({
         <FullAuthLayout
             badgeText="Staff Account Provisioning"
             headline="Institutional Account Activation"
-            subheadline="Activate your official credentials for the SPMO Smart Supply and Inventory System."
+            subheadline="Activate your official credentials for SupplySync."
             headerSlot={
                 <div className="mb-5 pb-3 border-b border-stone-200/80 dark:border-slate-800">
                     <h2 className="text-xl sm:text-2xl font-bold text-stone-900 dark:text-slate-100 font-serif tracking-tight">

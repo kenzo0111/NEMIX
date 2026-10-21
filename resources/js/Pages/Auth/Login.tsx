@@ -39,8 +39,8 @@ export default function Login({
     return (
         <FullAuthLayout
             badgeText="INSTITUTIONAL ACCESS"
-            headline="Smart Supply and Inventory Management System"
-            subheadline="Consumable Inventory, Requests, and Automated Reports"
+            headline="SupplySync"
+            subheadline="Consumable Supplies and Requisition Management System"
             headerSlot={
                 <div className="mb-5 pb-3.5 border-b border-stone-200/80 dark:border-slate-800">
                     <h2 className="text-2xl font-bold text-stone-900 dark:text-slate-100 font-serif tracking-tight">
@@ -169,7 +169,7 @@ export default function Login({
 
                     <div className="mt-4 space-y-3.5 text-xs sm:text-sm text-stone-600 dark:text-slate-300 leading-relaxed font-sans">
                         <p>
-                            Access to the Smart Supply and Inventory Management System is restricted to authorized personnel of <strong className="text-stone-800 dark:text-slate-100">{institutionName}</strong>.
+                            Access to SupplySync is restricted to authorized personnel of <strong className="text-stone-800 dark:text-slate-100">{institutionName}</strong>.
                         </p>
 
                         <div className="rounded-lg bg-stone-50 dark:bg-slate-800/80 p-3.5 border border-stone-200/80 dark:border-slate-700/80 space-y-2">

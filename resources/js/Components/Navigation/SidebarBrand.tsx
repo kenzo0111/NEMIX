@@ -22,7 +22,7 @@ export default function SidebarBrand({ collapsed = false, onCloseMobile }: Sideb
                     }`}
                 >
                     <h1 className="font-bold tracking-wider text-sm text-white leading-tight font-serif">
-                        UCN SPMO
+                        SupplySync
                     </h1>
                     <p className="text-[10px] text-amber-400/90 font-medium uppercase tracking-widest leading-tight truncate">
                         Supply & Property Management

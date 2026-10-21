@@ -79,10 +79,10 @@ export default function DashboardHeader({ onToggleSidebar, coordinator }: Dashbo
                             </span>
                         </div>
                         <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight break-words">
-                            Supply & Inventory Management
+                            SupplySync
                         </h1>
                         <p className="text-xs text-gray-600 dark:text-slate-400 font-medium mt-0.5 break-words">
-                            {isCoordinator ? 'Your Delivery Unit consumable inventory and stock movements' : 'Consumable inventory, requests, and automated reporting'}
+                            Consumable Supplies and Requisition Management System
                         </p>
                     </div>
                 </div>

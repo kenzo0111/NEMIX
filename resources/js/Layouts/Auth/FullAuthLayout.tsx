@@ -69,8 +69,11 @@ export default function FullAuthLayout({
                                 <h1 className="font-serif text-base font-bold text-stone-900 dark:text-slate-100 leading-tight truncate">
                                     {institutionName}
                                 </h1>
-                                <p className="text-xs text-[#7B1113] dark:text-red-400 font-semibold truncate mt-0.5">
-                                    Smart Supply &amp; Inventory Management System
+                                <p className="text-sm text-[#7B1113] dark:text-red-400 font-bold mt-0.5">
+                                    SupplySync
+                                </p>
+                                <p className="text-xs text-stone-500 dark:text-slate-400 leading-relaxed mt-0.5">
+                                    Consumable Supplies and Requisition Management System
                                 </p>
                             </div>
                         </div>

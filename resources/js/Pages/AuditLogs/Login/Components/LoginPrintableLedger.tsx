@@ -93,7 +93,7 @@ export const LoginPrintableLedger: React.FC<LoginPrintableLedgerProps> = ({
                             {officeName}
                         </div>
                         <div className="text-[10px] text-slate-600">
-                            SUPPLY AND INVENTORY MANAGEMENT SYSTEM
+                            SupplySync — Consumable Supplies and Requisition Management System
                         </div>
                     </div>
                 </div>
@@ -292,7 +292,7 @@ export const LoginPrintableLedger: React.FC<LoginPrintableLedgerProps> = ({
 
             {/* 5. Legal Notice & Immutability Certification */}
             <div className="mt-4 pt-2 border-t border-slate-300 text-[8.5px] text-slate-500 text-center leading-normal">
-                <strong>CONFIDENTIAL & OFFICIAL RECORD:</strong> This authentication ledger was generated automatically by the NEMIX Security Audit System.
+                <strong>CONFIDENTIAL & OFFICIAL RECORD:</strong> This authentication ledger was generated automatically by SupplySync.
                 Under institutional data governance policies, Civil Service Commission rules, and Republic Act No. 10173 (Data Privacy Act of 2012),
                 unauthorized alteration, forging, or extraction of this audit trail ledger is strictly prohibited and subject to legal prosecution.
             </div>
