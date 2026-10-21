@@ -43,7 +43,7 @@ class AuthorizeAction
             return redirect()->route('coordinator.inventory.index', ['tab' => 'history']);
         }
 
-        // Coordinator permissions must never expose central stock or global reports.
+        // Coordinators browse central stock through the dedicated read-only catalog.
         if ($user->usesCoordinatorInventory()
             && (Str::startsWith($routeName, ['compliance.', 'rfid-scanner.', 'suppliers.'])
                 || (Str::startsWith($routeName, 'inventory.')

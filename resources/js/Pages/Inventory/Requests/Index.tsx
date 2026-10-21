@@ -33,6 +33,7 @@ export default function MyRequests({
     requests = [],
     items = [],
     divisions = [],
+    initialItemId = null,
     defaultApprovedBy: propApprovedBy,
     defaultApprovedByDesignation: propApprovedByDesignation,
     defaultIssuedBy: propIssuedBy,
@@ -42,6 +43,7 @@ export default function MyRequests({
     requests: SupplyRequest[];
     items: RequestItem[];
     divisions?: DivisionGroup[];
+    initialItemId?: number | null;
     defaultApprovedBy?: string;
     defaultApprovedByDesignation?: string;
     defaultIssuedBy?: string;
@@ -610,6 +612,7 @@ export default function MyRequests({
             {/* Request Creation / Editing Modal */}
             <RequestFormModal
                 show={formOpen}
+                initialItemId={initialItemId}
                 request={editingRequest}
                 items={items}
                 divisions={divisions}

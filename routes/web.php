@@ -22,6 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/delivery-unit/inventory', [\App\Http\Controllers\CoordinatorInventoryController::class, 'index'])->name('coordinator.inventory.index');
+    Route::get('/delivery-unit/central-stock', [\App\Http\Controllers\CoordinatorInventoryController::class, 'catalog'])->name('coordinator.catalog.index');
     Route::post('/delivery-unit/inventory/issue', [\App\Http\Controllers\CoordinatorInventoryController::class, 'issue'])->name('coordinator.inventory.issue');
     Route::get('/delivery-unit/stock-cards/{stock}', [\App\Http\Controllers\CoordinatorInventoryController::class, 'stockCard'])->name('coordinator.inventory.stock-card');
 

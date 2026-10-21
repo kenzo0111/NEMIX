@@ -134,6 +134,7 @@ export default function DashboardIndex({
                         </div>
                         <div className="flex flex-wrap gap-4 text-sm font-semibold text-red-900 dark:text-red-300">
                             <Link href={route('inventory.requests.index')}>Request from Supply Office</Link>
+                            <Link href={route('coordinator.catalog.index')}>Browse Central Supply Catalog</Link>
                             <Link href={route('coordinator.inventory.index')}>Manage Unit Inventory & Generate Stock Cards</Link>
                         </div>
                     </section>}

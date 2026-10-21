@@ -166,6 +166,17 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
 
         // LOGISTICS & OPERATIONS
         {
+            key: 'central-supply-catalog',
+            coordinatorOnly: true,
+            category: 'logistics',
+            title: 'Central Supply Catalog',
+            icon: Building2,
+            href: route('coordinator.catalog.index'),
+            active: routeCurrentName === 'coordinator.catalog.index',
+            requiredCapability: (caps) => Boolean(caps.coordinatorInventory),
+            requiredPermission: 'route:coordinator.catalog.index',
+        },
+        {
             key: 'delivery-unit-inventory',
             coordinatorOnly: true,
             category: 'logistics',

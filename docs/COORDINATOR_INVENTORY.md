@@ -8,6 +8,8 @@ Coordinators open **Unit Inventory & Stock Cards** to see their stock, record is
 
 RFID remains available as an optional receiving and tagging tool for inventory staff. Manual receiving remains available. Untagged items are described as managed without tags rather than requiring assignment. Authentication branding describes consumable inventory, supply requests, and automated reports.
 
+Coordinators can also browse the read-only **Central Supply Catalog**. It lists active consumable items, physical stock on hand, and quantities available after subtracting approved request reservations. Search and availability filters help find supplies; **Request This Item** opens a new requisition with that item selected. The catalog does not expose other offices' requests, allocations, transaction history, supplier records, RFID tags, or inventory management controls. Browsing does not create a request or transfer stock.
+
 ## Apply the change
 
 Run `php artisan migrate` in the application's configured runtime before serving the updated application. The migration creates the coordinator inventory ledger, grants the three coordinator route permissions, and imports existing released requests for users currently assigned the Supply Coordinator role. Historical receipts keep their release dates and RIS references. Historical unit consumption was not recorded by the previous system; verify imported balances and record any past consumption before relying on opening stock.

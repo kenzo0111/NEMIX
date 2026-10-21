@@ -50,6 +50,9 @@ class SupplyRequestController extends Controller
     public function index(Request $request)
     {
         $this->authorizeRequestAction($request);
+        $prefill = $request->validate(['item_id' => ['nullable', 'integer', 'min:1']]);
+        $initialItemId = isset($prefill['item_id'])
+            ? Item::whereKey($prefill['item_id'])->where('stock', '>', 0)->value('id') : null;
 
         $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
         $defaultApprovedBy = $signatories['approved_by_name'];
@@ -58,6 +61,7 @@ class SupplyRequestController extends Controller
         $defaultIssuedByDesignation = $signatories['issued_by_position'];
 
         return Inertia::render('Inventory/Requests/Index', [
+            'initialItemId' => $initialItemId,
             'requests' => SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'issuance.items.allocations.inventoryBatch'])
                 ->where('requested_by', $request->user()->id)->latest()->get(),
             'items' => Item::where('stock', '>', 0)->orderBy('name')->get(['id', 'name', 'sku', 'stock', 'unit_of_issue', 'unit_cost']),

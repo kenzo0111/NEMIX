@@ -1,8 +1,8 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
-import { ArrowRight, Boxes, ChevronRight, ClipboardList, FileText, History, Menu, Package, Plus, Search, Wallet, X } from 'lucide-react';
+import { ArrowRight, Boxes, ChevronRight, ClipboardList, FileText, History, Package, Plus, Search, Wallet, X } from 'lucide-react';
 import Sidebar from '@/Components/Sidebar';
-import ThemeToggle from '@/Components/ThemeToggle';
+import CoordinatorPortalHeader from './components/CoordinatorPortalHeader';
 import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import IssueDialog from './components/IssueDialog';
@@ -14,7 +14,7 @@ import { Stock, money, panel, secondaryButton } from './inventory';
 interface Props { stocks: Stock[]; lowStockThreshold: number; movements: MovementPage; }
 
 export default function CoordinatorInventory({ stocks, movements, lowStockThreshold }: Props) {
-    const { auth, branding } = usePage<any>().props;
+    const { auth } = usePage<any>().props;
     const [collapsed, toggle] = useSidebarCollapse();
     const [tab, setTab] = useState<'inventory' | 'history'>(() => {
         if (typeof window === 'undefined') return 'inventory';
@@ -38,10 +38,7 @@ export default function CoordinatorInventory({ stocks, movements, lowStockThresh
         <Head title="Delivery Unit Inventory | Supply Coordinator" />
         <Sidebar modules={getSidebarModules()} user={auth.user} collapsed={collapsed} onToggleCollapse={toggle} />
         <main className={`min-w-0 transition-all duration-300 ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
-            <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-7 dark:border-slate-800 dark:bg-slate-900/95">
-                <div className="flex min-w-0 items-center gap-3"><button type="button" aria-label="Open navigation" onClick={() => window.dispatchEvent(new CustomEvent('toggle-nemix-mobile-sidebar'))} className="-ml-2 rounded-lg p-2.5 hover:bg-slate-100 md:hidden dark:hover:bg-slate-800"><Menu size={20} /></button><div className="min-w-0"><p className="truncate text-sm font-semibold">{branding?.institutionName ?? 'University of Camarines Norte'}</p><p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Supply Coordinator Portal</p></div></div>
-                <div className="flex shrink-0 items-center gap-4"><span className="hidden text-sm text-slate-500 xl:block dark:text-slate-400">{new Date().toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' })}</span><ThemeToggle variant="compact" /></div>
-            </header>
+            <CoordinatorPortalHeader />
             <div className="mx-auto max-w-[1600px] space-y-6 p-4 sm:p-7 lg:p-8">
                 <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300">Coordinator Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Unit Inventory</span></nav>
                 <section className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center"><div><p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-red-900 dark:text-red-300">Supply & Property Management Office</p><h1 className="font-serif text-2xl font-bold tracking-tight sm:text-3xl">Delivery Unit Inventory</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Manage your unit’s supplies, record distributions, and prepare official Stock Cards.</p></div><div className="flex flex-wrap gap-2.5"><Link href={route('inventory.requests.index')} className={secondaryButton}><ClipboardList size={16} />My Requests</Link><Link href={route('inventory.requests.index', { create: 1 })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-red-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2"><Plus size={17} />Request Supplies</Link></div></section>

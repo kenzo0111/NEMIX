@@ -14,6 +14,7 @@ interface RequestFormModalProps {
     show: boolean;
     request: SupplyRequest | null;
     items: RequestItem[];
+    initialItemId?: number | null;
     divisions?: DivisionGroup[];
     defaultRecipient?: string;
     defaultApprovedBy?: string;
@@ -28,6 +29,7 @@ export function RequestFormModal({
     show,
     request,
     items,
+    initialItemId = null,
     divisions,
     defaultRecipient = '',
     defaultApprovedBy = 'ARSENIO GEM A. GARCILLANOSA',
@@ -87,11 +89,11 @@ export function RequestFormModal({
                 approved_by_designation: defaultApprovedByDesignation,
                 issued_by_name: defaultIssuedBy,
                 issued_by_position: defaultIssuedByDesignation,
-                items: [{ item_id: '', quantity: '' }],
+                items: [{ item_id: initialItemId && items.some(item => item.id === initialItemId && item.stock > 0) ? String(initialItemId) : '', quantity: '' }],
             });
         }
         form.clearErrors();
-    }, [show, request?.id, defaultRecipient, defaultApprovedBy, defaultApprovedByDesignation, defaultIssuedBy, defaultIssuedByDesignation]);
+    }, [show, request?.id, initialItemId, defaultRecipient, defaultApprovedBy, defaultApprovedByDesignation, defaultIssuedBy, defaultIssuedByDesignation]);
 
     // Selected division option for react-select
     const selectedDivisionOption = useMemo(() => {
