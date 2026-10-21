@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from '@inertiajs/react';
-import { ArrowUpRight, Boxes, Building2, ChartNoAxesCombined, ChevronDown, ClipboardList, PackageCheck, PackageSearch, Plus } from 'lucide-react';
+import { ArrowUpRight, Boxes, Building2, ChartNoAxesCombined, ChevronDown, ClipboardList, Package, PackageCheck, PackagePlus, PackageSearch, Plus } from 'lucide-react';
 import DashboardHeader from './DashboardHeader';
 import InventoryMovementOverview from './InventoryMovementOverview';
 import CriticalStockOverview from './CriticalStockOverview';
@@ -56,6 +56,20 @@ export default function CoordinatorDashboardWorkspace({
     const approvedRequests = requestSummary['Approved'] ?? 0;
 
     const metrics = [
+        {
+            label: 'Total Inventory',
+            value: summary?.total_inventory ?? 0,
+            detail: 'Total units on hand in your unit',
+            href: route('coordinator.inventory.index'),
+            icon: Package,
+        },
+        {
+            label: 'Receiving',
+            value: summary?.total_received ?? 0,
+            detail: 'Total units received from Supply Office',
+            href: route('coordinator.inventory.index', { tab: 'history' }),
+            icon: PackagePlus,
+        },
         {
             label: 'Supplies in stock',
             value: availableItems,
@@ -113,7 +127,7 @@ export default function CoordinatorDashboardWorkspace({
                     </Link>
                 </div>
 
-                <section aria-label="Unit summary" className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+                <section aria-label="Unit summary" className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:gap-4 xl:grid-cols-3">
                     {metrics.map((metric) => {
                         const content = (
                             <>

@@ -44,8 +44,8 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                {items.slice(0, 4).map((item, idx) => {
-                                    const isCritical = item.priority === 'Critical' || item.current <= 5;
+                                {items.map((item, idx) => {
+                                    const isCritical = item.priority === 'Critical';
                                     return (
                                         <tr key={item.id ?? idx} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/60 transition-colors">
                                             <td className="py-3 pr-3 min-w-0">

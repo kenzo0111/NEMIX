@@ -103,7 +103,9 @@ class CoordinatorInventoryService
     {
         $stocks = CoordinatorStock::where('coordinator_id', $user->id)->get();
         $movements = CoordinatorMovement::forCoordinator($user->id)->with('stock')->orderBy('date')->orderBy('id')->get();
-        $critical = $stocks->where('quantity', '>', 0)->where('quantity', '<=', InventoryPolicy::criticalThreshold());
+        $lowThreshold = InventoryPolicy::lowThreshold();
+        $criticalThreshold = InventoryPolicy::criticalThreshold();
+        $critical = $stocks->where('quantity', '<=', $lowThreshold)->sortBy('quantity');
         $monthlyIssued = $movements->where('type', 'issue')->filter(fn ($m) => $m->date->format('Y-m') === now()->format('Y-m'))->sum('quantity');
         $points = [];
         $customDaily = $filter === 'custom' && $start && $end && Carbon::parse($start)->diffInDays(Carbon::parse($end)) <= 31;
@@ -134,6 +136,8 @@ class CoordinatorInventoryService
         return [
             'inventoryScope' => 'coordinator', 'coordinatorName' => $user->name,
             'summary' => ['total_inventory_value' => (float) $stocks->sum('value'), 'available_items' => $stocks->where('quantity', '>', 0)->count(),
+                'total_inventory' => (int) $stocks->sum('quantity'),
+                'total_received' => (int) $movements->where('type', 'receipt')->sum('quantity'),
                 'issued_this_month' => $monthlyIssued, 'critical_stock' => $critical->count(), 'unserviceable' => $stocks->where('quantity', 0)->count()],
             'movement' => $points, 'movementSummary' => ['received' => $received, 'issued' => $issued, 'starting_balance' => $opening, 'ending_balance' => $opening + $received - $issued],
             'recentReceiving' => $movements->where('type', 'receipt')->reverse()->take(5)->map(fn ($m) => [
@@ -143,7 +147,9 @@ class CoordinatorInventoryService
                 'id' => $m->id, 'ris_number' => $m->reference, 'item_name' => $m->stock->name, 'recipient' => $m->office,
                 'total_items' => $m->quantity, 'unit' => $m->stock->unit, 'issued_at' => $m->date->toDateString()])->values(),
             'criticalStock' => $critical->take(5)->map(fn ($s) => ['id' => $s->id, 'name' => $s->name, 'sku' => $s->sku,
-                'current' => $s->quantity, 'min' => InventoryPolicy::criticalThreshold(), 'unit' => $s->unit, 'priority' => 'Critical'])->values(),
+                'current' => $s->quantity, 'min' => $lowThreshold, 'unit' => $s->unit,
+                'priority' => $s->quantity <= $criticalThreshold ? 'Critical' : 'Low',
+                'status' => $s->quantity <= 0 ? 'Out of Stock' : ($s->quantity <= $criticalThreshold ? 'Critical' : 'Low Stock')])->values(),
             'recentActivity' => $movements->reverse()->take(8)->map(fn ($m) => [
                 'id' => $m->id, 'title' => $m->type === 'receipt' ? 'Received from Supply Office' : 'Delivery Unit issue',
                 'summary' => $m->quantity.' '.$m->stock->unit.' · '.$m->stock->name,

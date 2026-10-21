@@ -4,6 +4,7 @@ namespace Tests\Feature\Inventory;
 
 use App\Models\CoordinatorMovement;
 use App\Models\CoordinatorStock;
+use App\Models\SystemSetting;
 use App\Models\User;
 use App\Services\CoordinatorInventoryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -76,10 +77,12 @@ class CoordinatorInventoryTest extends TestCase
 
         $this->actingAs($owner)->get(route('dashboard'))->assertInertia(fn ($page) => $page
             ->component('Dashboard')->where('inventoryScope', 'coordinator')->where('summary.available_items', 1)
-            ->where('summary.total_inventory_value', 70)->where('recentReceiving.0.quantity', 7)
+            ->where('summary.total_inventory_value', 70)->where('summary.total_inventory', 7)
+            ->where('summary.total_received', 7)->where('recentReceiving.0.quantity', 7)
             ->missing('supplierSummary')->missing('rfidSummary'));
         $this->actingAs($other)->get(route('dashboard'))->assertInertia(fn ($page) => $page
-            ->where('summary.total_inventory_value', 0)->where('summary.available_items', 0)->has('recentReceiving', 0));
+            ->where('summary.total_inventory_value', 0)->where('summary.available_items', 0)
+            ->where('summary.total_inventory', 0)->where('summary.total_received', 0)->has('recentReceiving', 0));
         $this->actingAs($other)->get(route('coordinator.inventory.index'))->assertInertia(fn ($page) => $page->has('stocks', 0)->has('movements.data', 0));
     }
 
@@ -141,6 +144,41 @@ class CoordinatorInventoryTest extends TestCase
         ]))->assertUnprocessable();
         $this->actingAs($owner)->get(route('dashboard', ['chart_filter' => 'monthly']))->assertInertia(fn ($page) => $page
             ->where('movementSummary.received', 7)->where('movementSummary.issued', 3)->where('movementSummary.ending_balance', 4));
+        $this->actingAs($owner)->get(route('dashboard', [
+            'chart_filter' => 'custom', 'start_date' => '2026-10-01', 'end_date' => '2026-10-15',
+        ]))->assertInertia(fn ($page) => $page
+            ->where('movementSummary.received', 0)->where('summary.total_inventory', 4)->where('summary.total_received', 7));
+    }
+
+    public function test_dashboard_attention_includes_low_and_depleted_unit_stock_in_severity_order(): void
+    {
+        SystemSetting::set('inventory.low_stock_threshold', 8);
+        SystemSetting::set('inventory.critical_stock_threshold', 1);
+        $owner = $this->user();
+        $other = $this->user();
+        $stocks = [];
+        foreach ([9, 8, 4, 1, 0] as $quantity) {
+            $item = $this->requestFor($owner)->items()->first()->item;
+            $stocks[$quantity] = CoordinatorStock::create([
+                'coordinator_id' => $owner->id, 'item_id' => $item->id,
+                'name' => $item->name, 'sku' => $item->sku, 'unit' => 'ream',
+                'quantity' => $quantity, 'value' => $quantity * 10,
+            ]);
+        }
+        CoordinatorStock::create([
+            'coordinator_id' => $other->id, 'item_id' => $stocks[0]->item_id,
+            'name' => 'Other unit stock', 'sku' => 'OTHER', 'unit' => 'ream', 'quantity' => 0, 'value' => 0,
+        ]);
+
+        $this->actingAs($owner)->get(route('dashboard'))->assertOk()->assertInertia(fn ($page) => $page
+            ->where('summary.total_inventory', 22)->where('summary.total_received', 0)
+            ->where('summary.critical_stock', 4)->where('summary.unserviceable', 1)
+            ->has('criticalStock', 4)
+            ->where('criticalStock.0.id', $stocks[0]->id)->where('criticalStock.0.status', 'Out of Stock')
+            ->where('criticalStock.1.id', $stocks[1]->id)->where('criticalStock.1.priority', 'Critical')
+            ->where('criticalStock.2.id', $stocks[4]->id)->where('criticalStock.2.priority', 'Low')
+            ->where('criticalStock.3.id', $stocks[8]->id)->where('criticalStock.3.status', 'Low Stock')
+            ->where('criticalStock.3.min', 8));
     }
 
     public function test_credit_failure_rolls_back_main_office_release(): void
