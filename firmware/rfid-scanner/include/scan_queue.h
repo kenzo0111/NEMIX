@@ -7,7 +7,7 @@
 class ScanQueue {
     struct Event { String epc,id; int rssi; };
     std::vector<Event> events;
-    uint32_t lastAttempt=0,backoff=2000;
+    uint32_t lastAttempt=0,backoff=0;
     bool dirty=false,healthy=true;
     static uint8_t hexValue(char c) {
         if(c>='0'&&c<='9') return c-'0';
@@ -78,7 +78,11 @@ public:
     void loop(NemixApiClient& api,bool connected) {
         if(!healthy||(events.empty()&&!dirty)||millis()-lastAttempt<backoff) return;
         lastAttempt=millis();
-        if(dirty&&!persist()) Serial.println(F("[QUEUE] Save failed; keeping scans in RAM and retrying delivery. Keep device powered."));
+        if(dirty&&!persist()) {
+            Serial.println(F("[QUEUE] Save failed; keeping scans in RAM and retrying delivery. Keep device powered."));
+            backoff=backoff?min(backoff*2,(uint32_t)60000):2000;
+            lastAttempt=millis();
+        }
         if(!connected||events.empty()) return;
         size_t count=min((size_t)20,events.size());
         cJSON* object=cJSON_CreateObject(); if(!object) return;
@@ -91,7 +95,10 @@ public:
         }
         String body=jsonEncode(object); cJSON_Delete(object);
         if(api.submitScans(body,count)) {
-            events.erase(events.begin(),events.begin()+count); dirty=true; persist(); backoff=2000;
-        } else backoff=min(backoff*2,(uint32_t)60000);
+            events.erase(events.begin(),events.begin()+count); dirty=true;
+            backoff=persist()?0:2000;
+        } else backoff=backoff?min(backoff*2,(uint32_t)60000):2000;
+        // Retry delay starts after the blocking request completes.
+        lastAttempt=millis();
     }
 };

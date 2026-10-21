@@ -144,6 +144,74 @@ arduino-cli monitor -p COMx -c baudrate=115200
 
 ## 7. Provisioning and configuration
 
+### USB setup (firmware 2.6.0+)
+
+Firmware 2.7.0 adds up to eight saved Wi-Fi profiles, retained across restarts.
+The existing active network is imported automatically on upgrade. Run the tool
+and choose **Add/update a saved network without connecting** to remember a
+network, or **Select a saved network to use** and enter its number. Saved
+passwords stay on the ESP32 and are not returned to the PC.
+
+```powershell
+.\provision_usb.ps1 -Port COM11 -ListNetworks
+.\provision_usb.ps1 -Port COM11 -SelectNetwork 'Office Wi-Fi'
+```
+
+Selecting a profile keeps the server identity and secret, tests the selected
+network and HTTPS authentication, then commits it. A failed selection attempts
+to reconnect the previous network. Saving a profile without connecting does not
+test its password or change the active network. No automatic roaming or fallback
+through the saved list is performed: the selected active network is used after
+restart. Saved profiles can be deleted through the menu; the active network cannot
+be deleted. Use Configure and connect to change the active network's password.
+At the eight-profile limit, delete an unused profile before adding another.
+Dashboard/local setup changes also remember the successfully applied network
+when profile storage has room; active configuration remains separate if the list
+is full. The USB menu requires 2.7.0+; status checks still support firmware 2.6.0.
+
+First-time setup and Wi-Fi recovery can be performed over the USB cable, without
+connecting a phone to the setup hotspot. Flash firmware 2.7.0 or later once, close
+serial monitors, and release the physical scan trigger. From the repository root:
+
+```powershell
+.\provision_usb.ps1 -Port COM11
+```
+
+The tool prompts for the Wi-Fi name/password, HTTPS server URL, NEMIX device ID
+and signing secret. Register the matching device in System Settings → RFID first
+and use its secret. Password and secret prompts are masked and are never echoed
+by the firmware. They travel through the local USB serial connection; the tool
+does not write a credentials file. Blank URL/ID/secret retain existing values.
+A blank Wi-Fi password retains the saved password only for the same protected
+network. Explicitly select an open network to clear a password.
+
+USB setup tests Wi-Fi and authenticated HTTPS access before committing the NVS
+record. Failed setup attempts restore the previous configuration and attempt to
+reconnect its network. A successful setup acknowledges the current server network
+revision so an older dashboard Wi-Fi change does not immediately undo recovery.
+It closes the setup hotspot and continues running without another reboot.
+Reader availability does not prevent network setup. The final result reports
+Wi-Fi and reader readiness separately.
+
+To inspect status without changing settings:
+
+```powershell
+.\provision_usb.ps1 -Port COM11 -StatusOnly
+```
+
+USB protocol 1 uses `u` followed by one JSON object and LF at 115200 baud.
+Actions are `status`, `provision`, `profile_save`, `profile_select`, and
+`profile_delete`; profile selection/deletion identify a network by `wifi_ssid`.
+Profile saves use `wifi_ssid`, `wifi_password` and `open_network`.
+Provisioning fields are `wifi_ssid`,
+`wifi_password`, `open_network`, `server_url`, `device_id`, and `device_token`.
+Replies begin with `USB-SETUP ` and contain JSON (`progress`, or terminal `ok`).
+Status never returns passwords or secrets. Requests are limited to 1024 UTF-8
+bytes and incomplete requests expire after ten seconds while idle. Provisioning
+is serviced only with the trigger released; keep it released throughout setup.
+Anyone with physical USB access can configure the scanner, just as they can
+flash its firmware. Existing `d` and `s` diagnostic commands remain available.
+
 This firmware contains no Wi-Fi credentials, API URL, or signing secret in source. On a fresh boot it derives a stable ID from the ESP32 eFuse MAC and opens `RFID-SETUP-xxx`. Connect a phone or laptop to that access point and browse to `http://192.168.4.1` to enter the network, HTTPS server URL, device ID, and the one-time signing secret created in **System Settings → RFID**.
 
 Version 2.1.0 and later store complete active and pending JSON records in separate NVS keys, check every record write by reading it back, and still read the legacy key format. A pending Wi-Fi change must associate within 15 seconds and authenticate with the HTTPS server before it replaces the active configuration. Version 2.4.0 permits network and other settings changes when the reader is unavailable; a changed RF-power setting still requires reader acknowledgement. Failed migration restores the prior network, reader power, and API client. Boot recovery performs the same checks before committing a pending record.
@@ -222,5 +290,19 @@ After deploying the backend migration and installing the firmware, verify on the
 4. With dashboard network A and locally recovered network B, a scan-mode-only save keeps B. An explicit Apply saved Wi-Fi again requests A and restores B if verification fails. General configuration status alone does not confirm which network is active.
 5. Changing SSID with no password and without Open network is rejected in both setup paths. Clearing the dashboard SSID stops dashboard network migrations while leaving local credentials intact.
 6. Confirm single and held inventory scans, release behavior, queue delivery and idempotent retries. Idle checks pause while the trigger is held.
+
+Tag delivery is prioritized over idle reader checks, Wi-Fi discovery, heartbeats and
+configuration downloads after trigger release. New scans and successful upload
+batches have no fixed two-second delivery delay. Failed uploads retry after two
+seconds with exponential backoff up to 60 seconds. The scanner and receiving
+screens poll their live feeds every 500 ms; network and server processing add to
+that display latency. Inventory uploads still require releasing the trigger.
+
+For a physical latency check, open the selected scanner's live feed before
+scanning. Capture a single tag and release, then capture more than 20 unique tags
+in Inventory mode and release. Confirm successful upload batches follow each
+other without a two-second gap and all events reach the screen once. Disconnect
+the server to confirm failed uploads back off, then restore it and confirm queued
+events arrive without duplicates. Timing depends on Wi-Fi and HTTPS response time.
 
 Source checks and backend tests cannot verify hardware voltage, RF range, installed firmware or actual inventory behavior.

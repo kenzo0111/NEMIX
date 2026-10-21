@@ -1,6 +1,6 @@
 #pragma once
 
-#define FIRMWARE_VERSION "2.5.0"
+#define FIRMWARE_VERSION "2.7.0"
 #define API_CANDIDATE_PATH "/api/hardware/rfid/config/candidate"
 #define API_SCANS_PATH "/api/hardware/rfid/scans"
 #define API_CONFIG_PATH "/api/hardware/rfid/config"
