@@ -8,23 +8,24 @@ interface SidebarBrandProps {
 
 export default function SidebarBrand({ collapsed = false, onCloseMobile }: SidebarBrandProps) {
     return (
-        <div className="p-4 border-b border-red-900/60 relative z-10 flex items-center justify-between min-h-24 shrink-0 gap-3 px-4 overflow-hidden bg-red-950/40 select-none">
-            <div className="flex items-center gap-3 min-w-0">
+        <div className="relative z-10 flex min-h-24 shrink-0 items-center overflow-hidden border-b border-[#7d2020] bg-[radial-gradient(ellipse_at_center,_#570c0c,_#400606)] px-4 py-5 select-none">
+            <div className={`flex w-full min-w-0 items-center ${collapsed ? 'gap-0' : 'gap-3'}`}>
                 <div className="shrink-0 flex items-center justify-center">
-                    <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl border border-white/60 bg-[#fffffa] shadow-sm">
-                        <img src="/images/supplysync-sidebar-logo.png" className="h-full w-full scale-[1.28] object-contain" alt="SupplySync supply management logo" width={44} height={44} />
+                    <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[10px] bg-[#fffffa]">
+                        <img src="/images/supplysync-sidebar-logo.png" className="h-full w-full scale-[1.28] object-contain" alt="SupplySync supply management logo" width={48} height={48} />
                     </div>
                 </div>
 
                 <div
-                    className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${
-                        collapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-[200px] opacity-100'
+                    aria-hidden={collapsed}
+                    className={`min-w-0 overflow-hidden transition-all duration-300 ease-in-out ${
+                        collapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-[200px] flex-1 border-l border-[#874040]/70 pl-3 opacity-100'
                     }`}
                 >
-                    <p className="text-lg font-bold text-amber-300 leading-tight font-sans">
+                    <p className="w-fit whitespace-nowrap bg-gradient-to-b from-[#ffe68a] to-[#e8ad1c] bg-clip-text font-sans text-[27px] font-extrabold leading-none tracking-[-0.045em] text-transparent">
                         SupplySync
                     </p>
-                    <p className="mt-1 whitespace-nowrap text-[8px] font-normal leading-tight text-red-100/90 md:text-[9px]">
+                    <p className="mt-1.5 whitespace-nowrap font-sans text-[9px] font-normal leading-tight tracking-[-0.025em] text-[#f5efec]">
                         Supply and Property Management Office
                     </p>
                 </div>
@@ -34,7 +35,7 @@ export default function SidebarBrand({ collapsed = false, onCloseMobile }: Sideb
                 <button
                     type="button"
                     onClick={onCloseMobile}
-                    className="md:hidden p-1.5 text-red-200/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer shrink-0"
+                    className="absolute right-1 top-1 rounded-lg p-1 text-red-200/70 transition-colors hover:bg-white/10 hover:text-white md:hidden cursor-pointer"
                     aria-label="Close mobile sidebar"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
