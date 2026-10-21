@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from '@inertiajs/react';
-import { ChevronDown, Plus } from 'lucide-react';
+import { ArrowUpRight, Boxes, Building2, ChartNoAxesCombined, ChevronDown, ClipboardList, PackageCheck, PackageSearch, Plus } from 'lucide-react';
 import DashboardHeader from './DashboardHeader';
 import InventoryMovementOverview from './InventoryMovementOverview';
 import CriticalStockOverview from './CriticalStockOverview';
@@ -61,12 +61,14 @@ export default function CoordinatorDashboardWorkspace({
             value: availableItems,
             detail: 'Available item types',
             href: route('coordinator.inventory.index'),
+            icon: Boxes,
         },
         {
             label: 'Active requests',
             value: pendingRequests + approvedRequests,
             detail: `${pendingRequests} pending · ${approvedRequests} approved`,
             href: route('inventory.requests.index'),
+            icon: ClipboardList,
         },
         {
             label: 'For replenishment',
@@ -74,12 +76,14 @@ export default function CoordinatorDashboardWorkspace({
             detail: criticalCount ? 'Low or out of stock' : 'Stock levels are healthy',
             href: '#stock-attention',
             attention: criticalCount > 0,
+            icon: PackageSearch,
         },
         {
             label: 'Issued this month',
             value: issuedMtd,
             detail: 'Items distributed to personnel',
             href: route('coordinator.inventory.index', { tab: 'history' }),
+            icon: PackageCheck,
         },
     ];
 
@@ -88,10 +92,18 @@ export default function CoordinatorDashboardWorkspace({
             <DashboardHeader coordinator />
 
             <div className="mx-auto max-w-[1600px] space-y-6 p-4 sm:p-7 lg:p-8">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="min-w-0 break-words text-sm text-slate-500 dark:text-slate-400">
-                        {coordinatorName || auth.user.name}
-                    </p>
+                <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-gradient-to-r from-red-50/70 via-white to-white p-4 sm:p-5 dark:border-slate-800 dark:from-red-950/20 dark:via-slate-900 dark:to-slate-900">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-red-100 bg-white text-red-900 sm:inline-flex dark:border-red-900/50 dark:bg-slate-900 dark:text-red-300">
+                            <Building2 size={21} strokeWidth={1.7} aria-hidden="true" />
+                        </span>
+                        <div className="min-w-0">
+                            <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Unit workspace</p>
+                            <p className="mt-1 break-words text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                {coordinatorName || auth.user.name}
+                            </p>
+                        </div>
+                    </div>
                     <Link
                         href={route('inventory.requests.index', { create: 1 })}
                         className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-red-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2"
@@ -105,14 +117,22 @@ export default function CoordinatorDashboardWorkspace({
                     {metrics.map((metric) => {
                         const content = (
                             <>
-                                <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">{metric.label}</dt>
+                                <dt className="flex items-start justify-between gap-2 text-sm font-medium text-slate-600 dark:text-slate-400">
+                                    <span>{metric.label}</span>
+                                    <span className={`inline-flex shrink-0 rounded-lg p-2 ${metric.attention ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300' : 'bg-slate-50 text-slate-500 dark:bg-slate-800 dark:text-slate-400'}`}>
+                                        <metric.icon size={18} strokeWidth={1.7} aria-hidden="true" />
+                                    </span>
+                                </dt>
                                 <dd className={`mt-2 text-3xl font-bold tabular-nums ${metric.attention ? 'text-amber-700 dark:text-amber-300' : 'text-slate-900 dark:text-slate-100'}`}>
                                     {metric.value.toLocaleString()}
                                 </dd>
-                                <dd className="mt-2 text-sm text-slate-500 dark:text-slate-400">{metric.detail}</dd>
+                                <dd className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs leading-relaxed text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                                    <span>{metric.detail}</span>
+                                    <ArrowUpRight size={14} aria-hidden="true" className="shrink-0 text-slate-400 transition-colors group-hover:text-red-900 dark:group-hover:text-red-300" />
+                                </dd>
                             </>
                         );
-                        const className = `${panel} block min-w-0 p-4 transition hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 sm:p-5`;
+                        const className = `${panel} group block min-w-0 border-t-2 ${metric.attention ? 'border-t-amber-400 dark:border-t-amber-600' : 'border-t-red-900/60 dark:border-t-red-800'} p-4 transition hover:border-slate-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 sm:p-5`;
 
                         return metric.href.startsWith('#') ? (
                             <a key={metric.label} href={metric.href} className={className}>
@@ -141,9 +161,12 @@ export default function CoordinatorDashboardWorkspace({
                         aria-expanded={showMovement}
                         aria-controls="coordinator-inventory-trends"
                         onClick={() => setShowMovement((visible) => !visible)}
-                        className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-1 py-2 text-left text-sm font-semibold text-slate-600 transition hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:text-slate-400 dark:hover:text-slate-100"
+                        className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-4 text-left text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
                     >
-                        Inventory movement trends
+                        <span className="flex items-center gap-3">
+                            <ChartNoAxesCombined size={19} strokeWidth={1.7} aria-hidden="true" className="shrink-0 text-slate-400" />
+                            <span>Inventory movement trends<span className="mt-0.5 block text-xs font-normal text-slate-500 dark:text-slate-400">{showMovement ? 'Hide chart' : 'Expand to view stock movement'}</span></span>
+                        </span>
                         <ChevronDown size={18} aria-hidden="true" className={`shrink-0 transition-transform ${showMovement ? 'rotate-180' : ''}`} />
                     </button>
                     <div id="coordinator-inventory-trends" hidden={!showMovement}>

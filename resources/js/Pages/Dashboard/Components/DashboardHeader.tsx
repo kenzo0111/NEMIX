@@ -33,7 +33,7 @@ export default function DashboardHeader({ onToggleSidebar, coordinator }: Dashbo
     };
 
     return (
-        <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+        <header className={`sticky top-0 z-30 bg-white dark:bg-slate-900 shadow-xs transition-colors ${isCoordinator ? 'border-t-4 border-red-900 dark:border-red-700' : ''}`}>
             {/* Non-Production Mode Alert Notice */}
             {systemMode && systemMode !== 'LIVE PRODUCTION' && (
                 <div
@@ -75,7 +75,7 @@ export default function DashboardHeader({ onToggleSidebar, coordinator }: Dashbo
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-0.5">
                             <span className="text-sm font-medium text-red-950 dark:text-red-400">
-                                {isCoordinator ? 'Supply Coordinator' : 'Supply & Property Management'}
+                                {isCoordinator ? 'Delivery Unit Supply Coordinator' : 'Supply & Property Management'}
                             </span>
                         </div>
                         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight break-words">
