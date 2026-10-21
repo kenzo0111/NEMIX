@@ -39,8 +39,8 @@ export default function Login({
     return (
         <FullAuthLayout
             badgeText="INSTITUTIONAL ACCESS"
-            headline="SupplySync"
-            subheadline="Consumable Supplies and Requisition Management System"
+            headline="SupplySync:"
+            subheadline="A Web-Based Consumable Supplies Management System with Digital Requisition Processing and Automated Reports"
             headerSlot={
                 <div className="mb-5 pb-3.5 border-b border-stone-200/80 dark:border-slate-800">
                     <h2 className="text-xl font-bold text-stone-900 dark:text-slate-100 font-sans tracking-tight">
