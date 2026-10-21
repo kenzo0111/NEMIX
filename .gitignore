@@ -22,6 +22,7 @@
 /storage/*.json
 *.bundle
 /vendor
+/tmp/
 Homestead.json
 Homestead.yaml
 Thumbs.db
