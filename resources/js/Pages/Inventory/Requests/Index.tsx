@@ -17,6 +17,7 @@ import { RequestStatusBadge } from './components/RequestStatusBadge';
 import { DivisionGroup, RequestItem, SupplyRequest } from './types';
 import { Plus, Search, FileText } from 'lucide-react';
 import useAuthorization from '@/Hooks/useAuthorization';
+import CoordinatorRequestsWorkspace from './components/CoordinatorRequestsWorkspace';
 
 const PAGE_SIZE = 10;
 const statusOptions = [
@@ -52,6 +53,7 @@ export default function MyRequests({
     const [collapsed, toggle] = useSidebarCollapse();
     const { can } = useAuthorization();
     const pageProps = usePage().props as any;
+    const isCoordinator = Boolean(pageProps.auth?.capabilities?.coordinatorInventory);
     const systemSettings = (pageProps.systemSettings || {}) as Record<string, any>;
     const publicSettings = pageProps.system?.settings || {};
 
@@ -222,7 +224,7 @@ export default function MyRequests({
     };
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 overflow-x-hidden selection:bg-red-900 selection:text-white">
+        <div className={`min-h-screen ${isCoordinator ? 'bg-[#F5F6F8]' : 'bg-[#F4F6F8]'} dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 overflow-x-hidden selection:bg-red-900 selection:text-white`}>
             <Head title="My Requests" />
             <Sidebar
                 modules={getSidebarModules('My Requests')}
@@ -232,6 +234,28 @@ export default function MyRequests({
             />
 
             <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
+                {isCoordinator ? <CoordinatorRequestsWorkspace
+                    userName={auth.user.name}
+                    counts={counts}
+                    requests={visible}
+                    search={searchTerm}
+                    status={statusFilter}
+                    statusOptions={statusOptions}
+                    filteredCount={filtered.length}
+                    page={safePage}
+                    lastPage={lastPage}
+                    from={from}
+                    to={to}
+                    busy={busy}
+                    onSearch={value => { setSearchTerm(value); setCurrentPage(1); }}
+                    onStatus={value => { setStatusFilter(value); setCurrentPage(1); }}
+                    onPage={setCurrentPage}
+                    onCreate={openCreate}
+                    onDetails={setDetailsRequest}
+                    onEdit={openEdit}
+                    onRis={openRis}
+                    onCancel={cancel}
+                /> : <>
                 <PageHeader
                     title="My Requests"
                     description="Supply requests, requisition tracking, and approval history"
@@ -607,6 +631,7 @@ export default function MyRequests({
                         )}
                     </div>
                 </div>
+                </>}
             </main>
 
             {/* Request Creation / Editing Modal */}

@@ -61,6 +61,7 @@ class SupplyRequestController extends Controller
         $defaultIssuedByDesignation = $signatories['issued_by_position'];
 
         return Inertia::render('Inventory/Requests/Index', [
+            'inventoryScope' => $request->user()->usesCoordinatorInventory() ? 'coordinator' : null,
             'initialItemId' => $initialItemId,
             'requests' => SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'issuance.items.allocations.inventoryBatch'])
                 ->where('requested_by', $request->user()->id)->latest()->get(),
