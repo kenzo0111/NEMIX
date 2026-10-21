@@ -33,7 +33,7 @@ export default function DashboardHeader({ onToggleSidebar, coordinator }: Dashbo
     };
 
     return (
-        <header className={`sticky top-0 z-30 bg-white dark:bg-slate-900 shadow-xs transition-colors ${isCoordinator ? 'border-t-4 border-red-900 dark:border-red-700' : ''}`}>
+        <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 shadow-xs transition-colors">
             {/* Non-Production Mode Alert Notice */}
             {systemMode && systemMode !== 'LIVE PRODUCTION' && (
                 <div
@@ -74,15 +74,15 @@ export default function DashboardHeader({ onToggleSidebar, coordinator }: Dashbo
 
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-sm font-medium text-red-950 dark:text-red-400">
-                                {isCoordinator ? 'Delivery Unit Supply Coordinator' : 'Supply & Property Management'}
+                            <span className={isCoordinator ? 'font-serif text-[11px] font-bold uppercase tracking-[0.1em] text-red-950 dark:text-red-300' : 'text-sm font-medium text-red-950 dark:text-red-400'}>
+                                {isCoordinator ? 'Delivery Unit · Supply Coordinator' : 'Supply & Property Management'}
                             </span>
                         </div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight break-words">
-                            {isCoordinator ? 'My supplies' : 'Dashboard'}
+                        <h1 className={`font-bold text-gray-900 dark:text-slate-100 tracking-tight break-words ${isCoordinator ? 'font-serif text-xl leading-tight sm:text-2xl' : 'font-sans text-2xl sm:text-3xl'}`}>
+                            {isCoordinator ? 'Supply & Inventory Management' : 'Dashboard'}
                         </h1>
-                        <p className="text-sm text-gray-600 dark:text-slate-400 font-normal mt-1 leading-relaxed break-words">
-                            {isCoordinator ? 'Track unit stock, requests, and distributions.' : 'Monitor stock, requests, and recent activity.'}
+                        <p className={`${isCoordinator ? 'text-xs' : 'text-sm'} text-gray-600 dark:text-slate-400 font-normal mt-1 leading-relaxed break-words`}>
+                            {isCoordinator ? 'Your Delivery Unit consumable inventory and stock movements' : 'Monitor stock, requests, and recent activity.'}
                         </p>
                     </div>
                 </div>
