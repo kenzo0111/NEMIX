@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDashboardScope } from '../useDashboardScope';
 import { Link } from '@inertiajs/react';
 import { RecentActivity } from '../types';
 import { normalizeActivity } from '../utils/normalizeActivity';
@@ -10,6 +11,7 @@ interface RecentSystemActivityProps {
 }
 
 export default function RecentSystemActivity({ activities = [], className = '' }: RecentSystemActivityProps) {
+    const { isCoordinator, inventoryHref } = useDashboardScope();
     // Filter out routine authentication/session noise (login, logout, session creation)
     const businessActivities = (activities || []).filter((act: any) => {
         const rawAction = String(act.action || act.title || '').toLowerCase();
@@ -131,7 +133,7 @@ export default function RecentSystemActivity({ activities = [], className = '' }
             {/* Standardized Secondary Action */}
             <div className="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                 <Link
-                    href={route('audit-logs.transaction-trails')}
+                    href={isCoordinator ? inventoryHref : route('audit-logs.transaction-trails')}
                     className="text-xs font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1 shrink-0"
                 >
                     <span>View All Activity</span>

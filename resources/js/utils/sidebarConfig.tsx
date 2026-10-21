@@ -166,6 +166,17 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
 
         // LOGISTICS & OPERATIONS
         {
+            key: 'delivery-unit-inventory',
+            coordinatorOnly: true,
+            category: 'logistics',
+            title: 'Unit Inventory & Stock Cards',
+            icon: Package,
+            href: route('coordinator.inventory.index'),
+            active: routeCurrentName?.startsWith('coordinator.inventory.'),
+            requiredCapability: (caps) => Boolean(caps.coordinatorInventory),
+            requiredPermission: 'route:coordinator.inventory.index',
+        },
+        {
             key: 'inventory',
             category: 'logistics',
             categoryTitle: SIDEBAR_CATEGORIES.logistics.title,

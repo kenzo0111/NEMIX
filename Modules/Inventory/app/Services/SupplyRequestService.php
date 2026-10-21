@@ -116,6 +116,9 @@ class SupplyRequestService
             ], $lines, $issuerId);
 
             $request->update(['status' => 'Issued', 'issuance_id' => $issuance->id, 'released_at' => now()]);
+            if ($request->requester->usesCoordinatorInventory()) {
+                app(\App\Services\CoordinatorInventoryService::class)->receiveRelease($request, $issuerId);
+            }
             self::audit($request, $issuerId, 'Released Supply Request');
         });
     }

@@ -36,10 +36,10 @@ export default function OperationalAlertStrip({
                         <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                                 <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-200/80 dark:bg-amber-900/80 text-amber-950 dark:text-amber-200 px-1.5 py-0.5 rounded">
-                                    RFID Alert
+                                    Optional RFID Tagging
                                 </span>
                                 <span className="text-xs font-semibold text-amber-950 dark:text-amber-200 truncate">
-                                    {untaggedRfidCount} {untaggedRfidCount === 1 ? 'item requires' : 'items require'} RFID hardware tag assignment
+                                    {untaggedRfidCount} {untaggedRfidCount === 1 ? 'item is' : 'items are'} managed without RFID tags. Tagging is optional.
                                 </span>
                             </div>
                         </div>

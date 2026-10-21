@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useDashboardScope } from '../useDashboardScope';
 import {
     Bar,
     Line,
@@ -38,6 +39,8 @@ const chartConfig: ChartConfig = {
 };
 
 export default function InventoryMovementChart({ data }: InventoryMovementChartProps) {
+    const { isCoordinator } = useDashboardScope();
+    const activeConfig = isCoordinator ? { ...chartConfig, risIssued: { ...chartConfig.risIssued, label: 'Unit Items Issued' } } : chartConfig;
     const chartData = useMemo(() => {
         return data.map((d) => ({
             label: d.label,
@@ -56,7 +59,7 @@ export default function InventoryMovementChart({ data }: InventoryMovementChartP
     }
 
     return (
-        <ChartContainer config={chartConfig} className="h-44 sm:h-48 lg:h-52 w-full aspect-auto">
+        <ChartContainer config={activeConfig} className="h-44 sm:h-48 lg:h-52 w-full aspect-auto">
             <ComposedChart data={chartData} margin={{ top: 8, right: 10, left: -10, bottom: 0 }}>
                 <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--chart-grid)" />
                 <XAxis

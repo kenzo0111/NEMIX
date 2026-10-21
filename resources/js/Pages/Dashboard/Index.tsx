@@ -1,5 +1,5 @@
 import React from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
@@ -35,7 +35,11 @@ export default function DashboardIndex({
     recentActivity = [],
     auditLogs = [],
     filters,
+    inventoryScope,
+    coordinatorName,
+    requestSummary = {},
 }: DashboardPageProps) {
+    const isCoordinator = inventoryScope === 'coordinator';
     const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const modules = getSidebarModules();
 
@@ -115,13 +119,24 @@ export default function DashboardIndex({
                     {/* ========================================================================= */}
                     {/* TIER 3: ADMINISTRATIVE STATUS (Matched Height 3-Column Row)              */}
                     {/* ========================================================================= */}
-                    <section aria-label="Administrative Status">
+                    {!isCoordinator && <section aria-label="Administrative Status">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
                             <RfidOverview rfidSummary={rfidSummary} />
                             <SupplierStatusCard summary={supplierSummary} />
                             <ComplianceStatusCard summary={complianceSummary} />
                         </div>
-                    </section>
+                    </section>}
+
+                    {isCoordinator && <section aria-label="Delivery Unit requests" className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+                        <h2 className="font-semibold">{coordinatorName} · Delivery Unit Inventory</h2>
+                        <div className="flex flex-wrap gap-4 text-sm">
+                            {['Pending', 'Approved', 'Issued', 'Rejected', 'Cancelled'].map(status => <span key={status}>{status}: <strong>{requestSummary[status] ?? 0}</strong></span>)}
+                        </div>
+                        <div className="flex flex-wrap gap-4 text-sm font-semibold text-red-900 dark:text-red-300">
+                            <Link href={route('inventory.requests.index')}>Request from Supply Office</Link>
+                            <Link href={route('coordinator.inventory.index')}>Manage Unit Inventory & Generate Stock Cards</Link>
+                        </div>
+                    </section>}
 
                     {/* ========================================================================= */}
                     {/* TIER 4: AUDIT / SUPPORTING ACTIVITY (Compact Low-Profile Feed)           */}

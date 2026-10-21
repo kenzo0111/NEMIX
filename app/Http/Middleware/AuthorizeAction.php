@@ -38,6 +38,15 @@ class AuthorizeAction
             return $next($request);
         }
 
+        // Coordinator permissions must never expose central stock or global reports.
+        if ($user->usesCoordinatorInventory()
+            && (Str::startsWith($routeName, ['compliance.', 'rfid-scanner.', 'suppliers.'])
+                || (Str::startsWith($routeName, 'inventory.')
+                    && ! Str::startsWith($routeName, 'inventory.requests.'))
+                || in_array($routeName, ['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release'], true))) {
+            abort(403);
+        }
+
         $permissionName = $this->routePermissionName($routeName);
         $this->ensurePermissionExists($permissionName);
 

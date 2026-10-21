@@ -72,6 +72,7 @@ class HandleInertiaRequests extends Middleware
 
             $capabilities = [
                 'dashboard' => true,
+                'coordinatorInventory' => $user->usesCoordinatorInventory(),
                 'requests' => $hasPerm('inventory.requests.index', false),
                 'inventory' => [
                     'view' => $hasPerm('inventory.index', $defaultForStaff),
@@ -102,6 +103,12 @@ class HandleInertiaRequests extends Middleware
                 ],
                 'systemSettings' => $isSystemAdmin || $hasPerm('system.settings.index', false),
             ];
+            if ($user->usesCoordinatorInventory()) {
+                $capabilities['inventory'] = ['view' => false, 'receiving' => false, 'issuance' => false, 'requests' => $capabilities['requests']];
+                $capabilities['rfid'] = ['view' => false];
+                $capabilities['suppliers'] = ['view' => false];
+                $capabilities['compliance'] = ['reports' => false, 'analytics' => false];
+            }
         } else {
             $userArray = null;
             $capabilities = null;

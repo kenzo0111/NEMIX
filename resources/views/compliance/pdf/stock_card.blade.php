@@ -109,6 +109,9 @@
 @endphp
 
 <div class="report-page sc-container">
+    @if(data_get($scData, 'coordinator_name'))
+        <div style="font-size: 9pt; margin-bottom: 4px;">Delivery Unit Supply Coordinator: {{ data_get($scData, 'coordinator_name') }}</div>
+    @endif
     <div class="sc-header">
         <div class="sc-appendix">Appendix 58</div>
         <div class="sc-title-row">

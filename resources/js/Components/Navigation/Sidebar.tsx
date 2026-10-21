@@ -39,6 +39,7 @@ export default function Sidebar({
     const filteredModules = useMemo(() => {
         return rawModules
             .map((mod) => {
+                if (mod.coordinatorOnly && !capabilities?.coordinatorInventory) return null;
                 // If module has submodules, filter them
                 if (mod.submodules && mod.submodules.length > 0) {
                     const accessibleSubmodules = mod.submodules.filter((sub) => {

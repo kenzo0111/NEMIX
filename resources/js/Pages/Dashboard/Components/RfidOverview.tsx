@@ -46,7 +46,7 @@ export default function RfidOverview({ rfidSummary, className = '' }: RfidOvervi
 
                     <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg p-2 sm:p-2.5">
                         <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
-                            Pending
+                            Without Tag
                         </span>
                         <span className="text-base font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
                             {untagged.toLocaleString()}
@@ -66,7 +66,7 @@ export default function RfidOverview({ rfidSummary, className = '' }: RfidOvervi
 
                 {/* Subtle description */}
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 truncate">
-                    {tagged} of {total} hardware assets verified in field.
+                    Optional RFID tagging · {tagged} of {total} inventory items tagged.
                 </p>
             </div>
 

@@ -11,7 +11,7 @@ interface AuthBrandPanelProps {
 export default function AuthBrandPanel({
     badgeText = 'Institutional Access',
     headline = 'Smart Supply and Inventory Management System',
-    subheadline = 'RFID Inventory Tracking and Automated Reports',
+    subheadline = 'Consumable Inventory, Requests, and Automated Reports',
 }: AuthBrandPanelProps) {
     const { branding } = usePage<PageProps>().props;
     const institutionName = branding?.institutionName || 'University of Camarines Norte';
@@ -58,7 +58,7 @@ export default function AuthBrandPanel({
                     Official Consumables &amp; Supplies Administration
                 </p>
                 <p className="text-[11px] text-stone-300/80 leading-relaxed">
-                    Inventory Receiving &bull; Issuance Processing &bull; RFID Tracking &bull; Automated Reports
+                    Consumable Inventory &bull; Supply Requests &bull; Automated Reports
                 </p>
             </div>
         </div>

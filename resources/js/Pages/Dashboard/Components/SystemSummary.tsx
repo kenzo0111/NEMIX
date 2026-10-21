@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDashboardScope } from '../useDashboardScope';
 import { Link } from '@inertiajs/react';
 import { DashboardSummary, DashboardStats } from '../types';
 import { Package, TrendingUp, AlertTriangle, Boxes, ShieldAlert, ArrowRight } from 'lucide-react';
@@ -14,6 +15,7 @@ export default function SystemSummary({
     stats,
     criticalStockCount,
 }: SystemSummaryProps) {
+    const { inventoryHref, issuanceHref, isCoordinator } = useDashboardScope();
     const rawVal = summary?.total_inventory_value ?? 0;
     const formattedVal = stats?.totalInventoryValue || `₱${rawVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const availableItems = summary?.available_items ?? stats?.activeInventoryItems ?? 0;
@@ -26,7 +28,7 @@ export default function SystemSummary({
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-3.5">
                 {/* 1. Critical Stock - Highest Alert Priority */}
                 <Link
-                    href={route('inventory.index')}
+                    href={inventoryHref}
                     className="bg-red-50/75 dark:bg-red-950/40 border border-red-200/90 dark:border-red-800/80 hover:border-red-300 dark:hover:border-red-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
@@ -52,7 +54,7 @@ export default function SystemSummary({
 
                 {/* 2. Inventory Value - Neutral Card */}
                 <Link
-                    href={route('inventory.index')}
+                    href={inventoryHref}
                     className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
@@ -75,7 +77,7 @@ export default function SystemSummary({
 
                 {/* 3. Available Items - Neutral Card */}
                 <Link
-                    href={route('inventory.index')}
+                    href={inventoryHref}
                     className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
@@ -98,7 +100,7 @@ export default function SystemSummary({
 
                 {/* 4. Issued This Month - Neutral Card */}
                 <Link
-                    href={route('inventory.issuance')}
+                    href={issuanceHref}
                     className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
@@ -115,19 +117,19 @@ export default function SystemSummary({
                         </div>
                     </div>
                     <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
-                        Disbursed via RIS MTD
+                        {isCoordinator ? 'Issued within your Delivery Unit MTD' : 'Disbursed via RIS MTD'}
                     </div>
                 </Link>
 
                 {/* 5. Unserviceable - Neutral Card */}
                 <Link
-                    href={route('inventory.index')}
+                    href={inventoryHref}
                     className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
                             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 truncate">
-                                Unserviceable
+                                {isCoordinator ? 'Out of Stock' : 'Unserviceable'}
                             </span>
                             <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:text-red-900 dark:group-hover:text-amber-300 transition-colors shrink-0">
                                 <ShieldAlert className="w-3.5 h-3.5" />
@@ -138,7 +140,7 @@ export default function SystemSummary({
                         </div>
                     </div>
                     <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
-                        Awaiting disposal
+                        {isCoordinator ? 'Request replenishment from Supply Office' : 'Awaiting disposal'}
                     </div>
                 </Link>
             </div>

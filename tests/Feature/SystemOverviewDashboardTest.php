@@ -93,7 +93,7 @@ class SystemOverviewDashboardTest extends TestCase
             [['Property Custodian'], false],
             [['RFID Operator'], false],
             [[], false],
-            [['Supply Coordinator', 'Property Staff'], true],
+            [['Supply Coordinator', 'Property Staff'], false],
         ] as [$roles, $expected]) {
             $user = User::factory()->create(['is_active' => true]);
             foreach ($roles as $role) {
@@ -105,9 +105,14 @@ class SystemOverviewDashboardTest extends TestCase
             ]));
 
             $this->actingAs($user)->get(route('dashboard'))->assertOk()
-                ->assertInertia(fn (Assert $page) => $page
-                    ->where('showRfidAlert', $expected)
-                    ->where('rfidSummary.untagged', 1));
+                ->assertInertia(function (Assert $page) use ($expected, $user) {
+                    $page->where('showRfidAlert', $expected);
+                    if ($user->usesCoordinatorInventory()) {
+                        $page->missing('rfidSummary');
+                    } else {
+                        $page->where('rfidSummary.untagged', 1);
+                    }
+                });
         }
     }
 

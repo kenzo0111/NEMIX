@@ -129,6 +129,9 @@ export interface DashboardFilters {
 }
 
 export interface DashboardPageProps {
+    inventoryScope?: 'coordinator';
+    coordinatorName?: string;
+    requestSummary?: Record<string, number>;
     auth: {
         user: {
             id: number;

@@ -10,6 +10,7 @@ interface DashboardHeaderProps {
 
 export default function DashboardHeader({ onToggleSidebar }: DashboardHeaderProps) {
     const system = (usePage().props as any).system;
+    const isCoordinator = (usePage().props as any).inventoryScope === 'coordinator';
     const systemMode = system?.mode || 'LIVE PRODUCTION';
 
     const todayDate = new Date().toLocaleDateString('en-US', {
@@ -73,14 +74,14 @@ export default function DashboardHeader({ onToggleSidebar }: DashboardHeaderProp
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-0.5">
                             <span className="text-xs font-bold text-red-950 dark:text-red-400 uppercase tracking-widest truncate">
-                                SPMO • Supply & Property Management Office
+                                {isCoordinator ? 'Delivery Unit • Supply Coordinator' : 'SPMO • Supply & Property Management Office'}
                             </span>
                         </div>
                         <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-slate-100 font-serif tracking-tight break-words">
                             Supply & Inventory Management
                         </h1>
                         <p className="text-xs text-gray-600 dark:text-slate-400 font-medium mt-0.5 break-words">
-                            System-wide operational overview and real-time asset position
+                            {isCoordinator ? 'Your Delivery Unit consumable inventory and stock movements' : 'Consumable inventory, requests, and automated reporting'}
                         </p>
                     </div>
                 </div>

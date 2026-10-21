@@ -10,6 +10,7 @@ export interface SidebarCategory {
 
 export interface AuthCapabilities {
     dashboard: boolean;
+    coordinatorInventory?: boolean;
     requests?: boolean;
     inventory: {
         view: boolean;
@@ -49,6 +50,7 @@ export interface SidebarSubmodule {
 }
 
 export interface SidebarModule {
+    coordinatorOnly?: boolean;
     key: string;
     category: SidebarCategoryKey;
     categoryTitle?: string;

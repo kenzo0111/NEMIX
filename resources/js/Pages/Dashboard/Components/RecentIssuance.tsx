@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDashboardScope } from '../useDashboardScope';
 import { formatRisNumber } from '@/utils/risFormatter';
 import { Link } from '@inertiajs/react';
 import { RecentIssuance as RecentIssuanceType } from '../types';
@@ -10,6 +11,7 @@ interface RecentIssuanceProps {
 }
 
 export default function RecentIssuance({ issuances = [], className = '' }: RecentIssuanceProps) {
+    const { issuanceHref, isCoordinator } = useDashboardScope();
     return (
         <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs flex flex-col justify-between h-full min-w-0 ${className}`}>
             <div>
@@ -42,7 +44,7 @@ export default function RecentIssuance({ issuances = [], className = '' }: Recen
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-1.5">
                                             <span className="text-xs font-bold font-mono text-slate-900 dark:text-slate-100 group-hover:text-red-900 dark:group-hover:text-red-400 transition-colors">
-                                                {formatRisNumber(iss.ris_number)}
+                                                {isCoordinator ? iss.ris_number : formatRisNumber(iss.ris_number)}
                                             </span>
                                         </div>
                                         <p
@@ -70,7 +72,7 @@ export default function RecentIssuance({ issuances = [], className = '' }: Recen
             {/* Standardized Secondary Action */}
             <div className="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                 <Link
-                    href={route('inventory.issuance')}
+                    href={issuanceHref}
                     className="text-xs font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1"
                 >
                     <span>View Ledger</span>

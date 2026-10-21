@@ -25,6 +25,11 @@ class DashboardController
         $startDate = $validated['start_date'] ?? null;
         $endDate = $validated['end_date'] ?? null;
 
+        if ($request->user()->usesCoordinatorInventory()) {
+            return Inertia::render('Dashboard', app(\App\Services\CoordinatorInventoryService::class)
+                ->dashboard($request->user(), $chartFilter, $startDate, $endDate));
+        }
+
         // Authoritative metrics & movement from DashboardService
         $summaryData = $this->dashboardService->getSummaryStats();
         $movementData = $this->dashboardService->getInventoryMovement($chartFilter, $startDate, $endDate);

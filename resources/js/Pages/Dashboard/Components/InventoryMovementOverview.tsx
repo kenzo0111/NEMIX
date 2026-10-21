@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDashboardScope } from '../useDashboardScope';
 import { Link, router } from '@inertiajs/react';
 import { MovementPoint, MovementSummary } from '../types';
 import InventoryMovementChart from '../Charts/InventoryMovementChart';
@@ -17,6 +18,7 @@ export default function InventoryMovementOverview({
     currentFilter = 'monthly',
     className = '',
 }: InventoryMovementOverviewProps) {
+    const { analyticsHref, isCoordinator } = useDashboardScope();
     const handleFilterChange = (newFilter: 'monthly' | 'yearly') => {
         router.get(
             route('dashboard'),
@@ -74,10 +76,10 @@ export default function InventoryMovementOverview({
                     </div>
 
                     <Link
-                        href={route('compliance.analytics')}
+                        href={analyticsHref}
                         className="text-xs font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1 shrink-0"
                     >
-                        <span>Analytics</span>
+                        <span>{isCoordinator ? 'Unit Stock Cards' : 'Analytics'}</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                 </div>
