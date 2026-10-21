@@ -138,6 +138,8 @@ class CoordinatorInventoryService
             'summary' => ['total_inventory_value' => (float) $stocks->sum('value'), 'available_items' => $stocks->where('quantity', '>', 0)->count(),
                 'total_inventory' => (int) $stocks->sum('quantity'),
                 'total_received' => (int) $movements->where('type', 'receipt')->sum('quantity'),
+                'received_this_month' => (int) $movements->where('type', 'receipt')->filter(fn ($m) => $m->date->format('Y-m') === now()->format('Y-m'))->sum('quantity'),
+                'movements_this_month' => $movements->filter(fn ($m) => $m->date->format('Y-m') === now()->format('Y-m'))->count(),
                 'issued_this_month' => $monthlyIssued, 'critical_stock' => $critical->count(), 'unserviceable' => $stocks->where('quantity', 0)->count()],
             'movement' => $points, 'movementSummary' => ['received' => $received, 'issued' => $issued, 'starting_balance' => $opening, 'ending_balance' => $opening + $received - $issued],
             'recentReceiving' => $movements->where('type', 'receipt')->reverse()->take(5)->map(fn ($m) => [

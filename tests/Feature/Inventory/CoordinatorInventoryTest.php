@@ -148,6 +148,9 @@ class CoordinatorInventoryTest extends TestCase
             'chart_filter' => 'custom', 'start_date' => '2026-10-01', 'end_date' => '2026-10-15',
         ]))->assertInertia(fn ($page) => $page
             ->where('movementSummary.received', 0)->where('summary.total_inventory', 4)->where('summary.total_received', 7));
+        $this->actingAs($owner)->get(route('dashboard'))->assertInertia(fn ($page) => $page
+            ->where('summary.received_this_month', 0)->where('summary.issued_this_month', 3)
+            ->where('summary.movements_this_month', 2));
     }
 
     public function test_dashboard_attention_includes_low_and_depleted_unit_stock_in_severity_order(): void

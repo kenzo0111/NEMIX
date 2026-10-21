@@ -1,6 +1,8 @@
 export interface DashboardSummary {
     total_inventory?: number;
     total_received?: number;
+    received_this_month?: number;
+    movements_this_month?: number;
     total_inventory_value: number;
     available_items: number;
     issued_this_month: number;
