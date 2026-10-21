@@ -39,7 +39,8 @@ try {
     $ExpectedCommit = $ExpectedCommit.Trim()
 
     Write-Host '==> Building production assets locally...' -ForegroundColor Cyan
-    Invoke-Checked 'npm' @('run', 'build')
+    # npm.ps1 reparses the invocation text and breaks variable-based calls.
+    Invoke-Checked 'npm.cmd' @('run', 'build')
 
     $ArchiveName = 'nemix-assets-' + [Guid]::NewGuid().ToString('N') + '.tar.gz'
     $Archive = Join-Path ([System.IO.Path]::GetTempPath()) $ArchiveName
