@@ -10,6 +10,7 @@ interface OptionType {
 }
 
 interface LoginAuditToolbarProps {
+    coordinatorLayout?: boolean;
     filters: LoginAuditFilters;
     availableRoles?: string[];
     availableStatuses?: { value: string; label: string }[];
@@ -18,6 +19,7 @@ interface LoginAuditToolbarProps {
 }
 
 export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
+    coordinatorLayout = false,
     filters,
     availableRoles = [],
     availableStatuses = [
@@ -184,7 +186,7 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
     ].filter(Boolean).length;
 
     return (
-        <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200/90 dark:border-slate-800 shadow-2xs p-4 space-y-3">
+        <div className={`bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 ${coordinatorLayout ? 'rounded-2xl shadow-sm p-4 sm:p-6' : 'rounded-lg shadow-2xs p-4'} space-y-3`}>
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 {/* Search Input matching system-wide toolbars */}
                 <div className="relative flex-1 min-w-[260px] max-w-md">

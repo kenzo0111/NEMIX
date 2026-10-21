@@ -5,16 +5,31 @@ import { LoginAuditSummary as SummaryData } from '../types';
 interface LoginAuditSummaryProps {
     summary: SummaryData;
     hasActiveFilters?: boolean;
+    coordinatorLayout?: boolean;
 }
 
 export const LoginAuditSummary: React.FC<LoginAuditSummaryProps> = ({
     summary,
     hasActiveFilters = false,
+    coordinatorLayout = false,
 }) => {
     const total = summary?.total ?? 0;
     const successful = summary?.successful ?? 0;
     const failed = summary?.failed ?? 0;
     const uniqueUsers = summary?.unique_users ?? 0;
+
+    if (coordinatorLayout) {
+        const cards = [
+            { label: 'Total records', count: total, hint: 'Recorded authentication attempts', icon: ScrollText, color: 'bg-red-50 text-red-900 dark:bg-red-950/50 dark:text-red-300' },
+            { label: 'Successful', count: successful, hint: 'Authorized access sessions', icon: CheckCircle2, color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' },
+            { label: 'Failed logins', count: failed, hint: 'Denied authentication attempts', icon: AlertOctagon, color: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300' },
+            { label: 'Unique users', count: uniqueUsers, hint: 'Distinct user identities recorded', icon: Users2, color: 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300' },
+        ];
+        return <section aria-label="Authentication activity overview" className="space-y-3">
+            {hasActiveFilters && <p className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"><Filter size={14} />Summary counts reflect active filter parameters (Search / Role / Status / Date Range).</p>}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 2xl:grid-cols-4">{cards.map(card => <div key={card.label} className="flex min-w-0 items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-700 dark:bg-slate-900"><div className="min-w-0"><p className="text-sm text-slate-600 dark:text-slate-400">{card.label}</p><p className="mt-2 text-2xl font-bold tabular-nums">{card.count.toLocaleString()}</p><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{card.hint}</p></div><span className={`hidden rounded-xl p-2.5 sm:inline-flex ${card.color}`}><card.icon size={20} /></span></div>)}</div>
+        </section>;
+    }
 
     return (
         <div className="space-y-2">

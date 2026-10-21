@@ -1,10 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
+import DashboardHeader from '@/Pages/Dashboard/Components/DashboardHeader';
+import { secondaryButton } from '@/Pages/Inventory/Coordinator/inventory';
 import Sidebar from '@/Components/Sidebar';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
-import { ShieldCheck, Printer } from 'lucide-react';
+import { ShieldCheck, Printer, ChevronRight } from 'lucide-react';
 import {
     LoginAuditPageProps,
     LoginAuditRecord,
@@ -26,6 +28,7 @@ export default function LoginAuditIndex({
     availableStatuses = [],
 }: LoginAuditPageProps) {
     const page = usePage();
+    const isCoordinator = Boolean((page.props.auth as any)?.capabilities?.coordinatorInventory);
     const user = auth?.user || (page.props.auth as any)?.user;
     const [collapsed, handleToggleCollapse] = useSidebarCollapse();
 
@@ -126,7 +129,7 @@ export default function LoginAuditIndex({
     };
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white print:bg-white print:min-h-0 print:h-auto print:block print:p-0">
+        <div className={`min-h-screen ${isCoordinator ? 'bg-[#F5F6F8]' : 'bg-[#F4F6F8]'} dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white print:bg-white print:min-h-0 print:h-auto print:block print:p-0`}>
             <Head title="Audit Logs - Login Audit Logs" />
 
             {/* Dashboard Sidebar is completely hidden in print */}
@@ -146,21 +149,28 @@ export default function LoginAuditIndex({
             >
                 {/* PageHeader is completely hidden in print */}
                 <div className="print:hidden audit-print-hide">
-                    <PageHeader
+                    {isCoordinator ? <DashboardHeader coordinator /> : <PageHeader
                         title="Login Audit Logs"
                         description="Review authentication activity, access results, user accounts, and source IP addresses recorded by the system."
                         breadcrumbs={[
                             { name: 'Audit Logs' },
                             { name: 'Login Audit' },
                         ]}
-                    />
+                    />}
                 </div>
 
-                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-5 max-w-[1600px] mx-auto pb-16 min-w-0 w-full print:p-0 print:m-0 print:space-y-0 print:max-w-none print:w-full">
+                <div className={`${isCoordinator ? 'p-4 sm:p-7 lg:p-8 space-y-6' : 'p-4 sm:p-5 lg:p-6 xl:p-8 space-y-5'} max-w-[1600px] mx-auto pb-16 min-w-0 w-full print:p-0 print:m-0 print:space-y-0 print:max-w-none print:w-full`}>
                     {/* Screen View (Interactive Dashboard Controls) - Hidden on Print */}
-                    <div className="space-y-5 print:hidden audit-print-hide">
+                    <div className={`${isCoordinator ? 'space-y-6' : 'space-y-5'} print:hidden audit-print-hide`}>
+                        {isCoordinator && <>
+                            <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300">Coordinator Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Login Audit</span></nav>
+                            <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+                                <div><p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-red-900 dark:text-red-300">Supply &amp; Property Management Office</p><h1 className="font-serif text-2xl font-bold tracking-tight sm:text-3xl">Login Audit</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Review recorded authentication activity, access results, and session details.</p></div>
+                                <button type="button" onClick={handlePrintLedger} className={secondaryButton} title="Print or export official authentication audit ledger"><Printer size={17} />Print Ledger</button>
+                            </section>
+                        </>}
                         {/* Subtle Institutional Security Header Banner */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 rounded-lg shadow-2xs">
+                        <div className={`${isCoordinator ? 'hidden' : 'flex'} flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 rounded-lg shadow-2xs`}>
                             <div className="flex items-center gap-2.5">
                                 <div className="p-1.5 bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 rounded-md border border-red-100 dark:border-red-900/40">
                                     <ShieldCheck className="w-4 h-4" />
@@ -195,12 +205,14 @@ export default function LoginAuditIndex({
 
                         {/* Compact Institutional Summary Strip */}
                         <LoginAuditSummary
+                            coordinatorLayout={isCoordinator}
                             summary={summary}
                             hasActiveFilters={hasActiveFilters}
                         />
 
                         {/* Filter and Search Toolbar */}
                         <LoginAuditToolbar
+                            coordinatorLayout={isCoordinator}
                             filters={filters}
                             availableRoles={availableRoles}
                             availableStatuses={availableStatuses}
@@ -210,6 +222,7 @@ export default function LoginAuditIndex({
 
                         {/* Audit Ledger Table */}
                         <LoginAuditTable
+                            coordinatorLayout={isCoordinator}
                             records={records}
                             hasActiveFilters={hasActiveFilters}
                             onResetFilters={handleReset}
@@ -217,6 +230,7 @@ export default function LoginAuditIndex({
 
                         {/* Server-side Pagination Footer */}
                         <LoginAuditPagination
+                            coordinatorLayout={isCoordinator}
                             pagination={paginationData}
                             filters={filters}
                             routeName="audit-logs.login-trails"

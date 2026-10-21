@@ -6,11 +6,12 @@ import { usePage } from '@inertiajs/react';
 
 interface DashboardHeaderProps {
     onToggleSidebar?: () => void;
+    coordinator?: boolean;
 }
 
-export default function DashboardHeader({ onToggleSidebar }: DashboardHeaderProps) {
+export default function DashboardHeader({ onToggleSidebar, coordinator }: DashboardHeaderProps) {
     const system = (usePage().props as any).system;
-    const isCoordinator = (usePage().props as any).inventoryScope === 'coordinator';
+    const isCoordinator = coordinator ?? ((usePage().props as any).inventoryScope === 'coordinator');
     const systemMode = system?.mode || 'LIVE PRODUCTION';
 
     const todayDate = new Date().toLocaleDateString('en-US', {
