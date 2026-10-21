@@ -22,6 +22,7 @@ export default function FullAuthLayout({
 }: FullAuthLayoutProps) {
     const { branding } = usePage<PageProps>().props;
     const institutionName = branding?.institutionName || 'University of Camarines Norte';
+    const officeName = branding?.officeName || 'Supply & Property Management Office (SPMO)';
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center pt-20 pb-8 sm:py-12 px-4 sm:px-6 lg:px-8 relative login-bg">
@@ -37,7 +38,7 @@ export default function FullAuthLayout({
             </div>
 
             {/* Main Centered Institutional Card */}
-            <main className="relative z-10 w-full max-w-xl lg:max-w-5xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-stone-200 dark:border-slate-800">
+            <main className="relative z-10 w-full max-w-xl lg:max-w-[1200px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-stone-200/40 dark:border-slate-800">
                 {/* Desktop/Tablet Left Brand Panel */}
                 <AuthBrandPanel
                     badgeText={badgeText}
@@ -46,7 +47,7 @@ export default function FullAuthLayout({
                 />
 
                 {/* Right Form Panel: Primary visual focus */}
-                <div className="relative w-full lg:w-[54%] p-6 sm:p-10 lg:p-12 flex flex-col bg-white dark:bg-slate-900">
+                <div className="relative w-full lg:w-[49%] p-6 sm:p-10 lg:p-10 xl:p-12 flex flex-col bg-white dark:bg-slate-900">
 
                     <div className="relative z-10 w-full max-w-[470px] mx-auto flex-1 flex flex-col justify-between">
                         {/* Mobile Condensed Brand Header */}
@@ -56,9 +57,13 @@ export default function FullAuthLayout({
                                     <ApplicationLogo alt={`${institutionName} Seal`} className="h-10 w-10 object-contain" />
                                 </div>
                                 <div className="min-w-0">
-                                    <h1 className="text-base sm:text-lg font-sans font-semibold normal-case text-stone-900 dark:text-slate-100 leading-snug break-words">
+                                    <p className="text-[10px] sm:text-xs font-medium uppercase tracking-wide text-[#7B1113] dark:text-amber-300 mb-1">
+                                        REPUBLIC OF THE PHILIPPINES
+                                    </p>
+                                    <h1 className="text-sm sm:text-base font-sans font-bold uppercase text-stone-900 dark:text-slate-100 leading-snug break-words">
                                         {institutionName}
                                     </h1>
+                                    <p className="text-xs leading-snug text-stone-600 dark:text-slate-300 mt-1">{officeName}</p>
                                 </div>
                             </div>
                             <h2 className="text-xl font-bold tracking-tight text-[#7B1113] dark:text-red-400 leading-snug mt-4">
@@ -76,7 +81,7 @@ export default function FullAuthLayout({
                         </div>
 
                         {/* Secondary institutional footer anchored at the bottom */}
-                        <AuthFooter compact className="pt-5 mt-8 border-t border-stone-200/70 dark:border-slate-800/80" />
+                        <AuthFooter compact className="pt-5 mt-6" />
                     </div>
                 </div>
             </main>
