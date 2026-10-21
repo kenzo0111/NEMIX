@@ -16,7 +16,11 @@ interface Props { stocks: Stock[]; lowStockThreshold: number; movements: Movemen
 export default function CoordinatorInventory({ stocks, movements, lowStockThreshold }: Props) {
     const { auth, branding } = usePage<any>().props;
     const [collapsed, toggle] = useSidebarCollapse();
-    const [tab, setTab] = useState<'inventory' | 'history'>(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('page') ? 'history' : 'inventory');
+    const [tab, setTab] = useState<'inventory' | 'history'>(() => {
+        if (typeof window === 'undefined') return 'inventory';
+        const params = new URLSearchParams(window.location.search);
+        return params.has('page') || params.get('tab') === 'history' ? 'history' : 'inventory';
+    });
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('all');
     const [issueStock, setIssueStock] = useState<Stock | null>(null);

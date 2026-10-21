@@ -177,4 +177,54 @@ class CoordinatorInventoryTest extends TestCase
         $this->assertSame($request->fresh()->ris_number, $stock->movements()->first()->reference);
         $this->assertSame($custodian->id, $stock->movements()->first()->actor_id);
     }
+
+    public function test_transaction_history_and_pagination_never_include_another_coordinators_office(): void
+    {
+        $owner = $this->user();
+        $other = $this->user();
+        $custodian = $this->user('Property Custodian');
+        $ownRequest = $this->requestFor($owner);
+        $otherRequest = $this->requestFor($other);
+        // Office labels are not an ownership boundary: even matching labels must stay isolated.
+        $this->release($ownRequest, $custodian);
+        $this->release($otherRequest, $custodian);
+        $ownStock = CoordinatorStock::where('coordinator_id', $owner->id)->firstOrFail();
+        $otherStock = CoordinatorStock::where('coordinator_id', $other->id)->firstOrFail();
+        for ($i = 1; $i <= 21; $i++) {
+            $ownStock->movements()->create([
+                'actor_id' => $owner->id, 'date' => now()->toDateString(), 'type' => 'issue',
+                'quantity' => 1, 'unit_cost' => 10, 'reference' => 'OWN-'.$i, 'office' => 'Own unit faculty',
+            ]);
+        }
+        $otherStock->movements()->create([
+            'actor_id' => $owner->id, 'date' => now()->toDateString(), 'type' => 'issue',
+            'quantity' => 1, 'unit_cost' => 10, 'reference' => 'OTHER-OFFICE', 'office' => 'Other Delivery Unit',
+        ]);
+        foreach ([1 => 20, 2 => 2] as $pageNumber => $expectedCount) {
+            $this->actingAs($owner)->get(route('coordinator.inventory.index', [
+                'page' => $pageNumber, 'coordinator_id' => $other->id, 'office' => 'Other Delivery Unit',
+            ]))->assertOk()->assertInertia(fn ($page) => $page
+                ->where('movements.total', 22)->has('movements.data', $expectedCount)
+                ->where('movements.data', fn ($rows) => collect($rows)->every(fn ($row) =>
+                    data_get($row, 'stock.id') === $ownStock->id
+                    && data_get($row, 'reference') !== 'OTHER-OFFICE'
+                    && data_get($row, 'office') !== 'Other Delivery Unit')));
+        }
+        $this->actingAs($other)->get(route('coordinator.inventory.index'))->assertInertia(fn ($page) => $page
+            ->where('movements.total', 2)->where('movements.data.0.reference', 'OTHER-OFFICE')
+            ->where('movements.data.1.office', 'Supply Office')->missing('movements.data.1.actor_id'));
+    }
+
+    public function test_shared_transaction_audit_redirects_coordinators_to_their_private_history_even_with_global_permissions(): void
+    {
+        $owner = $this->user();
+        foreach (['audit-logs.view-global', 'route:audit-logs.transaction-trails'] as $permission) {
+            $owner->givePermissionTo(Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']));
+        }
+        $this->actingAs($owner)->get(route('audit-logs.transaction-trails', ['view_mode' => 'technical']))
+            ->assertRedirect(route('coordinator.inventory.index', ['tab' => 'history']));
+        $this->actingAs($owner)->get(route('coordinator.inventory.index'))->assertInertia(fn ($page) => $page
+            ->where('auth.capabilities.audit.transactions', false)->has('movements.data', 0));
+        $this->actingAs($this->user('System Admin'))->get(route('audit-logs.transaction-trails'))->assertOk();
+    }
 }

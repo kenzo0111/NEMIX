@@ -38,6 +38,11 @@ class AuthorizeAction
             return $next($request);
         }
 
+        // The shared audit page must never replace a coordinator's private inventory history.
+        if ($user->usesCoordinatorInventory() && $routeName === 'audit-logs.transaction-trails') {
+            return redirect()->route('coordinator.inventory.index', ['tab' => 'history']);
+        }
+
         // Coordinator permissions must never expose central stock or global reports.
         if ($user->usesCoordinatorInventory()
             && (Str::startsWith($routeName, ['compliance.', 'rfid-scanner.', 'suppliers.'])

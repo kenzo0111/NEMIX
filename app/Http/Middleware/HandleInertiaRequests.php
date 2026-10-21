@@ -108,6 +108,7 @@ class HandleInertiaRequests extends Middleware
                 $capabilities['rfid'] = ['view' => false];
                 $capabilities['suppliers'] = ['view' => false];
                 $capabilities['compliance'] = ['reports' => false, 'analytics' => false];
+                $capabilities['audit']['transactions'] = false;
             }
         } else {
             $userArray = null;

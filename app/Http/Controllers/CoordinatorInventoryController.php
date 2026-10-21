@@ -19,9 +19,18 @@ class CoordinatorInventoryController extends Controller
             'inventoryScope' => 'coordinator',
             'lowStockThreshold' => \Modules\Inventory\Services\InventoryPolicy::lowThreshold(),
             'stocks' => CoordinatorStock::where('coordinator_id', $request->user()->id)->orderBy('name')->get(),
-            'movements' => CoordinatorMovement::with('stock')
-                ->whereHas('stock', fn ($q) => $q->where('coordinator_id', $request->user()->id))
-                ->latest('date')->latest('id')->paginate(20),
+            'movements' => CoordinatorMovement::forCoordinator($request->user()->id)
+                ->with('stock:id,name,sku,unit')
+                ->latest('date')->latest('id')->paginate(20)->appends(['tab' => 'history'])
+                ->through(fn (CoordinatorMovement $movement) => [
+                    'id' => $movement->id,
+                    'date' => $movement->date->toDateString(),
+                    'type' => $movement->type,
+                    'quantity' => $movement->quantity,
+                    'reference' => $movement->reference,
+                    'office' => $movement->type === 'receipt' ? 'Supply Office' : $movement->office,
+                    'stock' => $movement->stock,
+                ]),
         ]);
     }
 

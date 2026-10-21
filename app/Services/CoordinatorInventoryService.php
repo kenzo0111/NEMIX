@@ -102,7 +102,7 @@ class CoordinatorInventoryService
     public function dashboard(User $user, string $filter, ?string $start, ?string $end): array
     {
         $stocks = CoordinatorStock::where('coordinator_id', $user->id)->get();
-        $movements = CoordinatorMovement::with('stock')->whereHas('stock', fn ($q) => $q->where('coordinator_id', $user->id))->orderBy('date')->orderBy('id')->get();
+        $movements = CoordinatorMovement::forCoordinator($user->id)->with('stock')->orderBy('date')->orderBy('id')->get();
         $critical = $stocks->where('quantity', '>', 0)->where('quantity', '<=', InventoryPolicy::criticalThreshold());
         $monthlyIssued = $movements->where('type', 'issue')->filter(fn ($m) => $m->date->format('Y-m') === now()->format('Y-m'))->sum('quantity');
         $points = [];
