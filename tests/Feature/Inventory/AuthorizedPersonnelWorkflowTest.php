@@ -228,6 +228,17 @@ class AuthorizedPersonnelWorkflowTest extends TestCase
         $this->actingAs($staff)->post(route('inventory.requests.verify-document', $request), ['decision' => 'verified'])->assertForbidden();
     }
 
+    public function test_production_inventory_staff_role_receives_document_processing_permissions(): void
+    {
+        $staff = $this->user('Inventory Staff');
+        $migration = require database_path('migrations/2026_10_22_000002_add_document_review_permissions_to_inventory_staff.php');
+        $migration->up();
+        $staff->unsetRelation('roles');
+        foreach (['document', 'verify-document', 'ready'] as $action) {
+            $this->assertTrue($staff->hasPermissionTo('route:inventory.requests.'.$action));
+        }
+    }
+
     public function test_designated_verifier_can_review_without_inventory_approval_and_missing_files_cannot_be_verified(): void
     {
         $owner = $this->user();
