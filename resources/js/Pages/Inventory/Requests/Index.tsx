@@ -94,11 +94,17 @@ export default function MyRequests({
         publicSettings['signatories.ris_issued_by_designation'] ||
         'Administrative Aide VI / Storekeeper';
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
+    const [statusFilter, setStatusFilter] = useState(() => {
+        const value = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('status') : '';
+        return statusOptions.some(option => option.value === value) ? value || '' : '';
+    });
     const [currentPage, setCurrentPage] = useState(1);
     const [formOpen, setFormOpen] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('create') === '1');
     const [editingRequest, setEditingRequest] = useState<SupplyRequest | null>(null);
-    const [detailsRequest, setDetailsRequest] = useState<SupplyRequest | null>(null);
+    const [detailsRequest, setDetailsRequest] = useState<SupplyRequest | null>(() => {
+        const id = typeof window !== 'undefined' ? Number(new URLSearchParams(window.location.search).get('request_id')) : 0;
+        return requests.find(request => request.id === id) || null;
+    });
     const [preview, setPreview] = useState<IssuanceRecord | null>(null);
     const [previewRequestId, setPreviewRequestId] = useState<number | null>(null);
     const [busy, setBusy] = useState<number | null>(null);

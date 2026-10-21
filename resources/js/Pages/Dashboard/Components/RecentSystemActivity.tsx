@@ -11,7 +11,7 @@ interface RecentSystemActivityProps {
 }
 
 export default function RecentSystemActivity({ activities = [], className = '' }: RecentSystemActivityProps) {
-    const { isCoordinator, inventoryHref } = useDashboardScope();
+    const { isCoordinator } = useDashboardScope();
     // Filter out routine authentication/session noise (login, logout, session creation)
     const businessActivities = (activities || []).filter((act: any) => {
         const rawAction = String(act.action || act.title || '').toLowerCase();
@@ -46,7 +46,7 @@ export default function RecentSystemActivity({ activities = [], className = '' }
                             <History className="w-3.5 h-3.5" />
                         </div>
                         <h3 className="text-lg font-bold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
-                            Recent System Activity
+                            {isCoordinator ? 'Recent unit activity' : 'Recent System Activity'}
                         </h3>
                     </div>
                 </div>
@@ -105,7 +105,14 @@ export default function RecentSystemActivity({ activities = [], className = '' }
                                     </div>
 
                                     {/* LINE 2: Human-Readable Natural Summary */}
-                                    {act.summary && (
+                                    {isCoordinator && Array.isArray(act.context?.line_items) && act.context.line_items.length > 1 ? (
+                                        <details className="text-sm text-slate-600 dark:text-slate-300">
+                                            <summary className="min-h-8 cursor-pointer py-1 font-medium hover:text-red-800 dark:hover:text-red-300">{act.context.line_items.length} supply lines · View items</summary>
+                                            <ul className="space-y-1 pb-2 pl-4">
+                                                {act.context.line_items.map((line, index) => <li key={index}>{String(line)}</li>)}
+                                            </ul>
+                                        </details>
+                                    ) : act.summary && (
                                         <p className="text-sm text-slate-600 dark:text-slate-300 leading-normal line-clamp-1">
                                             {act.summary}
                                         </p>
@@ -133,7 +140,7 @@ export default function RecentSystemActivity({ activities = [], className = '' }
             {/* Standardized Secondary Action */}
             <div className="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                 <Link
-                    href={isCoordinator ? inventoryHref : route('audit-logs.transaction-trails')}
+                    href={isCoordinator ? route('coordinator.inventory.index', { tab: 'history' }) : route('audit-logs.transaction-trails')}
                     className="text-sm font-medium text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors inline-flex items-center gap-1 shrink-0"
                 >
                     <span>View All Activity</span>

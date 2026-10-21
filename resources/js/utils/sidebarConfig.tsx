@@ -180,7 +180,7 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
             key: 'delivery-unit-inventory',
             coordinatorOnly: true,
             category: 'logistics',
-            title: 'Unit Inventory & Stock Cards',
+            title: 'Unit Inventory',
             icon: Package,
             href: route('coordinator.inventory.index'),
             active: routeCurrentName?.startsWith('coordinator.inventory.'),

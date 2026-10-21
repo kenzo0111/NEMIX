@@ -181,6 +181,37 @@ class CoordinatorInventoryTest extends TestCase
             ->where('criticalStock.3.min', 8));
     }
 
+    public function test_dashboard_tracks_owned_requests_and_groups_receipt_lines_before_limiting_activity(): void
+    {
+        $owner = $this->user();
+        $other = $this->user();
+        $custodian = $this->user('Property Custodian');
+        $released = $this->requestFor($owner);
+        $otherRequest = $this->requestFor($other);
+        $secondItem = $otherRequest->items()->first()->item;
+        $released->items()->create(['item_id' => $secondItem->id, 'quantity' => 10]);
+        app(SupplyRequestService::class)->approve($released,
+            $released->items()->pluck('id')->mapWithKeys(fn ($id) => [$id => 7])->all(), $custodian->id, null);
+        app(SupplyRequestService::class)->release($released, $custodian->id);
+        $pending = $this->requestFor($owner);
+        $approved = $this->requestFor($owner);
+        app(SupplyRequestService::class)->approve($approved,
+            [$approved->items()->first()->id => 7], $custodian->id, null);
+
+        $this->actingAs($owner)->get(route('dashboard'))->assertOk()->assertInertia(fn ($page) => $page
+            ->has('recentRequests', 3)
+            ->where('recentRequests.0.id', $approved->id)->where('recentRequests.0.status', 'Approved')
+            ->where('recentRequests.1.id', $pending->id)->where('recentRequests.1.status', 'Pending')
+            ->where('recentRequests.2.id', $released->id)->where('recentRequests.2.status', 'Issued')
+            ->where('requestSummary.Pending', 1)->where('requestSummary.Approved', 1)
+            ->has('recentActivity', 1)->has('recentActivity.0.context.line_items', 2)
+            ->where('recentActivity.0.reference', $released->fresh()->ris_number)
+            ->where('criticalStock.0.item_id', $released->items()->first()->item_id));
+        $this->actingAs($other)->get(route('dashboard'))->assertInertia(fn ($page) => $page
+            ->has('recentRequests', 1)->where('recentRequests.0.id', $otherRequest->id)
+            ->has('recentActivity', 0));
+    }
+
     public function test_credit_failure_rolls_back_main_office_release(): void
     {
         $owner = $this->user();
@@ -243,8 +274,7 @@ class CoordinatorInventoryTest extends TestCase
                 'page' => $pageNumber, 'coordinator_id' => $other->id, 'office' => 'Other Delivery Unit',
             ]))->assertOk()->assertInertia(fn ($page) => $page
                 ->where('movements.total', 22)->has('movements.data', $expectedCount)
-                ->where('movements.data', fn ($rows) => collect($rows)->every(fn ($row) =>
-                    data_get($row, 'stock.id') === $ownStock->id
+                ->where('movements.data', fn ($rows) => collect($rows)->every(fn ($row) => data_get($row, 'stock.id') === $ownStock->id
                     && data_get($row, 'reference') !== 'OTHER-OFFICE'
                     && data_get($row, 'office') !== 'Other Delivery Unit')));
         }

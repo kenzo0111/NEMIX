@@ -146,15 +146,32 @@ class CoordinatorInventoryService
             'recentIssuance' => $movements->where('type', 'issue')->reverse()->take(5)->map(fn ($m) => [
                 'id' => $m->id, 'ris_number' => $m->reference, 'item_name' => $m->stock->name, 'recipient' => $m->office,
                 'total_items' => $m->quantity, 'unit' => $m->stock->unit, 'issued_at' => $m->date->toDateString()])->values(),
-            'criticalStock' => $critical->take(5)->map(fn ($s) => ['id' => $s->id, 'name' => $s->name, 'sku' => $s->sku,
+            'criticalStock' => $critical->take(5)->map(fn ($s) => ['id' => $s->id, 'item_id' => $s->item_id, 'name' => $s->name, 'sku' => $s->sku,
                 'current' => $s->quantity, 'min' => $lowThreshold, 'unit' => $s->unit,
                 'priority' => $s->quantity <= $criticalThreshold ? 'Critical' : 'Low',
                 'status' => $s->quantity <= 0 ? 'Out of Stock' : ($s->quantity <= $criticalThreshold ? 'Critical' : 'Low Stock')])->values(),
-            'recentActivity' => $movements->reverse()->take(8)->map(fn ($m) => [
-                'id' => $m->id, 'title' => $m->type === 'receipt' ? 'Received from Supply Office' : 'Delivery Unit issue',
-                'summary' => $m->quantity.' '.$m->stock->unit.' · '.$m->stock->name,
-                'reference' => $m->reference, 'module' => 'Inventory', 'occurred_at' => $m->created_at->toIso8601String(),
-            ])->values(), 'showRfidAlert' => false,
+            'recentActivity' => $movements->reverse()
+                ->groupBy(fn ($m) => json_encode([$m->type, $m->reference ?: $m->id, $m->date->toDateString()]))
+                ->take(8)->map(function ($lines) {
+                    $latest = $lines->first();
+
+                    return [
+                        'id' => $latest->id,
+                        'title' => $latest->type === 'receipt' ? 'Received from Supply Office' : 'Delivery Unit issue',
+                        'summary' => $lines->map(fn ($m) => $m->quantity.' '.$m->stock->unit.' · '.$m->stock->name)->implode('; '),
+                        'reference' => $latest->reference, 'module' => 'Inventory',
+                        'occurred_at' => $latest->created_at->toIso8601String(),
+                        'context' => ['line_items' => $lines->map(fn ($m) => $m->quantity.' '.$m->stock->unit.' · '.$m->stock->name)->values()],
+                    ];
+                })->values(), 'showRfidAlert' => false,
+            'recentRequests' => SupplyRequest::where('requested_by', $user->id)->with('items.item')
+                ->orderByRaw("CASE WHEN status IN ('Pending', 'Approved') THEN 0 ELSE 1 END")
+                ->latest('id')->take(4)->get()->map(fn ($request) => [
+                    'id' => $request->id, 'reference' => $request->ris_number ?: 'Request #'.$request->id,
+                    'status' => $request->status,
+                    'date' => $request->date_requested?->toDateString() ?? $request->created_at->toDateString(),
+                    'items' => $request->items->map(fn ($line) => $line->item?->name ?? 'Archived item')->implode(', '),
+                ]),
             'requestSummary' => SupplyRequest::where('requested_by', $user->id)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status'),
             'filters' => ['chartFilter' => $filter, 'customStartDate' => $start, 'customEndDate' => $end],
         ];

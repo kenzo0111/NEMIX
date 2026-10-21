@@ -39,6 +39,7 @@ export default function DashboardIndex({
     inventoryScope,
     coordinatorName,
     requestSummary = {},
+    recentRequests = [],
 }: DashboardPageProps) {
     const isCoordinator = inventoryScope === 'coordinator';
     const [collapsed, handleToggleCollapse] = useSidebarCollapse();
@@ -73,12 +74,11 @@ export default function DashboardIndex({
                         stats={stats}
                         movement={activeMovement}
                         movementSummary={movementSummary}
-                        recentReceiving={recentReceiving}
-                        recentIssuance={recentIssuance}
                         criticalStock={activeCriticalStock}
                         recentActivity={activeRecentActivity}
                         filters={filters}
                         requestSummary={requestSummary}
+                        recentRequests={recentRequests}
                     />
                 ) : (
                     <>

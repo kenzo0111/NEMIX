@@ -58,6 +58,7 @@ export interface RecentIssuance {
 
 export interface CriticalStockItem {
     id?: number;
+    item_id?: number;
     name: string;
     sku: string;
     current: number;
@@ -134,6 +135,7 @@ export interface DashboardPageProps {
     inventoryScope?: 'coordinator';
     coordinatorName?: string;
     requestSummary?: Record<string, number>;
+    recentRequests?: CoordinatorRequest[];
     auth: {
         user: {
             id: number;
@@ -168,4 +170,12 @@ export interface DashboardPageProps {
     auditLogs?: RecentActivity[];
     filters?: DashboardFilters;
     roles?: Array<{ value: string; label: string }>;
+}
+
+export interface CoordinatorRequest {
+    id: number;
+    reference: string;
+    status: 'Pending' | 'Approved' | 'Issued' | 'Rejected' | 'Cancelled';
+    date: string;
+    items: string;
 }
