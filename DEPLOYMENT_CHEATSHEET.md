@@ -12,7 +12,7 @@
 Open **Windows PowerShell** on your laptop and run:
 
 ```powershell
-ssh root@157.230.253.79
+ssh -o IPQoS=none -o ConnectTimeout=15 root@157.230.253.79
 ```
 
 Once connected, switch to your application directory:
@@ -36,25 +36,29 @@ The application runs 24/7 in background mode (`-d`). You do not need to keep you
 
 ---
 
-## 3. Recommended CPU-Efficient Deployment (Zero-Spike)
+## 3. Recommended CPU-Efficient Deployment
 
 > **Why Pre-Build Locally?**  
-> Running `npm run build` directly on a cloud Droplet (1-2 vCPUs, 2GB RAM) consumes over 1.2GB memory and spikes CPU to 100%, often causing kernel Out-Of-Memory (OOM) lockups. Building locally completes in ~10 seconds and keeps the Droplet CPU at ~0%.
+> Build on the workstation to keep frontend compilation off the production server. The latest measured Vite build took about 25 seconds. Recent deployment delays came mainly from repeated SSH connection timeouts.
 
-### Fast 3-Step Deployment from Local Windows PowerShell:
+### Recommended Deployment from Local Windows PowerShell
 
 ```powershell
-# Step 1: Build production assets locally (10-15 seconds, 0% Droplet CPU load)
-npm run build
-
-# Step 2: Push your latest git commit (if not already pushed)
+# Commit the intended changes, then push before deploying.
 git push origin master
 
-# Step 3: Deploy to server and apply updates
-ssh root@157.230.253.79 "cd /var/www/NEMIX && git pull origin master"
-scp -r public/build root@157.230.253.79:/var/www/NEMIX/public/
-ssh root@157.230.253.79 "chmod -R 755 /var/www/NEMIX/public/build && docker cp /var/www/NEMIX/public/build/. nemix-app-1:/var/www/html/public/build/ && docker exec nemix-app-1 chmod -R 755 /var/www/html/public/build && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan migrate --force && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan optimize:clear && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan config:cache && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan route:cache && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan view:cache && docker compose -f /var/www/NEMIX/docker-compose.yml exec -T app php artisan queue:restart"
+# Checks SSH, builds locally, uploads one archive, installs, and verifies.
+.\deploy.ps1
+
+# Optional connection-only check; does not build or change production files.
+.\deploy.ps1 -CheckConnection
 ```
+
+The script applies `IPQoS=none` to SSH and SCP, matching the option used by the successful recent deployment. This is a connection workaround; it does not prove the underlying network cause. It limits connection establishment to 15 seconds and uses keepalives to detect an unresponsive established session. It stops on errors instead of repeatedly waiting through 120-second connection attempts.
+
+Assets transfer as one compressed archive instead of hundreds of individual files. Git update, asset installation, Laravel maintenance, and container manifest verification share one SSH session. The script verifies the archive checksum and checks that production's fetched master matches the local revision before installing it. Commit frontend inputs and push the intended revision first. New untracked frontend files must also be committed; the script's tracked-file check cannot detect them.
+
+Connection checks require an existing SSH key and a trusted host key (batch mode will not prompt). Successful installation is followed by an HTTP 200 check on `/login`. If installation loses its connection or the final health check fails, inspect production before rerunning; deployments do not automatically roll back. This script updates code and assets using the existing containers. Changes to Composer dependencies or Docker configuration need their own dependency/image update.
 
 ---
 
