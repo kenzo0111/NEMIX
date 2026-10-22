@@ -13,9 +13,14 @@ export default function AppLayout({ title, activeModule, activeSubmodule, header
     const { auth } = usePage<PageProps>().props;
     return <DashboardLayout modules={getSidebarModules(activeModule, activeSubmodule)} user={auth.user}>
         {title && <Head title={title} />}
-        <SystemHeader actions={actions}>{breadcrumbs}</SystemHeader>
+        <SystemHeader />
         <DashboardContent>
-            {header}{children}
+            {breadcrumbs}
+            {(header || actions) && <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+                <div className="min-w-0">{header}</div>
+                {actions && <div className="flex max-w-full flex-wrap items-center gap-2">{actions}</div>}
+            </div>}
+            {children}
         </DashboardContent>
     </DashboardLayout>;
 }

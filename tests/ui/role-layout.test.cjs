@@ -59,6 +59,11 @@ test('module title and actions survive the unified header', () => {
     page = { props: { auth: session('System Admin') } };
     const html = renderToStaticMarkup(React.createElement(PageHeader, { title: 'Manage Staff', description: 'Manage user accounts.', actions: React.createElement('button', null, 'Add user') }));
     for (const text of ['Consumable Supply Management', 'Administrator Dashboard', 'Manage Staff', 'Add user', 'Manage user accounts.']) assert.ok(html.includes(text));
+    assert.equal((html.match(/<header\b/g) || []).length, 1);
+    const content = html.slice(html.indexOf('</header>') + '</header>'.length);
+    for (const text of ['Manage Staff', 'Add user', 'Manage user accounts.']) assert.ok(content.includes(text));
+    assert.ok(!content.includes('sticky'));
+    assert.ok(!content.includes('border-b'));
 });
 test('operating mode notice remains visible', () => {
     page = { props: { auth: session('System Admin'), system: { mode: 'MAINTENANCE MODE' } } };

@@ -6,7 +6,7 @@ import SystemModeBadge from './SystemModeBadge';
 import ThemeToggle from './ThemeToggle';
 import { roleDesignation, SYSTEM_TITLE } from '@/utils/systemIdentity';
 
-export default function SystemHeader({ onToggleSidebar, children, actions }: { onToggleSidebar?: () => void; children?: ReactNode; actions?: ReactNode }) {
+export default function SystemHeader({ onToggleSidebar, actions }: { onToggleSidebar?: () => void; actions?: ReactNode }) {
     const { auth, system } = usePage<PageProps>().props;
     const mode = system?.mode || 'LIVE PRODUCTION';
     return <header className="sticky top-0 z-30 border-b border-slate-200 bg-white text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 print:hidden">
@@ -22,6 +22,5 @@ export default function SystemHeader({ onToggleSidebar, children, actions }: { o
             </div>
             <div className="flex max-w-full flex-wrap items-center gap-3"><SystemModeBadge /><ThemeToggle variant="compact" />{actions && <div className="flex max-w-full flex-wrap items-center gap-2">{actions}</div>}</div>
         </div>
-        {children && <div className="border-t border-slate-100 px-4 py-3 sm:px-7 lg:px-8 dark:border-slate-800">{children}</div>}
     </header>;
 }
