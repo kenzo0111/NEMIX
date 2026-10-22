@@ -20,7 +20,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
     const head = officeHeads.find(head => String(head.id) === data.office_head_id);
     const headOptions = officeHeads
         .filter(head => (head.is_active && head.designation?.trim()) || String(head.id) === data.office_head_id)
-        .map(head => ({ value: String(head.id), label: `${head.name} — ${head.designation || ''}${head.department || head.office ? ` · ${head.department || head.office}` : ''}${!head.is_active ? ' (inactive)' : ''}` }));
+        .map(head => ({ value: String(head.id), label: `${head.name} — ${head.designation || ''}${!head.is_active ? ' (inactive)' : ''}` }));
     const selectLayout = {
         menuPortalTarget: typeof document !== 'undefined' ? document.body : null,
         menuPosition: 'fixed' as const,

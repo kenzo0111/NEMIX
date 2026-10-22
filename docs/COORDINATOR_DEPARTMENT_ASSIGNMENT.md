@@ -14,6 +14,8 @@ Run `php artisan db:seed --class=CollegeDeanSeeder --force` after migrating to l
 
 Selecting a mapped college in Staff Accounts automatically selects its dean and displays the dean's designation. An existing account with a department but no head also receives that department's default when opened for editing. Save the account to apply the assignment. Administrators may explicitly select a different head for a specific account. Unknown offices require a manual head selection, and inactive directory records are excluded from automatic defaults. Changing to an unmapped office clears the previous college's dean.
 
+College head names use uppercase without Dr./Engr. prefixes, and their designation is `DEAN`. The formatting migration updates existing mapped directory records in place, so staff assignments stay linked to the same person. Previously saved request signatories retain their original details.
+
 Existing accounts are deliberately left unassigned by the migration. An administrator must verify their assignments; the system does not infer a department from old requests. New Supply Coordinator and Authorized Personnel requests require a complete assignment with an active head and a designation.
 
 ## Request behavior

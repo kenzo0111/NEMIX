@@ -42,9 +42,11 @@ class CollegeDeanAutofillTest extends TestCase
         $departments = collect(config('university.divisions'))->flatMap(fn ($group) => $group['options'])->pluck('value');
         foreach (DeliveryUnitHead::with('officeHead')->get() as $mapping) {
             $this->assertContains($mapping->department, $departments);
-            $this->assertStringContainsString('Dean', $mapping->officeHead->designation);
+            $this->assertSame('DEAN', $mapping->officeHead->designation);
+            $this->assertSame(mb_strtoupper($mapping->officeHead->name), $mapping->officeHead->name);
+            $this->assertDoesNotMatchRegularExpression('/^(Dr|Engr)\./i', $mapping->officeHead->name);
         }
-        $this->assertSame('Engr. Joselito A. Olalo', DeliveryUnitHead::where('department', self::ENGINEERING)->firstOrFail()->officeHead->name);
+        $this->assertSame('JOSELITO A. OLALO', DeliveryUnitHead::where('department', self::ENGINEERING)->firstOrFail()->officeHead->name);
     }
 
     public function test_seed_reuses_existing_person_and_preserves_verified_details_and_mapping(): void
@@ -81,8 +83,8 @@ class CollegeDeanAutofillTest extends TestCase
         ])->assertSessionHasNoErrors();
         $request = SupplyRequest::firstOrFail();
         $this->assertSame(self::CCMS, $request->department);
-        $this->assertSame('Dr. Daniel E. Maligat Jr.', $request->recipient);
-        $this->assertSame('Dean, College of Computing and Multimedia Studies', $request->recipient_designation);
+        $this->assertSame('DANIEL E. MALIGAT JR.', $request->recipient);
+        $this->assertSame('DEAN', $request->recipient_designation);
     }
 
     public function test_changing_unit_uses_new_dean_but_same_unit_keeps_verified_assignment(): void
@@ -111,5 +113,28 @@ class CollegeDeanAutofillTest extends TestCase
         $payload['department'] = self::CCMS;
         $this->put(route('access-control.staffs.update', $staff), $payload)->assertSessionHasErrors('office_head_id');
         $this->assertArrayNotHasKey(self::CCMS, DeliveryUnitHead::activeAssignments());
+    }
+
+    public function test_formatting_existing_deans_keeps_assignments_and_historical_requests(): void
+    {
+        $this->seed(CollegeDeanSeeder::class);
+        $head = DeliveryUnitHead::where('department', self::CCMS)->firstOrFail()->officeHead;
+        $head->update(['name' => 'Dr. Daniel E. Maligat Jr.', 'designation' => 'Dean, College of Computing and Multimedia Studies']);
+        $staff = $this->user('Supply Coordinator');
+        $staff->update(['department' => self::CCMS, 'office_head_id' => $head->id]);
+        $request = SupplyRequest::create(['requested_by' => $staff->id, 'department' => self::CCMS,
+            'recipient' => $head->name, 'recipient_designation' => $head->designation, 'purpose' => 'Historical request', 'status' => 'Pending']);
+        $other = Signatory::create(['name' => 'Dr. Other Officer', 'designation' => 'Medical Officer']);
+        $migration = require database_path('migrations/2026_10_22_000004_format_delivery_unit_dean_names.php');
+        $migration->up();
+        $migration->up();
+        $this->assertSame('DANIEL E. MALIGAT JR.', $head->fresh()->name);
+        $this->assertSame('daniel e maligat jr', $head->fresh()->normalized_name);
+        $this->assertSame('DEAN', $head->fresh()->designation);
+        $this->assertSame($head->id, $staff->fresh()->office_head_id);
+        $this->assertSame('Dr. Daniel E. Maligat Jr.', $request->fresh()->recipient);
+        $this->assertSame('Dean, College of Computing and Multimedia Studies', $request->fresh()->recipient_designation);
+        $this->assertSame('Dr. Other Officer', $other->fresh()->name);
+        $this->assertSame('Medical Officer', $other->fresh()->designation);
     }
 }
