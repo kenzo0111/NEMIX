@@ -123,21 +123,21 @@ export default function EditStaffModal({
     const selectedRoleOption = assignableRoleOptions.find((opt) => opt.value === data.role) || null;
 
     return (
-        <Modal show={isOpen} onClose={handleClose} maxWidth="md" closeable={!processing} ariaLabel="Edit Staff Account">
-            <div className="overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-xl">
+        <Modal show={isOpen} onClose={handleClose} maxWidth="4xl" closeable={!processing} ariaLabel="Edit Staff Account">
+            <div className="flex max-h-[calc(100dvh-3rem)] flex-col overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-xl">
                 {/* Institutional Maroon Accent Bar */}
                 <div className="h-1.5 w-full bg-red-900 shrink-0"></div>
 
                 {/* Modal Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <div className="flex items-center justify-between shrink-0 px-5 sm:px-7 py-5 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0">
                             <Edit2 className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 truncate">Edit Staff Account</h3>
-                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 truncate">
-                                Update credentials and system role for{' '}
+                            <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
+                                Update account details and Delivery Unit assignment for{' '}
                                 <strong className="text-gray-800 dark:text-slate-200 font-semibold">{staff.name}</strong>.
                             </p>
                         </div>
@@ -153,8 +153,13 @@ export default function EditStaffModal({
                 </div>
 
                 {/* Form Body */}
-                <form onSubmit={handleSubmit}>
-                    <div className="p-4 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+                    <div className="grid min-h-0 gap-7 overflow-y-auto p-5 sm:p-7 md:grid-cols-2 md:gap-8">
+                        <section className="min-w-0 space-y-5" aria-label="Account details">
+                            <div>
+                                <h4 className="font-semibold text-gray-900 dark:text-slate-100">Account details</h4>
+                                <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">Manage the staff member’s identity and system access.</p>
+                            </div>
                         {/* Full Name */}
                         <div>
                             <label
@@ -255,13 +260,14 @@ export default function EditStaffModal({
                                 <p className="leading-relaxed mt-1.5 text-sm text-red-600 font-medium">{errors.role}</p>
                             )}
                         </div>
+                        </section>
                         <DepartmentAssignmentFields data={data} errors={errors}
                             required={['Supply Coordinator', 'Authorized Personnel'].includes(data.role)}
                             onChange={(field, value) => { setData(field, value); clearErrors(field); }} />
                     </div>
 
                     {/* Modal Actions */}
-                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-850/80 border-t border-gray-200 dark:border-slate-800 gap-2.5">
+                    <div className="flex shrink-0 flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-5 sm:px-7 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-850/80 border-t border-gray-200 dark:border-slate-800 gap-2.5">
                         <button
                             type="button"
                             onClick={handleClose}
