@@ -1,9 +1,6 @@
 import { PageProps as InertiaPageProps } from '@/types';
 
-export type InventoryStatus =
-    | 'Available'
-    | 'Low Stock'
-    | 'Out of Stock';
+export type InventoryStatus = 'Available' | 'Low Stock' | 'Out of Stock';
 
 export interface InventoryAnalyticsItem {
     id: number;
@@ -57,4 +54,62 @@ export interface InventoryAnalyticsProps {
 
 export type ManageAnalyticsPageProps = InertiaPageProps<{
     analytics?: InventoryAnalyticsProps;
+    supplyAnalytics: SupplyAnalytics;
 }>;
+
+export interface DepartmentUsage {
+    name: string;
+    requisitions: number;
+    requested: number;
+    issued: number;
+    topItem: string;
+    distinctItems: number;
+    previousRequested: number;
+    demandChange: number;
+}
+export interface ItemDemand {
+    id: number;
+    name: string;
+    frequency: number;
+    requested: number;
+    issued: number;
+    latest: string | null;
+    category?: string;
+    offices?: number;
+    department?: string;
+}
+export interface SupplyTrend {
+    month: string;
+    requisitions: number;
+    requested: number;
+    issued: number;
+    topItem: string;
+}
+export interface SupplyStats {
+    totalRequisitions: number;
+    mostRequestedItem: string;
+    highestDepartment: string;
+    lowestDepartment: string;
+    totalIssued: number;
+    activeOffices: number;
+}
+export interface SupplyAnalytics {
+    demandHistory: {
+        id: string;
+        department: string;
+        name: string;
+        month: string;
+        frequency: number;
+        requested: number;
+        issued: number;
+    }[];
+    departmentTrends: (SupplyTrend & { department: string })[];
+    stats: SupplyStats;
+    departments: DepartmentUsage[];
+    items: ItemDemand[];
+    demand: ItemDemand[];
+    trends: SupplyTrend[];
+    filters: Record<string, string | number>;
+    options: { departments: string[]; categories: string[]; items: { id: number; name: string }[] };
+    comparison: { start: string; end: string; stats: SupplyStats; trends: SupplyTrend[] };
+}

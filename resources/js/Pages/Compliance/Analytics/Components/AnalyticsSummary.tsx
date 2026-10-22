@@ -69,9 +69,9 @@ export default function AnalyticsSummary({
                         <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-red-900/80 border border-red-800 text-sm font-semibold text-amber-300 normal-case tracking-normal">
                             Supply & Property Management Office
                         </div>
-                        <h1 className="text-2xl sm:text-3xl font-bold font-sans text-white tracking-tight">
-                            Inventory Performance Analytics
-                        </h1>
+                        <h2 className="text-2xl sm:text-3xl font-bold font-sans text-white tracking-tight">
+                            Current Inventory Snapshot
+                        </h2>
                         <p className="text-red-200/90 text-sm max-w-2xl font-normal leading-relaxed">
                             Analyze stock quantity, inventory valuation, availability distributions, and replenishment conditions across registered university supplies.
                         </p>

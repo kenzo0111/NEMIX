@@ -15,6 +15,7 @@ class ComplianceAnalyticsController extends Controller
 {
     public function index(Request $request): Response
     {
+        $supplyAnalytics = app(\App\Services\ConsumableSupplyAnalyticsService::class)->build($request);
         // Batch-level remaining valuations per item (if batches exist)
         $batchItemValuations = [];
         if (class_exists(InventoryBatch::class) && InventoryBatch::whereNull('deleted_at')->exists()) {
@@ -156,6 +157,7 @@ class ComplianceAnalyticsController extends Controller
             });
 
         return Inertia::render('Compliance/ManageAnalytics', [
+            'supplyAnalytics' => $supplyAnalytics,
             'analytics' => [
                 'stats' => $stats,
                 'items' => $items->values(),

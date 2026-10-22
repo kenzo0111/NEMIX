@@ -36,7 +36,7 @@ export default function SidebarSubmenu({
                         href={subItem.href}
                         aria-current={subItem.active ? 'page' : undefined}
                         className={`
-                            flex items-center justify-between px-2.5 py-1.5 text-sm rounded-md transition-colors duration-150 whitespace-nowrap
+                            flex items-center justify-between px-2.5 py-1.5 text-sm rounded-md transition-colors duration-150
                             ${
                                 subItem.active
                                     ? 'text-amber-300 font-medium bg-red-900/50'
@@ -44,13 +44,13 @@ export default function SidebarSubmenu({
                             }
                         `}
                     >
-                        <div className="flex items-center gap-2 truncate">
+                        <div className="flex min-w-0 items-center gap-2">
                             <span
                                 className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors ${
                                     subItem.active ? 'bg-amber-400' : 'bg-red-800'
                                 }`}
                             />
-                            <span className="truncate">{subItem.title}</span>
+                            <span className="whitespace-normal text-left leading-snug">{subItem.title}</span>
                         </div>
 
                         {subItem.badge && (

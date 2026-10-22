@@ -271,7 +271,7 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
                 },
                 {
                     key: 'manage-analytics',
-                    title: 'Manage Analytics',
+                    title: 'Consumable Supply Analytics',
                     href: route('compliance.analytics'),
                     requiredCapability: (caps) => caps.compliance.analytics,
                     requiredPermission: 'route:compliance.analytics',
