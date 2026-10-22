@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import {
-    Activity,
     ArrowDownLeft,
     ArrowUpRight,
     Building2,
-    CalendarDays,
     ClipboardList,
     Download,
     Layers3,
@@ -25,6 +23,7 @@ import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { ManageAnalyticsPageProps, DepartmentUsage, SupplyTrend } from './types';
 import InventoryOverview from './InventoryOverview';
+import AnalyticsBanner from './Components/AnalyticsBanner';
 import AnalyticsFilters, { AnalyticsSelect } from './Components/AnalyticsFilters';
 import { ChartEmpty, DepartmentHeatmap, QuantityComparisonChart, SupplyTrendChart } from './Charts/SupplyDemandCharts';
 
@@ -433,57 +432,11 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                     breadcrumbs={[{ name: 'Compliance' }, { name: 'Consumable Supply Analytics' }]}
                 />
                 <DashboardContent>
-                    <section
-                        aria-label="Supply analytics overview"
-                        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-950 via-red-900 to-red-950 px-6 py-6 text-white shadow-sm sm:px-8 sm:py-7"
-                    >
-                        <div
-                            className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full border-[36px] border-white/[0.04]"
-                            aria-hidden="true"
-                        />
-                        <div
-                            className="pointer-events-none absolute right-24 top-24 h-40 w-40 rounded-full border-[24px] border-amber-200/[0.04]"
-                            aria-hidden="true"
-                        />
-                        <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
-                            <div className="max-w-xl">
-                                <p className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-200">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
-                                    Supply & Property Management Office
-                                </p>
-                                <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                                    Supply demand overview
-                                </h2>
-                                <p className="mt-2 text-sm leading-relaxed text-red-100/80">
-                                    Understand office demand, track confirmed releases, and plan university supply
-                                    needs.
-                                </p>
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-xs text-red-50">
-                                        <Building2 size={12} />
-                                        {data.filters.department || 'University-wide'}
-                                    </span>
-                                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-xs text-red-50">
-                                        <PackageCheck size={12} />
-                                        Confirmed issuance records
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="min-w-0 shrink-0 rounded-xl border border-white/15 bg-black/10 p-4 lg:w-64">
-                                <p className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-red-100/70">
-                                    <CalendarDays size={14} />
-                                    Reporting period
-                                </p>
-                                <p className="text-sm font-semibold tabular-nums">
-                                    {data.filters.start_date}{' '}
-                                    <span className="mx-1 font-normal text-red-200/60">to</span> {data.filters.end_date}
-                                </p>
-                                <p className="mt-2 text-xs text-red-100/60">
-                                    Change the reporting scope using the filters below.
-                                </p>
-                            </div>
-                        </div>
-                    </section>
+                    <AnalyticsBanner
+                        startDate={data.filters.start_date}
+                        endDate={data.filters.end_date}
+                        department={data.filters.department}
+                    />
                     <AnalyticsFilters
                         filters={filters}
                         options={data.options}
