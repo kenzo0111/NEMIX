@@ -433,7 +433,7 @@ export function SupplyRequestQueue({
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm p-3 rounded-lg bg-gray-50/60 dark:bg-slate-950/60 border border-gray-100 dark:border-slate-800">
                                         <div>
                                             <span className="block text-sm font-bold normal-case tracking-normal text-gray-400 tabular-nums">
-                                                Intended Recipient
+                                                Requested by
                                             </span>
                                             <span className="font-semibold text-gray-900 dark:text-slate-100">
                                                 {request.recipient || request.requester?.name || '—'}

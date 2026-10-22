@@ -58,6 +58,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'is_active',
+        'department',
+        'office_head_id',
     ];
 
     /**
@@ -146,5 +148,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function requiresSupportingDocument(): bool
     {
         return $this->hasRole('Authorized Personnel');
+    }
+
+    public function officeHead()
+    {
+        return $this->belongsTo(Signatory::class, 'office_head_id');
     }
 }

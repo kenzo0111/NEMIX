@@ -93,9 +93,10 @@ export default function StaffManagementIndex({
                 const q = searchQuery.toLowerCase();
                 const nameMatch = staff.name.toLowerCase().includes(q);
                 const emailMatch = staff.email.toLowerCase().includes(q);
+                const departmentMatch = (staff.department || '').toLowerCase().includes(q) || (staff.office_head?.name || '').toLowerCase().includes(q);
                 const roleMatch = staff.role.toLowerCase().includes(q);
                 const statusMatch = staff.status.toLowerCase().includes(q);
-                return nameMatch || emailMatch || roleMatch || statusMatch;
+                return nameMatch || departmentMatch || emailMatch || roleMatch || statusMatch;
             }
 
             return true;

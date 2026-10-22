@@ -1,3 +1,4 @@
+import DepartmentAssignmentFields from './DepartmentAssignmentFields';
 import React, { useEffect, useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
@@ -59,6 +60,8 @@ export default function CreateStaffModal({
     defaultRole = 'Property Staff',
 }: CreateStaffModalProps) {
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm<CreateStaffFormData>({
+        department: '',
+        office_head_id: '',
         name: '',
         email: '',
         role: defaultRole,
@@ -236,6 +239,9 @@ export default function CreateStaffModal({
                                 <p className="leading-relaxed mt-1.5 text-sm text-red-600 dark:text-red-400 font-medium">{errors.role}</p>
                             )}
                         </div>
+                        <DepartmentAssignmentFields data={data} errors={errors}
+                            required={['Supply Coordinator', 'Authorized Personnel'].includes(data.role)}
+                            onChange={(field, value) => { setData(field, value); clearErrors(field); }} />
                     </div>
 
                     {/* Modal Actions */}

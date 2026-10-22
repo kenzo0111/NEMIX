@@ -98,6 +98,12 @@ export default function StaffTableRow({
                 )}
             </td>
 
+            {/* Delivery Unit */}
+            <td className="px-6 py-3.5 text-sm text-gray-700 dark:text-slate-300">
+                <span className="font-semibold">{staff.department || 'Unassigned'}</span>
+                {staff.office_head && <span className="block text-xs text-gray-500 dark:text-slate-400">Head: {staff.office_head.name}<br />{staff.office_head.designation}</span>}
+            </td>
+
             {/* Verification Status */}
             <td className="px-6 py-3.5">
                 {staff.email_verified ? (

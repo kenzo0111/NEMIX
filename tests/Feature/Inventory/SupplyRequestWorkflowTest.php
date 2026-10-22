@@ -26,6 +26,10 @@ class SupplyRequestWorkflowTest extends TestCase
         Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         $user = User::factory()->create(['is_active' => true]);
         $user->assignRole($role);
+        if ($user->usesCoordinatorInventory()) {
+            $head = \App\Models\Signatory::firstOrCreate(['name' => 'Registrar Office Head'], ['designation' => 'Office Head', 'is_active' => true]);
+            $user->update(['department' => 'Registrar', 'office_head_id' => $head->id]);
+        }
         return $user;
     }
 
@@ -269,6 +273,8 @@ class SupplyRequestWorkflowTest extends TestCase
         $item = $this->item(100);
 
         // Submit with mirrored fields from Issuance page
+        $coordinator->officeHead->update(['name' => 'Prof. Juan Dela Cruz', 'designation' => 'Department Chair']);
+        $coordinator->update(['department' => 'College of Computing and Multimedia Studies (CCMS) - Main Campus']);
         $this->actingAs($coordinator)->post(route('inventory.requests.store'), [
             'recipient' => 'Prof. Juan Dela Cruz',
             'recipient_designation' => 'Department Chair',
@@ -374,6 +380,8 @@ class SupplyRequestWorkflowTest extends TestCase
 
         $this->assertSame('STK-2026-FILAMENT-001', $item->fresh()->stock_no);
 
+        $coordinator->officeHead->update(['name' => 'Cherry Ann Quila', 'designation' => 'CEID Coordinator']);
+        $coordinator->update(['department' => 'Center for Equity, Inclusivity and Diversity (CEID)']);
         $this->actingAs($coordinator)->post(route('inventory.requests.store'), [
             'recipient' => 'Cherry Ann Quila',
             'recipient_designation' => 'CEID Coordinator',

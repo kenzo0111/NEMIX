@@ -43,16 +43,17 @@ export default function StaffTable({
                             <th scope="col" className="px-6 py-3.5 w-4/12">
                                 Staff Member
                             </th>
-                            <th scope="col" className="px-6 py-3.5 w-3/12">
+                            <th scope="col" className="px-6 py-3.5">
                                 Role
                             </th>
-                            <th scope="col" className="px-6 py-3.5 w-2/12">
+                            <th scope="col" className="px-6 py-3.5">Delivery Unit / Office Head</th>
+                            <th scope="col" className="px-6 py-3.5">
                                 Verification
                             </th>
-                            <th scope="col" className="px-6 py-3.5 w-2/12">
+                            <th scope="col" className="px-6 py-3.5">
                                 Status
                             </th>
-                            <th scope="col" className="px-6 py-3.5 w-2/12 text-right">
+                            <th scope="col" className="px-6 py-3.5 text-right">
                                 Actions
                             </th>
                         </tr>
@@ -75,7 +76,7 @@ export default function StaffTable({
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={5} className="px-6 py-14 text-center">
+                                <td colSpan={6} className="px-6 py-14 text-center">
                                     <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
                                         <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center mb-3">
                                             <Search className="w-5 h-5" />

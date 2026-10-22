@@ -1,3 +1,4 @@
+import DepartmentAssignmentFields from './DepartmentAssignmentFields';
 import React, { useEffect, useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
@@ -59,6 +60,8 @@ export default function EditStaffModal({
     roleOptions,
 }: EditStaffModalProps) {
     const { data, setData, put, processing, errors, reset, clearErrors } = useForm<EditStaffFormData>({
+        department: '',
+        office_head_id: '',
         name: '',
         email: '',
         role: '',
@@ -79,6 +82,8 @@ export default function EditStaffModal({
     useEffect(() => {
         if (staff && isOpen) {
             setData({
+                department: staff.department || '',
+                office_head_id: staff.office_head_id ? String(staff.office_head_id) : '',
                 name: staff.name,
                 email: staff.email,
                 role: staff.role,
@@ -250,6 +255,9 @@ export default function EditStaffModal({
                                 <p className="leading-relaxed mt-1.5 text-sm text-red-600 font-medium">{errors.role}</p>
                             )}
                         </div>
+                        <DepartmentAssignmentFields data={data} errors={errors}
+                            required={['Supply Coordinator', 'Authorized Personnel'].includes(data.role)}
+                            onChange={(field, value) => { setData(field, value); clearErrors(field); }} />
                     </div>
 
                     {/* Modal Actions */}

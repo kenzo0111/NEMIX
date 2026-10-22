@@ -66,6 +66,12 @@ class SupplyRequestController extends Controller
             'requiresSupportingDocument' => $request->user()->requiresSupportingDocument(),
             'inventoryScope' => $request->user()->usesCoordinatorInventory() ? 'coordinator' : null,
             'initialItemId' => $initialItemId,
+            'departmentAssignment' => $request->user()->usesCoordinatorInventory() ? [
+                'department' => $request->user()->department,
+                'recipient' => $request->user()->officeHead?->name,
+                'recipient_designation' => $request->user()->officeHead?->designation,
+                'ready' => $this->hasDepartmentAssignment($request->user()),
+            ] : null,
             'requests' => SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'documentVerifier', 'issuance.items.allocations.inventoryBatch'])
                 ->where('requested_by', $request->user()->id)->latest()->get(),
             'items' => Item::where('stock', '>', 0)->orderBy('name')->get(['id', 'name', 'sku', 'stock', 'unit_of_issue', 'unit_cost']),
@@ -159,6 +165,16 @@ class SupplyRequestController extends Controller
     public function store(Request $request)
     {
         $this->authorizeRequestAction($request);
+        if ($request->user()->usesCoordinatorInventory()) {
+            if (!$this->hasDepartmentAssignment($request->user())) {
+                throw ValidationException::withMessages(['department' => 'Ask an administrator to assign your Delivery Unit and an active office head with a designation in Staff Accounts before submitting a request.']);
+            }
+            $request->merge([
+                'department' => $request->user()->department,
+                'recipient' => $request->user()->officeHead->name,
+                'recipient_designation' => $request->user()->officeHead->designation,
+            ]);
+        }
         $requiresDocument = $request->user()->requiresSupportingDocument();
         $data = $request->validate([
             ...SupportingDocumentService::rules($requiresDocument),
@@ -222,6 +238,10 @@ class SupplyRequestController extends Controller
     {
         abort_unless($request->user()->id === $supplyRequest->requested_by, 403);
         $this->authorizeRequestAction($request);
+        // Keep the original unit and signatory even after a transfer or change of head.
+        if ($request->user()->usesCoordinatorInventory()) {
+            $request->merge($supplyRequest->only(['department', 'recipient', 'recipient_designation']));
+        }
         $requiresDocument = $supplyRequest->requires_supporting_document || $request->user()->requiresSupportingDocument();
         $data = $request->validate([
             ...SupportingDocumentService::rules($requiresDocument, $supplyRequest),
@@ -260,6 +280,14 @@ class SupplyRequestController extends Controller
             }
         });
         return redirect()->route('inventory.requests.index')->with('success', 'Request updated.');
+    }
+
+    private function hasDepartmentAssignment(User $user): bool
+    {
+        return trim($user->department ?? '') !== ''
+            && $user->officeHead?->is_active
+            && trim($user->officeHead->name ?? '') !== ''
+            && trim($user->officeHead->designation ?? '') !== '';
     }
 
     public function approve(Request $request, SupplyRequest $supplyRequest)

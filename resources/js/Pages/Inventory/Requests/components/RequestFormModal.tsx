@@ -39,17 +39,21 @@ export function RequestFormModal({
     onClose,
     onSaved,
 }: RequestFormModalProps) {
-    const requiresDocument = Boolean((usePage().props as any).auth?.capabilities?.requiresSupportingDocument || request?.requires_supporting_document);
+    const pageProps = usePage().props as any;
+    const requiresDocument = Boolean(pageProps.auth?.capabilities?.requiresSupportingDocument || request?.requires_supporting_document);
+    const assignment = pageProps.departmentAssignment as { department: string | null; recipient: string | null; recipient_designation: string | null; ready: boolean } | null;
+    const assignedUnit = Boolean(pageProps.auth?.capabilities?.coordinatorInventory);
+    const assignmentMissing = assignedUnit && !request && !assignment?.ready;
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const divisionList = divisions && divisions.length > 0 ? divisions : FALLBACK_DIVISIONS;
 
     const form = useForm({
         supporting_document: null as File | null,
         supporting_document_type: '',
-        recipient: '',
+        recipient: request?.recipient || (assignedUnit ? assignment?.recipient || '' : defaultRecipient),
         date_requested: getLocalDateString(),
-        department: '',
-        recipient_designation: '',
+        department: request?.department || (assignedUnit ? assignment?.department || '' : ''),
+        recipient_designation: request?.recipient_designation || (assignedUnit ? assignment?.recipient_designation || '' : ''),
         fund_cluster: '01',
         purpose: '',
         approved_by: defaultApprovedBy,
@@ -87,10 +91,10 @@ export function RequestFormModal({
             form.setData({
                 supporting_document: null,
                 supporting_document_type: '',
-                recipient: defaultRecipient,
+                recipient: assignedUnit ? assignment?.recipient || '' : defaultRecipient,
                 date_requested: getLocalDateString(),
-                department: '',
-                recipient_designation: '',
+                department: assignedUnit ? assignment?.department || '' : '',
+                recipient_designation: assignedUnit ? assignment?.recipient_designation || '' : '',
                 fund_cluster: '01',
                 purpose: '',
                 approved_by: defaultApprovedBy,
@@ -101,7 +105,7 @@ export function RequestFormModal({
             });
         }
         form.clearErrors();
-    }, [show, request?.id, initialItemId, defaultRecipient, defaultApprovedBy, defaultApprovedByDesignation, defaultIssuedBy, defaultIssuedByDesignation]);
+    }, [show, request?.id, initialItemId, defaultRecipient, defaultApprovedBy, defaultApprovedByDesignation, defaultIssuedBy, defaultIssuedByDesignation, assignment?.department, assignment?.recipient, assignment?.recipient_designation, assignedUnit]);
 
     useEffect(() => {
         if (!show || !form.data.supporting_document) { setPreviewUrl(null); return; }
@@ -170,6 +174,7 @@ export function RequestFormModal({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (assignmentMissing) return;
 
         if (requiresDocument && (!form.data.supporting_document_type || (!form.data.supporting_document && !request?.supporting_document_name))) {
             form.setError('supporting_document', 'Select a document type and upload an approved supporting document.');
@@ -252,17 +257,20 @@ export function RequestFormModal({
 
                 {/* Form Body */}
                 <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto max-h-[75vh] space-y-6 text-sm">
+                    {assignedUnit && <div className={`rounded-lg border p-3 text-sm ${assignmentMissing ? 'border-amber-300 bg-amber-50 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200' : 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'}`}>
+                        {assignmentMissing ? 'Ask an administrator to assign your Delivery Unit and an active office head with a designation in Staff Accounts before submitting a request.' : 'Department and Requested by details come from your administrator-assigned Delivery Unit. Your coordinator account is recorded as the submitter.'}
+                    </div>}
                     {/* SECTION 1: Recipient Information */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
                             <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
-                                1. Recipient Information
+                                1. Requesting Office
                             </h4>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="req_recipient" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
-                                    Recipient Name <span className="text-red-600" aria-hidden="true">*</span>
+                                    {assignedUnit ? 'Requested by (Department / Office Head)' : 'Recipient Name'} <span className="text-red-600" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
                                 </label>
                                 <input
@@ -272,6 +280,7 @@ export function RequestFormModal({
                                     required
                                     aria-required="true"
                                     aria-invalid={Boolean(form.errors.recipient)}
+                                    readOnly={assignedUnit}
                                     value={form.data.recipient}
                                     onChange={(e) => form.setData('recipient', e.target.value)}
                                     placeholder="Full name of requesting personnel"
@@ -313,6 +322,7 @@ export function RequestFormModal({
                                     <span className="sr-only"> (required)</span>
                                 </label>
                                 <Select
+                                    isDisabled={assignedUnit}
                                     inputId="req_department"
                                     name="department"
                                     aria-label="Division or Office"
@@ -332,13 +342,14 @@ export function RequestFormModal({
 
                             <div>
                                 <label htmlFor="req_recipient_designation" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
-                                    Recipient Designation
+                                    {assignedUnit ? 'Office Head Designation' : 'Recipient Designation'}
                                 </label>
                                 <input
                                     id="req_recipient_designation"
                                     name="recipient_designation"
                                     type="text"
                                     aria-invalid={Boolean(form.errors.recipient_designation)}
+                                    readOnly={assignedUnit}
                                     value={form.data.recipient_designation}
                                     onChange={(e) => form.setData('recipient_designation', e.target.value)}
                                     placeholder="e.g. Dean, Department Head, Faculty, Coordinator"
@@ -697,7 +708,7 @@ export function RequestFormModal({
                         </button>
                         <button
                             type="submit"
-                            disabled={form.processing}
+                            disabled={form.processing || assignmentMissing}
                             className="w-full sm:w-auto px-5 py-2 bg-red-950 hover:bg-red-900 text-white text-sm font-bold rounded-md shadow-xs disabled:opacity-50 normal-case tabular-nums tracking-normal cursor-pointer flex items-center justify-center gap-2"
                         >
                             {form.processing ? (

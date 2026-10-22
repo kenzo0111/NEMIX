@@ -80,11 +80,12 @@ export function RequestDetailsModal({
                         </div>
                     </div>
 
+                    <p className="text-sm text-gray-500 dark:text-slate-400">Submitted by: <strong>{request.requester?.name || 'Unavailable account'}</strong></p>
                     {/* Request Metadata */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <span className="block text-sm font-semibold normal-case tracking-normal text-gray-400">
-                                Recipient Name
+                                Requested by
                             </span>
                             <span className="font-semibold text-gray-900 dark:text-slate-100">
                                 {request.recipient || request.requester?.name || 'N/A'}

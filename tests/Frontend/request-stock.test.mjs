@@ -12,12 +12,14 @@ const result = await build({
             import React from 'react';
             import { renderToStaticMarkup } from 'react-dom/server';
             import { RequestFormModal } from './resources/js/Pages/Inventory/Requests/components/RequestFormModal';
-            export function render(items, lines, request = null) {
+            export function render(items, lines, request = null, pageProps = {}) {
                 globalThis.lines = lines;
+                globalThis.pageProps = pageProps;
+                globalThis.departmentSelect = null;
                 globalThis.itemSelects = [];
                 const html = renderToStaticMarkup(<RequestFormModal show items={items} request={request}
                     onClose={() => {}} onSaved={() => {}} />);
-                return { html, selects: globalThis.itemSelects };
+                return { html, selects: globalThis.itemSelects, departmentSelect: globalThis.departmentSelect };
             }
         `,
         resolveDir: root, loader: 'tsx',
@@ -31,9 +33,9 @@ const result = await build({
                 ({ path }) => ({ path, namespace: 'stub' }));
             build.onLoad({ filter: /.*/, namespace: 'stub' }, ({ path }) => ({ contents:
                 path === '@inertiajs/react'
-                    ? `export const useForm = (data) => ({ data: { ...data, items: globalThis.lines }, errors: {}, processing: false });`
+                    ? `export const usePage = () => ({ props: globalThis.pageProps }); export const useForm = (data) => ({ data: { ...data, items: globalThis.lines }, errors: {}, processing: false });`
                     : path === 'react-select'
-                        ? `export default (props) => { if (props.inputId?.startsWith('req_item_')) globalThis.itemSelects.push(props); return null; };`
+                        ? `export default (props) => { if (props.inputId === 'req_department') globalThis.departmentSelect = props; if (props.inputId?.startsWith('req_item_')) globalThis.itemSelects.push(props); return null; };`
                         : `export default ({ children }) => children;`,
             }));
         },
@@ -65,3 +67,21 @@ const multi = render([stocked, { ...depleted, stock: 4 }], [
 assert.equal(multi.selects[1].options.length, 1);
 assert.equal(multi.selects[1].options[0].value, '2');
 console.log('My Requests: depleted items excluded, stale drafts blocked, restocked items selectable.');
+
+const coordinatorPage = { auth: { capabilities: { coordinatorInventory: true } }, departmentAssignment: {
+    department: 'Finance', recipient: 'Finance Head', recipient_designation: 'Department Head', ready: true,
+} };
+const assigned = render([stocked], [{ item_id: '1', quantity: '1' }], null, coordinatorPage);
+assert.equal(assigned.departmentSelect.value.value, 'Finance');
+assert.equal(assigned.departmentSelect.isDisabled, true);
+assert.match(assigned.html, /id="req_recipient"[^>]*readonly=""[^>]*value="Finance Head"/);
+assert.match(assigned.html, /id="req_recipient_designation"[^>]*readonly=""[^>]*value="Department Head"/);
+assert.doesNotMatch(assigned.html, /type="submit"[^>]*disabled=""/);
+const unassigned = render([stocked], [], null, { ...coordinatorPage, departmentAssignment: null });
+assert.match(unassigned.html, /Ask an administrator to assign your Delivery Unit/);
+assert.match(unassigned.html, /type="submit"[^>]*disabled=""/);
+assert.match(unassigned.html, /<button type="button"(?![^>]* disabled=)[^>]*>Cancel<\/button>/);
+const historical = render([stocked], [], { recipient: 'Previous Head', recipient_designation: 'Former Head', department: 'Previous Unit' }, coordinatorPage);
+assert.equal(historical.departmentSelect.value.value, 'Previous Unit');
+assert.match(historical.html, /value="Previous Head"/);
+console.log('Department assignment: office-head autofill, locked unit, historical details, and missing-assignment guidance passed.');

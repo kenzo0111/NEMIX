@@ -5,6 +5,9 @@ export interface Staff {
     name: string;
     email: string;
     role: string;
+    department?: string | null;
+    office_head_id?: number | null;
+    office_head?: { name: string; designation: string | null; is_active: boolean } | null;
     status: 'Active' | 'Disabled' | string;
     email_verified?: boolean;
     is_system_admin?: boolean;
@@ -46,12 +49,16 @@ export type ManageStaffsPageProps = BasePageProps<{
 }>;
 
 export interface CreateStaffFormData {
+    department: string;
+    office_head_id: string;
     name: string;
     email: string;
     role: string;
 }
 
 export interface EditStaffFormData {
+    department: string;
+    office_head_id: string;
     name: string;
     email: string;
     role: string;

@@ -25,6 +25,10 @@ class SupplyRequestAlertTest extends TestCase
         Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         $user = User::factory()->create(['is_active' => $active]);
         $user->assignRole($role);
+        if ($user->usesCoordinatorInventory()) {
+            $head = \App\Models\Signatory::firstOrCreate(['name' => 'Registrar Office Head'], ['designation' => 'Office Head', 'is_active' => true]);
+            $user->update(['department' => 'Registrar', 'office_head_id' => $head->id]);
+        }
         return $user;
     }
 

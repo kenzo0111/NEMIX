@@ -4,6 +4,7 @@ namespace App\Http\Controllers\AccessControl;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Signatory;
 use App\Notifications\StaffRegistrationInvitation;
 use App\Services\AccessControl\PermissionResolver;
 use Illuminate\Auth\Passwords\PasswordBroker;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
@@ -27,13 +29,16 @@ class ManageStaffController extends Controller
         $currentUser = $request->user();
 
         $staffs = User::query()
-            ->with('roles:id,name')
+            ->with(['roles:id,name', 'officeHead:id,name,designation,is_active'])
             ->orderBy('name')
             ->get()
             ->map(fn (User $user) => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'department' => $user->department,
+                'office_head_id' => $user->office_head_id,
+                'office_head' => $user->officeHead,
                 'role' => $user->isSystemAdmin() ? 'System Admin' : ($user->roles->first()?->name ?? 'No Role'),
                 'status' => $user->is_active ? 'Active' : 'Disabled',
                 'email_verified' => ! is_null($user->email_verified_at),
@@ -48,6 +53,8 @@ class ManageStaffController extends Controller
         return Inertia::render('AccessControl/ManageStaffs', [
             'staffs' => $staffs,
             'roles' => $roles,
+            'departments' => collect(config('university.divisions', []))->flatMap(fn ($group) => $group['options'])->pluck('value')->values(),
+            'officeHeads' => Signatory::orderBy('name')->get(['id', 'name', 'designation', 'department', 'office', 'is_active']),
             'capabilities' => [
                 'canCreate' => $currentUser->can('users.create'),
                 'canUpdate' => $currentUser->can('users.update'),
@@ -66,6 +73,7 @@ class ManageStaffController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'role' => ['required', 'string', 'exists:roles,name'],
+            ...$this->departmentRules($request),
         ]);
 
         // Prevent assigning protected System Admin role by lower-privileged users
@@ -79,6 +87,8 @@ class ManageStaffController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make(Str::random(24)),
             'is_active' => false,
+            'department' => $validated['department'] ?? null,
+            'office_head_id' => $validated['office_head_id'] ?? null,
         ]);
 
         $user->syncRoles([$validated['role']]);
@@ -148,6 +158,7 @@ class ManageStaffController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'role' => ['required', 'string', 'exists:roles,name'],
+            ...$this->departmentRules($request, $user),
         ]);
 
         $currentRole = $user->roles->first()?->name ?? '';
@@ -173,12 +184,32 @@ class ManageStaffController extends Controller
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'department' => array_key_exists('department', $validated) ? $validated['department'] : $user->department,
+            'office_head_id' => array_key_exists('office_head_id', $validated) ? $validated['office_head_id'] : $user->office_head_id,
         ]);
 
         $user->syncRoles([$validated['role']]);
         PermissionResolver::clearPermissionCache();
 
         return back()->with('success', 'Staff account updated successfully.');
+    }
+
+    private function departmentRules(Request $request, ?User $user = null): array
+    {
+        $required = in_array($request->input('role'), ['Supply Coordinator', 'Authorized Personnel'], true);
+
+        return [
+            'department' => [$required ? 'required' : 'nullable', 'string', 'max:255'],
+            'office_head_id' => [
+                $required ? 'required' : 'nullable', 'integer',
+                Rule::exists('signatories', 'id')->where(function ($query) use ($user) {
+                    $query->where(function ($query) use ($user) {
+                        $query->where('is_active', true);
+                        if ($user?->office_head_id) $query->orWhere('id', $user->office_head_id);
+                    })->whereNotNull('designation')->where('designation', '!=', '');
+                }),
+            ],
+        ];
     }
 
     public function toggleStatus(Request $request, User $user): RedirectResponse
