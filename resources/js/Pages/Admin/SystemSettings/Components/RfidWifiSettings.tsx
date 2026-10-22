@@ -63,7 +63,7 @@ export default function RfidWifiSettings({ device, ssid, password, open, apply, 
         if (network.secure) passwordRef.current?.focus();
     };
     const fieldClass = 'mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-red-800 focus:ring-2 focus:ring-red-800/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100';
-    return <fieldset disabled={busy} className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50/70 p-5 dark:border-slate-700 dark:bg-slate-900/30 space-y-4">
+    return <fieldset disabled={busy} className="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50/70 p-5 dark:border-slate-700 dark:bg-slate-900/30 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
             <div><h4 className="text-base flex items-center gap-2 font-bold text-slate-900 dark:text-slate-100"><Wifi className="h-4 w-4"/>Wi-Fi connection</h4><p className="leading-relaxed mt-1 text-sm text-slate-500 dark:text-slate-400">1. Choose a network near the scanner. 2. Enter its password. 3. Save &amp; Apply Configuration.</p></div>
             <button type="button" onClick={refresh} disabled={waiting || device.status !== 'online' || !supported} className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">{waiting ? <Loader2 className="h-4 w-4 animate-spin"/> : <RefreshCw className="h-4 w-4"/>}{waiting ? 'Finding networks…' : 'Refresh networks'}</button>

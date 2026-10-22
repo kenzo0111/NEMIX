@@ -1,4 +1,7 @@
 import React from 'react';
+import { usePage } from '@inertiajs/react';
+import type { PageProps } from '@/types';
+import { roleDesignation } from '@/utils/systemIdentity';
 import { Link } from '@inertiajs/react';
 import { LogOut, PanelLeftClose, PanelLeftOpen, Settings, User } from 'lucide-react';
 import { SidebarUser as UserType } from '@/types/navigation';
@@ -25,7 +28,7 @@ export default function SidebarUser({
     );
 
     const userName = user?.name || 'Administrator';
-    const userRole = user?.primary_role || user?.role || (coordinator ? 'Supply Coordinator' : 'Supply Officer');
+    const userRole = roleDesignation(usePage<PageProps>().props.auth);
     const initial = userName.charAt(0).toUpperCase() || 'U';
 
     if (collapsed) {

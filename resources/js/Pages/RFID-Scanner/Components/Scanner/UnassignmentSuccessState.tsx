@@ -12,7 +12,7 @@ export default function UnassignmentSuccessState({
 }: UnassignmentSuccessStateProps) {
     return (
         <div className="text-center py-7 px-6 bg-gradient-to-b from-gray-50/50 via-white to-gray-50/20 rounded-xl border border-gray-200 shadow-2xs">
-            <div className="w-12 h-12 rounded-2xl bg-gray-100 text-gray-700 flex items-center justify-center mx-auto mb-3 border border-gray-200">
+            <div className="w-12 h-12 rounded-xl bg-gray-100 text-gray-700 flex items-center justify-center mx-auto mb-3 border border-gray-200">
                 <Check className="w-6 h-6 text-gray-700" />
             </div>
 

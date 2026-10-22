@@ -37,7 +37,7 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
 
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="md" closeable={!processing} ariaLabel="Create New Role">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-xl">
+            <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-xl">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
 

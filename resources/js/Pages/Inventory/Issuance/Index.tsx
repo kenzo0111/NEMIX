@@ -1,10 +1,10 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import { notify } from '@/utils/notifications';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { useAuthorization } from '@/Hooks/useAuthorization';
 import { IssuancePageProps, IssuanceRecord, PaginatedData } from './types';
 import { IssuanceToolbar } from './components/IssuanceToolbar';
@@ -41,7 +41,6 @@ export default function IssuanceIndex({
     const user = auth.user;
     const { canAny } = useAuthorization();
     const canReviewRequests = canAny(['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release']);
-    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const pageProps = usePage().props as any;
     const systemSettings = (pageProps.systemSettings || {}) as Record<string, any>;
     const publicSettings = pageProps.system?.settings || {};
@@ -255,24 +254,19 @@ export default function IssuanceIndex({
     const modules = getSidebarModules('Inventory', 'Issuance');
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 overflow-x-hidden selection:bg-red-900 selection:text-white">
+        <>
             <Head title="Inventory - Stock Issuance & Approval Workspace" />
 
-            <Sidebar
-                modules={modules}
-                user={user}
-                collapsed={collapsed}
-                onToggleCollapse={handleToggleCollapse}
-            />
 
-            <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
+
+            <DashboardLayout modules={modules} user={user}>
                 <PageHeader
                     title="Inventory Management"
                     description="Approve requests and track issued supplies."
                     breadcrumbs={[{ name: 'Inventory' }, { name: 'Issuance & Approvals' }]}
                 />
 
-                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden pb-16 min-w-0 space-y-6">
+                <DashboardContent className="overflow-x-hidden">
 
                     {/* Custodian Workspace View Switcher Tabs */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-slate-800 pb-2">
@@ -347,8 +341,8 @@ export default function IssuanceIndex({
                             />
                         </div>
                     )}
-                </div>
-            </main>
+                </DashboardContent>
+            </DashboardLayout>
 
             {/* Direct Issuance Entry Modal */}
             {canCreateIssuance && (
@@ -385,6 +379,6 @@ export default function IssuanceIndex({
                 defaultIssuedBy={defaultIssuedBy}
                 defaultIssuedByDesignation={defaultIssuedByDesignation}
             />
-        </div>
+        </>
     );
 }

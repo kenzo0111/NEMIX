@@ -15,7 +15,7 @@ export default function ScannerErrorState({
 }: ScannerErrorStateProps) {
     return (
         <div className="text-center py-7 px-6 bg-gradient-to-b from-red-50/40 via-white to-gray-50/20 rounded-xl border border-red-200 shadow-2xs">
-            <div className="w-12 h-12 rounded-2xl bg-red-100/80 text-red-700 flex items-center justify-center mx-auto mb-3 border border-red-200">
+            <div className="w-12 h-12 rounded-xl bg-red-100/80 text-red-700 flex items-center justify-center mx-auto mb-3 border border-red-200">
                 <AlertCircle className="w-6 h-6 text-red-700" />
             </div>
 

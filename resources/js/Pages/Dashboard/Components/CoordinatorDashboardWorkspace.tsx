@@ -1,3 +1,4 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import React from 'react';
 import { Link, router } from '@inertiajs/react';
 import { Activity, ArrowDownToLine, ArrowRight, ArrowUpFromLine, BookOpen, Boxes, Building2, ChartColumn, CheckCircle2, ChevronRight, ClipboardList, FileText, Layers3, Package, Plus, TriangleAlert } from 'lucide-react';
@@ -56,7 +57,7 @@ export default function CoordinatorDashboardWorkspace({
     return (
         <>
             <DashboardHeader coordinator />
-            <div className="mx-auto max-w-[1600px] space-y-4 p-4 sm:p-5 lg:p-6">
+            <DashboardContent>
                 <section aria-label="Unit workspace" className={`${surface} flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-red-50/60 to-white p-4 dark:from-red-950/20 dark:to-slate-900`}>
                     <div className="flex min-w-0 items-center gap-3">
                         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-red-200 bg-red-100/60 text-red-900 dark:border-red-800/50 dark:bg-red-950/50 dark:text-red-300"><Building2 size={25} strokeWidth={1.6} aria-hidden="true" /></span>
@@ -146,7 +147,7 @@ export default function CoordinatorDashboardWorkspace({
                         {recentRequests.length > 0 && <details className={`${surface} px-4`}><summary className="cursor-pointer py-4 text-sm font-medium">Request updates</summary><div className="divide-y divide-slate-100 pb-2 dark:divide-slate-800">{recentRequests.slice(0, 3).map(request => <Link key={request.id} href={route('inventory.requests.index', { request_id: request.id })} className="block rounded py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800"><div className="flex flex-wrap justify-between gap-2 text-xs"><span className="font-medium">{request.reference}</span><span className="text-slate-500 dark:text-slate-400">{request.status === 'Approved' ? 'Awaiting release' : request.status}</span></div><p className="mt-1 truncate text-xs text-slate-500 dark:text-slate-400">{request.items} · {displayDate(request.date)}</p></Link>)}</div></details>}
                     </div>
                 </div>
-            </div>
+            </DashboardContent>
         </>
     );
 }

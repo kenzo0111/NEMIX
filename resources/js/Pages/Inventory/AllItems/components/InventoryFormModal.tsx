@@ -93,7 +93,7 @@ export default function InventoryFormModal({
         return existingItems.find((item) => {
             const normalizedItemName = (item.name || '').trim().toLowerCase().replace(/\s+/g, ' ');
             const normalizedItemUnit = (item.unit_of_issue || '').trim().toLowerCase();
-            
+
             if (normalizedInputName === normalizedItemName) {
                 if (!normalizedInputUnit || !normalizedItemUnit) return true;
                 return normalizedInputUnit === normalizedItemUnit;
@@ -168,7 +168,7 @@ export default function InventoryFormModal({
             closeable={!processing}
             ariaLabel={isEditing ? 'Edit Item Master' : 'Register New Item Master'}
         >
-            <div className="relative flex max-h-[calc(100dvh-3rem)] flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden">
+            <div className="relative flex max-h-[calc(100dvh-3rem)] flex-col bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden">
                 <Portal><div ref={setSelectPortal} /></Portal>
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />

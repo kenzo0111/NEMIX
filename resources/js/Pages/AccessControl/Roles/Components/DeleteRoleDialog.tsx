@@ -32,7 +32,7 @@ export default function DeleteRoleDialog({
 
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="md" closeable={!processing} ariaLabel="Delete Role Confirmation">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-xl">
+            <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-xl">
                 {/* Red Destructive Accent Line */}
                 <div className="h-1.5 w-full bg-red-600 shrink-0" />
 

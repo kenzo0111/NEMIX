@@ -102,7 +102,7 @@ export default function OperationsSettings({
                     </p>
                 </div>
 
-                <div className="border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs max-w-2xl">
+                <div className="border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs max-w-2xl">
                     <div className="px-5 py-3 bg-slate-50 dark:bg-slate-850 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
                         <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                             <Server className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />

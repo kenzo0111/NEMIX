@@ -16,7 +16,7 @@ export default function TagConflictState({
 }: TagConflictStateProps) {
     return (
         <div className="text-center py-7 px-6 bg-gradient-to-b from-amber-50/40 via-white to-gray-50/20 rounded-xl border border-amber-200 shadow-2xs">
-            <div className="w-12 h-12 rounded-2xl bg-amber-100/80 text-amber-700 flex items-center justify-center mx-auto mb-3 border border-amber-200">
+            <div className="w-12 h-12 rounded-xl bg-amber-100/80 text-amber-700 flex items-center justify-center mx-auto mb-3 border border-amber-200">
                 <AlertTriangle className="w-6 h-6 text-amber-600" />
             </div>
 

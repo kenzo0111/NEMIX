@@ -219,7 +219,7 @@ export const GenerateReportDialog: React.FC<GenerateReportDialogProps> = ({
             closeable={!isSubmitting}
             ariaLabel="Generate Official Report"
         >
-            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-2xl border border-gray-200 dark:border-slate-800 print:max-h-none print:shadow-none print:border-none compliance-print-dialog-panel">
+            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-gray-200 dark:border-slate-800 print:max-h-none print:shadow-none print:border-none compliance-print-dialog-panel">
                 {/* Thin Maroon Accent Top Line */}
                 <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-amber-600 w-full shrink-0 print:hidden compliance-print-hide" />
 

@@ -144,7 +144,7 @@ export const RfidReceivingModal: React.FC<Props> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Scan RFID Tags">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
                 {/* Institutional Top Accent */}
                 <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 

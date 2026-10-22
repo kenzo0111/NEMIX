@@ -1,10 +1,10 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import { notify } from '@/utils/notifications';
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Head, router, useForm } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import {
     AllItemsProps,
     InventoryItem,
@@ -30,7 +30,6 @@ export default function AllItemsIndex({
     const user = auth?.user;
 
     // Unified persistent sidebar collapse state
-    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
 
     // Active Modals & Selected Items
     const [viewItem, setViewItem] = useState<InventoryItem | null>(null);
@@ -298,17 +297,12 @@ export default function AllItemsIndex({
     const isFiltered = Boolean(searchTerm.trim() || filterSupplier || filterStatus);
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white">
+        <>
             <Head title="Inventory Management - Supply Administration" />
 
-            <Sidebar
-                modules={modules}
-                user={user}
-                collapsed={collapsed}
-                onToggleCollapse={handleToggleCollapse}
-            />
 
-            <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
+
+            <DashboardLayout modules={modules} user={user}>
                 {/* Unified Institutional Header */}
                 <PageHeader
                     title="Inventory Management"
@@ -316,7 +310,7 @@ export default function AllItemsIndex({
                     breadcrumbs={[{ name: 'Inventory' }, { name: 'All Items' }]}
                 />
 
-                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-5 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
+                <DashboardContent>
 
                     {/* Main Working Interface: Card & Table */}
                     <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xs border border-gray-200 dark:border-slate-800 overflow-hidden">
@@ -348,8 +342,8 @@ export default function AllItemsIndex({
                             onResetFilters={handleResetFilters}
                         />
                     </div>
-                </div>
-            </main>
+                </DashboardContent>
+            </DashboardLayout>
 
             {/* View Record Details Modal */}
             <InventoryDetailsModal
@@ -399,6 +393,6 @@ export default function AllItemsIndex({
                 }}
                 onConfirm={handleDeleteConfirm}
             />
-        </div>
+        </>
     );
 }

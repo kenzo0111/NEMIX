@@ -30,7 +30,7 @@ export default function InventoryDetailsModal({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Item Master Record">
-            <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden">
+            <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 

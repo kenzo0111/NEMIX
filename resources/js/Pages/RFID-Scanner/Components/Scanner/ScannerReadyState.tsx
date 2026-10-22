@@ -21,7 +21,7 @@ export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerRe
                 {/* Gentle animated rings */}
                 <div className="absolute w-28 h-28 rounded-full bg-red-900/5 animate-ping pointer-events-none" style={{ animationDuration: '3s' }} />
                 <div className="absolute w-24 h-24 rounded-full bg-red-900/10 pointer-events-none" />
-                <div className="relative w-16 h-16 bg-white rounded-2xl border border-red-200 shadow-sm flex items-center justify-center text-red-900 z-10">
+                <div className="relative w-16 h-16 bg-white rounded-xl border border-red-200 shadow-sm flex items-center justify-center text-red-900 z-10">
                     <Radio className="w-8 h-8 text-red-900 animate-pulse" />
                 </div>
             </div>

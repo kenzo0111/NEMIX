@@ -1,9 +1,9 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import { ArrowRight, Boxes, ChevronRight, ClipboardList, FileText, History, Package, Plus, Search, Wallet, X } from 'lucide-react';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import CoordinatorPortalHeader from './components/CoordinatorPortalHeader';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import IssueDialog from './components/IssueDialog';
 import StockCardDialog from './components/StockCardDialog';
@@ -15,7 +15,6 @@ interface Props { stocks: Stock[]; lowStockThreshold: number; movements: Movemen
 
 export default function CoordinatorInventory({ stocks, movements, lowStockThreshold }: Props) {
     const { auth } = usePage<any>().props;
-    const [collapsed, toggle] = useSidebarCollapse();
     const [tab, setTab] = useState<'inventory' | 'history'>(() => {
         if (typeof window === 'undefined') return 'inventory';
         const params = new URLSearchParams(window.location.search);
@@ -45,14 +44,14 @@ export default function CoordinatorInventory({ stocks, movements, lowStockThresh
     const low = stocks.filter(stock => stock.quantity <= lowStockThreshold).length;
     const totalValue = stocks.reduce((total, stock) => total + Number(stock.value), 0);
 
-    return <div className="min-h-screen bg-[#F5F6F8] font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    return <>
         <Head title={`Delivery Unit Inventory | ${auth.capabilities?.requiresSupportingDocument ? 'Authorized Personnel' : 'Supply Coordinator'}`} />
-        <Sidebar modules={getSidebarModules()} user={auth.user} collapsed={collapsed} onToggleCollapse={toggle} />
-        <main className={`min-w-0 transition-all duration-300 ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
+
+        <DashboardLayout modules={getSidebarModules()} user={auth.user}>
             <CoordinatorPortalHeader />
-            <div className="mx-auto max-w-[1600px] space-y-6 p-4 sm:p-7 lg:p-8">
+            <DashboardContent>
                 <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300">Delivery Unit Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Unit Inventory</span></nav>
-                <section className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center"><div><p className="leading-relaxed mb-2 text-sm font-bold normal-case tracking-normal text-red-900 dark:text-red-300">Supply & Property Management Office</p><h1 className="text-2xl sm:text-3xl font-sans font-bold tracking-tight ">Delivery Unit Inventory</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Manage your unit’s supplies, record distributions, and prepare official Stock Cards.</p></div><div className="flex flex-wrap gap-2.5"><Link href={route('inventory.requests.index')} className={secondaryButton}><ClipboardList size={16} />My Requests</Link><Link href={route('inventory.requests.index', { create: 1 })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-red-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2"><Plus size={17} />Request Supplies</Link></div></section>
+                <section className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center"><div><p className="leading-relaxed mb-2 text-sm font-bold normal-case tracking-normal text-red-900 dark:text-red-300">Supply & Property Management Office</p><h2 className="text-2xl sm:text-3xl font-sans font-bold tracking-tight ">Delivery Unit Inventory</h2><p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Manage your unit’s supplies, record distributions, and prepare official Stock Cards.</p></div><div className="flex flex-wrap gap-2.5"><Link href={route('inventory.requests.index')} className={secondaryButton}><ClipboardList size={16} />My Requests</Link><Link href={route('inventory.requests.index', { create: 1 })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-red-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2"><Plus size={17} />Request Supplies</Link></div></section>
                 <section aria-label="Unit inventory overview" className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
                     <div className={`${panel} flex min-w-0 items-start justify-between gap-3 p-4 sm:p-5`}><div className="min-w-0"><p className="leading-relaxed text-sm text-slate-600 dark:text-slate-400">Supplies in stock</p><p className="mt-2 text-xl font-bold tabular-nums sm:text-2xl">{available}<span className="ml-2 text-sm font-normal text-slate-500 sm:text-sm">item types</span></p><p className="leading-relaxed mt-2 text-sm text-slate-500 dark:text-slate-400">Available in your Delivery Unit</p></div><span className="hidden rounded-xl bg-red-50 p-2.5 text-red-900 xl:inline-flex dark:bg-red-950/60 dark:text-red-300"><Boxes size={20} /></span></div>
                     <div className={`${panel} flex min-w-0 items-start justify-between gap-3 p-4 sm:p-5`}><div className="min-w-0"><p className="leading-relaxed text-sm text-slate-600 dark:text-slate-400">Inventory value</p><p className="mt-2 break-words text-lg font-bold tracking-tight tabular-nums sm:text-2xl">{money(totalValue)}</p><p className="leading-relaxed mt-2 text-sm text-slate-500 dark:text-slate-400">Total value of supplies on hand</p></div><span className="hidden rounded-xl bg-slate-100 p-2.5 text-slate-600 xl:inline-flex dark:bg-slate-800 dark:text-slate-300"><Wallet size={20} /></span></div>
@@ -69,9 +68,9 @@ export default function CoordinatorInventory({ stocks, movements, lowStockThresh
                     <div id="panel-history" role="tabpanel" aria-labelledby="tab-history" hidden={tab !== 'history'}><TransactionHistory movements={movements} /></div>
                 </section>
                 <footer className="flex flex-wrap justify-between gap-2 pb-2 text-sm text-slate-500 dark:text-slate-400"><span>Delivery Unit workspace · {auth.user.name}</span><span>Need more supplies? Submit a request to the Supply Office.</span></footer>
-            </div>
-        </main>
+            </DashboardContent>
+        </DashboardLayout>
         <IssueDialog stock={issueStock} onClose={() => setIssueStock(null)} />
         <StockCardDialog stock={reportStock} onClose={() => setReportStock(null)} />
-    </div>;
+    </>;
 }

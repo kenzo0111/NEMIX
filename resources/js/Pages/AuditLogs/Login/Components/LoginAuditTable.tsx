@@ -99,7 +99,7 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
     }
 
     return (
-        <div className={`bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 overflow-hidden ${coordinatorLayout ? 'rounded-2xl shadow-sm [&_td]:py-5 [&_th]:py-3.5' : 'rounded-lg shadow-2xs'}`}>
+        <div className={`bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 overflow-hidden ${coordinatorLayout ? 'rounded-xl shadow-sm [&_td]:py-5 [&_th]:py-3.5' : 'rounded-lg shadow-2xs'}`}>
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[760px]">
                     <thead>

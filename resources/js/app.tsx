@@ -6,11 +6,12 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import GlobalNotifications from '@/Components/GlobalNotifications';
 import { FlashMessages } from '@/types';
+import { SYSTEM_TITLE } from '@/utils/systemIdentity';
 
 const appName = import.meta.env.VITE_APP_NAME || 'SupplySync';
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => `${title ? `${title} | ` : ''}${SYSTEM_TITLE} - ${appName}`,
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.tsx`,

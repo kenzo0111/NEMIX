@@ -1,11 +1,11 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import { notify } from '@/utils/notifications';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import Select from 'react-select';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { institutionalSelectStyles } from '@/styles/selectStyles';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { RisPreviewModal } from '../Issuance/components/RisPreviewModal';
@@ -51,7 +51,6 @@ export default function MyRequests({
     defaultIssuedBy?: string;
     defaultIssuedByDesignation?: string;
 }) {
-    const [collapsed, toggle] = useSidebarCollapse();
     const { can } = useAuthorization();
     const pageProps = usePage().props as any;
     const isCoordinator = Boolean(pageProps.auth?.capabilities?.coordinatorInventory);
@@ -232,16 +231,11 @@ export default function MyRequests({
     };
 
     return (
-        <div className={`min-h-screen ${isCoordinator ? 'bg-[#F5F6F8]' : 'bg-[#F4F6F8]'} dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 overflow-x-hidden selection:bg-red-900 selection:text-white`}>
+        <>
             <Head title="My Requests" />
-            <Sidebar
-                modules={getSidebarModules('My Requests')}
-                user={auth.user}
-                collapsed={collapsed}
-                onToggleCollapse={toggle}
-            />
 
-            <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
+
+            <DashboardLayout modules={getSidebarModules('My Requests')} user={auth.user}>
                 {isCoordinator ? <CoordinatorRequestsWorkspace
                     userName={auth.user.name}
                     counts={counts}
@@ -270,7 +264,7 @@ export default function MyRequests({
                     breadcrumbs={[{ name: 'Overview' }, { name: 'My Requests' }]}
                 />
 
-                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden pb-16 min-w-0 space-y-5">
+                <DashboardContent className="overflow-x-hidden">
 
                     {/* Operational Summary Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -638,9 +632,9 @@ export default function MyRequests({
                             </div>
                         )}
                     </div>
-                </div>
+                </DashboardContent>
                 </>}
-            </main>
+            </DashboardLayout>
 
             {/* Request Creation / Editing Modal */}
             <RequestFormModal
@@ -689,6 +683,6 @@ export default function MyRequests({
                 defaultIssuedBy={defaultIssuedBy}
                 defaultIssuedByDesignation={defaultIssuedByDesignation}
             />
-        </div>
+        </>
     );
 }

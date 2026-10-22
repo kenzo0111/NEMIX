@@ -1,10 +1,10 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import { notify } from '@/utils/notifications';
 import React, { useMemo, useState } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { ReportToolbar } from './Components/ReportToolbar';
 import { ReportRegistry } from './Components/ReportRegistry';
 import { GenerateReportDialog } from './Components/GenerateReportDialog';
@@ -28,7 +28,6 @@ export default function ReportsIndex({
     const user = auth?.user || (props.auth as any)?.user;
     const publicSettings = (props as any)?.system?.settings || {};
 
-    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedType, setSelectedType] = useState<ReportType | ''>('');
 
@@ -84,23 +83,14 @@ export default function ReportsIndex({
     };
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white print:bg-white print:min-h-0 print:h-auto print:block">
+        <>
             <Head title="COA Compliance Reports & Official Forms" />
 
             <div className="print:hidden compliance-print-hide">
-                <Sidebar
-                    modules={modules}
-                    user={user}
-                    collapsed={collapsed}
-                    onToggleCollapse={handleToggleCollapse}
-                />
+
             </div>
 
-            <main
-                className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${
-                    collapsed ? 'md:ml-20' : 'md:ml-72'
-                } ml-0 print:ml-0 print:overflow-visible print:h-auto print:p-0`}
-            >
+            <DashboardLayout modules={modules} user={user}>
                 <div className="print:hidden compliance-print-hide">
                     <PageHeader
                         title="MANAGE REPORTS"
@@ -109,7 +99,7 @@ export default function ReportsIndex({
                     />
                 </div>
 
-                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 print:p-0 print:m-0 print:space-y-0 print:h-auto min-w-0 w-full">
+                <DashboardContent className="print:p-0 print:m-0 print:space-y-0 print:h-auto">
                     <div className="print:hidden space-y-6">
                         {/* Primary Official COA Documents Ledger Card */}
                         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-gray-200/80 dark:border-slate-800 overflow-hidden">
@@ -129,7 +119,7 @@ export default function ReportsIndex({
                             />
                         </div>
                     </div>
-                </div>
+                </DashboardContent>
 
                 {/* Generate Report Dialog (2-Step Workflow) */}
                 <GenerateReportDialog
@@ -183,7 +173,7 @@ export default function ReportsIndex({
                     }}
                 />
 
-            </main>
-        </div>
+            </DashboardLayout>
+        </>
     );
 }

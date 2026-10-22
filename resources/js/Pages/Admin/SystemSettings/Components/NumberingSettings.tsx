@@ -60,7 +60,7 @@ export default function NumberingSettings({ previews }: NumberingSettingsProps) 
             </div>
 
             {/* Sequence Table / Grid */}
-            <div className="border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
+            <div className="border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
                         <thead>
@@ -88,7 +88,7 @@ export default function NumberingSettings({ previews }: NumberingSettingsProps) 
                                     </td>
                                     <td className="px-5 py-4">
                                         <span className="inline-block px-3 py-1 rounded-lg bg-red-50/70 dark:bg-red-950/40 border border-red-200/80 dark:border-red-900/40 tabular-nums font-bold text-red-950 dark:text-red-300 text-sm">
-                                            {previews?.[seq.key] || '—'}
+                                            {previews?.[seq.key] || 'ï¿½'}
                                         </span>
                                     </td>
                                 </tr>

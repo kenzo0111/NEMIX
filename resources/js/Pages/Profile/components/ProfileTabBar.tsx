@@ -39,7 +39,7 @@ export default function ProfileTabBar({ activeTab, onTabChange }: Props) {
     return (
         <nav
             aria-label="Profile Categories"
-            className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-1.5 overflow-x-auto scrollbar-none mb-6"
+            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-1.5 overflow-x-auto scrollbar-none mb-6"
         >
             <div className="flex items-center gap-1 min-w-max">
                 {TABS.map((tab) => {

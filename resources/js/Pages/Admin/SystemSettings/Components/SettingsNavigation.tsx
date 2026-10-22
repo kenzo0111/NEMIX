@@ -14,7 +14,7 @@ export default function SettingsNavigation({
     return (
         <nav
             aria-label="Settings Categories"
-            className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-1.5 overflow-x-auto scrollbar-none"
+            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-1.5 overflow-x-auto scrollbar-none"
         >
             <div className="flex items-center gap-1 min-w-max">
                 {SETTINGS_TABS.map((tab) => {

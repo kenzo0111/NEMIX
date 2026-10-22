@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "build": "npx vite build",
-        "dev": "npx vite"
+        "dev": "npx vite",
+        "test:ui": "node --test tests/ui/*.test.cjs"
     },
     "devDependencies": {
         "@headlessui/react": "^2.0.0",

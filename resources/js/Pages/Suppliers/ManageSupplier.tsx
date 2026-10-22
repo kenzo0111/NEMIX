@@ -1,9 +1,9 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import React, { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import {
     ManageSupplierPageProps,
     Supplier,
@@ -22,7 +22,6 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
     const modules = getSidebarModules('Suppliers', 'Manage Supplier');
 
     // Layout & modal state
-    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view' | null>(null);
     const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
 
@@ -171,22 +170,17 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
         <>
             <Head title="Suppliers - Consumable Office Supplies" />
 
-            <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white">
-                <Sidebar
-                    modules={modules}
-                    user={user}
-                    collapsed={collapsed}
-                    onToggleCollapse={handleToggleCollapse}
-                />
+            <>
 
-                <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
+
+                <DashboardLayout modules={modules} user={user}>
                     <PageHeader
                         title="Consumable Office Supplies Suppliers"
                         description="Maintain accredited suppliers of university office consumables."
                         breadcrumbs={[{ name: 'Suppliers' }, { name: 'Manage Supplier' }]}
                     />
 
-                    <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
+                    <DashboardContent>
                         <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xs border border-gray-200/80 dark:border-slate-800 overflow-hidden">
                             {/* Section Header */}
                             <div className="px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 border-b border-gray-200/80 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50">
@@ -220,8 +214,8 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
                                 onEditSupplier={openEditModal}
                             />
                         </div>
-                    </div>
-                </main>
+                    </DashboardContent>
+                </DashboardLayout>
 
                 {/* Read-Only Details Modal */}
                 <SupplierDetailsModal
@@ -243,7 +237,7 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
                     onSubmit={handleSubmit}
                     onClose={closeModal}
                 />
-            </div>
+            </>
         </>
     );
 }

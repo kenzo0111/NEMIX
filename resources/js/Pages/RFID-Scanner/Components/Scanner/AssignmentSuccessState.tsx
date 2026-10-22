@@ -19,7 +19,7 @@ export default function AssignmentSuccessState({
     return (
         <div className="text-center py-7 px-6 bg-gradient-to-b from-emerald-50/40 via-white to-gray-50/20 rounded-xl border border-emerald-200 shadow-2xs">
             {/* Success Icon */}
-            <div className="w-12 h-12 rounded-2xl bg-emerald-100/80 text-emerald-700 flex items-center justify-center mx-auto mb-3 border border-emerald-200 shadow-2xs">
+            <div className="w-12 h-12 rounded-xl bg-emerald-100/80 text-emerald-700 flex items-center justify-center mx-auto mb-3 border border-emerald-200 shadow-2xs">
                 <CheckCircle2 className="w-6 h-6 text-emerald-600" />
             </div>
 

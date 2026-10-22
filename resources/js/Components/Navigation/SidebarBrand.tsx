@@ -21,11 +21,11 @@ export default function SidebarBrand({ collapsed = false, onCloseMobile }: Sideb
                         collapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-[200px] flex-1 border-l border-[#874040]/70 pl-3 opacity-100'
                     }`}
                 >
-                    <p className="w-fit whitespace-nowrap bg-gradient-to-b from-[#ffe68a] to-[#e8ad1c] bg-clip-text font-sans text-[27px] font-extrabold leading-none tracking-[-0.045em] text-transparent">
+                    <p className="w-fit whitespace-nowrap font-sans text-2xl font-semibold leading-tight tracking-tight text-amber-200">
                         SupplySync
                     </p>
-                    <p className="mt-1.5 whitespace-nowrap font-sans text-[9px] font-normal leading-tight tracking-[-0.025em] text-[#f5efec]">
-                        Supply and Property Management Office
+                    <p className="mt-1.5 font-sans text-xs font-normal leading-snug text-[#f5efec]">
+                        Consumable Supply Management
                     </p>
                 </div>
             </div>

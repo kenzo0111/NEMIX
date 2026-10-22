@@ -48,11 +48,11 @@ export default function AuthBrandPanel({
             {/* System title and full description */}
             <div className="relative z-10 pb-28 xl:pb-36">
                 <div className="w-16 h-1 bg-amber-300 mb-5" aria-hidden="true" />
-                <h2 className="text-5xl xl:text-6xl font-bold tracking-tight text-white leading-tight font-sans">
+                <h2 className="text-3xl xl:text-4xl font-semibold tracking-tight text-white leading-tight font-sans">
                     {headline}
                 </h2>
-                <p className="mt-3 text-xs xl:text-sm font-semibold uppercase tracking-[0.18em] text-white/85 leading-relaxed">
-                    Consumables Supply Management System
+                <p className="mt-3 text-sm font-medium text-white/85 leading-relaxed">
+                    Consumable Supply Management
                 </p>
                 <p className="text-sm xl:text-base text-white/85 leading-relaxed font-sans mt-4 max-w-md [text-wrap:pretty]">
                     {subheadline}

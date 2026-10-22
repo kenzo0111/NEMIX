@@ -5,8 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <meta name="description" content="SupplySync — Consumable Supplies and Requisition Management System. Manage consumable supplies, digital requisitions, and automated reports.">
-        <title inertia>{{ config('app.name', 'SupplySync') }}</title>
+        <meta name="description" content="SupplySync — Consumable Supply Management. Manage consumable supplies, digital requisitions, and automated reports.">
+        <title inertia>SupplySync | Consumable Supply Management</title>
         <link rel="icon" type="image/png" href="{{ asset('images/cnscrefine.png') }}">
         <link rel="apple-touch-icon" href="{{ asset('images/cnscrefine.png') }}">
 

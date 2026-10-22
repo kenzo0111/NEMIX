@@ -1,8 +1,8 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import React, { useState } from 'react';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { PageProps } from '@/types';
 import { ProfilePageProps, UserProfileDetails, ProfileTab } from './types';
 import { Head, usePage } from '@inertiajs/react';
@@ -20,7 +20,6 @@ export default function Edit({
     const { auth } = usePage<PageProps>().props;
     const authUser = auth?.user;
 
-    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
 
     // Strongly typed resolved profile with fallbacks
     const resolvedProfile: UserProfileDetails = profile || {
@@ -44,19 +43,14 @@ export default function Edit({
     const [activeTab, setActiveTab] = useState<ProfileTab>('profile');
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-slate-900 dark:text-slate-100 selection:bg-red-900 selection:text-white">
+        <>
             <Head title="Profile & Account Settings — UCN SPMO" />
 
             {/* Persistent University Sidebar */}
-            <Sidebar
-                modules={modules}
-                user={authUser}
-                collapsed={collapsed}
-                onToggleCollapse={handleToggleCollapse}
-            />
+
 
             {/* Main Application Area */}
-            <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'} ml-0`}>
+            <DashboardLayout modules={modules} user={authUser}>
                 {/* Unified Institutional Page Header */}
                 <PageHeader
                     title="Profile & Account Settings"
@@ -65,7 +59,7 @@ export default function Edit({
                 />
 
                 {/* Primary Content Container */}
-                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 max-w-6xl mx-auto pb-16 min-w-0 w-full">
+                <DashboardContent>
                     {/* Institutional Personnel Header */}
                     <PersonnelHeader profile={resolvedProfile} />
 
@@ -90,8 +84,8 @@ export default function Edit({
                             <AccountSecurityCard profile={resolvedProfile} />
                         )}
                     </div>
-                </div>
-            </main>
-        </div>
+                </DashboardContent>
+            </DashboardLayout>
+        </>
     );
 }

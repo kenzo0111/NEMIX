@@ -1,9 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { useAuthorization } from '@/Hooks/useAuthorization';
 import { PaginationMeta, RFIDInventoryItem } from './types';
 import { useRfidScanner } from './hooks/useRfidScanner';
@@ -60,7 +59,6 @@ export default function Index({
 }: PageProps) {
     const user = auth.user;
     const { can } = useAuthorization();
-    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const [isReplacingTag, setIsReplacingTag] = useState(false);
     const [showUnassignModal, setShowUnassignModal] = useState(false);
     const [isCompletionDismissed, setIsCompletionDismissed] = useState(false);
@@ -133,24 +131,16 @@ export default function Index({
     const modules = getSidebarModules('RFID Scanner');
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white">
+        <>
             <Head title="RFID Scanner | UCN SPMO" />
 
-            {/* Persistent Sidebar */}
-            <Sidebar
-                modules={modules}
-                user={user}
-                collapsed={collapsed}
-                onToggleCollapse={handleToggleCollapse}
-            />
-
-            <main className={`flex-1 transition-all duration-300 ease-in-out min-w-0 ${collapsed ? 'md:ml-20' : 'md:ml-72'} ml-0`}>
+            <DashboardLayout modules={modules} user={user}>
                 <PageHeader
                     title="RFID Scanner"
                     description="Assign RFID identification tags to inventory items before receiving."
                     breadcrumbs={[{ name: 'RFID Scanner', href: '#' }]}
                 />
-                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1500px] mx-auto pb-16 min-w-0 w-full">
+                <div className="p-4 sm:p-7 lg:p-8 space-y-6 max-w-[1500px] mx-auto pb-16 min-w-0 w-full">
                     <section aria-label="Hardware scanner" className="flex flex-col gap-4 rounded-xl border border-gray-200/90 bg-white p-4 shadow-2xs dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                         <div className="flex min-w-0 items-center gap-3">
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-100/80 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40">
@@ -255,7 +245,7 @@ export default function Index({
                     {/* Completion State: shown only when all items are tagged and not dismissed */}
                     {allItemsTagged && !selectedItem && !isCompletionDismissed ? (
                         <div className="bg-white dark:bg-slate-900 rounded-xl p-8 border border-gray-200 dark:border-slate-800 shadow-2xs text-center max-w-xl mx-auto space-y-3">
-                            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mx-auto border border-emerald-200/80 dark:border-emerald-800/60 shadow-2xs">
+                            <div className="w-14 h-14 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mx-auto border border-emerald-200/80 dark:border-emerald-800/60 shadow-2xs">
                                 <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
                             </div>
                             <div>
@@ -398,7 +388,7 @@ export default function Index({
                         }}
                     />
                 </div>
-            </main>
+            </DashboardLayout>
 
             {/* Unassign RFID Confirmation Modal */}
             <UnassignRFIDModal
@@ -412,6 +402,6 @@ export default function Index({
                 }}
                 onClose={() => setShowUnassignModal(false)}
             />
-        </div>
+        </>
     );
 }

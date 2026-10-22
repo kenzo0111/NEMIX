@@ -1,8 +1,8 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import React from 'react';
 import { Head, Link } from '@inertiajs/react';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { DashboardPageProps } from './types';
 
 import DashboardHeader from './Components/DashboardHeader';
@@ -42,7 +42,6 @@ export default function DashboardIndex({
     recentRequests = [],
 }: DashboardPageProps) {
     const isCoordinator = inventoryScope === 'coordinator';
-    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const modules = getSidebarModules();
 
     // Prefer modern props, fallback cleanly to legacy props
@@ -55,17 +54,12 @@ export default function DashboardIndex({
     const pendingSuppliers = supplierSummary?.pending ?? 0;
 
     return (
-        <div className={`min-h-screen ${isCoordinator ? 'bg-[#F5F6F8]' : 'bg-[#F4F6F8]'} dark:bg-slate-950 flex font-sans ${isCoordinator ? 'text-slate-900' : 'text-gray-900'} dark:text-slate-100 selection:bg-red-900 selection:text-white transition-colors`}>
-            <Head title={isCoordinator ? `Delivery Unit Dashboard | ${(auth as any).capabilities?.requiresSupportingDocument ? 'Authorized Personnel' : 'Supply Coordinator'}` : 'Supply & Inventory Management Dashboard'} />
+        <>
+            <Head title="Dashboard" />
 
-            <Sidebar
-                modules={modules}
-                user={auth.user}
-                collapsed={collapsed}
-                onToggleCollapse={handleToggleCollapse}
-            />
 
-            <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
+
+            <DashboardLayout modules={modules} user={auth.user}>
                 {isCoordinator ? (
                     <CoordinatorDashboardWorkspace
                         auth={auth}
@@ -86,7 +80,7 @@ export default function DashboardIndex({
                         <DashboardHeader />
 
                         {/* Dashboard Main Canvas with Clear 4-Tier Hierarchy */}
-                        <div className="p-4 sm:p-5 lg:p-6 max-w-[1600px] mx-auto pb-10 lg:pb-12 min-w-0 w-full space-y-4">
+                        <DashboardContent>
                             {/* Operational Alert Banner (e.g. Missing RFIDs / Supplier accreditation notices) */}
                             <OperationalAlertStrip
                                 showRfidAlert={showRfidAlert}
@@ -149,10 +143,10 @@ export default function DashboardIndex({
                             <section aria-label="Recent System Activity">
                                 <RecentSystemActivity activities={activeRecentActivity} />
                             </section>
-                        </div>
+                        </DashboardContent>
                     </>
                 )}
-            </main>
-        </div>
+            </DashboardLayout>
+        </>
     );
 }

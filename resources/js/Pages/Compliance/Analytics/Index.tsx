@@ -1,10 +1,10 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import React, { useState } from 'react';
 import { Head, usePage } from '@inertiajs/react';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import PageHeader from '@/Components/PageHeader';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/Components/ui/card';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { ManageAnalyticsPageProps, InventoryAnalyticsProps } from './types';
 
 import AnalyticsSummary from './Components/AnalyticsSummary';
@@ -48,7 +48,6 @@ const fallbackAnalytics: InventoryAnalyticsProps = {
 export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
     const pageProps = usePage<ManageAnalyticsPageProps>().props;
     const user = props.auth?.user || pageProps.auth?.user;
-    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
     const [showDrillDown, setShowDrillDown] = useState(false);
 
     const analytics = props.analytics || pageProps.analytics || fallbackAnalytics;
@@ -62,24 +61,18 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
     const modules = getSidebarModules('Compliance', 'Manage Analytics');
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white">
+        <>
             <Head title="Inventory Performance Analytics" />
 
-            <Sidebar
-                modules={modules}
-                user={user}
-                collapsed={collapsed}
-                onToggleCollapse={handleToggleCollapse}
-            />
 
-            <main className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${collapsed ? 'md:ml-20' : 'md:ml-72'} ml-0`}>
+            <DashboardLayout modules={modules} user={user}>
                 <PageHeader
                     title="Inventory Performance Analytics"
                     description="Review stock levels, value, and replenishment needs."
                     breadcrumbs={[{ name: 'Compliance' }, { name: 'Manage Analytics' }]}
                 />
 
-                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
+                <DashboardContent>
                     {/* Compact Analytics Summary: Hero Banner + 4 KPI Cards */}
                     <AnalyticsSummary
                         stats={stats}
@@ -147,8 +140,8 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
                         highest={consumables.highest}
                         lowest={consumables.lowest}
                     />
-                </div>
-            </main>
+                </DashboardContent>
+            </DashboardLayout>
 
             {/* Focused Drill-down Modal */}
             <FocusedItemsModal
@@ -156,6 +149,6 @@ export default function AnalyticsIndex(props: ManageAnalyticsPageProps) {
                 onClose={() => setShowDrillDown(false)}
                 items={allItems}
             />
-        </div>
+        </>
     );
 }

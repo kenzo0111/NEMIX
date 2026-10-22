@@ -1,11 +1,11 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import DashboardHeader from '@/Pages/Dashboard/Components/DashboardHeader';
 import { secondaryButton } from '@/Pages/Inventory/Coordinator/inventory';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { ShieldCheck, Printer, ChevronRight } from 'lucide-react';
 import {
     LoginAuditPageProps,
@@ -30,7 +30,6 @@ export default function LoginAuditIndex({
     const page = usePage();
     const isCoordinator = Boolean((page.props.auth as any)?.capabilities?.coordinatorInventory);
     const user = auth?.user || (page.props.auth as any)?.user;
-    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
 
     const modules = getSidebarModules('Audit Logs', 'Manage Login Trails');
 
@@ -129,24 +128,10 @@ export default function LoginAuditIndex({
     };
 
     return (
-        <div className={`min-h-screen ${isCoordinator ? 'bg-[#F5F6F8]' : 'bg-[#F4F6F8]'} dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white print:bg-white print:min-h-0 print:h-auto print:block print:p-0`}>
+        <>
             <Head title="Audit Logs - Login Audit Logs" />
 
-            {/* Dashboard Sidebar is completely hidden in print */}
-            <div className="print:hidden audit-print-hide">
-                <Sidebar
-                    modules={modules}
-                    user={user}
-                    collapsed={collapsed}
-                    onToggleCollapse={handleToggleCollapse}
-                />
-            </div>
-
-            <main
-                className={`flex-1 min-w-0 transition-all duration-300 ease-in-out audit-main-content ${
-                    collapsed ? 'md:ml-20' : 'md:ml-72'
-                } ml-0 print:ml-0 print:m-0 print:p-0 print:max-w-none print:w-full`}
-            >
+            <DashboardLayout modules={modules} user={user}>
                 {/* PageHeader is completely hidden in print */}
                 <div className="print:hidden audit-print-hide">
                     {isCoordinator ? <DashboardHeader coordinator /> : <PageHeader
@@ -159,9 +144,9 @@ export default function LoginAuditIndex({
                     />}
                 </div>
 
-                <div className={`${isCoordinator ? 'p-4 sm:p-7 lg:p-8 space-y-6' : 'p-4 sm:p-5 lg:p-6 xl:p-8 space-y-5'} max-w-[1600px] mx-auto pb-16 min-w-0 w-full print:p-0 print:m-0 print:space-y-0 print:max-w-none print:w-full`}>
+                <DashboardContent className="print:p-0 print:m-0 print:space-y-0 print:max-w-none print:w-full">
                     {/* Screen View (Interactive Dashboard Controls) - Hidden on Print */}
-                    <div className={`${isCoordinator ? 'space-y-6' : 'space-y-5'} print:hidden audit-print-hide`}>
+                    <div className={`space-y-6 print:hidden audit-print-hide`}>
                         {isCoordinator && <>
                             <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300">Coordinator Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Login Audit</span></nav>
                             <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
@@ -247,8 +232,8 @@ export default function LoginAuditIndex({
                             branding={(page.props as any).branding}
                         />
                     </div>
-                </div>
-            </main>
-        </div>
+                </DashboardContent>
+            </DashboardLayout>
+        </>
     );
 }

@@ -34,7 +34,7 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="lg" closeable={!isSubmitting} ariaLabel={title}>
-            <div className="relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-xl">
+            <div className="relative bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-xl">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 

@@ -69,8 +69,8 @@ export default function FullAuthLayout({
                             <h2 className="text-xl font-bold tracking-tight text-[#7B1113] dark:text-red-400 leading-snug mt-4">
                                 {headline || 'SupplySync'}
                             </h2>
-                            <p className="mt-2 text-xs font-semibold uppercase tracking-[0.15em] text-stone-600 dark:text-slate-300 leading-relaxed">
-                                Consumables Supply Management System
+                            <p className="mt-2 text-sm font-medium text-stone-600 dark:text-slate-300 leading-relaxed">
+                                Consumable Supply Management
                             </p>
                             <p className="text-sm text-stone-600 dark:text-slate-300 leading-relaxed mt-1.5">
                                 {subheadline || 'Consumable Supplies and Requisition Management System'}

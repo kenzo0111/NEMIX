@@ -1,10 +1,9 @@
 import { notify } from '@/utils/notifications';
 import React, { useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { useAuthorization } from '@/Hooks/useAuthorization';
 import {
     Save,
@@ -61,7 +60,6 @@ export default function Index({
     };
 
     // Sidebar collapse state with synchronized hook
-    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
 
     const modules = getSidebarModules('System Settings');
 
@@ -150,23 +148,14 @@ export default function Index({
     };
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-slate-900 dark:text-slate-100 selection:bg-red-900 selection:text-white antialiased">
+        <>
             <Head title="System Settings & Policies — UCN SPMO" />
 
             {/* Persistent Sidebar */}
-            <Sidebar
-                modules={modules}
-                user={user ?? undefined}
-                collapsed={collapsed}
-                onToggleCollapse={handleToggleCollapse}
-            />
+
 
             {/* Main Application Area */}
-            <main
-                className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${
-                    collapsed ? 'md:ml-20' : 'md:ml-72'
-                } ml-0`}
-            >
+            <DashboardLayout modules={modules} user={user ?? undefined}>
                 {/* 1. PageHeader with Single Primary Save Controls */}
                 <PageHeader
                     title="System Settings & Policies"
@@ -214,7 +203,7 @@ export default function Index({
                 />
 
                 {/* Main Content Body */}
-                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-7xl mx-auto pb-20 min-w-0 w-full">
+                <div className="p-4 sm:p-7 lg:p-8 space-y-6 max-w-7xl mx-auto pb-20 min-w-0 w-full">
                     {/* 2. Institutional Hero Banner */}
                     <SettingsHero userName={user?.name} />
 
@@ -225,7 +214,7 @@ export default function Index({
                     />
 
                     {/* 4. Active Settings Domain Panel */}
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
                         <SettingsSectionHeader tab={currentTabMeta} />
 
                         <div className="p-4 sm:p-6 lg:p-8">
@@ -293,9 +282,9 @@ export default function Index({
                         </div>
                     </div>
                 </div>
-            </main>
+            </DashboardLayout>
 
 
-        </div>
+        </>
     );
 }

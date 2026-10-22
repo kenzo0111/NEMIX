@@ -1,10 +1,10 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import { notify } from '@/utils/notifications';
 import React, { useState, useMemo, useCallback } from 'react';
 import { Head } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import { Info } from 'lucide-react';
 import {
     ManageRolePermissionPageProps,
@@ -29,7 +29,6 @@ export default function RoleManagementIndex({
     const user = auth?.user;
 
     // Sidebar collapse state with synchronized hook
-    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
 
     // Normalized permissions & grouping
     const normalizedPermissions = useMemo(() => {
@@ -146,21 +145,11 @@ export default function RoleManagementIndex({
     const sidebarModules = getSidebarModules('Access', 'Manage Role Permission');
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white">
+        <>
             <Head title="Role & Permission Management - Access Control" />
 
-            <Sidebar
-                modules={sidebarModules}
-                user={user}
-                collapsed={collapsed}
-                onToggleCollapse={handleToggleCollapse}
-            />
 
-            <main
-                className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${
-                    collapsed ? 'md:ml-20' : 'md:ml-72'
-                } ml-0`}
-            >
+            <DashboardLayout modules={sidebarModules} user={user}>
                 {/* 1. Page Header */}
                 <PageHeader
                     title="Role & Permission Management"
@@ -171,7 +160,7 @@ export default function RoleManagementIndex({
                     ]}
                 />
 
-                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-6 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
+                <DashboardContent>
 
                     {/* 2. Compact Access Control Summary */}
                     <AccessControlSummary
@@ -216,7 +205,7 @@ export default function RoleManagementIndex({
                             </p>
                         </div>
                     </section>
-                </div>
+                </DashboardContent>
 
                 {/* Dialogs */}
                 <CreateRoleDialog
@@ -238,7 +227,7 @@ export default function RoleManagementIndex({
                     role={roleToDelete}
                     onClose={handleCloseDelete}
                 />
-            </main>
-        </div>
+            </DashboardLayout>
+        </>
     );
 }

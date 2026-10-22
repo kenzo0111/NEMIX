@@ -87,7 +87,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
             closeable={!isSubmitting}
             ariaLabel="Historical Data Migration Workspace"
         >
-            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-2xl border border-gray-200 dark:border-slate-800">
+            <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-gray-200 dark:border-slate-800">
                 {/* Thin Amber-Maroon Accent Top Line */}
                 <div className="h-1.5 bg-gradient-to-r from-amber-600 via-red-900 to-red-950 w-full shrink-0" />
 

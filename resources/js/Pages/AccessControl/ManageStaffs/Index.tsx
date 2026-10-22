@@ -1,10 +1,10 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import { notify } from '@/utils/notifications';
 import React, { useState, useMemo, useCallback } from 'react';
 import { Head, router } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
-import Sidebar from '@/Components/Sidebar';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import {
     ManageStaffsPageProps,
     Staff,
@@ -38,7 +38,6 @@ export default function StaffManagementIndex({
     const user = auth?.user;
 
     // Sidebar collapse state with synchronized hook
-    const [collapsed, handleToggleCollapse] = useSidebarCollapse();
 
     const { can, isSystemAdmin } = useAuthorization();
 
@@ -227,28 +226,19 @@ export default function StaffManagementIndex({
     const modules = getSidebarModules('Access', 'Manage Staffs');
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] dark:bg-slate-950 flex font-sans text-gray-900 dark:text-slate-100 selection:bg-red-900 selection:text-white">
+        <>
             <Head title="Staff Management - Access Control" />
 
-            <Sidebar
-                modules={modules}
-                user={user || undefined}
-                collapsed={collapsed}
-                onToggleCollapse={handleToggleCollapse}
-            />
 
-            <main
-                className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${
-                    collapsed ? 'md:ml-20' : 'md:ml-72'
-                } ml-0`}
-            >
+
+            <DashboardLayout modules={modules} user={user || undefined}>
                 <PageHeader
                     title="Staff Management"
                     description="Manage staff accounts, roles, and permissions."
                     breadcrumbs={[{ name: 'Access Control' }, { name: 'Manage Staffs' }]}
                 />
 
-                <div className="p-4 sm:p-5 lg:p-6 xl:p-8 space-y-5 max-w-[1600px] mx-auto pb-16 min-w-0 w-full">
+                <DashboardContent>
 
                     {/* Permanent Directory Read-Only Mode Banner */}
                     {isReadOnly && <ReadOnlyNotice />}
@@ -286,7 +276,7 @@ export default function StaffManagementIndex({
 
                     {/* Security Advisory Panel */}
                     <SecurityNotice />
-                </div>
+                </DashboardContent>
 
                 {/* Create Staff Modal */}
                 <CreateStaffModal
@@ -318,7 +308,7 @@ export default function StaffManagementIndex({
                     isProcessing={isStatusProcessing}
                     onConfirm={handleConfirmStatusToggle}
                 />
-            </main>
-        </div>
+            </DashboardLayout>
+        </>
     );
 }

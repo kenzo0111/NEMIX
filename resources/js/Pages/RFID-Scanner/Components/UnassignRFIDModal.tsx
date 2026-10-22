@@ -28,12 +28,12 @@ export default function UnassignRFIDModal({
             closeable={!isProcessing}
             ariaLabel="Unassign RFID Tag"
         >
-            <div className="relative bg-white rounded-2xl shadow-xl w-full overflow-hidden text-center">
+            <div className="relative bg-white rounded-xl shadow-xl w-full overflow-hidden text-center">
                 {/* Red Destructive Accent Line */}
                 <div className="h-1.5 w-full bg-red-600 shrink-0" />
 
                 <div className="p-5 sm:p-6">
-                    <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-2xl bg-red-50 text-red-700 mb-3.5 border border-red-200/80 shadow-2xs">
+                    <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-xl bg-red-50 text-red-700 mb-3.5 border border-red-200/80 shadow-2xs">
                         <AlertTriangle className="h-6 w-6" />
                     </div>
 

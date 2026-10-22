@@ -1,8 +1,8 @@
+import DashboardContent from '@/Layouts/DashboardContent';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { ArrowRight, ChevronRight, ClipboardList, Eye, Loader2, Package, RefreshCw, Search } from 'lucide-react';
-import Sidebar from '@/Components/Sidebar';
-import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import CoordinatorPortalHeader from './components/CoordinatorPortalHeader';
 import { panel, secondaryButton, stockStatus } from './inventory';
@@ -19,7 +19,6 @@ interface Props {
 
 export default function CentralSupplyCatalog({ items, filters, lowStockThreshold }: Props) {
     const { auth } = usePage<any>().props;
-    const [collapsed, toggle] = useSidebarCollapse();
     const [search, setSearch] = useState(filters.search);
     const [availability, setAvailability] = useState(filters.availability);
     const [loading, setLoading] = useState(false);
@@ -28,15 +27,15 @@ export default function CentralSupplyCatalog({ items, filters, lowStockThreshold
         preserveState: true, preserveScroll: true, onStart: () => setLoading(true), onFinish: () => setLoading(false),
     });
 
-    return <div className="min-h-screen bg-[#F5F6F8] font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    return <>
         <Head title={`Central Supply Catalog | ${auth.capabilities?.requiresSupportingDocument ? 'Authorized Personnel' : 'Supply Coordinator'}`} />
-        <Sidebar modules={getSidebarModules()} user={auth.user} collapsed={collapsed} onToggleCollapse={toggle} />
-        <main className={`min-w-0 transition-all duration-300 ${collapsed ? 'md:ml-20' : 'md:ml-72'}`}>
+
+        <DashboardLayout modules={getSidebarModules()} user={auth.user}>
             <CoordinatorPortalHeader />
-            <div className="mx-auto max-w-[1600px] space-y-6 p-4 sm:p-7 lg:p-8">
+            <DashboardContent>
                 <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300">Delivery Unit Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Central Supply Catalog</span></nav>
                 <section className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
-                    <div><p className="leading-relaxed mb-2 text-sm font-bold normal-case tracking-normal text-red-900 dark:text-red-300">Supply & Property Management Office</p><h1 className="text-2xl sm:text-3xl font-sans font-bold tracking-tight ">Central Supply Catalog</h1><p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Browse consumable supplies in the Supply Office and check what is available for your unit.</p></div>
+                    <div><p className="leading-relaxed mb-2 text-sm font-bold normal-case tracking-normal text-red-900 dark:text-red-300">Supply & Property Management Office</p><h2 className="text-2xl sm:text-3xl font-sans font-bold tracking-tight ">Central Supply Catalog</h2><p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Browse consumable supplies in the Supply Office and check what is available for your unit.</p></div>
                     <Link href={route('inventory.requests.index')} className={`${secondaryButton} self-start lg:self-auto`}><ClipboardList size={16} />My Requests<ArrowRight size={14} /></Link>
                 </section>
                 <div className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/70 p-4 dark:border-blue-900/40 dark:bg-blue-950/20"><Eye size={19} className="mt-0.5 shrink-0 text-blue-700 dark:text-blue-300" /><div><p className="leading-relaxed text-sm font-semibold text-blue-900 dark:text-blue-200">Central stock · View only</p><p className="mt-1 text-sm leading-relaxed text-blue-800 dark:text-blue-300">Available quantities exclude stock reserved for approved requests. Supplies enter your unit inventory only after the Supply Office releases them.</p></div></div>
@@ -61,7 +60,7 @@ export default function CentralSupplyCatalog({ items, filters, lowStockThreshold
                 {items.data.length === 0 && <div className={`${panel} px-5 py-14 text-center`}><Package size={28} className="mx-auto mb-4 text-slate-400" /><h2 className="text-xl font-semibold">No supplies found</h2><p className="leading-relaxed mt-2 text-sm text-slate-500 dark:text-slate-400">Try another item name or change the availability filter.</p><button type="button" onClick={() => load('', 'all')} className="mt-5 text-sm font-semibold text-red-900 dark:text-red-300">Clear search and filters</button></div>}
                 <nav aria-label="Central catalog pages" className="flex flex-wrap justify-center gap-1.5">{items.links.map((link, i) => link.url ? <Link key={i} href={link.url} preserveScroll preserveState aria-current={link.active ? 'page' : undefined} className={`inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg px-3 text-sm font-medium ${link.active ? 'bg-red-900 text-white' : 'border border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800'}`} dangerouslySetInnerHTML={{ __html: link.label }} /> : <span key={i} className="inline-flex min-h-10 items-center px-3 text-sm text-slate-400" dangerouslySetInnerHTML={{ __html: link.label }} />)}</nav>
                 <footer className="flex flex-wrap justify-between gap-2 pb-2 text-sm text-slate-500 dark:text-slate-400"><span>Supply Office catalog · Consumables</span><Link href={route('coordinator.inventory.index')} className="font-medium hover:text-red-900 dark:hover:text-red-300">View my unit inventory →</Link></footer>
-            </div>
-        </main>
-    </div>;
+            </DashboardContent>
+        </DashboardLayout>
+    </>;
 }
