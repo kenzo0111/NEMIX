@@ -3,6 +3,7 @@ import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } f
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/Components/ui/chart';
 import { Activity, Search } from 'lucide-react';
 import { ItemDemand, SupplyTrend } from '../types';
+import { AnalyticsSelect } from '../Components/AnalyticsFilters';
 
 const config = {
     requested: { label: 'Quantity requested', theme: { light: '#991b1b', dark: '#f87171' } },
@@ -169,16 +170,19 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
                         className="min-h-11 w-full rounded-lg border-slate-300 bg-white pl-9 text-sm focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950"
                     />
                 </div>
-                <select
-                    aria-label="Heatmap metric"
-                    value={metric}
-                    onChange={(e) => setMetric(e.target.value as HeatMetric)}
-                    className="min-h-11 rounded-lg border-slate-300 bg-white text-sm focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950"
-                >
-                    <option value="requested">Quantity requested</option>
-                    <option value="issued">Supplies issued</option>
-                    <option value="requisitions">Requisition count</option>
-                </select>
+                <div className="w-full sm:w-56">
+                    <AnalyticsSelect
+                        id="demand-heatmap-metric"
+                        label="Heatmap metric"
+                        value={metric}
+                        onChange={(value) => setMetric(value as HeatMetric)}
+                        options={[
+                            { value: 'requested', label: 'Quantity requested' },
+                            { value: 'issued', label: 'Supplies issued' },
+                            { value: 'requisitions', label: 'Requisition count' },
+                        ]}
+                    />
+                </div>
             </div>
             {!visible.length || !months.length ? (
                 <ChartEmpty message="No offices match your search and reporting filters." />
@@ -240,7 +244,7 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
                 <div className="flex items-center gap-1.5">
                     <span className="mr-1">No activity</span>
-                    {levels.map((level, index) => (
+                    {levels.map((level) => (
                         <span key={level} className={`h-3 w-4 rounded-sm ${level}`} aria-hidden="true" />
                     ))}
                     <span className="ml-1">High activity</span>

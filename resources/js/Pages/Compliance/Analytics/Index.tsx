@@ -11,8 +11,12 @@ import {
     Download,
     Layers3,
     PackageCheck,
-    RotateCcw,
-    SlidersHorizontal,
+    Search,
+    ChartNoAxesCombined,
+    Grid3X3,
+    Table2,
+    TrendingUp,
+    Info,
 } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/Components/ui/chart';
 import DashboardContent from '@/Layouts/DashboardContent';
@@ -21,6 +25,7 @@ import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { ManageAnalyticsPageProps, DepartmentUsage, SupplyTrend } from './types';
 import InventoryOverview from './InventoryOverview';
+import AnalyticsFilters, { AnalyticsSelect } from './Components/AnalyticsFilters';
 import { ChartEmpty, DepartmentHeatmap, QuantityComparisonChart, SupplyTrendChart } from './Charts/SupplyDemandCharts';
 
 const field =
@@ -32,26 +37,48 @@ function Panel({
     controls,
     children,
     id,
+    hidden = false,
 }: {
     title: string;
     description?: string;
     controls?: React.ReactNode;
     children: React.ReactNode;
     id?: string;
+    hidden?: boolean;
 }) {
+    if (hidden) return null;
+    const Icon =
+        id === 'office-rankings'
+            ? Building2
+            : id === 'department-demand'
+              ? PackageCheck
+              : id === 'supply-trends'
+                ? TrendingUp
+                : id === 'demand-heatmap'
+                  ? Grid3X3
+                  : id === 'department-usage'
+                    ? Table2
+                    : Layers3;
     return (
         <section
             id={id}
-            className="min-w-0 scroll-mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
+            className="min-w-0 scroll-mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/80 dark:bg-slate-900"
         >
-            <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 p-5 dark:border-slate-800">
-                <div>
-                    <h2 className="font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
-                    {description && <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>}
+            <div className="flex flex-col gap-4 border-b border-slate-100 bg-gradient-to-r from-slate-50/90 to-white p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 dark:border-slate-700/60 dark:from-slate-800/60 dark:to-slate-900">
+                <div className="flex min-w-0 items-start gap-3">
+                    <span className="mt-0.5 shrink-0 rounded-xl border border-slate-200 bg-white p-2.5 text-red-900 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-red-300">
+                        <Icon size={19} aria-hidden="true" />
+                    </span>
+                    <div>
+                        <h2 className="font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
+                        {description && (
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>
+                        )}
+                    </div>
                 </div>
-                {controls}
+                {controls && <div className="w-full shrink-0 sm:w-64 xl:w-72">{controls}</div>}
             </div>
-            <div className="p-5">{children}</div>
+            <div className="p-5 sm:p-6">{children}</div>
         </section>
     );
 }
@@ -166,24 +193,31 @@ function DataTable({
     };
     return (
         <div>
-            <div className="mb-4 flex flex-wrap items-center gap-3">
-                <input
-                    type="search"
-                    aria-label={searchLabel}
-                    placeholder={searchLabel}
-                    className={`${field} sm:max-w-sm`}
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="relative w-full sm:max-w-sm">
+                    <Search
+                        size={16}
+                        className="pointer-events-none absolute left-3 top-3.5 text-slate-400"
+                        aria-hidden="true"
+                    />
+                    <input
+                        type="search"
+                        aria-label={searchLabel}
+                        placeholder={searchLabel}
+                        className={`${field} pl-9`}
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
                 <button
                     onClick={exportCsv}
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-red-900 dark:text-red-300"
+                    className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-900 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                     <Download size={16} />
                     Export CSV
                 </button>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-700/70">
                 <table className="w-full text-left text-sm">
                     <thead className="bg-slate-50 text-slate-600 dark:bg-slate-950 dark:text-slate-300">
                         <tr>
@@ -208,7 +242,10 @@ function DataTable({
                     </thead>
                     <tbody>
                         {filtered.slice(page * 10, page * 10 + 10).map((row, index) => (
-                            <tr key={row.id ?? row.name} className="border-b border-slate-100 dark:border-slate-800">
+                            <tr
+                                key={row.id ?? row.name}
+                                className="border-b border-slate-100 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/40"
+                            >
                                 {columns.map((column) => (
                                     <td key={column.key} className="p-3">
                                         {column.render
@@ -260,6 +297,14 @@ const itemColumns: Column[] = [
 ];
 
 export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data }: ManageAnalyticsPageProps) {
+    const [view, setView] = useState('overview');
+    const views = [
+        { id: 'overview', label: 'Overview', icon: ChartNoAxesCombined },
+        { id: 'departments', label: 'Department demand', icon: Building2 },
+        { id: 'items', label: 'Item demand', icon: Layers3 },
+        { id: 'trends', label: 'Trends & heatmap', icon: TrendingUp },
+        { id: 'records', label: 'Detailed records', icon: Table2 },
+    ];
     const [filters, setFilters] = useState(data.filters);
     const [loading, setLoading] = useState(false);
     const [filterError, setFilterError] = useState('');
@@ -279,10 +324,10 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
     useEffect(() => {
         if (data.filters.department) setDepartment(String(data.filters.department));
     }, [data.filters.department]);
-    const update = (key: string, value: string) => {
-        const next = { ...filters, [key]: value };
-        if (key === 'month' && !next.year) next.year = String(filters.start_date).slice(0, 4);
-        if (key === 'year' || key === 'month') {
+    const update = (changes: Record<string, string>) => {
+        const next = { ...filters, ...changes };
+        if ('month' in changes && !next.year) next.year = String(filters.start_date).slice(0, 4);
+        if ('year' in changes || 'month' in changes) {
             delete next.start_date;
             delete next.end_date;
         }
@@ -377,7 +422,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
             previous: data.comparison.stats.activeOffices,
         },
     ];
-    const filterCount = ['department', 'category', 'item_id', 'status'].filter((key) => data.filters[key]).length;
+
     return (
         <>
             <Head title="Consumable Supply Analytics" />
@@ -388,173 +433,120 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                     breadcrumbs={[{ name: 'Compliance' }, { name: 'Consumable Supply Analytics' }]}
                 />
                 <DashboardContent>
-                    <div className="flex flex-col justify-between gap-4 rounded-xl border border-red-100 bg-gradient-to-r from-red-50/80 to-white px-5 py-4 sm:flex-row sm:items-center dark:border-red-900/40 dark:from-red-950/30 dark:to-slate-900">
-                        <div className="flex items-center gap-3">
-                            <span className="rounded-xl bg-red-900 p-2.5 text-white">
-                                <Activity size={21} aria-hidden="true" />
-                            </span>
-                            <div>
-                                <p className="text-sm font-semibold text-red-950 dark:text-red-200">
-                                    University supply intelligence
-                                </p>
-                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                    Demand, distribution, and office activity in one view
-                                </p>
-                            </div>
-                        </div>
-                        <span className="inline-flex items-center gap-2 self-start rounded-lg border border-red-100 bg-white px-3 py-2 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
-                            <CalendarDays size={15} aria-hidden="true" />
-                            {data.filters.start_date} — {data.filters.end_date}
-                        </span>
-                    </div>
-                    <Panel
-                        id="analytics-filters"
-                        title="Analytics filters"
-                        description={`${data.filters.start_date} to ${data.filters.end_date}`}
-                        controls={
-                            <div className="flex items-center gap-4">
-                                <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                                    <SlidersHorizontal size={14} />
-                                    {filterCount ? `${filterCount} active filters` : 'All offices & items'}
-                                </span>
-                                <button
-                                    className="inline-flex items-center gap-2 text-sm font-semibold text-red-900 dark:text-red-300"
-                                    onClick={() =>
-                                        router.get(route('compliance.analytics'), {}, { preserveScroll: true })
-                                    }
-                                >
-                                    <RotateCcw size={15} />
-                                    Reset Filters
-                                </button>
-                            </div>
-                        }
+                    <section
+                        aria-label="Supply analytics overview"
+                        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-950 via-red-900 to-red-950 px-6 py-6 text-white shadow-sm sm:px-8 sm:py-7"
                     >
-                        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                            {['start_date', 'end_date'].map((key) => (
-                                <label key={key} className="text-sm text-slate-600 dark:text-slate-300">
-                                    {key === 'start_date' ? 'Start date' : 'End date'}
-                                    <input
-                                        type="date"
-                                        className={`${field} mt-1.5`}
-                                        value={filters[key] || ''}
-                                        onChange={(e) => update(key, e.target.value)}
-                                    />
-                                </label>
-                            ))}
-                            <label className="text-sm text-slate-600 dark:text-slate-300">
-                                Year
-                                <input
-                                    type="number"
-                                    min={2000}
-                                    max={2100}
-                                    className={`${field} mt-1.5`}
-                                    value={filters.year || String(data.filters.start_date).slice(0, 4)}
-                                    onChange={(e) => {
-                                        setFilters({ ...filters, year: e.target.value });
-                                    }}
-                                    onBlur={(e) => {
-                                        if (Number(e.target.value) >= 2000 && Number(e.target.value) <= 2100)
-                                            update('year', e.target.value);
-                                    }}
-                                />
-                            </label>
-                            {[
-                                {
-                                    key: 'month',
-                                    label: 'Month',
-                                    options: Array.from({ length: 12 }, (_, index) => ({
-                                        value: String(index + 1),
-                                        label: new Date(2000, index).toLocaleString('en', { month: 'long' }),
-                                    })),
-                                },
-                                {
-                                    key: 'department',
-                                    label: 'Department or office',
-                                    options: data.options.departments.map((name) => ({ value: name, label: name })),
-                                },
-                                {
-                                    key: 'category',
-                                    label: 'Item category (supplier classification)',
-                                    options: data.options.categories.map((name) => ({ value: name, label: name })),
-                                },
-                                {
-                                    key: 'item_id',
-                                    label: 'Consumable item',
-                                    options: data.options.items.map((item) => ({
-                                        value: String(item.id),
-                                        label: item.name,
-                                    })),
-                                },
-                                {
-                                    key: 'status',
-                                    label: 'Requisition status',
-                                    options: [
-                                        'Pending',
-                                        'Approved',
-                                        'Rejected',
-                                        'Ready for Pickup',
-                                        'Released',
-                                        'Issued',
-                                    ].map((name) => ({ value: name, label: name })),
-                                },
-                            ].map(({ key, label, options }) => (
-                                <label key={key} className="text-sm text-slate-600 dark:text-slate-300">
-                                    {label}
-                                    <select
-                                        className={`${field} mt-1.5`}
-                                        value={filters[key] || ''}
-                                        onChange={(e) => update(key, e.target.value)}
-                                    >
-                                        <option value="">All</option>
-                                        {options.map((option) => (
-                                            <option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </label>
-                            ))}
+                        <div
+                            className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full border-[36px] border-white/[0.04]"
+                            aria-hidden="true"
+                        />
+                        <div
+                            className="pointer-events-none absolute right-24 top-24 h-40 w-40 rounded-full border-[24px] border-amber-200/[0.04]"
+                            aria-hidden="true"
+                        />
+                        <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
+                            <div className="max-w-xl">
+                                <p className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-200">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
+                                    Supply & Property Management Office
+                                </p>
+                                <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                                    Supply demand overview
+                                </h2>
+                                <p className="mt-2 text-sm leading-relaxed text-red-100/80">
+                                    Understand office demand, track confirmed releases, and plan university supply
+                                    needs.
+                                </p>
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-xs text-red-50">
+                                        <Building2 size={12} />
+                                        {data.filters.department || 'University-wide'}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-xs text-red-50">
+                                        <PackageCheck size={12} />
+                                        Confirmed issuance records
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="min-w-0 shrink-0 rounded-xl border border-white/15 bg-black/10 p-4 lg:w-64">
+                                <p className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-red-100/70">
+                                    <CalendarDays size={14} />
+                                    Reporting period
+                                </p>
+                                <p className="text-sm font-semibold tabular-nums">
+                                    {data.filters.start_date}{' '}
+                                    <span className="mx-1 font-normal text-red-200/60">to</span> {data.filters.end_date}
+                                </p>
+                                <p className="mt-2 text-xs text-red-100/60">
+                                    Change the reporting scope using the filters below.
+                                </p>
+                            </div>
                         </div>
-                        {filterError && (
-                            <p role="alert" className="mt-3 text-sm text-red-700 dark:text-red-300">
-                                {filterError}
-                            </p>
-                        )}
-                        <p role="status" aria-live="polite" className="mt-4 text-sm text-slate-500">
-                            {loading
-                                ? 'Updating analytics…'
-                                : 'All demand and issuance sections use these filters. Year and month reset the date range.'}
-                        </p>
-                    </Panel>
-                    <nav aria-label="Analytics sections" className="flex gap-2 overflow-x-auto pb-1">
-                        {[
-                            ['office-rankings', 'Office rankings'],
-                            ['item-rankings', 'Requested items'],
-                            ['department-demand', 'Department demand'],
-                            ['supply-trends', 'Trends'],
-                            ['demand-heatmap', 'Demand heatmap'],
-                            ['department-usage', 'Detailed usage'],
-                        ].map(([id, label]) => (
-                            <a
+                    </section>
+                    <AnalyticsFilters
+                        filters={filters}
+                        options={data.options}
+                        loading={loading}
+                        error={filterError}
+                        onChange={(key, value) => update({ [key]: value })}
+                        onPeriod={(year, month) => update({ year, month })}
+                        onReset={() => router.get(route('compliance.analytics'), {}, { preserveScroll: true })}
+                    />
+                    <div
+                        className="flex items-center gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm dark:border-slate-700/80 dark:bg-slate-900"
+                        role="tablist"
+                        aria-label="Analytics workspace"
+                    >
+                        {views.map(({ id, label, icon: Icon }) => (
+                            <button
                                 key={id}
-                                href={`#${id}`}
-                                className="shrink-0 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-red-950/40 dark:hover:text-red-200"
+                                id={`analytics-tab-${id}`}
+                                role="tab"
+                                type="button"
+                                aria-selected={view === id}
+                                aria-controls="analytics-workspace"
+                                tabIndex={view === id ? 0 : -1}
+                                onClick={() => setView(id)}
+                                onKeyDown={(event) => {
+                                    if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+                                        event.preventDefault();
+                                        const index = views.findIndex((tab) => tab.id === view);
+                                        const next =
+                                            event.key === 'Home'
+                                                ? 0
+                                                : event.key === 'End'
+                                                  ? views.length - 1
+                                                  : (index + (event.key === 'ArrowRight' ? 1 : -1) + views.length) %
+                                                    views.length;
+                                        setView(views[next].id);
+                                        document.getElementById(`analytics-tab-${views[next].id}`)?.focus();
+                                    }
+                                }}
+                                className={`inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 ${view === id ? 'bg-red-950 text-white shadow-sm dark:bg-red-900' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
                             >
+                                <Icon size={16} aria-hidden="true" />
                                 {label}
-                            </a>
+                            </button>
                         ))}
-                    </nav>
-                    <div aria-busy={loading} className={`space-y-6 ${loading ? 'opacity-60' : ''}`}>
+                    </div>
+                    <div
+                        id="analytics-workspace"
+                        role="tabpanel"
+                        aria-labelledby={`analytics-tab-${view}`}
+                        aria-busy={loading}
+                        className={`space-y-6 ${loading ? 'opacity-60' : ''}`}
+                    >
                         <section aria-label="Analytics summary" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                             {kpis.map(({ label, value, icon: Icon, detail, previous }) => (
                                 <div
                                     key={label}
-                                    className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                                    className={`relative overflow-hidden rounded-2xl border border-t-[3px] bg-white p-5 shadow-sm dark:bg-slate-900 ${label === 'Total Supplies Issued' ? 'border-slate-200 border-t-teal-600 dark:border-slate-700/80 dark:border-t-teal-400' : 'border-slate-200 border-t-red-800 dark:border-slate-700/80 dark:border-t-red-500'}`}
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
                                         <span
-                                            className={`shrink-0 rounded-lg p-2 ${label === 'Total Supplies Issued' ? 'bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-300' : 'bg-red-50 text-red-900 dark:bg-red-950/40 dark:text-red-300'}`}
+                                            className={`shrink-0 rounded-xl p-2.5 ${label === 'Total Supplies Issued' ? 'bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300' : 'bg-red-50 text-red-900 dark:bg-red-950/60 dark:text-red-300'}`}
                                         >
                                             <Icon size={17} aria-hidden="true" />
                                         </span>
@@ -577,27 +569,36 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                 </div>
                             ))}
                         </section>
-                        <p className="rounded-xl border border-red-100 bg-red-50/60 p-4 text-sm leading-relaxed text-red-950 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-200">
-                            Supplies Issued measures confirmed releases, not end-user consumption. Demand uses
-                            submission dates; issuance uses official release dates, including releases for earlier
-                            requests. Frequency counts unique requisitions per item. Quantities may span different
-                            units. Lowest-demand summary considers active offices.
-                        </p>
+                        <details className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-xs leading-relaxed text-slate-500 dark:border-slate-700/70 dark:bg-slate-800/30 dark:text-slate-400">
+                            <summary className="cursor-pointer font-medium text-slate-600 dark:text-slate-300">
+                                <Info size={14} className="mr-2 inline-block" />
+                                Requested quantities measure demand. Supplies Issued measures confirmed releases.{' '}
+                                <span className="ml-1 text-red-900 dark:text-red-300">Calculation notes</span>
+                            </summary>
+                            <p className="mt-3 border-t border-slate-200 pt-3 dark:border-slate-700">
+                                Supplies Issued measures confirmed releases, not end-user consumption. Demand uses
+                                submission dates; issuance uses official release dates, including releases for earlier
+                                requests. Frequency counts unique requisitions per item. Quantities may span different
+                                units. Lowest-demand summary considers active offices.
+                            </p>
+                        </details>
                         <Panel
                             id="office-rankings"
+                            hidden={view !== 'overview' && view !== 'departments'}
                             title="Highest and Lowest Requesting Departments/Offices"
                             description="Compare institutional demand and confirmed supply distribution."
                             controls={
-                                <select
-                                    aria-label="Department ranking metric"
-                                    className={field}
+                                <AnalyticsSelect
+                                    id="department-ranking-metric"
+                                    label="Department ranking metric"
                                     value={departmentMetric}
-                                    onChange={(e) => setDepartmentMetric(e.target.value)}
-                                >
-                                    <option value="requested">Total quantity requested</option>
-                                    <option value="requisitions">Number of requisitions</option>
-                                    <option value="issued">Total quantity issued</option>
-                                </select>
+                                    onChange={setDepartmentMetric}
+                                    options={[
+                                        { value: 'requested', label: 'Total quantity requested' },
+                                        { value: 'requisitions', label: 'Number of requisitions' },
+                                        { value: 'issued', label: 'Total quantity issued' },
+                                    ]}
+                                />
                             }
                         >
                             <label className="mb-5 flex items-center gap-2 text-sm text-slate-500">
@@ -625,18 +626,20 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                         </Panel>
                         <Panel
                             id="item-rankings"
+                            hidden={view !== 'overview' && view !== 'items'}
                             title="Most Frequently Requested Items"
                             description="Frequency and quantity are calculated separately."
                             controls={
-                                <select
-                                    className={field}
-                                    aria-label="Item ranking metric"
+                                <AnalyticsSelect
+                                    id="item-ranking-metric"
+                                    label="Item ranking metric"
                                     value={itemMetric}
-                                    onChange={(e) => setItemMetric(e.target.value)}
-                                >
-                                    <option value="frequency">Request frequency</option>
-                                    <option value="requested">Total requested quantity</option>
-                                </select>
+                                    onChange={setItemMetric}
+                                    options={[
+                                        { value: 'frequency', label: 'Request frequency' },
+                                        { value: 'requested', label: 'Total requested quantity' },
+                                    ]}
+                                />
                             }
                         >
                             <h3 className="mb-3 text-sm font-semibold">Top 10 Most Requested Items</h3>
@@ -652,35 +655,47 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                     .slice(0, 10)}
                                 metric={itemMetric}
                             />
-                            <DataTable
-                                rows={data.items}
-                                columns={[
-                                    itemColumns[0],
-                                    { key: 'category', label: 'Category (supplier)' },
-                                    ...itemColumns.slice(1),
-                                    { key: 'offices', label: 'Requesting offices' },
-                                ]}
-                                searchLabel="Search requested items"
-                                initialSort="frequency"
-                            />
+                            <details
+                                open={view === 'items'}
+                                className="mt-5 rounded-xl border border-slate-200 p-4 dark:border-slate-700/70"
+                            >
+                                <summary className="cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                    Explore item records{' '}
+                                    <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500 dark:bg-slate-800">
+                                        {data.items.length}
+                                    </span>
+                                </summary>
+                                <div className="mt-4">
+                                    <DataTable
+                                        rows={data.items}
+                                        columns={[
+                                            itemColumns[0],
+                                            { key: 'category', label: 'Category (supplier)' },
+                                            ...itemColumns.slice(1),
+                                            { key: 'offices', label: 'Requesting offices' },
+                                        ]}
+                                        searchLabel="Search requested items"
+                                        initialSort="frequency"
+                                    />
+                                </div>
+                            </details>
                         </Panel>
                         <Panel
                             id="department-demand"
+                            hidden={view !== 'departments'}
                             title="Departmental Item Demand Analysis"
                             description="Select an office to explore its requests within the current filters."
                             controls={
-                                <select
-                                    aria-label="Department for item demand"
-                                    className={field}
+                                <AnalyticsSelect
+                                    id="department-item-demand"
+                                    label="Department for item demand"
                                     value={department}
-                                    onChange={(e) => setDepartment(e.target.value)}
-                                >
-                                    {data.options.departments
+                                    onChange={setDepartment}
+                                    options={data.options.departments
                                         .filter((name) => !data.filters.department || name === data.filters.department)
-                                        .map((name) => (
-                                            <option key={name}>{name}</option>
-                                        ))}
-                                </select>
+                                        .map((name) => ({ value: name, label: name }))}
+                                    placeholder="Select an office"
+                                />
                             }
                         >
                             <div className="mb-5 grid gap-4 sm:grid-cols-2">
@@ -723,18 +738,20 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                         </Panel>
                         <Panel
                             id="supply-trends"
+                            hidden={view !== 'trends'}
                             title="Supply Requisition Trends"
                             description={`Previous equal-length period: ${data.comparison.start} to ${data.comparison.end}. All non-date filters are shared.`}
                             controls={
-                                <select
-                                    aria-label="Trend interval"
-                                    className={field}
+                                <AnalyticsSelect
+                                    id="analytics-trend-interval"
+                                    label="Trend interval"
                                     value={yearly ? 'year' : 'month'}
-                                    onChange={(e) => setYearly(e.target.value === 'year')}
-                                >
-                                    <option value="month">Monthly</option>
-                                    <option value="year">Yearly</option>
-                                </select>
+                                    onChange={(value) => setYearly(value === 'year')}
+                                    options={[
+                                        { value: 'month', label: 'Monthly view' },
+                                        { value: 'year', label: 'Yearly view' },
+                                    ]}
+                                />
                             }
                         >
                             <div className="grid gap-6 xl:grid-cols-2">
@@ -762,6 +779,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                         </Panel>
                         <Panel
                             id="demand-heatmap"
+                            hidden={view !== 'trends'}
                             title="Departmental Demand Heatmap"
                             description="Explore office activity month by month. Darker cells indicate higher values within the selected metric."
                         >
@@ -769,6 +787,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                         </Panel>
                         <Panel
                             id="department-usage"
+                            hidden={view !== 'records'}
                             title="Department and Office Supply Usage"
                             description="Complete directory, including zero-activity offices. Demand change compares requested quantities with the previous period."
                         >
@@ -831,7 +850,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                             />
                         </Panel>
                     </div>
-                    {analytics && <InventoryOverview analytics={analytics} />}
+                    {analytics && view === 'records' && <InventoryOverview analytics={analytics} />}
                 </DashboardContent>
             </DashboardLayout>
         </>
