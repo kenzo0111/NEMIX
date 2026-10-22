@@ -1,13 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
-import { Download, RotateCcw } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import {
+    Activity,
+    ArrowDownLeft,
+    ArrowUpRight,
+    Building2,
+    CalendarDays,
+    ClipboardList,
+    Download,
+    Layers3,
+    PackageCheck,
+    RotateCcw,
+    SlidersHorizontal,
+} from 'lucide-react';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/Components/ui/chart';
 import DashboardContent from '@/Layouts/DashboardContent';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { ManageAnalyticsPageProps, DepartmentUsage, SupplyTrend } from './types';
 import InventoryOverview from './InventoryOverview';
+import { ChartEmpty, DepartmentHeatmap, QuantityComparisonChart, SupplyTrendChart } from './Charts/SupplyDemandCharts';
 
 const field =
     'min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950';
@@ -17,14 +31,19 @@ function Panel({
     description,
     controls,
     children,
+    id,
 }: {
     title: string;
     description?: string;
     controls?: React.ReactNode;
     children: React.ReactNode;
+    id?: string;
 }) {
     return (
-        <section className="min-w-0 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section
+            id={id}
+            className="min-w-0 scroll-mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
+        >
             <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 p-5 dark:border-slate-800">
                 <div>
                     <h2 className="font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
@@ -39,17 +58,34 @@ function Panel({
 function Ranking({
     rows,
     metric,
+    color = '#991b1b',
 }: {
     rows: { name: string; frequency?: number; requested?: number; issued?: number; requisitions?: number }[];
     metric: string;
+    color?: string;
 }) {
-    if (!rows.length)
-        return <p className="py-12 text-center text-sm text-slate-500">No matching activity in this period.</p>;
+    if (!rows.length) return <ChartEmpty />;
     return (
         <div role="img" aria-label={rows.map((row) => `${row.name}: ${row[metric as keyof typeof row]}`).join('; ')}>
-            <ResponsiveContainer width="100%" height={Math.max(220, rows.length * 45)}>
-                <BarChart data={rows} layout="vertical" margin={{ left: 0, right: 30 }}>
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+            <ChartContainer
+                config={{
+                    [metric]: {
+                        label:
+                            metric === 'frequency'
+                                ? 'Requisition frequency'
+                                : metric === 'requested'
+                                  ? 'Quantity requested'
+                                  : metric === 'issued'
+                                    ? 'Supplies issued'
+                                    : 'Requisitions',
+                        color,
+                    },
+                }}
+                className="w-full aspect-auto"
+                style={{ height: Math.max(220, rows.length * 45) }}
+            >
+                <BarChart data={rows} layout="vertical" margin={{ left: 0, right: 30 }} accessibilityLayer>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--chart-grid)" />
                     <XAxis type="number" allowDecimals={false} />
                     <YAxis
                         type="category"
@@ -58,7 +94,7 @@ function Ranking({
                         tick={{ fontSize: 11 }}
                         tickFormatter={(name) => (name.length > 25 ? `${name.slice(0, 24)}…` : name)}
                     />
-                    <Tooltip />
+                    <ChartTooltip content={<ChartTooltipContent />} />
                     <Bar
                         dataKey={metric}
                         name={
@@ -70,11 +106,11 @@ function Ranking({
                                     ? 'Supplies issued'
                                     : 'Requisitions'
                         }
-                        fill="#7f1d1d"
+                        fill={color}
                         radius={[0, 4, 4, 0]}
                     />
                 </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
         </div>
     );
 }
@@ -215,22 +251,6 @@ function DataTable({
         </div>
     );
 }
-function TrendChart({ rows }: { rows: SupplyTrend[] }) {
-    return (
-        <ResponsiveContainer width="100%" height={290}>
-            <BarChart data={rows}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="requisitions" name="Requisitions" fill="#64748b" />
-                <Bar dataKey="requested" name="Quantity requested" fill="#7f1d1d" />
-                <Bar dataKey="issued" name="Supplies issued" fill="#0f766e" />
-            </BarChart>
-        </ResponsiveContainer>
-    );
-}
 const itemColumns: Column[] = [
     { key: 'name', label: 'Consumable item' },
     { key: 'frequency', label: 'Requisitions containing item' },
@@ -317,13 +337,47 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
               )
             : rows;
     const kpis = [
-        ['Total Requisitions', data.stats.totalRequisitions],
-        ['Most Requested Item', data.stats.mostRequestedItem],
-        ['Highest Requesting Department', data.stats.highestDepartment],
-        ['Lowest Requesting Department', data.stats.lowestDepartment],
-        ['Total Supplies Issued', data.stats.totalIssued],
-        ['Active Requesting Offices', data.stats.activeOffices],
+        {
+            label: 'Total Requisitions',
+            value: data.stats.totalRequisitions,
+            icon: ClipboardList,
+            detail: 'Unique submitted requests',
+            previous: data.comparison.stats.totalRequisitions,
+        },
+        {
+            label: 'Most Requested Item',
+            value: data.stats.mostRequestedItem,
+            icon: Layers3,
+            detail: 'Ranked by requisition frequency',
+        },
+        {
+            label: 'Highest Requesting Department',
+            value: data.stats.highestDepartment,
+            icon: ArrowUpRight,
+            detail: 'Highest quantity among active offices',
+        },
+        {
+            label: 'Lowest Requesting Department',
+            value: data.stats.lowestDepartment,
+            icon: ArrowDownLeft,
+            detail: 'Lowest quantity among active offices',
+        },
+        {
+            label: 'Total Supplies Issued',
+            value: data.stats.totalIssued,
+            icon: PackageCheck,
+            detail: 'Confirmed official releases',
+            previous: data.comparison.stats.totalIssued,
+        },
+        {
+            label: 'Active Requesting Offices',
+            value: data.stats.activeOffices,
+            icon: Building2,
+            detail: 'Offices with submitted requisitions',
+            previous: data.comparison.stats.activeOffices,
+        },
     ];
+    const filterCount = ['department', 'category', 'item_id', 'status'].filter((key) => data.filters[key]).length;
     return (
         <>
             <Head title="Consumable Supply Analytics" />
@@ -334,17 +388,45 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                     breadcrumbs={[{ name: 'Compliance' }, { name: 'Consumable Supply Analytics' }]}
                 />
                 <DashboardContent>
+                    <div className="flex flex-col justify-between gap-4 rounded-xl border border-red-100 bg-gradient-to-r from-red-50/80 to-white px-5 py-4 sm:flex-row sm:items-center dark:border-red-900/40 dark:from-red-950/30 dark:to-slate-900">
+                        <div className="flex items-center gap-3">
+                            <span className="rounded-xl bg-red-900 p-2.5 text-white">
+                                <Activity size={21} aria-hidden="true" />
+                            </span>
+                            <div>
+                                <p className="text-sm font-semibold text-red-950 dark:text-red-200">
+                                    University supply intelligence
+                                </p>
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                    Demand, distribution, and office activity in one view
+                                </p>
+                            </div>
+                        </div>
+                        <span className="inline-flex items-center gap-2 self-start rounded-lg border border-red-100 bg-white px-3 py-2 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
+                            <CalendarDays size={15} aria-hidden="true" />
+                            {data.filters.start_date} — {data.filters.end_date}
+                        </span>
+                    </div>
                     <Panel
+                        id="analytics-filters"
                         title="Analytics filters"
                         description={`${data.filters.start_date} to ${data.filters.end_date}`}
                         controls={
-                            <button
-                                className="inline-flex items-center gap-2 text-sm font-semibold text-red-900 dark:text-red-300"
-                                onClick={() => router.get(route('compliance.analytics'), {}, { preserveScroll: true })}
-                            >
-                                <RotateCcw size={15} />
-                                Reset Filters
-                            </button>
+                            <div className="flex items-center gap-4">
+                                <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                                    <SlidersHorizontal size={14} />
+                                    {filterCount ? `${filterCount} active filters` : 'All offices & items'}
+                                </span>
+                                <button
+                                    className="inline-flex items-center gap-2 text-sm font-semibold text-red-900 dark:text-red-300"
+                                    onClick={() =>
+                                        router.get(route('compliance.analytics'), {}, { preserveScroll: true })
+                                    }
+                                >
+                                    <RotateCcw size={15} />
+                                    Reset Filters
+                                </button>
+                            </div>
                         }
                     >
                         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -444,19 +526,54 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                 : 'All demand and issuance sections use these filters. Year and month reset the date range.'}
                         </p>
                     </Panel>
+                    <nav aria-label="Analytics sections" className="flex gap-2 overflow-x-auto pb-1">
+                        {[
+                            ['office-rankings', 'Office rankings'],
+                            ['item-rankings', 'Requested items'],
+                            ['department-demand', 'Department demand'],
+                            ['supply-trends', 'Trends'],
+                            ['demand-heatmap', 'Demand heatmap'],
+                            ['department-usage', 'Detailed usage'],
+                        ].map(([id, label]) => (
+                            <a
+                                key={id}
+                                href={`#${id}`}
+                                className="shrink-0 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-red-950/40 dark:hover:text-red-200"
+                            >
+                                {label}
+                            </a>
+                        ))}
+                    </nav>
                     <div aria-busy={loading} className={`space-y-6 ${loading ? 'opacity-60' : ''}`}>
                         <section aria-label="Analytics summary" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                            {kpis.map(([label, value]) => (
+                            {kpis.map(({ label, value, icon: Icon, detail, previous }) => (
                                 <div
                                     key={label}
-                                    className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                                    className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
                                 >
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
+                                    <div className="flex items-start justify-between gap-3">
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
+                                        <span
+                                            className={`shrink-0 rounded-lg p-2 ${label === 'Total Supplies Issued' ? 'bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-300' : 'bg-red-50 text-red-900 dark:bg-red-950/40 dark:text-red-300'}`}
+                                        >
+                                            <Icon size={17} aria-hidden="true" />
+                                        </span>
+                                    </div>
                                     <p
                                         className={`mt-2 font-bold text-slate-900 dark:text-slate-100 ${typeof value === 'number' ? 'text-3xl tabular-nums' : 'text-lg'}`}
                                     >
                                         {typeof value === 'number' ? number(value) : value}
                                     </p>
+                                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{detail}</p>
+                                    {previous !== undefined && typeof value === 'number' && (
+                                        <div className="mt-3 flex items-center gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                                            <span className="rounded-md bg-slate-100 px-1.5 py-1 font-medium tabular-nums text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                                {value - previous > 0 ? '+' : ''}
+                                                {number(value - previous)}
+                                            </span>
+                                            <span>vs. previous period</span>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </section>
@@ -467,6 +584,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                             units. Lowest-demand summary considers active offices.
                         </p>
                         <Panel
+                            id="office-rankings"
                             title="Highest and Lowest Requesting Departments/Offices"
                             description="Compare institutional demand and confirmed supply distribution."
                             controls={
@@ -501,11 +619,12 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                     <h3 className="mb-3 text-sm font-semibold">
                                         Top 5 Lowest Requesting Departments/Offices
                                     </h3>
-                                    <Ranking rows={lowest.slice(0, 5)} metric={departmentMetric} />
+                                    <Ranking rows={lowest.slice(0, 5)} metric={departmentMetric} color="#0f766e" />
                                 </div>
                             </div>
                         </Panel>
                         <Panel
+                            id="item-rankings"
                             title="Most Frequently Requested Items"
                             description="Frequency and quantity are calculated separately."
                             controls={
@@ -546,6 +665,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                             />
                         </Panel>
                         <Panel
+                            id="department-demand"
                             title="Departmental Item Demand Analysis"
                             description="Select an office to explore its requests within the current filters."
                             controls={
@@ -576,7 +696,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                     </strong>
                                 </p>
                             </div>
-                            <Ranking rows={requested.slice(0, 10)} metric="frequency" />
+                            <QuantityComparisonChart rows={demand} />
                             <DataTable
                                 rows={demand}
                                 columns={itemColumns}
@@ -584,7 +704,9 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                 initialSort="frequency"
                             />
                             <h3 className="my-4 text-sm font-semibold">Monthly departmental requisition history</h3>
-                            <TrendChart rows={data.departmentTrends.filter((row) => row.department === department)} />
+                            <SupplyTrendChart
+                                rows={data.departmentTrends.filter((row) => row.department === department)}
+                            />
                             <details className="mt-5 rounded-lg border border-slate-200 p-4 dark:border-slate-800">
                                 <summary className="cursor-pointer text-sm font-semibold">
                                     Historical item demand by month
@@ -600,6 +722,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                             </details>
                         </Panel>
                         <Panel
+                            id="supply-trends"
                             title="Supply Requisition Trends"
                             description={`Previous equal-length period: ${data.comparison.start} to ${data.comparison.end}. All non-date filters are shared.`}
                             controls={
@@ -617,11 +740,11 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                             <div className="grid gap-6 xl:grid-cols-2">
                                 <div>
                                     <h3 className="mb-4 text-sm font-semibold">Selected reporting period</h3>
-                                    <TrendChart rows={trendRows(data.trends)} />
+                                    <SupplyTrendChart rows={trendRows(data.trends)} />
                                 </div>
                                 <div>
                                     <h3 className="mb-4 text-sm font-semibold">Previous reporting period</h3>
-                                    <TrendChart rows={trendRows(data.comparison.trends)} />
+                                    <SupplyTrendChart rows={trendRows(data.comparison.trends)} />
                                 </div>
                             </div>
                             <DataTable
@@ -638,6 +761,14 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                             />
                         </Panel>
                         <Panel
+                            id="demand-heatmap"
+                            title="Departmental Demand Heatmap"
+                            description="Explore office activity month by month. Darker cells indicate higher values within the selected metric."
+                        >
+                            <DepartmentHeatmap rows={data.departmentTrends} />
+                        </Panel>
+                        <Panel
+                            id="department-usage"
                             title="Department and Office Supply Usage"
                             description="Complete directory, including zero-activity offices. Demand change compares requested quantities with the previous period."
                         >
