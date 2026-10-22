@@ -1,6 +1,6 @@
 import DepartmentAssignmentFields from './DepartmentAssignmentFields';
 import React, { useEffect, useMemo } from 'react';
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
 import Select, { StylesConfig } from 'react-select';
 import { Edit2, User, Mail, X } from 'lucide-react';
@@ -58,7 +58,7 @@ export default function EditStaffModal({
     onClose,
     staff,
     roleOptions,
-}: EditStaffModalProps) {
+}: EditStaffModalProps) {    const { departmentHeads = {} } = usePage().props as unknown as { departmentHeads: Record<string, number> };
     const { data, setData, put, processing, errors, reset, clearErrors } = useForm<EditStaffFormData>({
         department: '',
         office_head_id: '',
@@ -83,7 +83,7 @@ export default function EditStaffModal({
         if (staff && isOpen) {
             setData({
                 department: staff.department || '',
-                office_head_id: staff.office_head_id ? String(staff.office_head_id) : '',
+                office_head_id: staff.office_head_id ? String(staff.office_head_id) : (departmentHeads[staff.department || ''] ? String(departmentHeads[staff.department || '']) : ''),
                 name: staff.name,
                 email: staff.email,
                 role: staff.role,
@@ -158,7 +158,7 @@ export default function EditStaffModal({
                         <section className="min-w-0 space-y-5" aria-label="Account details">
                             <div>
                                 <h4 className="font-semibold text-gray-900 dark:text-slate-100">Account details</h4>
-                                <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">Manage the staff member’s identity and system access.</p>
+                                <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">Manage the staff memberâ€™s identity and system access.</p>
                             </div>
                         {/* Full Name */}
                         <div>

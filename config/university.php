@@ -62,6 +62,7 @@ return [
                 ['value' => 'College of Fisheries, Aquatic Sciences, & Technology (CFAST) - Mercedes Campus', 'label' => 'College of Fisheries, Aquatic Sciences, & Technology (CFAST) - Mercedes Campus'],
                 ['value' => 'College of Agriculture and Natural Resources (CANR) - Labo Campus', 'label' => 'College of Agriculture and Natural Resources (CANR) - Labo Campus'],
                 ['value' => 'College of Trades and Technology (CoTT) - Jose Panganiban Campus', 'label' => 'College of Trades and Technology (CoTT) - Jose Panganiban Campus'],
+                ['value' => 'Ret. Judge Antonio C. Entienza Campus', 'label' => 'Ret. Judge Antonio C. Entienza Campus'],
             ],
         ],
     ],

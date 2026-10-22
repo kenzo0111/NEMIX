@@ -12,7 +12,11 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
     errors: Partial<Record<keyof Assignment, string>>;
     required: boolean;
 }) {
-    const { departments = [], officeHeads = [] } = usePage().props as unknown as { departments: string[]; officeHeads: OfficeHead[] };
+    const { departments = [], officeHeads = [], departmentHeads = {} } = usePage().props as unknown as { departments: string[]; officeHeads: OfficeHead[]; departmentHeads: Record<string, number> };
+    const selectDepartment = (department: string) => {
+        onChange('department', department);
+        onChange('office_head_id', departmentHeads[department] ? String(departmentHeads[department]) : '');
+    };
     const head = officeHeads.find(head => String(head.id) === data.office_head_id);
     const headOptions = officeHeads
         .filter(head => (head.is_active && head.designation?.trim()) || String(head.id) === data.office_head_id)
@@ -32,15 +36,15 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
 
     return <fieldset className="min-w-0 space-y-5 text-gray-700 dark:text-slate-300">
         <legend className="font-semibold text-gray-900 dark:text-slate-100">Delivery Unit assignment</legend>
-        <p className="pt-1 text-sm leading-relaxed text-gray-500 dark:text-slate-400">The selected head and designation fill the Requested by fields on supply requests.</p>
+        <p className="pt-1 text-sm leading-relaxed text-gray-500 dark:text-slate-400">Select a college to automatically fill its dean and designation. These details fill Requested by on supply requests.</p>
         <div>
             <label htmlFor="staff-department" className="block text-sm font-semibold mb-1">Department / Delivery Unit {required && '*'}</label>
             <CreatableSelect<{ value: string; label: string }, false> {...selectLayout}
                 inputId="staff-department" name="department" required={required}
                 value={data.department ? { value: data.department, label: data.department } : null}
                 options={departments.map(name => ({ value: name, label: name }))}
-                onChange={option => onChange('department', option?.value || '')}
-                onCreateOption={value => onChange('department', value.trim().slice(0, 255))}
+                onChange={option => selectDepartment(option?.value || '')}
+                onCreateOption={value => selectDepartment(value.trim().slice(0, 255))}
                 formatCreateLabel={value => `Use “${value}”`}
                 styles={selectStyles(Boolean(errors.department))} isClearable isSearchable
                 placeholder="Search or enter a department" />

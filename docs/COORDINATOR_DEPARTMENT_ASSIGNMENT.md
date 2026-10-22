@@ -8,6 +8,12 @@ One Supply Coordinator role can be used by accounts in different departments. Th
 2. In System Settings, add or update the department/office head in the Signatory Directory. Enter the person's name and designation and keep the record active.
 3. In Access Control → Staff Accounts, create or edit the coordinator. Assign the Supply Coordinator role, Department / Delivery Unit, and Department / Office Head. The head's designation comes from the selected directory record.
 
+### College dean defaults
+
+Run `php artisan db:seed --class=CollegeDeanSeeder --force` after migrating to load the ten college/academic-unit head mappings verified against the UCN College Officials directory on October 22, 2026. The seeder reuses matching signatories and preserves existing directory details and mappings when rerun. It does not change existing staff assignments or request snapshots.
+
+Selecting a mapped college in Staff Accounts automatically selects its dean and displays the dean's designation. An existing account with a department but no head also receives that department's default when opened for editing. Save the account to apply the assignment. Administrators may explicitly select a different head for a specific account. Unknown offices require a manual head selection, and inactive directory records are excluded from automatic defaults. Changing to an unmapped office clears the previous college's dean.
+
 Existing accounts are deliberately left unassigned by the migration. An administrator must verify their assignments; the system does not infer a department from old requests. New Supply Coordinator and Authorized Personnel requests require a complete assignment with an active head and a designation.
 
 ## Request behavior

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\AccessControl;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Signatory;
+use App\Models\DeliveryUnitHead;
 use App\Notifications\StaffRegistrationInvitation;
 use App\Services\AccessControl\PermissionResolver;
 use Illuminate\Auth\Passwords\PasswordBroker;
@@ -55,6 +56,7 @@ class ManageStaffController extends Controller
             'roles' => $roles,
             'departments' => collect(config('university.divisions', []))->flatMap(fn ($group) => $group['options'])->pluck('value')->values(),
             'officeHeads' => Signatory::orderBy('name')->get(['id', 'name', 'designation', 'department', 'office', 'is_active']),
+            'departmentHeads' => DeliveryUnitHead::activeAssignments(),
             'capabilities' => [
                 'canCreate' => $currentUser->can('users.create'),
                 'canUpdate' => $currentUser->can('users.update'),
@@ -68,6 +70,8 @@ class ManageStaffController extends Controller
     public function store(Request $request): RedirectResponse
     {
         Gate::authorize('users.create');
+
+        $this->fillDepartmentHead($request);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -154,6 +158,8 @@ class ManageStaffController extends Controller
             abort(403, 'Unauthorized action. You cannot modify a System Administrator account.');
         }
 
+        $this->fillDepartmentHead($request, $user);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,' . $user->id],
@@ -192,6 +198,16 @@ class ManageStaffController extends Controller
         PermissionResolver::clearPermissionCache();
 
         return back()->with('success', 'Staff account updated successfully.');
+    }
+
+    private function fillDepartmentHead(Request $request, ?User $user = null): void
+    {
+        if ($request->filled('office_head_id') || !is_string($request->input('department'))) return;
+
+        $department = trim($request->input('department'));
+        $headId = $user && $user->department === $department && $user->office_head_id
+            ? $user->office_head_id : (DeliveryUnitHead::activeAssignments()[$department] ?? null);
+        if ($headId) $request->merge(['office_head_id' => $headId]);
     }
 
     private function departmentRules(Request $request, ?User $user = null): array
