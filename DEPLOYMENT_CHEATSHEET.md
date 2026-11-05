@@ -114,7 +114,7 @@ The database management interface runs via Docker container on port `5050`:
 SupplySync creates a compressed database backup daily at 02:00 application time and retains 30 days of backups under `storage/app/private/backups`. In Docker deployments, add a host cron entry that runs Laravel's scheduler every minute:
 
 ```cron
-* * * * * cd /path/to/NEMIX && docker compose exec -T app php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /path/to/NEMIX && docker compose exec -T --user www-data app php artisan schedule:run >> /dev/null 2>&1
 ```
 
-Run a backup manually with `docker compose exec -T app php artisan system:backup-database`. Restore with `docker compose exec -T app php artisan system:restore-database <backup-filename>`; the command asks for confirmation and creates a pre-restore backup first. For unattended operations, review the target environment and pass `--force` only after arranging maintenance mode and worker restarts. Backup files are excluded from Git and stored with restrictive local permissions; configure an off-host copy for disaster recovery.
+Run a backup manually with `docker compose exec -T --user www-data app php artisan system:backup-database`. Restore with `docker compose exec -T --user www-data app php artisan system:restore-database <backup-filename>`; the command asks for confirmation and creates a pre-restore backup first. For unattended operations, review the target environment and pass `--force` only after arranging maintenance mode and worker restarts. Backup files are excluded from Git and stored with restrictive local permissions; configure an off-host copy for disaster recovery.
