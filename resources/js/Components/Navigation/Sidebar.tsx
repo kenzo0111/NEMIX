@@ -71,7 +71,7 @@ export default function Sidebar({
                 return mod;
             })
             .filter((mod): mod is SidebarModule => mod !== null);
-    }, [rawModules, capabilities, isSystemAdmin]);
+    }, [rawModules, capabilities]);
 
     const navigationGroups = useMemo(() => {
         if (!isCoordinator) {
