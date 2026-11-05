@@ -29,7 +29,6 @@ export default function Sidebar({
     const authUser = propUser || (pageProps.auth?.user as SidebarUserType | undefined);
     const capabilities = pageProps.auth?.capabilities;
     const isCoordinator = Boolean(capabilities?.coordinatorInventory);
-    const isSystemAdmin = pageProps.auth?.is_system_admin ?? false;
     const { canAny } = useAuthorization();
 
     // Load modules if not explicitly passed
@@ -45,7 +44,7 @@ export default function Sidebar({
                 // If module has submodules, filter them
                 if (mod.submodules && mod.submodules.length > 0) {
                     const accessibleSubmodules = mod.submodules.filter((sub) => {
-                        if (isSystemAdmin || !capabilities) return true;
+                        if (!capabilities) return true;
                         if (sub.requiredCapability) {
                             return sub.requiredCapability(capabilities);
                         }
@@ -64,7 +63,7 @@ export default function Sidebar({
                 }
 
                 // Top-level module check
-                if (isSystemAdmin || !capabilities) return mod;
+                if (!capabilities) return mod;
                 if (mod.requiredCapability && !mod.requiredCapability(capabilities)) {
                     return null;
                 }
