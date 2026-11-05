@@ -77,7 +77,9 @@ export function SupplyRequestQueue({
     focusRequestId?: number | null;
 }) {
     const { can } = useAuthorization();
-    const strictStock = usePage<PageProps>().props.system?.settings?.['inventory.strict_stock_enforcement'] !== false;
+    const page = usePage<PageProps>();
+    const strictStock = page.props.system?.settings?.['inventory.strict_stock_enforcement'] !== false;
+    const loginAccount = page.props.auth?.user?.username || page.props.auth?.user?.email || page.props.auth?.user?.name || 'Inventory Staff';
     const canApprove = can('inventory.requests.approve');
     const canReject = can('inventory.requests.reject');
     const canRelease = can('inventory.requests.release');
@@ -188,7 +190,7 @@ export function SupplyRequestQueue({
             route('inventory.requests.approve', request.id),
             {
                 approved_quantities: approvedQuantities,
-                remarks: remarks[request.id]?.trim() || (request.status === 'Approved' ? 'Approved quantities revised before release.' : 'Approved by Property Custodian.'),
+                remarks: remarks[request.id]?.trim() || (request.status === 'Approved' ? 'Approved quantities revised before release.' : 'Approved by Inventory Staff.'),
             },
             {
                 preserveScroll: true,
@@ -268,7 +270,7 @@ export function SupplyRequestQueue({
                     <div>
                         <div className="flex items-center gap-2">
                             <span className="px-2 py-0.5 rounded text-sm tabular-nums font-bold normal-case tracking-normal bg-red-100 text-red-900 dark:bg-red-950/60 dark:text-red-300">
-                                Property Custodian Workspace
+                                Inventory Custodian Workspace
                             </span>
                             <span className="text-sm text-gray-500 font-sans">
                                 Supply Approval & Distribution Hub
@@ -693,7 +695,7 @@ export function SupplyRequestQueue({
                                                         Official RIS No.: {request.ris_number || `RIS-${String(request.id).padStart(4, '0')}`}
                                                     </div>
                                                     <div className="text-sm text-blue-800 dark:text-blue-300">
-                                                        Approved by {defaultApprovedBy || request.reviewer?.name || 'Property Custodian'} on{' '}
+                                                        Approved by {loginAccount} on{' '}
                                                         {request.reviewed_at ? formatDisplayDate(getRisCalendarDate(request.reviewed_at), 'MM/DD/YYYY') : '—'}.
                                                     </div>
                                                 </div>
