@@ -37,9 +37,10 @@ class AuditLogsController extends Controller
             'user_id'
         );
 
-        // Authorized Personnel can review their own authentication history only,
-        // even if their role also grants the general login-trails permission.
-        if ($request->user()?->hasRole('Authorized Personnel')
+        // Supply Coordinators and Authorized Personnel can review their own
+        // authentication history only, even if their roles grant the general
+        // login-trails permission.
+        if ($request->user()?->hasAnyRole(['Supply Coordinator', 'Authorized Personnel'])
             && ! $request->user()?->hasAnyRole(['System Admin', 'System Administrator'])) {
             $query->where('user_id', $request->user()->id);
         }

@@ -64,32 +64,35 @@ class LoginAuditLogTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_authorized_personnel_only_sees_their_own_login_trails(): void
+    public function test_coordinator_roles_only_see_their_own_login_trails(): void
     {
-        $role = Role::firstOrCreate(['name' => 'Authorized Personnel', 'guard_name' => 'web']);
         $permission = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'route:audit-logs.login-trails', 'guard_name' => 'web']);
-        $role->givePermissionTo($permission);
 
-        $personnel = User::factory()->create(['name' => 'Authorized User', 'email' => 'authorized@test.edu.ph']);
-        $personnel->assignRole($role);
-        $other = User::factory()->create(['name' => 'Other User', 'email' => 'other@test.edu.ph']);
+        foreach (['Supply Coordinator', 'Authorized Personnel'] as $roleName) {
+            $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
+            $role->givePermissionTo($permission);
 
-        foreach ([[$personnel, 'authorized@test.edu.ph'], [$other, 'other@test.edu.ph']] as [$user, $email]) {
-            LoginTrail::create([
-                'user_id' => $user->id,
-                'name' => $user->name,
-                'email' => $email,
-                'status' => 'Success',
-            ]);
+            $user = User::factory()->create(['name' => $roleName, 'email' => str_replace(' ', '.', strtolower($roleName)).'@test.edu.ph']);
+            $user->assignRole($role);
+            $other = User::factory()->create(['name' => 'Other User', 'email' => 'other-'.$user->id.'@test.edu.ph']);
+
+            foreach ([[$user, $user->email], [$other, $other->email]] as [$owner, $email]) {
+                LoginTrail::create([
+                    'user_id' => $owner->id,
+                    'name' => $owner->name,
+                    'email' => $email,
+                    'status' => 'Success',
+                ]);
+            }
+
+            $this->actingAs($user)->get('/audit-logs/login-trails')
+                ->assertOk()
+                ->assertInertia(fn ($page) => $page
+                    ->where('loginData.total', 1)
+                    ->where('summary.total', 1)
+                    ->where('loginData.data.0.email', $user->email)
+                );
         }
-
-        $this->actingAs($personnel)->get('/audit-logs/login-trails')
-            ->assertOk()
-            ->assertInertia(fn ($page) => $page
-                ->where('loginData.total', 1)
-                ->where('summary.total', 1)
-                ->where('loginData.data.0.email', 'authorized@test.edu.ph')
-            );
     }
 
     public function test_returns_empty_when_no_records_exist_without_fakes(): void
