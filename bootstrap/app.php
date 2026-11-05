@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withCommands([app_path('Console/Commands')])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trimStrings(except: ['wifi_ssid', 'wifi_password', 'wifi_networks.*.ssid']);
         // Supply only the reverse proxy addresses controlled by the operator.

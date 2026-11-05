@@ -51,6 +51,10 @@ class SystemSettingController extends Controller
     {
         $this->authorizeSystemAdmin($request, 'system.settings.index');
 
+        $activeTab = $request->validate([
+            'tab' => ['nullable', 'string', 'in:institution,signatories,inventory,numbering,rfid,mail,operations'],
+        ])['tab'] ?? 'institution';
+
         $groupedSettings = SystemSetting::getAllGrouped();
         $sysConfig = SystemConfiguration::current();
 
@@ -71,6 +75,7 @@ class SystemSettingController extends Controller
 
         return Inertia::render('Admin/SystemSettings/Index', [
             'groupedSettings' => $groupedSettings,
+            'activeTab' => $activeTab,
             'numberingPreviews' => $numberingPreviews,
             'telemetry' => $telemetry,
             'signatories' => Signatory::orderBy('name')->get(),
@@ -273,11 +278,26 @@ class SystemSettingController extends Controller
     }
 
     /**
-     * Export a database backup or data snapshot.
+     * Export a settings and system configuration snapshot (not a database backup).
      */
     public function exportBackup(Request $request)
     {
         $this->authorizeSystemAdmin($request, 'system.settings.backup');
+
+        try {
+            TransactionTrail::create([
+                'user_id' => $request->user()?->id,
+                'module' => 'Administration',
+                'action' => 'Exported Settings Snapshot',
+                'resource_ref' => 'SETTINGS-SNAPSHOT',
+                'details' => 'Downloaded a system settings and configuration snapshot.',
+                'status' => 'Success',
+                'event_key' => 'system.settings.snapshot.exported',
+                'is_parent' => true,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Failed to record settings snapshot export: '.$e->getMessage());
+        }
 
         $data = [
             'exported_at' => now()->toIso8601String(),
@@ -286,7 +306,7 @@ class SystemSettingController extends Controller
         ];
 
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        $filename = 'nemix_settings_backup_'.date('Y_m_d_His').'.json';
+        $filename = 'supply-sync_settings_snapshot_'.date('Y_m_d_His').'.json';
 
         return response($json, 200, [
             'Content-Type' => 'application/json',

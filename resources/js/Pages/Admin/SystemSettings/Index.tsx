@@ -35,6 +35,7 @@ export default function Index({
     groupedSettings,
     numberingPreviews,
     telemetry,
+    activeTab: requestedTab,
     signatories: initialSignatories = [],
     rfidDevices = [],
 }: SystemSettingsPageProps) {
@@ -78,7 +79,7 @@ export default function Index({
     });
 
     // Active category tab state
-    const [activeTab, setActiveTab] = useState<TabId>('institution');
+    const [activeTab, setActiveTab] = useState<TabId>(requestedTab || 'institution');
     const currentTabMeta =
         SETTINGS_TABS.find((t) => t.id === activeTab) || SETTINGS_TABS[0];
 

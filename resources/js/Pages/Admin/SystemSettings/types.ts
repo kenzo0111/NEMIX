@@ -155,6 +155,7 @@ export type SystemSettingsPageProps = PageProps<{
     groupedSettings: Record<string, SettingItem[]>;
     numberingPreviews: Record<string, string>;
     telemetry: TelemetryData | null;
+    activeTab?: TabId;
     signatories?: Signatory[];
     rfidDevices?: RfidDeviceConfiguration[];
 }>;

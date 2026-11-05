@@ -19,6 +19,7 @@
 /public/previews
 /storage/*.key
 /storage/pail
+/storage/app/private/backups/
 /storage/*.json
 *.bundle
 /vendor

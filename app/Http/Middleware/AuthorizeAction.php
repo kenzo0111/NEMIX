@@ -32,6 +32,14 @@ class AuthorizeAction
             return $next($request);
         }
 
+        // System Administrators manage the platform, not the operational supply
+        // workspace. Block its routes at the server boundary as well as hiding
+        // its navigation; troubleshooting remains available through audit logs.
+        if ((method_exists($user, 'isSystemAdmin') && $user->isSystemAdmin())
+            && $this->isOperationalSupplyRoute($routeName)) {
+            abort(403, 'System Administrators do not have access to routine supply operations.');
+        }
+
         // Fast-path: System Admin bypasses all checks without permission creation
         if ((method_exists($user, 'isSystemAdmin') && $user->isSystemAdmin())
             || $user->hasAnyRole(['System Admin', 'System Administrator'])) {
@@ -79,6 +87,14 @@ class AuthorizeAction
         }
 
         abort(403);
+    }
+
+    private function isOperationalSupplyRoute(string $routeName): bool
+    {
+        return Str::startsWith($routeName, [
+            'inventory.', 'api.inventory.', 'coordinator.inventory.',
+            'compliance.reports.', 'compliance.migrations.', 'compliance.migrate.',
+        ]) || in_array($routeName, ['compliance.reports', 'compliance.analytics'], true);
     }
 
     private function shouldSkipRoute(string $routeName): bool

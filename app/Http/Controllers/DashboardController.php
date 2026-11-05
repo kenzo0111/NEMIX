@@ -15,6 +15,62 @@ class DashboardController
 
     public function index(Request $request): Response
     {
+        if ($request->user()->isSystemAdmin()) {
+            $databaseStatus = 'Unavailable';
+            try {
+                \Illuminate\Support\Facades\DB::connection()->select('SELECT 1');
+                $databaseStatus = 'Connected';
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
+            $failedJobs = null;
+            $totalUsers = null;
+            $activeUsers = null;
+            $systemMode = 'Unavailable';
+            $latestActivity = collect();
+            $backupFiles = glob(storage_path('app/private/backups/supply-sync-*')) ?: [];
+            usort($backupFiles, fn ($left, $right) => filemtime($right) <=> filemtime($left));
+            $backupStatus = $backupFiles
+                ? 'Latest database backup: '.date('Y-m-d H:i', filemtime($backupFiles[0]))
+                : 'Daily backup is scheduled; no database backup has run yet';
+            try {
+                $totalUsers = \App\Models\User::count();
+                $activeUsers = \App\Models\User::where('is_active', true)->count();
+                if (\Illuminate\Support\Facades\Schema::hasTable('failed_jobs')) {
+                    $failedJobs = \Illuminate\Support\Facades\DB::table('failed_jobs')->count();
+                }
+                $systemMode = \App\Models\SystemConfiguration::current()->active_mode;
+                if (class_exists(\Modules\AuditLogs\Models\TransactionTrail::class)) {
+                    $latestActivity = \Modules\AuditLogs\Models\TransactionTrail::with('user')->latest()->limit(8)->get()->map(fn ($trail) => [
+                        'id' => $trail->id,
+                        'action' => $trail->action,
+                        'module' => $trail->module,
+                        'actor' => $trail->user?->name ?? 'System',
+                        'created_at' => $trail->created_at?->toIso8601String(),
+                        'status' => $trail->status,
+                    ])->values();
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
+            return Inertia::render('Admin/SystemDashboard', [
+                'adminOverview' => [
+                    'totalUsers' => $totalUsers ?? 'Unavailable',
+                    'activeUsers' => $activeUsers ?? 'Unavailable',
+                    'databaseStatus' => $databaseStatus,
+                    'emailStatus' => filled(config('mail.default')) ? 'Configured' : 'Not configured',
+                    'failedJobs' => $failedJobs,
+                    'storageFreeBytes' => @disk_free_space(storage_path()) ?: null,
+                    'systemMode' => $systemMode,
+                    'backupStatus' => $backupStatus,
+                    'checkedAt' => now()->toIso8601String(),
+                ],
+                'recentAdminActivity' => $latestActivity,
+            ]);
+        }
+
         $validated = $request->validate([
             'chart_filter' => ['nullable', 'string', 'in:monthly,yearly,custom'],
             'start_date' => ['nullable', 'date_format:Y-m-d'],

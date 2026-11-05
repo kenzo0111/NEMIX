@@ -74,26 +74,26 @@ class HandleInertiaRequests extends Middleware
                 'dashboard' => true,
                 'requiresSupportingDocument' => $user->requiresSupportingDocument(),
                 'coordinatorInventory' => $user->usesCoordinatorInventory(),
-                'requests' => $hasPerm('inventory.requests.index', false),
+                'requests' => ! $isSystemAdmin && $hasPerm('inventory.requests.index', false),
                 'inventory' => [
-                    'view' => $hasPerm('inventory.index', $defaultForStaff),
-                    'receiving' => $hasPerm('inventory.receiving', $defaultForStaff),
-                    'issuance' => $hasPerm('inventory.issuance', $defaultForStaff)
+                    'view' => ! $isSystemAdmin && $hasPerm('inventory.index', $defaultForStaff),
+                    'receiving' => ! $isSystemAdmin && $hasPerm('inventory.receiving', $defaultForStaff),
+                    'issuance' => ! $isSystemAdmin && ($hasPerm('inventory.issuance', $defaultForStaff)
                         || $hasPerm('inventory.requests.approve')
                         || $hasPerm('inventory.requests.reject')
                         || $hasPerm('inventory.requests.release')
-                        || $hasPerm('inventory.requests.verify-document'),
-                    'requests' => $hasPerm('inventory.requests.index', false),
+                        || $hasPerm('inventory.requests.verify-document')),
+                    'requests' => ! $isSystemAdmin && $hasPerm('inventory.requests.index', false),
                 ],
                 'rfid' => [
-                    'view' => $hasPerm('rfid-scanner.index', $defaultForStaff),
+                    'view' => ! $isSystemAdmin && $hasPerm('rfid-scanner.index', $defaultForStaff),
                 ],
                 'suppliers' => [
-                    'view' => $hasPerm('suppliers.index', $defaultForStaff),
+                    'view' => ! $isSystemAdmin && $hasPerm('suppliers.index', $defaultForStaff),
                 ],
                 'compliance' => [
-                    'reports' => $hasPerm('compliance.reports', $defaultForStaff),
-                    'analytics' => $hasPerm('compliance.analytics', $defaultForStaff),
+                    'reports' => ! $isSystemAdmin && $hasPerm('compliance.reports', $defaultForStaff),
+                    'analytics' => ! $isSystemAdmin && $hasPerm('compliance.analytics', $defaultForStaff),
                 ],
                 'audit' => [
                     'login' => $hasPerm('audit-logs.login-trails', false),
