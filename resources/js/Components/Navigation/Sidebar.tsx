@@ -29,6 +29,7 @@ export default function Sidebar({
     const authUser = propUser || (pageProps.auth?.user as SidebarUserType | undefined);
     const capabilities = pageProps.auth?.capabilities;
     const isCoordinator = Boolean(capabilities?.coordinatorInventory);
+    const isSystemAdmin = pageProps.auth?.is_system_admin === true;
     const { canAny } = useAuthorization();
 
     // Load modules if not explicitly passed
@@ -73,10 +74,32 @@ export default function Sidebar({
             .filter((mod): mod is SidebarModule => mod !== null);
     }, [rawModules, capabilities]);
 
+    // System Admins use these child destinations as primary navigation items,
+    // without the extra expandable Audit Logs / Access Control parent level.
+    const displayModules = useMemo(() => {
+        if (!isSystemAdmin) return filteredModules;
+
+        return filteredModules.flatMap((module) => {
+            if (!module.submodules?.length) return [module];
+
+            return module.submodules.map((submodule): SidebarModule => ({
+                key: submodule.key,
+                category: module.category,
+                categoryTitle: module.categoryTitle,
+                title: submodule.title,
+                icon: module.icon,
+                href: submodule.href,
+                active: submodule.active,
+                requiredCapability: submodule.requiredCapability,
+                requiredPermission: submodule.requiredPermission,
+            }));
+        });
+    }, [filteredModules, isSystemAdmin]);
+
     const navigationGroups = useMemo(() => {
         if (!isCoordinator) {
             return (['overview', 'logistics', 'governance'] as const).map(key => {
-                const items = filteredModules.filter(item => item.category === key);
+                const items = displayModules.filter(item => item.category === key);
                 return { key, title: items[0]?.categoryTitle || SIDEBAR_CATEGORIES[key].title, items };
             });
         }
@@ -107,7 +130,7 @@ export default function Sidebar({
             },
             { key: 'administration', title: 'Administration', items: filteredModules.filter(item => !assignedKeys.has(item.key)) },
         ];
-    }, [filteredModules, isCoordinator, pageUrl]);
+    }, [displayModules, filteredModules, isCoordinator, pageUrl]);
 
     // Active module detection for accordion
     const activeModuleTitle = useMemo(() => {
