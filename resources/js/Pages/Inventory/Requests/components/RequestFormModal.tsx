@@ -40,7 +40,14 @@ export function RequestFormModal({
     onSaved,
 }: RequestFormModalProps) {
     const pageProps = usePage().props as any;
-    const requiresDocument = Boolean(pageProps.auth?.capabilities?.requiresSupportingDocument || request?.requires_supporting_document);
+    const sharedRoles = pageProps.auth?.roles || pageProps.auth?.user?.roles;
+    const roleNames: string[] = Array.isArray(sharedRoles) ? sharedRoles : [];
+    const isAuthorizedPersonnel = roleNames.some((role) => String(role).toLowerCase() === 'authorized personnel');
+    const requiresDocument = Boolean(
+        pageProps.auth?.capabilities?.requiresSupportingDocument ||
+        isAuthorizedPersonnel ||
+        request?.requires_supporting_document
+    );
     const assignment = pageProps.departmentAssignment as { department: string | null; recipient: string | null; recipient_designation: string | null; ready: boolean } | null;
     const assignedUnit = Boolean(pageProps.auth?.capabilities?.coordinatorInventory);
     const assignmentMissing = assignedUnit && !request && !assignment?.ready;
@@ -667,9 +674,9 @@ export function RequestFormModal({
 
                     {requiresDocument && <section className="space-y-3 rounded-lg border border-slate-200 p-4 dark:border-slate-700">
                         <h4 className="font-semibold">Supporting Document</h4>
-                        <p className="text-sm text-slate-500">An approved supporting document is required before submission. This is proof of authorization, separate from the RIS. PDF, JPG, JPEG, or PNG, up to 10 MB.</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">An approved supporting document is required before submission. This is proof of authorization, separate from the RIS. PDF, JPG, JPEG, or PNG, up to 10 MB.</p>
                         <label className="block text-sm font-medium">Document type
-                            <select required value={form.data.supporting_document_type} onChange={e => form.setData('supporting_document_type', e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 dark:bg-slate-900">
+                            <select required value={form.data.supporting_document_type} onChange={e => form.setData('supporting_document_type', e.target.value)} className="mt-1 block min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-slate-900 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100">
                                 <option value="">Select document type</option>
                                 {['Approved MOA', 'Approved Research', 'Approved Letter', 'Others'].map(type => <option key={type}>{type}</option>)}
                             </select>
@@ -685,7 +692,7 @@ export function RequestFormModal({
                                     return;
                                 }
                                 form.setData('supporting_document', file);
-                            }} className="mt-2 block w-full text-sm" />
+                            }} className="mt-2 block w-full rounded-md border border-slate-300 bg-white p-2 text-sm text-slate-700 file:mr-3 file:rounded file:border-0 file:bg-slate-200 file:px-2 file:py-1 file:font-medium dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:file:bg-slate-700" />
                         </label>
                         {form.errors.supporting_document_type && <p role="alert" className="text-sm text-red-600">{form.errors.supporting_document_type}</p>}
                         {form.errors.supporting_document && <p role="alert" className="text-sm text-red-600">{form.errors.supporting_document}</p>}
