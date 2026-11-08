@@ -58,7 +58,6 @@ export default function SystemDashboard({ auth, adminOverview, recentAdminActivi
         <Head title="System Administration" />
         <DashboardLayout modules={getSidebarModules()} user={auth.user}>
             <DashboardContent>
-                <DashboardControls />
                 <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
                     <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-blue-700">System Administration</p>
@@ -67,6 +66,7 @@ export default function SystemDashboard({ auth, adminOverview, recentAdminActivi
                     </div>
                     <div className="flex max-w-full flex-wrap items-center gap-2 sm:gap-3">
                         <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${adminOverview.databaseStatus === 'Connected' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800'}`}><Activity size={16} /> Database {adminOverview.databaseStatus.toLowerCase()}</span>
+                        <DashboardControls className="w-auto" />
                     </div>
                 </header>
 
