@@ -2,8 +2,6 @@ import { usePage } from '@inertiajs/react';
 import { Menu } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { PageProps } from '@/types';
-import SystemModeBadge from './SystemModeBadge';
-import ThemeToggle from './ThemeToggle';
 import { roleDesignation, SYSTEM_TITLE } from '@/utils/systemIdentity';
 
 export default function SystemHeader({ onToggleSidebar, actions }: { onToggleSidebar?: () => void; actions?: ReactNode }) {
@@ -20,7 +18,7 @@ export default function SystemHeader({ onToggleSidebar, actions }: { onToggleSid
                     <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{roleDesignation(auth)} Dashboard</p>
                 </div>
             </div>
-            <div className="flex max-w-full flex-wrap items-center gap-3"><SystemModeBadge /><ThemeToggle variant="compact" />{actions && <div className="flex max-w-full flex-wrap items-center gap-2">{actions}</div>}</div>
+            {actions && <div className="flex max-w-full flex-wrap items-center gap-2">{actions}</div>}
         </div>
     </header>;
 }

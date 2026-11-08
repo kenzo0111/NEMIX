@@ -5,7 +5,7 @@ import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { DashboardPageProps } from './types';
 
-import DashboardHeader from './Components/DashboardHeader';
+import DashboardControls from '@/Components/DashboardControls';
 import OperationalAlertStrip from './Components/OperationalAlertStrip';
 import SystemSummary from './Components/SystemSummary';
 import InventoryMovementOverview from './Components/InventoryMovementOverview';
@@ -76,11 +76,9 @@ export default function DashboardIndex({
                     />
                 ) : (
                     <>
-                        {/* Unified Sticky Header */}
-                        <DashboardHeader />
-
                         {/* Dashboard Main Canvas with Clear 4-Tier Hierarchy */}
                         <DashboardContent>
+                            <DashboardControls />
                             {/* Operational Alert Banner (e.g. Missing RFIDs / Supplier accreditation notices) */}
                             <OperationalAlertStrip
                                 showRfidAlert={showRfidAlert}

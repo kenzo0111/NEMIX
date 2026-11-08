@@ -1,11 +1,10 @@
 import React from 'react';
 import { Head, Link } from '@inertiajs/react';
-import { Activity, Archive, Database, HardDrive, Mail, Menu, ShieldCheck, Users, Wrench } from 'lucide-react';
+import { Activity, Archive, Database, HardDrive, Mail, ShieldCheck, Users, Wrench } from 'lucide-react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import DashboardContent from '@/Layouts/DashboardContent';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import SystemModeBadge from '@/Components/SystemModeBadge';
-import ThemeToggle from '@/Components/ThemeToggle';
+import DashboardControls from '@/Components/DashboardControls';
 
 type Overview = {
     totalUsers: number | string;
@@ -59,19 +58,15 @@ export default function SystemDashboard({ auth, adminOverview, recentAdminActivi
         <Head title="System Administration" />
         <DashboardLayout modules={getSidebarModules()} user={auth.user}>
             <DashboardContent>
+                <DashboardControls />
                 <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
-                    <div className="flex min-w-0 items-start gap-3">
-                        <button type="button" onClick={() => window.dispatchEvent(new CustomEvent('toggle-nemix-mobile-sidebar'))} aria-label="Open navigation menu" className="mt-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 md:hidden dark:text-slate-300 dark:hover:bg-slate-800"><Menu size={19} aria-hidden="true" /></button>
-                        <div>
-                            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-blue-700">System Administration</p>
-                            <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">System overview</h1>
-                            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Technical status, account administration, and security activity.</p>
-                        </div>
+                    <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-blue-700">System Administration</p>
+                        <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">System overview</h1>
+                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Technical status, account administration, and security activity.</p>
                     </div>
                     <div className="flex max-w-full flex-wrap items-center gap-2 sm:gap-3">
                         <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${adminOverview.databaseStatus === 'Connected' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800'}`}><Activity size={16} /> Database {adminOverview.databaseStatus.toLowerCase()}</span>
-                        <SystemModeBadge />
-                        <ThemeToggle variant="compact" />
                     </div>
                 </header>
 

@@ -2,7 +2,7 @@ import DashboardContent from '@/Layouts/DashboardContent';
 import React from 'react';
 import { Link, router } from '@inertiajs/react';
 import { Activity, ArrowDownToLine, ArrowRight, ArrowUpFromLine, BookOpen, Boxes, Building2, ChartColumn, CheckCircle2, ChevronRight, ClipboardList, FileText, Layers3, Package, Plus, TriangleAlert } from 'lucide-react';
-import DashboardHeader from './DashboardHeader';
+import DashboardControls from '@/Components/DashboardControls';
 import InventoryMovementChart from '../Charts/InventoryMovementChart';
 import RecentSystemActivity from './RecentSystemActivity';
 import { displayDate, secondaryButton } from '@/Pages/Inventory/Coordinator/inventory';
@@ -56,8 +56,8 @@ export default function CoordinatorDashboardWorkspace({
 
     return (
         <>
-            <DashboardHeader coordinator />
             <DashboardContent>
+                <DashboardControls />
                 <section aria-label="Unit workspace" className={`${surface} flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-red-50/60 to-white p-4 dark:from-red-950/20 dark:to-slate-900`}>
                     <div className="flex min-w-0 items-center gap-3">
                         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-red-200 bg-red-100/60 text-red-900 dark:border-red-800/50 dark:bg-red-950/50 dark:text-red-300"><Building2 size={25} strokeWidth={1.6} aria-hidden="true" /></span>
