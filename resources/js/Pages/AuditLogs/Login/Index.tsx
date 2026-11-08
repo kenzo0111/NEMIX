@@ -2,7 +2,7 @@ import DashboardContent from '@/Layouts/DashboardContent';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
-import DashboardHeader from '@/Pages/Dashboard/Components/DashboardHeader';
+import MobileSidebarToggle from '@/Components/MobileSidebarToggle';
 import { secondaryButton } from '@/Pages/Inventory/Coordinator/inventory';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -134,7 +134,7 @@ export default function LoginAuditIndex({
             <DashboardLayout modules={modules} user={user}>
                 {/* PageHeader is completely hidden in print */}
                 <div className="print:hidden audit-print-hide">
-                    {isCoordinator ? <DashboardHeader coordinator /> : <PageHeader
+                    {isCoordinator ? <div className="px-4 pt-4 sm:px-7 lg:px-8"><MobileSidebarToggle /></div> : <PageHeader
                         title="Login Audit Logs"
                         description="Review sign-ins, access results, and source IP addresses."
                         breadcrumbs={[
