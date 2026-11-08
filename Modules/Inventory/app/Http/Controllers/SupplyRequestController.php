@@ -24,7 +24,11 @@ class SupplyRequestController extends Controller
 
     private function authorizeRequestAction(Request $request): void
     {
-        abort_unless(PermissionResolver::hasPermission($request->user(), 'route:'.$request->route()->getName()), 403);
+        $user = $request->user();
+        abort_unless(
+            $user && ($user->isSystemAdmin() || PermissionResolver::hasPermission($user, 'route:'.$request->route()->getName())),
+            403
+        );
     }
 
     private function canReviewRequests(User $user): bool

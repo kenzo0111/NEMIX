@@ -16,8 +16,9 @@ class ResourceOwnershipPolicy
             return false;
         }
 
-        // System Admin and operational Property Staff bypass ownership restrictions for institutional assets
-        if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['System Admin', 'System Administrator', 'Property Staff'])) {
+        // System Admin and operational Property Staff bypass ownership restrictions for institutional assets.
+        // Use the canonical admin check so legacy role-column accounts receive the same access as Spatie roles.
+        if ($user->isSystemAdmin() || (method_exists($user, 'hasRole') && $user->hasRole('Property Staff'))) {
             return true;
         }
 
@@ -50,7 +51,7 @@ class ResourceOwnershipPolicy
             return $query->whereRaw('1 = 0');
         }
 
-        if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['System Admin', 'System Administrator', 'Property Staff'])) {
+        if ($user->isSystemAdmin() || (method_exists($user, 'hasRole') && $user->hasRole('Property Staff'))) {
             return $query;
         }
 
