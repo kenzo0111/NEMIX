@@ -52,6 +52,9 @@ export default function DashboardIndex({
     const criticalCount = summary?.critical_stock ?? stats?.criticalAlerts ?? activeCriticalStock.length;
     const untaggedRfid = rfidSummary?.untagged ?? 0;
     const pendingSuppliers = supplierSummary?.pending ?? 0;
+    const isInventoryStaff = [auth.user.role, ...(auth.user.roles || [])]
+        .filter((role): role is string => typeof role === 'string')
+        .some((role) => ['inventory staff', 'spmo personnel'].includes(role.trim().toLowerCase()));
 
     return (
         <>
@@ -79,6 +82,11 @@ export default function DashboardIndex({
                         {/* Dashboard Main Canvas with Clear 4-Tier Hierarchy */}
                         <DashboardContent>
                             <DashboardControls />
+                            {isInventoryStaff && <header className="mb-6">
+                                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-blue-700">Inventory Staff</p>
+                                <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">Inventory overview</h1>
+                                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Monitor stock levels, receiving, issuance, and supply activity across the system.</p>
+                            </header>}
                             {/* Operational Alert Banner (e.g. Missing RFIDs / Supplier accreditation notices) */}
                             <OperationalAlertStrip
                                 showRfidAlert={showRfidAlert}
