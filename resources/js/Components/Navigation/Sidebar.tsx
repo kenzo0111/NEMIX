@@ -14,7 +14,7 @@ import SidebarUser from './SidebarUser';
 import SignOutDialog from './SignOutDialog';
 import SupplyRequestAlerts from './SupplyRequestAlerts';
 import useAuthorization from '@/Hooks/useAuthorization';
-import { ArrowLeftRight } from 'lucide-react';
+import { ArrowLeftRight, ClipboardList, Inbox, Package } from 'lucide-react';
 
 export default function Sidebar({
     modules: initialModules,
@@ -79,7 +79,7 @@ export default function Sidebar({
     const displayModules = useMemo(() => {
         if (!isSystemAdmin) return filteredModules;
 
-        return filteredModules.flatMap((module) => {
+        const adminModules = filteredModules.flatMap((module) => {
             if (!module.submodules?.length) return [module];
 
             return module.submodules.map((submodule): SidebarModule => ({
@@ -94,7 +94,42 @@ export default function Sidebar({
                 requiredPermission: submodule.requiredPermission,
             }));
         });
-    }, [filteredModules, isSystemAdmin]);
+        const currentRoute = typeof route === 'function' ? route().current() : undefined;
+        const query = new URLSearchParams(pageUrl.split('?')[1] || '');
+        const onRequestsPage = currentRoute === 'inventory.requests.index';
+        const pendingRequests = query.get('status') === 'Pending';
+
+        return [
+            ...adminModules,
+            {
+                key: 'system-admin-view-requisition',
+                category: 'logistics',
+                categoryTitle: 'Logistics & Operations',
+                title: 'View Requisition',
+                icon: ClipboardList,
+                href: route('inventory.requests.index'),
+                active: onRequestsPage && !pendingRequests,
+            },
+            {
+                key: 'system-admin-open-requests',
+                category: 'logistics',
+                categoryTitle: 'Logistics & Operations',
+                title: 'Open Requests',
+                icon: Inbox,
+                href: route('inventory.requests.index', { status: 'Pending' }),
+                active: onRequestsPage && pendingRequests,
+            },
+            {
+                key: 'system-admin-view-inventory',
+                category: 'logistics',
+                categoryTitle: 'Logistics & Operations',
+                title: 'View Inventory',
+                icon: Package,
+                href: route('inventory.index'),
+                active: currentRoute === 'inventory.index',
+            },
+        ];
+    }, [filteredModules, isSystemAdmin, pageUrl]);
 
     const navigationGroups = useMemo(() => {
         if (!isCoordinator) {
