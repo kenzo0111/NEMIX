@@ -240,7 +240,7 @@ export default function CreateStaffModal({
                             )}
                         </div>
                         <DepartmentAssignmentFields data={data} errors={errors}
-                            required={['Supply Coordinator', 'Authorized Personnel'].includes(data.role)}
+                            required={data.role === 'Supply Coordinator'}
                             onChange={(field, value) => { setData(field, value); clearErrors(field); }} />
                     </div>
 

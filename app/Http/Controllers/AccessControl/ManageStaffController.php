@@ -212,7 +212,7 @@ class ManageStaffController extends Controller
 
     private function departmentRules(Request $request, ?User $user = null): array
     {
-        $required = in_array($request->input('role'), ['Supply Coordinator', 'Authorized Personnel'], true);
+        $required = $request->input('role') === 'Supply Coordinator';
 
         return [
             'department' => [$required ? 'required' : 'nullable', 'string', 'max:255'],

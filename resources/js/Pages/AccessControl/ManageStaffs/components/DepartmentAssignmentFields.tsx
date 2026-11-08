@@ -36,7 +36,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
 
     return <fieldset className="min-w-0 space-y-5 text-gray-700 dark:text-slate-300">
         <legend className="font-semibold text-gray-900 dark:text-slate-100">Delivery Unit assignment</legend>
-        <p className="pt-1 text-sm leading-relaxed text-gray-500 dark:text-slate-400">Select a college to automatically fill its dean and designation. These details fill Requested by on supply requests.</p>
+        <p className="pt-1 text-sm leading-relaxed text-gray-500 dark:text-slate-400">{required ? 'Select a Delivery Unit and office head. These details fill the requesting office on supply requests.' : 'Delivery Unit assignment is optional for this role. When assigned, the Delivery Unit can prefill the request form.'}</p>
         <div>
             <label htmlFor="staff-department" className="block text-sm font-semibold mb-1">Department / Delivery Unit {required && '*'}</label>
             <CreatableSelect<{ value: string; label: string }, false> {...selectLayout}

@@ -50,17 +50,19 @@ export function RequestFormModal({
     );
     const assignment = pageProps.departmentAssignment as { department: string | null; recipient: string | null; recipient_designation: string | null; ready: boolean } | null;
     const assignedUnit = Boolean(pageProps.auth?.capabilities?.coordinatorInventory);
-    const assignmentMissing = assignedUnit && !request && !assignment?.ready;
+    const loginUserName = pageProps.auth?.user?.name || defaultRecipient;
+    const departmentLocked = assignedUnit && (!isAuthorizedPersonnel || Boolean(assignment?.department));
+    const assignmentMissing = assignedUnit && !isAuthorizedPersonnel && !request && !assignment?.ready;
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const divisionList = divisions && divisions.length > 0 ? divisions : FALLBACK_DIVISIONS;
 
     const form = useForm({
         supporting_document: null as File | null,
         supporting_document_type: '',
-        recipient: request?.recipient || (assignedUnit ? assignment?.recipient || '' : defaultRecipient),
+        recipient: isAuthorizedPersonnel ? loginUserName : (request?.recipient || (assignedUnit ? assignment?.recipient || '' : defaultRecipient)),
         date_requested: getLocalDateString(),
         department: request?.department || (assignedUnit ? assignment?.department || '' : ''),
-        recipient_designation: request?.recipient_designation || (assignedUnit ? assignment?.recipient_designation || '' : ''),
+        recipient_designation: request?.recipient_designation || (assignedUnit && !isAuthorizedPersonnel ? assignment?.recipient_designation || '' : ''),
         fund_cluster: '01',
         purpose: '',
         approved_by: defaultApprovedBy,
@@ -77,7 +79,7 @@ export function RequestFormModal({
             form.setData({
                 supporting_document: null,
                 supporting_document_type: request?.supporting_document_type || '',
-                recipient: request.recipient || request.requester?.name || defaultRecipient,
+                recipient: isAuthorizedPersonnel ? loginUserName : (request.recipient || request.requester?.name || defaultRecipient),
                 date_requested: request.date_requested ? request.date_requested.slice(0, 10) : (request.created_at ? request.created_at.slice(0, 10) : getLocalDateString()),
                 department: request.department || '',
                 recipient_designation: request.recipient_designation || '',
@@ -98,10 +100,10 @@ export function RequestFormModal({
             form.setData({
                 supporting_document: null,
                 supporting_document_type: '',
-                recipient: assignedUnit ? assignment?.recipient || '' : defaultRecipient,
+                recipient: isAuthorizedPersonnel ? loginUserName : (assignedUnit ? assignment?.recipient || '' : defaultRecipient),
                 date_requested: getLocalDateString(),
                 department: assignedUnit ? assignment?.department || '' : '',
-                recipient_designation: assignedUnit ? assignment?.recipient_designation || '' : '',
+                recipient_designation: assignedUnit && !isAuthorizedPersonnel ? assignment?.recipient_designation || '' : '',
                 fund_cluster: '01',
                 purpose: '',
                 approved_by: defaultApprovedBy,
@@ -265,7 +267,7 @@ export function RequestFormModal({
                 {/* Form Body */}
                 <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto max-h-[75vh] space-y-6 text-sm">
                     {assignedUnit && <div className={`rounded-lg border p-3 text-sm ${assignmentMissing ? 'border-amber-300 bg-amber-50 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200' : 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'}`}>
-                        {assignmentMissing ? 'Ask an administrator to assign your Delivery Unit and an active office head with a designation in Staff Accounts before submitting a request.' : 'Department and Requested by details come from your administrator-assigned Delivery Unit. Your coordinator account is recorded as the submitter.'}
+                        {assignmentMissing ? 'Ask an administrator to assign your Delivery Unit and an active office head with a designation in Staff Accounts before submitting a request.' : isAuthorizedPersonnel ? 'Your name is shown as the requester. Delivery Unit assignment is optional; choose a Division / Office if none is assigned.' : 'Department and Requested by details come from your administrator-assigned Delivery Unit. Your coordinator account is recorded as the submitter.'}
                     </div>}
                     {/* SECTION 1: Recipient Information */}
                     <div>
@@ -277,7 +279,7 @@ export function RequestFormModal({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="req_recipient" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
-                                    {assignedUnit ? 'Requested by (Department / Office Head)' : 'Recipient Name'} <span className="text-red-600" aria-hidden="true">*</span>
+                                    {isAuthorizedPersonnel ? 'Requested by' : assignedUnit ? 'Requested by (Department / Office Head)' : 'Recipient Name'} <span className="text-red-600" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
                                 </label>
                                 <input
@@ -329,7 +331,7 @@ export function RequestFormModal({
                                     <span className="sr-only"> (required)</span>
                                 </label>
                                 <Select
-                                    isDisabled={assignedUnit}
+                                    isDisabled={departmentLocked}
                                     inputId="req_department"
                                     name="department"
                                     aria-label="Division or Office"
@@ -349,14 +351,14 @@ export function RequestFormModal({
 
                             <div>
                                 <label htmlFor="req_recipient_designation" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
-                                    {assignedUnit ? 'Office Head Designation' : 'Recipient Designation'}
+                                    {assignedUnit && !isAuthorizedPersonnel ? 'Office Head Designation' : 'Recipient Designation'}
                                 </label>
                                 <input
                                     id="req_recipient_designation"
                                     name="recipient_designation"
                                     type="text"
                                     aria-invalid={Boolean(form.errors.recipient_designation)}
-                                    readOnly={assignedUnit}
+                                    readOnly={assignedUnit && !isAuthorizedPersonnel}
                                     value={form.data.recipient_designation}
                                     onChange={(e) => form.setData('recipient_designation', e.target.value)}
                                     placeholder="e.g. Dean, Department Head, Faculty, Coordinator"

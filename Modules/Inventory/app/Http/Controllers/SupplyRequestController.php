@@ -165,7 +165,7 @@ class SupplyRequestController extends Controller
     public function store(Request $request)
     {
         $this->authorizeRequestAction($request);
-        if ($request->user()->usesCoordinatorInventory()) {
+        if ($request->user()->usesCoordinatorInventory() && ! $request->user()->requiresSupportingDocument()) {
             if (!$this->hasDepartmentAssignment($request->user())) {
                 throw ValidationException::withMessages(['department' => 'Ask an administrator to assign your Delivery Unit and an active office head with a designation in Staff Accounts before submitting a request.']);
             }
@@ -174,6 +174,11 @@ class SupplyRequestController extends Controller
                 'recipient' => $request->user()->officeHead->name,
                 'recipient_designation' => $request->user()->officeHead->designation,
             ]);
+        } elseif ($request->user()->requiresSupportingDocument()) {
+            if (trim($request->user()->department ?? '') !== '') {
+                $request->merge(['department' => $request->user()->department]);
+            }
+            $request->merge(['recipient' => $request->user()->name]);
         }
         $requiresDocument = $request->user()->requiresSupportingDocument();
         $data = $request->validate([
@@ -239,8 +244,10 @@ class SupplyRequestController extends Controller
         abort_unless($request->user()->id === $supplyRequest->requested_by, 403);
         $this->authorizeRequestAction($request);
         // Keep the original unit and signatory even after a transfer or change of head.
-        if ($request->user()->usesCoordinatorInventory()) {
+        if ($request->user()->usesCoordinatorInventory() && ! $request->user()->requiresSupportingDocument()) {
             $request->merge($supplyRequest->only(['department', 'recipient', 'recipient_designation']));
+        } elseif ($request->user()->requiresSupportingDocument()) {
+            $request->merge(['recipient' => $request->user()->name]);
         }
         $requiresDocument = $supplyRequest->requires_supporting_document || $request->user()->requiresSupportingDocument();
         $data = $request->validate([
