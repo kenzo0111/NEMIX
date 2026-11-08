@@ -36,7 +36,8 @@ class AuthorizeAction
         // workspace. Block its routes at the server boundary as well as hiding
         // its navigation; troubleshooting remains available through audit logs.
         if ((method_exists($user, 'isSystemAdmin') && $user->isSystemAdmin())
-            && $this->isOperationalSupplyRoute($routeName)) {
+            && $this->isOperationalSupplyRoute($routeName)
+            && ! $this->isSystemAdminReadRoute($request, $routeName)) {
             abort(403, 'System Administrators do not have access to routine supply operations.');
         }
 
@@ -95,6 +96,17 @@ class AuthorizeAction
             'inventory.', 'api.inventory.', 'coordinator.inventory.',
             'compliance.reports.', 'compliance.migrations.', 'compliance.migrate.',
         ]) || in_array($routeName, ['compliance.reports', 'compliance.analytics'], true);
+    }
+
+    /** Allow System Admins to inspect organization-wide inventory and requisitions without routine write access. */
+    private function isSystemAdminReadRoute(Request $request, string $routeName): bool
+    {
+        return $request->isMethod('GET') && in_array($routeName, [
+            'inventory.index',
+            'inventory.requests.index',
+            'inventory.requests.ris-pdf',
+            'inventory.requests.document',
+        ], true);
     }
 
     private function shouldSkipRoute(string $routeName): bool

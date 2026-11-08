@@ -32,6 +32,7 @@ const statusOptions = [
 
 export default function MyRequests({
     auth,
+    readOnly = false,
     requests = [],
     items = [],
     divisions = [],
@@ -42,6 +43,7 @@ export default function MyRequests({
     defaultIssuedByDesignation: propIssuedByDesignation,
 }: {
     auth: { user: { id: number; name: string; email: string } };
+    readOnly?: boolean;
     requests: SupplyRequest[];
     items: RequestItem[];
     divisions?: DivisionGroup[];
@@ -99,7 +101,7 @@ export default function MyRequests({
         return statusOptions.some(option => option.value === value) ? value || '' : '';
     });
     const [currentPage, setCurrentPage] = useState(1);
-    const [formOpen, setFormOpen] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('create') === '1');
+    const [formOpen, setFormOpen] = useState(() => !readOnly && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('create') === '1');
     const [editingRequest, setEditingRequest] = useState<SupplyRequest | null>(null);
     const [detailsRequest, setDetailsRequest] = useState<SupplyRequest | null>(() => {
         const id = typeof window !== 'undefined' ? Number(new URLSearchParams(window.location.search).get('request_id')) : 0;
@@ -374,7 +376,7 @@ export default function MyRequests({
                                     />
                                 </div>
 
-                                {can('inventory.requests.store') && <button
+                                {!readOnly && can('inventory.requests.store') && <button
                                     type="button"
                                     onClick={openCreate}
                                     className="w-full sm:w-auto h-10 px-4 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-semibold text-sm tracking-normal rounded-lg shadow-xs flex items-center justify-center gap-2 whitespace-nowrap normal-case tabular-nums cursor-pointer transition-colors shrink-0"
@@ -559,7 +561,7 @@ export default function MyRequests({
                                                                 View
                                                             </button>
 
-                                                            {['Pending', 'Pending Verification', 'For Correction'].includes(request.status) && can('inventory.requests.update') && (
+                                                            {!readOnly && ['Pending', 'Pending Verification', 'For Correction'].includes(request.status) && can('inventory.requests.update') && (
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => openEdit(request)}
@@ -579,7 +581,7 @@ export default function MyRequests({
                                                                 </button>
                                                             )}
 
-                                                            {['Pending', 'Approved', 'Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup'].includes(request.status) && can('inventory.requests.cancel') && (
+                                                            {!readOnly && ['Pending', 'Approved', 'Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup'].includes(request.status) && can('inventory.requests.cancel') && (
                                                                 <button
                                                                     type="button"
                                                                     disabled={busy === request.id}
@@ -637,7 +639,7 @@ export default function MyRequests({
             </DashboardLayout>
 
             {/* Request Creation / Editing Modal */}
-            <RequestFormModal
+            {!readOnly && <RequestFormModal
                 show={formOpen}
                 initialItemId={initialItemId}
                 request={editingRequest}
@@ -650,7 +652,7 @@ export default function MyRequests({
                 defaultIssuedByDesignation={defaultIssuedByDesignation}
                 onClose={closeForm}
                 onSaved={(message) => notify({ type: 'success', message })}
-            />
+            />}
 
             {/* Request Details Modal */}
             <RequestDetailsModal

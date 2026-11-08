@@ -67,6 +67,7 @@ class SupplyRequestController extends Controller
         $defaultIssuedByDesignation = $signatories['issued_by_position'];
 
         return Inertia::render('Inventory/Requests/Index', [
+            'readOnly' => $request->user()->isSystemAdmin(),
             'requiresSupportingDocument' => $request->user()->requiresSupportingDocument(),
             'inventoryScope' => $request->user()->usesCoordinatorInventory() ? 'coordinator' : null,
             'initialItemId' => $initialItemId,

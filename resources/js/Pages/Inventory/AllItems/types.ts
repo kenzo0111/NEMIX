@@ -91,6 +91,7 @@ export interface AuthProps {
 export type FlashMessages = BaseFlashMessages;
 
 export type AllItemsPageProps = BasePageProps<{
+    readOnly?: boolean;
     items: InventoryItem[];
     suppliers?: Supplier[];
     pagination?: PaginationMeta;

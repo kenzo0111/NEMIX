@@ -14,6 +14,7 @@ interface InventoryDetailsModalProps {
     item: InventoryItem | null;
     onClose: () => void;
     onEdit: (item: InventoryItem) => void;
+    readOnly?: boolean;
 }
 
 export default function InventoryDetailsModal({
@@ -21,6 +22,7 @@ export default function InventoryDetailsModal({
     item,
     onClose,
     onEdit,
+    readOnly = false,
 }: InventoryDetailsModalProps) {
     const { can } = useAuthorization();
     if (!item) return null;
@@ -316,7 +318,7 @@ export default function InventoryDetailsModal({
                     </button>
 
                     <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2">
-                        {can('rfid.view') && can('rfid.assign') && <Link
+                        {!readOnly && can('rfid.view') && can('rfid.assign') && <Link
                             href={route('rfid-scanner.index', { item_id: item.id })}
                             className="w-full sm:w-auto px-3 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors inline-flex items-center justify-center gap-1.5"
                         >
@@ -324,7 +326,7 @@ export default function InventoryDetailsModal({
                             <span>Tag RFID</span>
                         </Link>}
 
-                        {can('inventory.update') && <button
+                        {!readOnly && can('inventory.update') && <button
                             type="button"
                             onClick={() => {
                                 onClose();

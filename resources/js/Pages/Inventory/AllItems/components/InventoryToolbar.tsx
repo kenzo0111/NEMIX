@@ -15,6 +15,7 @@ interface InventoryToolbarProps {
     suppliers: Supplier[];
     onResetFilters: () => void;
     onOpenCreateModal: () => void;
+    readOnly?: boolean;
 }
 
 export default function InventoryToolbar({
@@ -27,6 +28,7 @@ export default function InventoryToolbar({
     suppliers = [],
     onResetFilters,
     onOpenCreateModal,
+    readOnly = false,
 }: InventoryToolbarProps) {
     const { can } = useAuthorization();
     const isFiltered = Boolean(searchTerm.trim() || filterSupplier || filterStatus);
@@ -106,7 +108,7 @@ export default function InventoryToolbar({
                 )}
 
                 {/* Primary Action: Add Item */}
-                {can('inventory.store') && <button
+                {!readOnly && can('inventory.store') && <button
                     type="button"
                     onClick={onOpenCreateModal}
                     className="w-full sm:w-auto bg-red-950 hover:bg-red-900 text-white font-semibold py-2 px-4 rounded-md shadow-xs transition-colors text-sm flex items-center justify-center gap-2 whitespace-nowrap normal-case tracking-normal cursor-pointer min-h-[38px]"

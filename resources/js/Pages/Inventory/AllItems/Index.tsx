@@ -19,6 +19,7 @@ import DeleteItemModal from './components/DeleteItemModal';
 
 export default function AllItemsIndex({
     auth,
+    readOnly = false,
     items: initialItems = [],
     suppliers = [],
     pagination,
@@ -325,6 +326,7 @@ export default function AllItemsIndex({
                             suppliers={suppliers}
                             onResetFilters={handleResetFilters}
                             onOpenCreateModal={openCreateModal}
+                            readOnly={readOnly}
                         />
 
                         {/* Inventory Table */}
@@ -340,6 +342,7 @@ export default function AllItemsIndex({
                             onDelete={(item) => setItemToDelete(item)}
                             isFiltered={isFiltered}
                             onResetFilters={handleResetFilters}
+                            readOnly={readOnly}
                         />
                     </div>
                 </DashboardContent>
@@ -354,6 +357,7 @@ export default function AllItemsIndex({
                     setViewItem(null);
                     openEditModal(item);
                 }}
+                readOnly={readOnly}
             />
 
             {/* Add / Edit Inventory Modal */}

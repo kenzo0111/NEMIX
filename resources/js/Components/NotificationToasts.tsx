@@ -13,6 +13,7 @@ const appearances = {
 type PresentedNotification = { notification: Notification; present: boolean };
 
 function Toast({ notification, present, onExited }: PresentedNotification & { onExited: (id: number) => void }) {
+    const rowRef = useRef<HTMLDivElement>(null);
     const [hovered, setHovered] = useState(false);
     const [focused, setFocused] = useState(false);
     const paused = hovered || focused;
@@ -28,14 +29,18 @@ function Toast({ notification, present, onExited }: PresentedNotification & { on
             remainingTime.current = Math.max(0, remainingTime.current - (performance.now() - startedAt));
         };
     }, [notification.id, persistent, paused, present]);
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (present) return;
+        const focusedElement = document.activeElement;
+        if (focusedElement instanceof HTMLElement && rowRef.current?.contains(focusedElement)) {
+            focusedElement.blur();
+        }
         const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 260;
         const timer = window.setTimeout(() => onExited(notification.id), duration);
         return () => window.clearTimeout(timer);
     }, [notification.id, present, onExited]);
     return (
-        <div className="notification-toast-row" data-state={present ? 'open' : 'closed'} aria-hidden={!present || undefined}>
+        <div ref={rowRef} className="notification-toast-row" data-state={present ? 'open' : 'closed'} aria-hidden={!present || undefined}>
         <div className="notification-toast-content"><div className="px-1 pb-3 pt-1">
         <div className={`notification-toast-card pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-xl border p-4 shadow-md ${color}`}
             onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}

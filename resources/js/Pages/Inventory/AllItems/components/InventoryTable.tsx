@@ -15,6 +15,7 @@ interface InventoryTableProps {
     onDelete: (item: InventoryItem) => void;
     isFiltered: boolean;
     onResetFilters?: () => void;
+    readOnly?: boolean;
 }
 
 export default function InventoryTable({
@@ -29,6 +30,7 @@ export default function InventoryTable({
     onDelete,
     isFiltered,
     onResetFilters,
+    readOnly = false,
 }: InventoryTableProps) {
     const itemsPerPage = 10;
     const totalCount = pagination ? pagination.total : (totalItems ?? items.length);
@@ -107,6 +109,7 @@ export default function InventoryTable({
                                     onView={onView}
                                     onEdit={onEdit}
                                     onDelete={onDelete}
+                                    readOnly={readOnly}
                                 />
                             ))
                         )}

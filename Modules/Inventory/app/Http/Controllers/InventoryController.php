@@ -136,6 +136,7 @@ class InventoryController extends Controller
         })->values()->all();
 
         return Inertia::render('Inventory/AllItems', [
+            'readOnly' => auth()->user()?->isSystemAdmin() ?? false,
             'items' => $itemsList,
             'pagination' => [
                 'current_page' => $paginator->currentPage(),

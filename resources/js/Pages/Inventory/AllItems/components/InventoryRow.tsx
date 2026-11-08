@@ -12,12 +12,13 @@ interface InventoryRowProps {
     onView: (item: InventoryItem) => void;
     onEdit: (item: InventoryItem) => void;
     onDelete: (item: InventoryItem) => void;
+    readOnly?: boolean;
 }
 
-export default function InventoryRow({ item, onView, onEdit, onDelete }: InventoryRowProps) {
+export default function InventoryRow({ item, onView, onEdit, onDelete, readOnly = false }: InventoryRowProps) {
     const { can } = useAuthorization();
-    const canTag = can('rfid.view') && can('rfid.assign');
-    const canDelete = can('inventory.destroy');
+    const canTag = !readOnly && can('rfid.view') && can('rfid.assign');
+    const canDelete = !readOnly && can('inventory.destroy');
     return (
         <tr className="hover:bg-red-50/20 dark:hover:bg-slate-800/50 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0 group">
             {/* 1. Stock Number (Desktop) */}
@@ -86,7 +87,7 @@ export default function InventoryRow({ item, onView, onEdit, onDelete }: Invento
                     </button>
 
                     {/* Edit Action */}
-                    {can('inventory.update') && <button
+                    {!readOnly && can('inventory.update') && <button
                         type="button"
                         onClick={() => onEdit(item)}
                         className="min-h-[36px] px-2.5 sm:px-3 py-1.5 border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 font-semibold text-sm rounded transition-colors cursor-pointer shadow-2xs inline-flex items-center"
