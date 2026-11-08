@@ -16,6 +16,22 @@ class DashboardController
     public function index(Request $request): Response
     {
         if ($request->user()->isSystemAdmin()) {
+            // System Admins receive organization-wide operational metrics alongside
+            // the technical overview below. DashboardService queries institution-wide
+            // inventory records; coordinator scoping is only applied in its own branch.
+            $supplySummary = $this->dashboardService->getSummaryStats();
+            $criticalStock = $this->dashboardService->getCriticalStock(5);
+            $recentReceiving = $this->dashboardService->getRecentReceivings(5);
+            $recentIssuance = $this->dashboardService->getRecentIssuances(5);
+            $requestSummary = [];
+            if (class_exists(\Modules\Inventory\Models\SupplyRequest::class)) {
+                $requestSummary = \Modules\Inventory\Models\SupplyRequest::query()
+                    ->selectRaw('status, count(*) as total')
+                    ->groupBy('status')
+                    ->pluck('total', 'status')
+                    ->all();
+            }
+
             $databaseStatus = 'Unavailable';
             try {
                 \Illuminate\Support\Facades\DB::connection()->select('SELECT 1');
@@ -56,6 +72,14 @@ class DashboardController
             }
 
             return Inertia::render('Admin/SystemDashboard', [
+                'supplyOverview' => [
+                    'summary' => $supplySummary['summary'],
+                    'stats' => $supplySummary['stats'],
+                    'criticalStock' => $criticalStock,
+                    'recentReceiving' => $recentReceiving,
+                    'recentIssuance' => $recentIssuance,
+                    'requestSummary' => $requestSummary,
+                ],
                 'adminOverview' => [
                     'totalUsers' => $totalUsers ?? 'Unavailable',
                     'activeUsers' => $activeUsers ?? 'Unavailable',

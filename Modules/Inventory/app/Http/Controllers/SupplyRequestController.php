@@ -73,7 +73,8 @@ class SupplyRequestController extends Controller
                 'ready' => $this->hasDepartmentAssignment($request->user()),
             ] : null,
             'requests' => SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'documentVerifier', 'issuance.items.allocations.inventoryBatch'])
-                ->where('requested_by', $request->user()->id)->latest()->get(),
+                ->when(! $request->user()->isSystemAdmin(), fn ($query) => $query->where('requested_by', $request->user()->id))
+                ->latest()->get(),
             'items' => Item::where('stock', '>', 0)->orderBy('name')->get(['id', 'name', 'sku', 'stock', 'unit_of_issue', 'unit_cost']),
             'divisions' => config('university.divisions', []),
             'defaultApprovedBy' => $defaultApprovedBy,
