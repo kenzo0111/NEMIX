@@ -30,18 +30,19 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
                 <AuthHeader
                     title="Password Recovery"
                     description="Enter your registered institutional email address. We will send a password reset link if the account is eligible."
+                    className="text-center [&>div>div]:flex-col [&_.text-left]:text-center"
                 />
             }
         >
             <Head title={`Password Recovery | ${institutionName}`} />
 
             {status && (
-                <AuthAlert variant="success" className="mb-5">
+                <AuthAlert variant="success" className="mb-5 text-center">
                     {status}
                 </AuthAlert>
             )}
 
-            <form onSubmit={submit} className="space-y-5">
+            <form onSubmit={submit} className="space-y-5 text-center">
                 <div>
                     <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-900 dark:text-slate-200 font-semibold text-sm mb-1.5 font-sans" />
                     <div className="relative rounded-lg shadow-2xs">
@@ -53,7 +54,7 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
                             type="email"
                             name="email"
                             value={data.email}
-                            className="pl-10"
+                            className="px-10 text-center"
                             autoComplete="username"
                             isFocused={true}
                             onChange={(e) => setData('email', e.target.value)}
