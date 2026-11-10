@@ -1,6 +1,6 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import TextInput from '@/Components/TextInput';
+import AuthTextInput from './AuthTextInput';
 import { Eye, EyeOff, Lock } from 'lucide-react';
 import { ChangeEvent, useState } from 'react';
 
@@ -42,12 +42,12 @@ export default function PasswordField({
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-500 dark:text-slate-400">
                     <Lock className="w-4 h-4 text-stone-500 dark:text-slate-400" strokeWidth={2} aria-hidden="true" />
                 </div>
-                <TextInput
+                <AuthTextInput
                     id={id}
                     type={showPassword ? 'text' : 'password'}
                     name={name || id}
                     value={value}
-                    className="pl-10 pr-12 block w-full min-h-[44px] rounded-lg border-stone-300 dark:border-slate-700 shadow-2xs focus:border-[#7B1113] dark:focus:border-red-500 focus:ring-2 focus:ring-[#7B1113]/25 dark:focus:ring-red-500/30 transition-colors py-2.5 text-sm sm:text-base bg-stone-50/70 dark:bg-slate-850 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-stone-400 dark:placeholder:text-slate-500 disabled:bg-stone-100 dark:disabled:bg-slate-800 disabled:text-stone-500 dark:disabled:text-slate-500 font-sans"
+                    className="pl-10 pr-12"
                     autoComplete={autoComplete}
                     isFocused={autoFocus}
                     onChange={onChange}

@@ -19,9 +19,9 @@ export default function CompactAuthLayout({
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-3 sm:p-6 lg:p-8 relative overflow-hidden login-bg">
+        <div className="min-h-screen flex items-center justify-center pt-20 pb-8 sm:py-12 px-4 sm:px-6 lg:px-8 relative login-bg">
             {/* Theme Toggle Button in top right */}
-            <div className="fixed top-3 right-3 sm:top-4 sm:right-4 z-50">
+            <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50">
                 <ThemeToggle variant="compact" />
             </div>
 
@@ -32,13 +32,11 @@ export default function CompactAuthLayout({
             </div>
 
             {/* Centered Institutional Card */}
-            <div className={`relative z-10 w-full ${maxWidthMap[maxWidth]} bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-stone-200/80 dark:border-slate-800 p-5 sm:p-8 my-2 sm:my-4`}>
+            <main className={`relative z-10 w-full ${maxWidthMap[maxWidth]} bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-stone-200/40 dark:border-slate-800 p-6 sm:p-10`}>
                 {headerSlot}
-                <div className="mt-4">
-                    {children}
-                </div>
-                <AuthFooter className="mt-8" />
-            </div>
+                {children}
+                <AuthFooter compact className="pt-5 mt-6" />
+            </main>
         </div>
     );
 }

@@ -34,7 +34,7 @@ export default function ConfirmPassword(_props: ConfirmPasswordPageProps) {
         >
             <Head title={`Confirm Password | ${institutionName}`} />
 
-            <form onSubmit={submit} className="space-y-4">
+            <form onSubmit={submit} className="space-y-5">
                 <PasswordField
                     id="password"
                     label="Current Password"
@@ -46,7 +46,7 @@ export default function ConfirmPassword(_props: ConfirmPasswordPageProps) {
                     required
                 />
 
-                <div className="pt-2">
+                <div className="pt-1">
                     <AuthSubmitButton
                         processing={processing}
                         loadingText="Confirming..."

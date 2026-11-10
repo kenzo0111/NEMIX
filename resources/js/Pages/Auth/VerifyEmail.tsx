@@ -54,7 +54,7 @@ export default function VerifyEmail({
                 </AuthAlert>
             )}
 
-            <form onSubmit={submit} className="space-y-4">
+            <form onSubmit={submit} className="space-y-5">
                 <AuthSubmitButton
                     processing={processing}
                     loadingText="Sending Verification Link..."

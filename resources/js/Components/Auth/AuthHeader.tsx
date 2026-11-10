@@ -1,52 +1,29 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import { usePage } from '@inertiajs/react';
-import { PageProps } from '@/types';
+import AuthBrandHeader from './AuthBrandHeader';
 
 interface AuthHeaderProps {
     title: string;
     description?: string;
     className?: string;
+    showBranding?: boolean;
 }
 
 export default function AuthHeader({
     title,
     description,
     className = '',
+    showBranding = true,
 }: AuthHeaderProps) {
-    const { branding } = usePage<PageProps>().props;
-    const institutionName = branding?.institutionName || 'University of Camarines Norte';
-    const officeName = branding?.officeName || 'Supply and Property Management Office';
-
     return (
-        <div className={`mb-6 text-center space-y-3 ${className}`}>
-            <div className="inline-flex justify-center">
-                <div className="bg-white dark:bg-slate-800 p-2 rounded-xl shadow-xs border border-stone-200/80 dark:border-slate-700 shrink-0 flex items-center justify-center">
-                    <ApplicationLogo alt={`${institutionName} Seal`} className="h-14 w-14 object-contain" />
-                </div>
-            </div>
-
-            <div className="space-y-0.5">
-                <p className="leading-relaxed font-sans text-red-900 dark:text-red-400 normal-case tracking-normal text-sm font-bold">
-                    Republic of the Philippines
+        <div className={`mb-8 ${className}`}>
+            {showBranding && <AuthBrandHeader />}
+            <h2 className="text-3xl font-bold text-stone-900 dark:text-slate-100 font-sans tracking-tight">
+                {title}
+            </h2>
+            {description && (
+                <p className="leading-relaxed text-sm text-stone-500 dark:text-slate-400 mt-1 font-sans">
+                    {description}
                 </p>
-                <h2 className="text-xl font-sans font-bold text-stone-900 dark:text-slate-100 tracking-tight">
-                    {institutionName}
-                </h2>
-                <p className="leading-relaxed text-sm text-stone-500 dark:text-slate-400 font-medium">
-                    {officeName}
-                </p>
-            </div>
-
-            <div className="pt-3 border-t border-stone-100 dark:border-slate-800">
-                <h3 className="text-lg font-bold text-stone-900 dark:text-slate-100 font-sans tracking-tight">
-                    {title}
-                </h3>
-                {description && (
-                    <p className="text-sm text-stone-600 dark:text-slate-400 mt-1.5 leading-relaxed max-w-sm mx-auto">
-                        {description}
-                    </p>
-                )}
-            </div>
+            )}
         </div>
     );
 }

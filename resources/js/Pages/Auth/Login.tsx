@@ -1,11 +1,12 @@
 import AuthAlert from '@/Components/Auth/AuthAlert';
+import AuthHeader from '@/Components/Auth/AuthHeader';
 import AuthSubmitButton from '@/Components/Auth/AuthSubmitButton';
+import AuthTextInput from '@/Components/Auth/AuthTextInput';
 import PasswordField from '@/Components/Auth/PasswordField';
 import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import Modal from '@/Components/Modal';
-import TextInput from '@/Components/TextInput';
 import FullAuthLayout from '@/Layouts/Auth/FullAuthLayout';
 import { PageProps } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
@@ -39,17 +40,12 @@ export default function Login({
     return (
         <FullAuthLayout
             badgeText="INSTITUTIONAL ACCESS"
-            headline="SupplySync"
-            subheadline="A Web-Based Consumable Supplies Management System with Digital Requisition Processing and Automated Reports"
             headerSlot={
-                <div className="mb-8">
-                    <h2 className="text-3xl font-bold text-stone-900 dark:text-slate-100 font-sans tracking-tight">
-                        Welcome back
-                    </h2>
-                    <p className="leading-relaxed text-sm text-stone-500 dark:text-slate-400 mt-1 font-sans">
-                        Sign in to your institutional account to access SupplySync.
-                    </p>
-                </div>
+                <AuthHeader
+                    title="Welcome back"
+                    description="Sign in to your institutional account to access SupplySync."
+                    showBranding={false}
+                />
             }
         >
             <Head title={`Administrative Login | ${institutionName}`} />
@@ -72,12 +68,12 @@ export default function Login({
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-500 dark:text-slate-400">
                             <Mail className="w-4 h-4 text-stone-500 dark:text-slate-400" strokeWidth={2} aria-hidden="true" />
                         </div>
-                        <TextInput
+                        <AuthTextInput
                             id="email"
                             type="email"
                             name="email"
                             value={data.email}
-                            className="pl-10 block w-full min-h-[52px] rounded-lg border-stone-300 dark:border-slate-700 shadow-2xs focus:border-[#7B1113] dark:focus:border-red-500 focus:ring-2 focus:ring-[#7B1113]/25 dark:focus:ring-red-500/30 transition-colors py-3 text-sm sm:text-base bg-stone-50/70 dark:bg-slate-850 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-stone-400 dark:placeholder:text-slate-500 font-sans"
+                            className="pl-10"
                             autoComplete="username"
                             isFocused={true}
                             onChange={(e) => setData('email', e.target.value)}
@@ -96,7 +92,6 @@ export default function Login({
                     error={errors.password}
                     autoComplete="current-password"
                     placeholder="Enter your password"
-                    className="[&_input]:min-h-[52px] [&_input]:py-3"
                     onChange={(e) => setData('password', e.target.value)}
                     required
                 />
@@ -130,7 +125,6 @@ export default function Login({
                     <AuthSubmitButton
                         processing={processing}
                         loadingText="Signing in..."
-                        className="min-h-[52px] gap-3 bg-gradient-to-r from-[#680d13] to-[#7B1113]"
                     >
                         Sign In
                         <ArrowRight className="w-5 h-5" aria-hidden="true" />

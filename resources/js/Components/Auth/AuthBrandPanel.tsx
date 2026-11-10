@@ -2,6 +2,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import { usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import { BarChart3, ClipboardList, Package } from 'lucide-react';
+import { AUTH_SYSTEM_DESCRIPTION, AUTH_SYSTEM_NAME } from './branding';
 
 interface AuthBrandPanelProps {
     badgeText?: string;
@@ -10,8 +11,8 @@ interface AuthBrandPanelProps {
 }
 
 export default function AuthBrandPanel({
-    headline = 'SupplySync',
-    subheadline = 'Consumable Supplies and Requisition Management System',
+    headline = AUTH_SYSTEM_NAME,
+    subheadline = AUTH_SYSTEM_DESCRIPTION,
 }: AuthBrandPanelProps) {
     const { branding } = usePage<PageProps>().props;
     const institutionName = branding?.institutionName || 'University of Camarines Norte';
@@ -31,14 +32,14 @@ export default function AuthBrandPanel({
                     <div className="bg-white p-3 rounded-2xl shadow-xs shrink-0 flex items-center justify-center">
                         <ApplicationLogo alt={`${institutionName} Seal`} className="h-10 w-10 object-contain" />
                     </div>
-                    <div className="min-w-0 text-left">
+                    <div className="min-w-0 flex-1 text-left">
                         <p className="leading-snug font-sans text-[11px] xl:text-xs uppercase tracking-wide text-amber-300 font-medium">
                             REPUBLIC OF THE PHILIPPINES
                         </p>
-                        <h1 className="text-[16px] xl:text-[19px] font-sans font-bold uppercase leading-snug text-white tracking-tight whitespace-nowrap">
+                        <h1 className="text-[16px] xl:text-[19px] font-sans font-bold uppercase leading-snug text-white tracking-tight break-words">
                             {institutionName}
                         </h1>
-                        <p className="leading-snug font-sans text-xs xl:text-sm text-white/85 font-normal">
+                        <p className="leading-snug font-sans text-xs xl:text-sm text-white/85 font-normal break-words">
                             {officeName}
                         </p>
                     </div>
