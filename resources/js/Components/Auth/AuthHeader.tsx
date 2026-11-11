@@ -5,6 +5,8 @@ interface AuthHeaderProps {
     description?: string;
     className?: string;
     showBranding?: boolean;
+    alignment?: 'left' | 'center';
+    showSystemBranding?: boolean;
 }
 
 export default function AuthHeader({
@@ -12,10 +14,17 @@ export default function AuthHeader({
     description,
     className = '',
     showBranding = true,
+    alignment = 'left',
+    showSystemBranding = true,
 }: AuthHeaderProps) {
     return (
-        <div className={`mb-8 ${className}`}>
-            {showBranding && <AuthBrandHeader />}
+        <div className={`mb-8 ${alignment === 'center' ? 'text-center' : ''} ${className}`}>
+            {showBranding && (
+                <AuthBrandHeader
+                    alignment={alignment}
+                    showSystemBranding={showSystemBranding}
+                />
+            )}
             <h2 className="text-3xl font-bold text-stone-900 dark:text-slate-100 font-sans tracking-tight">
                 {title}
             </h2>

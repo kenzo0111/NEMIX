@@ -30,7 +30,8 @@ export default function ForgotPassword({ status }: ForgotPasswordPageProps) {
                 <AuthHeader
                     title="Password Recovery"
                     description="Enter your registered institutional email address. We will send a password reset link if the account is eligible."
-                    className="text-center [&>div>div]:flex-col [&_.text-left]:text-center"
+                    alignment="center"
+                    showSystemBranding={false}
                 />
             }
         >
