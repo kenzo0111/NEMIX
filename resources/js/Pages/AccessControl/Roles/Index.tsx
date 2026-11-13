@@ -184,6 +184,7 @@ export default function RoleManagementIndex({
 
                     {/* 4. Security Advisory Notice */}
                     <section
+                        data-tour="system-admin-role-policy"
                         aria-labelledby="security-notice-heading"
                         className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 rounded-xl p-4 flex items-start gap-3.5 text-sm text-amber-950 dark:text-amber-200 shadow-2xs"
                     >

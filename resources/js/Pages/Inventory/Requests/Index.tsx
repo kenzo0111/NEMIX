@@ -406,7 +406,7 @@ export default function MyRequests({
                     </div>
 
                     {/* Main Requisitions Table Card */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-slate-200/90 dark:border-slate-800 overflow-hidden">
+                    <div data-tour="system-admin-requests-workspace" className="bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-slate-200/90 dark:border-slate-800 overflow-hidden">
                         {/* Toolbar */}
                         <div className="p-4 sm:px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
                             <div>

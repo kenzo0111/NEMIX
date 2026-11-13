@@ -146,7 +146,7 @@ export default function LoginAuditIndex({
 
                 <DashboardContent className="print:p-0 print:m-0 print:space-y-0 print:max-w-none print:w-full">
                     {/* Screen View (Interactive Dashboard Controls) - Hidden on Print */}
-                    <div className={`space-y-6 print:hidden audit-print-hide`}>
+                    <div data-tour="system-admin-login-audit" className={`space-y-6 print:hidden audit-print-hide`}>
                         {isCoordinator && <>
                             <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300">Coordinator Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Login Audit</span></nav>
                             <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">

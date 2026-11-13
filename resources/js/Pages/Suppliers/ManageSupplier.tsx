@@ -181,7 +181,7 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
                     />
 
                     <DashboardContent>
-                        <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xs border border-gray-200/80 dark:border-slate-800 overflow-hidden">
+                        <div data-tour="system-admin-suppliers-workspace" className="bg-white dark:bg-slate-900 rounded-lg shadow-xs border border-gray-200/80 dark:border-slate-800 overflow-hidden">
                             {/* Section Header */}
                             <div className="px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 border-b border-gray-200/80 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50">
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight">

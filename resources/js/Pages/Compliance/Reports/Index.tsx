@@ -102,7 +102,7 @@ export default function ReportsIndex({
                 <DashboardContent className="print:p-0 print:m-0 print:space-y-0 print:h-auto">
                     <div className="print:hidden space-y-6">
                         {/* Primary Official COA Documents Ledger Card */}
-                        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-gray-200/80 dark:border-slate-800 overflow-hidden">
+                        <div data-tour="system-admin-reports-workspace" className="bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-gray-200/80 dark:border-slate-800 overflow-hidden">
                             <ReportToolbar
                                 searchTerm={searchTerm}
                                 onSearchChange={setSearchTerm}

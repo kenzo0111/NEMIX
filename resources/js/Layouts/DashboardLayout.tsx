@@ -3,6 +3,7 @@ import Sidebar from '@/Components/Sidebar';
 import type { SidebarProps } from '@/types/navigation';
 import { useSidebarCollapse } from '@/Hooks/useSidebarCollapse';
 import CoordinatorWalkthroughGuide from '@/Pages/Dashboard/Components/CoordinatorWalkthroughGuide';
+import SystemAdminWalkthroughGuide from '@/Pages/Admin/SystemAdminWalkthroughGuide';
 import DemoAccountNotice from '@/Components/DemoAccountNotice';
 export default function DashboardLayout({ modules, user, children }: PropsWithChildren<Pick<SidebarProps, 'modules' | 'user'>>) {
     const [collapsed, toggle] = useSidebarCollapse();
@@ -12,5 +13,6 @@ export default function DashboardLayout({ modules, user, children }: PropsWithCh
         <main id="workspace-content" tabIndex={-1} className={"dashboard-main audit-main-content min-w-0 flex-1 transition-[margin] duration-300 motion-reduce:transition-none print:ml-0 print:w-full print:max-w-none print:p-0 " + (collapsed ? 'md:ml-20' : 'md:ml-72')}>{children}</main>
         <DemoAccountNotice />
         <CoordinatorWalkthroughGuide />
+        <SystemAdminWalkthroughGuide />
     </div>;
 }

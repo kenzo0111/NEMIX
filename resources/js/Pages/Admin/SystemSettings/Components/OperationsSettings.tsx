@@ -20,7 +20,7 @@ export default function OperationsSettings({
     return (
         <div className="space-y-8">
             {/* SUBSECTION 1: SESSION SECURITY */}
-            <div className="space-y-4">
+            <div data-tour="system-admin-session-security" className="space-y-4">
                 <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
                         Session Security
@@ -68,7 +68,7 @@ export default function OperationsSettings({
             <hr className="border-slate-200/80 dark:border-slate-800" />
 
             {/* SUBSECTION 2: POLICY BACKUP */}
-            <div className="space-y-4">
+            <div data-tour="system-admin-policy-snapshot" className="space-y-4">
                 <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
                         Policy Backup & Archival Export
@@ -92,7 +92,7 @@ export default function OperationsSettings({
             <hr className="border-slate-200/80 dark:border-slate-800" />
 
             {/* SUBSECTION 3: RUNTIME INFORMATION */}
-            <div className="space-y-4">
+            <div data-tour="system-admin-telemetry" className="space-y-4">
                 <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
                         Runtime Environment Information

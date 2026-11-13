@@ -176,6 +176,7 @@ export default function SystemModeBadge() {
     <div className="relative inline-flex items-center" ref={dropdownRef}>
       {/* Dynamic System Mode Badge Trigger */}
       <button
+        data-tour="system-admin-operating-mode"
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`group inline-flex items-center gap-2 px-3 py-1 rounded-full border transition-all duration-200 cursor-pointer shadow-xs ${config.badgeBg} ${config.badgeBorder} hover:brightness-125 focus:outline-none focus:ring-1 focus:ring-amber-400/50`}

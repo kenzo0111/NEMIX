@@ -128,6 +128,7 @@ export default function StaffFilters({
                 <div className="flex items-center shrink-0 w-full sm:w-auto">
                     <button
                         type="button"
+                        data-tour="system-admin-staff-add"
                         onClick={onOpenCreateModal}
                         className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2.5 px-4 rounded-lg shadow-2xs transition-all duration-150 text-sm flex items-center justify-center gap-2 whitespace-nowrap normal-case tabular-nums tracking-normal cursor-pointer"
                     >

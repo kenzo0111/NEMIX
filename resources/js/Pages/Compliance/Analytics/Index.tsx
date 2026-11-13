@@ -447,6 +447,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                         onReset={() => router.get(route('compliance.analytics'), {}, { preserveScroll: true })}
                     />
                     <div
+                        data-tour="system-admin-analytics-workspace"
                         className="flex items-center gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm dark:border-slate-700/80 dark:bg-slate-900"
                         role="tablist"
                         aria-label="Analytics workspace"

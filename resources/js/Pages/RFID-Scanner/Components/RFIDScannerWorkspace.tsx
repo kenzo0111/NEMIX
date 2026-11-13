@@ -54,7 +54,7 @@ export default function RFIDScannerWorkspace({
     const hasSelectedItem = workflowState.type !== 'idle';
 
     return (
-        <div className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-xs border border-gray-200 dark:border-slate-800 flex flex-col justify-between min-h-[420px]">
+        <div data-tour="system-admin-rfid-scanner" className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-xs border border-gray-200 dark:border-slate-800 flex flex-col justify-between min-h-[420px]">
             {/* Hidden hardware scanner keystroke receiver */}
             <input
                 type="text"

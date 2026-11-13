@@ -27,6 +27,7 @@ export default function RoleTable({
 }: RoleTableProps) {
     return (
         <section
+            data-tour="system-admin-role-directory"
             aria-labelledby="roles-heading"
             className="bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-gray-200/90 dark:border-slate-800 overflow-hidden flex flex-col"
         >

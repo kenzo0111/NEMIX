@@ -35,7 +35,7 @@ export default function StaffTable({
     onResendInvitation,
 }: StaffTableProps) {
     return (
-        <section aria-label="Staff accounts roster" className="bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl shadow-2xs overflow-hidden flex flex-col">
+        <section data-tour="system-admin-staff-directory" aria-label="Staff accounts roster" className="bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl shadow-2xs overflow-hidden flex flex-col">
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[760px]">
                     <thead>

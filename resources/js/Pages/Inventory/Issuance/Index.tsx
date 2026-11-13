@@ -309,7 +309,7 @@ export default function IssuanceIndex({
 
                     {/* View 1: Property Custodian Approval Workspace */}
                     {canReviewRequests && viewMode === 'approvals' && (
-                        <div className="space-y-6">
+                        <div data-tour="system-admin-approval-workspace" className="space-y-6">
                             <SupplyRequestQueue
                                 requests={supplyRequests}
                                 focusRequestId={focusRequestId}

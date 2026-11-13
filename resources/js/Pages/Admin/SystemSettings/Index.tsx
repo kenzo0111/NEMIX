@@ -166,7 +166,7 @@ export default function Index({
                         { name: 'System Settings' },
                     ]}
                     actions={
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <div data-tour="system-admin-settings-save" className="flex flex-wrap items-center gap-2 sm:gap-3">
                             {canUpdateSettings && isDirty && (
                                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/60 text-amber-800 dark:text-amber-400 text-sm font-medium">
                                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
@@ -215,7 +215,7 @@ export default function Index({
                     />
 
                     {/* 4. Active Settings Domain Panel */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+                    <div data-tour={`system-admin-settings-${activeTab}`} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
                         <SettingsSectionHeader tab={currentTabMeta} />
 
                         <div className="p-4 sm:p-6 lg:p-8">

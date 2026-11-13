@@ -6,7 +6,9 @@ const ts = require('typescript');
 const React = require('react');
 const { renderToStaticMarkup } = require('react-dom/server');
 let page;
+global.route = (name) => name ? `http://localhost/${name.replaceAll('.', '/')}` : { current: () => 'dashboard', has: () => true };
 function load(file) {
+    if (!fs.existsSync(file)) file = ['.ts', '.tsx'].map(extension => file + extension).find(candidate => fs.existsSync(candidate)) || file;
     const exports = {};
     const source = ts.transpileModule(fs.readFileSync(file, 'utf8'), {
         compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true }
@@ -16,8 +18,8 @@ function load(file) {
         if (id === './SystemModeBadge' || id === './ThemeToggle') return { __esModule: true, default: () => null };
         if (id === '@/Components/Sidebar') return { __esModule: true, default: () => React.createElement('aside', { 'aria-label': 'Main navigation' }) };
         if (id === '@/Hooks/useSidebarCollapse') return { useSidebarCollapse: () => [false, () => {}] };
-        if (id.startsWith('@/')) return load(path.join('resources/js', id.slice(2)) + (id.endsWith('systemIdentity') ? '.ts' : '.tsx'));
-        if (id.startsWith('.')) return load(path.join(path.dirname(file), id) + '.tsx');
+        if (id.startsWith('@/')) return load(path.join('resources/js', id.slice(2)));
+        if (id.startsWith('.')) return load(path.join(path.dirname(file), id));
         return require(id);
     }
     new Function('require', 'exports', source)(resolve, exports);
@@ -55,15 +57,14 @@ test('primary assigned role takes precedence over additional roles', () => {
     assert.equal(roleDesignation(session('Inventory Staff', { is_system_admin: true })), 'Administrator');
     assert.equal(roleDesignation({ user: null, roles: [], permissions: [] }), 'Staff');
 });
-test('module title and actions survive the unified header', () => {
+test('module title and actions remain in the page overview', () => {
     page = { props: { auth: session('System Admin') } };
     const html = renderToStaticMarkup(React.createElement(PageHeader, { title: 'Manage Staff', description: 'Manage user accounts.', actions: React.createElement('button', null, 'Add user') }));
-    for (const text of ['Consumable Supply Management', 'Administrator Dashboard', 'Manage Staff', 'Add user', 'Manage user accounts.']) assert.ok(html.includes(text));
-    assert.equal((html.match(/<header\b/g) || []).length, 1);
-    const content = html.slice(html.indexOf('</header>') + '</header>'.length);
-    for (const text of ['Manage Staff', 'Add user', 'Manage user accounts.']) assert.ok(content.includes(text));
-    assert.ok(!content.includes('sticky'));
-    assert.ok(!content.includes('border-b'));
+    for (const text of ['Supply &amp; Property Management Office', 'Manage Staff', 'Add user', 'Manage user accounts.']) assert.ok(html.includes(text));
+    assert.ok(html.includes('aria-label="Manage Staff overview"'));
+    assert.equal((html.match(/<header\b/g) || []).length, 0);
+    assert.ok(!html.includes('sticky'));
+    assert.ok(!html.includes('border-b'));
 });
 test('operating mode notice remains visible', () => {
     page = { props: { auth: session('System Admin'), system: { mode: 'MAINTENANCE MODE' } } };

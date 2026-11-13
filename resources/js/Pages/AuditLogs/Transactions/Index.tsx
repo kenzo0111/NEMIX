@@ -145,7 +145,7 @@ export default function TransactionAuditIndex({
 
                 <DashboardContent className="print:p-0 print:m-0 print:space-y-0 print:max-w-none print:w-full">
                     {/* Screen View (Interactive Dashboard Controls) - Hidden on Print */}
-                    <div className="space-y-6 print:hidden audit-print-hide">
+                    <div data-tour="system-admin-activity-audit" className="space-y-6 print:hidden audit-print-hide">
                         {/* Institutional Header Banner */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 rounded-lg shadow-2xs">
                             <div className="flex items-center gap-2.5">
