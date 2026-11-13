@@ -11,7 +11,10 @@ import useAuthorization from '@/Hooks/useAuthorization';
 import { COORDINATOR_TOUR_START_EVENT } from './CoordinatorWalkthroughGuide';
 
 interface Props {
-    auth: { user: { id: number; name: string; email: string } };
+    auth: {
+        user: { id: number; name: string; email: string };
+        capabilities?: { requiresSupportingDocument?: boolean };
+    };
     coordinatorName?: string;
     summary?: DashboardSummary;
     stats?: DashboardStats;
@@ -32,6 +35,7 @@ export default function CoordinatorDashboardWorkspace({
     recentActivity = [], filters, requestSummary = {}, recentRequests = [],
 }: Props) {
     const { can } = useAuthorization();
+    const isAuthorizedPersonnel = Boolean(auth.capabilities?.requiresSupportingDocument);
     const inventoryHref = route('coordinator.inventory.index');
     const historyHref = route('coordinator.inventory.index', { tab: 'history' });
     const requestHref = route('inventory.requests.index');
@@ -68,7 +72,7 @@ export default function CoordinatorDashboardWorkspace({
                         <div className="min-w-0">
                             <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Unit workspace</p>
                             <h2 className="mt-1 break-words text-base font-semibold">{coordinatorName || auth.user.name}</h2>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">Delivery Unit</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">{isAuthorizedPersonnel ? 'Office' : 'Delivery Unit'}</p>
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
