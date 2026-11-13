@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\AuditLogs\Models\LoginTrail;
 use Modules\AuditLogs\Models\TransactionTrail;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -68,6 +69,38 @@ class AuthenticationTest extends TestCase
             'action' => 'Failed Login Attempt',
             'status' => 'Flagged',
         ]);
+    }
+
+    public function test_demo_supply_coordinator_login_flashes_the_demo_notice(): void
+    {
+        $user = User::factory()->create(['is_demo_account' => true]);
+        $user->assignRole(Role::firstOrCreate(['name' => 'Supply Coordinator', 'guard_name' => 'web']));
+
+        $response = $this->post('/login', ['email' => $user->email, 'password' => 'password']);
+
+        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertSessionHas('show_demo_account_notice', true);
+    }
+
+    public function test_demo_authorized_personnel_login_flashes_the_demo_notice(): void
+    {
+        $user = User::factory()->create(['is_demo_account' => true]);
+        $user->assignRole(Role::firstOrCreate(['name' => 'Authorized Personnel', 'guard_name' => 'web']));
+
+        $response = $this->post('/login', ['email' => $user->email, 'password' => 'password']);
+
+        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertSessionHas('show_demo_account_notice', true);
+    }
+
+    public function test_dedicated_requester_account_does_not_flash_the_demo_notice(): void
+    {
+        $user = User::factory()->create(['is_demo_account' => false]);
+        $user->assignRole(Role::firstOrCreate(['name' => 'Supply Coordinator', 'guard_name' => 'web']));
+
+        $response = $this->post('/login', ['email' => $user->email, 'password' => 'password']);
+
+        $response->assertSessionHas('show_demo_account_notice', false);
     }
 
     public function test_users_can_logout(): void

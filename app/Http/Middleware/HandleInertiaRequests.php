@@ -44,6 +44,7 @@ class HandleInertiaRequests extends Middleware
                 'email' => $user->email,
                 'email_verified_at' => $user->email_verified_at,
                 'is_active' => (bool) $user->is_active,
+                'is_demo_account' => (bool) $user->is_demo_account,
                 'role' => $primaryRole,
                 'primary_role' => $primaryRole,
                 'roles' => $user->getRoleNames()->toArray(),
@@ -153,6 +154,7 @@ class HandleInertiaRequests extends Middleware
                 'is_system_admin' => $isSystemAdmin,
                 'capabilities' => $capabilities,
             ],
+            'demoAccountNotice' => (bool) $request->session()->get('show_demo_account_notice', false),
             'branding' => $publicBranding,
             'systemSettings' => [
                 'entity_name' => $publicSettings['entity_name'] ?? 'University of Camarines Norte',

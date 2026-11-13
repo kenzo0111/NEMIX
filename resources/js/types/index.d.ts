@@ -7,6 +7,7 @@ export interface User {
     email: string;
     email_verified_at?: string | null;
     is_active?: boolean;
+    is_demo_account?: boolean;
     role?: string;
     primary_role?: string;
     roles?: string[];
@@ -221,5 +222,6 @@ export type PageProps<
     branding?: PublicInstitutionBranding;
     systemSettings?: SystemSettings;
     system?: (SystemConfigurationState & { settings?: Record<string, any> }) | null;
+    demoAccountNotice?: boolean;
     flash?: FlashMessages;
 };

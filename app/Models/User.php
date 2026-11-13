@@ -58,6 +58,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'is_active',
+        'is_demo_account',
         'department',
         'office_head_id',
     ];
@@ -83,6 +84,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'is_demo_account' => 'boolean',
         ];
     }
 

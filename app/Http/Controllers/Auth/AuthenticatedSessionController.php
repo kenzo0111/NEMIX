@@ -32,15 +32,19 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        $user = Auth::user();
+        $showDemoAccountNotice = (bool) ($user?->is_demo_account
+            && $user->hasAnyRole(['Supply Coordinator', 'Authorized Personnel']));
+        $request->session()->flash('show_demo_account_notice', $showDemoAccountNotice);
 
         if ($request->wantsJson()) {
-            $user = Auth::user();
             $roleName = $user ? $user->getRoleNames()->first() : null;
 
             return response()->json([
                 'success' => true,
                 'message' => 'Authentication successful.',
                 'redirect' => redirect()->intended(route('dashboard', absolute: false))->getTargetUrl(),
+                'demo_account_notice' => $showDemoAccountNotice,
                 'user' => $user ? [
                     'id' => $user->id,
                     'name' => $user->name,
