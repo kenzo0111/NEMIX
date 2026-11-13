@@ -24,5 +24,9 @@ assert.match(tour, /scrollIntoView/);
 assert.match(tour, /event\.key === 'Escape'/);
 assert.match(tour, /event\.key === 'ArrowRight'/);
 assert.match(tour, /This tour never changes records/);
+assert.match(tour, /Walkthrough complete/);
+assert.match(tour, /You can always return to this walkthrough/);
+assert.match(tour, /You can now use this system for your day-to-day supply operations with the Supply and Property Management Office/);
+assert.match(tour, /stepIndex === steps\.length - 1 \? complete\(\)/);
 
-console.log('Coordinator walkthrough: live anchors, cross-page navigation, progress persistence, safety copy, and keyboard controls passed.');
+console.log('Coordinator walkthrough: live anchors, cross-page navigation, progress persistence, completion guidance, safety copy, and keyboard controls passed.');
