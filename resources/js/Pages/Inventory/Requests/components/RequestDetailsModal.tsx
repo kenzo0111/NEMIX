@@ -12,8 +12,6 @@ export function RequestDetailsModal({
     request,
     onClose,
     onOpenRis,
-    defaultApprovedBy,
-    defaultApprovedByDesignation,
     defaultIssuedBy,
     defaultIssuedByDesignation,
 }: {
@@ -21,8 +19,6 @@ export function RequestDetailsModal({
     request: SupplyRequest | null;
     onClose: () => void;
     onOpenRis?: (request: SupplyRequest) => void;
-    defaultApprovedBy?: string;
-    defaultApprovedByDesignation?: string;
     defaultIssuedBy?: string;
     defaultIssuedByDesignation?: string;
 }) {
@@ -46,7 +42,7 @@ export function RequestDetailsModal({
                                 {request.ris_number ? `Official RIS No. ${request.ris_number}` : `Supply Request #${request.id}`}
                             </h3>
                             <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400">
-                                Requisition details, custodian review, and item quantities (Req #{request.id})
+                                Requisition details, custodian remarks, and item quantities (Req #{request.id})
                             </p>
                         </div>
                     </div>
@@ -183,40 +179,15 @@ export function RequestDetailsModal({
                         </div>
                     </div>
 
-                    {/* Review Details (Custodian Remarks) */}
-                    {(request.reviewer || request.review_remarks || request.reviewed_at) && (
+                    {/* Keep actionable remarks visible before the custodian releases the request. */}
+                    {request.review_remarks && !(['Issued', 'Released'].includes(request.status) && request.issuance) && (
                         <div className="p-4 rounded-lg bg-red-50/40 dark:bg-red-950/20 border border-red-100 dark:border-red-900/40 space-y-2">
                             <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
-                                Property Custodian Review
+                                Custodian Remarks &amp; Instructions
                             </h4>
-                            <div className="grid sm:grid-cols-2 gap-3 text-sm">
-                                <div>
-                                    <span className="block text-sm font-semibold normal-case tracking-normal text-gray-400">
-                                        Reviewed By
-                                    </span>
-                                    <span className="font-semibold text-gray-800 dark:text-slate-200">
-                                        {defaultApprovedBy || request.reviewer?.name || 'Property Custodian'}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="block text-sm font-semibold normal-case tracking-normal text-gray-400">
-                                        Date Reviewed
-                                    </span>
-                                    <span className="tabular-nums text-gray-800 dark:text-slate-200">
-                                        {request.reviewed_at ? formatDisplayDate(request.reviewed_at, 'MM/DD/YYYY') : '—'}
-                                    </span>
-                                </div>
-                                {request.review_remarks && (
-                                    <div className="sm:col-span-2">
-                                        <span className="block text-sm font-semibold normal-case tracking-normal text-gray-400">
-                                            Custodian Remarks & Instructions
-                                        </span>
-                                        <p className="mt-0.5 text-gray-800 dark:text-slate-200 italic bg-white dark:bg-slate-900 p-2.5 rounded border border-red-200/60 dark:border-red-900/60">
-                                            "{request.review_remarks}"
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
+                            <p className="text-gray-800 dark:text-slate-200 italic bg-white dark:bg-slate-900 p-2.5 rounded border border-red-200/60 dark:border-red-900/60">
+                                "{request.review_remarks}"
+                            </p>
                         </div>
                     )}
 
@@ -224,12 +195,12 @@ export function RequestDetailsModal({
                     {['Issued', 'Released'].includes(request.status) && request.issuance && (
                         <div className="p-4 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 space-y-2">
                             <h4 className="text-base font-bold normal-case tracking-normal text-emerald-900 dark:text-emerald-400 tabular-nums">
-                                Release & Distribution Details
+                                Property Custodian Release Details
                             </h4>
                             <div className="grid sm:grid-cols-2 gap-3 text-sm">
                                 <div>
                                     <span className="block text-sm font-semibold normal-case tracking-normal text-gray-400">
-                                        Issued By
+                                        Property Custodian (Issued By)
                                     </span>
                                     <span className="font-semibold text-gray-800 dark:text-slate-200">
                                         {request.issuance.issued_by_name || defaultIssuedBy || 'Supply Storekeeper'}
@@ -248,6 +219,16 @@ export function RequestDetailsModal({
                                         {request.issuance.date_issued ? formatDisplayDate(request.issuance.date_issued, 'MM/DD/YYYY') : '—'}
                                     </span>
                                 </div>
+                                {request.review_remarks && (
+                                    <div className="sm:col-span-2">
+                                        <span className="block text-sm font-semibold normal-case tracking-normal text-gray-400">
+                                            Custodian Remarks &amp; Instructions
+                                        </span>
+                                        <p className="mt-0.5 text-gray-800 dark:text-slate-200 italic bg-white dark:bg-slate-900 p-2.5 rounded border border-emerald-200/70 dark:border-emerald-900/60">
+                                            "{request.review_remarks}"
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}

@@ -736,8 +736,6 @@ export default function MyRequests({
             <RequestDetailsModal
                 show={!!detailsRequest}
                 request={detailsRequest}
-                defaultApprovedBy={defaultApprovedBy}
-                defaultApprovedByDesignation={defaultApprovedByDesignation}
                 defaultIssuedBy={defaultIssuedBy}
                 defaultIssuedByDesignation={defaultIssuedByDesignation}
                 onClose={() => setDetailsRequest(null)}
