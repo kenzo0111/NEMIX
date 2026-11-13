@@ -1,5 +1,5 @@
 import DashboardContent from '@/Layouts/DashboardContent';
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, router } from '@inertiajs/react';
 import { Activity, ArrowDownToLine, ArrowRight, ArrowUpFromLine, BookOpen, Boxes, Building2, ChartColumn, CheckCircle2, ChevronRight, CircleHelp, ClipboardList, FileText, Layers3, Package, Plus, TriangleAlert } from 'lucide-react';
 import DashboardControls from '@/Components/DashboardControls';
@@ -8,7 +8,7 @@ import RecentSystemActivity from './RecentSystemActivity';
 import { displayDate, secondaryButton } from '@/Pages/Inventory/Coordinator/inventory';
 import { CoordinatorRequest, CriticalStockItem, DashboardActivity, DashboardStats, DashboardSummary, MovementPoint, MovementSummary } from '../types';
 import useAuthorization from '@/Hooks/useAuthorization';
-import CoordinatorWalkthroughGuide from './CoordinatorWalkthroughGuide';
+import { COORDINATOR_TOUR_START_EVENT } from './CoordinatorWalkthroughGuide';
 
 interface Props {
     auth: { user: { id: number; name: string; email: string } };
@@ -32,7 +32,6 @@ export default function CoordinatorDashboardWorkspace({
     recentActivity = [], filters, requestSummary = {}, recentRequests = [],
 }: Props) {
     const { can } = useAuthorization();
-    const [walkthroughOpen, setWalkthroughOpen] = useState(false);
     const inventoryHref = route('coordinator.inventory.index');
     const historyHref = route('coordinator.inventory.index', { tab: 'history' });
     const requestHref = route('inventory.requests.index');
@@ -63,7 +62,7 @@ export default function CoordinatorDashboardWorkspace({
         <>
             <DashboardContent>
                 <DashboardControls />
-                <section aria-label="Unit workspace" className={`${surface} flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-red-50/60 to-white p-4 dark:from-red-950/20 dark:to-slate-900`}>
+                <section data-tour="coordinator-dashboard-header" aria-label="Unit workspace" className={`${surface} flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-red-50/60 to-white p-4 dark:from-red-950/20 dark:to-slate-900`}>
                     <div className="flex min-w-0 items-center gap-3">
                         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-red-200 bg-red-100/60 text-red-900 dark:border-red-800/50 dark:bg-red-950/50 dark:text-red-300"><Building2 size={25} strokeWidth={1.6} aria-hidden="true" /></span>
                         <div className="min-w-0">
@@ -73,7 +72,7 @@ export default function CoordinatorDashboardWorkspace({
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        <button type="button" onClick={() => setWalkthroughOpen(true)} className={`${secondaryButton} text-xs`}><CircleHelp size={17} aria-hidden="true" />Walkthrough Guide</button>
+                        <button type="button" onClick={() => window.dispatchEvent(new Event(COORDINATOR_TOUR_START_EVENT))} className={`${secondaryButton} text-xs`}><CircleHelp size={17} aria-hidden="true" />Walkthrough Guide</button>
                         {can('inventory.requests.store') && <Link href={route('inventory.requests.index', { create: 1 })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-red-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-red-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2"><Plus size={17} aria-hidden="true" />New Request</Link>}
                         {can('inventory.requests.index') && <Link href={route('inventory.requests.index', { status: 'Approved' })} className={`${secondaryButton} text-xs`}><Boxes size={17} aria-hidden="true" />Awaiting release</Link>}
                         {can('coordinator.inventory.issue') && <Link href={inventoryHref} className={`${secondaryButton} text-xs`}><ArrowUpFromLine size={17} aria-hidden="true" />Issue supplies</Link>}
@@ -81,7 +80,7 @@ export default function CoordinatorDashboardWorkspace({
                     </div>
                 </section>
 
-                <section aria-label="Unit summary" className="grid grid-cols-1 gap-3 min-[440px]:grid-cols-2 xl:grid-cols-4">
+                <section data-tour="coordinator-dashboard-summary" aria-label="Unit summary" className="grid grid-cols-1 gap-3 min-[440px]:grid-cols-2 xl:grid-cols-4">
                     {metrics.map(metric => {
                         const className = `group flex min-w-0 items-start gap-3 rounded-xl border p-4 transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:hover:brightness-110 ${metric.tone}`;
                         const content = <>
@@ -106,7 +105,7 @@ export default function CoordinatorDashboardWorkspace({
 
                 <div className="grid min-w-0 grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                     <div className="min-w-0 space-y-4">
-                        <section id="stock-attention" aria-labelledby="stock-attention-heading" className={`${surface} scroll-mt-40 border-t-2 border-t-amber-500`}>
+                        <section data-tour="coordinator-stock-alerts" id="stock-attention" aria-labelledby="stock-attention-heading" className={`${surface} scroll-mt-40 border-t-2 border-t-amber-500`}>
                             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-2 dark:border-slate-800">
                                 <h3 id="stock-attention-heading" className="flex items-center gap-2 text-base font-semibold"><TriangleAlert size={20} className="text-amber-600 dark:text-amber-400" aria-hidden="true" />Stock requiring attention</h3>
                                 {can('coordinator.inventory.index') && <Link href={inventoryHref} className={quietLink}>View all<ArrowRight size={13} aria-hidden="true" /></Link>}
@@ -156,7 +155,6 @@ export default function CoordinatorDashboardWorkspace({
                     </div>
                 </div>
             </DashboardContent>
-            <CoordinatorWalkthroughGuide show={walkthroughOpen} onClose={() => setWalkthroughOpen(false)} />
         </>
     );
 }
