@@ -3,7 +3,8 @@ import { router, usePage } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, CheckCircle2, Compass, X } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-const TOUR_STORAGE_KEY = 'nemix:coordinator-tour-step';
+const COORDINATOR_TOUR_STORAGE_KEY = 'nemix:coordinator-tour-step';
+const AUTHORIZED_PERSONNEL_TOUR_STORAGE_KEY = 'nemix:authorized-personnel-tour-step';
 export const COORDINATOR_TOUR_START_EVENT = 'nemix:coordinator-tour:start';
 
 type TourStep = {
@@ -14,6 +15,7 @@ type TourStep = {
     title: string;
     description: string;
     permission?: string;
+    exactUrl?: boolean;
 };
 
 type TargetRect = { top: number; left: number; right: number; bottom: number; width: number; height: number };
@@ -23,7 +25,10 @@ const clamp = (value: number, minimum: number, maximum: number) => Math.min(Math
 export default function CoordinatorWalkthroughGuide() {
     const { can } = useAuthorization();
     const { props, url } = usePage<any>();
-    const isCoordinator = Boolean(props.auth?.capabilities?.coordinatorInventory);
+    const usesRequesterWorkspace = Boolean(props.auth?.capabilities?.coordinatorInventory);
+    const isAuthorizedPersonnel = Boolean(props.auth?.capabilities?.requiresSupportingDocument);
+    const roleName = isAuthorizedPersonnel ? 'Authorized Personnel' : 'Supply Coordinator';
+    const tourStorageKey = isAuthorizedPersonnel ? AUTHORIZED_PERSONNEL_TOUR_STORAGE_KEY : COORDINATOR_TOUR_STORAGE_KEY;
     const [active, setActive] = useState(false);
     const [completed, setCompleted] = useState(false);
     const [stepIndex, setStepIndex] = useState(0);
@@ -36,8 +41,10 @@ export default function CoordinatorWalkthroughGuide() {
             href: route('dashboard'),
             selector: '[data-tour="coordinator-dashboard-header"]',
             eyebrow: 'Welcome to your workspace',
-            title: 'This is your Delivery Unit command center',
-            description: 'Start here to see what needs attention and jump directly to requests, central stock, or your unit inventory.',
+            title: isAuthorizedPersonnel ? 'This is your Authorized Personnel workspace' : 'This is your Delivery Unit command center',
+            description: isAuthorizedPersonnel
+                ? 'Start here to manage document-backed supply requests, review central stock, and account for supplies released to your unit.'
+                : 'Start here to see what needs attention and jump directly to requests, central stock, or your unit inventory.',
         },
         {
             routeName: 'dashboard',
@@ -45,7 +52,9 @@ export default function CoordinatorWalkthroughGuide() {
             selector: '[data-tour="coordinator-dashboard-summary"]',
             eyebrow: 'Live operational picture',
             title: 'Read your workload at a glance',
-            description: 'These cards show active requests, supplies needing replenishment, stock on hand, and the number of item types assigned to your unit.',
+            description: isAuthorizedPersonnel
+                ? 'These cards summarize requests in verification or review, supplies needing replenishment, stock on hand, and the item types assigned to your unit.'
+                : 'These cards show active requests, supplies needing replenishment, stock on hand, and the number of item types assigned to your unit.',
         },
         {
             routeName: 'dashboard',
@@ -70,17 +79,32 @@ export default function CoordinatorWalkthroughGuide() {
             selector: '[data-tour="coordinator-catalog-items"]',
             eyebrow: 'Start a requisition',
             title: 'Request an available item from its card',
-            description: 'Each card separates total Supply Office stock from the quantity still available to request. Request This Item carries your selection into the request form.',
+            description: isAuthorizedPersonnel
+                ? 'Each card separates total Supply Office stock from the quantity available to request. Request This Item carries your selection into the form, where you will also attach proof of authorization.'
+                : 'Each card separates total Supply Office stock from the quantity still available to request. Request This Item carries your selection into the request form.',
             permission: 'coordinator.catalog.index',
         },
+        ...(isAuthorizedPersonnel ? [{
+            routeName: 'inventory.requests.index',
+            href: route('inventory.requests.index', { create: 1 }),
+            selector: '[data-tour="authorized-personnel-supporting-document"]',
+            eyebrow: 'Required proof of authorization',
+            title: 'Attach an approved supporting document',
+            description: 'Choose the correct document type and upload a genuine PDF, JPG, JPEG, or PNG file up to 10 MB. This document is reviewed separately from the RIS before the request proceeds.',
+            permission: 'inventory.requests.store',
+            exactUrl: true,
+        }] : []),
         {
             routeName: 'inventory.requests.index',
             href: route('inventory.requests.index'),
             selector: '[data-tour="coordinator-request-summary"]',
-            eyebrow: 'Follow the approval journey',
-            title: 'Know exactly what each request needs next',
-            description: 'Pending is with the Supply Office, Needs Correction requires your action, Awaiting Release is approved, and Released has entered your unit inventory.',
+            eyebrow: isAuthorizedPersonnel ? 'Follow verification and approval' : 'Follow the approval journey',
+            title: isAuthorizedPersonnel ? 'Know what each document-backed request needs next' : 'Know exactly what each request needs next',
+            description: isAuthorizedPersonnel
+                ? 'Pending Verification is awaiting document review, Needs Correction requires your action, Under Review is being evaluated, Ready for Pickup awaits release, and Released has entered your unit inventory.'
+                : 'Pending is with the Supply Office, Needs Correction requires your action, Awaiting Release is approved, and Released has entered your unit inventory.',
             permission: 'inventory.requests.index',
+            exactUrl: isAuthorizedPersonnel,
         },
         {
             routeName: 'inventory.requests.index',
@@ -88,7 +112,9 @@ export default function CoordinatorWalkthroughGuide() {
             selector: '[data-tour="coordinator-request-workspace"]',
             eyebrow: 'Find any requisition',
             title: 'Search, filter, review, and correct requests',
-            description: 'Use this workspace to locate a RIS, open details, edit requests returned for correction, download an approved RIS, or cancel an eligible request.',
+            description: isAuthorizedPersonnel
+                ? 'Use this workspace to locate a RIS, read document or review remarks, correct and resubmit an eligible request, replace its supporting file when needed, download an approved RIS, or cancel an eligible request.'
+                : 'Use this workspace to locate a RIS, open details, edit requests returned for correction, download an approved RIS, or cancel an eligible request.',
             permission: 'inventory.requests.index',
         },
         {
@@ -109,52 +135,54 @@ export default function CoordinatorWalkthroughGuide() {
             description: 'Record distributions to personnel, review every receipt and issue in Transaction History, and generate per-item Stock Cards with a running balance.',
             permission: 'coordinator.inventory.index',
         },
-    ].filter(step => !step.permission || can(step.permission)), [can]);
+    ].filter(step => !step.permission || can(step.permission)), [can, isAuthorizedPersonnel]);
 
     const close = useCallback(() => {
-        sessionStorage.removeItem(TOUR_STORAGE_KEY);
+        sessionStorage.removeItem(tourStorageKey);
         setActive(false);
         setCompleted(false);
         setTargetRect(null);
-    }, []);
+    }, [tourStorageKey]);
 
     const complete = useCallback(() => {
-        sessionStorage.removeItem(TOUR_STORAGE_KEY);
+        sessionStorage.removeItem(tourStorageKey);
         setCompleted(true);
         setTargetRect(null);
-    }, []);
+    }, [tourStorageKey]);
 
     const start = useCallback(() => {
-        if (!isCoordinator || steps.length === 0) return;
-        sessionStorage.setItem(TOUR_STORAGE_KEY, '0');
+        if (!usesRequesterWorkspace || steps.length === 0) return;
+        sessionStorage.setItem(tourStorageKey, '0');
         setStepIndex(0);
         setCompleted(false);
         setActive(true);
         if (!route().current(steps[0].routeName)) router.visit(steps[0].href);
-    }, [isCoordinator, steps]);
+    }, [steps, tourStorageKey, usesRequesterWorkspace]);
 
     useEffect(() => {
-        const storedStep = sessionStorage.getItem(TOUR_STORAGE_KEY);
-        if (isCoordinator && storedStep !== null) {
+        const storedStep = sessionStorage.getItem(tourStorageKey);
+        if (usesRequesterWorkspace && storedStep !== null) {
             const parsed = Number(storedStep);
             setStepIndex(Number.isInteger(parsed) ? clamp(parsed, 0, Math.max(steps.length - 1, 0)) : 0);
             setActive(steps.length > 0);
         }
         window.addEventListener(COORDINATOR_TOUR_START_EVENT, start);
         return () => window.removeEventListener(COORDINATOR_TOUR_START_EVENT, start);
-    }, [isCoordinator, start, steps.length]);
+    }, [start, steps.length, tourStorageKey, usesRequesterWorkspace]);
 
     const moveTo = useCallback((nextIndex: number) => {
         const bounded = clamp(nextIndex, 0, steps.length - 1);
-        sessionStorage.setItem(TOUR_STORAGE_KEY, String(bounded));
+        sessionStorage.setItem(tourStorageKey, String(bounded));
         setStepIndex(bounded);
         setTargetRect(null);
-    }, [steps]);
+    }, [steps, tourStorageKey]);
 
     useEffect(() => {
         if (!active || completed || !steps[stepIndex]) return;
         const currentStep = steps[stepIndex];
-        if (!route().current(currentStep.routeName)) {
+        const targetUrl = new URL(currentStep.href, window.location.origin);
+        const exactUrlMatches = window.location.pathname === targetUrl.pathname && window.location.search === targetUrl.search;
+        if (!route().current(currentStep.routeName) || (currentStep.exactUrl && !exactUrlMatches)) {
             router.visit(currentStep.href);
             return;
         }
@@ -210,9 +238,9 @@ export default function CoordinatorWalkthroughGuide() {
         return () => window.removeEventListener('keydown', onKeyDown);
     }, [active, close, completed, moveTo, stepIndex, steps.length]);
 
-    if (!active || !isCoordinator || !steps[stepIndex]) return null;
+    if (!active || !usesRequesterWorkspace || !steps[stepIndex]) return null;
 
-    if (completed) return <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-[1px]" role="dialog" aria-modal="true" aria-label="Supply Coordinator walkthrough completed">
+    if (completed) return <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-[1px]" role="dialog" aria-modal="true" aria-label={`${roleName} walkthrough completed`}>
         <div ref={tooltipRef} tabIndex={-1} className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-2xl outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
             <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-800 to-amber-400" />
             <div className="p-6 sm:p-7">
@@ -224,7 +252,9 @@ export default function CoordinatorWalkthroughGuide() {
                 <h2 className="mt-1 text-2xl font-bold tracking-tight">You are ready for day-to-day operations</h2>
                 <div className="mt-5 space-y-3">
                     <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200">You can always return to this walkthrough from the <strong>Walkthrough Guide</strong> button on your dashboard.</p>
-                    <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-950 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-200">You can now use this system for your day-to-day supply operations with the Supply and Property Management Office.</p>
+                    <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-950 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-200">{isAuthorizedPersonnel
+                        ? 'You can now use this system for your day-to-day supply requests, document submissions, and unit inventory work with the Supply and Property Management Office.'
+                        : 'You can now use this system for your day-to-day supply operations with the Supply and Property Management Office.'}</p>
                 </div>
             </div>
             <div className="flex justify-end border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-800 dark:bg-slate-950/50">
@@ -245,7 +275,7 @@ export default function CoordinatorWalkthroughGuide() {
         ? clamp(targetRect.left + targetRect.width / 2 - tooltipWidth / 2, 12, viewportWidth - tooltipWidth - 12)
         : Math.max(12, (viewportWidth - tooltipWidth) / 2);
 
-    return <div className="fixed inset-0 z-[80]" role="dialog" aria-modal="true" aria-label="Interactive Supply Coordinator walkthrough">
+    return <div className="fixed inset-0 z-[80]" role="dialog" aria-modal="true" aria-label={`Interactive ${roleName} walkthrough`}>
         {targetRect ? <>
             <div className="fixed left-0 top-0 bg-slate-950/75 backdrop-blur-[1px]" style={{ width: '100%', height: targetRect.top }} />
             <div className="fixed left-0 bg-slate-950/75 backdrop-blur-[1px]" style={{ top: targetRect.top, width: targetRect.left, height: targetRect.height }} />

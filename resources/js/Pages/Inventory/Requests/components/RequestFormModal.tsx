@@ -674,7 +674,7 @@ export function RequestFormModal({
                         </div>
                     </div>
 
-                    {requiresDocument && <section className="space-y-3 rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+                    {requiresDocument && <section data-tour="authorized-personnel-supporting-document" className="space-y-3 rounded-lg border border-slate-200 p-4 dark:border-slate-700">
                         <h4 className="font-semibold">Supporting Document</h4>
                         <p className="text-sm text-slate-500 dark:text-slate-400">An approved supporting document is required before submission. This is proof of authorization, separate from the RIS. PDF, JPG, JPEG, or PNG, up to 10 MB.</p>
                         <label className="block text-sm font-medium">Document type
