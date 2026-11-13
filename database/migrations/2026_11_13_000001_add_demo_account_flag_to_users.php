@@ -36,7 +36,10 @@ return new class extends Migration
         if ($existingDemoUserIds->isNotEmpty()) {
             DB::table('users')
                 ->whereIn('id', $existingDemoUserIds)
-                ->whereRaw('LOWER(email) NOT LIKE ?', ['%@ucn.edu.ph'])
+                ->where(function ($query) {
+                    $query->whereRaw('LOWER(email) LIKE ?', ['%@unc-nemix.com'])
+                        ->orWhereRaw('LOWER(email) LIKE ?', ['%@example.com']);
+                })
                 ->update(['is_demo_account' => true]);
         }
     }

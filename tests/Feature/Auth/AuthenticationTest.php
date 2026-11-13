@@ -103,7 +103,7 @@ class AuthenticationTest extends TestCase
         $response->assertSessionHas('show_demo_account_notice', false);
     }
 
-    public function test_demo_backfill_never_marks_an_institutional_requester_account(): void
+    public function test_demo_backfill_only_marks_known_demo_domains(): void
     {
         $role = Role::firstOrCreate(['name' => 'Supply Coordinator', 'guard_name' => 'web']);
         $institutionalUser = User::factory()->create([
@@ -111,17 +111,29 @@ class AuthenticationTest extends TestCase
             'is_demo_account' => false,
         ]);
         $institutionalUser->assignRole($role);
-        $demoUser = User::factory()->create([
+        $personalEmailUser = User::factory()->create([
+            'email' => 'dedicated.coordinator@gmail.com',
+            'is_demo_account' => false,
+        ]);
+        $personalEmailUser->assignRole($role);
+        $exampleDemoUser = User::factory()->create([
             'email' => 'supply.coordinator@example.com',
             'is_demo_account' => false,
         ]);
-        $demoUser->assignRole($role);
+        $exampleDemoUser->assignRole($role);
+        $nemixDemoUser = User::factory()->create([
+            'email' => 'authorized.personnel@unc-nemix.com',
+            'is_demo_account' => false,
+        ]);
+        $nemixDemoUser->assignRole($role);
 
         $migration = require database_path('migrations/2026_11_13_000001_add_demo_account_flag_to_users.php');
         $migration->up();
 
         $this->assertFalse($institutionalUser->refresh()->is_demo_account);
-        $this->assertTrue($demoUser->refresh()->is_demo_account);
+        $this->assertFalse($personalEmailUser->refresh()->is_demo_account);
+        $this->assertTrue($exampleDemoUser->refresh()->is_demo_account);
+        $this->assertTrue($nemixDemoUser->refresh()->is_demo_account);
     }
 
     public function test_users_can_logout(): void
