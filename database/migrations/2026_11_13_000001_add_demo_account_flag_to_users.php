@@ -34,7 +34,10 @@ return new class extends Migration
             ->pluck('model_id');
 
         if ($existingDemoUserIds->isNotEmpty()) {
-            DB::table('users')->whereIn('id', $existingDemoUserIds)->update(['is_demo_account' => true]);
+            DB::table('users')
+                ->whereIn('id', $existingDemoUserIds)
+                ->whereRaw('LOWER(email) NOT LIKE ?', ['%@ucn.edu.ph'])
+                ->update(['is_demo_account' => true]);
         }
     }
 

@@ -103,6 +103,27 @@ class AuthenticationTest extends TestCase
         $response->assertSessionHas('show_demo_account_notice', false);
     }
 
+    public function test_demo_backfill_never_marks_an_institutional_requester_account(): void
+    {
+        $role = Role::firstOrCreate(['name' => 'Supply Coordinator', 'guard_name' => 'web']);
+        $institutionalUser = User::factory()->create([
+            'email' => 'dedicated.office@ucn.edu.ph',
+            'is_demo_account' => false,
+        ]);
+        $institutionalUser->assignRole($role);
+        $demoUser = User::factory()->create([
+            'email' => 'supply.coordinator@example.com',
+            'is_demo_account' => false,
+        ]);
+        $demoUser->assignRole($role);
+
+        $migration = require database_path('migrations/2026_11_13_000001_add_demo_account_flag_to_users.php');
+        $migration->up();
+
+        $this->assertFalse($institutionalUser->refresh()->is_demo_account);
+        $this->assertTrue($demoUser->refresh()->is_demo_account);
+    }
+
     public function test_users_can_logout(): void
     {
         $user = User::factory()->create();
