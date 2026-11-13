@@ -1,6 +1,6 @@
 import DashboardContent from '@/Layouts/DashboardContent';
 import { notify } from '@/utils/notifications';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import Select from 'react-select';
 import DashboardLayout from '@/Layouts/DashboardLayout';
@@ -20,6 +20,14 @@ import useAuthorization from '@/Hooks/useAuthorization';
 import CoordinatorRequestsWorkspace from './components/CoordinatorRequestsWorkspace';
 
 const PAGE_SIZE = 10;
+type RequestPage = {
+    data: SupplyRequest[];
+    current_page: number;
+    last_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+};
 const statusOptions = [
     { value: '', label: 'All Statuses' },
     ...['Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup', 'Released'].map(value => ({ value, label: value })),
@@ -37,6 +45,9 @@ export default function MyRequests({
     items = [],
     divisions = [],
     initialItemId = null,
+    requestSummary = {},
+    requestFilters = {},
+    focusedRequest = null,
     defaultApprovedBy: propApprovedBy,
     defaultApprovedByDesignation: propApprovedByDesignation,
     defaultIssuedBy: propIssuedBy,
@@ -44,18 +55,25 @@ export default function MyRequests({
 }: {
     auth: { user: { id: number; name: string; email: string } };
     readOnly?: boolean;
-    requests: SupplyRequest[];
+    requests: SupplyRequest[] | RequestPage;
     items: RequestItem[];
     divisions?: DivisionGroup[];
     initialItemId?: number | null;
+    requestSummary?: Record<string, number>;
+    requestFilters?: { search?: string; status?: string };
+    focusedRequest?: SupplyRequest | null;
     defaultApprovedBy?: string;
     defaultApprovedByDesignation?: string;
     defaultIssuedBy?: string;
     defaultIssuedByDesignation?: string;
 }) {
     const { can } = useAuthorization();
+    const canCreateRequest = can('inventory.requests.store');
+    const canUpdateRequest = can('inventory.requests.update');
     const pageProps = usePage().props as any;
     const isCoordinator = Boolean(pageProps.auth?.capabilities?.coordinatorInventory);
+    const coordinatorPage = !Array.isArray(requests) ? requests : null;
+    const requestList = Array.isArray(requests) ? requests : requests.data;
     const systemSettings = (pageProps.systemSettings || {}) as Record<string, any>;
     const publicSettings = pageProps.system?.settings || {};
 
@@ -95,37 +113,88 @@ export default function MyRequests({
         publicSettings['signatories_ris_issued_by_designation'] ||
         publicSettings['signatories.ris_issued_by_designation'] ||
         'Administrative Aide VI / Storekeeper';
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState(() => isCoordinator ? requestFilters.search || '' : '');
     const [statusFilter, setStatusFilter] = useState(() => {
+        if (isCoordinator && requestFilters.status !== undefined) return requestFilters.status || '';
         const value = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('status') : '';
         return statusOptions.some(option => option.value === value) ? value || '' : '';
     });
-    const [currentPage, setCurrentPage] = useState(1);
-    const [formOpen, setFormOpen] = useState(() => !readOnly && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('create') === '1');
+    const [currentPage, setCurrentPage] = useState(() => coordinatorPage?.current_page || 1);
+    const [formOpen, setFormOpen] = useState(() => !readOnly && canCreateRequest && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('create') === '1');
     const [editingRequest, setEditingRequest] = useState<SupplyRequest | null>(null);
     const [detailsRequest, setDetailsRequest] = useState<SupplyRequest | null>(() => {
         const id = typeof window !== 'undefined' ? Number(new URLSearchParams(window.location.search).get('request_id')) : 0;
-        return requests.find(request => request.id === id) || null;
+        return focusedRequest || requestList.find(request => request.id === id) || null;
     });
     const [preview, setPreview] = useState<IssuanceRecord | null>(null);
     const [previewRequestId, setPreviewRequestId] = useState<number | null>(null);
     const [busy, setBusy] = useState<number | null>(null);
+    const initialCoordinatorSearch = useRef(true);
+
+    useEffect(() => {
+        if (!isCoordinator) return;
+        setSearchTerm(requestFilters.search || '');
+        setStatusFilter(requestFilters.status || '');
+        setCurrentPage(coordinatorPage?.current_page || 1);
+    }, [isCoordinator, requestFilters.search, requestFilters.status, coordinatorPage?.current_page]);
+
+    useEffect(() => {
+        if (focusedRequest) setDetailsRequest(focusedRequest);
+    }, [focusedRequest?.id]);
+
+    const visitCoordinatorRequests = (next: { search?: string; status?: string; page?: number }) => {
+        router.get(route('inventory.requests.index'), {
+            ...(next.search?.trim() ? { search: next.search.trim() } : {}),
+            ...(next.status ? { status: next.status } : {}),
+            ...(next.page && next.page > 1 ? { page: next.page } : {}),
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+            only: ['requests', 'requestSummary', 'requestFilters', 'focusedRequest'],
+        });
+    };
+
+    useEffect(() => {
+        if (!isCoordinator) return;
+        if (initialCoordinatorSearch.current) {
+            initialCoordinatorSearch.current = false;
+            return;
+        }
+        if (searchTerm === (requestFilters.search || '')) return;
+        const timeout = window.setTimeout(() => visitCoordinatorRequests({ search: searchTerm, status: statusFilter }), 350);
+        return () => window.clearTimeout(timeout);
+    }, [isCoordinator, searchTerm]);
 
     // Summary counts
     const counts = useMemo(() => {
         return {
-            total: requests.length,
-            pending: requests.filter((r) => ['Pending', 'Pending Verification', 'For Correction', 'Under Review'].includes(r.status)).length,
-            approved: requests.filter((r) => ['Approved', 'Ready for Pickup'].includes(r.status)).length,
-            issued: requests.filter((r) => ['Issued', 'Released'].includes(r.status)).length,
-            rejectedOrCancelled: requests.filter((r) => ['Rejected', 'Cancelled'].includes(r.status)).length,
+            total: isCoordinator
+                ? Object.values(requestSummary).reduce((sum, count) => sum + Number(count || 0), 0)
+                : requestList.length,
+            pending: isCoordinator
+                ? Number(requestSummary.Pending || 0) + Number(requestSummary['Pending Verification'] || 0) + Number(requestSummary['Under Review'] || 0)
+                : requestList.filter((r) => ['Pending', 'Pending Verification', 'Under Review'].includes(r.status)).length,
+            correction: isCoordinator
+                ? Number(requestSummary['For Correction'] || 0)
+                : requestList.filter((r) => r.status === 'For Correction').length,
+            approved: isCoordinator
+                ? Number(requestSummary.Approved || 0) + Number(requestSummary['Ready for Pickup'] || 0)
+                : requestList.filter((r) => ['Approved', 'Ready for Pickup'].includes(r.status)).length,
+            issued: isCoordinator
+                ? Number(requestSummary.Issued || 0) + Number(requestSummary.Released || 0)
+                : requestList.filter((r) => ['Issued', 'Released'].includes(r.status)).length,
+            rejectedOrCancelled: isCoordinator
+                ? Number(requestSummary.Rejected || 0) + Number(requestSummary.Cancelled || 0)
+                : requestList.filter((r) => ['Rejected', 'Cancelled'].includes(r.status)).length,
         };
-    }, [requests]);
+    }, [isCoordinator, requestList, requestSummary]);
 
     const filtered = useMemo(() => {
         const query = searchTerm.trim().toLowerCase();
-        return requests.filter((request) => {
-            const groupedStatuses: Record<string, string[]> = { Pending: ['Pending', 'Pending Verification', 'For Correction', 'Under Review'], Approved: ['Approved', 'Ready for Pickup'], Issued: ['Issued', 'Released'] };
+        if (isCoordinator) return requestList;
+        return requestList.filter((request) => {
+            const groupedStatuses: Record<string, string[]> = { Pending: ['Pending', 'Pending Verification', 'Under Review'], Approved: ['Approved', 'Ready for Pickup'], Issued: ['Issued', 'Released'] };
             if (statusFilter && !(groupedStatuses[statusFilter] || [statusFilter]).includes(request.status)) return false;
             if (!query) return true;
             return [
@@ -139,20 +208,22 @@ export default function MyRequests({
                 ...request.items.map((line) => line.item?.sku || ''),
             ].some((value) => value.toLowerCase().includes(query));
         });
-    }, [requests, searchTerm, statusFilter]);
+    }, [isCoordinator, requestList, searchTerm, statusFilter]);
 
-    const lastPage = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-    const safePage = Math.min(currentPage, lastPage);
-    const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-    const from = filtered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1;
-    const to = Math.min(safePage * PAGE_SIZE, filtered.length);
+    const lastPage = isCoordinator ? Math.max(1, coordinatorPage?.last_page || 1) : Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const safePage = isCoordinator ? coordinatorPage?.current_page || 1 : Math.min(currentPage, lastPage);
+    const visible = isCoordinator ? requestList : filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+    const from = isCoordinator ? coordinatorPage?.from || 0 : filtered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1;
+    const to = isCoordinator ? coordinatorPage?.to || 0 : Math.min(safePage * PAGE_SIZE, filtered.length);
 
     const openCreate = () => {
+        if (!canCreateRequest) return;
         setEditingRequest(null);
         setFormOpen(true);
     };
 
     const openEdit = (request: SupplyRequest) => {
+        if (!canUpdateRequest) return;
         setEditingRequest(request);
         setFormOpen(true);
     };
@@ -245,15 +316,22 @@ export default function MyRequests({
                     search={searchTerm}
                     status={statusFilter}
                     statusOptions={statusOptions}
-                    filteredCount={filtered.length}
+                    filteredCount={isCoordinator ? coordinatorPage?.total || 0 : filtered.length}
                     page={safePage}
                     lastPage={lastPage}
                     from={from}
                     to={to}
                     busy={busy}
                     onSearch={value => { setSearchTerm(value); setCurrentPage(1); }}
-                    onStatus={value => { setStatusFilter(value); setCurrentPage(1); }}
-                    onPage={setCurrentPage}
+                    onStatus={value => {
+                        setStatusFilter(value);
+                        setCurrentPage(1);
+                        visitCoordinatorRequests({ search: searchTerm, status: value });
+                    }}
+                    onPage={page => {
+                        setCurrentPage(page);
+                        visitCoordinatorRequests({ search: searchTerm, status: statusFilter, page });
+                    }}
                     onCreate={openCreate}
                     onDetails={setDetailsRequest}
                     onEdit={openEdit}
@@ -639,7 +717,7 @@ export default function MyRequests({
             </DashboardLayout>
 
             {/* Request Creation / Editing Modal */}
-            {!readOnly && <RequestFormModal
+            {!readOnly && (canCreateRequest || canUpdateRequest) && <RequestFormModal
                 show={formOpen}
                 initialItemId={initialItemId}
                 request={editingRequest}

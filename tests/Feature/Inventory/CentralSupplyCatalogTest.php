@@ -50,13 +50,14 @@ class CentralSupplyCatalogTest extends TestCase
         $other = $this->user();
         $item = $this->item();
         $this->reserve($other, $item, 4);
+        $this->reserve($other, $item, 1, 'Ready for Pickup');
         $this->reserve($other, $item, 2, 'Pending');
         $this->reserve($other, $item, 2, 'Issued');
         $requestCount = SupplyRequest::count();
         $this->actingAs($coordinator)->get(route('coordinator.catalog.index'))->assertOk()
             ->assertInertia(fn ($page) => $page->component('Inventory/Coordinator/Catalog')
                 ->where('items.total', 1)->where('items.data.0.id', $item->id)
-                ->where('items.data.0.on_hand', 10)->where('items.data.0.available_quantity', 6)
+                ->where('items.data.0.on_hand', 10)->where('items.data.0.available_quantity', 5)
                 ->missing('items.data.0.rfid_tag')->missing('items.data.0.unit_cost')
                 ->missing('items.data.0.created_by')->missing('requests')->missing('movements'));
         $this->assertSame($requestCount, SupplyRequest::count());

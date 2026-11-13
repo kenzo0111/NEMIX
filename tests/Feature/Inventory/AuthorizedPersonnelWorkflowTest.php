@@ -70,7 +70,8 @@ class AuthorizedPersonnelWorkflowTest extends TestCase
             ->component('Dashboard')->where('inventoryScope', 'coordinator')->where('auth.capabilities.requiresSupportingDocument', true));
         $this->get(route('coordinator.catalog.index'))->assertOk();
         $this->get(route('inventory.index'))->assertForbidden();
-        $this->actingAs($other)->get(route('inventory.requests.index'))->assertInertia(fn ($page) => $page->has('requests', 0));
+        $this->actingAs($other)->get(route('inventory.requests.index'))->assertInertia(fn ($page) => $page
+            ->has('requests.data', 0)->where('requests.total', 0));
         $this->put(route('inventory.requests.update', $request), $this->payload())->assertForbidden();
     }
 

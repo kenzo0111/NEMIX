@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Modules\Inventory\Services\SupportingDocumentService;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\SupplyRequest;
@@ -56,7 +57,15 @@ class SupplyRequestController extends Controller
     public function index(Request $request)
     {
         $this->authorizeRequestAction($request);
-        $prefill = $request->validate(['item_id' => ['nullable', 'integer', 'min:1']]);
+        $prefill = $request->validate([
+            'item_id' => ['nullable', 'integer', 'min:1'],
+            'request_id' => ['nullable', 'integer', 'min:1'],
+            'search' => ['nullable', 'string', 'max:150'],
+            'status' => ['nullable', Rule::in([
+                'Pending', 'Pending Verification', 'For Correction', 'Under Review',
+                'Approved', 'Ready for Pickup', 'Issued', 'Released', 'Rejected', 'Cancelled',
+            ])],
+        ]);
         $initialItemId = isset($prefill['item_id'])
             ? Item::whereKey($prefill['item_id'])->where('stock', '>', 0)->value('id') : null;
 
@@ -66,27 +75,174 @@ class SupplyRequestController extends Controller
         $defaultIssuedBy = $signatories['issued_by_name'];
         $defaultIssuedByDesignation = $signatories['issued_by_position'];
 
+        $isCoordinator = $request->user()->usesCoordinatorInventory();
+        $requestProps = $isCoordinator
+            ? $this->coordinatorRequestProps($request, $prefill)
+            : [
+                'requests' => SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'documentVerifier', 'issuance.items.allocations.inventoryBatch'])
+                    ->when(! $request->user()->isSystemAdmin(), fn ($query) => $query->where('requested_by', $request->user()->id))
+                    ->latest()->get(),
+            ];
+
         return Inertia::render('Inventory/Requests/Index', [
             'readOnly' => $request->user()->isSystemAdmin(),
             'requiresSupportingDocument' => $request->user()->requiresSupportingDocument(),
-            'inventoryScope' => $request->user()->usesCoordinatorInventory() ? 'coordinator' : null,
+            'inventoryScope' => $isCoordinator ? 'coordinator' : null,
             'initialItemId' => $initialItemId,
-            'departmentAssignment' => $request->user()->usesCoordinatorInventory() ? [
+            'departmentAssignment' => $isCoordinator ? [
                 'department' => $request->user()->department,
                 'recipient' => $request->user()->officeHead?->name,
                 'recipient_designation' => $request->user()->officeHead?->designation,
                 'ready' => $this->hasDepartmentAssignment($request->user()),
             ] : null,
-            'requests' => SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'documentVerifier', 'issuance.items.allocations.inventoryBatch'])
-                ->when(! $request->user()->isSystemAdmin(), fn ($query) => $query->where('requested_by', $request->user()->id))
-                ->latest()->get(),
-            'items' => Item::where('stock', '>', 0)->orderBy('name')->get(['id', 'name', 'sku', 'stock', 'unit_of_issue', 'unit_cost']),
+            ...$requestProps,
+            'items' => Item::where('stock', '>', 0)->orderBy('name')->get(['id', 'name', 'sku', 'stock', 'unit_of_issue']),
             'divisions' => config('university.divisions', []),
             'defaultApprovedBy' => $defaultApprovedBy,
             'defaultApprovedByDesignation' => $defaultApprovedByDesignation,
             'defaultIssuedBy' => $defaultIssuedBy,
             'defaultIssuedByDesignation' => $defaultIssuedByDesignation,
         ]);
+    }
+
+    private function coordinatorRequestProps(Request $request, array $filters): array
+    {
+        $search = trim((string) ($filters['search'] ?? ''));
+        $status = (string) ($filters['status'] ?? '');
+        $baseQuery = SupplyRequest::query()->where('requested_by', $request->user()->id);
+        $requestSummary = (clone $baseQuery)
+            ->selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $query = (clone $baseQuery)->with($this->coordinatorRequestRelations());
+
+        if ($status !== '') {
+            $groupedStatuses = [
+                'Pending' => ['Pending', 'Pending Verification', 'Under Review'],
+                'Approved' => ['Approved', 'Ready for Pickup'],
+                'Issued' => ['Issued', 'Released'],
+            ];
+            $query->whereIn('status', $groupedStatuses[$status] ?? [$status]);
+        }
+
+        if ($search !== '') {
+            $pattern = '%'.mb_strtolower($search).'%';
+            $query->where(function ($query) use ($search, $pattern) {
+                if (ctype_digit($search)) {
+                    $query->orWhereKey((int) $search);
+                }
+                $query->orWhereRaw('LOWER(COALESCE(ris_number, ?)) LIKE ?', ['', $pattern])
+                    ->orWhereRaw('LOWER(COALESCE(recipient, ?)) LIKE ?', ['', $pattern])
+                    ->orWhereRaw('LOWER(COALESCE(recipient_designation, ?)) LIKE ?', ['', $pattern])
+                    ->orWhereRaw('LOWER(department) LIKE ?', [$pattern])
+                    ->orWhereRaw('LOWER(purpose) LIKE ?', [$pattern])
+                    ->orWhereHas('items.item', fn ($itemQuery) => $itemQuery
+                        ->whereRaw('LOWER(items.name) LIKE ?', [$pattern])
+                        ->orWhereRaw('LOWER(items.sku) LIKE ?', [$pattern]));
+            });
+        }
+
+        $requests = $query->latest()->paginate(10)->withQueryString()
+            ->through(fn (SupplyRequest $supplyRequest) => $this->serializeCoordinatorRequest($supplyRequest));
+
+        $focusedRequest = null;
+        if (! empty($filters['request_id'])) {
+            $focused = (clone $baseQuery)->with($this->coordinatorRequestRelations())
+                ->find($filters['request_id']);
+            $focusedRequest = $focused ? $this->serializeCoordinatorRequest($focused) : null;
+        }
+
+        return [
+            'requests' => $requests,
+            'requestSummary' => $requestSummary,
+            'requestFilters' => ['search' => $search, 'status' => $status],
+            'focusedRequest' => $focusedRequest,
+        ];
+    }
+
+    private function coordinatorRequestRelations(): array
+    {
+        return [
+            'items:id,supply_request_id,item_id,quantity,approved_quantity',
+            'items.item:id,name,sku,stock,unit_of_issue',
+            'items.item.activeBatches:id,item_id,supplier_stock_no,quantity_remaining',
+            'requester:id,name',
+            'reviewer:id,name',
+            'documentVerifier:id,name',
+            'issuance:id,ris_number,recipient,recipient_designation,issued_by_name,issued_by_position,date_issued,fund_cluster',
+            'issuance.items:id,issuance_id,item_id,quantity',
+            'issuance.items.allocations:id,issuance_item_id,inventory_batch_id,quantity',
+            'issuance.items.allocations.inventoryBatch:id,supplier_stock_no',
+        ];
+    }
+
+    private function serializeCoordinatorRequest(SupplyRequest $request): array
+    {
+        return [
+            'id' => $request->id,
+            'requires_supporting_document' => (bool) $request->requires_supporting_document,
+            'supporting_document_type' => $request->supporting_document_type,
+            'supporting_document_name' => $request->supporting_document_name,
+            'document_verified_at' => $request->document_verified_at?->toIso8601String(),
+            'document_verification_remarks' => $request->document_verification_remarks,
+            'requested_by' => $request->requested_by,
+            'recipient' => $request->recipient,
+            'recipient_designation' => $request->recipient_designation,
+            'fund_cluster' => $request->fund_cluster,
+            'date_requested' => $request->date_requested?->toDateString(),
+            'status' => $request->status,
+            'department' => $request->department,
+            'purpose' => $request->purpose,
+            'ris_number' => $request->ris_number,
+            'review_remarks' => $request->review_remarks,
+            'created_at' => $request->created_at?->toIso8601String(),
+            'reviewed_at' => $request->reviewed_at?->toIso8601String(),
+            'issuance_id' => $request->issuance_id,
+            'requester' => $request->requester ? ['id' => $request->requester->id, 'name' => $request->requester->name] : null,
+            'reviewer' => $request->reviewer ? ['id' => $request->reviewer->id, 'name' => $request->reviewer->name] : null,
+            'document_verifier' => $request->documentVerifier ? ['name' => $request->documentVerifier->name] : null,
+            'items' => $request->items->map(function ($line) {
+                $item = $line->item;
+                $stockNo = $item?->activeBatches?->first(fn ($batch) => filled($batch->supplier_stock_no))?->supplier_stock_no;
+
+                return [
+                    'id' => $line->id,
+                    'item_id' => $line->item_id,
+                    'quantity' => (int) $line->quantity,
+                    'approved_quantity' => $line->approved_quantity === null ? null : (int) $line->approved_quantity,
+                    'item' => $item ? [
+                        'id' => $item->id,
+                        'name' => $item->name,
+                        'sku' => $item->sku,
+                        'stock' => (int) $item->stock,
+                        'unit_of_issue' => $item->unit_of_issue,
+                        'stock_no' => $stockNo,
+                        'supplier_stock_no' => $stockNo,
+                    ] : null,
+                ];
+            })->values(),
+            'issuance' => $request->issuance ? [
+                'id' => $request->issuance->id,
+                'ris_number' => $request->issuance->ris_number,
+                'recipient' => $request->issuance->recipient,
+                'recipient_designation' => $request->issuance->recipient_designation,
+                'issued_by_name' => $request->issuance->issued_by_name,
+                'issued_by_position' => $request->issuance->issued_by_position,
+                'date_issued' => $request->issuance->date_issued?->toDateString(),
+                'fund_cluster' => $request->issuance->fund_cluster,
+                'items' => $request->issuance->items->map(fn ($issuanceItem) => [
+                    'id' => $issuanceItem->id,
+                    'item_id' => $issuanceItem->item_id,
+                    'quantity' => (int) $issuanceItem->quantity,
+                    'allocations' => $issuanceItem->allocations->map(fn ($allocation) => [
+                        'batch_id' => $allocation->inventory_batch_id,
+                        'supplier_stock_no' => $allocation->inventoryBatch?->supplier_stock_no,
+                        'quantity' => (int) $allocation->quantity,
+                    ])->values(),
+                ])->values(),
+            ] : null,
+        ];
     }
 
     public function risPdf(Request $request, SupplyRequest $supplyRequest)

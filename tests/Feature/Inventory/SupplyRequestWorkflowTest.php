@@ -169,7 +169,8 @@ class SupplyRequestWorkflowTest extends TestCase
         $request = $this->submit($first, $item, 5);
 
         $this->actingAs($second)->get(route('inventory.requests.index'))
-            ->assertOk()->assertInertia(fn ($page) => $page->component('Inventory/Requests/Index')->has('requests', 0));
+            ->assertOk()->assertInertia(fn ($page) => $page->component('Inventory/Requests/Index')
+                ->has('requests.data', 0)->where('requests.total', 0));
         $this->actingAs($second)->put(route('inventory.requests.update', $request), [
             'department' => 'Other', 'purpose' => 'Other', 'items' => [['item_id' => $item->id, 'quantity' => 1]],
         ])->assertForbidden();
@@ -182,6 +183,167 @@ class SupplyRequestWorkflowTest extends TestCase
             'department' => 'Changed', 'purpose' => 'Changed', 'items' => [['item_id' => $item->id, 'quantity' => 1]],
         ])->assertSessionHasErrors('request');
         $this->assertSame('Registrar', $request->fresh()->department);
+    }
+
+    public function test_coordinator_request_history_is_paginated_filterable_and_sanitized(): void
+    {
+        $coordinator = $this->user('Supply Coordinator');
+        $other = $this->user('Supply Coordinator');
+        $custodian = $this->user('Property Custodian');
+        $item = $this->item(100);
+
+        $supplier = \Modules\Suppliers\Models\Supplier::create([
+            'name' => 'Private Supplier',
+            'tin' => '999-888-777-000',
+            'reg_number' => 'PRIVATE-REG',
+            'category' => 'Office Supplies',
+            'address' => 'Private address',
+            'status' => 'active',
+            'created_by' => $custodian->id,
+        ]);
+        $batch = \Modules\Inventory\Models\InventoryBatch::create([
+            'item_id' => $item->id,
+            'supplier_id' => $supplier->id,
+            'supplier_stock_no' => 'SAFE-STOCK-NO',
+            'quantity_received' => 100,
+            'quantity_remaining' => 100,
+            'unit_cost' => 987.65,
+            'date_received' => now()->toDateString(),
+            'created_by' => $custodian->id,
+        ]);
+
+        $pendingRequests = collect(range(1, 10))->map(function (int $number) use ($coordinator, $item) {
+            $request = SupplyRequest::create([
+                'requested_by' => $coordinator->id,
+                'recipient' => 'Registrar Office Head',
+                'department' => 'Registrar',
+                'purpose' => "Routine request {$number}",
+                'status' => 'Pending',
+            ]);
+            $request->items()->create(['item_id' => $item->id, 'quantity' => 1]);
+
+            return $request;
+        });
+
+        $correction = SupplyRequest::create([
+            'requested_by' => $coordinator->id,
+            'recipient' => 'Registrar Office Head',
+            'department' => 'Registrar',
+            'purpose' => 'Unique correction request',
+            'status' => 'For Correction',
+            'document_verification_remarks' => 'Replace the supporting document.',
+        ]);
+        $correction->items()->create(['item_id' => $item->id, 'quantity' => 2]);
+
+        $approved = SupplyRequest::create([
+            'requested_by' => $coordinator->id,
+            'recipient' => 'Registrar Office Head',
+            'department' => 'Registrar',
+            'purpose' => 'Approved request',
+            'status' => 'Approved',
+        ]);
+        $approved->items()->create(['item_id' => $item->id, 'quantity' => 3, 'approved_quantity' => 3]);
+
+        $issued = SupplyRequest::create([
+            'requested_by' => $coordinator->id,
+            'recipient' => 'Registrar Office Head',
+            'department' => 'Registrar',
+            'purpose' => 'Issued request',
+            'status' => 'Issued',
+        ]);
+        $issued->items()->create(['item_id' => $item->id, 'quantity' => 4, 'approved_quantity' => 4]);
+        $issuance = Issuance::create([
+            'item_id' => $item->id,
+            'quantity' => 4,
+            'recipient' => 'Registrar Office Head',
+            'issued_by' => $custodian->id,
+            'date_issued' => now()->toDateString(),
+            'status' => 'Issued',
+        ]);
+        $issuanceItem = $issuance->items()->create([
+            'item_id' => $item->id,
+            'quantity' => 4,
+            'unit_cost' => 987.65,
+            'amount' => 3950.60,
+        ]);
+        $issuanceItem->allocations()->create([
+            'inventory_batch_id' => $batch->id,
+            'quantity' => 4,
+            'unit_cost' => 987.65,
+            'amount' => 3950.60,
+        ]);
+        $issued->update(['issuance_id' => $issuance->id]);
+
+        $foreignRequest = SupplyRequest::create([
+            'requested_by' => $other->id,
+            'recipient' => 'Another Office Head',
+            'department' => 'Another Office',
+            'purpose' => 'Must stay private',
+            'status' => 'Pending',
+        ]);
+        $foreignRequest->items()->create(['item_id' => $item->id, 'quantity' => 1]);
+
+        $this->actingAs($coordinator)->get(route('inventory.requests.index'))
+            ->assertOk()
+            ->assertInertia(function ($page) use ($foreignRequest) {
+                $props = $page->toArray()['props'];
+                $payload = json_encode($props['requests']['data'], JSON_THROW_ON_ERROR);
+
+                $this->assertCount(10, $props['requests']['data']);
+                $this->assertSame(13, $props['requests']['total']);
+                $this->assertSame(10, $props['requests']['per_page']);
+                $this->assertSame(10, $props['requestSummary']['Pending']);
+                $this->assertSame(1, $props['requestSummary']['For Correction']);
+                $this->assertSame(1, $props['requestSummary']['Approved']);
+                $this->assertSame(1, $props['requestSummary']['Issued']);
+                $this->assertNotContains($foreignRequest->id, collect($props['requests']['data'])->pluck('id'));
+                $this->assertArrayNotHasKey('unit_cost', $props['items'][0]);
+                $this->assertStringNotContainsString('unit_cost', $payload);
+                $this->assertStringNotContainsString('active_batches', $payload);
+                $this->assertStringNotContainsString('batch_value', $payload);
+                $this->assertStringNotContainsString('supplier_id', $payload);
+                $this->assertStringNotContainsString('Private Supplier', $payload);
+                $this->assertStringNotContainsString('Private address', $payload);
+            });
+
+        $this->actingAs($coordinator)->get(route('inventory.requests.index', ['status' => 'Pending']))
+            ->assertInertia(fn ($page) => $page
+                ->where('requests.total', 10)
+                ->has('requests.data', 10)
+                ->where('requestFilters.status', 'Pending'));
+
+        $this->actingAs($coordinator)->get(route('inventory.requests.index', ['status' => 'For Correction']))
+            ->assertInertia(fn ($page) => $page
+                ->where('requests.total', 1)
+                ->where('requests.data.0.id', $correction->id)
+                ->where('requests.data.0.status', 'For Correction'));
+
+        $this->actingAs($coordinator)->get(route('inventory.requests.index', ['search' => 'unique correction']))
+            ->assertInertia(fn ($page) => $page
+                ->where('requests.total', 1)
+                ->where('requests.data.0.id', $correction->id));
+
+        $this->actingAs($coordinator)->get(route('inventory.requests.index', [
+            'status' => 'Approved',
+            'request_id' => $pendingRequests->first()->id,
+        ]))->assertInertia(fn ($page) => $page
+            ->where('requests.total', 1)
+            ->where('requests.data.0.id', $approved->id)
+            ->where('focusedRequest.id', $pendingRequests->first()->id));
+
+        $this->actingAs($coordinator)->get(route('inventory.requests.index', ['status' => 'Issued']))
+            ->assertInertia(function ($page) use ($issued) {
+                $props = $page->toArray()['props'];
+                $request = $props['requests']['data'][0];
+                $allocation = $request['issuance']['items'][0]['allocations'][0];
+
+                $this->assertSame($issued->id, $request['id']);
+                $this->assertSame('SAFE-STOCK-NO', $allocation['supplier_stock_no']);
+                $this->assertSame(['batch_id', 'supplier_stock_no', 'quantity'], array_keys($allocation));
+                $this->assertArrayNotHasKey('unit_cost', $request['issuance']['items'][0]);
+                $this->assertArrayNotHasKey('amount', $request['issuance']['items'][0]);
+                $this->assertArrayNotHasKey('inventory_batch', $allocation);
+            });
     }
 
     public function test_approval_cannot_overbook_and_cancellation_frees_reservation(): void
@@ -409,7 +571,7 @@ class SupplyRequestWorkflowTest extends TestCase
         $this->actingAs($coordinator)->get(route('inventory.requests.index'))
             ->assertOk()
             ->assertInertia(function ($page) {
-                $reqs = $page->toArray()['props']['requests'];
+                $reqs = $page->toArray()['props']['requests']['data'];
                 $this->assertNotEmpty($reqs);
                 $this->assertSame('CEID Coordinator', $reqs[0]['recipient_designation']);
                 $this->assertSame('STK-2026-FILAMENT-001', $reqs[0]['items'][0]['item']['stock_no']);

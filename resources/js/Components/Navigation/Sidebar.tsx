@@ -30,7 +30,7 @@ export default function Sidebar({
     const capabilities = pageProps.auth?.capabilities;
     const isCoordinator = Boolean(capabilities?.coordinatorInventory);
     const isSystemAdmin = pageProps.auth?.is_system_admin === true;
-    const { canAny } = useAuthorization();
+    const { can, canAny } = useAuthorization();
 
     // Load modules if not explicitly passed
     const rawModules = useMemo(() => {
@@ -45,11 +45,10 @@ export default function Sidebar({
                 // If module has submodules, filter them
                 if (mod.submodules && mod.submodules.length > 0) {
                     const accessibleSubmodules = mod.submodules.filter((sub) => {
-                        if (!capabilities) return true;
-                        if (sub.requiredCapability) {
-                            return sub.requiredCapability(capabilities);
+                        if (capabilities && sub.requiredCapability) {
+                            if (!sub.requiredCapability(capabilities)) return false;
                         }
-                        return true;
+                        return !sub.requiredPermission || can(sub.requiredPermission);
                     });
 
                     // If no submodules remain accessible, the module itself is hidden
@@ -64,15 +63,17 @@ export default function Sidebar({
                 }
 
                 // Top-level module check
-                if (!capabilities) return mod;
-                if (mod.requiredCapability && !mod.requiredCapability(capabilities)) {
+                if (capabilities && mod.requiredCapability && !mod.requiredCapability(capabilities)) {
+                    return null;
+                }
+                if (mod.requiredPermission && !can(mod.requiredPermission)) {
                     return null;
                 }
 
                 return mod;
             })
             .filter((mod): mod is SidebarModule => mod !== null);
-    }, [rawModules, capabilities]);
+    }, [rawModules, capabilities, can]);
 
     // System Admins use these child destinations as primary navigation items,
     // without the extra expandable Audit Logs / Access Control parent level.
@@ -99,7 +100,7 @@ export default function Sidebar({
         const onRequestsPage = currentRoute === 'inventory.requests.index';
         const pendingRequests = query.get('status') === 'Pending';
 
-        return [
+        const systemAdminItems: SidebarModule[] = [
             ...adminModules,
             {
                 key: 'system-admin-view-requisition',
@@ -129,6 +130,7 @@ export default function Sidebar({
                 active: currentRoute === 'inventory.index',
             },
         ];
+        return systemAdminItems;
     }, [filteredModules, isSystemAdmin, pageUrl]);
 
     const navigationGroups = useMemo(() => {

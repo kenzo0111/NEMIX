@@ -133,6 +133,7 @@ class CoordinatorDepartmentAssignmentTest extends TestCase
         $second->update(['department' => 'HR', 'office_head_id' => $this->officeHead('HR Head')->id]);
         $this->actingAs($first)->post(route('inventory.requests.store'), $this->payload())->assertSessionHasNoErrors();
         $this->actingAs($second)->get(route('inventory.requests.index'))->assertInertia(fn ($page) => $page
-            ->has('requests', 0)->where('departmentAssignment.department', 'HR')->where('departmentAssignment.recipient', 'HR Head'));
+            ->has('requests.data', 0)->where('requests.total', 0)
+            ->where('departmentAssignment.department', 'HR')->where('departmentAssignment.recipient', 'HR Head'));
     }
 }

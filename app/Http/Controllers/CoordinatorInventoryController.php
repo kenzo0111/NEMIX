@@ -23,7 +23,7 @@ class CoordinatorInventoryController extends Controller
         $availability = $filters['availability'] ?? 'all';
         $reservations = DB::table('supply_request_items as lines')
             ->join('supply_requests as requests', 'requests.id', '=', 'lines.supply_request_id')
-            ->where('requests.status', 'Approved')->groupBy('lines.item_id')
+            ->whereIn('requests.status', ['Approved', 'Ready for Pickup'])->groupBy('lines.item_id')
             ->selectRaw('lines.item_id, SUM(lines.approved_quantity) as quantity');
         $available = '(items.stock - COALESCE(reservations.quantity, 0))';
         $items = DB::table('items')->whereNull('items.deleted_at')

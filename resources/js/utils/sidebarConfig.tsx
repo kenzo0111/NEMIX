@@ -151,7 +151,6 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
             icon: LayoutDashboard,
             href: route('dashboard'),
             requiredCapability: (caps) => caps.dashboard,
-            requiredPermission: 'route:dashboard',
         },
         {
             key: 'my-requests',
