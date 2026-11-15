@@ -119,7 +119,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         }
 
         /* Purpose statement */
-        .purpose-statement {
+        .mr-container .purpose-statement {
           margin-bottom: 1.5mm;
           line-height: 1.2;
           text-align: justify;
@@ -127,13 +127,13 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         }
 
         /* Main Table Grid */
-        .main-table {
+        .mr-container .main-table {
           width: 100%;
           border-collapse: collapse;
           border: 1.5px solid #000000;
           table-layout: fixed;
         }
-        .main-table th, .main-table td {
+        .mr-container .main-table th, .mr-container .main-table td {
           border: 1px solid #000000;
           padding: 0.6mm 1mm;
           font-size: 8pt;
@@ -143,33 +143,33 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
           vertical-align: middle;
           line-height: 1.1;
         }
-        .main-table th {
+        .mr-container .main-table th {
           text-align: center;
           font-weight: bold;
           background-color: #ffffff;
           padding: 0.8mm 1mm;
         }
-        .empty-row td {
+        .mr-container .empty-row td {
           height: 4mm !important;
           min-height: 4mm !important;
           padding: 0 1mm !important;
           line-height: 1 !important;
         }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .text-left { text-align: left; }
-        .font-bold { font-weight: bold; }
+        .mr-container .text-center { text-align: center; }
+        .mr-container .text-right { text-align: right; }
+        .mr-container .text-left { text-align: left; }
+        .mr-container .font-bold { font-weight: bold; }
 
         /* Column widths */
-        .col-qty { width: 6%; }
-        .col-unit { width: 7%; }
-        .col-desc { width: 36%; }
-        .col-prop-no { width: 21%; }
-        .col-date { width: 14%; }
-        .col-val { width: 16%; }
+        .mr-container .col-qty { width: 6%; }
+        .mr-container .col-unit { width: 7%; }
+        .mr-container .col-desc { width: 36%; }
+        .mr-container .col-prop-no { width: 21%; }
+        .mr-container .col-date { width: 14%; }
+        .mr-container .col-val { width: 16%; }
 
         /* Signatures Section */
-        .signatures-table {
+        .mr-container .signatures-table {
           width: 100%;
           border-collapse: collapse;
           border: 1.5px solid #000000;
@@ -178,16 +178,16 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
           height: auto;
           min-height: auto;
         }
-        .sig-cell {
+        .mr-container .sig-cell {
           width: 50%;
           vertical-align: top;
           padding: 1.5mm 2.5mm;
           box-sizing: border-box;
         }
-        .sig-cell:first-child {
+        .mr-container .sig-cell:first-child {
           border-right: 1px solid #000000;
         }
-        .sig-header {
+        .mr-container .sig-header {
           font-weight: bold;
           margin-bottom: 4.5mm;
           font-size: 8.5pt;
@@ -197,20 +197,20 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
         @media print {
           body { margin: 0; padding: 0; background: #fff; }
           .mr-container { width: 100%; max-width: none; margin: 0 auto; padding: 0; }
-          .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .official-form-header, .official-form-subtitle, .purpose-statement, .mr-top-info {
+          .mr-container .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .mr-container .official-form-header, .mr-container .official-form-subtitle, .mr-container .purpose-statement, .mr-container .mr-top-info {
             page-break-inside: avoid;
             break-inside: avoid;
           }
-          .signatures-table {
+          .mr-container .signatures-table {
             page-break-inside: avoid;
             break-inside: avoid;
           }
-          .main-table tr {
+          .mr-container .main-table tr {
             page-break-inside: avoid;
             break-inside: avoid;
           }
-          .main-table thead {
+          .mr-container .main-table thead {
             display: table-header-group;
           }
         }

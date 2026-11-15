@@ -114,14 +114,14 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
             box-sizing: border-box;
             line-height: 1.15;
         }
-        .header-title {
+        .ris-container .header-title {
             text-align: right;
             font-style: italic;
             font-size: 16pt;
             margin-bottom: 1mm;
             line-height: 1.1;
         }
-        .main-title {
+        .ris-container .main-title {
             text-align: center;
             font-weight: bold;
             font-size: 11.5pt;
@@ -129,18 +129,18 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
             letter-spacing: 0.3px;
             line-height: 1.15;
         }
-        table {
+        .ris-container table {
             width: 100%;
             border-collapse: collapse;
         }
         /* Info Table (Entity/Fund) */
-        .info-table td {
+        .ris-container .info-table td {
             padding: 1.5px 3px;
             font-size: 8.5pt;
             vertical-align: bottom;
             line-height: 1.1;
         }
-        .info-table .field {
+        .ris-container .info-table .field {
             border-bottom: 1px solid #000;
             min-width: 160px;
             font-weight: bold;
@@ -150,53 +150,53 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
         }
         
         /* Main Grid Table */
-        .main-table {
+        .ris-container .main-table {
             margin-top: 3px;
             border: 1px solid #000;
             width: 100%;
         }
-        .main-table th, .main-table td {
+        .ris-container .main-table th, .ris-container .main-table td {
             border: 1px solid #000;
             padding: 0.6mm 1mm;
             font-size: 8pt;
             line-height: 1.1;
         }
-        .main-table th {
+        .ris-container .main-table th {
             background-color: #f0f0f0;
             font-weight: bold;
             text-align: center;
             padding: 0.8mm 1mm;
         }
-        .main-table .section-header {
+        .ris-container .main-table .section-header {
             font-style: italic;
             background-color: #ffffff;
         }
-        .main-table td {
+        .ris-container .main-table td {
             height: auto;
         }
-        .main-table tr.empty-row td,
-        .empty-row td {
+        .ris-container .main-table tr.empty-row td,
+        .ris-container .empty-row td {
             height: 4mm !important;
             min-height: 4mm !important;
             padding: 0 1mm !important;
             line-height: 1 !important;
         }
-        .text-center { text-align: center; }
-        .text-left { text-align: left; }
+        .ris-container .text-center { text-align: center; }
+        .ris-container .text-left { text-align: left; }
         
         /* Signature Section specific overrides within main table */
-        .sig-header {
+        .ris-container .sig-header {
             background-color: #ffffff !important;
             font-weight: bold;
             text-align: center;
         }
-        .sig-table {
+        .ris-container .sig-table {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
             margin: 0;
         }
-        .sig-table th, .sig-table td {
+        .ris-container .sig-table th, .ris-container .sig-table td {
             border: 1px solid #000;
             padding: 1.5px 2px;
             font-size: 8pt;
@@ -204,12 +204,12 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
             overflow: hidden;
             line-height: 1.1;
         }
-        .sig-table th.sig-header {
+        .ris-container .sig-table th.sig-header {
             background-color: #ffffff !important;
             font-weight: bold;
             text-align: center;
         }
-        .sig-cell {
+        .ris-container .sig-cell {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: clip;
@@ -217,25 +217,25 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
         }
         
         /* Additional classes for inline styles */
-        .info-table .entity-label { width: 80px; }
-        .info-table .spacer { width: 40px; }
-        .info-table .fund-label { width: 80px; }
-        .division-cell { border-right: 1px solid #000; }
-        .stock-no { width: 10%; }
-        .unit { width: 8%; }
-        .description { width: 32%; }
-        .quantity { width: 8%; }
-        .yes { width: 5%; }
-        .no { width: 5%; }
-        .issue-quantity { width: 10%; }
-        .remarks { width: 22%; }
-        .purpose-cell { text-align: left; padding: 2.5px 4px; min-height: 20px; vertical-align: top; font-size: 8pt; line-height: 1.15; }
-        .sig-empty { border: 1px solid #000; background-color: #fff; }
+        .ris-container .info-table .entity-label { width: 80px; }
+        .ris-container .info-table .spacer { width: 40px; }
+        .ris-container .info-table .fund-label { width: 80px; }
+        .ris-container .division-cell { border-right: 1px solid #000; }
+        .ris-container .stock-no { width: 10%; }
+        .ris-container .unit { width: 8%; }
+        .ris-container .description { width: 32%; }
+        .ris-container .quantity { width: 8%; }
+        .ris-container .yes { width: 5%; }
+        .ris-container .no { width: 5%; }
+        .ris-container .issue-quantity { width: 10%; }
+        .ris-container .remarks { width: 22%; }
+        .ris-container .purpose-cell { text-align: left; padding: 2.5px 4px; min-height: 20px; vertical-align: top; font-size: 8pt; line-height: 1.15; }
+        .ris-container .sig-empty { border: 1px solid #000; background-color: #fff; }
         
         @media print {
             body { margin: 0; padding: 0; }
             .ris-container { width: 100%; max-width: none; }
-            .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .ris-container .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
       `}</style>
 

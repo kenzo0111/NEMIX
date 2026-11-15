@@ -122,15 +122,15 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
             line-height: 1.15;
         }
 
-        table {
+        .rpci-container table {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
         }
-        .main-table {
+        .rpci-container .main-table {
             border: 1.5px solid #000000;
         }
-        .main-table th, .main-table td {
+        .rpci-container .main-table th, .rpci-container .main-table td {
             border: 1px solid #000000;
             padding: 0.6mm 1mm;
             word-break: break-word;
@@ -141,28 +141,28 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
             vertical-align: middle;
             line-height: 1.1;
         }
-        .main-table th {
+        .rpci-container .main-table th {
             font-weight: bold;
             background-color: #ffffff;
             padding: 0.8mm 1mm;
         }
-        .empty-row td {
+        .rpci-container .empty-row td {
             height: 4mm !important;
             min-height: 4mm !important;
             padding: 0 1mm !important;
             line-height: 1 !important;
         }
-        .text-left { text-align: left !important; }
-        .text-right { text-align: right !important; }
-        .text-center { text-align: center !important; }
+        .rpci-container .text-left { text-align: left !important; }
+        .rpci-container .text-right { text-align: right !important; }
+        .rpci-container .text-center { text-align: center !important; }
         
-        .footer-table {
+        .rpci-container .footer-table {
             margin-top: 1.5mm;
             width: 100%;
             min-height: auto;
             height: auto;
         }
-        .footer-table td {
+        .rpci-container .footer-table td {
             width: 33.33%;
             padding: 1.5mm 2mm;
             vertical-align: top;
@@ -172,20 +172,20 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
         @media print {
             body { margin: 0; padding: 0; background: #fff; }
             .rpci-container { width: 100%; max-width: none; margin: 0 auto; padding: 0; }
-            .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .official-form-header, .official-form-subtitle, .rpci-top-info {
+            .rpci-container .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .rpci-container .official-form-header, .rpci-container .official-form-subtitle, .rpci-container .rpci-top-info {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
-            .footer-table {
+            .rpci-container .footer-table {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
-            .main-table tr {
+            .rpci-container .main-table tr {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
-            .main-table thead {
+            .rpci-container .main-table thead {
                 display: table-header-group;
             }
         }

@@ -3,6 +3,12 @@ import axios from 'axios';
 import { SystemSettings, Signatory } from '../types';
 import SignatorySelect from './SignatorySelect';
 import AddSignatoryDialog from './AddSignatoryDialog';
+import RequisitionIssueSlip from '../../../../../Official Forms/RequisitionIssueSlip';
+import RSMIFormPaper from '../../../../../Official Forms/RSMI Report';
+import ReportPhysicalCount from '../../../../../Official Forms/RPCI Report';
+import MRFormPaper from '../../../../../Official Forms/MRForm';
+import SignatoryFormPreview from './SignatoryFormPreview';
+import { buildSignatoryPreviewData } from '../signatoryPreviewData';
 
 interface SignatorySettingsProps {
     settings: SystemSettings;
@@ -60,6 +66,15 @@ export const SIGNATORY_TARGET_FIELDS = {
         idKey: 'signatories.mor_issued_by_id' as const,
     },
 } satisfies Record<string, TargetFieldPair>;
+
+function SignatorySection({ children, preview }: { children: React.ReactNode; preview: React.ReactNode }) {
+    return (
+        <div className="grid min-w-0 grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+            <div className="min-w-0 space-y-4">{children}</div>
+            {preview}
+        </div>
+    );
+}
 
 export default function SignatorySettings({
     settings,
@@ -185,10 +200,18 @@ export default function SignatorySettings({
         }
     };
 
+    const previews = buildSignatoryPreviewData(settings);
+
     return (
         <div className="space-y-8">
             {/* SUBSECTION 1: REQUISITION & ISSUE SLIP */}
-            <div className="space-y-4">
+            <SignatorySection
+                preview={
+                    <SignatoryFormPreview form="RIS">
+                        <RequisitionIssueSlip data={previews.ris} />
+                    </SignatoryFormPreview>
+                }
+            >
                 <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
                         Requisition & Issue Slip (RIS — Appendix 63)
@@ -327,12 +350,18 @@ export default function SignatorySettings({
                         </div>
                     )}
                 </div>
-            </div>
+            </SignatorySection>
 
             <hr className="border-slate-200/80 dark:border-slate-800" />
 
             {/* SUBSECTION 2: RSMI */}
-            <div className="space-y-4">
+            <SignatorySection
+                preview={
+                    <SignatoryFormPreview form="RSMI" landscape>
+                        <RSMIFormPaper data={previews.rsmi} />
+                    </SignatoryFormPreview>
+                }
+            >
                 <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
                         Report of Supplies & Materials Issued (RSMI — Monthly Summary)
@@ -396,12 +425,18 @@ export default function SignatorySettings({
                     </div>
 
                 </div>
-            </div>
+            </SignatorySection>
 
             <hr className="border-slate-200/80 dark:border-slate-800" />
 
             {/* SUBSECTION 3: RPCI */}
-            <div className="space-y-4">
+            <SignatorySection
+                preview={
+                    <SignatoryFormPreview form="RPCI" landscape>
+                        <ReportPhysicalCount data={previews.rpci} />
+                    </SignatoryFormPreview>
+                }
+            >
                 <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
                         Report on the Physical Count of Inventories (RPCI)
@@ -532,12 +567,18 @@ export default function SignatorySettings({
                         )}
                     </div>
                 </div>
-            </div>
+            </SignatorySection>
 
             <hr className="border-slate-200/80 dark:border-slate-800" />
 
             {/* SUBSECTION 4: MEMORANDUM RECEIPT FOR PROPERTY (MOR / MR) */}
-            <div className="space-y-4">
+            <SignatorySection
+                preview={
+                    <SignatoryFormPreview form="MOR">
+                        <MRFormPaper data={previews.mor} />
+                    </SignatoryFormPreview>
+                }
+            >
                 <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
                         Memorandum Receipt for Property (MOR / MR — Appendix 59-A)
@@ -616,7 +657,7 @@ export default function SignatorySettings({
                         )}
                     </div>
                 </div>
-            </div>
+            </SignatorySection>
 
             {/* Modal Dialog for Adding Signatory */}
             <AddSignatoryDialog

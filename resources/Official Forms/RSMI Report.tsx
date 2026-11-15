@@ -121,13 +121,13 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         }
 
         /* Main Table Grid */
-        .main-table {
+        .rsmi-container .main-table {
             width: 100%;
             border-collapse: collapse;
             border: 1.5px solid #000000;
             table-layout: fixed;
         }
-        .main-table th, .main-table td {
+        .rsmi-container .main-table th, .rsmi-container .main-table td {
             border: 1px solid #000000;
             padding: 0.6mm 1mm;
             font-size: 8pt;
@@ -137,24 +137,24 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             vertical-align: middle;
             line-height: 1.1;
         }
-        .main-table th {
+        .rsmi-container .main-table th {
             text-align: center;
             font-weight: bold;
             background-color: #ffffff;
             padding: 0.8mm 1mm;
         }
-        .empty-row td {
+        .rsmi-container .empty-row td {
             height: 4mm !important;
             min-height: 4mm !important;
             padding: 0 1mm !important;
             line-height: 1 !important;
         }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .text-left { text-align: left; }
+        .rsmi-container .text-center { text-align: center; }
+        .rsmi-container .text-right { text-align: right; }
+        .rsmi-container .text-left { text-align: left; }
         
-        .responsibility-center-code,
-        .rsmi-responsibility-center-code {
+        .rsmi-container .responsibility-center-code,
+        .rsmi-container .rsmi-responsibility-center-code {
             text-align: center !important;
             vertical-align: middle !important;
             white-space: nowrap !important;
@@ -163,12 +163,12 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
             box-sizing: border-box !important;
         }
 
-        .rsmi-group-cell {
+        .rsmi-container .rsmi-group-cell {
             text-align: center !important;
             vertical-align: middle !important;
         }
 
-        .header-italic {
+        .rsmi-container .header-italic {
             font-style: italic;
             font-weight: normal !important;
             padding: 0.8mm 1mm !important;
@@ -176,43 +176,43 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         }
 
         /* Footer / Signatures */
-        .footer-cell {
+        .rsmi-container .footer-cell {
             vertical-align: top !important;
             padding: 1.5mm 2.5mm !important;
             min-height: auto;
             height: auto;
         }
-        .certify-text {
+        .rsmi-container .certify-text {
             margin-bottom: 4.5mm;
             font-size: 8pt;
             line-height: 1.1;
         }
-        .posted-text {
+        .rsmi-container .posted-text {
             margin-bottom: 4.5mm;
             font-size: 8pt;
             line-height: 1.1;
         }
 
         /* Ensure borders match precisely */
-        .border-bottom-bold { border-bottom: 1.5px solid #000000 !important; }
+        .rsmi-container .border-bottom-bold { border-bottom: 1.5px solid #000000 !important; }
 
         @media print {
             body { margin: 0; padding: 0; background: #fff; }
             .rsmi-container { width: 100%; max-width: none; margin: 0 auto; padding: 0; }
-            .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .official-form-header, .rsmi-top-info {
+            .rsmi-container .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .rsmi-container .official-form-header, .rsmi-container .rsmi-top-info {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
-            .rsmi-signatures {
+            .rsmi-container .rsmi-signatures {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
-            .main-table tr {
+            .rsmi-container .main-table tr {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
-            .main-table thead {
+            .rsmi-container .main-table thead {
                 display: table-header-group;
             }
         }
