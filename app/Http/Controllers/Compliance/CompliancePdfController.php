@@ -12,6 +12,8 @@ class CompliancePdfController extends Controller
 {
     public function exportPdf(Request $request, ComplianceReportDataService $dataService)
     {
+        $usesSavedReport = $request->filled('report_id') || $request->filled('reportId');
+
         $validated = $request->validate([
             'report_id' => ['nullable', 'integer'],
             'reportId' => ['nullable', 'integer'],
@@ -22,9 +24,9 @@ class CompliancePdfController extends Controller
             'supplierId' => ['nullable', 'integer'],
             'endUser' => ['nullable', 'string', 'max:255'],
             'periodType' => ['nullable', 'string', 'in:all,specific,range,monthly,yearly'],
-            'date' => ['nullable', 'date'],
-            'startDate' => ['nullable', 'date'],
-            'endDate' => ['nullable', 'date'],
+            'date' => $usesSavedReport ? ['exclude'] : ['nullable', 'date'],
+            'startDate' => $usesSavedReport ? ['exclude'] : ['nullable', 'date'],
+            'endDate' => $usesSavedReport ? ['exclude'] : ['nullable', 'date'],
             'selectedMonth' => ['nullable', 'integer', 'between:1,12'],
             'selectedYear' => ['nullable', 'integer', 'between:2000,2100'],
             'generatedDate' => ['nullable', 'date'],
@@ -35,12 +37,12 @@ class CompliancePdfController extends Controller
         $reportId = $validated['report_id'] ?? $validated['reportId'] ?? null;
         $reportModel = null;
         if ($reportId) {
-            $reportModel = ComplianceReport::find($reportId);
+            $reportModel = ComplianceReport::findOrFail($reportId);
         }
 
-        $type = strtoupper(str_replace([' ', '-'], '_', (string) ($validated['type'] ?? $reportModel?->type ?? 'RSMI')));
-        $title = $validated['title'] ?? $reportModel?->title ?? 'Compliance Report';
-        $reference = $validated['reference'] ?? $reportModel?->reference ?? 'REF-' . time();
+        $type = strtoupper(str_replace([' ', '-'], '_', (string) ($reportModel?->type ?? $validated['type'] ?? 'RSMI')));
+        $title = $reportModel?->title ?? $validated['title'] ?? 'Compliance Report';
+        $reference = $reportModel?->reference ?? $validated['reference'] ?? 'REF-' . time();
 
         // Retrieve or synthesize dataset
         if ($reportModel && !empty($reportModel->payload)) {
@@ -48,11 +50,24 @@ class CompliancePdfController extends Controller
                 ?? data_get($reportModel->payload, 'dataset')
                 ?? $reportModel->payload;
         } else {
-            $filters = array_merge($validated, [
-                'type' => $type,
-                'title' => $title,
-                'reference' => $reference,
-            ]);
+            $filters = $reportModel
+                ? [
+                    'type' => $type,
+                    'title' => $title,
+                    'reference' => $reference,
+                    'itemName' => $reportModel->item_name,
+                    'periodType' => $reportModel->period_type,
+                    'date' => optional($reportModel->date)->format('Y-m-d'),
+                    'startDate' => optional($reportModel->start_date)->format('Y-m-d'),
+                    'endDate' => optional($reportModel->end_date)->format('Y-m-d'),
+                    'selectedMonth' => $reportModel->selected_month,
+                    'selectedYear' => $reportModel->selected_year,
+                ]
+                : array_merge($validated, [
+                    'type' => $type,
+                    'title' => $title,
+                    'reference' => $reference,
+                ]);
             $dataset = $dataService->getReportDataset($filters);
         }
 

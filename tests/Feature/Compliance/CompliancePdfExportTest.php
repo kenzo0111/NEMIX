@@ -33,6 +33,73 @@ class CompliancePdfExportTest extends TestCase
         $this->assertStringStartsWith('%PDF-', $response->getContent());
     }
 
+    public function test_saved_manage_reports_export_with_dompdf_even_when_display_date_is_not_machine_parseable(): void
+    {
+        $cases = [
+            'RSMI' => [
+                'snapshot' => [
+                    'entityName' => 'University of Camarines Norte',
+                    'fundCluster' => '01 - Regular Agency Fund',
+                    'rsmi' => [
+                        'issuedItems' => [],
+                        'recapitulationItems' => [],
+                    ],
+                ],
+            ],
+            'RPCI' => [
+                'snapshot' => [
+                    'entity_name' => 'University of Camarines Norte',
+                    'fund_cluster' => '01 - Regular Agency Fund',
+                    'rpci' => ['items' => []],
+                ],
+            ],
+            'STOCK_CARD' => [
+                'snapshot' => [
+                    'entity_name' => 'University of Camarines Norte',
+                    'fund_cluster' => '01 - Regular Agency Fund',
+                    'stockCard' => ['entries' => []],
+                ],
+            ],
+            'MR' => [
+                'snapshot' => [
+                    'entityName' => 'University of Camarines Norte',
+                    'fundCluster' => '01 - Regular Agency Fund',
+                    'mr' => ['items' => []],
+                ],
+            ],
+        ];
+
+        foreach ($cases as $type => $payload) {
+            $report = ComplianceReport::create([
+                'title' => "{$type} saved export regression",
+                'type' => $type,
+                'reference' => "{$type}-2026-TEST",
+                'period_type' => 'range',
+                'date' => '2026-10-01',
+                'start_date' => '2026-10-01',
+                'end_date' => '2026-10-31',
+                'coverage_label' => 'October 1–31, 2026',
+                'payload' => $payload,
+            ]);
+
+            $response = $this->postJson(route('compliance.reports.export_pdf'), [
+                'report_id' => $report->id,
+                // Older cached clients may still submit this display-only value.
+                'date' => $report->coverage_label,
+            ]);
+
+            $response->assertOk();
+            $response->assertHeader('content-type', 'application/pdf');
+            $this->assertStringStartsWith('%PDF-', $response->getContent());
+            $pdfContent = $response->getContent();
+            $this->assertTrue(
+                str_contains(strtolower($pdfContent), 'dompdf')
+                    || str_contains($pdfContent, "\x00d\x00o\x00m\x00p\x00d\x00f"),
+                "{$type} saved report did not use the server PDF renderer.",
+            );
+        }
+    }
+
     public function test_rsmi_pdf_preserves_the_full_official_ris_number()
     {
         $form = [

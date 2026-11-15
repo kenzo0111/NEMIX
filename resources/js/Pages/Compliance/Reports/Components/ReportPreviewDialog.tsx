@@ -114,6 +114,7 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
                 selectedMonth: report.selectedMonth || report.selected_month,
                 selectedYear: report.selectedYear || report.selected_year,
                 date: report.date,
+                dateValue: report.dateValue,
                 startDate: report.startDate || report.start_date,
                 endDate: report.endDate || report.end_date,
                 payload: report.payload,
