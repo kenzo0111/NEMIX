@@ -44,6 +44,29 @@ export interface RecentReceiving {
     received_by?: string;
 }
 
+export interface CentralReceivingRecord {
+    id: number;
+    item_name: string;
+    stock_no: string;
+    quantity: number;
+    unit: string;
+    date_received?: string | null;
+    date_received_formatted: string;
+    recorded_at?: string | null;
+    recorded_at_formatted: string;
+    recorded_by: string;
+}
+
+export interface CentralReceivingSummary {
+    period_label: string;
+    total_quantity: number;
+    quantities_by_unit: Array<{ unit: string; quantity: number }>;
+    record_count: number;
+    item_types: number;
+    latest_recorded_at?: string | null;
+    recent_records: CentralReceivingRecord[];
+}
+
 export interface RecentIssuance {
     id: number;
     ris_number: string;
@@ -138,6 +161,7 @@ export interface DashboardPageProps {
     coordinatorName?: string;
     requestSummary?: Record<string, number>;
     recentRequests?: CoordinatorRequest[];
+    centralReceivingSummary?: CentralReceivingSummary;
     auth: {
         user: {
             id: number;

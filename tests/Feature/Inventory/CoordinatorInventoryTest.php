@@ -10,8 +10,10 @@ use App\Services\CoordinatorInventoryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Inventory\Models\Issuance;
 use Modules\Inventory\Models\Item;
+use Modules\Inventory\Models\Receiving;
 use Modules\Inventory\Models\SupplyRequest;
 use Modules\Inventory\Services\SupplyRequestService;
+use Modules\Suppliers\Models\Supplier;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -324,5 +326,147 @@ class CoordinatorInventoryTest extends TestCase
                 ->has('criticalStock')
                 ->has('recentActivity')
             );
+    }
+
+    public function test_supply_coordinator_can_monitor_central_receiving_records_entered_by_inventory_staff(): void
+    {
+        $this->travelTo(now('Asia/Manila')->startOfMonth()->addDays(16)->setTime(10, 0));
+        $coordinator = $this->user();
+        $inventoryStaff = $this->user('Inventory Staff');
+        $supplier = Supplier::create([
+            'name' => 'Central Office Supplier',
+            'tin' => 'TIN-'.uniqid(),
+            'reg_number' => 'REG-'.uniqid(),
+            'category' => 'Office Supplies',
+            'status' => 'active',
+            'created_by' => $inventoryStaff->id,
+        ]);
+        $paper = Item::create([
+            'name' => 'Bond Paper A4', 'supplier_id' => $supplier->id, 'sku' => 'PAPER-A4',
+            'stock' => 40, 'unit_cost' => 250, 'amount' => 10000, 'status' => 'Available',
+            'unit_of_issue' => 'ream', 'created_by' => $inventoryStaff->id,
+        ]);
+        $pens = Item::create([
+            'name' => 'Black Ballpen', 'supplier_id' => $supplier->id, 'sku' => 'PEN-BLK',
+            'stock' => 50, 'unit_cost' => 12, 'amount' => 600, 'status' => 'Available',
+            'unit_of_issue' => 'piece', 'created_by' => $inventoryStaff->id,
+        ]);
+
+        Receiving::create([
+            'item_id' => $paper->id, 'supplier_id' => $supplier->id, 'quantity' => 20,
+            'date_received' => now()->toDateString(), 'created_by' => $inventoryStaff->id,
+        ])->forceFill(['created_at' => now()->subHour()])->save();
+        Receiving::create([
+            'item_id' => $pens->id, 'supplier_id' => $supplier->id, 'quantity' => 10,
+            'supplier_stock_no' => 'CENTRAL-PEN-001',
+            'date_received' => now()->subDay()->toDateString(), 'created_by' => $inventoryStaff->id,
+        ]);
+        Receiving::create([
+            'item_id' => $paper->id, 'supplier_id' => $supplier->id, 'quantity' => 99,
+            'date_received' => now()->subMonthNoOverflow()->toDateString(), 'created_by' => $inventoryStaff->id,
+        ]);
+        Receiving::create([
+            'item_id' => $paper->id, 'supplier_id' => $supplier->id, 'quantity' => 1000,
+            'date_received' => now()->toDateString(), 'created_by' => $inventoryStaff->id,
+        ])->delete();
+        $pens->delete();
+
+        $this->actingAs($coordinator)->get(route('dashboard'))->assertOk()->assertInertia(fn ($page) => $page
+            ->where('centralReceivingSummary.period_label', now('Asia/Manila')->format('F Y'))
+            ->where('centralReceivingSummary.total_quantity', 30)
+            ->where('centralReceivingSummary.record_count', 2)
+            ->where('centralReceivingSummary.item_types', 2)
+            ->where('centralReceivingSummary.quantities_by_unit', [
+                ['unit' => 'piece', 'quantity' => 10],
+                ['unit' => 'ream', 'quantity' => 20],
+            ])
+            ->where('centralReceivingSummary.latest_recorded_at', now('Asia/Manila')->format('M d, Y • h:i A'))
+            ->has('centralReceivingSummary.recent_records', 2)
+            ->where('centralReceivingSummary.recent_records.0.recorded_by', $inventoryStaff->name)
+            ->where('centralReceivingSummary.recent_records.0.item_name', 'Black Ballpen')
+            ->where('centralReceivingSummary.recent_records.0.stock_no', 'CENTRAL-PEN-001')
+            ->where('centralReceivingSummary.recent_records.0.unit', 'piece')
+            ->where('centralReceivingSummary.recent_records.0.date_received', now()->subDay()->toDateString())
+            ->where('centralReceivingSummary.recent_records.0.recorded_at_formatted', now('Asia/Manila')->format('M d, Y • h:i A'))
+            ->where('summary.total_inventory', 0)
+            ->missing('centralReceivingSummary.recent_records.0.created_by')
+            ->missing('centralReceivingSummary.recent_records.0.unit_cost')
+            ->missing('centralReceivingSummary.recent_records.0.supplier'));
+
+        $this->assertSame(0, CoordinatorStock::count());
+        $this->assertSame(0, CoordinatorMovement::count());
+        $this->assertSame(40, $paper->fresh()->stock);
+
+        $this->actingAs($this->user('Authorized Personnel'))->get(route('dashboard'))->assertOk()
+            ->assertInertia(fn ($page) => $page->missing('centralReceivingSummary'));
+    }
+
+    public function test_central_receiving_summary_counts_the_entire_month_and_limits_recent_entries(): void
+    {
+        $this->travelTo(now('Asia/Manila')->startOfMonth()->addDays(16)->setTime(10, 0));
+        $coordinator = $this->user();
+        $staff = $this->user('Inventory Staff');
+        $supplier = Supplier::create([
+            'name' => 'Central Supplier', 'tin' => 'TIN-'.uniqid(), 'reg_number' => 'REG-'.uniqid(),
+            'category' => 'Office Supplies', 'status' => 'active', 'created_by' => $staff->id,
+        ]);
+        $item = Item::create([
+            'name' => 'Paper', 'sku' => 'MONTHLY-PAPER', 'supplier_id' => $supplier->id,
+            'stock' => 24, 'unit_of_issue' => 'Ream', 'status' => 'Available',
+        ]);
+        Receiving::create([
+            'item_id' => $item->id, 'supplier_id' => $supplier->id, 'quantity' => 99,
+            'date_received' => now()->subMonthNoOverflow()->toDateString(), 'created_by' => $staff->id,
+        ]);
+
+        $this->actingAs($coordinator)->get(route('dashboard'))->assertOk()->assertInertia(fn ($page) => $page
+            ->where('centralReceivingSummary.total_quantity', 0)
+            ->where('centralReceivingSummary.record_count', 0)
+            ->where('centralReceivingSummary.item_types', 0)
+            ->where('centralReceivingSummary.latest_recorded_at', null)
+            ->has('centralReceivingSummary.quantities_by_unit', 0)
+            ->has('centralReceivingSummary.recent_records', 0));
+
+        $ids = [];
+        for ($i = 0; $i < 8; $i++) {
+            $receiving = Receiving::create([
+                'item_id' => $item->id, 'supplier_id' => $supplier->id, 'quantity' => 3,
+                'date_received' => now()->subDays($i % 3)->toDateString(), 'created_by' => $staff->id,
+            ]);
+            $receiving->forceFill(['created_at' => now()->subMinutes(8 - $i)])->save();
+            $ids[] = $receiving->id;
+        }
+
+        $this->get(route('dashboard'))->assertOk()->assertInertia(fn ($page) => $page
+            ->where('centralReceivingSummary.total_quantity', 24)
+            ->where('centralReceivingSummary.record_count', 8)
+            ->where('centralReceivingSummary.item_types', 1)
+            ->where('centralReceivingSummary.quantities_by_unit', [['unit' => 'ream', 'quantity' => 24]])
+            ->where('centralReceivingSummary.latest_recorded_at', now()->subMinute()->format('M d, Y • h:i A'))
+            ->has('centralReceivingSummary.recent_records', 6)
+            ->where('centralReceivingSummary.recent_records', fn ($records) =>
+                array_column($records->all(), 'id') === array_slice(array_reverse($ids), 0, 6)));
+    }
+
+    public function test_central_receiving_summary_identifies_missing_recorder_without_attributing_it_to_staff(): void
+    {
+        $coordinator = $this->user();
+        $supplier = Supplier::create([
+            'name' => 'Legacy Supplier', 'tin' => 'TIN-'.uniqid(), 'reg_number' => 'REG-'.uniqid(),
+            'category' => 'Office Supplies', 'status' => 'active', 'created_by' => $coordinator->id,
+        ]);
+        $item = Item::create([
+            'name' => 'Legacy Paper', 'sku' => 'LEGACY-PAPER', 'stock' => 5,
+            'unit_of_issue' => 'ream', 'status' => 'Available',
+        ]);
+        Receiving::create([
+            'item_id' => $item->id, 'supplier_id' => $supplier->id, 'quantity' => 5,
+            'date_received' => now('Asia/Manila')->toDateString(),
+        ]);
+
+        $this->actingAs($coordinator)->get(route('dashboard'))->assertOk()->assertInertia(fn ($page) => $page
+            ->where('centralReceivingSummary.record_count', 1)
+            ->where('centralReceivingSummary.recent_records.0.item_name', 'Legacy Paper')
+            ->where('centralReceivingSummary.recent_records.0.recorded_by', 'Not recorded'));
     }
 }

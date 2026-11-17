@@ -10,6 +10,10 @@ RFID remains available as an optional receiving and tagging tool for inventory s
 
 Coordinators can also browse the read-only **Central Supply Catalog**. It lists active consumable items, physical stock on hand, and quantities available after subtracting approved request reservations. Search and availability filters help find supplies; **Request This Item** opens a new requisition with that item selected. The catalog does not expose other offices' requests, allocations, transaction history, supplier records, RFID tags, or inventory management controls. Browsing does not create a request or transfer stock.
 
+The Supply Coordinator dashboard includes **Central office receiving**, a read-only summary of central receiving records dated within the current calendar month. It shows the number of receiving records and supply types, with quantities grouped by unit so reams and pieces remain separate. The six newest entries show the supply and stock number, received quantity and unit, receipt date, recording staff member, and entry timestamp. Counts and quantity totals cover every record in the month, including records beyond those six entries. Deleted receiving records are excluded; archived supply items retain their names and units in the receiving history. This summary does not credit Delivery Unit stock or grant access to central inventory editing, supplier details, costs, or other offices' transactions. Authorized Personnel continue using their existing requester dashboard.
+
+Receiving entries with no associated recording user display **Not recorded** so the summary does not assign those entries to Inventory Staff without evidence.
+
 ## Apply the change
 
 Run `php artisan migrate` in the application's configured runtime before serving the updated application. The migration creates the coordinator inventory ledger, grants the three coordinator route permissions, and imports existing released requests for users currently assigned the Supply Coordinator role. Historical receipts keep their release dates and RIS references. Historical unit consumption was not recorded by the previous system; verify imported balances and record any past consumption before relying on opening stock.
@@ -17,5 +21,9 @@ Run `php artisan migrate` in the application's configured runtime before serving
 Then run `npm run build` if production assets have not already been built. No existing central inventory records are moved or relabeled.
 
 ## Verification
+
+Central receiving verification: `php vendor/phpunit/phpunit/phpunit --filter=CoordinatorInventoryTest` passed 13 tests and 424 assertions; `node --test tests/ui/central-receiving-summary.test.cjs` passed four rendered-component tests. The frontend type check and production build also passed. These checks cover monthly totals, separate units of measure, recent-entry ordering and limits, archived items, deleted receipts, missing recorder attribution, and coordinator access. Live browser layout was not inspected.
+
+The broader `DashboardAnalyticsTest` and `SystemOverviewDashboardTest` run currently has eight failures involving administrator dashboard component/prop expectations (`Dashboard` versus `Admin/SystemDashboard`, and `showRfidAlert`). Those expectations are outside the receiving summary change.
 
 `php artisan test --filter=CoordinatorInventoryTest` covers release-only credit, partial approval quantities, duplicate receipt prevention, coordinator isolation, local stock deductions, Stock Card date balances, PDF generation, and rollback of failed transfers. The existing dashboard and supply request suites cover central workflows. Frontend checks use `npx tsc --noEmit`, `npm run build`, and `node --test tests/Frontend/*.test.mjs`.

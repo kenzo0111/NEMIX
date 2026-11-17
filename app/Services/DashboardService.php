@@ -257,6 +257,78 @@ class DashboardService
     }
 
     /**
+     * Summarize central-office receiving records for Supply Coordinators.
+     */
+    public function getCentralReceivingSummary(int $limit = 6): array
+    {
+        $period = now('Asia/Manila');
+        $emptySummary = [
+            'period_label' => $period->format('F Y'),
+            'total_quantity' => 0,
+            'quantities_by_unit' => [],
+            'record_count' => 0,
+            'item_types' => 0,
+            'latest_recorded_at' => null,
+            'recent_records' => [],
+        ];
+
+        if (! class_exists(\Modules\Inventory\Models\Receiving::class)) {
+            return $emptySummary;
+        }
+
+        $monthStart = $period->copy()->startOfMonth()->toDateString();
+        $monthEnd = $period->copy()->endOfMonth()->toDateString();
+        $monthly = \Modules\Inventory\Models\Receiving::query()
+            ->whereBetween('date_received', [$monthStart, $monthEnd]);
+
+        $quantitiesByUnit = (clone $monthly)
+            ->leftJoin('items', 'items.id', '=', 'receivings.item_id')
+            ->selectRaw("LOWER(COALESCE(NULLIF(TRIM(items.unit_of_issue), ''), 'units')) as unit, SUM(receivings.quantity) as quantity")
+            ->groupBy('unit')
+            ->orderBy('unit')
+            ->get()
+            ->map(fn ($row) => ['unit' => $row->unit, 'quantity' => (int) $row->quantity])
+            ->all();
+
+        $recent = (clone $monthly)
+            ->select(['id', 'item_id', 'supplier_stock_no', 'quantity', 'date_received', 'created_at', 'created_by'])
+            ->with([
+                'item' => fn ($query) => $query->withTrashed()->select(['id', 'name', 'sku', 'unit_of_issue']),
+                'creator:id,name',
+            ])
+            ->latest('created_at')
+            ->latest('id')
+            ->take($limit)
+            ->get();
+
+        return [
+            'period_label' => $period->format('F Y'),
+            'total_quantity' => (int) (clone $monthly)->sum('quantity'),
+            'quantities_by_unit' => $quantitiesByUnit,
+            'record_count' => (int) (clone $monthly)->count(),
+            'item_types' => (int) (clone $monthly)->distinct()->count('item_id'),
+            'latest_recorded_at' => $recent->first()?->created_at
+                ?->timezone('Asia/Manila')->format('M d, Y • h:i A'),
+            'recent_records' => $recent->map(function ($receiving) {
+                return [
+                    'id' => $receiving->id,
+                    'item_name' => $receiving->item?->name ?? 'Archived supply item',
+                    'stock_no' => trim((string) $receiving->getRawOriginal('supplier_stock_no'))
+                        ?: ($receiving->item?->sku ?? '—'),
+                    'quantity' => (int) $receiving->quantity,
+                    'unit' => trim($receiving->item?->unit_of_issue ?? '') ?: 'Units',
+                    'date_received' => $receiving->date_received?->toDateString(),
+                    'date_received_formatted' => $receiving->date_received?->format('M d, Y') ?? '',
+                    'recorded_at' => $receiving->created_at?->toIso8601String(),
+                    'recorded_at_formatted' => $receiving->created_at
+                        ?->timezone('Asia/Manila')->format('M d, Y • h:i A') ?? '',
+                    'recorded_by' => $receiving->creator?->name ?? 'Not recorded',
+                ];
+            })->values()->all(),
+        ];
+    }
+
+    /**
      * Get recent stock issuance records (latest 5).
      */
     public function getRecentIssuances(int $limit = 5): array

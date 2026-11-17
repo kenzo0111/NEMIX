@@ -6,9 +6,10 @@ import DashboardControls from '@/Components/DashboardControls';
 import InventoryMovementChart from '../Charts/InventoryMovementChart';
 import RecentSystemActivity from './RecentSystemActivity';
 import { displayDate, secondaryButton } from '@/Pages/Inventory/Coordinator/inventory';
-import { CoordinatorRequest, CriticalStockItem, DashboardActivity, DashboardStats, DashboardSummary, MovementPoint, MovementSummary } from '../types';
+import type { CentralReceivingSummary as CentralReceivingSummaryType, CoordinatorRequest, CriticalStockItem, DashboardActivity, DashboardStats, DashboardSummary, MovementPoint, MovementSummary } from '../types';
 import useAuthorization from '@/Hooks/useAuthorization';
 import { COORDINATOR_TOUR_START_EVENT } from './CoordinatorWalkthroughGuide';
+import CentralReceivingSummary from './CentralReceivingSummary';
 
 interface Props {
     auth: {
@@ -25,6 +26,7 @@ interface Props {
     filters?: { chartFilter?: string; customStartDate?: string; customEndDate?: string };
     requestSummary?: Record<string, number>;
     recentRequests?: CoordinatorRequest[];
+    centralReceivingSummary?: CentralReceivingSummaryType;
 }
 
 const surface = 'min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700/70 dark:bg-slate-900';
@@ -32,7 +34,7 @@ const quietLink = 'inline-flex min-h-10 items-center gap-1 rounded text-xs font-
 
 export default function CoordinatorDashboardWorkspace({
     auth, coordinatorName, summary, stats, movement = [], criticalStock = [],
-    recentActivity = [], filters, requestSummary = {}, recentRequests = [],
+    recentActivity = [], filters, requestSummary = {}, recentRequests = [], centralReceivingSummary,
 }: Props) {
     const { can } = useAuthorization();
     const isAuthorizedPersonnel = Boolean(auth.capabilities?.requiresSupportingDocument);
@@ -106,6 +108,13 @@ export default function CoordinatorDashboardWorkspace({
                         return can('coordinator.inventory.index') ? <Link key={metric.label} href={historyHref} className={className}>{content}</Link> : <div key={metric.label} className={className}>{content}</div>;
                     })}
                 </section>
+
+                {centralReceivingSummary && (
+                    <CentralReceivingSummary
+                        summary={centralReceivingSummary}
+                        canViewCatalog={can('coordinator.catalog.index')}
+                    />
+                )}
 
                 <div className="grid min-w-0 grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                     <div className="min-w-0 space-y-4">

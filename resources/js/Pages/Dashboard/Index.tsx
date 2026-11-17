@@ -40,6 +40,7 @@ export default function DashboardIndex({
     coordinatorName,
     requestSummary = {},
     recentRequests = [],
+    centralReceivingSummary,
 }: DashboardPageProps) {
     const isCoordinator = inventoryScope === 'coordinator';
     const modules = getSidebarModules();
@@ -76,6 +77,7 @@ export default function DashboardIndex({
                         filters={filters}
                         requestSummary={requestSummary}
                         recentRequests={recentRequests}
+                        centralReceivingSummary={centralReceivingSummary}
                     />
                 ) : (
                     <>

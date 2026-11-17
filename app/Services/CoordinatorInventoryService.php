@@ -15,6 +15,10 @@ use Modules\Inventory\Services\InventoryPolicy;
 
 class CoordinatorInventoryService
 {
+    public function __construct(
+        protected DashboardService $dashboardService
+    ) {}
+
     public function receiveRelease(SupplyRequest $request, int $actorId): void
     {
         if (!in_array($request->status, ['Issued', 'Released'], true) || ! $request->issuance_id) {
@@ -133,7 +137,7 @@ class CoordinatorInventoryService
         $issued = array_sum(array_column($points, 'risIssued'));
         $opening = $points[0]['starting'] ?? 0;
 
-        return [
+        $dashboard = [
             'inventoryScope' => 'coordinator', 'coordinatorName' => $user->name,
             'summary' => ['total_inventory_value' => (float) $stocks->sum('value'), 'available_items' => $stocks->where('quantity', '>', 0)->count(),
                 'total_inventory' => (int) $stocks->sum('quantity'),
@@ -177,5 +181,11 @@ class CoordinatorInventoryService
             'requestSummary' => SupplyRequest::where('requested_by', $user->id)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status'),
             'filters' => ['chartFilter' => $filter, 'customStartDate' => $start, 'customEndDate' => $end],
         ];
+
+        if ($user->hasRole('Supply Coordinator')) {
+            $dashboard['centralReceivingSummary'] = $this->dashboardService->getCentralReceivingSummary();
+        }
+
+        return $dashboard;
     }
 }
