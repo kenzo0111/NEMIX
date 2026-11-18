@@ -29,6 +29,7 @@ export default function Sidebar({
     const authUser = propUser || (pageProps.auth?.user as SidebarUserType | undefined);
     const capabilities = pageProps.auth?.capabilities;
     const isCoordinator = Boolean(capabilities?.coordinatorInventory);
+    const isAuthorizedPersonnel = Boolean(capabilities?.requiresSupportingDocument);
     const isSystemAdmin = pageProps.auth?.is_system_admin === true;
     const { can, canAny } = useAuthorization();
 
@@ -145,7 +146,7 @@ export default function Sidebar({
         const params = new URLSearchParams(pageUrl.split('?')[1] || '');
         const viewingHistory = params.get('tab') === 'history' || params.has('page');
         const inventoryItems: SidebarModule[] = unitInventory ? [
-            { ...unitInventory, active: Boolean(unitInventory.active && !viewingHistory) },
+            { ...unitInventory, title: isAuthorizedPersonnel ? 'Office Inventory' : unitInventory.title, active: Boolean(unitInventory.active && !viewingHistory) },
             {
                 ...unitInventory,
                 key: 'unit-stock-movements',
@@ -167,7 +168,7 @@ export default function Sidebar({
             },
             { key: 'administration', title: 'Administration', items: filteredModules.filter(item => !assignedKeys.has(item.key)) },
         ];
-    }, [displayModules, filteredModules, isCoordinator, pageUrl]);
+    }, [displayModules, filteredModules, isCoordinator, isAuthorizedPersonnel, pageUrl]);
 
     // Active module detection for accordion
     const activeModuleTitle = useMemo(() => {

@@ -11,6 +11,7 @@ export interface SidebarCategory {
 export interface AuthCapabilities {
     dashboard: boolean;
     coordinatorInventory?: boolean;
+    requiresSupportingDocument?: boolean;
     requests?: boolean;
     inventory: {
         view: boolean;

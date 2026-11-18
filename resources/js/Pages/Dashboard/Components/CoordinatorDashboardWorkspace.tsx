@@ -58,7 +58,7 @@ export default function CoordinatorDashboardWorkspace({
         { label: 'Stock movements', value: summary?.movements_this_month ?? 0, detail: 'Receipt and issue entries this month', icon: ChartColumn },
     ];
     const quickLinks = [
-        can('coordinator.inventory.stock-card') && { label: 'Unit stock cards', href: inventoryHref, icon: ClipboardList, tone: 'text-emerald-700 dark:text-emerald-300' },
+        can('coordinator.inventory.stock-card') && { label: isAuthorizedPersonnel ? 'Office stock cards' : 'Unit stock cards', href: inventoryHref, icon: ClipboardList, tone: 'text-emerald-700 dark:text-emerald-300' },
         can('coordinator.catalog.index') && { label: 'Supply catalog', href: catalogHref, icon: BookOpen, tone: 'text-blue-700 dark:text-blue-300' },
         can('inventory.requests.index') && { label: 'My requests', href: requestHref, icon: FileText, tone: 'text-red-800 dark:text-red-300' },
         can('coordinator.inventory.index') && { label: 'Stock movements', href: historyHref, icon: Activity, tone: 'text-violet-700 dark:text-violet-300' },
@@ -68,11 +68,11 @@ export default function CoordinatorDashboardWorkspace({
         <>
             <DashboardContent>
                 <DashboardControls />
-                <section data-tour="coordinator-dashboard-header" aria-label="Unit workspace" className={`${surface} flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-red-50/60 to-white p-4 dark:from-red-950/20 dark:to-slate-900`}>
+                <section data-tour="coordinator-dashboard-header" aria-label={isAuthorizedPersonnel ? 'Office workspace' : 'Unit workspace'} className={`${surface} flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-red-50/60 to-white p-4 dark:from-red-950/20 dark:to-slate-900`}>
                     <div className="flex min-w-0 items-center gap-3">
                         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-red-200 bg-red-100/60 text-red-900 dark:border-red-800/50 dark:bg-red-950/50 dark:text-red-300"><Building2 size={25} strokeWidth={1.6} aria-hidden="true" /></span>
                         <div className="min-w-0">
-                            <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Unit workspace</p>
+                            <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">{isAuthorizedPersonnel ? 'Office workspace' : 'Unit workspace'}</p>
                             <h2 className="mt-1 break-words text-base font-semibold">{coordinatorName || auth.user.name}</h2>
                             <p className="text-xs text-slate-500 dark:text-slate-400">{isAuthorizedPersonnel ? 'Office' : 'Delivery Unit'}</p>
                         </div>
@@ -86,7 +86,7 @@ export default function CoordinatorDashboardWorkspace({
                     </div>
                 </section>
 
-                <section data-tour="coordinator-dashboard-summary" aria-label="Unit summary" className="grid grid-cols-1 gap-3 min-[440px]:grid-cols-2 xl:grid-cols-4">
+                <section data-tour="coordinator-dashboard-summary" aria-label={isAuthorizedPersonnel ? 'Office summary' : 'Unit summary'} className="grid grid-cols-1 gap-3 min-[440px]:grid-cols-2 xl:grid-cols-4">
                     {metrics.map(metric => {
                         const className = `group flex min-w-0 items-start gap-3 rounded-xl border p-4 transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:hover:brightness-110 ${metric.tone}`;
                         const content = <>

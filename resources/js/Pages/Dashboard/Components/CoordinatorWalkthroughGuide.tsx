@@ -43,7 +43,7 @@ export default function CoordinatorWalkthroughGuide() {
             eyebrow: 'Welcome to your workspace',
             title: isAuthorizedPersonnel ? 'This is your Authorized Personnel workspace' : 'This is your Delivery Unit command center',
             description: isAuthorizedPersonnel
-                ? 'Start here to manage document-backed supply requests, review central stock, and account for supplies released to your unit.'
+                ? 'Start here to manage document-backed supply requests, review central stock, and account for supplies released to your office.'
                 : 'Start here to see what needs attention and jump directly to requests, central stock, or your unit inventory.',
         },
         {
@@ -53,7 +53,7 @@ export default function CoordinatorWalkthroughGuide() {
             eyebrow: 'Live operational picture',
             title: 'Read your workload at a glance',
             description: isAuthorizedPersonnel
-                ? 'These cards summarize requests in verification or review, supplies needing replenishment, stock on hand, and the item types assigned to your unit.'
+                ? 'These cards summarize requests in verification or review, supplies needing replenishment, stock on hand, and the item types assigned to your office.'
                 : 'These cards show active requests, supplies needing replenishment, stock on hand, and the number of item types assigned to your unit.',
         },
         {
@@ -101,7 +101,7 @@ export default function CoordinatorWalkthroughGuide() {
             eyebrow: isAuthorizedPersonnel ? 'Follow verification and approval' : 'Follow the approval journey',
             title: isAuthorizedPersonnel ? 'Know what each document-backed request needs next' : 'Know exactly what each request needs next',
             description: isAuthorizedPersonnel
-                ? 'Pending Verification is awaiting document review, Needs Correction requires your action, Under Review is being evaluated, Ready for Pickup awaits release, and Released has entered your unit inventory.'
+                ? 'Pending Verification is awaiting document review, Needs Correction requires your action, Under Review is being evaluated, Ready for Pickup awaits release, and Released has entered your office inventory.'
                 : 'Pending is with the Supply Office, Needs Correction requires your action, Awaiting Release is approved, and Released has entered your unit inventory.',
             permission: 'inventory.requests.index',
             exactUrl: isAuthorizedPersonnel,
@@ -122,8 +122,8 @@ export default function CoordinatorWalkthroughGuide() {
             href: route('coordinator.inventory.index'),
             selector: '[data-tour="coordinator-inventory-summary"]',
             eyebrow: 'Released supplies arrive here',
-            title: 'Monitor your Delivery Unit inventory',
-            description: 'These totals cover only your unit. Supplies appear after the Supply Office releases an approved request; central inventory remains view-only to you.',
+            title: isAuthorizedPersonnel ? 'Monitor your Office Inventory' : 'Monitor your Delivery Unit inventory',
+            description: `These totals cover only your ${isAuthorizedPersonnel ? 'office' : 'unit'}. Supplies appear after the Supply Office releases an approved request; central inventory remains view-only to you.`,
             permission: 'coordinator.inventory.index',
         },
         {
@@ -253,7 +253,7 @@ export default function CoordinatorWalkthroughGuide() {
                 <div className="mt-5 space-y-3">
                     <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200">You can always return to this walkthrough from the <strong>Walkthrough Guide</strong> button on your dashboard.</p>
                     <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-950 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-200">{isAuthorizedPersonnel
-                        ? 'You can now use this system for your day-to-day supply requests, document submissions, and unit inventory work with the Supply and Property Management Office.'
+                        ? 'You can now use this system for your day-to-day supply requests, document submissions, and office inventory work with the Supply and Property Management Office.'
                         : 'You can now use this system for your day-to-day supply operations with the Supply and Property Management Office.'}</p>
                 </div>
             </div>
