@@ -112,13 +112,32 @@ class CoordinatorInventoryTest extends TestCase
         $this->assertSame(43, $item->fresh()->stock);
         $this->actingAs($owner)->getJson(route('coordinator.inventory.stock-card', $stock->id))
             ->assertOk()->assertJsonPath('ending_balance', 5)->assertJsonPath('entries.0.receipt_qty', 7)
-            ->assertJsonPath('entries.1.issue_qty', 2)->assertJsonPath('entries.1.issue_office', 'Faculty');
+            ->assertJsonPath('entries.1.issue_qty', 2)->assertJsonPath('entries.1.issue_office', 'Faculty')
+            ->assertJsonPath('unit_of_measurement', 'ream')->assertJsonMissingPath('coordinator_name');
         $this->actingAs($owner)->get(route('coordinator.inventory.stock-card', $stock->id))
             ->assertOk()->assertHeader('content-type', 'application/pdf');
+        $stockCardHtml = view('compliance.pdf.stock_card', [
+            'stockCard' => ['coordinator_name' => $owner->name], 'entries' => [],
+        ])->render();
+        $this->assertStringNotContainsString('Delivery Unit Supply Coordinator', $stockCardHtml);
+        $this->assertStringNotContainsString($owner->name, $stockCardHtml);
         $this->actingAs($owner)->get(route('inventory.index'))->assertForbidden();
         $this->actingAs($owner)->get(route('compliance.reports'))->assertForbidden();
         $owner->givePermissionTo(Permission::firstOrCreate(['name' => 'route:compliance.reports', 'guard_name' => 'web']));
         $this->actingAs($owner)->get(route('compliance.reports'))->assertForbidden();
+    }
+
+    public function test_authorized_personnel_can_preview_and_download_their_stock_card(): void
+    {
+        $owner = $this->user('Authorized Personnel');
+        $this->release($this->requestFor($owner), $this->user('Property Custodian'));
+        $stock = CoordinatorStock::where('coordinator_id', $owner->id)->firstOrFail();
+
+        $this->actingAs($owner)->getJson(route('coordinator.inventory.stock-card', $stock->id))
+            ->assertOk()->assertJsonPath('item', 'Paper')->assertJsonPath('unit_of_measurement', 'ream')
+            ->assertJsonMissingPath('coordinator_name');
+        $this->actingAs($owner)->get(route('coordinator.inventory.stock-card', $stock->id))
+            ->assertOk()->assertHeader('content-type', 'application/pdf');
     }
 
     public function test_stock_card_date_range_carries_opening_balance_and_excludes_later_movements(): void

@@ -97,9 +97,9 @@ class CoordinatorInventoryService
 
         return ['entity_name' => SystemSetting::get('institution.name', 'University of Camarines Norte'),
             'item' => $stock->name, 'description' => $stock->name, 'stock_no' => $stock->sku,
-            'unit' => $stock->unit, 're_order_point' => InventoryPolicy::criticalThreshold(),
+            'unit' => $stock->unit, 'unit_of_measurement' => $stock->unit,
+            're_order_point' => InventoryPolicy::criticalThreshold(),
             'fund_cluster' => $movements->first()?->fund_cluster ?? '01',
-            'coordinator_name' => User::find($stock->coordinator_id)?->name,
             'entries' => $entries, 'opening_balance' => $opening, 'ending_balance' => $balance];
     }
 
