@@ -144,6 +144,31 @@ class CoordinatorInventoryTest extends TestCase
             ->assertOk()->assertHeader('content-type', 'application/pdf');
     }
 
+    public function test_unit_issue_references_use_year_month_sequence_for_both_coordinator_roles(): void
+    {
+        $this->travelTo(now()->setDate(2026, 11, 18)->startOfDay());
+
+        foreach (['Supply Coordinator', 'Authorized Personnel'] as $role) {
+            $owner = $this->user($role);
+            $this->release($this->requestFor($owner), $this->user('Property Custodian'));
+            $stock = CoordinatorStock::where('coordinator_id', $owner->id)->firstOrFail();
+            app(CoordinatorInventoryService::class)->issue($owner, $stock->id, 1, 'Faculty');
+            $movement = $stock->movements()->where('type', 'issue')->firstOrFail();
+            $expected = sprintf('2026-11-%04d', $movement->id);
+
+            $this->assertSame($expected, $movement->reference);
+            $this->actingAs($owner)->getJson(route('coordinator.inventory.stock-card', $stock->id))
+                ->assertOk()->assertJsonPath('entries.1.reference', $expected);
+
+            // Existing UNIT-ISSUE-{id} rows are normalized on every user-facing surface.
+            $movement->update(['reference' => 'UNIT-ISSUE-42']);
+            $this->actingAs($owner)->getJson(route('coordinator.inventory.stock-card', $stock->id))
+                ->assertOk()->assertJsonPath('entries.1.reference', '2026-11-0042');
+            $this->actingAs($owner)->get(route('coordinator.inventory.index'))
+                ->assertInertia(fn ($page) => $page->where('movements.data.0.reference', '2026-11-0042'));
+        }
+    }
+
     public function test_stock_card_date_range_carries_opening_balance_and_excludes_later_movements(): void
     {
         $owner = $this->user();

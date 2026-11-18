@@ -61,11 +61,12 @@ class CoordinatorInventoryService
                 throw ValidationException::withMessages(['quantity' => 'The quantity exceeds your available stock.']);
             }
             $cost = (float) $stock->value / $stock->quantity;
+            $issuedOn = now();
             $movement = $stock->movements()->create([
                 'actor_id' => $user->id, 'type' => 'issue', 'quantity' => $quantity, 'unit_cost' => $cost,
-                'date' => now()->toDateString(), 'reference' => 'UNIT-ISSUE', 'office' => $recipient,
+                'date' => $issuedOn->toDateString(), 'reference' => 'UNIT-ISSUE', 'office' => $recipient,
             ]);
-            $movement->update(['reference' => 'UNIT-ISSUE-'.$movement->id]);
+            $movement->update(['reference' => CoordinatorMovement::yearMonthSequenceReference($issuedOn, $movement->id)]);
             $stock->update(['quantity' => $stock->quantity - $quantity,
                 'value' => $stock->quantity === $quantity ? 0 : round((float) $stock->value - $quantity * $cost, 2)]);
         });
@@ -85,7 +86,7 @@ class CoordinatorInventoryService
                 continue;
             }
             $entries[] = [
-                'date' => $movement->date->toDateString(), 'reference' => $movement->reference,
+                'date' => $movement->date->toDateString(), 'reference' => $movement->officialReference(),
                 'receipt_qty' => $movement->type === 'receipt' ? $movement->quantity : '',
                 'issue_qty' => $movement->type === 'issue' ? $movement->quantity : '',
                 'issue_office' => $movement->type === 'issue' ? $movement->office : '', 'balance_qty' => $balance, 'days_to_consume' => '',
@@ -165,7 +166,7 @@ class CoordinatorInventoryService
                         'id' => $latest->id,
                         'title' => $latest->type === 'receipt' ? 'Received from Supply Office' : 'Delivery Unit issue',
                         'summary' => $lines->map(fn ($m) => $m->quantity.' '.$m->stock->unit.' · '.$m->stock->name)->implode('; '),
-                        'reference' => $latest->reference, 'module' => 'Inventory',
+                        'reference' => $latest->officialReference(), 'module' => 'Inventory',
                         'occurred_at' => $latest->created_at->toIso8601String(),
                         'context' => ['line_items' => $lines->map(fn ($m) => $m->quantity.' '.$m->stock->unit.' · '.$m->stock->name)->values()],
                     ];

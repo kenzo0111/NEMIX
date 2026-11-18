@@ -67,7 +67,7 @@ class CoordinatorInventoryController extends Controller
                     'date' => $movement->date->toDateString(),
                     'type' => $movement->type,
                     'quantity' => $movement->quantity,
-                    'reference' => $movement->reference,
+                    'reference' => $movement->officialReference(),
                     'office' => $movement->type === 'receipt' ? 'Supply Office' : $movement->office,
                     'stock' => $movement->stock,
                 ]),
