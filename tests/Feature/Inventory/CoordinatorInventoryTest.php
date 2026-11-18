@@ -136,6 +136,10 @@ class CoordinatorInventoryTest extends TestCase
         $this->actingAs($owner)->getJson(route('coordinator.inventory.stock-card', $stock->id))
             ->assertOk()->assertJsonPath('item', 'Paper')->assertJsonPath('unit_of_measurement', 'ream')
             ->assertJsonMissingPath('coordinator_name');
+        $this->actingAs($owner)->getJson(route('coordinator.inventory.stock-card', [
+            'stock' => $stock->id, 'start_date' => now()->addDay()->toDateString(),
+        ]))->assertOk()->assertJsonPath('entries.0.reference', 'Opening balance')
+            ->assertJsonPath('entries.0.date', '');
         $this->actingAs($owner)->get(route('coordinator.inventory.stock-card', $stock->id))
             ->assertOk()->assertHeader('content-type', 'application/pdf');
     }
@@ -153,7 +157,8 @@ class CoordinatorInventoryTest extends TestCase
         $this->actingAs($owner)->getJson(route('coordinator.inventory.stock-card', [
             'stock' => $stock->id, 'start_date' => '2026-10-01', 'end_date' => '2026-10-15',
         ]))->assertOk()->assertJsonPath('opening_balance', 7)->assertJsonPath('ending_balance', 5)
-            ->assertJsonCount(2, 'entries')->assertJsonPath('entries.0.balance_qty', 7);
+            ->assertJsonCount(2, 'entries')->assertJsonPath('entries.0.balance_qty', 7)
+            ->assertJsonPath('entries.0.reference', 'Opening balance')->assertJsonPath('entries.0.date', '');
         $this->actingAs($owner)->getJson(route('coordinator.inventory.stock-card', [
             'stock' => $stock->id, 'end_date' => '2026-10-15',
         ]))->assertOk()->assertJsonPath('ending_balance', 5);

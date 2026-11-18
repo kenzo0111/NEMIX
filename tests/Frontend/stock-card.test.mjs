@@ -40,4 +40,10 @@ for (const days of ['OFFICE SUPPLIES', 'Historical Migration', 14, '', undefined
     assert.equal(cells[5], '30');
     assert.equal(cells[6].replace(/&#160;|&nbsp;|\u00a0/g, '').trim(), '');
 }
-console.log('PASS: Stock Card keeps the consumption column blank for new and historical data while preserving transaction cells.');
+const openingHtml = module.exports.render([{ date: '', reference: 'Opening balance', balance_qty: 12 }]);
+const openingRow = openingHtml.match(/<tr[^>]*>(?:(?!<\/tr>)[\s\S])*Opening balance[\s\S]*?<\/tr>/)?.[0];
+assert.ok(openingRow, 'The opening-balance row should remain visible');
+const openingCells = [...openingRow.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map((match) => match[1]);
+assert.equal(openingCells[0].replace(/&#160;|&nbsp;|\u00a0/g, '').trim(), '');
+assert.equal(openingCells[1], 'Opening balance');
+console.log('PASS: Stock Card keeps opening-balance dates and consumption cells blank while preserving transaction data.');

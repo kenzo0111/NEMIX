@@ -92,7 +92,7 @@ class CoordinatorInventoryService
             ];
         }
         if ($start) {
-            array_unshift($entries, ['date' => $start, 'reference' => 'Opening balance', 'balance_qty' => $opening]);
+            array_unshift($entries, ['date' => '', 'reference' => 'Opening balance', 'balance_qty' => $opening]);
         }
 
         return ['entity_name' => SystemSetting::get('institution.name', 'University of Camarines Norte'),
