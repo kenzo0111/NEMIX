@@ -50,7 +50,7 @@ php artisan inventory:convert-approval-stock
 npm run build
 ```
 
-The conversion command allocates and deducts existing Approved/Ready for Pickup requests once. Released/Issued records remain untouched. Conversion is atomic and rerunnable. Its dry run rolls back all changes. If an item is missing or batches cannot cover approvals while preserving the stock safeguards, reconcile the reported request/item and rerun; do not resume requests with unresolved conversion errors.
+The conversion command allocates and deducts existing Approved/Ready for Pickup requests once. Released/Issued records remain untouched. Conversion is atomic and rerunnable. Its dry run rolls back all changes. Existing approvals are grandfathered against the current minimum-stock threshold because their quantities are already committed as reservations; conversion must still cover every approved quantity from real stock and batches. New approvals retain minimum-stock enforcement. If an item is missing or batches cannot cover approvals, reconcile the reported request/item and rerun; do not resume requests with unresolved conversion errors.
 
 Before reopening requests, configure each requestable item's actual weekly cap through item editing during controlled administrative access. Blank item limits will block submissions immediately after migration. Confirm item caps and reconciled approvals, then run:
 
@@ -71,7 +71,7 @@ The schema rollback refuses to remove allocation records while any allocation re
 
 ## Verification
 
-- Focused PHP suite: **86 tests, 1,762 assertions passed**. Covers role workflows, minimum-stock protection, weekly caps, original-week accounting, increasing pending edits, revisions, cancellation, release, configuration, reports, and legacy conversion.
+- Focused PHP suite: **87 tests, 1,770 assertions passed**. Covers role workflows, minimum-stock protection, weekly caps, original-week accounting, increasing pending edits, revisions, cancellation, release, configuration, reports, and legacy conversion, including existing commitments below the current minimum stock.
 - Real PostgreSQL concurrency harness: **7 checks passed** for overselling, split quota, approval versus cancellation, reversed multi-item approvals, revision versus release, duplicate submissions, and receiving adjustment versus approval.
 - Frontend request-stock tests passed, including exhausted/unconfigured caps and editing without counting a request twice. Request-details and RIS-preview regression tests passed.
 - TypeScript check and production frontend build passed. Vite reports the existing unresolved campus-image reference and large-chunk warnings.

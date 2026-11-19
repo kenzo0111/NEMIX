@@ -44,7 +44,9 @@ class ConvertApprovalStock extends Command
                         RequestStockAllocation::restore($line);
                         app(InventoryBalanceService::class)->synchronizeItem($item);
                     } else {
-                        $maximum = SupplyRequestService::requestableQuantity($item->stock, SupplyRequestService::reservedQuantity($item->id, $request->id));
+                        // Existing approvals already reserve this stock. Preserve that commitment,
+                        // including historical approvals below today's minimum-stock threshold.
+                        $maximum = max(0, $item->stock - SupplyRequestService::reservedQuantity($item->id, $request->id));
                         if ($line->approved_quantity > $maximum) {
                             throw new \RuntimeException("Request {$request->id}, item {$item->id}: approved quantity exceeds available stock. No conversion changes were committed.");
                         }

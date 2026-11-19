@@ -258,6 +258,25 @@ class ApprovalStockWeeklyQuotaTest extends TestCase
         $this->assertSame(0, SupplyRequest::whereNotNull('stock_allocated_at')->count());
     }
 
+    public function test_conversion_honors_existing_approvals_below_current_minimum_stock(): void
+    {
+        $user = $this->user('Supply Coordinator');
+        $request = SupplyRequest::create(['requested_by' => $user->id, 'department' => 'Registrar', 'purpose' => 'Existing commitment', 'status' => 'Approved']);
+        foreach ([8 => 2, 29 => 20] as $stock => $quantity) {
+            $item = $this->item(100, $stock);
+            $request->items()->create(['item_id' => $item->id, 'quantity' => $quantity, 'approved_quantity' => $quantity]);
+        }
+        $this->artisan('inventory:convert-approval-stock', ['--dry-run' => true])->assertExitCode(0);
+        $this->assertSame([8, 29], Item::orderBy('id')->pluck('stock')->all());
+        $this->artisan('inventory:convert-approval-stock')->assertExitCode(0);
+        $this->assertSame([6, 9], Item::orderBy('id')->pluck('stock')->all());
+        $this->assertSame(22, (int) RequestBatchAllocation::where('state', 'allocated')->sum('quantity'));
+        $this->assertSame('Approved', $request->fresh()->status);
+        foreach (Item::all() as $item) {
+            $this->assertSame(0, SupplyRequestService::requestableQuantity($item->stock, 0));
+        }
+    }
+
     public function test_item_maintainer_can_configure_weekly_limit(): void
     {
         $staff = $this->user('Inventory Staff');
