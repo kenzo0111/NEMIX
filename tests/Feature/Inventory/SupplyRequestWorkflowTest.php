@@ -390,8 +390,9 @@ class SupplyRequestWorkflowTest extends TestCase
 
         $this->actingAs($custodian)->post(route('inventory.requests.approve', $second), [
             'approved_quantities' => [$secondLine->id => 3],
-        ])->assertRedirect();
-        $this->assertSame(3, $secondLine->fresh()->approved_quantity);
+        ])->assertSessionHasErrors('request');
+        $this->assertSame(5, $secondLine->fresh()->approved_quantity);
+        $this->assertSame(15, $item->fresh()->stock);
     }
 
     public function test_allocated_stock_cannot_be_changed_through_item_edit(): void

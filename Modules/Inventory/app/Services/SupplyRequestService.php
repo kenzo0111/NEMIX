@@ -78,13 +78,12 @@ class SupplyRequestService
         DB::transaction(function () use ($request, $quantities, $reviewerId, $remarks) {
             WeeklyRequestQuota::lockUser($request->requested_by);
             $request = SupplyRequest::whereKey($request->id)->lockForUpdate()->firstOrFail();
-            if (! in_array($request->status, ['Pending', 'Under Review', 'Approved'], true)) {
-                throw ValidationException::withMessages(['request' => 'Only pending or approved requests can be reviewed.']);
+            if (! in_array($request->status, ['Pending', 'Under Review'], true)) {
+                throw ValidationException::withMessages(['request' => 'Quantities can only be adjusted before approval. Only pending requests can be approved.']);
             }
             if ($request->requires_supporting_document && (! $request->document_verified_at || ! $request->document_verified_by || ! $request->supporting_document_path)) {
                 throw ValidationException::withMessages(['request' => 'The supporting document must be verified before inventory approval.']);
             }
-            $revising = $request->status === 'Approved';
 
             $lines = $request->items()->orderBy('item_id')->get();
             $items = Item::whereIn('id', $lines->pluck('item_id'))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
@@ -130,7 +129,7 @@ class SupplyRequestService
                 'review_remarks' => $remarks,
                 'ris_number' => $request->ris_number ?: self::generateOfficialRisNumber($request->date_requested ? $request->date_requested->toDateString() : null),
             ]);
-            self::audit($request, $reviewerId, $revising ? 'Revised Supply Approval' : 'Approved Supply Request');
+            self::audit($request, $reviewerId, 'Approved Supply Request');
         }, 5);
     }
 

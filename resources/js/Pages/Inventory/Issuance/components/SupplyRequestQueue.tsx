@@ -199,7 +199,7 @@ export function SupplyRequestQueue({
             route('inventory.requests.approve', request.id),
             {
                 approved_quantities: approvedQuantities,
-                remarks: remarks[request.id]?.trim() || (request.status === 'Approved' ? 'Approved quantities revised before release.' : 'Approved by Inventory Staff.'),
+                remarks: remarks[request.id]?.trim() || 'Approved by Inventory Staff.',
             },
             {
                 preserveScroll: true,
@@ -289,7 +289,7 @@ export function SupplyRequestQueue({
                             Requisition Review & Approval Queue
                         </h2>
                         <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium">
-                            Review coordinator requests, adjust authorized item quantities based on available warehouse stock, approve or reject, and finalize item release.
+                            Adjust quantities during pending verification and review, approve or reject, then release the approved quantities.
                         </p>
                     </div>
 
@@ -389,6 +389,7 @@ export function SupplyRequestQueue({
                 ) : (
                     filteredRequests.map((request) => {
                         const isPending = ['Pending', 'Under Review'].includes(request.status);
+                        const canAdjustQuantities = canApprove && (isPending || request.status === 'Pending Verification');
                         const isApproved = ['Approved', 'Ready for Pickup'].includes(request.status);
                         const isIssued = ['Issued', 'Released'].includes(request.status);
                         const isTerminal = ['Rejected', 'Cancelled'].includes(request.status);
@@ -497,7 +498,7 @@ export function SupplyRequestQueue({
                                             </div>
 
                                             {/* Quantity adjustment helper buttons if reviewing/pending */}
-                                            {(isPending || request.status === 'Approved') && canApprove && (
+                                            {canAdjustQuantities && (
                                                 <div className="flex items-center gap-2 text-sm">
                                                     <span className="text-gray-400 text-sm hidden sm:inline">Quick Adjust:</span>
                                                     <button
@@ -526,7 +527,7 @@ export function SupplyRequestQueue({
                                                         <th className="px-3 py-3 text-center">Warehouse Stock</th>
                                                         <th className="px-3 py-3 text-right">Requested</th>
                                                         <th className="px-3 py-3 text-right min-w-44">
-                                                            {isPending || isApproved ? 'Authorized / Approved Qty' : 'Final Approved Qty'}
+                                                            {canAdjustQuantities ? 'Authorized / Approved Qty' : 'Final Approved Qty'}
                                                         </th>
                                                     </tr>
                                                 </thead>
@@ -540,7 +541,7 @@ export function SupplyRequestQueue({
                                                         );
                                                         const isStockShortage = line.item ? line.item.stock < line.quantity : false;
                                                         const isExceedingStock = currentQty > (line.max_approval_quantity ?? line.item?.stock ?? 0);
-                                                        const isAdjusted = isPending
+                                                        const isAdjusted = canAdjustQuantities
                                                             ? currentQty !== line.quantity
                                                             : line.approved_quantity !== null && line.approved_quantity !== line.quantity;
 
@@ -575,7 +576,7 @@ export function SupplyRequestQueue({
 
                                                                 {/* Approved / Adjustable Qty */}
                                                                 <td className="px-3 py-3 text-right">
-                                                                    {(isPending || request.status === 'Approved') && canApprove ? (
+                                                                    {canAdjustQuantities ? (
                                                                         <div className="flex items-center justify-end gap-2">
                                                                             {isExceedingStock && (
                                                                                 <span
@@ -595,7 +596,7 @@ export function SupplyRequestQueue({
                                                                                         request.id,
                                                                                         line.id,
                                                                                         parseInt(e.target.value, 10),
-                                                                                        line.quantity
+                                                                                        line.max_approval_quantity ?? line.quantity
                                                                                     )
                                                                                 }
                                                                                 className={`w-24 h-8 px-2 text-right bg-white dark:bg-slate-950 border rounded text-sm tabular-nums font-bold focus:outline-none focus:ring-1 ${
@@ -628,7 +629,7 @@ export function SupplyRequestQueue({
                                     </div>
 
                                     {/* Review Remarks Field (Custodian Notes) */}
-                                    {(isPending || request.status === 'Approved') && canApprove && (
+                                    {canAdjustQuantities && (
                                         <div className="space-y-1">
                                             <label
                                                 htmlFor={`remarks-${request.id}`}
@@ -650,7 +651,7 @@ export function SupplyRequestQueue({
                                     )}
 
                                     {/* Existing review remarks if completed or rejected */}
-                                    {request.review_remarks && !isPending && !isApproved && (
+                                    {request.review_remarks && !canAdjustQuantities && (
                                         <div className="p-3 rounded bg-gray-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 text-sm">
                                             <span className="font-semibold text-gray-700 dark:text-slate-300 tabular-nums text-sm normal-case">
                                                 Review Notes:
@@ -662,12 +663,17 @@ export function SupplyRequestQueue({
                                     )}
 
                                     <SupportingDocumentPanel request={request} review />
+                                    {request.status === 'Pending Verification' && canAdjustQuantities && (
+                                        <p className="text-sm text-gray-500 dark:text-slate-400">
+                                            Adjust quantities here, then verify the supporting document. Your adjustments are saved when you approve the requisition.
+                                        </p>
+                                    )}
                                     {/* Actions Bar for Pending Requisitions */}
                                     {isPending && (canApprove || canReject) && (
                                         <div className="pt-3 border-t border-gray-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm text-gray-500 font-sans">
-                                                    Approval deducts stock immediately. Quantities must preserve minimum stock and the requester's weekly allowance.
+                                                    Approval saves the final quantities and deducts stock immediately. Quantities must preserve minimum stock and the requester's weekly allowance.
                                                 </span>
                                             </div>
 
@@ -719,17 +725,12 @@ export function SupplyRequestQueue({
                                                         <span>Preview / Print RIS</span>
                                                     </button>
 
-                                                    {canApprove && request.status !== 'Ready for Pickup' && <button
-                                                        type="button"
-                                                        disabled={isBusy}
-                                                        onClick={() => handleApprove(request)}
-                                                        className="px-2.5 py-1.5 text-sm font-semibold text-gray-600 dark:text-slate-400 hover:text-gray-900 underline cursor-pointer"
-                                                        title="Save modified quantity adjustments"
-                                                    >
-                                                        Update Quantities
-                                                    </button>}
                                                 </div>
                                             </div>
+
+                                            <p className="text-sm text-blue-800 dark:text-blue-300">
+                                                Quantities were finalized during review. Release the approved quantities shown above.
+                                            </p>
 
                                             {/* Release Confirmation */}
                                             {request.requires_supporting_document && request.status === 'Approved' && can('inventory.requests.ready') && <button type="button" disabled={isBusy} onClick={() => { setBusyId(request.id); router.post(route('inventory.requests.ready', request.id), {}, { preserveScroll: true, onError: errors => setActionError(Object.values(errors).join(' ')), onFinish: () => setBusyId(null) }); }} className="rounded-md bg-red-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Mark Ready for Pickup & Notify Requester</button>}

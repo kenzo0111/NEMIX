@@ -142,20 +142,33 @@ class ApprovalStockWeeklyQuotaTest extends TestCase
         $this->assertSame(100, $item->fresh()->stock);
     }
 
-    public function test_revisions_partial_approval_and_cancellation_restore_exact_balances(): void
+    #[DataProvider('roles')]
+    public function test_partial_approval_locks_quantities_and_cancellation_restores_exact_balances(string $role): void
     {
-        $user = $this->user('Supply Coordinator');
+        $user = $this->user($role);
         $staff = $this->user('Inventory Staff');
         $item = $this->item();
         $request = $this->submit($user, $item, 20);
-        foreach ([10 => 90, 15 => 85, 8 => 92] as $quantity => $stock) {
-            $this->approve($staff, $request, $quantity);
-            $this->assertSame($stock, $item->fresh()->stock);
-            $count = RequestBatchAllocation::count();
-            $this->approve($staff, $request, $quantity);
-            $this->assertSame($stock, $item->fresh()->stock);
-            $this->assertSame($count, RequestBatchAllocation::count());
-            $this->assertSame($quantity, WeeklyRequestQuota::usage($user->id)[$item->id]);
+        $this->approve($staff, $request, 10);
+        $line = $request->items()->firstOrFail();
+        $approval = $request->fresh()->only(['ris_number', 'reviewed_at', 'reviewed_by', 'review_remarks', 'stock_allocated_at']);
+        $allocations = RequestBatchAllocation::orderBy('id')->get()->toArray();
+        $statuses = $request->requires_supporting_document ? ['Approved', 'Ready for Pickup'] : ['Approved'];
+        foreach ($statuses as $status) {
+            if ($status === 'Ready for Pickup') {
+                $this->post(route('inventory.requests.ready', $request))->assertSessionHasNoErrors();
+            }
+            foreach ([10, 15, 8, 0] as $quantity) {
+                $this->post(route('inventory.requests.approve', $request), [
+                    'approved_quantities' => [$line->id => $quantity], 'remarks' => 'Attempted revision',
+                ])->assertSessionHasErrors('request');
+                $this->assertSame($status, $request->fresh()->status);
+                $this->assertSame(10, $line->fresh()->approved_quantity);
+                $this->assertEquals($approval, $request->fresh()->only(array_keys($approval)));
+                $this->assertSame(90, $item->fresh()->stock);
+                $this->assertSame($allocations, RequestBatchAllocation::orderBy('id')->get()->toArray());
+                $this->assertSame(10, WeeklyRequestQuota::usage($user->id)[$item->id]);
+            }
         }
         $this->actingAs($user)->post(route('inventory.requests.cancel', $request))->assertSessionHasNoErrors();
         $this->assertSame(100, $item->fresh()->stock);
