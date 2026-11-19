@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Inventory;
 
+use App\Models\Signatory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Inventory\Models\Item;
@@ -26,9 +27,10 @@ class SupplyRequestAlertTest extends TestCase
         $user = User::factory()->create(['is_active' => $active]);
         $user->assignRole($role);
         if ($user->usesCoordinatorInventory()) {
-            $head = \App\Models\Signatory::firstOrCreate(['name' => 'Registrar Office Head'], ['designation' => 'Office Head', 'is_active' => true]);
+            $head = Signatory::firstOrCreate(['name' => 'Registrar Office Head'], ['designation' => 'Office Head', 'is_active' => true]);
             $user->update(['department' => 'Registrar', 'office_head_id' => $head->id]);
         }
+
         return $user;
     }
 
@@ -38,7 +40,7 @@ class SupplyRequestAlertTest extends TestCase
         $first = $this->user('Property Custodian');
         $second = $this->user('Property Custodian');
         $inactive = $this->user('Property Custodian', false);
-        $item = Item::create([
+        $item = Item::create(['weekly_request_limit' => 1000000,
             'name' => 'Paper', 'sku' => 'PAPER-ALERT', 'stock' => 10,
             'unit_cost' => 5, 'amount' => 50, 'status' => 'Available', 'unit_of_issue' => 'ream',
         ]);
@@ -72,7 +74,7 @@ class SupplyRequestAlertTest extends TestCase
     {
         $coordinator = $this->user('Supply Coordinator');
         $custodian = $this->user('Property Custodian');
-        $item = Item::create([
+        $item = Item::create(['weekly_request_limit' => 1000000,
             'name' => 'Pens', 'sku' => 'PEN-ALERT', 'stock' => 10,
             'unit_cost' => 2, 'amount' => 20, 'status' => 'Available', 'unit_of_issue' => 'box',
         ]);

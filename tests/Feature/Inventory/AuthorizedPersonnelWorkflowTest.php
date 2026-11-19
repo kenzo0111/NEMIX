@@ -3,6 +3,7 @@
 namespace Tests\Feature\Inventory;
 
 use App\Models\CoordinatorStock;
+use App\Models\Signatory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -33,16 +34,18 @@ class AuthorizedPersonnelWorkflowTest extends TestCase
         $user = User::factory()->create(['is_active' => true]);
         $user->assignRole($role);
         if ($user->usesCoordinatorInventory()) {
-            $head = \App\Models\Signatory::firstOrCreate(['name' => 'Registrar Office Head'], ['designation' => 'Office Head', 'is_active' => true]);
+            $head = Signatory::firstOrCreate(['name' => 'Registrar Office Head'], ['designation' => 'Office Head', 'is_active' => true]);
             $user->update(['department' => 'Registrar', 'office_head_id' => $head->id]);
         }
+
         return $user;
     }
 
     private function payload(): array
     {
-        $item = Item::create(['name' => 'Paper', 'sku' => 'PAPER-'.Item::count(), 'stock' => 50,
+        $item = Item::create(['weekly_request_limit' => 1000000, 'name' => 'Paper', 'sku' => 'PAPER-'.Item::count(), 'stock' => 50,
             'unit_cost' => 10, 'amount' => 500, 'status' => 'Available', 'unit_of_issue' => 'ream']);
+
         return ['department' => 'Research', 'purpose' => 'Approved study',
             'items' => [['item_id' => $item->id, 'quantity' => 5]]];
     }
@@ -57,6 +60,7 @@ class AuthorizedPersonnelWorkflowTest extends TestCase
         $this->actingAs($user)->post(route('inventory.requests.store'), $this->payload() + [
             'supporting_document_type' => 'Approved Letter', 'supporting_document' => $this->document(),
         ])->assertSessionHasNoErrors()->assertRedirect(route('inventory.requests.index'));
+
         return SupplyRequest::latest('id')->firstOrFail();
     }
 
@@ -161,11 +165,11 @@ class AuthorizedPersonnelWorkflowTest extends TestCase
         $this->assertNotNull($request->fresh()->document_verified_at);
         $this->post(route('inventory.requests.approve', $request), ['approved_quantities' => [$line->id => 5]])->assertRedirect()->assertSessionHasNoErrors();
         $this->assertSame('Approved', $request->fresh()->status);
-        $this->assertSame(5, SupplyRequestService::reservedQuantity($line->item_id));
+        $this->assertSame(0, SupplyRequestService::reservedQuantity($line->item_id));
         $this->post(route('inventory.requests.release', $request), ['signed_ris_presented' => true])->assertSessionHasErrors('request');
         $this->post(route('inventory.requests.ready', $request))->assertRedirect()->assertSessionHasNoErrors();
         $this->assertSame('Ready for Pickup', $request->fresh()->status);
-        $this->assertSame(5, SupplyRequestService::reservedQuantity($line->item_id));
+        $this->assertSame(0, SupplyRequestService::reservedQuantity($line->item_id));
         $this->actingAs($owner)->get(route('inventory.request-alerts.index'))->assertOk()->assertJsonPath('alerts.0.status', 'Ready for Pickup');
         $this->assertTrue(SupplyRequestAlert::where('user_id', $owner->id)->where('supply_request_id', $request->id)->exists());
         $this->actingAs($custodian)->post(route('inventory.requests.release', $request), ['signed_ris_presented' => true])->assertRedirect()->assertSessionHasNoErrors();

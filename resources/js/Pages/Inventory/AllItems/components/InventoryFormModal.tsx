@@ -9,6 +9,7 @@ import { customSelectStyles } from '../constants';
 import { computeStatusFromStock } from '../utils/inventory';
 
 export interface InventoryFormData {
+    weekly_request_limit: string | number;
     name: string;
     supplier_id: string | number;
     supplier_stock_no: string;
@@ -304,6 +305,10 @@ export default function InventoryFormModal({
                                 </div>
 
                                 <div className="sm:col-span-2">
+                                    <label htmlFor="inventory_weekly_limit" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Weekly limit per user ({data.unit_of_issue || 'units'})</label>
+                                    <input id="inventory_weekly_limit" type="number" min={0} max={1000000} step={1} value={data.weekly_request_limit} onChange={event => setData('weekly_request_limit', event.target.value)} disabled={processing} className="w-full rounded-lg border-gray-300 bg-white text-sm dark:bg-slate-800 dark:text-slate-100" />
+                                    <p className="mt-1 text-sm text-gray-500">Each user's allowance resets on Monday. Zero blocks requests; a blank limit must be configured before this item can be requested.</p>
+                                    {errors.weekly_request_limit && <p role="alert" className="text-sm text-red-600">{errors.weekly_request_limit}</p>}
                                     <label htmlFor="inventory_description" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                         Description / Specifications <span className="text-gray-400 dark:text-slate-500 font-normal">(Optional)</span>
                                     </label>

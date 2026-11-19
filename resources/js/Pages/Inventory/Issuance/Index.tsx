@@ -6,6 +6,7 @@ import PageHeader from '@/Components/PageHeader';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useAuthorization } from '@/Hooks/useAuthorization';
+import useStockRefresh from '@/Hooks/useStockRefresh';
 import { IssuancePageProps, IssuanceRecord, PaginatedData } from './types';
 import { IssuanceToolbar } from './components/IssuanceToolbar';
 import { IssuanceTable } from './components/IssuanceTable';
@@ -40,6 +41,7 @@ export default function IssuanceIndex({
 }) {
     const user = auth.user;
     const { canAny } = useAuthorization();
+    useStockRefresh(['items', 'supplyRequests', 'issuances']);
     const canReviewRequests = canAny(['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release']);
     const pageProps = usePage().props as any;
     const systemSettings = (pageProps.systemSettings || {}) as Record<string, any>;
@@ -116,7 +118,7 @@ export default function IssuanceIndex({
     }, [supplyRequests]);
 
     useEffect(() => {
-        const refreshQueue = () => router.reload({ only: ['supplyRequests'] });
+        const refreshQueue = () => router.reload({ only: ['supplyRequests', 'items', 'issuances'] });
         window.addEventListener('supply-requests-changed', refreshQueue);
         return () => window.removeEventListener('supply-requests-changed', refreshQueue);
     }, []);

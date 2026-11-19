@@ -17,6 +17,7 @@ import { RequestStatusBadge } from './components/RequestStatusBadge';
 import { DivisionGroup, RequestItem, SupplyRequest } from './types';
 import { Plus, Search, FileText } from 'lucide-react';
 import useAuthorization from '@/Hooks/useAuthorization';
+import useStockRefresh from '@/Hooks/useStockRefresh';
 import CoordinatorRequestsWorkspace from './components/CoordinatorRequestsWorkspace';
 
 const PAGE_SIZE = 10;
@@ -68,6 +69,7 @@ export default function MyRequests({
     defaultIssuedByDesignation?: string;
 }) {
     const { can } = useAuthorization();
+    useStockRefresh(['items', 'requests', 'requestSummary', 'focusedRequest', 'minimumStockThreshold']);
     const canCreateRequest = can('inventory.requests.store');
     const canUpdateRequest = can('inventory.requests.update');
     const pageProps = usePage().props as any;
@@ -141,6 +143,11 @@ export default function MyRequests({
     useEffect(() => {
         if (focusedRequest) setDetailsRequest(focusedRequest);
     }, [focusedRequest?.id]);
+
+    useEffect(() => {
+        setEditingRequest(current => current ? requestList.find(record => record.id === current.id) || current : null);
+        setDetailsRequest(current => current ? requestList.find(record => record.id === current.id) || current : null);
+    }, [requests]);
 
     const visitCoordinatorRequests = (next: { search?: string; status?: string; page?: number }) => {
         router.get(route('inventory.requests.index'), {

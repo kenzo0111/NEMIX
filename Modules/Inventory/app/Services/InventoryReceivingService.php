@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Modules\AuditLogs\Models\TransactionTrail;
+use Modules\AuditLogs\Support\AuditGroupContext;
 use Modules\Inventory\Models\InventoryBatch;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\Receiving;
@@ -22,7 +23,7 @@ class InventoryReceivingService
      */
     public function generateSupplierAcronym(?Supplier $supplier): string
     {
-        if (!$supplier || empty(trim((string) $supplier->name))) {
+        if (! $supplier || empty(trim((string) $supplier->name))) {
             return 'GEN';
         }
 
@@ -36,7 +37,7 @@ class InventoryReceivingService
             }
         }
 
-        if (count($letters) < 3 && !empty($words[0])) {
+        if (count($letters) < 3 && ! empty($words[0])) {
             $cleanFirst = preg_replace('/[^A-Za-z0-9]/', '', $words[0]);
             for ($i = 1; $i < strlen($cleanFirst) && count($letters) < 3; $i++) {
                 $letters[] = strtoupper(substr($cleanFirst, $i, 1));
@@ -82,7 +83,7 @@ class InventoryReceivingService
             $candidate = sprintf('%s-%s-%s-%s-%04d', $acronym, $yy, $mm, $itemPart, $series);
             $exists = InventoryBatch::where('supplier_stock_no', $candidate)->exists()
                 || Receiving::where('supplier_stock_no', $candidate)->exists();
-            if (!$exists) {
+            if (! $exists) {
                 return $candidate;
             }
             $series++;
@@ -106,7 +107,7 @@ class InventoryReceivingService
             $itemId = (int) $data['item_id'];
             $supplierId = (int) $data['supplier_id'];
             $dateReceived = $data['date_received'];
-            $supplierStockNo = !empty($data['supplier_stock_no'])
+            $supplierStockNo = ! empty($data['supplier_stock_no'])
                 ? trim((string) $data['supplier_stock_no'])
                 : $this->generateSupplierStockNo($supplierId, $itemId, $dateReceived);
             $quantity = (int) $data['quantity'];
@@ -118,14 +119,14 @@ class InventoryReceivingService
             $this->balanceService->ensureOpeningBatch($item, $userId);
 
             // Default unit_cost to item's reference cost if not provided
-            if ((!isset($data['unit_cost']) || $data['unit_cost'] === '') && (float) ($item->unit_cost ?? 0) > 0) {
+            if ((! isset($data['unit_cost']) || $data['unit_cost'] === '') && (float) ($item->unit_cost ?? 0) > 0) {
                 $unitCost = (float) $item->unit_cost;
             }
 
             // 1. Create receiving header and batch within audit group
-            $reference = 'RR-' . ($data['supplier_stock_no'] ?? uniqid());
-            $groupId = 'RECEIVING:' . $supplierStockNo;
-            \Modules\AuditLogs\Support\AuditGroupContext::start($groupId, $supplierStockNo, 'Inventory', 'inventory.receiving.created');
+            $reference = 'RR-'.($data['supplier_stock_no'] ?? uniqid());
+            $groupId = 'RECEIVING:'.$supplierStockNo;
+            AuditGroupContext::start($groupId, $supplierStockNo, 'Inventory', 'inventory.receiving.created');
 
             try {
                 $receiving = Receiving::create([
@@ -152,20 +153,20 @@ class InventoryReceivingService
                 ]);
 
                 // 3. If item had no supplier set, store as initial reference
-                if (!$item->supplier_id && $supplierId) {
+                if (! $item->supplier_id && $supplierId) {
                     $item->supplier_id = $supplierId;
                 }
 
                 // 4. Update cached stock & valuation
                 $this->balanceService->synchronizeItem($item);
             } finally {
-                \Modules\AuditLogs\Support\AuditGroupContext::stop();
+                AuditGroupContext::stop();
             }
 
             // 5. Audit trail (Top-Level Parent Business Event)
             if (class_exists(TransactionTrail::class)) {
-                $supplierName = class_exists(\Modules\Suppliers\Models\Supplier::class)
-                    ? (\Modules\Suppliers\Models\Supplier::find($supplierId)?->name ?? 'Supplier')
+                $supplierName = class_exists(Supplier::class)
+                    ? (Supplier::find($supplierId)?->name ?? 'Supplier')
                     : 'Supplier';
                 $secondaryLine = sprintf('%s • %s • %s units', $item->name, $supplierName, number_format($quantity));
 
@@ -173,7 +174,7 @@ class InventoryReceivingService
                     'user_id' => $userId,
                     'module' => 'Inventory',
                     'action' => 'Recorded Receiving',
-                    'resource_ref' => 'RR-' . $receiving->id,
+                    'resource_ref' => 'RR-'.$receiving->id,
                     'details' => $secondaryLine,
                     'status' => 'Success',
                     'audit_group_id' => $groupId,
@@ -208,9 +209,19 @@ class InventoryReceivingService
      */
     public function update(Receiving $receiving, array $data, ?int $userId = null): Receiving
     {
-        return DB::transaction(function () use ($receiving, $data, $userId) {
+        return DB::transaction(function () use ($receiving, $data) {
             $lockedReceiving = Receiving::where('id', $receiving->id)->lockForUpdate()->firstOrFail();
+            Item::whereIn('id', [$lockedReceiving->item_id, $data['item_id'] ?? $lockedReceiving->item_id])->orderBy('id')->lockForUpdate()->get();
             $batch = InventoryBatch::where('receiving_id', $lockedReceiving->id)->lockForUpdate()->first();
+            if ($batch && RequestStockAllocation::physicalBatchQuantity($batch->id) > 0) {
+                foreach (['unit_cost', 'date_received', 'supplier_id', 'item_id', 'supplier_stock_no'] as $field) {
+                    $current = $field === 'date_received' ? $batch->date_received->toDateString() : $batch->$field;
+                    $changed = array_key_exists($field, $data) && ($field === 'unit_cost' ? (float) $data[$field] !== (float) $current : (string) $data[$field] !== (string) $current);
+                    if ($changed) {
+                        throw ValidationException::withMessages([$field => 'This batch has approved supplies awaiting pickup. Cancel or release those requests before changing its identity or cost.']);
+                    }
+                }
+            }
 
             $oldItemId = (int) $lockedReceiving->item_id;
             $oldQuantity = (int) $lockedReceiving->quantity;
@@ -219,7 +230,7 @@ class InventoryReceivingService
             $newSupplierId = (int) ($data['supplier_id'] ?? $lockedReceiving->supplier_id);
             $newDate = $data['date_received'] ?? $lockedReceiving->date_received;
             $hasStockNoKey = array_key_exists('supplier_stock_no', $data);
-            $newSupplierStockNo = $hasStockNoKey && !empty($data['supplier_stock_no'])
+            $newSupplierStockNo = $hasStockNoKey && ! empty($data['supplier_stock_no'])
                 ? trim((string) $data['supplier_stock_no'])
                 : ($batch?->supplier_stock_no ?: $lockedReceiving->supplier_stock_no);
 
@@ -248,7 +259,7 @@ class InventoryReceivingService
 
                     if ($item->stock + $diff < SupplyRequestService::reservedQuantity($item->id)) {
                         throw ValidationException::withMessages([
-                            'quantity' => "Cannot reduce received quantity by " . abs($diff) . ". Resulting stock balance for {$item->name} would be negative (" . ($item->stock + $diff) . ").",
+                            'quantity' => 'Cannot reduce received quantity by '.abs($diff).". Resulting stock balance for {$item->name} would be negative (".($item->stock + $diff).').',
                         ]);
                     }
 
@@ -266,7 +277,7 @@ class InventoryReceivingService
                 } else {
                     if ($item->stock + $diff < SupplyRequestService::reservedQuantity($item->id)) {
                         throw ValidationException::withMessages([
-                            'quantity' => "Cannot reduce received quantity by " . abs($diff) . ". Resulting stock balance for {$item->name} would be negative (" . ($item->stock + $diff) . ").",
+                            'quantity' => 'Cannot reduce received quantity by '.abs($diff).". Resulting stock balance for {$item->name} would be negative (".($item->stock + $diff).').',
                         ]);
                     }
                     $item->stock += $diff;
@@ -289,7 +300,7 @@ class InventoryReceivingService
 
                 if ($oldItem->stock - $oldQuantity < SupplyRequestService::reservedQuantity($oldItem->id)) {
                     throw ValidationException::withMessages([
-                        'item_id' => "Cannot reassign item: reducing stock for {$oldItem->name} by {$oldQuantity} would result in a negative stock balance (" . ($oldItem->stock - $oldQuantity) . ").",
+                        'item_id' => "Cannot reassign item: reducing stock for {$oldItem->name} by {$oldQuantity} would result in a negative stock balance (".($oldItem->stock - $oldQuantity).').',
                     ]);
                 }
 
@@ -332,8 +343,9 @@ class InventoryReceivingService
      */
     public function void(Receiving $receiving, ?int $userId = null): void
     {
-        DB::transaction(function () use ($receiving, $userId) {
+        DB::transaction(function () use ($receiving) {
             $lockedReceiving = Receiving::where('id', $receiving->id)->lockForUpdate()->firstOrFail();
+            Item::whereKey($lockedReceiving->item_id)->lockForUpdate()->firstOrFail();
             $batch = InventoryBatch::where('receiving_id', $lockedReceiving->id)->lockForUpdate()->first();
             $item = Item::where('id', $lockedReceiving->item_id)->lockForUpdate()->firstOrFail();
 

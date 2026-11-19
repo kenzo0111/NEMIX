@@ -2,13 +2,19 @@
 
 namespace Tests\Feature\Inventory;
 
+use App\Models\Signatory;
 use App\Models\User;
+use App\Services\SystemSettingsService;
+use Barryvdh\DomPDF\PDF;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Modules\Inventory\Models\InventoryBatch;
 use Modules\Inventory\Models\Issuance;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\SupplyRequest;
-use Spatie\Permission\Models\Role;
+use Modules\Suppliers\Models\Supplier;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class SupplyRequestWorkflowTest extends TestCase
@@ -32,15 +38,16 @@ class SupplyRequestWorkflowTest extends TestCase
             }
         }
         if ($user->usesCoordinatorInventory()) {
-            $head = \App\Models\Signatory::firstOrCreate(['name' => 'Registrar Office Head'], ['designation' => 'Office Head', 'is_active' => true]);
+            $head = Signatory::firstOrCreate(['name' => 'Registrar Office Head'], ['designation' => 'Office Head', 'is_active' => true]);
             $user->update(['department' => 'Registrar', 'office_head_id' => $head->id]);
         }
+
         return $user;
     }
 
     private function item(int $stock = 50): Item
     {
-        return Item::create([
+        return Item::create(['weekly_request_limit' => 1000000,
             'name' => 'Office Paper', 'sku' => 'PAPER-001', 'stock' => $stock,
             'unit_cost' => 10, 'amount' => $stock * 10, 'status' => 'Available',
             'unit_of_issue' => 'ream',
@@ -53,6 +60,7 @@ class SupplyRequestWorkflowTest extends TestCase
             'department' => 'Registrar', 'purpose' => 'Office operations',
             'items' => [['item_id' => $item->id, 'quantity' => $quantity]],
         ])->assertRedirect(route('inventory.requests.index'));
+
         return SupplyRequest::latest('id')->firstOrFail();
     }
 
@@ -95,7 +103,7 @@ class SupplyRequestWorkflowTest extends TestCase
         $this->assertSame(2, $request->items()->firstOrFail()->quantity);
     }
 
-    public function test_approval_reserves_stock_and_release_creates_one_issuance(): void
+    public function test_approval_deducts_stock_and_release_creates_one_issuance(): void
     {
         $coordinator = $this->user('Supply Coordinator');
         $custodian = $this->user('Property Custodian');
@@ -113,7 +121,7 @@ class SupplyRequestWorkflowTest extends TestCase
             'approved_quantities' => [$line->id => 10],
         ])->assertRedirect();
         $this->assertSame('Approved', $request->fresh()->status);
-        $this->assertSame(50, $item->fresh()->stock);
+        $this->assertSame(40, $item->fresh()->stock);
         $this->assertSame(0, Issuance::count());
         $this->actingAs($custodian)->get(route('inventory.issuance'))
             ->assertOk()->assertInertia(fn ($page) => $page->component('Inventory/Issuance')->has('supplyRequests', 1));
@@ -179,7 +187,7 @@ class SupplyRequestWorkflowTest extends TestCase
 
         $this->actingAs($second)->get(route('inventory.requests.index'))
             ->assertOk()->assertInertia(fn ($page) => $page->component('Inventory/Requests/Index')
-                ->has('requests.data', 0)->where('requests.total', 0));
+            ->has('requests.data', 0)->where('requests.total', 0));
         $this->actingAs($second)->put(route('inventory.requests.update', $request), [
             'department' => 'Other', 'purpose' => 'Other', 'items' => [['item_id' => $item->id, 'quantity' => 1]],
         ])->assertForbidden();
@@ -201,7 +209,7 @@ class SupplyRequestWorkflowTest extends TestCase
         $custodian = $this->user('Property Custodian');
         $item = $this->item(100);
 
-        $supplier = \Modules\Suppliers\Models\Supplier::create([
+        $supplier = Supplier::create([
             'name' => 'Private Supplier',
             'tin' => '999-888-777-000',
             'reg_number' => 'PRIVATE-REG',
@@ -210,7 +218,7 @@ class SupplyRequestWorkflowTest extends TestCase
             'status' => 'active',
             'created_by' => $custodian->id,
         ]);
-        $batch = \Modules\Inventory\Models\InventoryBatch::create([
+        $batch = InventoryBatch::create([
             'item_id' => $item->id,
             'supplier_id' => $supplier->id,
             'supplier_stock_no' => 'SAFE-STOCK-NO',
@@ -377,7 +385,7 @@ class SupplyRequestWorkflowTest extends TestCase
         $this->actingAs($custodian)->post(route('inventory.requests.approve', $second), [
             'approved_quantities' => [$secondLine->id => 5],
         ])->assertRedirect();
-        $this->assertSame(20, $item->fresh()->stock);
+        $this->assertSame(15, $item->fresh()->stock);
         $this->assertSame('Approved', $second->fresh()->status);
 
         $this->actingAs($custodian)->post(route('inventory.requests.approve', $second), [
@@ -386,7 +394,7 @@ class SupplyRequestWorkflowTest extends TestCase
         $this->assertSame(3, $secondLine->fresh()->approved_quantity);
     }
 
-    public function test_reserved_stock_cannot_be_removed_through_item_edit(): void
+    public function test_allocated_stock_cannot_be_changed_through_item_edit(): void
     {
         $coordinator = $this->user('Supply Coordinator');
         $custodian = $this->user('Property Custodian');
@@ -401,8 +409,8 @@ class SupplyRequestWorkflowTest extends TestCase
 
         $this->actingAs($inventoryStaff)->put(route('inventory.update', $item), [
             'name' => $item->name, 'sku' => $item->sku, 'stock' => 5,
-        ])->assertSessionHasErrors('stock');
-        $this->assertSame(20, $item->fresh()->stock);
+        ])->assertSessionHasNoErrors();
+        $this->assertSame(12, $item->fresh()->stock);
     }
 
     public function test_only_owner_can_download_approved_ris_pdf(): void
@@ -429,7 +437,7 @@ class SupplyRequestWorkflowTest extends TestCase
         $pdf->assertOk()->assertHeader('content-type', 'application/pdf');
         $this->assertStringStartsWith('%PDF', $pdf->getContent());
         $this->actingAs($other)->get($url)->assertForbidden();
-        $this->actingAs($coordinator)->get($url . '?inline=1')
+        $this->actingAs($coordinator)->get($url.'?inline=1')
             ->assertOk()->assertHeader('content-type', 'application/pdf');
 
         $this->actingAs($custodian)->post(route('inventory.requests.release', $request), [
@@ -530,7 +538,7 @@ class SupplyRequestWorkflowTest extends TestCase
         $custodian = $this->user('Property Custodian');
         $item = $this->item(100);
 
-        $supplier = \Modules\Suppliers\Models\Supplier::create([
+        $supplier = Supplier::create([
             'name' => 'Apex Supplies Corp.',
             'tin' => '123-456-789-000',
             'reg_number' => 'REG-101',
@@ -540,7 +548,7 @@ class SupplyRequestWorkflowTest extends TestCase
             'created_by' => $coordinator->id,
         ]);
 
-        \Modules\Inventory\Models\InventoryBatch::create([
+        InventoryBatch::create([
             'item_id' => $item->id,
             'supplier_id' => $supplier->id,
             'supplier_stock_no' => 'STK-2026-FILAMENT-001',
@@ -614,7 +622,7 @@ class SupplyRequestWorkflowTest extends TestCase
 
     public function test_approved_ris_prints_signatories_without_releasing_stock(): void
     {
-        $this->travelTo(\Carbon\Carbon::parse('2026-10-18 00:30:00', 'Asia/Manila'));
+        $this->travelTo(Carbon::parse('2026-10-18 00:30:00', 'Asia/Manila'));
         $coordinator = $this->user('Supply Coordinator');
         $custodian = $this->user('Property Custodian');
         $item = $this->item();
@@ -624,11 +632,11 @@ class SupplyRequestWorkflowTest extends TestCase
             'approved_quantities' => [$line->id => 10],
         ])->assertRedirect();
 
-        $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
+        $signatories = app(SystemSettingsService::class)->getIssuanceSignatories();
         foreach ([null, 'Department Chair', '   '] as $designation) {
             $request->update(['recipient_designation' => $designation]);
             $expectedDesignation = trim($designation ?? '') ?: 'Requesting Personnel';
-            $pdf = \Mockery::mock(\Barryvdh\DomPDF\PDF::class);
+            $pdf = \Mockery::mock(PDF::class);
             \Barryvdh\DomPDF\Facade\Pdf::shouldReceive('loadView')->once()
                 ->withArgs(function ($view, $data) use ($signatories, $expectedDesignation, $request) {
                     $ris = $data['ris'];
@@ -644,6 +652,7 @@ class SupplyRequestWorkflowTest extends TestCase
                     $html = view($view, $data)->render();
                     $this->assertStringContainsString($expectedDesignation, $html);
                     $this->assertStringNotContainsString('____________', $html);
+
                     return true;
                 })->andReturn($pdf);
             $pdf->shouldReceive('setPaper')->once()->with('A4', 'portrait')->andReturnSelf();
@@ -651,10 +660,8 @@ class SupplyRequestWorkflowTest extends TestCase
             $pdf->shouldReceive('download')->once()->andReturn(response('PDF'));
             $this->actingAs($coordinator)->get(route('inventory.requests.ris-pdf', $request))->assertOk();
             $this->assertSame('Approved', $request->fresh()->status);
-            $this->assertSame(50, $item->fresh()->stock);
+            $this->assertSame(40, $item->fresh()->stock);
             $this->assertSame(0, Issuance::count());
         }
     }
 }
-
-

@@ -13,13 +13,13 @@ class SupportingDocumentService
 {
     public static function rules(bool $required, ?SupplyRequest $supplyRequest = null): array
     {
-        if (!$required) {
+        if (! $required) {
             return ['supporting_document' => ['prohibited'], 'supporting_document_type' => ['prohibited']];
         }
 
         return [
             'supporting_document_type' => ['required', Rule::in(['Approved MOA', 'Approved Research', 'Approved Letter', 'Others'])],
-            'supporting_document' => [Rule::requiredIf(!$supplyRequest?->supporting_document_path), 'nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'extensions:pdf,jpg,jpeg,png', 'max:10240'],
+            'supporting_document' => [Rule::requiredIf(! $supplyRequest?->supporting_document_path), 'nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'extensions:pdf,jpg,jpeg,png', 'max:10240'],
         ];
     }
 
@@ -41,7 +41,7 @@ class SupportingDocumentService
                 ];
                 if ($file = $request->file('supporting_document')) {
                     $path = $file->store('supporting-documents', 'local');
-                    if (!$path) {
+                    if (! $path) {
                         throw new \RuntimeException('The supporting document could not be stored. Please try again.');
                     }
                     $fields += [
@@ -52,15 +52,20 @@ class SupportingDocumentService
                 }
             }
             DB::transaction(function () use ($existing, $callback, $fields, &$oldPath) {
+                WeeklyRequestQuota::lockUser($existing?->requested_by ?? auth()->id());
                 if ($existing) {
                     $oldPath = SupplyRequest::whereKey($existing->id)->lockForUpdate()->firstOrFail()->supporting_document_path;
                 }
                 $callback($fields);
-            });
+            }, 5);
         } catch (\Throwable $e) {
-            if ($path) Storage::disk('local')->delete($path);
+            if ($path) {
+                Storage::disk('local')->delete($path);
+            }
             throw $e;
         }
-        if ($path && $oldPath && $oldPath !== $path) Storage::disk('local')->delete($oldPath);
+        if ($path && $oldPath && $oldPath !== $path) {
+            Storage::disk('local')->delete($oldPath);
+        }
     }
 }

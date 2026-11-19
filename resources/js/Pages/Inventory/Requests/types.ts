@@ -6,6 +6,9 @@ export type RequestItem = {
     sku: string;
     stock: number;
     max_request_quantity?: number;
+    weekly_request_limit?: number | null;
+    quota_remaining?: number;
+    quota_week_end?: string;
     unit_of_issue?: string;
     unit_cost?: number;
     stock_no?: string | null;
@@ -17,6 +20,9 @@ export type RequestLine = {
     item_id: number;
     quantity: number;
     approved_quantity: number | null;
+    max_approval_quantity?: number;
+    max_request_quantity?: number;
+    quota_remaining?: number;
     item: RequestItem;
 };
 

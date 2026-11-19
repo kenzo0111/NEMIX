@@ -27,12 +27,13 @@ class CentralSupplyCatalogTest extends TestCase
         Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         $user = User::factory()->create(['is_active' => true]);
         $user->assignRole($role);
+
         return $user;
     }
 
     private function item(string $name = 'Bond Paper A4', int $stock = 20): Item
     {
-        return Item::create(['name' => $name, 'sku' => 'SKU-'.uniqid(), 'stock' => $stock,
+        return Item::create(['weekly_request_limit' => 1000000, 'name' => $name, 'sku' => 'SKU-'.uniqid(), 'stock' => $stock,
             'unit_of_issue' => 'ream', 'unit_cost' => 99, 'amount' => $stock * 99,
             'rfid_tag' => 'TAG-'.uniqid(), 'description' => 'Office consumable', 'status' => 'Available']);
     }

@@ -48,6 +48,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
         issuances: [{ item_id: '', quantity: '' }] as IssuanceLine[],
     });
 
+
     React.useEffect(() => {
         if (show) {
             form.setData((prev) => ({
@@ -172,6 +173,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
 
                 {/* Form Body */}
                 <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto max-h-[75vh] space-y-6 text-sm">
+                    <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200">For Authorized Personnel, Supply Coordinators, and Inventory Staff, release supplies through their approved request in the approval queue. Their weekly allowance is recorded there.</p>
                     {/* SECTION 1: Recipient Information */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">

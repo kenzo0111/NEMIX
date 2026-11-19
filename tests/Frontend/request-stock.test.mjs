@@ -151,3 +151,31 @@ assert.equal(protectedDraft.requests.length, 0);
 assert.match(protectedDraft.errors['items.0.item_id'], /minimum stock/);
 
 console.log('Minimum stock: both roles block excessive submissions, allow the boundary, and honor reservations and configured thresholds.');
+
+const weeklyItem = { ...plentiful, weekly_request_limit: 20, quota_remaining: 5, max_request_quantity: 5 };
+const overQuota = render([weeklyItem], [{ item_id: '1', quantity: '6' }]);
+overQuota.submit({ preventDefault() {} });
+assert.equal(overQuota.requests.length, 0);
+assert.match(overQuota.errors['items.0.quantity'], /weekly allowance/);
+assert.match(overQuota.html, /Weekly limit:.*20/);
+const atQuota = render([weeklyItem], [{ item_id: '1', quantity: '5' }]);
+atQuota.submit({ preventDefault() {} });
+assert.equal(atQuota.requests.length, 1);
+const ownClaim = render([{ ...weeklyItem, max_request_quantity: 0, quota_remaining: 0 }], [{ item_id: '1', quantity: '20' }], {
+    id: 10, items: [{ item_id: 1, quantity: 20, max_request_quantity: 20, max_approval_quantity: 20, quota_remaining: 20 }],
+});
+assert.match(ownClaim.selects[0].value.label, /Max request: 20/);
+const increasedDraft = render([weeklyItem], [{ item_id: '1', quantity: '25' }], {
+    id: 10, items: [{ item_id: 1, quantity: 20, max_request_quantity: 30, max_approval_quantity: 20, quota_remaining: 30 }],
+});
+increasedDraft.submit({ preventDefault() {} });
+assert.equal(increasedDraft.requests.length, 1);
+assert.equal(increasedDraft.requests[0].method, 'put');
+assert.match(increasedDraft.html, /id="req_qty_0"[^>]*max="30"/);
+const exhausted = render([{ ...weeklyItem, quota_remaining: 0, max_request_quantity: 0 }], [{ item_id: '1', quantity: '1' }]);
+exhausted.submit({ preventDefault() {} });
+assert.match(exhausted.errors['items.0.item_id'], /weekly allowance.*used/);
+const unconfiguredLimit = render([{ ...weeklyItem, weekly_request_limit: null, quota_remaining: 0, max_request_quantity: 0 }], [{ item_id: '1', quantity: '1' }]);
+unconfiguredLimit.submit({ preventDefault() {} });
+assert.match(unconfiguredLimit.errors['items.0.item_id'], /Weekly limit not configured/);
+console.log('Weekly quotas: limits block excess quantities and edits retain their own allowance.');

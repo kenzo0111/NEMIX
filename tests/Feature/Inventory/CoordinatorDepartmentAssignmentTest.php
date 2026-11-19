@@ -26,6 +26,7 @@ class CoordinatorDepartmentAssignmentTest extends TestCase
         Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         $user = User::factory()->create(['is_active' => true, 'email_verified_at' => now()]);
         $user->assignRole($role);
+
         return $user;
     }
 
@@ -36,7 +37,7 @@ class CoordinatorDepartmentAssignmentTest extends TestCase
 
     private function payload(): array
     {
-        $item = Item::create(['name' => 'Paper', 'sku' => 'PAPER-'.Item::count(), 'stock' => 10,
+        $item = Item::create(['weekly_request_limit' => 1000000, 'name' => 'Paper', 'sku' => 'PAPER-'.Item::count(), 'stock' => 10,
             'unit_cost' => 10, 'amount' => 100, 'status' => 'Available', 'unit_of_issue' => 'ream']);
 
         return ['department' => 'Spoofed Department', 'recipient' => 'Spoofed Head',
@@ -56,8 +57,7 @@ class CoordinatorDepartmentAssignmentTest extends TestCase
 
         $this->assertDatabaseHas('users', ['id' => $coordinator->id, 'department' => 'Finance', 'office_head_id' => $head->id]);
         $this->get(route('access-control.staffs'))->assertInertia(function ($page) use ($coordinator, $head) {
-            $page->where('staffs', fn ($staffs) => collect($staffs)->contains(fn ($staff) =>
-                $staff['id'] === $coordinator->id && $staff['department'] === 'Finance'
+            $page->where('staffs', fn ($staffs) => collect($staffs)->contains(fn ($staff) => $staff['id'] === $coordinator->id && $staff['department'] === 'Finance'
                 && $staff['office_head']['name'] === $head->name));
         });
     }

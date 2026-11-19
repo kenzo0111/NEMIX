@@ -2,9 +2,13 @@
 
 namespace Modules\Inventory\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Inventory\Services\LowStockAlertService;
+use Modules\Suppliers\Models\Supplier;
 
 class Item extends Model
 {
@@ -19,7 +23,7 @@ class Item extends Model
                 return;
             }
 
-            app(\Modules\Inventory\Services\LowStockAlertService::class)
+            app(LowStockAlertService::class)
                 ->scheduleIfThresholdCrossed($item, (int) $item->getRawOriginal('stock'), (int) $item->stock);
         });
 
@@ -56,6 +60,7 @@ class Item extends Model
     }
 
     protected $fillable = [
+        'weekly_request_limit',
         'name',
         'supplier_id',
         'sku',
@@ -70,6 +75,7 @@ class Item extends Model
     ];
 
     protected $casts = [
+        'weekly_request_limit' => 'integer',
         'stock' => 'integer',
         'unit_cost' => 'decimal:2',
         'amount' => 'decimal:2',
@@ -82,23 +88,23 @@ class Item extends Model
 
     public function getStockNoAttribute(): ?string
     {
-        if (!empty($this->attributes['stock_no'])) {
+        if (! empty($this->attributes['stock_no'])) {
             return trim((string) $this->attributes['stock_no']);
         }
 
-        if (!empty($this->attributes['supplier_stock_no'])) {
+        if (! empty($this->attributes['supplier_stock_no'])) {
             return trim((string) $this->attributes['supplier_stock_no']);
         }
 
         if ($this->relationLoaded('activeBatches') && $this->activeBatches->isNotEmpty()) {
-            $batch = $this->activeBatches->first(fn ($b) => !empty($b->supplier_stock_no));
+            $batch = $this->activeBatches->first(fn ($b) => ! empty($b->supplier_stock_no));
             if ($batch) {
                 return trim((string) $batch->supplier_stock_no);
             }
         }
 
         if ($this->relationLoaded('batches') && $this->batches->isNotEmpty()) {
-            $batch = $this->batches->first(fn ($b) => !empty($b->supplier_stock_no));
+            $batch = $this->batches->first(fn ($b) => ! empty($b->supplier_stock_no));
             if ($batch) {
                 return trim((string) $batch->supplier_stock_no);
             }
@@ -112,7 +118,7 @@ class Item extends Model
                 ->orderBy('id', 'desc')
                 ->value('supplier_stock_no');
 
-            if (!empty($stockNo)) {
+            if (! empty($stockNo)) {
                 return trim((string) $stockNo);
             }
         }
@@ -125,7 +131,7 @@ class Item extends Model
                 ->orderBy('id', 'desc')
                 ->value('supplier_stock_no');
 
-            if (!empty($stockNo)) {
+            if (! empty($stockNo)) {
                 return trim((string) $stockNo);
             }
         }
@@ -138,17 +144,17 @@ class Item extends Model
         return $this->stock_no;
     }
 
-    public function batches(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function batches(): HasMany
     {
         return $this->hasMany(InventoryBatch::class, 'item_id');
     }
 
-    public function inventoryBatches(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function inventoryBatches(): HasMany
     {
         return $this->batches();
     }
 
-    public function activeBatches(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function activeBatches(): HasMany
     {
         return $this->hasMany(InventoryBatch::class, 'item_id')
             ->where('quantity_remaining', '>', 0)
@@ -169,11 +175,11 @@ class Item extends Model
 
     public function supplier(): BelongsTo
     {
-        return $this->belongsTo(\Modules\Suppliers\Models\Supplier::class, 'supplier_id');
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

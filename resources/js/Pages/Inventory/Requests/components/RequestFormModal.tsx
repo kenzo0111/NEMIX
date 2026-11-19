@@ -42,14 +42,14 @@ export function RequestFormModal({
     const pageProps = usePage().props as any;
     const minimumStockThreshold = Number(pageProps.minimumStockThreshold ?? 10);
     const maximumQuantity = (item: RequestItem) => Math.min(
-        1000000, Math.max(0, item.max_request_quantity ?? item.stock - minimumStockThreshold)
+        1000000, Math.max(0, request?.items?.find(line => line.item_id === item.id)?.max_request_quantity ?? item.max_request_quantity ?? item.stock - minimumStockThreshold)
     );
     const requestableItems = useMemo(
         () => items.filter((item) => maximumQuantity(item) > 0),
-        [items, minimumStockThreshold]
+        [items, minimumStockThreshold, request]
     );
     const quantityLimitMessage = (item: RequestItem) =>
-        `Request at most ${maximumQuantity(item)} ${item.unit_of_issue || 'units'} to keep the minimum stock of ${minimumStockThreshold} ${item.unit_of_issue || 'units'}. Approved reservations are excluded.`;
+        `Request at most ${maximumQuantity(item)} ${item.unit_of_issue || 'units'} to keep the minimum stock of ${minimumStockThreshold} ${item.unit_of_issue || 'units'} and stay within your weekly allowance. Approved quantities are already deducted.`;
     const sharedRoles = pageProps.auth?.roles || pageProps.auth?.user?.roles;
     const roleNames: string[] = Array.isArray(sharedRoles) ? sharedRoles : [];
     const isAuthorizedPersonnel = roleNames.some((role) => String(role).toLowerCase() === 'authorized personnel');
@@ -67,6 +67,7 @@ export function RequestFormModal({
     const divisionList = divisions && divisions.length > 0 ? divisions : FALLBACK_DIVISIONS;
 
     const form = useForm({
+        submission_key: globalThis.crypto?.randomUUID?.(),
         supporting_document: null as File | null,
         supporting_document_type: '',
         recipient: isAuthorizedPersonnel ? loginUserName : (request?.recipient || (assignedUnit ? assignment?.recipient || '' : defaultRecipient)),
@@ -87,6 +88,7 @@ export function RequestFormModal({
 
         if (request) {
             form.setData({
+                submission_key: undefined,
                 supporting_document: null,
                 supporting_document_type: request?.supporting_document_type || '',
                 recipient: isAuthorizedPersonnel ? loginUserName : (request.recipient || request.requester?.name || defaultRecipient),
@@ -108,6 +110,7 @@ export function RequestFormModal({
             });
         } else {
             form.setData({
+                submission_key: globalThis.crypto?.randomUUID?.(),
                 supporting_document: null,
                 supporting_document_type: '',
                 recipient: isAuthorizedPersonnel ? loginUserName : (assignedUnit ? assignment?.recipient || '' : defaultRecipient),
@@ -161,13 +164,19 @@ export function RequestFormModal({
     const stockErrors = form.data.items.map((line) => {
         const item = requestableItems.find((item) => item.id === Number(line.item_id));
         const selectedItem = items.find((item) => item.id === Number(line.item_id))
-            || request?.items.find((entry) => entry.item_id === Number(line.item_id))?.item;
+            || request?.items?.find((entry) => entry.item_id === Number(line.item_id))?.item;
         const outOfStock = !selectedItem || selectedItem.stock <= 0;
+        const remainingQuota = request?.items?.find(entry => entry.item_id === Number(line.item_id))?.quota_remaining ?? selectedItem?.quota_remaining;
+        const quotaMessage = selectedItem?.weekly_request_limit === null
+            ? 'Weekly limit not configured. Contact Inventory Staff before requesting this item.'
+            : remainingQuota === 0
+                ? 'Your weekly allowance for this item is used. Remove this item or select another.'
+                : null;
         return {
             item: line.item_id && !item
-                ? (outOfStock
+                ? (quotaMessage ?? (outOfStock
                     ? 'Unserviceable for requisition: out of stock. Remove this item or select another.'
-                    : `Unavailable for requisition: the minimum stock of ${minimumStockThreshold} units and approved reservations must be preserved. Remove this item or select another.`)
+                    : `Unavailable for requisition: the minimum stock of ${minimumStockThreshold} units and approved reservations must be preserved. Remove this item or select another.`))
                 : null,
             quantity: item && Number(line.quantity) > maximumQuantity(item)
                 ? quantityLimitMessage(item)
@@ -479,12 +488,12 @@ export function RequestFormModal({
                         )}
 
                         <p className="mb-3 text-sm text-gray-500 dark:text-slate-400">
-                            Requests must leave at least {minimumStockThreshold} units in stock. Approved reservations reduce the quantity available to request.
+                            Requests must leave at least {minimumStockThreshold} units in stock and stay within your weekly item allowance. Approved quantities are deducted immediately.
                         </p>
                         <div className="space-y-3">
                             {form.data.items.map((line, index) => {
                                 const selectedItem = items.find((item) => item.id === Number(line.item_id))
-                                    || request?.items.find((entry) => entry.item_id === Number(line.item_id))?.item;
+                                    || request?.items?.find((entry) => entry.item_id === Number(line.item_id))?.item;
                                 const unavailable = Boolean(stockErrors[index].item);
                                 const maxQuantity = selectedItem && !unavailable ? maximumQuantity(selectedItem) : 0;
                                 const availableItemOptions = requestableItems
@@ -524,7 +533,7 @@ export function RequestFormModal({
                                                     styles={getInstitutionalSelectStyles(Boolean(errorItem))}
                                                     classNamePrefix="react-select"
                                                     isClearable
-                                                    noOptionsMessage={() => 'No items available above the minimum stock level'}
+                                                    noOptionsMessage={() => 'No items available within stock and weekly limits'}
                                                 />
                                                 {errorItem && (
                                                     <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
@@ -544,6 +553,7 @@ export function RequestFormModal({
                                                         {selectedItem ? (selectedItem.unit_of_issue || 'pcs') : ''}
                                                     </span>
                                                 </div>
+                                                {selectedItem && <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-slate-400">Weekly limit: {selectedItem.weekly_request_limit ?? 'Not configured'} · Remaining: {request?.items?.find(line => line.item_id === selectedItem.id)?.quota_remaining ?? selectedItem.quota_remaining ?? '—'}</p>}
                                             </div>
 
                                             {/* Quantity input */}

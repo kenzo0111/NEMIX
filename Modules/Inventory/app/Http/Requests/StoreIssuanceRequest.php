@@ -24,6 +24,7 @@ class StoreIssuanceRequest extends FormRequest
             'issuances.*.item_id' => ['required', 'integer', 'exists:items,id'],
             'issuances.*.quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
             'recipient' => ['required', 'string', 'max:255'],
+            'recipient_user_id' => ['nullable', 'integer', 'exists:users,id'],
             'department' => ['nullable', 'string', 'max:255'],
             'fund_cluster' => ['nullable', 'string', 'max:255'],
             'recipient_designation' => ['nullable', 'string', 'max:255'],
@@ -46,7 +47,7 @@ class StoreIssuanceRequest extends FormRequest
             if (is_array($issuances)) {
                 $itemIds = [];
                 foreach ($issuances as $index => $row) {
-                    if (!empty($row['item_id'])) {
+                    if (! empty($row['item_id'])) {
                         if (in_array($row['item_id'], $itemIds)) {
                             $validator->errors()->add(
                                 "issuances.{$index}.item_id",

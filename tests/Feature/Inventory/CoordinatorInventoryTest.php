@@ -39,7 +39,7 @@ class CoordinatorInventoryTest extends TestCase
 
     private function requestFor(User $user): SupplyRequest
     {
-        $item = Item::create(['name' => 'Paper', 'sku' => 'PAPER-'.uniqid(), 'stock' => 50,
+        $item = Item::create(['weekly_request_limit' => 1000000, 'name' => 'Paper', 'sku' => 'PAPER-'.uniqid(), 'stock' => 50,
             'unit_cost' => 10, 'amount' => 500, 'unit_of_issue' => 'ream', 'status' => 'Available']);
         $request = SupplyRequest::create(['requested_by' => $user->id, 'department' => 'Delivery Unit A',
             'purpose' => 'Operations', 'status' => 'Pending', 'date_requested' => now()->toDateString()]);
@@ -281,7 +281,7 @@ class CoordinatorInventoryTest extends TestCase
         }
         $this->assertSame('Approved', $request->fresh()->status);
         $this->assertNull($request->fresh()->issuance_id);
-        $this->assertSame(50, $request->items()->first()->item->stock);
+        $this->assertSame(43, $request->items()->first()->item->stock);
         $this->assertSame(0, Issuance::count());
     }
 
@@ -390,12 +390,12 @@ class CoordinatorInventoryTest extends TestCase
             'status' => 'active',
             'created_by' => $inventoryStaff->id,
         ]);
-        $paper = Item::create([
+        $paper = Item::create(['weekly_request_limit' => 1000000,
             'name' => 'Bond Paper A4', 'supplier_id' => $supplier->id, 'sku' => 'PAPER-A4',
             'stock' => 40, 'unit_cost' => 250, 'amount' => 10000, 'status' => 'Available',
             'unit_of_issue' => 'ream', 'created_by' => $inventoryStaff->id,
         ]);
-        $pens = Item::create([
+        $pens = Item::create(['weekly_request_limit' => 1000000,
             'name' => 'Black Ballpen', 'supplier_id' => $supplier->id, 'sku' => 'PEN-BLK',
             'stock' => 50, 'unit_cost' => 12, 'amount' => 600, 'status' => 'Available',
             'unit_of_issue' => 'piece', 'created_by' => $inventoryStaff->id,
@@ -459,7 +459,7 @@ class CoordinatorInventoryTest extends TestCase
             'name' => 'Central Supplier', 'tin' => 'TIN-'.uniqid(), 'reg_number' => 'REG-'.uniqid(),
             'category' => 'Office Supplies', 'status' => 'active', 'created_by' => $staff->id,
         ]);
-        $item = Item::create([
+        $item = Item::create(['weekly_request_limit' => 1000000,
             'name' => 'Paper', 'sku' => 'MONTHLY-PAPER', 'supplier_id' => $supplier->id,
             'stock' => 24, 'unit_of_issue' => 'Ream', 'status' => 'Available',
         ]);
@@ -493,8 +493,7 @@ class CoordinatorInventoryTest extends TestCase
             ->where('centralReceivingSummary.quantities_by_unit', [['unit' => 'ream', 'quantity' => 24]])
             ->where('centralReceivingSummary.latest_recorded_at', now()->subMinute()->format('M d, Y • h:i A'))
             ->has('centralReceivingSummary.recent_records', 6)
-            ->where('centralReceivingSummary.recent_records', fn ($records) =>
-                array_column($records->all(), 'id') === array_slice(array_reverse($ids), 0, 6)));
+            ->where('centralReceivingSummary.recent_records', fn ($records) => array_column($records->all(), 'id') === array_slice(array_reverse($ids), 0, 6)));
     }
 
     public function test_central_receiving_summary_identifies_missing_recorder_without_attributing_it_to_staff(): void
@@ -504,7 +503,7 @@ class CoordinatorInventoryTest extends TestCase
             'name' => 'Legacy Supplier', 'tin' => 'TIN-'.uniqid(), 'reg_number' => 'REG-'.uniqid(),
             'category' => 'Office Supplies', 'status' => 'active', 'created_by' => $coordinator->id,
         ]);
-        $item = Item::create([
+        $item = Item::create(['weekly_request_limit' => 1000000,
             'name' => 'Legacy Paper', 'sku' => 'LEGACY-PAPER', 'stock' => 5,
             'unit_of_issue' => 'ream', 'status' => 'Available',
         ]);

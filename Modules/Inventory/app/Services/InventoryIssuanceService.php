@@ -3,9 +3,12 @@
 namespace Modules\Inventory\Services;
 
 use App\Models\SystemSetting;
+use App\Models\User;
+use App\Services\DocumentNumberService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Modules\AuditLogs\Models\TransactionTrail;
+use Modules\AuditLogs\Support\AuditGroupContext;
 use Modules\Inventory\Models\InventoryBatch;
 use Modules\Inventory\Models\Issuance;
 use Modules\Inventory\Models\IssuanceBatchAllocation;
@@ -15,6 +18,23 @@ use Modules\Inventory\Models\SupplyRequest;
 
 class InventoryIssuanceService
 {
+    private function requireRequisitionForRegisteredRecipient(array $data): void
+    {
+        $recipient = mb_strtolower(trim($data['recipient'] ?? ''));
+        $covered = User::query()
+            ->whereHas('roles', fn ($query) => $query->whereIn('name', ['Authorized Personnel', 'Supply Coordinator', 'Inventory Staff']))
+            ->where(function ($query) use ($recipient, $data) {
+                $query->whereRaw('LOWER(name) = ?', [$recipient])
+                    ->orWhereHas('officeHead', fn ($head) => $head->whereRaw('LOWER(name) = ?', [$recipient]));
+                if (! empty($data['recipient_user_id'])) {
+                    $query->orWhere('id', $data['recipient_user_id']);
+                }
+            })->exists();
+        if ($covered) {
+            throw ValidationException::withMessages(['recipient' => 'Registered requesters must receive supplies through an approved requisition so their weekly item quota is recorded. Use the request approval and release queue.']);
+        }
+    }
+
     public function __construct(
         protected InventoryBalanceService $balanceService,
         protected InventoryCostingService $costingService
@@ -26,6 +46,7 @@ class InventoryIssuanceService
     public function store(array $payload, ?int $userId = null): Issuance
     {
         $lines = $payload['lines'] ?? $payload['issuances'] ?? [];
+
         return $this->issue($payload, $lines, $userId);
     }
 
@@ -36,13 +57,30 @@ class InventoryIssuanceService
     {
         return DB::transaction(function () use ($data, $lines, $userId) {
             $normalizedDate = $data['date_issued'];
+            $source = null;
+            if (! empty($data['supply_request_id'])) {
+                $source = SupplyRequest::findOrFail($data['supply_request_id']);
+                WeeklyRequestQuota::lockUser($source->requested_by);
+                $source = SupplyRequest::whereKey($source->id)->lockForUpdate()->firstOrFail();
+                if (($source->requires_supporting_document
+                    ? ($source->status !== 'Ready for Pickup' || ! $source->document_verified_at)
+                    : $source->status !== 'Approved') || $source->issuance_id) {
+                    throw ValidationException::withMessages(['request' => 'This request is not awaiting release.']);
+                }
+            }
+            $preallocated = (bool) $source?->stock_allocated_at;
+            if (! $source) {
+                $this->requireRequisitionForRegisteredRecipient($data);
+            }
 
             // 1. Group requested lines by item_id
             $condensed = [];
             foreach ($lines as $line) {
                 $iid = (int) $line['item_id'];
                 $qty = (int) $line['quantity'];
-                if ($qty <= 0) continue;
+                if ($qty <= 0) {
+                    continue;
+                }
                 $condensed[$iid] = ($condensed[$iid] ?? 0) + $qty;
             }
 
@@ -51,11 +89,14 @@ class InventoryIssuanceService
                     'issuances' => 'At least one item with valid quantity must be issued.',
                 ]);
             }
+            if ($source && $source->items()->where('approved_quantity', '>', 0)->count() !== count($condensed)) {
+                throw ValidationException::withMessages(['request' => 'Release all approved request items together.']);
+            }
 
             // 2. Lock all items in deterministic order
             $itemIds = array_keys($condensed);
             sort($itemIds);
-            $lockedItems = Item::whereIn('id', $itemIds)->lockForUpdate()->get()->keyBy('id');
+            $lockedItems = Item::whereIn('id', $itemIds)->orderBy('id')->lockForUpdate()->get()->keyBy('id');
 
             // 3. Validate stock availability
             $strict = class_exists(SystemSetting::class)
@@ -64,8 +105,19 @@ class InventoryIssuanceService
 
             foreach ($condensed as $itemId => $qty) {
                 $item = $lockedItems->get($itemId);
+                $saved = $source?->items()->where('item_id', $itemId)->first();
+                if ($source && (! $saved || $saved->approved_quantity !== $qty)) {
+                    throw ValidationException::withMessages(['request' => 'This release does not match the approved request quantities.']);
+                }
+                if ($preallocated) {
+                    if (! $item || ! $saved || $saved->approved_quantity !== $qty || $saved->approvalAllocations()->where('state', 'allocated')->sum('quantity') != $qty) {
+                        throw ValidationException::withMessages(['request' => 'This release does not match the saved approval allocation.']);
+                    }
+
+                    continue;
+                }
                 $reserved = $item ? SupplyRequestService::reservedQuantity($itemId, $data['supply_request_id'] ?? null) : 0;
-                if ($item && !empty($data['supply_request_id'])) {
+                if ($item && ! empty($data['supply_request_id'])) {
                     $maximum = SupplyRequestService::requestableQuantity($item->stock, $reserved);
                     if ($qty > $maximum) {
                         throw ValidationException::withMessages([
@@ -73,7 +125,7 @@ class InventoryIssuanceService
                         ]);
                     }
                 }
-                if (!$item || ($strict && $item->stock - $reserved < $qty)) {
+                if (! $item || ($strict && $item->stock - $reserved < $qty)) {
                     $available = $item ? $item->stock : 0;
                     $name = $item ? $item->name : "Item #{$itemId}";
                     throw ValidationException::withMessages([
@@ -83,35 +135,32 @@ class InventoryIssuanceService
             }
 
             // 4. Generate RIS number
-            $risNumber = $data['ris_number'] ?? null;
+            $risNumber = $data['ris_number'] ?? $source?->ris_number;
             if ($risNumber) {
                 // Only a linked approved request may transfer its reserved number.
-                $source = !empty($data['supply_request_id'])
-                    ? SupplyRequest::whereKey($data['supply_request_id'])->lockForUpdate()->first()
-                    : null;
-                if (!$source || ($source->requires_supporting_document
-                        ? ($source->status !== 'Ready for Pickup' || !$source->document_verified_at)
+                if (! $source || ($source->requires_supporting_document
+                        ? ($source->status !== 'Ready for Pickup' || ! $source->document_verified_at)
                         : $source->status !== 'Approved') || $source->issuance_id || $source->ris_number !== $risNumber
                     || Issuance::where('ris_number', $risNumber)->exists()) {
                     throw ValidationException::withMessages(['request' => 'This RIS number is not available for release.']);
                 }
             } else {
-                $risNumber = app(\App\Services\DocumentNumberService::class)->reserve('RIS', $normalizedDate);
+                $risNumber = app(DocumentNumberService::class)->reserve('RIS', $normalizedDate);
             }
 
             $primaryItemId = $itemIds[0];
             $totalQuantity = array_sum($condensed);
 
-            $issuedByName = !empty($data['issued_by_name'])
+            $issuedByName = ! empty($data['issued_by_name'])
                 ? $data['issued_by_name']
                 : (class_exists(SystemSetting::class) ? (SystemSetting::get('signatories.ris_issued_by_name') ?: 'Supply Custodian / Storekeeper') : 'Supply Custodian / Storekeeper');
-            $issuedByPosition = !empty($data['issued_by_position'])
+            $issuedByPosition = ! empty($data['issued_by_position'])
                 ? $data['issued_by_position']
                 : (class_exists(SystemSetting::class) ? (SystemSetting::get('signatories.ris_issued_by_designation') ?: 'Administrative Aide VI / Storekeeper') : 'Administrative Aide VI / Storekeeper');
-            $approvedByName = !empty($data['approved_by'])
+            $approvedByName = ! empty($data['approved_by'])
                 ? $data['approved_by']
                 : (class_exists(SystemSetting::class) ? (SystemSetting::get('signatories.ris_approved_by_name') ?: 'ARSENIO GEM A. GARCILLANOSA') : 'ARSENIO GEM A. GARCILLANOSA');
-            $approvedByDesignation = !empty($data['approved_by_designation'])
+            $approvedByDesignation = ! empty($data['approved_by_designation'])
                 ? $data['approved_by_designation']
                 : (class_exists(SystemSetting::class) ? (SystemSetting::get('signatories.ris_approved_by_designation') ?: 'SUPPLY OFFICER III/ADMIN OFFICER V') : 'SUPPLY OFFICER III/ADMIN OFFICER V');
 
@@ -127,8 +176,8 @@ class InventoryIssuanceService
             ];
 
             // 5. Create Issuance parent record and children within audit group
-            $groupId = 'ISSUANCE:' . $risNumber;
-            \Modules\AuditLogs\Support\AuditGroupContext::start($groupId, $risNumber, 'Inventory', 'inventory.issuance.created');
+            $groupId = 'ISSUANCE:'.$risNumber;
+            AuditGroupContext::start($groupId, $risNumber, 'Inventory', 'inventory.issuance.created');
 
             try {
                 $issuance = Issuance::create([
@@ -153,7 +202,16 @@ class InventoryIssuanceService
                 // 6. Allocate batches via FIFO and create detail records
                 foreach ($condensed as $itemId => $qty) {
                     $item = $lockedItems->get($itemId);
-                    $costingResult = $this->costingService->allocateFifo($item, $qty);
+                    $savedAllocations = $preallocated ? $source->items()->where('item_id', $itemId)->firstOrFail()
+                        ->approvalAllocations()->where('state', 'allocated')->orderBy('inventory_batch_id')->lockForUpdate()->get() : collect();
+                    $costingResult = $preallocated ? [
+                        'total_amount' => (float) $savedAllocations->sum('amount'),
+                        'blended_unit_cost' => round($savedAllocations->sum('amount') / $qty, 2),
+                        'allocations' => $savedAllocations->map(fn ($allocation) => [
+                            'batch' => InventoryBatch::findOrFail($allocation->inventory_batch_id),
+                            'quantity' => $allocation->quantity, 'unit_cost' => $allocation->unit_cost, 'amount' => $allocation->amount,
+                        ]),
+                    ] : $this->costingService->allocateFifo($item, $qty);
 
                     $issuanceItem = IssuanceItem::create([
                         'issuance_id' => $issuance->id,
@@ -175,10 +233,14 @@ class InventoryIssuanceService
                         }
                     }
 
+                    foreach ($savedAllocations as $allocation) {
+                        $allocation->update(['state' => 'released']);
+                    }
+
                     $this->balanceService->synchronizeItem($item);
                 }
             } finally {
-                \Modules\AuditLogs\Support\AuditGroupContext::stop();
+                AuditGroupContext::stop();
             }
 
             // 7. Audit log (Top-Level Parent Business Event)
@@ -210,7 +272,7 @@ class InventoryIssuanceService
             }
 
             return $issuance;
-        });
+        }, 5);
     }
 
     /**
@@ -221,13 +283,18 @@ class InventoryIssuanceService
         if (SupplyRequest::where('issuance_id', $issuance->id)->exists()) {
             throw ValidationException::withMessages(['issuance' => 'A request-linked issuance cannot be edited independently.']);
         }
-        return DB::transaction(function () use ($issuance, $data, $lines, $userId) {
+        $this->requireRequisitionForRegisteredRecipient($data);
+
+        return DB::transaction(function () use ($issuance, $data, $lines) {
             $lockedIssuance = Issuance::where('id', $issuance->id)->lockForUpdate()->firstOrFail();
             $normalizedDate = $data['date_issued'];
             $newStatus = $data['status'] ?? $lockedIssuance->status;
 
             // Retrieve old child items and their batch allocations
             $oldChildItems = $lockedIssuance->items()->with('allocations')->get();
+            $affectedItemIds = $oldChildItems->pluck('item_id')->merge(array_column($lines, 'item_id'))
+                ->push($lockedIssuance->item_id)->filter()->unique()->sort()->values();
+            Item::whereIn('id', $affectedItemIds)->orderBy('id')->lockForUpdate()->get();
             $oldItemIds = [];
 
             if ($lockedIssuance->status === 'Issued') {
@@ -279,14 +346,16 @@ class InventoryIssuanceService
             foreach ($lines as $line) {
                 $iid = (int) $line['item_id'];
                 $qty = (int) $line['quantity'];
-                if ($qty <= 0) continue;
+                if ($qty <= 0) {
+                    continue;
+                }
                 $condensed[$iid] = ($condensed[$iid] ?? 0) + $qty;
             }
 
             // Lock all affected items
             $allItemIds = array_values(array_unique(array_merge($oldItemIds, array_keys($condensed))));
             sort($allItemIds);
-            $lockedItems = Item::whereIn('id', $allItemIds)->lockForUpdate()->get()->keyBy('id');
+            $lockedItems = Item::whereIn('id', $allItemIds)->orderBy('id')->lockForUpdate()->get()->keyBy('id');
 
             // Refresh items whose stock was restored
             foreach ($oldItemIds as $oid) {
@@ -299,7 +368,7 @@ class InventoryIssuanceService
             // If new status is Issued, validate stock and allocate batches
             $totalQuantity = 0;
             $totalAmount = 0.00;
-            $primaryItemId = !empty($condensed) ? array_keys($condensed)[0] : $lockedIssuance->item_id;
+            $primaryItemId = ! empty($condensed) ? array_keys($condensed)[0] : $lockedIssuance->item_id;
 
             // Delete old child items (allocations cascade deleted)
             $lockedIssuance->items()->delete();
@@ -312,7 +381,7 @@ class InventoryIssuanceService
                 foreach ($condensed as $itemId => $qty) {
                     $item = $lockedItems->get($itemId);
                     $reserved = $item ? SupplyRequestService::reservedQuantity($itemId) : 0;
-                    if (!$item || ($strict && $item->stock - $reserved < $qty)) {
+                    if (! $item || ($strict && $item->stock - $reserved < $qty)) {
                         $available = $item ? $item->stock : 0;
                         $name = $item ? $item->name : "Item #{$itemId}";
                         throw ValidationException::withMessages([
@@ -413,11 +482,13 @@ class InventoryIssuanceService
         if (SupplyRequest::where('issuance_id', $issuance->id)->exists()) {
             throw ValidationException::withMessages(['issuance' => 'A request-linked issuance cannot be voided independently.']);
         }
-        DB::transaction(function () use ($issuance, $userId) {
+        DB::transaction(function () use ($issuance) {
             $lockedIssuance = Issuance::where('id', $issuance->id)->lockForUpdate()->firstOrFail();
 
             if ($lockedIssuance->status === 'Issued') {
                 $childItems = $lockedIssuance->items()->with('allocations')->get();
+                $affectedItemIds = $childItems->pluck('item_id')->push($lockedIssuance->item_id)->filter()->unique()->sort()->values();
+                Item::whereIn('id', $affectedItemIds)->orderBy('id')->lockForUpdate()->get();
                 $touchedItems = [];
 
                 foreach ($childItems as $ci) {

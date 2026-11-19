@@ -3,26 +3,32 @@
 namespace Modules\Inventory\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\RfidDevice;
+use App\Models\SystemSetting;
 use App\Policies\ResourceOwnershipPolicy;
+use App\Services\AccessControl\PermissionResolver;
+use App\Services\SystemSettingsService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Modules\Inventory\Http\Requests\StoreIssuanceRequest;
 use Modules\Inventory\Models\InventoryBatch;
 use Modules\Inventory\Models\Issuance;
-use Modules\Inventory\Models\SupplyRequest;
 use Modules\Inventory\Models\IssuanceItem;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\Receiving;
+use Modules\Inventory\Models\SupplyRequest;
 use Modules\Inventory\Services\InventoryBalanceService;
-use Modules\Inventory\Services\InventoryCostingService;
 use Modules\Inventory\Services\InventoryDuplicateDetectionService;
 use Modules\Inventory\Services\InventoryIssuanceService;
+use Modules\Inventory\Services\InventoryPolicy;
 use Modules\Inventory\Services\InventoryReceivingService;
 use Modules\Inventory\Services\InventoryService;
+use Modules\Inventory\Services\RequestStockAllocation;
+use Modules\Inventory\Services\SupplyRequestService;
 use Modules\Suppliers\Models\Supplier;
 
 class InventoryController extends Controller
@@ -38,10 +44,10 @@ class InventoryController extends Controller
     public function generateUniqueSku(?int $supplierId = null, ?string $name = null): string
     {
         $codePart = '';
-        if (!empty($name)) {
+        if (! empty($name)) {
             $clean = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $name));
             if (strlen($clean) >= 2) {
-                $codePart = '-' . substr($clean, 0, 4);
+                $codePart = '-'.substr($clean, 0, 4);
             }
         }
 
@@ -50,7 +56,7 @@ class InventoryController extends Controller
         do {
             $sku = sprintf('ITEM%s-%04d', $codePart, $index);
             $exists = Item::withTrashed()->where('sku', $sku)->exists();
-            if (!$exists) {
+            if (! $exists) {
                 return $sku;
             }
             $index++;
@@ -59,8 +65,8 @@ class InventoryController extends Controller
 
     public function index(Request $request)
     {
-        $lowStockThreshold = class_exists(\App\Models\SystemSetting::class)
-            ? (int) \App\Models\SystemSetting::get('inventory.low_stock_threshold', 10)
+        $lowStockThreshold = class_exists(SystemSetting::class)
+            ? (int) SystemSetting::get('inventory.low_stock_threshold', 10)
             : 10;
 
         $itemsQuery = ResourceOwnershipPolicy::scopeQuery(
@@ -73,9 +79,9 @@ class InventoryController extends Controller
             $search = trim((string) $request->input('search'));
             $itemsQuery->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('rfid_tag', 'like', "%{$search}%");
+                    ->orWhere('sku', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('rfid_tag', 'like', "%{$search}%");
             });
         }
 
@@ -83,9 +89,9 @@ class InventoryController extends Controller
             $supplierFilter = $request->input('supplier');
             $itemsQuery->where(function ($q) use ($supplierFilter) {
                 $q->where('supplier_id', $supplierFilter)
-                  ->orWhereHas('batches', function ($bq) use ($supplierFilter) {
-                      $bq->where('supplier_id', $supplierFilter);
-                  });
+                    ->orWhereHas('batches', function ($bq) use ($supplierFilter) {
+                        $bq->where('supplier_id', $supplierFilter);
+                    });
             });
         }
 
@@ -116,6 +122,7 @@ class InventoryController extends Controller
             return [
                 'id' => $item->id,
                 'name' => $item->name,
+                'weekly_request_limit' => $item->weekly_request_limit,
                 'sku' => $item->sku,
                 'stock' => (int) $item->stock,
                 'on_hand' => (int) $item->stock,
@@ -153,8 +160,8 @@ class InventoryController extends Controller
             ],
             'suppliers' => $suppliersQuery->get(['id', 'name']),
             'lowStockThreshold' => $lowStockThreshold,
-            'criticalStockThreshold' => \Modules\Inventory\Services\InventoryPolicy::criticalThreshold(),
-            'unitsOfIssue' => \Modules\Inventory\Services\InventoryPolicy::units(),
+            'criticalStockThreshold' => InventoryPolicy::criticalThreshold(),
+            'unitsOfIssue' => InventoryPolicy::units(),
         ]);
     }
 
@@ -184,7 +191,7 @@ class InventoryController extends Controller
             ->map(function ($line) {
                 return [
                     'id' => $line->id,
-                    'ris_number' => $line->issuance?->ris_number ?: ('RIS-' . $line->issuance_id),
+                    'ris_number' => $line->issuance?->ris_number ?: ('RIS-'.$line->issuance_id),
                     'date_issued' => $line->issuance?->date_issued ? $line->issuance->date_issued->format('Y-m-d') : '',
                     'quantity' => (int) $line->quantity,
                     'amount' => (float) $line->amount,
@@ -195,6 +202,7 @@ class InventoryController extends Controller
         return response()->json([
             'id' => $inventory->id,
             'name' => $inventory->name,
+            'weekly_request_limit' => $inventory->weekly_request_limit,
             'sku' => $inventory->sku,
             'stock' => (int) $inventory->stock,
             'on_hand' => (int) $inventory->stock,
@@ -214,6 +222,7 @@ class InventoryController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'weekly_request_limit' => ['nullable', 'integer', 'min:0', 'max:1000000'],
             'supplier_id' => ['nullable', 'integer', 'exists:suppliers,id'],
             'supplier_stock_no' => ['nullable', 'string', 'max:255'],
             'sku' => ['nullable', 'string', 'max:255'],
@@ -222,7 +231,7 @@ class InventoryController extends Controller
             'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'status' => ['nullable', 'string', 'in:Available,Low Stock,Critical Stock,Out of Stock'],
             'description' => ['nullable', 'string', 'max:2000'],
-            'unit_of_issue' => ['nullable', 'string', 'max:255', \Modules\Inventory\Services\InventoryPolicy::unitRule()],
+            'unit_of_issue' => ['nullable', 'string', 'max:255', InventoryPolicy::unitRule()],
         ]);
 
         // 1. Canonical Duplicate Detection
@@ -235,7 +244,7 @@ class InventoryController extends Controller
 
         $stock = isset($validated['stock']) ? (int) $validated['stock'] : 0;
         $unitCost = isset($validated['unit_cost']) && $validated['unit_cost'] !== '' ? (float) $validated['unit_cost'] : 0.0;
-        $supplierId = !empty($validated['supplier_id']) ? (int) $validated['supplier_id'] : null;
+        $supplierId = ! empty($validated['supplier_id']) ? (int) $validated['supplier_id'] : null;
 
         // Conditional validation based on initial stock:
         if ($stock > 0) {
@@ -253,13 +262,14 @@ class InventoryController extends Controller
         }
 
         return DB::transaction(function () use ($validated, $stock, $unitCost, $supplierId) {
-            $sku = !empty($validated['sku']) ? trim($validated['sku']) : '';
+            $sku = ! empty($validated['sku']) ? trim($validated['sku']) : '';
             if ($sku === '' || Item::where('sku', $sku)->exists()) {
                 $sku = $this->generateUniqueSku($supplierId, $validated['name']);
             }
 
             $item = Item::create([
                 'name' => $validated['name'],
+                'weekly_request_limit' => $validated['weekly_request_limit'] ?? null,
                 'supplier_id' => $supplierId,
                 'sku' => $sku,
                 'stock' => $stock,
@@ -273,7 +283,7 @@ class InventoryController extends Controller
 
             // If initial stock is recorded directly, preserve it in an initial batch
             if ($stock > 0) {
-                $supplierStockNo = !empty($validated['supplier_stock_no'])
+                $supplierStockNo = ! empty($validated['supplier_stock_no'])
                     ? trim((string) $validated['supplier_stock_no'])
                     : $this->receivingService->generateSupplierStockNo($supplierId, $item->id, date('Y-m-d'));
 
@@ -309,14 +319,15 @@ class InventoryController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'weekly_request_limit' => ['nullable', 'integer', 'min:0', 'max:1000000'],
             'supplier_id' => ['nullable', 'integer', 'exists:suppliers,id'],
-            'sku' => ['nullable', 'string', 'max:255', 'unique:items,sku,' . $inventory->id],
-            'stock' => [\Illuminate\Validation\Rule::excludeIf($inventory->batches()->exists()), 'nullable', 'integer', 'min:0', 'max:1000000'],
+            'sku' => ['nullable', 'string', 'max:255', 'unique:items,sku,'.$inventory->id],
+            'stock' => [Rule::excludeIf($inventory->batches()->exists()), 'nullable', 'integer', 'min:0', 'max:1000000'],
             'unit_cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'status' => ['nullable', 'string', 'in:Available,Low Stock,Critical Stock,Out of Stock'],
             'description' => ['nullable', 'string', 'max:2000'],
-            'unit_of_issue' => ['nullable', 'string', 'max:255', \Modules\Inventory\Services\InventoryPolicy::unitRule($inventory->unit_of_issue)],
+            'unit_of_issue' => ['nullable', 'string', 'max:255', InventoryPolicy::unitRule($inventory->unit_of_issue)],
         ]);
 
         // Duplicate check (excluding current item)
@@ -329,7 +340,7 @@ class InventoryController extends Controller
 
         return DB::transaction(function () use ($validated, $inventory) {
             $inventory = Item::whereKey($inventory->id)->lockForUpdate()->firstOrFail();
-            $sku = !empty($validated['sku']) ? trim($validated['sku']) : $inventory->sku;
+            $sku = ! empty($validated['sku']) ? trim($validated['sku']) : $inventory->sku;
             if (empty($sku)) {
                 $sku = $this->generateUniqueSku($validated['supplier_id'] ?? $inventory->supplier_id, $validated['name']);
             }
@@ -340,15 +351,18 @@ class InventoryController extends Controller
                 'description' => $validated['description'] ?? null,
                 'unit_of_issue' => $validated['unit_of_issue'] ?? null,
             ];
+            if (array_key_exists('weekly_request_limit', $validated)) {
+                $updateData['weekly_request_limit'] = $validated['weekly_request_limit'];
+            }
 
             if (isset($validated['supplier_id'])) {
                 $updateData['supplier_id'] = $validated['supplier_id'];
             }
 
             // If item has no batch history, allow updating stock/unit_cost
-            if (!$inventory->batches()->exists()) {
+            if (! $inventory->batches()->exists()) {
                 if (isset($validated['stock'])) {
-                    if ((int) $validated['stock'] < \Modules\Inventory\Services\SupplyRequestService::reservedQuantity($inventory->id)) {
+                    if ((int) $validated['stock'] < SupplyRequestService::reservedQuantity($inventory->id)) {
                         throw ValidationException::withMessages(['stock' => 'Stock cannot be reduced below quantities reserved for approved supply requests.']);
                     }
                     $updateData['stock'] = (int) $validated['stock'];
@@ -396,9 +410,9 @@ class InventoryController extends Controller
                     $iq->where('name', 'like', "%{$search}%")
                         ->orWhere('sku', 'like', "%{$search}%");
                 })
-                ->orWhereHas('supplier', function ($sq) use ($search) {
-                    $sq->where('name', 'like', "%{$search}%");
-                });
+                    ->orWhereHas('supplier', function ($sq) use ($search) {
+                        $sq->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -414,6 +428,7 @@ class InventoryController extends Controller
 
         $transformed = $paginated->through(function ($receiving) {
             $dateStr = $receiving->date_received ? $receiving->date_received->format('Y-m-d') : '';
+
             return [
                 'id' => $receiving->id,
                 'item_id' => $receiving->item_id,
@@ -453,8 +468,8 @@ class InventoryController extends Controller
                 ];
             }),
             'suppliers' => $suppliersQuery->get(['id', 'name', 'status']),
-            'devices' => class_exists(\App\Models\RfidDevice::class)
-                ? \App\Models\RfidDevice::where('status', '!=', 'disabled')->orderBy('device_name')->get(['id', 'device_uuid', 'device_name', 'status', 'station_id'])
+            'devices' => class_exists(RfidDevice::class)
+                ? RfidDevice::where('status', '!=', 'disabled')->orderBy('device_name')->get(['id', 'device_uuid', 'device_name', 'status', 'station_id'])
                 : [],
             'filters' => [
                 'search' => $search,
@@ -474,6 +489,7 @@ class InventoryController extends Controller
             if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', trim($date), $matches)) {
                 return sprintf('%04d-%02d-%02d', $matches[3], $matches[1], $matches[2]);
             }
+
             return Carbon::parse($date)->timezone($tz)->format('Y-m-d');
         } catch (\Exception $e) {
             return $date;
@@ -531,6 +547,7 @@ class InventoryController extends Controller
                 if (! $previous || (int) $previous->created_by !== (int) auth()->id() || $previous->payload_hash !== $payloadHash) {
                     throw ValidationException::withMessages(['submission_key' => 'This scan session was already submitted with different details. Start a new scan session.']);
                 }
+
                 return false;
             }
 
@@ -570,6 +587,7 @@ class InventoryController extends Controller
                     'date_received' => $dateReceived,
                 ], auth()->id());
             }
+
             return true;
         });
 
@@ -621,7 +639,7 @@ class InventoryController extends Controller
         $itemId = $request->filled('item_id') ? (int) $request->input('item_id') : null;
         $date = $request->input('date_received') ?: date('Y-m-d');
 
-        if (!$supplierId) {
+        if (! $supplierId) {
             return response()->json(['supplier_stock_no' => '']);
         }
 
@@ -635,7 +653,7 @@ class InventoryController extends Controller
     public function issuance(Request $request)
     {
         $canReviewRequests = collect(['approve', 'reject', 'release', 'verify-document'])->contains(
-            fn ($action) => \App\Services\AccessControl\PermissionResolver::hasPermission(
+            fn ($action) => PermissionResolver::hasPermission(
                 $request->user(), 'route:inventory.requests.'.$action
             )
         );
@@ -643,7 +661,7 @@ class InventoryController extends Controller
         $recipient = trim($request->input('recipient', ''));
 
         $issuancesQuery = Issuance::with(['items.item', 'items.allocations.inventoryBatch.supplier', 'item', 'issuer']);
-        if (!auth()->user()->hasAnyRole(['Property Custodian', 'System Admin', 'System Administrator'])) {
+        if (! auth()->user()->hasAnyRole(['Property Custodian', 'System Admin', 'System Administrator'])) {
             $issuancesQuery = ResourceOwnershipPolicy::scopeQuery($issuancesQuery, auth()->user(), 'issued_by');
         }
 
@@ -674,7 +692,7 @@ class InventoryController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
+        $signatories = app(SystemSettingsService::class)->getIssuanceSignatories();
         $defaultApprovedBy = $signatories['approved_by_name'];
         $defaultApprovedByDesignation = $signatories['approved_by_designation'];
         $defaultIssuedBy = $signatories['issued_by_name'];
@@ -682,7 +700,7 @@ class InventoryController extends Controller
 
         $transformed = $paginated->through(function ($issuance) use ($defaultApprovedBy, $defaultApprovedByDesignation, $defaultIssuedBy, $defaultIssuedByDesignation) {
             $dateFormatted = $issuance->date_issued ? $issuance->date_issued->format('Y-m-d') : '';
-            $risNo = $issuance->ris_number ?: ('RIS-' . ($issuance->date_issued ? $issuance->date_issued->format('Y-m') : date('Y-m')) . '-' . str_pad($issuance->id, 4, '0', STR_PAD_LEFT));
+            $risNo = $issuance->ris_number ?: ('RIS-'.($issuance->date_issued ? $issuance->date_issued->format('Y-m') : date('Y-m')).'-'.str_pad($issuance->id, 4, '0', STR_PAD_LEFT));
 
             if ($issuance->items->isNotEmpty()) {
                 $itemsList = $issuance->items->map(function ($line) {
@@ -719,7 +737,7 @@ class InventoryController extends Controller
                 $totalAmt = (float) $issuance->items->sum('amount');
                 $firstItemName = $itemsList[0]['item'];
                 $itemSummary = count($itemsList) > 1
-                    ? count($itemsList) . ' items (' . $firstItemName . ', ...)'
+                    ? count($itemsList).' items ('.$firstItemName.', ...)'
                     : $firstItemName;
             } else {
                 $itemName = $issuance->item ? $issuance->item->name : 'N/A';
@@ -741,7 +759,7 @@ class InventoryController extends Controller
                         'amount' => $amt,
                         'unit' => $issuance->item->unit_of_issue ?? 'pcs',
                         'allocations' => [],
-                    ]
+                    ],
                 ];
                 $totalQty = $qty;
                 $totalAmt = $amt;
@@ -803,7 +821,7 @@ class InventoryController extends Controller
             'issuances' => $transformed,
             'supplyRequests' => $canReviewRequests
                 ? SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'documentVerifier', 'issuance.items.allocations.inventoryBatch'])
-                    ->latest()->get()
+                    ->latest()->get()->map(fn ($record) => RequestStockAllocation::decorateReview($record))
                 : [],
             'canCreateIssuance' => auth()->user()->hasAnyRole(['System Admin', 'System Administrator'])
                 || auth()->user()->can('route:inventory.issuance.store'),
@@ -825,7 +843,7 @@ class InventoryController extends Controller
     {
         $normalizedDate = $this->normalizeDate($request->date_issued);
 
-        $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
+        $signatories = app(SystemSettingsService::class)->getIssuanceSignatories();
         $approvedBy = $request->approved_by ?: $signatories['approved_by_name'];
         $approvedByDesignation = $request->approved_by_designation ?: $signatories['approved_by_designation'];
         $issuedByName = $request->issued_by_name ?: $signatories['issued_by_name'];
@@ -833,6 +851,7 @@ class InventoryController extends Controller
 
         $data = [
             'recipient' => $request->recipient,
+            'recipient_user_id' => $request->input('recipient_user_id'),
             'department' => $request->department,
             'fund_cluster' => $request->fund_cluster,
             'recipient_designation' => $request->recipient_designation,
@@ -887,7 +906,7 @@ class InventoryController extends Controller
             ]];
         } else {
             throw ValidationException::withMessages([
-                'quantity' => 'At least one item line must be specified for this issuance voucher.'
+                'quantity' => 'At least one item line must be specified for this issuance voucher.',
             ]);
         }
 

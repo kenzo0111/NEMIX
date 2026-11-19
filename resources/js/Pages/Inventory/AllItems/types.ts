@@ -34,6 +34,7 @@ export interface RecentIssuanceRecord {
 }
 
 export interface InventoryItem {
+    weekly_request_limit?: number | null;
     id: number;
     name: string;
     sku: string;

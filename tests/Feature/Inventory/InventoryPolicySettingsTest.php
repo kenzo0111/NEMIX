@@ -24,7 +24,9 @@ class InventoryPolicySettingsTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $inventoryStaff;
+
     private Supplier $supplier;
 
     protected function setUp(): void
@@ -49,7 +51,7 @@ class InventoryPolicySettingsTest extends TestCase
 
     private function item(int $stock = 10): Item
     {
-        return Item::create([
+        return Item::create(['weekly_request_limit' => 1000000,
             'name' => 'Policy Paper', 'sku' => 'POLICY-'.Item::count(), 'stock' => $stock,
             'unit_cost' => 5, 'amount' => $stock * 5, 'status' => 'Available',
             'supplier_id' => $this->supplier->id, 'unit_of_issue' => 'ream', 'created_by' => $this->admin->id,

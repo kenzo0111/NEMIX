@@ -8,10 +8,16 @@ use App\Models\Compliance\RsmiMigratedRecord;
 use App\Models\Compliance\StockCardMigratedRecord;
 use App\Models\ComplianceMigratedRecord;
 use App\Models\SystemSetting;
+use App\Services\DocumentNumberService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Modules\Inventory\Models\InventoryBatch;
+use Modules\Inventory\Models\Issuance;
+use Modules\Inventory\Models\Item;
+use Modules\Inventory\Models\Receiving;
+use Modules\Inventory\Services\RequestStockAllocation;
 
 class ComplianceReportDataService
 {
@@ -27,7 +33,7 @@ class ComplianceReportDataService
      */
     public function getSystemEntityName(): string
     {
-        return \App\Models\SystemSetting::get('institution.name', 'University of Camarines Norte');
+        return SystemSetting::get('institution.name', 'University of Camarines Norte');
     }
 
     /**
@@ -35,13 +41,13 @@ class ComplianceReportDataService
      */
     public function getDefaultFundCluster(): string
     {
-        return \App\Models\SystemSetting::get('institution.default_fund_cluster', '01 - Regular Agency Fund');
+        return SystemSetting::get('institution.default_fund_cluster', '01 - Regular Agency Fund');
     }
 
     /** Read-only suggestion. The store endpoint reserves the final number. */
     public function generateUniqueReference(?string $dateStr = null, string $type = 'RSMI'): string
     {
-        return app(\App\Services\DocumentNumberService::class)->preview($type, $dateStr);
+        return app(DocumentNumberService::class)->preview($type, $dateStr);
     }
 
     /** Keep printed headers in sync with the saved registry reference. */
@@ -92,6 +98,7 @@ class ComplianceReportDataService
             if ($val instanceof \DateTimeInterface) {
                 return $val->format('Y-m-d');
             }
+
             return Carbon::parse($val)->timezone($this->timezone)->format('Y-m-d');
         } catch (\Throwable $e) {
             return null;
@@ -109,12 +116,13 @@ class ComplianceReportDataService
         }
 
         $cleanDate = $this->normalizeDate($dateStr);
-        if (!$cleanDate) {
+        if (! $cleanDate) {
             return true;
         }
 
         if ($periodType === 'specific') {
             $target = $this->normalizeDate($filters['date'] ?? null);
+
             return empty($target) || $cleanDate === $target;
         }
 
@@ -131,6 +139,7 @@ class ComplianceReportDataService
             if ($end) {
                 return $cleanDate <= $end;
             }
+
             return true;
         }
 
@@ -139,8 +148,10 @@ class ComplianceReportDataService
             $y = (int) ($filters['selectedYear'] ?? $filters['selected_year'] ?? 0);
             if ($m && $y) {
                 $c = Carbon::parse($cleanDate);
+
                 return $c->month === $m && $c->year === $y;
             }
+
             return true;
         }
 
@@ -148,8 +159,10 @@ class ComplianceReportDataService
             $y = (int) ($filters['selectedYear'] ?? $filters['selected_year'] ?? 0);
             if ($y) {
                 $c = Carbon::parse($cleanDate);
+
                 return $c->year === $y;
             }
+
             return true;
         }
 
@@ -167,7 +180,7 @@ class ComplianceReportDataService
             return $query;
         }
 
-        if ($periodType === 'specific' && !empty($filters['date'])) {
+        if ($periodType === 'specific' && ! empty($filters['date'])) {
             $dt = $this->normalizeDate($filters['date']);
             if ($dt) {
                 return $query->where(function ($q) use ($dt, $dateColumn, $fallbackColumn) {
@@ -186,10 +199,10 @@ class ComplianceReportDataService
             $end = $this->normalizeDate($filters['endDate'] ?? $filters['end_date'] ?? null);
             if ($start && $end) {
                 return $query->where(function ($q) use ($start, $end, $dateColumn, $fallbackColumn) {
-                    $q->whereBetween($dateColumn, [$start, $end . ' 23:59:59']);
+                    $q->whereBetween($dateColumn, [$start, $end.' 23:59:59']);
                     if ($fallbackColumn) {
                         $q->orWhere(function ($sub) use ($start, $end, $dateColumn, $fallbackColumn) {
-                            $sub->whereNull($dateColumn)->whereBetween($fallbackColumn, [$start . ' 00:00:00', $end . ' 23:59:59']);
+                            $sub->whereNull($dateColumn)->whereBetween($fallbackColumn, [$start.' 00:00:00', $end.' 23:59:59']);
                         });
                     }
                 });
@@ -202,11 +215,12 @@ class ComplianceReportDataService
             if ($m && $y) {
                 $start = Carbon::create($y, $m, 1, 0, 0, 0, $this->timezone)->startOfDay()->format('Y-m-d');
                 $end = Carbon::create($y, $m, 1, 0, 0, 0, $this->timezone)->endOfMonth()->endOfDay()->format('Y-m-d');
+
                 return $query->where(function ($q) use ($start, $end, $dateColumn, $fallbackColumn) {
-                    $q->whereBetween($dateColumn, [$start, $end . ' 23:59:59']);
+                    $q->whereBetween($dateColumn, [$start, $end.' 23:59:59']);
                     if ($fallbackColumn) {
                         $q->orWhere(function ($sub) use ($start, $end, $dateColumn, $fallbackColumn) {
-                            $sub->whereNull($dateColumn)->whereBetween($fallbackColumn, [$start . ' 00:00:00', $end . ' 23:59:59']);
+                            $sub->whereNull($dateColumn)->whereBetween($fallbackColumn, [$start.' 00:00:00', $end.' 23:59:59']);
                         });
                     }
                 });
@@ -218,11 +232,12 @@ class ComplianceReportDataService
             if ($y) {
                 $start = "{$y}-01-01";
                 $end = "{$y}-12-31";
+
                 return $query->where(function ($q) use ($start, $end, $dateColumn, $fallbackColumn) {
-                    $q->whereBetween($dateColumn, [$start, $end . ' 23:59:59']);
+                    $q->whereBetween($dateColumn, [$start, $end.' 23:59:59']);
                     if ($fallbackColumn) {
                         $q->orWhere(function ($sub) use ($start, $end, $dateColumn, $fallbackColumn) {
-                            $sub->whereNull($dateColumn)->whereBetween($fallbackColumn, [$start . ' 00:00:00', $end . ' 23:59:59']);
+                            $sub->whereNull($dateColumn)->whereBetween($fallbackColumn, [$start.' 00:00:00', $end.' 23:59:59']);
                         });
                     }
                 });
@@ -251,11 +266,12 @@ class ComplianceReportDataService
             return Carbon::createFromDate($year, $month, 1)->format('F Y');
         }
         if ($periodType === 'yearly' && $year) {
-            return 'Year ' . $year;
+            return 'Year '.$year;
         }
         if ($periodType === 'range' && $cleanStartDate && $cleanEndDate) {
-            return $cleanStartDate . ' to ' . $cleanEndDate;
+            return $cleanStartDate.' to '.$cleanEndDate;
         }
+
         return $cleanDate ?? 'All Records';
     }
 
@@ -323,7 +339,7 @@ class ComplianceReportDataService
      */
     public function extractAcronym(?string $name): string
     {
-        if (!$name) {
+        if (! $name) {
             return '-';
         }
         $trimmed = trim($name);
@@ -353,7 +369,7 @@ class ComplianceReportDataService
         }
 
         // 3. Already a compact code (single token under 8 chars or standard format)
-        if (!str_contains($trimmed, ' ') && strlen($trimmed) <= 8) {
+        if (! str_contains($trimmed, ' ') && strlen($trimmed) <= 8) {
             return $trimmed;
         }
         if (preg_match('/^\d{2}-\d{3}-\d{2}$/', $trimmed)) {
@@ -364,7 +380,7 @@ class ComplianceReportDataService
         $stopWords = ['of', 'the', 'and', 'for', 'in', 'to', 'at', 'ng', 'mga', '&'];
         $cleanWords = preg_replace('/[^\w\s-]/', ' ', $stripped);
         $tokens = array_values(array_filter(preg_split('/\s+/', $cleanWords), function ($t) use ($stopWords) {
-            return $t !== '' && !in_array(strtolower($t), $stopWords, true);
+            return $t !== '' && ! in_array(strtolower($t), $stopWords, true);
         }));
 
         if (empty($tokens)) {
@@ -379,6 +395,7 @@ class ComplianceReportDataService
             if (strtolower($single) === 'library') {
                 return 'LIB';
             }
+
             return strlen($single) <= 6 ? strtoupper($single) : strtoupper(substr($single, 0, 3));
         }
 
@@ -398,14 +415,14 @@ class ComplianceReportDataService
     public function resolveSupplierStockNo(?object $batch = null, ?object $item = null, ?int $itemId = null): ?string
     {
         // 1. Direct batch supplier stock number
-        if ($batch && !empty($batch->supplier_stock_no)) {
+        if ($batch && ! empty($batch->supplier_stock_no)) {
             return trim((string) $batch->supplier_stock_no);
         }
 
         // 2. Check if item has loaded batches relation
-        if ($item && isset($item->batches) && $item->batches instanceof \Illuminate\Support\Collection && $item->batches->isNotEmpty()) {
+        if ($item && isset($item->batches) && $item->batches instanceof Collection && $item->batches->isNotEmpty()) {
             $batchMatch = $item->batches->first(function ($b) {
-                return !empty($b->supplier_stock_no);
+                return ! empty($b->supplier_stock_no);
             });
             if ($batchMatch) {
                 return trim((string) $batchMatch->supplier_stock_no);
@@ -413,34 +430,34 @@ class ComplianceReportDataService
         }
 
         $targetItemId = $itemId ?: ($item?->id ?? $batch?->item_id ?? null);
-        if (!$targetItemId) {
+        if (! $targetItemId) {
             return null;
         }
 
         // 3. Database query on inventory_batches
-        if (class_exists(\Modules\Inventory\Models\InventoryBatch::class)) {
-            $stockNo = \Modules\Inventory\Models\InventoryBatch::where('item_id', $targetItemId)
+        if (class_exists(InventoryBatch::class)) {
+            $stockNo = InventoryBatch::where('item_id', $targetItemId)
                 ->whereNotNull('supplier_stock_no')
                 ->where('supplier_stock_no', '!=', '')
                 ->orderBy('date_received', 'desc')
                 ->orderBy('id', 'desc')
                 ->value('supplier_stock_no');
 
-            if (!empty($stockNo)) {
+            if (! empty($stockNo)) {
                 return trim((string) $stockNo);
             }
         }
 
         // 4. Database query on receivings
-        if (class_exists(\Modules\Inventory\Models\Receiving::class)) {
-            $stockNo = \Modules\Inventory\Models\Receiving::where('item_id', $targetItemId)
+        if (class_exists(Receiving::class)) {
+            $stockNo = Receiving::where('item_id', $targetItemId)
                 ->whereNotNull('supplier_stock_no')
                 ->where('supplier_stock_no', '!=', '')
                 ->orderBy('date_received', 'desc')
                 ->orderBy('id', 'desc')
                 ->value('supplier_stock_no');
 
-            if (!empty($stockNo)) {
+            if (! empty($stockNo)) {
                 return trim((string) $stockNo);
             }
         }
@@ -457,20 +474,20 @@ class ComplianceReportDataService
         $end = $start->copy()->endOfMonth()->endOfDay();
 
         $monthName = $start->format('F');
-        $periodLabel = $monthName . ' 1–' . $end->day . ', ' . $year;
+        $periodLabel = $monthName.' 1–'.$end->day.', '.$year;
         $periodStart = $start->format('Y-m-d');
         $periodEnd = $end->format('Y-m-d');
 
         $records = collect();
 
         // 1. Live Issuances
-        if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
-            $liveIssuances = \Modules\Inventory\Models\Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches', 'issuer'])
+        if (class_exists(Issuance::class)) {
+            $liveIssuances = Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches', 'issuer'])
                 ->where(function ($q) use ($periodStart, $periodEnd) {
                     $q->whereBetween('date_issued', [$periodStart, $periodEnd])
                         ->orWhere(function ($sub) use ($periodStart, $periodEnd) {
                             $sub->whereNull('date_issued')
-                                ->whereBetween('created_at', [$periodStart . ' 00:00:00', $periodEnd . ' 23:59:59']);
+                                ->whereBetween('created_at', [$periodStart.' 00:00:00', $periodEnd.' 23:59:59']);
                         });
                 })
                 ->latest()
@@ -478,6 +495,7 @@ class ComplianceReportDataService
                 ->get()
                 ->filter(function ($issuance) use ($periodStart, $periodEnd) {
                     $dt = $this->normalizeDate($issuance->date_issued ?? $issuance->created_at);
+
                     return $dt && $dt >= $periodStart && $dt <= $periodEnd;
                 })
                 ->flatMap(function ($issuance) {
@@ -563,14 +581,15 @@ class ComplianceReportDataService
         if (Schema::hasTable('rsmi_migrated_records')) {
             $migrated = RsmiMigratedRecord::query()
                 ->where(function ($q) use ($periodStart, $periodEnd) {
-                    $q->whereBetween('date', [$periodStart, $periodEnd . ' 23:59:59'])
-                        ->orWhereBetween('created_at', [$periodStart . ' 00:00:00', $periodEnd . ' 23:59:59']);
+                    $q->whereBetween('date', [$periodStart, $periodEnd.' 23:59:59'])
+                        ->orWhereBetween('created_at', [$periodStart.' 00:00:00', $periodEnd.' 23:59:59']);
                 })
                 ->latest()
                 ->limit(2000)
                 ->get()
                 ->filter(function ($rec) use ($periodStart, $periodEnd) {
                     $dt = $this->normalizeDate($rec->date ?? data_get($rec->raw_data, 'date'));
+
                     return $dt && $dt >= $periodStart && $dt <= $periodEnd;
                 })
                 ->map(function ($rec) {
@@ -581,7 +600,7 @@ class ComplianceReportDataService
 
                     $rawCenter = $rec->center_code ?? data_get($raw, 'center_code') ?? data_get($raw, 'responsibility_center_code') ?? '-';
                     $centerCode = $this->extractAcronym($rawCenter);
-                    $risNo = $rec->ris_no ?? $rec->serial_no ?? data_get($raw, 'ris_no') ?? ('RSMI-HIST-' . $rec->id);
+                    $risNo = $rec->ris_no ?? $rec->serial_no ?? data_get($raw, 'ris_no') ?? ('RSMI-HIST-'.$rec->id);
 
                     return [
                         'source' => 'migration',
@@ -612,14 +631,15 @@ class ComplianceReportDataService
             $legacy = ComplianceMigratedRecord::query()
                 ->where('form_type', 'RSMI')
                 ->where(function ($q) use ($periodStart, $periodEnd) {
-                    $q->whereBetween('date', [$periodStart, $periodEnd . ' 23:59:59'])
-                        ->orWhereBetween('created_at', [$periodStart . ' 00:00:00', $periodEnd . ' 23:59:59']);
+                    $q->whereBetween('date', [$periodStart, $periodEnd.' 23:59:59'])
+                        ->orWhereBetween('created_at', [$periodStart.' 00:00:00', $periodEnd.' 23:59:59']);
                 })
                 ->latest()
                 ->limit(2000)
                 ->get()
                 ->filter(function ($rec) use ($periodStart, $periodEnd) {
                     $dt = $this->normalizeDate($rec->date);
+
                     return $dt && $dt >= $periodStart && $dt <= $periodEnd;
                 })
                 ->map(function ($rec) {
@@ -633,7 +653,7 @@ class ComplianceReportDataService
 
                     return [
                         'source' => 'migration_legacy',
-                        'risNo' => $rec->reference ?? ('RSMI-LEGACY-' . $rec->id),
+                        'risNo' => $rec->reference ?? ('RSMI-LEGACY-'.$rec->id),
                         'responsibilityCenterCode' => $deptCode,
                         'responsibility_center' => [
                             'name' => $rawDept,
@@ -692,8 +712,8 @@ class ComplianceReportDataService
                 'itemDescription' => $r['itemDescription'],
                 'unit' => $r['unit'],
                 'quantityIssued' => (int) $r['quantityIssued'],
-                'unitCost' => '₱' . number_format($rawCost, 2),
-                'amount' => '₱' . number_format($rawAmt, 2),
+                'unitCost' => '₱'.number_format($rawCost, 2),
+                'amount' => '₱'.number_format($rawAmt, 2),
                 'rawUnitCost' => $rawCost,
                 'rawAmount' => $rawAmt,
                 'date' => $r['date'],
@@ -719,15 +739,15 @@ class ComplianceReportDataService
                 $stockNo = $item['stockNo'] ?? '-';
                 $supplierStockNo = $item['supplier_stock_no'] ?? ($stockNo !== '-' ? $stockNo : null);
                 $rawCost = (float) ($item['rawUnitCost'] ?? 0);
-                $key = $stockNo . '|' . $rawCost;
+                $key = $stockNo.'|'.$rawCost;
 
-                if (!isset($recapMap[$key])) {
+                if (! isset($recapMap[$key])) {
                     $recapMap[$key] = [
                         'stockNo' => $stockNo,
                         'stock_no' => $stockNo,
                         'supplier_stock_no' => $supplierStockNo,
                         'quantity' => 0,
-                        'unitCost' => '₱' . number_format($rawCost, 2),
+                        'unitCost' => '₱'.number_format($rawCost, 2),
                         'rawTotalCost' => 0,
                         'totalCost' => '0.00',
                         'uacsObjectCode' => '',
@@ -735,7 +755,7 @@ class ComplianceReportDataService
                 }
                 $recapMap[$key]['quantity'] += (int) $item['quantityIssued'];
                 $recapMap[$key]['rawTotalCost'] += (float) ($item['rawAmount'] ?? 0);
-                $recapMap[$key]['totalCost'] = '₱' . number_format($recapMap[$key]['rawTotalCost'], 2);
+                $recapMap[$key]['totalCost'] = '₱'.number_format($recapMap[$key]['rawTotalCost'], 2);
             }
 
             $forms[] = [
@@ -898,8 +918,8 @@ class ComplianceReportDataService
         $records = collect();
 
         // 1. Live Issuances
-        if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
-            $liveIssuancesQuery = \Modules\Inventory\Models\Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches', 'issuer']);
+        if (class_exists(Issuance::class)) {
+            $liveIssuancesQuery = Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches', 'issuer']);
             $this->applyPeriodScopeToQuery($liveIssuancesQuery, $filters, 'date_issued', 'created_at');
             $liveIssuances = $liveIssuancesQuery
                 ->latest()
@@ -907,6 +927,7 @@ class ComplianceReportDataService
                 ->get()
                 ->filter(function ($issuance) use ($filters) {
                     $dt = $issuance->date_issued ?? $issuance->created_at;
+
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
                 })
                 ->flatMap(function ($issuance) {
@@ -998,6 +1019,7 @@ class ComplianceReportDataService
                 ->get()
                 ->filter(function ($rec) use ($filters) {
                     $dt = $rec->date ?? data_get($rec->raw_data, 'date');
+
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
                 })
                 ->map(function ($rec) {
@@ -1008,7 +1030,7 @@ class ComplianceReportDataService
 
                     $rawCenter = $rec->center_code ?? data_get($raw, 'center_code') ?? data_get($raw, 'responsibility_center_code') ?? '-';
                     $centerCode = $this->extractAcronym($rawCenter);
-                    $risNo = $rec->ris_no ?? $rec->serial_no ?? data_get($raw, 'ris_no') ?? ('RSMI-HIST-' . $rec->id);
+                    $risNo = $rec->ris_no ?? $rec->serial_no ?? data_get($raw, 'ris_no') ?? ('RSMI-HIST-'.$rec->id);
 
                     return [
                         'source' => 'migration',
@@ -1056,7 +1078,7 @@ class ComplianceReportDataService
 
                     return [
                         'source' => 'migration_legacy',
-                        'risNo' => $rec->reference ?? ('RSMI-LEGACY-' . $rec->id),
+                        'risNo' => $rec->reference ?? ('RSMI-LEGACY-'.$rec->id),
                         'responsibilityCenterCode' => $deptCode,
                         'responsibility_center' => [
                             'name' => $rawDept,
@@ -1097,8 +1119,8 @@ class ComplianceReportDataService
                 'itemDescription' => $r['itemDescription'],
                 'unit' => $r['unit'],
                 'quantityIssued' => $r['quantityIssued'],
-                'unitCost' => $r['unitCost'] ? ('₱' . number_format($r['unitCost'], 2)) : '0.00',
-                'amount' => $r['amount'] ? ('₱' . number_format($r['amount'], 2)) : '0.00',
+                'unitCost' => $r['unitCost'] ? ('₱'.number_format($r['unitCost'], 2)) : '0.00',
+                'amount' => $r['amount'] ? ('₱'.number_format($r['amount'], 2)) : '0.00',
             ];
         })->toArray();
 
@@ -1106,14 +1128,14 @@ class ComplianceReportDataService
         foreach ($records as $r) {
             $stockNo = $r['stockNo'] ?? '-';
             $supplierStockNo = $r['supplier_stock_no'] ?? ($stockNo !== '-' ? $stockNo : null);
-            $key = $stockNo . '|' . $r['unitCost'];
-            if (!isset($recapMap[$key])) {
+            $key = $stockNo.'|'.$r['unitCost'];
+            if (! isset($recapMap[$key])) {
                 $recapMap[$key] = [
                     'stockNo' => $stockNo,
                     'stock_no' => $stockNo,
                     'supplier_stock_no' => $supplierStockNo,
                     'quantity' => 0,
-                    'unitCost' => $r['unitCost'] ? ('₱' . number_format($r['unitCost'], 2)) : '0.00',
+                    'unitCost' => $r['unitCost'] ? ('₱'.number_format($r['unitCost'], 2)) : '0.00',
                     'rawTotalCost' => 0,
                     'totalCost' => '0.00',
                     'uacsObjectCode' => '',
@@ -1121,7 +1143,7 @@ class ComplianceReportDataService
             }
             $recapMap[$key]['quantity'] += (int) $r['quantityIssued'];
             $recapMap[$key]['rawTotalCost'] += (float) $r['amount'];
-            $recapMap[$key]['totalCost'] = '₱' . number_format($recapMap[$key]['rawTotalCost'], 2);
+            $recapMap[$key]['totalCost'] = '₱'.number_format($recapMap[$key]['rawTotalCost'], 2);
         }
 
         $recapitulationItems = array_values($recapMap);
@@ -1200,8 +1222,8 @@ class ComplianceReportDataService
         );
 
         // 1. Live inventory batches (authoritative supplier batch identity, stock number, and cost)
-        if (class_exists(\Modules\Inventory\Models\InventoryBatch::class)) {
-            $batchQuery = \Modules\Inventory\Models\InventoryBatch::query()
+        if (class_exists(InventoryBatch::class)) {
+            $batchQuery = InventoryBatch::query()
                 ->with(['item', 'supplier', 'allocations.issuanceItem.issuance'])
                 ->whereNull('deleted_at');
 
@@ -1223,16 +1245,17 @@ class ComplianceReportDataService
                 if ($asOfDate) {
                     $issuedUpToDate = (int) $batch->allocations->filter(function ($alloc) use ($asOfDate) {
                         $issDate = $alloc->issuanceItem?->issuance?->date_issued;
-                        if (!$issDate) {
+                        if (! $issDate) {
                             return false;
                         }
                         $norm = $this->normalizeDate($issDate);
+
                         return $norm && $norm <= $asOfDate;
                     })->sum('quantity');
 
                     $bookBalance = max(0, (int) $batch->quantity_received - $issuedUpToDate);
                 } else {
-                    $bookBalance = (int) $batch->quantity_remaining;
+                    $bookBalance = (int) $batch->quantity_remaining + RequestStockAllocation::physicalBatchQuantity($batch->id);
                 }
 
                 $item = $batch->item;
@@ -1265,19 +1288,20 @@ class ComplianceReportDataService
                 if ($supplierId) {
                     return true;
                 }
+
                 return (int) ($row['balance_per_card'] ?? 0) > 0;
             });
 
             $items = $items->concat($batchItems);
 
             // Fallback for items with no batches yet
-            if (class_exists(\Modules\Inventory\Models\Item::class)) {
+            if (class_exists(Item::class)) {
                 $batchedItemIds = $batches->pluck('item_id')->unique()->toArray();
-                $unbatchedQuery = \Modules\Inventory\Models\Item::query();
+                $unbatchedQuery = Item::query();
                 if ($supplierId) {
                     $unbatchedQuery->where('supplier_id', $supplierId);
                 }
-                if (!empty($batchedItemIds)) {
+                if (! empty($batchedItemIds)) {
                     $unbatchedQuery->whereNotIn('id', $batchedItemIds);
                 }
                 $unbatched = $unbatchedQuery->get()->filter(function ($item) use ($supplierId) {
@@ -1313,8 +1337,8 @@ class ComplianceReportDataService
 
                 $items = $items->concat($unbatched);
             }
-        } elseif (class_exists(\Modules\Inventory\Models\Item::class)) {
-            $query = \Modules\Inventory\Models\Item::query();
+        } elseif (class_exists(Item::class)) {
+            $query = Item::query();
             if ($supplierId) {
                 $query->where('supplier_id', $supplierId);
             }
@@ -1359,10 +1383,11 @@ class ComplianceReportDataService
                 ->limit(2000)
                 ->get()
                 ->filter(function ($rec) use ($filters, $supplierId) {
-                    if ($supplierId && data_get($rec->raw_data, 'supplier_id') && (string)data_get($rec->raw_data, 'supplier_id') !== (string)$supplierId) {
+                    if ($supplierId && data_get($rec->raw_data, 'supplier_id') && (string) data_get($rec->raw_data, 'supplier_id') !== (string) $supplierId) {
                         return false;
                     }
                     $dt = $rec->date ?? data_get($rec->raw_data, 'date');
+
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
                 })
                 ->map(function ($rec) {
@@ -1384,8 +1409,8 @@ class ComplianceReportDataService
                         'unit_value' => $cost,
                         'balance_per_card' => $bal,
                         'on_hand_count' => $phys,
-                        'shortage_qty' => $shortageQty !== null && $shortageQty !== '' ? (string)$shortageQty : '',
-                        'shortage_value' => $shortageVal !== null && $shortageVal !== '' ? (string)$shortageVal : '',
+                        'shortage_qty' => $shortageQty !== null && $shortageQty !== '' ? (string) $shortageQty : '',
+                        'shortage_value' => $shortageVal !== null && $shortageVal !== '' ? (string) $shortageVal : '',
                         'remarks' => $rec->remarks ?? data_get($raw, 'remarks') ?? '',
                     ];
                 });
@@ -1394,7 +1419,7 @@ class ComplianceReportDataService
         }
 
         $totalValue = $items->sum(function ($it) {
-            return ((float)($it['balance_per_card'] ?? 0)) * ((float)($it['unit_value'] ?? 0));
+            return ((float) ($it['balance_per_card'] ?? 0)) * ((float) ($it['unit_value'] ?? 0));
         });
 
         $accountableOfficer = (string) (SystemSetting::get('signatories.rpci_accountable_officer_name') ?: '');
@@ -1470,8 +1495,8 @@ class ComplianceReportDataService
 
         $targetLower = strtolower($targetItemName);
         $activeItem = null;
-        if (class_exists(\Modules\Inventory\Models\Item::class)) {
-            $activeItem = \Modules\Inventory\Models\Item::where(DB::raw('LOWER(name)'), $targetLower)
+        if (class_exists(Item::class)) {
+            $activeItem = Item::where(DB::raw('LOWER(name)'), $targetLower)
                 ->orWhere(DB::raw('LOWER(sku)'), $targetLower)
                 ->first();
         }
@@ -1479,8 +1504,8 @@ class ComplianceReportDataService
         $transactions = collect();
 
         // 1. Receivings
-        if (class_exists(\Modules\Inventory\Models\Receiving::class)) {
-            $receivingsQuery = \Modules\Inventory\Models\Receiving::with(['item', 'supplier']);
+        if (class_exists(Receiving::class)) {
+            $receivingsQuery = Receiving::with(['item', 'supplier']);
             if ($activeItem) {
                 $receivingsQuery->where('item_id', $activeItem->id);
             }
@@ -1490,11 +1515,14 @@ class ComplianceReportDataService
                 ->limit(2000)
                 ->get()
                 ->filter(function ($rec) use ($targetLower, $activeItem, $filters) {
-                    if (!$activeItem) {
-                        $name = strtolower((string)($rec->item?->name ?? ''));
-                        if ($name !== $targetLower) return false;
+                    if (! $activeItem) {
+                        $name = strtolower((string) ($rec->item?->name ?? ''));
+                        if ($name !== $targetLower) {
+                            return false;
+                        }
                     }
                     $dt = $rec->date_received ?? $rec->created_at;
+
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
                 })
                 ->map(function ($rec) {
@@ -1504,7 +1532,7 @@ class ComplianceReportDataService
 
                     return [
                         'date' => $this->normalizeDate($dt),
-                        'reference' => 'RR-' . $rec->id,
+                        'reference' => 'RR-'.$rec->id,
                         'receipt_qty' => $qty > 0 ? $qty : '',
                         'issue_qty' => '',
                         'issue_office' => $supplierName,
@@ -1517,8 +1545,8 @@ class ComplianceReportDataService
         }
 
         // 2. Issuances
-        if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
-            $issuancesQuery = \Modules\Inventory\Models\Issuance::with(['items.item', 'item']);
+        if (class_exists(Issuance::class)) {
+            $issuancesQuery = Issuance::with(['items.item', 'item']);
             if ($activeItem) {
                 $issuancesQuery->where(function ($q) use ($activeItem) {
                     $q->whereHas('items', function ($sub) use ($activeItem) {
@@ -1534,26 +1562,29 @@ class ComplianceReportDataService
                 ->latest()
                 ->limit(2000)
                 ->get()
-                ->filter(function ($iss) use ($targetLower, $activeItem, $filters) {
+                ->filter(function ($iss) use ($filters) {
                     $dt = $iss->date_issued ?? $iss->created_at;
+
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
                 })
                 ->flatMap(function ($iss) use ($targetLower, $activeItem) {
                     $dt = $iss->date_issued ?? $iss->created_at;
                     $office = $iss->department ?? $iss->recipient ?? 'Office';
-                    $ref = $iss->ris_number ?: ('RIS-' . $iss->id);
+                    $ref = $iss->ris_number ?: ('RIS-'.$iss->id);
 
                     if ($iss->items->isNotEmpty()) {
                         $matchingLines = $iss->items->filter(function ($line) use ($targetLower, $activeItem) {
                             if ($activeItem) {
                                 return (int) $line->item_id === (int) $activeItem->id;
                             }
-                            $name = strtolower((string)($line->item?->name ?? ''));
+                            $name = strtolower((string) ($line->item?->name ?? ''));
+
                             return $name === $targetLower;
                         });
 
-                        return $matchingLines->map(function ($line) use ($dt, $ref, $office, $iss) {
+                        return $matchingLines->map(function ($line) use ($dt, $ref, $office) {
                             $qty = (int) ($line->quantity ?? 0);
+
                             return [
                                 'date' => $this->normalizeDate($dt),
                                 'reference' => $ref,
@@ -1567,8 +1598,8 @@ class ComplianceReportDataService
                     }
 
                     // Fallback to legacy single item
-                    if (!$activeItem) {
-                        $name = strtolower((string)($iss->item?->name ?? ''));
+                    if (! $activeItem) {
+                        $name = strtolower((string) ($iss->item?->name ?? ''));
                         if ($name !== $targetLower) {
                             return [];
                         }
@@ -1577,6 +1608,7 @@ class ComplianceReportDataService
                     }
 
                     $qty = (int) ($iss->quantity ?? 0);
+
                     return [[
                         'date' => $this->normalizeDate($dt),
                         'reference' => $ref,
@@ -1601,14 +1633,17 @@ class ComplianceReportDataService
                 ->get()
                 ->filter(function ($rec) use ($targetLower, $activeItem, $filters) {
                     $raw = $rec->raw_data ?? [];
-                    $name = strtolower((string)($rec->item ?? data_get($raw, 'item_name') ?? ''));
-                    $sku = strtolower((string)($rec->stock_no ?? data_get($raw, 'stock_no') ?? ''));
+                    $name = strtolower((string) ($rec->item ?? data_get($raw, 'item_name') ?? ''));
+                    $sku = strtolower((string) ($rec->stock_no ?? data_get($raw, 'stock_no') ?? ''));
 
                     $matchesName = ($name === $targetLower);
-                    $matchesSku = ($activeItem && $sku === strtolower((string)$activeItem->sku));
-                    if (!$matchesName && !$matchesSku) return false;
+                    $matchesSku = ($activeItem && $sku === strtolower((string) $activeItem->sku));
+                    if (! $matchesName && ! $matchesSku) {
+                        return false;
+                    }
 
                     $dt = $rec->date ?? data_get($raw, 'date');
+
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
                 })
                 ->map(function ($rec) {
@@ -1616,7 +1651,7 @@ class ComplianceReportDataService
                     $receiptQty = (int) ($rec->receipt_quantity ?? data_get($raw, 'receipt_qty') ?? 0);
                     $issueQty = (int) ($rec->issue_quantity ?? data_get($raw, 'issue_qty') ?? 0);
                     $balQty = (int) ($rec->balance ?? data_get($raw, 'balance_qty') ?? 0);
-                    $ref = $rec->reference_no ?? ('SC-HIST-' . $rec->id);
+                    $ref = $rec->reference_no ?? ('SC-HIST-'.$rec->id);
                     $office = $rec->office_end_user ?? $rec->supplier_source ?? data_get($raw, 'office_end_user') ?? '';
 
                     return [
@@ -1636,12 +1671,12 @@ class ComplianceReportDataService
 
         // Chronological sort
         $sorted = $transactions->sortBy(function ($t) {
-            return ($t['date'] ?? '') . '|' . ($t['reference'] ?? '');
+            return ($t['date'] ?? '').'|'.($t['reference'] ?? '');
         })->values();
 
-        $currentStock = (int) ($activeItem?->stock ?? 0);
-        $totalIssued = $sorted->sum(fn($e) => (int)($e['issue_qty'] ?: 0));
-        $totalReceived = $sorted->sum(fn($e) => (int)($e['receipt_qty'] ?: 0));
+        $currentStock = (int) ($activeItem?->stock ?? 0) + ($activeItem ? RequestStockAllocation::physicalQuantity($activeItem->id) : 0);
+        $totalIssued = $sorted->sum(fn ($e) => (int) ($e['issue_qty'] ?: 0));
+        $totalReceived = $sorted->sum(fn ($e) => (int) ($e['receipt_qty'] ?: 0));
         $openingBalance = max(0, $currentStock + $totalIssued - $totalReceived);
 
         $entries = [];
@@ -1661,10 +1696,10 @@ class ComplianceReportDataService
 
         foreach ($sorted as $tx) {
             if ($tx['receipt_qty']) {
-                $runningBalance += (int)$tx['receipt_qty'];
+                $runningBalance += (int) $tx['receipt_qty'];
             }
             if ($tx['issue_qty']) {
-                $runningBalance -= (int)$tx['issue_qty'];
+                $runningBalance -= (int) $tx['issue_qty'];
             }
 
             $entries[] = [
@@ -1714,8 +1749,8 @@ class ComplianceReportDataService
         $records = collect();
 
         // 1. Live issuances
-        if (class_exists(\Modules\Inventory\Models\Issuance::class)) {
-            $query = \Modules\Inventory\Models\Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches']);
+        if (class_exists(Issuance::class)) {
+            $query = Issuance::with(['items.item.batches', 'items.allocations.inventoryBatch', 'item.batches']);
             $this->applyPeriodScopeToQuery($query, $filters, 'date_issued', 'created_at');
             if ($endUser !== '') {
                 $query->whereRaw('LOWER(TRIM(recipient)) = ?', [$endUserLower]);
@@ -1725,6 +1760,7 @@ class ComplianceReportDataService
                 ->get()
                 ->filter(function ($iss) use ($filters) {
                     $dt = $iss->date_issued ?? $iss->created_at;
+
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
                 })
                 ->flatMap(function ($iss) {
@@ -1734,7 +1770,7 @@ class ComplianceReportDataService
                     $department = $iss->department ?? 'Official Business';
 
                     if ($iss->items->isNotEmpty()) {
-                        return $iss->items->map(function ($line) use ($iss, $dt, $recipient, $designation, $department) {
+                        return $iss->items->map(function ($line) use ($dt, $recipient, $designation, $department) {
                             $item = $line->item;
                             $qty = (int) $line->quantity;
                             $cost = (float) ($line->unit_cost ?? $item?->unit_cost ?? 0);
@@ -1801,13 +1837,14 @@ class ComplianceReportDataService
                 ->get()
                 ->filter(function ($rec) use ($endUserLower, $filters) {
                     if ($endUserLower) {
-                        $matchUser = strtolower((string)$rec->received_by) === $endUserLower ||
-                                     strtolower((string)data_get($rec->raw_data, 'recipient')) === $endUserLower;
+                        $matchUser = strtolower((string) $rec->received_by) === $endUserLower ||
+                                     strtolower((string) data_get($rec->raw_data, 'recipient')) === $endUserLower;
                         if (! $matchUser) {
                             return false;
                         }
                     }
                     $dt = $rec->date_received ?? data_get($rec->raw_data, 'date');
+
                     return $this->isDateInPeriod($this->normalizeDate($dt), $filters);
                 })
                 ->map(function ($rec) {
@@ -1821,7 +1858,7 @@ class ComplianceReportDataService
                         ?? data_get($raw, 'supplier_stock_no')
                         ?? data_get($raw, 'stock_no')
                         ?? $rec->memorial_no
-                        ?? ('MR-HIST-' . $rec->id);
+                        ?? ('MR-HIST-'.$rec->id);
                     $desc = data_get($raw, 'item_name') ?? data_get($raw, 'item') ?? data_get($raw, 'description') ?? $rec->remarks ?? 'Property Item';
 
                     return [
@@ -1881,8 +1918,8 @@ class ComplianceReportDataService
     {
         $type = strtoupper((string) ($filters['type'] ?? $filters['report_type'] ?? 'RSMI'));
         $genDate = $this->normalizeDate($filters['generatedDate'] ?? $filters['generated_date'] ?? now($this->timezone)->toDateString());
-        $reference = !empty($filters['reference'])
-            ? trim((string)$filters['reference'])
+        $reference = ! empty($filters['reference'])
+            ? trim((string) $filters['reference'])
             : $this->generateUniqueReference($genDate, $type);
 
         $coverageLabel = $this->buildCoverageLabel($filters);
@@ -1911,13 +1948,13 @@ class ComplianceReportDataService
                 $data = $this->getRsmiRecords($filters);
                 $dataset['rsmi'] = $data;
                 $dataset['summary'] = $data['summary'];
-                if (!empty($data['yearly'])) {
+                if (! empty($data['yearly'])) {
                     $dataset['yearly'] = $data['yearly'];
                 }
-                if (!empty($data['monthly'])) {
+                if (! empty($data['monthly'])) {
                     $dataset['monthly'] = $data['monthly'];
                 }
-                if (!empty($data['forms'])) {
+                if (! empty($data['forms'])) {
                     $dataset['forms'] = $data['forms'];
                 }
                 $dataset['title'] = $filters['title'] ?? 'RSMI - Supplies and Materials Issued';

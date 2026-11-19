@@ -61,6 +61,8 @@ export type QueueRequest = {
         item_id: number;
         quantity: number;
         approved_quantity: number | null;
+        max_approval_quantity?: number;
+        quota_remaining?: number;
         item: { name: string; sku: string; unit_of_issue?: string; stock: number; unit_cost?: number; stock_no?: string | null; supplier_stock_no?: string | null };
     }[];
 };
@@ -159,7 +161,7 @@ export function SupplyRequestQueue({
     const handleSetAllQuantities = (request: QueueRequest, full: boolean) => {
         const nextMap: Record<number, number> = {};
         request.items.forEach((line) => {
-            nextMap[line.id] = full ? line.quantity : 0;
+            nextMap[line.id] = full ? (line.max_approval_quantity ?? line.quantity) : 0;
         });
         setQuantities((prev) => ({
             ...prev,
@@ -171,12 +173,19 @@ export function SupplyRequestQueue({
     const handleApprove = (request: QueueRequest) => {
         const approvedQuantities: Record<number, number> = {};
         let totalApproved = 0;
+        let exceedsAllowance = false;
 
         request.items.forEach((line) => {
             const qty = getEffectiveQuantity(request.id, line.id, line.quantity, line.approved_quantity);
             approvedQuantities[line.id] = qty;
+            exceedsAllowance ||= qty > (line.max_approval_quantity ?? line.quantity);
             totalApproved += qty;
         });
+
+        if (exceedsAllowance) {
+            setActionError('Stock or weekly allowance changed. Review the current maximum quantity for each item.');
+            return;
+        }
 
         if (totalApproved <= 0) {
             setActionError(`Cannot approve request #${request.id} with 0 total quantity. To deny this requisition, use the Reject option.`);
@@ -530,7 +539,7 @@ export function SupplyRequestQueue({
                                                             line.approved_quantity
                                                         );
                                                         const isStockShortage = line.item ? line.item.stock < line.quantity : false;
-                                                        const isExceedingStock = line.item ? currentQty > line.item.stock : false;
+                                                        const isExceedingStock = currentQty > (line.max_approval_quantity ?? line.item?.stock ?? 0);
                                                         const isAdjusted = isPending
                                                             ? currentQty !== line.quantity
                                                             : line.approved_quantity !== null && line.approved_quantity !== line.quantity;
@@ -573,13 +582,13 @@ export function SupplyRequestQueue({
                                                                                     className="text-sm text-rose-600 dark:text-rose-400 font-semibold"
                                                                                     title="Selected quantity exceeds available unreserved stock"
                                                                                 >
-                                                                                    Exceeds Stock!
+                                                                                    Exceeds allowance!
                                                                                 </span>
                                                                             )}
                                                                             <input
                                                                                 type="number"
                                                                                 min="0"
-                                                                                max={line.quantity}
+                                                                                max={line.max_approval_quantity ?? line.quantity}
                                                                                 value={currentQty}
                                                                                 onChange={(e) =>
                                                                                     handleQuantityChange(
@@ -658,7 +667,7 @@ export function SupplyRequestQueue({
                                         <div className="pt-3 border-t border-gray-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm text-gray-500 font-sans">
-                                                    {strictStock ? 'Ensure adjusted quantities reflect physically ready stock before approving.' : 'Stock safeguard is disabled. Releasing more than available records a negative stock balance.'}
+                                                    Approval deducts stock immediately. Quantities must preserve minimum stock and the requester's weekly allowance.
                                                 </span>
                                             </div>
 
@@ -749,7 +758,7 @@ export function SupplyRequestQueue({
                                                     className="px-4 py-1.5 bg-red-950 hover:bg-red-900 text-white rounded text-sm font-bold normal-case tabular-nums tracking-normal shadow-xs cursor-pointer disabled:opacity-40 transition-colors inline-flex items-center justify-center gap-1.5 shrink-0"
                                                 >
                                                     <PackageCheck className="w-3.5 h-3.5 text-amber-300" />
-                                                    <span>{isBusy ? 'Releasing...' : 'Confirm Release & Deduct Stock'}</span>
+                                                    <span>{isBusy ? 'Releasing...' : 'Confirm Signed Handover & Release'}</span>
                                                 </button>
                                             </div>}
                                         </div>

@@ -2,12 +2,13 @@
 
 namespace Modules\Inventory\Services;
 
-use App\Models\SystemSetting;
+use App\Services\CoordinatorInventoryService;
+use App\Services\DocumentNumberService;
+use App\Services\SystemSettingsService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Modules\AuditLogs\Models\TransactionTrail;
-use Modules\Inventory\Models\Issuance;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\SupplyRequest;
 
@@ -20,6 +21,7 @@ class SupplyRequestService
         return DB::table('supply_request_items as lines')
             ->join('supply_requests as requests', 'requests.id', '=', 'lines.supply_request_id')
             ->whereIn('requests.status', ['Approved', 'Ready for Pickup'])
+            ->whereNull('requests.stock_allocated_at')
             ->when($exceptRequestId, fn ($query) => $query->where('requests.id', '<>', $exceptRequestId));
     }
 
@@ -45,16 +47,18 @@ class SupplyRequestService
 
     public static function audit(SupplyRequest $request, int $actorId, string $action): void
     {
-        if (!class_exists(TransactionTrail::class)) return;
+        if (! class_exists(TransactionTrail::class)) {
+            return;
+        }
         TransactionTrail::create([
             'user_id' => $actorId,
             'module' => 'Inventory',
             'action' => $action,
-            'resource_ref' => $request->ris_number ?: 'REQUEST-' . $request->id,
+            'resource_ref' => $request->ris_number ?: 'REQUEST-'.$request->id,
             'details' => "Supply request #{$request->id}: {$action}",
             'status' => 'Success',
             'is_parent' => true,
-            'event_key' => 'inventory.supply_request.' . strtolower(str_replace(' ', '_', $action)),
+            'event_key' => 'inventory.supply_request.'.strtolower(str_replace(' ', '_', $action)),
             'subject_type' => SupplyRequest::class,
             'subject_id' => (string) $request->id,
             'metadata' => ['request_id' => $request->id, 'status' => $request->status, 'issuance_id' => $request->issuance_id,
@@ -66,23 +70,25 @@ class SupplyRequestService
 
     public static function generateOfficialRisNumber(?string $date = null): string
     {
-        return app(\App\Services\DocumentNumberService::class)->reserve('RIS', $date);
+        return app(DocumentNumberService::class)->reserve('RIS', $date);
     }
 
     public function approve(SupplyRequest $request, array $quantities, int $reviewerId, ?string $remarks): void
     {
         DB::transaction(function () use ($request, $quantities, $reviewerId, $remarks) {
+            WeeklyRequestQuota::lockUser($request->requested_by);
             $request = SupplyRequest::whereKey($request->id)->lockForUpdate()->firstOrFail();
-            if (!in_array($request->status, ['Pending', 'Under Review', 'Approved'], true)) {
+            if (! in_array($request->status, ['Pending', 'Under Review', 'Approved'], true)) {
                 throw ValidationException::withMessages(['request' => 'Only pending or approved requests can be reviewed.']);
             }
-            if ($request->requires_supporting_document && (!$request->document_verified_at || !$request->document_verified_by || !$request->supporting_document_path)) {
+            if ($request->requires_supporting_document && (! $request->document_verified_at || ! $request->document_verified_by || ! $request->supporting_document_path)) {
                 throw ValidationException::withMessages(['request' => 'The supporting document must be verified before inventory approval.']);
             }
             $revising = $request->status === 'Approved';
 
             $lines = $request->items()->orderBy('item_id')->get();
             $items = Item::whereIn('id', $lines->pluck('item_id'))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+            $usage = WeeklyRequestQuota::usage($request->requested_by, $request->quota_week_start, $request->id);
             $anyApproved = false;
             foreach ($lines as $line) {
                 $quantity = (int) ($quantities[$line->id] ?? 0);
@@ -90,37 +96,75 @@ class SupplyRequestService
                     throw ValidationException::withMessages(['approved_quantities' => 'Approved quantities must be between zero and the requested quantity.']);
                 }
                 $item = $items->get($line->item_id);
-                if (!$item) {
+                if (! $item) {
                     throw ValidationException::withMessages(['approved_quantities' => 'This item is unavailable. Please adjust the approved quantity.']);
                 }
-                $maximum = self::requestableQuantity($item->stock, self::reservedQuantity($line->item_id, $revising ? $request->id : null));
+                $oldQuantity = $request->stock_allocated_at ? (int) $line->approved_quantity : 0;
+                $maximum = self::requestableQuantity($item->stock + $oldQuantity, self::reservedQuantity($line->item_id, $request->id));
                 if ($quantity > $maximum) {
                     throw ValidationException::withMessages(['approved_quantities' => self::stockLimitMessage($item, $maximum)]);
+                }
+                if ($quantity > 0) {
+                    WeeklyRequestQuota::validate($item, $quantity, $usage, 'approved_quantities');
+                }
+                if (! $request->stock_allocated_at || $quantity !== $oldQuantity) {
+                    RequestStockAllocation::restore($line);
+                    $item->stock += $oldQuantity;
+                    RequestStockAllocation::allocate($line, $item, $quantity);
+                    if ($quantity === 0) {
+                        app(InventoryBalanceService::class)->synchronizeItem($item);
+                    }
                 }
                 $line->update(['approved_quantity' => $quantity]);
                 $anyApproved = $anyApproved || $quantity > 0;
             }
-            if (!$anyApproved) {
+            if (! $anyApproved) {
                 throw ValidationException::withMessages(['approved_quantities' => 'Approve at least one unit, or reject the request.']);
             }
 
             $request->update([
                 'status' => 'Approved',
+                'stock_allocated_at' => $request->stock_allocated_at ?? now(),
                 'reviewed_by' => $reviewerId,
                 'reviewed_at' => now(),
                 'review_remarks' => $remarks,
                 'ris_number' => $request->ris_number ?: self::generateOfficialRisNumber($request->date_requested ? $request->date_requested->toDateString() : null),
             ]);
             self::audit($request, $reviewerId, $revising ? 'Revised Supply Approval' : 'Approved Supply Request');
-        });
+        }, 5);
+    }
+
+    public function cancel(SupplyRequest $request, int $actorId): void
+    {
+        DB::transaction(function () use ($request, $actorId) {
+            WeeklyRequestQuota::lockUser($request->requested_by);
+            $locked = SupplyRequest::whereKey($request->id)->lockForUpdate()->firstOrFail();
+            if ($locked->status === 'Cancelled') {
+                return;
+            }
+            if (! in_array($locked->status, ['Pending', 'Approved', 'Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup'], true)) {
+                throw ValidationException::withMessages(['request' => 'Only requests awaiting release can be cancelled.']);
+            }
+            $lines = $locked->items()->orderBy('item_id')->get();
+            $items = Item::whereIn('id', $lines->pluck('item_id'))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+            foreach ($lines as $line) {
+                RequestStockAllocation::restore($line);
+                if ($item = $items->get($line->item_id)) {
+                    app(InventoryBalanceService::class)->synchronizeItem($item);
+                }
+            }
+            $locked->update(['status' => 'Cancelled']);
+            self::audit($locked, $actorId, 'Cancelled Supply Request');
+        }, 5);
     }
 
     public function release(SupplyRequest $request, int $issuerId): void
     {
         DB::transaction(function () use ($request, $issuerId) {
+            WeeklyRequestQuota::lockUser($request->requested_by);
             $request = SupplyRequest::whereKey($request->id)->lockForUpdate()->firstOrFail();
             if (($request->requires_supporting_document
-                ? ($request->status !== 'Ready for Pickup' || !$request->document_verified_at)
+                ? ($request->status !== 'Ready for Pickup' || ! $request->document_verified_at)
                 : $request->status !== 'Approved') || $request->issuance_id) {
                 throw ValidationException::withMessages(['request' => 'This request is not awaiting release.']);
             }
@@ -129,7 +173,7 @@ class SupplyRequestService
             $lines = $request->items->filter(fn ($line) => $line->approved_quantity > 0)
                 ->map(fn ($line) => ['item_id' => $line->item_id, 'quantity' => $line->approved_quantity])->values()->all();
 
-            $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
+            $signatories = app(SystemSettingsService::class)->getIssuanceSignatories();
 
             $issuance = $this->issuanceService->issue([
                 'date_issued' => now()->toDateString(),
@@ -148,9 +192,9 @@ class SupplyRequestService
 
             $request->update(['status' => $request->requires_supporting_document ? 'Released' : 'Issued', 'issuance_id' => $issuance->id, 'released_at' => now()]);
             if ($request->requester->usesCoordinatorInventory()) {
-                app(\App\Services\CoordinatorInventoryService::class)->receiveRelease($request, $issuerId);
+                app(CoordinatorInventoryService::class)->receiveRelease($request, $issuerId);
             }
             self::audit($request, $issuerId, 'Released Supply Request');
-        });
+        }, 5);
     }
 }

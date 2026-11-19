@@ -6,19 +6,22 @@ use App\Http\Controllers\Controller;
 use App\Models\SystemSetting;
 use App\Models\User;
 use App\Services\AccessControl\PermissionResolver;
+use App\Services\SystemSettingsService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Modules\Inventory\Services\SupportingDocumentService;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\SupplyRequest;
 use Modules\Inventory\Models\SupplyRequestAlert;
 use Modules\Inventory\Services\InventoryPolicy;
+use Modules\Inventory\Services\RequestStockAllocation;
 use Modules\Inventory\Services\SupplyRequestService;
+use Modules\Inventory\Services\SupportingDocumentService;
+use Modules\Inventory\Services\WeeklyRequestQuota;
 
 class SupplyRequestController extends Controller
 {
@@ -39,21 +42,25 @@ class SupplyRequestController extends Controller
             ->contains(fn ($action) => PermissionResolver::hasPermission($user, 'route:inventory.requests.'.$action));
     }
 
-    private function validateRequestStock(array $lines): void
+    private function validateRequestStock(array $lines, int $userId, ?SupplyRequest $existing = null): void
     {
+        WeeklyRequestQuota::lockUser($userId);
+        $usage = WeeklyRequestQuota::usage($userId, $existing?->quota_week_start, $existing?->id);
         $items = Item::whereIn('id', array_column($lines, 'item_id'))
             ->orderBy('id')->lockForUpdate()->get()->keyBy('id');
         $errors = [];
         foreach ($lines as $index => $line) {
             $item = $items->get($line['item_id']);
-            if (!$item || $item->stock <= 0) {
+            if (! $item || $item->stock <= 0) {
                 $errors["items.{$index}.item_id"] = 'This item is out of stock and unavailable for requisition. Select another item or remove this row.';
+
                 continue;
             }
             $maximum = SupplyRequestService::requestableQuantity($item->stock, SupplyRequestService::reservedQuantity($item->id));
             if ((int) $line['quantity'] > $maximum) {
                 $errors["items.{$index}.quantity"] = SupplyRequestService::stockLimitMessage($item, $maximum);
             }
+            WeeklyRequestQuota::validate($item, (int) $line['quantity'], $usage, "items.{$index}.quantity");
         }
         if ($errors) {
             throw ValidationException::withMessages($errors);
@@ -78,12 +85,14 @@ class SupplyRequestController extends Controller
         $items = Item::query()
             ->leftJoinSub($reservations, 'reservations', 'reservations.item_id', '=', 'items.id')
             ->whereRaw('items.stock - COALESCE(reservations.quantity, 0) > ?', [$minimumStockThreshold])
-            ->select('items.id', 'items.name', 'items.sku', 'items.stock', 'items.unit_of_issue')
+            ->select('items.id', 'items.name', 'items.sku', 'items.stock', 'items.unit_of_issue', 'items.weekly_request_limit')
             ->selectRaw('items.stock - COALESCE(reservations.quantity, 0) - ? as max_request_quantity', [$minimumStockThreshold])
             ->orderBy('items.name')->get();
+        $usage = WeeklyRequestQuota::usage($request->user()->id);
+        $items->each(fn ($item) => WeeklyRequestQuota::decorate($item, $usage));
         $initialItemId = isset($prefill['item_id']) ? $items->firstWhere('id', $prefill['item_id'])?->id : null;
 
-        $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
+        $signatories = app(SystemSettingsService::class)->getIssuanceSignatories();
         $defaultApprovedBy = $signatories['approved_by_name'];
         $defaultApprovedByDesignation = $signatories['approved_by_designation'];
         $defaultIssuedBy = $signatories['issued_by_name'];
@@ -95,7 +104,7 @@ class SupplyRequestController extends Controller
             : [
                 'requests' => SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'documentVerifier', 'issuance.items.allocations.inventoryBatch'])
                     ->when(! $request->user()->isSystemAdmin(), fn ($query) => $query->where('requested_by', $request->user()->id))
-                    ->latest()->get(),
+                    ->latest()->get()->map(fn ($record) => RequestStockAllocation::decorateReview($record)),
             ];
 
         return Inertia::render('Inventory/Requests/Index', [
@@ -194,6 +203,8 @@ class SupplyRequestController extends Controller
 
     private function serializeCoordinatorRequest(SupplyRequest $request): array
     {
+        RequestStockAllocation::decorateReview($request);
+
         return [
             'id' => $request->id,
             'requires_supporting_document' => (bool) $request->requires_supporting_document,
@@ -225,12 +236,16 @@ class SupplyRequestController extends Controller
                     'id' => $line->id,
                     'item_id' => $line->item_id,
                     'quantity' => (int) $line->quantity,
+                    'max_approval_quantity' => $line->max_approval_quantity,
+                    'max_request_quantity' => $line->max_request_quantity,
+                    'quota_remaining' => $line->quota_remaining,
                     'approved_quantity' => $line->approved_quantity === null ? null : (int) $line->approved_quantity,
                     'item' => $item ? [
                         'id' => $item->id,
                         'name' => $item->name,
                         'sku' => $item->sku,
                         'stock' => (int) $item->stock,
+                        'weekly_request_limit' => $item->weekly_request_limit,
                         'unit_of_issue' => $item->unit_of_issue,
                         'stock_no' => $stockNo,
                         'supplier_stock_no' => $stockNo,
@@ -273,7 +288,7 @@ class SupplyRequestController extends Controller
         $issued = in_array($supplyRequest->status, ['Issued', 'Released'], true);
         $issuance = $supplyRequest->issuance;
         $printDate = now('Asia/Manila')->toDateString();
-        $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
+        $signatories = app(SystemSettingsService::class)->getIssuanceSignatories();
 
         $ris = [
             'entity_name' => SystemSetting::get('institution.name', 'University of Camarines Norte'),
@@ -313,7 +328,7 @@ class SupplyRequestController extends Controller
                         }
                     }
                 }
-                if (!$stockNo) {
+                if (! $stockNo) {
                     $stockNo = $line->item?->stock_no ?: ($line->item?->supplier_stock_no ?: null);
                 }
 
@@ -327,7 +342,7 @@ class SupplyRequestController extends Controller
                     'remarks' => '',
                 ];
             })->values()->all();
-        $fileName = preg_replace('/[^A-Za-z0-9_-]/', '_', $supplyRequest->ris_number ?: "RIS-{$supplyRequest->id}") . '.pdf';
+        $fileName = preg_replace('/[^A-Za-z0-9_-]/', '_', $supplyRequest->ris_number ?: "RIS-{$supplyRequest->id}").'.pdf';
         $pdf = Pdf::loadView('compliance.pdf.requisition_issue_slip', [
             'ris' => $ris, 'items' => $items, 'dataset' => [],
         ])->setPaper('A4', 'portrait')->setOption([
@@ -342,8 +357,11 @@ class SupplyRequestController extends Controller
     public function store(Request $request)
     {
         $this->authorizeRequestAction($request);
+        if ($request->input('submission_key') && SupplyRequest::where('requested_by', $request->user()->id)->where('submission_key', $request->input('submission_key'))->exists()) {
+            return redirect()->route('inventory.requests.index')->with('success', 'This request was already submitted.');
+        }
         if ($request->user()->usesCoordinatorInventory() && ! $request->user()->requiresSupportingDocument()) {
-            if (!$this->hasDepartmentAssignment($request->user())) {
+            if (! $this->hasDepartmentAssignment($request->user())) {
                 throw ValidationException::withMessages(['department' => 'Ask an administrator to assign your Delivery Unit and an active office head with a designation in Staff Accounts before submitting a request.']);
             }
             $request->merge([
@@ -359,6 +377,7 @@ class SupplyRequestController extends Controller
         }
         $requiresDocument = $request->user()->requiresSupportingDocument();
         $data = $request->validate([
+            'submission_key' => ['nullable', 'uuid'],
             ...SupportingDocumentService::rules($requiresDocument),
             'recipient' => ['nullable', 'string', 'max:255'],
             'recipient_designation' => ['nullable', 'string', 'max:255'],
@@ -372,9 +391,13 @@ class SupplyRequestController extends Controller
         ]);
 
         SupportingDocumentService::save($request, $requiresDocument, null, function (array $documentFields) use ($data, $request) {
-            $this->validateRequestStock($data['items']);
+            if (! empty($data['submission_key']) && SupplyRequest::where('requested_by', $request->user()->id)->where('submission_key', $data['submission_key'])->exists()) {
+                throw ValidationException::withMessages(['request' => 'This request was already submitted. Open My Requests to view it.']);
+            }
+            $this->validateRequestStock($data['items'], $request->user()->id);
             $risNumber = SupplyRequestService::generateOfficialRisNumber($data['date_requested'] ?? null);
             $supplyRequest = SupplyRequest::create([
+                'submission_key' => $data['submission_key'] ?? null,
                 'ris_number' => $risNumber,
                 'requested_by' => $request->user()->id,
                 'recipient' => $data['recipient'] ?? $request->user()->name,
@@ -387,7 +410,9 @@ class SupplyRequestController extends Controller
                 ...$documentFields,
             ]);
             $supplyRequest->items()->createMany($data['items']);
-            if ($documentFields) SupplyRequestService::audit($supplyRequest, $request->user()->id, 'Uploaded Supporting Document');
+            if ($documentFields) {
+                SupplyRequestService::audit($supplyRequest, $request->user()->id, 'Uploaded Supporting Document');
+            }
             SupplyRequestService::audit($supplyRequest, $request->user()->id, 'Submitted Supply Request');
             $approverIds = User::query()->where('is_active', true)->get()
                 ->filter(fn (User $user) => $this->canReviewRequests($user))->pluck('id');
@@ -398,6 +423,7 @@ class SupplyRequestController extends Controller
                 ]);
             }
         });
+
         return redirect()->route('inventory.requests.index')->with('success', 'Request submitted to the Property Custodian.');
     }
 
@@ -405,14 +431,8 @@ class SupplyRequestController extends Controller
     {
         $this->authorizeRequestAction($request);
         abort_unless($request->user()->id === $supplyRequest->requested_by || $request->user()->hasAnyRole(['System Admin', 'System Administrator']), 403);
-        DB::transaction(function () use ($supplyRequest, $request) {
-            $locked = SupplyRequest::whereKey($supplyRequest->id)->lockForUpdate()->firstOrFail();
-            if (!in_array($locked->status, ['Pending', 'Approved', 'Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup'], true)) {
-                throw ValidationException::withMessages(['request' => 'Only pending or approved requests can be cancelled.']);
-            }
-            $locked->update(['status' => 'Cancelled']);
-            SupplyRequestService::audit($locked, $request->user()->id, 'Cancelled Supply Request');
-        });
+        $this->service->cancel($supplyRequest, $request->user()->id);
+
         return back()->with('success', 'Request cancelled.');
     }
 
@@ -441,10 +461,10 @@ class SupplyRequestController extends Controller
         ]);
         SupportingDocumentService::save($request, $requiresDocument, $supplyRequest, function (array $documentFields) use ($supplyRequest, $data, $request) {
             $locked = SupplyRequest::whereKey($supplyRequest->id)->lockForUpdate()->firstOrFail();
-            if (!in_array($locked->status, ['Pending', 'Pending Verification', 'For Correction'], true)) {
+            if (! in_array($locked->status, ['Pending', 'Pending Verification', 'For Correction'], true)) {
                 throw ValidationException::withMessages(['request' => 'Only pending requests can be edited.']);
             }
-            $this->validateRequestStock($data['items']);
+            $this->validateRequestStock($data['items'], $request->user()->id, $locked);
             $locked->update([
                 'recipient' => $data['recipient'] ?? $locked->recipient ?? $request->user()->name,
                 'recipient_designation' => $data['recipient_designation'] ?? $locked->recipient_designation,
@@ -463,6 +483,7 @@ class SupplyRequestController extends Controller
                 }
             }
         });
+
         return redirect()->route('inventory.requests.index')->with('success', 'Request updated.');
     }
 
@@ -483,6 +504,7 @@ class SupplyRequestController extends Controller
             'remarks' => ['nullable', 'string', 'max:2000'],
         ]);
         $this->service->approve($supplyRequest, $data['approved_quantities'], $request->user()->id, $data['remarks'] ?? null);
+
         return back()->with('success', 'Request approved and added to the release queue.');
     }
 
@@ -491,13 +513,15 @@ class SupplyRequestController extends Controller
         $this->authorizeRequestAction($request);
         $data = $request->validate(['remarks' => ['required', 'string', 'max:2000']]);
         DB::transaction(function () use ($supplyRequest, $request, $data) {
+            WeeklyRequestQuota::lockUser($supplyRequest->requested_by);
             $locked = SupplyRequest::whereKey($supplyRequest->id)->lockForUpdate()->firstOrFail();
-            if (!in_array($locked->status, ['Pending', 'Under Review'], true)) {
+            if (! in_array($locked->status, ['Pending', 'Under Review'], true)) {
                 throw ValidationException::withMessages(['request' => 'Only pending requests can be rejected.']);
             }
             $locked->update(['status' => 'Rejected', 'reviewed_by' => $request->user()->id, 'reviewed_at' => now(), 'review_remarks' => $data['remarks']]);
             SupplyRequestService::audit($locked, $request->user()->id, 'Rejected Supply Request');
         });
+
         return back()->with('success', 'Request rejected.');
     }
 
@@ -505,10 +529,11 @@ class SupplyRequestController extends Controller
     {
         abort_unless(($request->user()->id === $supplyRequest->requested_by
             && PermissionResolver::hasPermission($request->user(), 'route:inventory.requests.index'))
-            || (!$request->user()->usesCoordinatorInventory() && $this->canReviewRequests($request->user())), 403);
+            || (! $request->user()->usesCoordinatorInventory() && $this->canReviewRequests($request->user())), 403);
         abort_unless($supplyRequest->supporting_document_path && Storage::disk('local')->exists($supplyRequest->supporting_document_path), 404);
         SupplyRequestService::audit($supplyRequest, $request->user()->id, 'Viewed Supporting Document');
         $headers = ['Content-Type' => $supplyRequest->supporting_document_mime, 'X-Content-Type-Options' => 'nosniff', 'Cache-Control' => 'private, no-store'];
+
         return $request->boolean('inline')
             ? Storage::disk('local')->response($supplyRequest->supporting_document_path, $supplyRequest->supporting_document_name, $headers, 'inline')
             : Storage::disk('local')->download($supplyRequest->supporting_document_path, $supplyRequest->supporting_document_name, $headers);
@@ -524,8 +549,8 @@ class SupplyRequestController extends Controller
         ]);
         DB::transaction(function () use ($request, $supplyRequest, $data) {
             $locked = SupplyRequest::whereKey($supplyRequest->id)->lockForUpdate()->firstOrFail();
-            if (!$locked->requires_supporting_document || $locked->status !== 'Pending Verification'
-                || !$locked->supporting_document_path || !Storage::disk('local')->exists($locked->supporting_document_path)) {
+            if (! $locked->requires_supporting_document || $locked->status !== 'Pending Verification'
+                || ! $locked->supporting_document_path || ! Storage::disk('local')->exists($locked->supporting_document_path)) {
                 throw ValidationException::withMessages(['request' => 'This request is not awaiting document verification.']);
             }
             $locked->update([
@@ -537,6 +562,7 @@ class SupplyRequestController extends Controller
             SupplyRequestService::audit($locked, $request->user()->id, $data['decision'] === 'verified' ? 'Verified Supporting Document' : 'Returned Supporting Document for Correction');
             SupplyRequestAlert::updateOrCreate(['user_id' => $locked->requested_by, 'supply_request_id' => $locked->id], ['read_at' => null]);
         });
+
         return back()->with('success', 'Document review recorded.');
     }
 
@@ -545,13 +571,14 @@ class SupplyRequestController extends Controller
         $this->authorizeRequestAction($request);
         DB::transaction(function () use ($request, $supplyRequest) {
             $locked = SupplyRequest::whereKey($supplyRequest->id)->lockForUpdate()->firstOrFail();
-            if (!$locked->requires_supporting_document || $locked->status !== 'Approved' || !$locked->document_verified_at) {
+            if (! $locked->requires_supporting_document || $locked->status !== 'Approved' || ! $locked->document_verified_at) {
                 throw ValidationException::withMessages(['request' => 'Only verified, approved requests can be prepared for pickup.']);
             }
             $locked->update(['status' => 'Ready for Pickup']);
             SupplyRequestService::audit($locked, $request->user()->id, 'Prepared Supply Request for Pickup');
             SupplyRequestAlert::updateOrCreate(['user_id' => $locked->requested_by, 'supply_request_id' => $locked->id], ['read_at' => null]);
         });
+
         return back()->with('success', 'Requester notified that supplies are ready for pickup.');
     }
 
@@ -560,6 +587,7 @@ class SupplyRequestController extends Controller
         $this->authorizeRequestAction($request);
         $request->validate(['signed_ris_presented' => ['required', 'accepted']]);
         $this->service->release($supplyRequest, $request->user()->id);
+
         return back()->with('success', 'Items released and inventory updated.');
     }
 }

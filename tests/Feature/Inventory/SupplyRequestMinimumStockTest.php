@@ -52,7 +52,7 @@ class SupplyRequestMinimumStockTest extends TestCase
 
     private function item(int $stock): Item
     {
-        return Item::create([
+        return Item::create(['weekly_request_limit' => 1000000,
             'name' => 'Office Pens', 'sku' => 'MINIMUM-'.Item::count(), 'stock' => $stock,
             'unit_of_issue' => 'piece', 'unit_cost' => 1, 'amount' => $stock, 'status' => 'Available',
         ]);
@@ -125,8 +125,8 @@ class SupplyRequestMinimumStockTest extends TestCase
         $item = $this->item(1500);
         $request = $this->submit($user, $item, 1490);
         $this->approve($request, $custodian, 1490);
-        $this->assertSame(1500, $item->fresh()->stock);
-        $this->assertSame(1490, SupplyRequestService::reservedQuantity($item->id));
+        $this->assertSame(10, $item->fresh()->stock);
+        $this->assertSame(0, SupplyRequestService::reservedQuantity($item->id));
 
         $this->post(route('inventory.requests.release', $request), ['signed_ris_presented' => true])
             ->assertSessionHasNoErrors()->assertRedirect();
@@ -226,7 +226,7 @@ class SupplyRequestMinimumStockTest extends TestCase
     }
 
     #[DataProvider('requesterRoles')]
-    public function test_release_rechecks_stock_and_threshold_even_when_strict_enforcement_is_disabled(string $role): void
+    public function test_release_uses_saved_allocation_when_threshold_changes(string $role): void
     {
         $user = $this->user($role);
         $custodian = $this->user('Property Custodian');
@@ -234,26 +234,13 @@ class SupplyRequestMinimumStockTest extends TestCase
         SystemSetting::set('inventory.strict_stock_enforcement', false);
         $request = $this->submit($user, $item, 90);
         $this->approve($request, $custodian, 90);
-        $status = $request->fresh()->status;
-
+        $this->assertSame(10, $item->fresh()->stock);
         SystemSetting::set('inventory.low_stock_threshold', 20);
-        $this->post(route('inventory.requests.release', $request), ['signed_ris_presented' => true])
-            ->assertSessionHasErrors('request');
-        $this->assertSame(100, $item->fresh()->stock);
-        SystemSetting::set('inventory.low_stock_threshold', 10);
-        $item->update(['stock' => 99]);
-        $this->post(route('inventory.requests.release', $request), ['signed_ris_presented' => true])
-            ->assertSessionHasErrors('request');
-        $this->assertSame(99, $item->fresh()->stock);
-        $this->assertSame($status, $request->fresh()->status);
-        $this->assertNull($request->fresh()->issuance_id);
-        $this->assertDatabaseCount('issuances', 0);
-        $this->assertDatabaseCount('coordinator_stocks', 0);
-
-        $item->update(['stock' => 100]);
         $this->post(route('inventory.requests.release', $request), ['signed_ris_presented' => true])
             ->assertSessionHasNoErrors()->assertRedirect();
         $this->assertSame(10, $item->fresh()->stock);
+        $this->assertSame(90, CoordinatorStock::where('coordinator_id', $user->id)->value('quantity'));
+        $this->assertDatabaseCount('issuances', 1);
     }
 
     public function test_approval_rolls_back_all_lines_when_other_requests_reserve_stock(): void

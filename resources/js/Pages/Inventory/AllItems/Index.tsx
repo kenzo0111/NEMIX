@@ -15,6 +15,7 @@ import InventoryToolbar from './components/InventoryToolbar';
 import InventoryTable from './components/InventoryTable';
 import InventoryDetailsModal from './components/InventoryDetailsModal';
 import InventoryFormModal from './components/InventoryFormModal';
+import useStockRefresh from '@/Hooks/useStockRefresh';
 import DeleteItemModal from './components/DeleteItemModal';
 
 export default function AllItemsIndex({
@@ -29,6 +30,7 @@ export default function AllItemsIndex({
     unitsOfIssue = [],
 }: AllItemsProps) {
     const user = auth?.user;
+    useStockRefresh(['items', 'pagination', 'lowStockThreshold', 'criticalStockThreshold']);
 
     // Unified persistent sidebar collapse state
 
@@ -172,6 +174,7 @@ export default function AllItemsIndex({
 
     // Inertia Form for Add / Edit
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
+        weekly_request_limit: '' as string | number,
         name: '',
         supplier_id: '' as string | number,
         supplier_stock_no: '',
@@ -189,6 +192,7 @@ export default function AllItemsIndex({
         reset();
         setEditingItem(null);
         setData({
+            weekly_request_limit: '',
             name: '',
             supplier_id: '',
             supplier_stock_no: '',
@@ -207,6 +211,7 @@ export default function AllItemsIndex({
         clearErrors();
         setEditingItem(item);
         setData({
+            weekly_request_limit: item.weekly_request_limit ?? '',
             name: item.name,
             supplier_id: item.supplier_id || '',
             supplier_stock_no: (item.receiving_batches && item.receiving_batches[0]?.supplier_stock_no) || '',
