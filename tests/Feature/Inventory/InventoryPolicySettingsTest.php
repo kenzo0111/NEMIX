@@ -15,6 +15,7 @@ use Modules\Inventory\Services\InventoryReceivingService;
 use Modules\Inventory\Services\InventoryValuationService;
 use Modules\Inventory\Services\SupplyRequestService;
 use Modules\Suppliers\Models\Supplier;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -23,6 +24,7 @@ class InventoryPolicySettingsTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+    private User $inventoryStaff;
     private Supplier $supplier;
 
     protected function setUp(): void
@@ -31,6 +33,12 @@ class InventoryPolicySettingsTest extends TestCase
         Role::firstOrCreate(['name' => 'System Admin']);
         $this->admin = User::factory()->create();
         $this->admin->assignRole('System Admin');
+        Role::firstOrCreate(['name' => 'Inventory Staff']);
+        $this->inventoryStaff = User::factory()->create();
+        $this->inventoryStaff->assignRole('Inventory Staff');
+        foreach (['inventory.index', 'inventory.store', 'inventory.update'] as $routeName) {
+            $this->inventoryStaff->givePermissionTo(Permission::firstOrCreate(['name' => 'route:'.$routeName, 'guard_name' => 'web']));
+        }
         $this->actingAs($this->admin);
         $this->supplier = Supplier::create([
             'name' => 'Policy Test Supplier', 'tin' => 'POLICY-01', 'reg_number' => 'POLICY-01',
@@ -90,6 +98,7 @@ class InventoryPolicySettingsTest extends TestCase
         $this->post(route('system.settings.update'), ['settings' => [
             'inventory.units_of_issue' => ['carton', 'bundle'],
         ]])->assertSessionHasNoErrors();
+        $this->actingAs($this->inventoryStaff);
         $this->get(route('inventory.index'))->assertInertia(fn ($page) => $page->where('unitsOfIssue', ['carton', 'bundle']));
         $this->post(route('inventory.store'), ['name' => 'Carton Item', 'unit_of_issue' => 'Carton'])->assertSessionHasNoErrors();
         $this->assertDatabaseHas('items', ['name' => 'Carton Item', 'unit_of_issue' => 'Carton']);
@@ -99,7 +108,9 @@ class InventoryPolicySettingsTest extends TestCase
     public function test_retired_unit_can_stay_on_existing_item_but_cannot_be_changed_to_another_retired_unit(): void
     {
         $item = $this->item();
+        $item->update(['created_by' => $this->inventoryStaff->id]);
         SystemSetting::set('inventory.units_of_issue', ['carton']);
+        $this->actingAs($this->inventoryStaff);
         $this->put(route('inventory.update', $item), ['name' => $item->name, 'unit_of_issue' => 'ream'])->assertSessionHasNoErrors();
         $this->put(route('inventory.update', $item), ['name' => $item->name, 'unit_of_issue' => 'box'])->assertSessionHasErrors('unit_of_issue');
     }
@@ -162,7 +173,7 @@ class InventoryPolicySettingsTest extends TestCase
         $this->assertSame(0, $item->fresh()->stock);
     }
 
-    public function test_approval_and_release_honor_disabled_safeguard(): void
+    public function test_request_approval_preserves_minimum_stock_when_safeguard_is_disabled(): void
     {
         $item = $this->item(2);
         $request = SupplyRequest::create([
@@ -171,9 +182,16 @@ class InventoryPolicySettingsTest extends TestCase
         $line = $request->items()->create(['item_id' => $item->id, 'quantity' => 6]);
         SystemSetting::set('inventory.strict_stock_enforcement', false);
         $service = app(SupplyRequestService::class);
-        $service->approve($request, [$line->id => 6], $this->admin->id, null);
-        $service->release($request->fresh(), $this->admin->id);
-        $this->assertSame('Issued', $request->fresh()->status);
-        $this->assertSame(-4, $item->fresh()->stock);
+        try {
+            $service->approve($request, [$line->id => 6], $this->admin->id, null);
+            $this->fail('Request approval must preserve the minimum stock.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('approved_quantities', $exception->errors());
+            $this->assertSame('Pending', $request->fresh()->status);
+            $this->assertNull($line->fresh()->approved_quantity);
+            $this->assertSame(2, $item->fresh()->stock);
+            $this->assertSame(0, SupplyRequestService::reservedQuantity($item->id));
+            $this->assertDatabaseCount('issuances', 0);
+        }
     }
 }

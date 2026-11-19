@@ -40,6 +40,16 @@ export function RequestFormModal({
     onSaved,
 }: RequestFormModalProps) {
     const pageProps = usePage().props as any;
+    const minimumStockThreshold = Number(pageProps.minimumStockThreshold ?? 10);
+    const maximumQuantity = (item: RequestItem) => Math.min(
+        1000000, Math.max(0, item.max_request_quantity ?? item.stock - minimumStockThreshold)
+    );
+    const requestableItems = useMemo(
+        () => items.filter((item) => maximumQuantity(item) > 0),
+        [items, minimumStockThreshold]
+    );
+    const quantityLimitMessage = (item: RequestItem) =>
+        `Request at most ${maximumQuantity(item)} ${item.unit_of_issue || 'units'} to keep the minimum stock of ${minimumStockThreshold} ${item.unit_of_issue || 'units'}. Approved reservations are excluded.`;
     const sharedRoles = pageProps.auth?.roles || pageProps.auth?.user?.roles;
     const roleNames: string[] = Array.isArray(sharedRoles) ? sharedRoles : [];
     const isAuthorizedPersonnel = roleNames.some((role) => String(role).toLowerCase() === 'authorized personnel');
@@ -110,7 +120,7 @@ export function RequestFormModal({
                 approved_by_designation: defaultApprovedByDesignation,
                 issued_by_name: defaultIssuedBy,
                 issued_by_position: defaultIssuedByDesignation,
-                items: [{ item_id: initialItemId && items.some(item => item.id === initialItemId && item.stock > 0) ? String(initialItemId) : '', quantity: '' }],
+                items: [{ item_id: initialItemId && requestableItems.some(item => item.id === initialItemId) ? String(initialItemId) : '', quantity: '' }],
             });
         }
         form.clearErrors();
@@ -148,6 +158,24 @@ export function RequestFormModal({
             .filter((id) => !isNaN(id) && id > 0);
     }, [form.data.items]);
 
+    const stockErrors = form.data.items.map((line) => {
+        const item = requestableItems.find((item) => item.id === Number(line.item_id));
+        const selectedItem = items.find((item) => item.id === Number(line.item_id))
+            || request?.items.find((entry) => entry.item_id === Number(line.item_id))?.item;
+        const outOfStock = !selectedItem || selectedItem.stock <= 0;
+        return {
+            item: line.item_id && !item
+                ? (outOfStock
+                    ? 'Unserviceable for requisition: out of stock. Remove this item or select another.'
+                    : `Unavailable for requisition: the minimum stock of ${minimumStockThreshold} units and approved reservations must be preserved. Remove this item or select another.`)
+                : null,
+            quantity: item && Number(line.quantity) > maximumQuantity(item)
+                ? quantityLimitMessage(item)
+                : null,
+        };
+    });
+    const hasStockError = stockErrors.some((errors) => errors.item || errors.quantity);
+
     const handleAddItem = () => {
         form.setData('items', [...form.data.items, { item_id: '', quantity: '' }]);
     };
@@ -162,16 +190,18 @@ export function RequestFormModal({
     };
 
     const handleChangeItem = (index: number, itemId: string) => {
-        if (itemId && !items.some((item) => item.id === Number(itemId) && item.stock > 0)) return;
+        if (itemId && !requestableItems.some((item) => item.id === Number(itemId))) return;
         const next = [...form.data.items];
         next[index] = { ...next[index], item_id: itemId };
         form.setData('items', next);
+        form.clearErrors(`items.${index}.item_id` as keyof typeof form.errors, `items.${index}.quantity` as keyof typeof form.errors);
     };
 
     const handleChangeQuantity = (index: number, quantity: string) => {
         const next = [...form.data.items];
         next[index] = { ...next[index], quantity };
         form.setData('items', next);
+        form.clearErrors(`items.${index}.quantity` as keyof typeof form.errors);
     };
 
     const handleModalClose = () => {
@@ -195,15 +225,11 @@ export function RequestFormModal({
             return;
         }
 
-        let hasUnavailableItem = false;
-        form.data.items.forEach((line, index) => {
-            if (line.item_id && !items.some((item) => item.id === Number(line.item_id) && item.stock > 0)) {
-                form.setError(`items.${index}.item_id` as keyof typeof form.errors,
-                    'This item is out of stock and unavailable for requisition. Select another item or remove this row.');
-                hasUnavailableItem = true;
-            }
+        stockErrors.forEach((errors, index) => {
+            if (errors.item) form.setError(`items.${index}.item_id` as keyof typeof form.errors, errors.item);
+            if (errors.quantity) form.setError(`items.${index}.quantity` as keyof typeof form.errors, errors.quantity);
         });
-        if (hasUnavailableItem) return;
+        if (hasStockError) return;
 
         const options = {
             preserveScroll: true,
@@ -452,24 +478,28 @@ export function RequestFormModal({
                             </div>
                         )}
 
+                        <p className="mb-3 text-sm text-gray-500 dark:text-slate-400">
+                            Requests must leave at least {minimumStockThreshold} units in stock. Approved reservations reduce the quantity available to request.
+                        </p>
                         <div className="space-y-3">
                             {form.data.items.map((line, index) => {
                                 const selectedItem = items.find((item) => item.id === Number(line.item_id))
                                     || request?.items.find((entry) => entry.item_id === Number(line.item_id))?.item;
-                                const unavailable = Boolean(line.item_id) && !items.some((item) => item.id === Number(line.item_id) && item.stock > 0);
-                                const availableItemOptions = items
+                                const unavailable = Boolean(stockErrors[index].item);
+                                const maxQuantity = selectedItem && !unavailable ? maximumQuantity(selectedItem) : 0;
+                                const availableItemOptions = requestableItems
                                     .filter(
-                                        (item) => item.stock > 0 && (item.id === selectedItem?.id || !selectedItemIds.includes(item.id))
+                                        (item) => item.id === selectedItem?.id || !selectedItemIds.includes(item.id)
                                     )
                                     .map((item) => ({
                                         value: String(item.id),
-                                        label: `${item.name} (${item.sku}) — Stock: ${item.stock} ${item.unit_of_issue || 'pcs'}`,
+                                        label: `${item.name} (${item.sku}) — Stock: ${item.stock} ${item.unit_of_issue || 'pcs'} · Max request: ${maximumQuantity(item)}`,
                                     }));
                                 const selectedOption = availableItemOptions.find((opt) => opt.value === line.item_id)
-                                    || (unavailable ? { value: line.item_id, label: `${selectedItem?.name || 'Previously selected item'} — Unserviceable (Out of stock)` } : null);
+                                    || (unavailable ? { value: line.item_id, label: `${selectedItem?.name || 'Previously selected item'} — ${!selectedItem || selectedItem.stock <= 0 ? 'Unserviceable (Out of stock)' : 'Unavailable to request'}` } : null);
 
-                                const errorItem = form.errors[`items.${index}.item_id` as keyof typeof form.errors];
-                                const errorQty = form.errors[`items.${index}.quantity` as keyof typeof form.errors];
+                                const errorItem = stockErrors[index].item || form.errors[`items.${index}.item_id` as keyof typeof form.errors];
+                                const errorQty = stockErrors[index].quantity || form.errors[`items.${index}.quantity` as keyof typeof form.errors];
 
                                 return (
                                     <div
@@ -494,13 +524,8 @@ export function RequestFormModal({
                                                     styles={getInstitutionalSelectStyles(Boolean(errorItem))}
                                                     classNamePrefix="react-select"
                                                     isClearable
-                                                    noOptionsMessage={() => 'No in-stock items available'}
+                                                    noOptionsMessage={() => 'No items available above the minimum stock level'}
                                                 />
-                                                {unavailable && (
-                                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
-                                                        Unserviceable for requisition: out of stock. Remove this item or select another.
-                                                    </p>
-                                                )}
                                                 {errorItem && (
                                                     <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
                                                         {errorItem}
@@ -533,9 +558,11 @@ export function RequestFormModal({
                                                     id={`req_qty_${index}`}
                                                     type="number"
                                                     min="1"
-                                                    max="1000000"
+                                                    max={selectedItem ? maxQuantity : 1000000}
                                                     required
                                                     disabled={unavailable}
+                                                    aria-invalid={Boolean(errorQty)}
+                                                    aria-describedby={errorQty ? `req_qty_error_${index}` : selectedItem && !unavailable ? `req_qty_help_${index}` : undefined}
                                                     value={line.quantity}
                                                     onChange={(e) => handleChangeQuantity(index, e.target.value)}
                                                     placeholder="Qty"
@@ -543,11 +570,6 @@ export function RequestFormModal({
                                                         errorQty ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
                                                     }`}
                                                 />
-                                                {errorQty && (
-                                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
-                                                        {errorQty}
-                                                    </p>
-                                                )}
                                             </div>
 
                                             {/* Remove row */}
@@ -562,6 +584,16 @@ export function RequestFormModal({
                                                 </button>
                                             )}
                                         </div>
+                                        {errorQty && (
+                                            <p id={`req_qty_error_${index}`} role="alert" className="leading-relaxed mt-2 text-sm text-red-600 dark:text-red-400 font-medium">
+                                                {errorQty}
+                                            </p>
+                                        )}
+                                        {selectedItem && !unavailable && !errorQty && (
+                                            <p id={`req_qty_help_${index}`} className="mt-2 text-sm text-gray-500 dark:text-slate-400">
+                                                Maximum request: {maxQuantity} {selectedItem.unit_of_issue || 'units'}.
+                                            </p>
+                                        )}
                                     </div>
                                 );
                             })}
@@ -717,7 +749,7 @@ export function RequestFormModal({
                         </button>
                         <button
                             type="submit"
-                            disabled={form.processing || assignmentMissing}
+                            disabled={form.processing || assignmentMissing || hasStockError}
                             className="w-full sm:w-auto px-5 py-2 bg-red-950 hover:bg-red-900 text-white text-sm font-bold rounded-md shadow-xs disabled:opacity-50 normal-case tabular-nums tracking-normal cursor-pointer flex items-center justify-center gap-2"
                         >
                             {form.processing ? (

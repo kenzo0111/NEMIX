@@ -5,6 +5,7 @@ export type RequestItem = {
     name: string;
     sku: string;
     stock: number;
+    max_request_quantity?: number;
     unit_of_issue?: string;
     unit_cost?: number;
     stock_no?: string | null;

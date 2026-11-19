@@ -30,7 +30,7 @@ class CentralSupplyCatalogTest extends TestCase
         return $user;
     }
 
-    private function item(string $name = 'Bond Paper A4', int $stock = 10): Item
+    private function item(string $name = 'Bond Paper A4', int $stock = 20): Item
     {
         return Item::create(['name' => $name, 'sku' => 'SKU-'.uniqid(), 'stock' => $stock,
             'unit_of_issue' => 'ream', 'unit_cost' => 99, 'amount' => $stock * 99,
@@ -44,7 +44,7 @@ class CentralSupplyCatalogTest extends TestCase
         $request->items()->create(['item_id' => $item->id, 'quantity' => $quantity, 'approved_quantity' => $quantity]);
     }
 
-    public function test_catalog_shows_central_stock_minus_approved_reservations_without_other_office_details(): void
+    public function test_catalog_preserves_minimum_stock_and_approved_reservations_without_other_office_details(): void
     {
         $coordinator = $this->user();
         $other = $this->user();
@@ -57,11 +57,11 @@ class CentralSupplyCatalogTest extends TestCase
         $this->actingAs($coordinator)->get(route('coordinator.catalog.index'))->assertOk()
             ->assertInertia(fn ($page) => $page->component('Inventory/Coordinator/Catalog')
                 ->where('items.total', 1)->where('items.data.0.id', $item->id)
-                ->where('items.data.0.on_hand', 10)->where('items.data.0.available_quantity', 5)
+                ->where('items.data.0.on_hand', 20)->where('items.data.0.available_quantity', 5)
                 ->missing('items.data.0.rfid_tag')->missing('items.data.0.unit_cost')
                 ->missing('items.data.0.created_by')->missing('requests')->missing('movements'));
         $this->assertSame($requestCount, SupplyRequest::count());
-        $this->assertSame(10, $item->fresh()->stock);
+        $this->assertSame(20, $item->fresh()->stock);
         $this->assertSame(0, CoordinatorStock::count());
         $this->assertSame(0, CoordinatorMovement::count());
     }
@@ -97,7 +97,7 @@ class CentralSupplyCatalogTest extends TestCase
         $this->actingAs($coordinator)->put(route('inventory.update', $item), ['stock' => 999])->assertForbidden();
         $this->actingAs($coordinator)->get(route('inventory.index'))->assertForbidden();
         $this->actingAs($coordinator)->post(route('coordinator.catalog.index'), ['stock' => 999])->assertStatus(405);
-        $this->assertSame(10, $item->fresh()->stock);
+        $this->assertSame(20, $item->fresh()->stock);
         $staff = $this->user('Property Staff');
         $staff->givePermissionTo(Permission::findByName('route:coordinator.catalog.index', 'web'));
         $this->actingAs($staff)->get(route('coordinator.catalog.index'))->assertForbidden();

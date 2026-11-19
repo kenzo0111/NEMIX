@@ -17,6 +17,7 @@ use Inertia\Inertia;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\SupplyRequest;
 use Modules\Inventory\Models\SupplyRequestAlert;
+use Modules\Inventory\Services\InventoryPolicy;
 use Modules\Inventory\Services\SupplyRequestService;
 
 class SupplyRequestController extends Controller
@@ -47,6 +48,11 @@ class SupplyRequestController extends Controller
             $item = $items->get($line['item_id']);
             if (!$item || $item->stock <= 0) {
                 $errors["items.{$index}.item_id"] = 'This item is out of stock and unavailable for requisition. Select another item or remove this row.';
+                continue;
+            }
+            $maximum = SupplyRequestService::requestableQuantity($item->stock, SupplyRequestService::reservedQuantity($item->id));
+            if ((int) $line['quantity'] > $maximum) {
+                $errors["items.{$index}.quantity"] = SupplyRequestService::stockLimitMessage($item, $maximum);
             }
         }
         if ($errors) {
@@ -66,8 +72,16 @@ class SupplyRequestController extends Controller
                 'Approved', 'Ready for Pickup', 'Issued', 'Released', 'Rejected', 'Cancelled',
             ])],
         ]);
-        $initialItemId = isset($prefill['item_id'])
-            ? Item::whereKey($prefill['item_id'])->where('stock', '>', 0)->value('id') : null;
+        $minimumStockThreshold = InventoryPolicy::lowThreshold();
+        $reservations = SupplyRequestService::reservationQuery()
+            ->groupBy('lines.item_id')->selectRaw('lines.item_id, SUM(lines.approved_quantity) as quantity');
+        $items = Item::query()
+            ->leftJoinSub($reservations, 'reservations', 'reservations.item_id', '=', 'items.id')
+            ->whereRaw('items.stock - COALESCE(reservations.quantity, 0) > ?', [$minimumStockThreshold])
+            ->select('items.id', 'items.name', 'items.sku', 'items.stock', 'items.unit_of_issue')
+            ->selectRaw('items.stock - COALESCE(reservations.quantity, 0) - ? as max_request_quantity', [$minimumStockThreshold])
+            ->orderBy('items.name')->get();
+        $initialItemId = isset($prefill['item_id']) ? $items->firstWhere('id', $prefill['item_id'])?->id : null;
 
         $signatories = app(\App\Services\SystemSettingsService::class)->getIssuanceSignatories();
         $defaultApprovedBy = $signatories['approved_by_name'];
@@ -96,7 +110,8 @@ class SupplyRequestController extends Controller
                 'ready' => $this->hasDepartmentAssignment($request->user()),
             ] : null,
             ...$requestProps,
-            'items' => Item::where('stock', '>', 0)->orderBy('name')->get(['id', 'name', 'sku', 'stock', 'unit_of_issue']),
+            'items' => $items,
+            'minimumStockThreshold' => $minimumStockThreshold,
             'divisions' => config('university.divisions', []),
             'defaultApprovedBy' => $defaultApprovedBy,
             'defaultApprovedByDesignation' => $defaultApprovedByDesignation,

@@ -9,6 +9,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Modules\Inventory\Services\InventoryPolicy;
+use Modules\Inventory\Services\SupplyRequestService;
 
 class CoordinatorInventoryController extends Controller
 {
@@ -21,11 +23,10 @@ class CoordinatorInventoryController extends Controller
         ]);
         $search = trim($filters['search'] ?? '');
         $availability = $filters['availability'] ?? 'all';
-        $reservations = DB::table('supply_request_items as lines')
-            ->join('supply_requests as requests', 'requests.id', '=', 'lines.supply_request_id')
-            ->whereIn('requests.status', ['Approved', 'Ready for Pickup'])->groupBy('lines.item_id')
+        $minimumStockThreshold = InventoryPolicy::lowThreshold();
+        $reservations = SupplyRequestService::reservationQuery()->groupBy('lines.item_id')
             ->selectRaw('lines.item_id, SUM(lines.approved_quantity) as quantity');
-        $available = '(items.stock - COALESCE(reservations.quantity, 0))';
+        $available = "(items.stock - COALESCE(reservations.quantity, 0) - {$minimumStockThreshold})";
         $items = DB::table('items')->whereNull('items.deleted_at')
             ->leftJoinSub($reservations, 'reservations', 'reservations.item_id', '=', 'items.id')
             ->select('items.id', 'items.name', 'items.sku', 'items.description', 'items.unit_of_issue', 'items.stock')
@@ -47,7 +48,7 @@ class CoordinatorInventoryController extends Controller
         return Inertia::render('Inventory/Coordinator/Catalog', [
             'inventoryScope' => 'coordinator', 'items' => $items,
             'filters' => ['search' => $search, 'availability' => $availability],
-            'lowStockThreshold' => \Modules\Inventory\Services\InventoryPolicy::lowThreshold(),
+            'lowStockThreshold' => $minimumStockThreshold,
         ]);
     }
 

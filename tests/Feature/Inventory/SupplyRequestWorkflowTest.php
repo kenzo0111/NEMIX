@@ -26,6 +26,11 @@ class SupplyRequestWorkflowTest extends TestCase
         Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         $user = User::factory()->create(['is_active' => true]);
         $user->assignRole($role);
+        if ($role === 'Inventory Staff') {
+            foreach (['inventory.update', 'inventory.issuance.store'] as $routeName) {
+                $user->givePermissionTo(Permission::firstOrCreate(['name' => 'route:'.$routeName, 'guard_name' => 'web']));
+            }
+        }
         if ($user->usesCoordinatorInventory()) {
             $head = \App\Models\Signatory::firstOrCreate(['name' => 'Registrar Office Head'], ['designation' => 'Office Head', 'is_active' => true]);
             $user->update(['department' => 'Registrar', 'office_head_id' => $head->id]);
@@ -57,7 +62,10 @@ class SupplyRequestWorkflowTest extends TestCase
         $item = $this->item(0);
         $this->actingAs($coordinator)->get(route('inventory.requests.index'))
             ->assertInertia(fn ($page) => $page->has('items', 0));
-        $item->update(['stock' => 5]);
+        $item->update(['stock' => 10]);
+        $this->actingAs($coordinator)->get(route('inventory.requests.index'))
+            ->assertInertia(fn ($page) => $page->has('items', 0));
+        $item->update(['stock' => 11]);
         $this->actingAs($coordinator)->get(route('inventory.requests.index'))
             ->assertInertia(fn ($page) => $page->has('items', 1)->where('items.0.id', $item->id));
     }
@@ -76,7 +84,7 @@ class SupplyRequestWorkflowTest extends TestCase
     public function test_pending_request_cannot_be_saved_with_a_depleted_item(): void
     {
         $coordinator = $this->user('Supply Coordinator');
-        $item = $this->item(5);
+        $item = $this->item(15);
         $request = $this->submit($coordinator, $item, 2);
         $item->update(['stock' => 0]);
         $this->actingAs($coordinator)->put(route('inventory.requests.update', $request), [
@@ -91,7 +99,8 @@ class SupplyRequestWorkflowTest extends TestCase
     {
         $coordinator = $this->user('Supply Coordinator');
         $custodian = $this->user('Property Custodian');
-        $admin = $this->user('System Admin');
+        $custodian->givePermissionTo(Permission::firstOrCreate(['name' => 'route:inventory.issuance.destroy', 'guard_name' => 'web']));
+        $inventoryStaff = $this->user('Inventory Staff');
         $item = $this->item();
         $request = $this->submit($coordinator, $item, 10);
         $line = $request->items()->firstOrFail();
@@ -109,7 +118,7 @@ class SupplyRequestWorkflowTest extends TestCase
         $this->actingAs($custodian)->get(route('inventory.issuance'))
             ->assertOk()->assertInertia(fn ($page) => $page->component('Inventory/Issuance')->has('supplyRequests', 1));
 
-        $this->actingAs($admin)->post(route('inventory.issuance.store'), [
+        $this->actingAs($inventoryStaff)->post(route('inventory.issuance.store'), [
             'issuances' => [['item_id' => $item->id, 'quantity' => 45]],
             'recipient' => 'Other office', 'date_issued' => now()->toDateString(),
         ])->assertSessionHasErrors('issuances');
@@ -122,7 +131,7 @@ class SupplyRequestWorkflowTest extends TestCase
         $this->assertSame(40, $item->fresh()->stock);
         $this->assertSame(1, Issuance::count());
         $this->assertSame($request->fresh()->ris_number, $request->fresh()->issuance->ris_number);
-        $this->actingAs($admin)->delete(route('inventory.issuance.destroy', $request->fresh()->issuance))
+        $this->actingAs($custodian)->delete(route('inventory.issuance.destroy', $request->fresh()->issuance))
             ->assertSessionHasErrors('issuance');
 
         $this->actingAs($custodian)->post(route('inventory.requests.release', $request), ['signed_ris_presented' => true])
@@ -350,7 +359,7 @@ class SupplyRequestWorkflowTest extends TestCase
     {
         $coordinator = $this->user('Supply Coordinator');
         $custodian = $this->user('Property Custodian');
-        $item = $this->item(10);
+        $item = $this->item(20);
         $first = $this->submit($coordinator, $item, 8);
         $second = $this->submit($coordinator, $item, 5);
         $firstLine = $first->items()->firstOrFail();
@@ -368,7 +377,7 @@ class SupplyRequestWorkflowTest extends TestCase
         $this->actingAs($custodian)->post(route('inventory.requests.approve', $second), [
             'approved_quantities' => [$secondLine->id => 5],
         ])->assertRedirect();
-        $this->assertSame(10, $item->fresh()->stock);
+        $this->assertSame(20, $item->fresh()->stock);
         $this->assertSame('Approved', $second->fresh()->status);
 
         $this->actingAs($custodian)->post(route('inventory.requests.approve', $second), [
@@ -381,18 +390,19 @@ class SupplyRequestWorkflowTest extends TestCase
     {
         $coordinator = $this->user('Supply Coordinator');
         $custodian = $this->user('Property Custodian');
-        $admin = $this->user('System Admin');
-        $item = $this->item(10);
+        $inventoryStaff = $this->user('Inventory Staff');
+        $item = $this->item(20);
+        $item->update(['created_by' => $inventoryStaff->id]);
         $request = $this->submit($coordinator, $item, 8);
         $line = $request->items()->firstOrFail();
         $this->actingAs($custodian)->post(route('inventory.requests.approve', $request), [
             'approved_quantities' => [$line->id => 8],
         ])->assertRedirect();
 
-        $this->actingAs($admin)->put(route('inventory.update', $item), [
+        $this->actingAs($inventoryStaff)->put(route('inventory.update', $item), [
             'name' => $item->name, 'sku' => $item->sku, 'stock' => 5,
         ])->assertSessionHasErrors('stock');
-        $this->assertSame(10, $item->fresh()->stock);
+        $this->assertSame(20, $item->fresh()->stock);
     }
 
     public function test_only_owner_can_download_approved_ris_pdf(): void

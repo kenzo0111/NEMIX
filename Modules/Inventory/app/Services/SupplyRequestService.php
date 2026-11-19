@@ -3,6 +3,7 @@
 namespace Modules\Inventory\Services;
 
 use App\Models\SystemSetting;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Modules\AuditLogs\Models\TransactionTrail;
@@ -14,14 +15,32 @@ class SupplyRequestService
 {
     public function __construct(private InventoryIssuanceService $issuanceService) {}
 
-    public static function reservedQuantity(int $itemId, ?int $exceptRequestId = null): int
+    public static function reservationQuery(?int $exceptRequestId = null): Builder
     {
-        return (int) DB::table('supply_request_items as lines')
+        return DB::table('supply_request_items as lines')
             ->join('supply_requests as requests', 'requests.id', '=', 'lines.supply_request_id')
             ->whereIn('requests.status', ['Approved', 'Ready for Pickup'])
+            ->when($exceptRequestId, fn ($query) => $query->where('requests.id', '<>', $exceptRequestId));
+    }
+
+    public static function reservedQuantity(int $itemId, ?int $exceptRequestId = null): int
+    {
+        return (int) self::reservationQuery($exceptRequestId)
             ->where('lines.item_id', $itemId)
-            ->when($exceptRequestId, fn ($query) => $query->where('requests.id', '<>', $exceptRequestId))
             ->sum('lines.approved_quantity');
+    }
+
+    public static function requestableQuantity(int $stock, int $reserved): int
+    {
+        return max(0, $stock - $reserved - InventoryPolicy::lowThreshold());
+    }
+
+    public static function stockLimitMessage(Item $item, int $maximum): string
+    {
+        $minimum = InventoryPolicy::lowThreshold();
+        $unit = $item->unit_of_issue ?: 'units';
+
+        return "You can request at most {$maximum} {$unit} of {$item->name}. A minimum stock of {$minimum} {$unit} must remain after existing reservations.";
     }
 
     public static function audit(SupplyRequest $request, int $actorId, string $action): void
@@ -71,8 +90,12 @@ class SupplyRequestService
                     throw ValidationException::withMessages(['approved_quantities' => 'Approved quantities must be between zero and the requested quantity.']);
                 }
                 $item = $items->get($line->item_id);
-                if (!$item || (InventoryPolicy::strict() && $quantity > $item->stock - self::reservedQuantity($line->item_id, $revising ? $request->id : null))) {
-                    throw ValidationException::withMessages(['approved_quantities' => "Not enough unreserved stock for {$item?->name}. Please adjust the approved quantity."]);
+                if (!$item) {
+                    throw ValidationException::withMessages(['approved_quantities' => 'This item is unavailable. Please adjust the approved quantity.']);
+                }
+                $maximum = self::requestableQuantity($item->stock, self::reservedQuantity($line->item_id, $revising ? $request->id : null));
+                if ($quantity > $maximum) {
+                    throw ValidationException::withMessages(['approved_quantities' => self::stockLimitMessage($item, $maximum)]);
                 }
                 $line->update(['approved_quantity' => $quantity]);
                 $anyApproved = $anyApproved || $quantity > 0;
