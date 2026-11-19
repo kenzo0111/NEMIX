@@ -10,6 +10,7 @@ import {
     InventoryItem,
     SelectOption,
     InventoryStatus as StatusType,
+    InventorySortKey,
 } from './types';
 import InventoryToolbar from './components/InventoryToolbar';
 import InventoryTable from './components/InventoryTable';
@@ -17,6 +18,7 @@ import InventoryDetailsModal from './components/InventoryDetailsModal';
 import InventoryFormModal from './components/InventoryFormModal';
 import useStockRefresh from '@/Hooks/useStockRefresh';
 import DeleteItemModal from './components/DeleteItemModal';
+import { compareSortValues, SortDirection } from '@/Hooks/useSortableData';
 
 export default function AllItemsIndex({
     auth,
@@ -56,6 +58,8 @@ export default function AllItemsIndex({
         }
         return null;
     });
+    const [sortKey, setSortKey] = useState<InventorySortKey>(filters?.sort || 'id');
+    const [sortDirection, setSortDirection] = useState<SortDirection>(filters?.direction || 'desc');
 
     // Client-side pagination fallback state if server pagination is not used
     const [clientPage, setClientPage] = useState<number>(1);
@@ -65,16 +69,26 @@ export default function AllItemsIndex({
     const isServerDriven = Boolean(pagination && pagination.total !== undefined);
 
     // Server-side filter dispatcher
-    const isFirstRender = useRef(true);
+    const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const filterSignature = (search: string, supplier?: number | null, status?: string | null) => JSON.stringify([search.trim(), String(supplier || ''), status || '']);
+    const lastDispatchedFilters = useRef(filterSignature(filters?.search || '', Number(filters?.supplier) || null, filters?.status));
+    const queryStateRef = useRef({ sortKey, sortDirection, perPage: pagination?.per_page });
+    queryStateRef.current = { sortKey, sortDirection, perPage: pagination?.per_page };
     const triggerServerQuery = useCallback(
-        (page: number, search: string, supplierId?: number | null, statusVal?: string | null) => {
+        (page: number, search: string, supplierId?: number | null, statusVal?: string | null, nextSort: InventorySortKey = queryStateRef.current.sortKey, nextDirection: SortDirection = queryStateRef.current.sortDirection) => {
+            if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+            searchTimerRef.current = null;
+            lastDispatchedFilters.current = filterSignature(search, supplierId, statusVal);
             router.get(
                 route('inventory.index'),
                 {
                     page,
+                    per_page: queryStateRef.current.perPage,
                     search: search.trim() || undefined,
                     supplier: supplierId || undefined,
                     status: statusVal || undefined,
+                    sort: nextSort,
+                    direction: nextDirection,
                 },
                 {
                     preserveState: true,
@@ -86,21 +100,41 @@ export default function AllItemsIndex({
         []
     );
 
+    useEffect(() => {
+        if (searchTimerRef.current) return;
+        lastDispatchedFilters.current = filterSignature(filters?.search || '', Number(filters?.supplier) || null, filters?.status);
+        setSearchTerm(filters?.search || '');
+        const supplier = suppliers.find(supplier => String(supplier.id) === String(filters?.supplier));
+        setFilterSupplier(supplier ? { value: supplier.id, label: supplier.name } : null);
+        setFilterStatus(filters?.status ? { value: filters.status, label: filters.status } : null);
+        setSortKey(filters?.sort || 'id');
+        setSortDirection(filters?.direction || 'desc');
+    }, [filters?.search, filters?.supplier, filters?.status, filters?.sort, filters?.direction]);
+
+    useEffect(() => {
+        const cancelPending = () => {
+            if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+            searchTimerRef.current = null;
+        };
+        window.addEventListener('popstate', cancelPending);
+        return () => { cancelPending(); window.removeEventListener('popstate', cancelPending); };
+    }, []);
+
     // Debounce search input for server queries if server driven
     useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
-        }
-
         if (!isServerDriven) return;
+        if (lastDispatchedFilters.current === filterSignature(searchTerm, filterSupplier?.value, filterStatus?.value)) return;
 
         const timer = setTimeout(() => {
             triggerServerQuery(1, searchTerm, filterSupplier?.value, filterStatus?.value);
         }, 350);
+        searchTimerRef.current = timer;
 
-        return () => clearTimeout(timer);
-    }, [searchTerm, filterSupplier, filterStatus, isServerDriven, triggerServerQuery]);
+        return () => {
+            clearTimeout(timer);
+            if (searchTimerRef.current === timer) searchTimerRef.current = null;
+        };
+    }, [searchTerm, filterSupplier?.value, filterStatus?.value, isServerDriven, triggerServerQuery]);
 
     // Client-side filtering when working with loaded items
     const filteredClientItems = useMemo(() => {
@@ -145,9 +179,33 @@ export default function AllItemsIndex({
         if (isServerDriven) {
             return initialItems;
         }
+        const accessors: Record<InventorySortKey, (item: InventoryItem) => string | number | null | undefined> = {
+            id: (item) => item.id,
+            sku: (item) => item.sku,
+            name: (item) => item.name,
+            description: (item) => item.description,
+            unit: (item) => item.unit_of_issue,
+            stock: (item) => item.on_hand ?? item.stock,
+            value: (item) => Number(item.inventory_value ?? item.amount ?? 0),
+            status: (item) => item.status,
+        };
+        const sorted = [...filteredClientItems].sort((left, right) => {
+            return compareSortValues(accessors[sortKey](left), accessors[sortKey](right), sortDirection);
+        });
         const startIndex = (clientPage - 1) * rowsPerPage;
-        return filteredClientItems.slice(startIndex, startIndex + rowsPerPage);
-    }, [isServerDriven, initialItems, filteredClientItems, clientPage, rowsPerPage]);
+        return sorted.slice(startIndex, startIndex + rowsPerPage);
+    }, [isServerDriven, initialItems, filteredClientItems, clientPage, rowsPerPage, sortKey, sortDirection]);
+
+    const handleSort = (key: InventorySortKey) => {
+        const direction: SortDirection = sortKey === key && sortDirection === 'asc' ? 'desc' : 'asc';
+        setSortKey(key);
+        setSortDirection(direction);
+        if (isServerDriven) {
+            triggerServerQuery(1, searchTerm, filterSupplier?.value, filterStatus?.value, key, direction);
+        } else {
+            setClientPage(1);
+        }
+    };
 
     const currentPage = isServerDriven
         ? pagination?.current_page || 1
@@ -343,8 +401,9 @@ export default function AllItemsIndex({
                             totalPages={totalPages}
                             onPageChange={handlePageChange}
                             onView={(item) => setViewItem(item)}
-                            onEdit={(item) => openEditModal(item)}
-                            onDelete={(item) => setItemToDelete(item)}
+                            sortKey={sortKey}
+                            sortDirection={sortDirection}
+                            onSort={handleSort}
                             isFiltered={isFiltered}
                             onResetFilters={handleResetFilters}
                             readOnly={readOnly}
@@ -361,6 +420,10 @@ export default function AllItemsIndex({
                 onEdit={(item) => {
                     setViewItem(null);
                     openEditModal(item);
+                }}
+                onDelete={(item) => {
+                    setViewItem(null);
+                    setItemToDelete(item);
                 }}
                 readOnly={readOnly}
             />

@@ -7,6 +7,7 @@ use App\Models\SystemSetting;
 use App\Models\User;
 use App\Services\AccessControl\PermissionResolver;
 use App\Services\SystemSettingsService;
+use App\Support\TableSort;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -78,6 +79,8 @@ class SupplyRequestController extends Controller
                 'Pending', 'Pending Verification', 'For Correction', 'Under Review',
                 'Approved', 'Ready for Pickup', 'Issued', 'Released', 'Rejected', 'Cancelled',
             ])],
+            'sort' => ['nullable', 'string', Rule::in(['reference', 'purpose', 'recipient', 'department', 'status', 'date', 'items'])],
+            'direction' => ['nullable', 'string', Rule::in(['asc', 'desc'])],
         ]);
         $minimumStockThreshold = InventoryPolicy::lowThreshold();
         $reservations = SupplyRequestService::reservationQuery()
@@ -139,7 +142,7 @@ class SupplyRequestController extends Controller
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        $query = (clone $baseQuery)->with($this->coordinatorRequestRelations());
+        $query = (clone $baseQuery)->with($this->coordinatorRequestRelations())->withCount('items');
 
         if ($status !== '') {
             $groupedStatuses = [
@@ -167,7 +170,18 @@ class SupplyRequestController extends Controller
             });
         }
 
-        $requests = $query->latest()->paginate(10)->withQueryString()
+        $sort = TableSort::fromRequest($request, [
+            'reference' => 'ris_number',
+            'purpose' => 'purpose',
+            'recipient' => 'recipient',
+            'department' => 'department',
+            'status' => 'status',
+            'date' => fn ($query, $direction) => $query->orderByRaw('COALESCE(date_requested, created_at) '.$direction),
+            'items' => 'items_count',
+        ], 'date', 'desc');
+        $sort->apply($query, 'supply_requests.id');
+
+        $requests = $query->paginate(TableSort::pageSize($request, 10))->withQueryString()
             ->through(fn (SupplyRequest $supplyRequest) => $this->serializeCoordinatorRequest($supplyRequest));
 
         $focusedRequest = null;
@@ -180,7 +194,11 @@ class SupplyRequestController extends Controller
         return [
             'requests' => $requests,
             'requestSummary' => $requestSummary,
-            'requestFilters' => ['search' => $search, 'status' => $status],
+            'requestFilters' => [
+                'search' => $search,
+                'status' => $status,
+                ...$sort->filters(),
+            ],
             'focusedRequest' => $focusedRequest,
         ];
     }

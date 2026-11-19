@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { UserProfileDetails } from '../types';
+import React, { useMemo, useState } from 'react';
+import { UserProfileDetails, LoginTrailItem } from '../types';
+import { useSortableData } from '@/Hooks/useSortableData';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
 import PolicyNotice from '../components/PolicyNotice';
 import {
     ShieldCheck,
@@ -24,7 +26,14 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
     const activeSessions = profile.active_sessions || [];
 
     const [isExpanded, setIsExpanded] = useState(false);
-    const displayedHistory = isExpanded ? loginHistory : loginHistory.slice(0, 10);
+    const accessors = useMemo(() => ({
+        status: (entry: LoginTrailItem) => entry.status,
+        ip: (entry: LoginTrailItem) => entry.ip_address,
+        timestamp: (entry: LoginTrailItem) => new Date(entry.created_at || entry.timestamp),
+        agent: (entry: LoginTrailItem) => entry.user_agent,
+    }), []);
+    const { sortedRows, sort, requestSort } = useSortableData(loginHistory, accessors, { key: 'timestamp', direction: 'desc' });
+    const displayedHistory = isExpanded ? sortedRows : sortedRows.slice(0, 10);
     const hasMoreHistory = loginHistory.length > 10;
 
     return (
@@ -184,10 +193,10 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                                 <table className="min-w-[600px] w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm">
                                     <thead className="bg-slate-50 dark:bg-slate-850">
                                         <tr>
-                                            <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Verification Status</th>
-                                            <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Client IP Address</th>
-                                            <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Audit Timestamp</th>
-                                            <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300 hidden sm:table-cell">Client Signature</th>
+                                            <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3">Verification Status</SortableTableHeader>
+                                            <SortableTableHeader column="ip" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3">Client IP Address</SortableTableHeader>
+                                            <SortableTableHeader column="timestamp" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3">Audit Timestamp</SortableTableHeader>
+                                            <SortableTableHeader column="agent" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3">Client Signature</SortableTableHeader>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
@@ -218,7 +227,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                                                         {item.time_ago}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-sm truncate max-w-xs hidden sm:table-cell">
+                                                <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-sm truncate max-w-xs">
                                                     {item.user_agent}
                                                 </td>
                                             </tr>
@@ -233,6 +242,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                                     <button
                                         type="button"
                                         onClick={() => setIsExpanded((prev) => !prev)}
+                                        aria-expanded={isExpanded}
                                         className="inline-flex items-center gap-1.5 text-sm font-semibold text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 cursor-pointer px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
                                     >
                                         <span>{isExpanded ? 'Show Fewer Records' : `View All (${loginHistory.length}) Records`}</span>

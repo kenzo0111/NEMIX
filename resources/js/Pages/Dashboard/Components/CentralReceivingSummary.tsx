@@ -1,7 +1,11 @@
 import { Link } from '@inertiajs/react';
 import { ArrowRight, ClipboardCheck, PackageCheck, Rows3, Warehouse } from 'lucide-react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { CentralReceivingSummary as CentralReceivingSummaryType } from '../types';
+import { useSortableData } from '@/Hooks/useSortableData';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
+
+type ReceivingSortKey = 'date' | 'item' | 'quantity' | 'recordedBy' | 'timestamp';
 
 interface Props {
     summary: CentralReceivingSummaryType;
@@ -11,6 +15,14 @@ interface Props {
 const metricCard = 'rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-3 dark:border-slate-700 dark:bg-slate-800/40';
 
 export default function CentralReceivingSummary({ summary, canViewCatalog }: Props) {
+    const accessors = useMemo(() => ({
+        date: (record: CentralReceivingSummaryType['recent_records'][number]) => record.date_received,
+        item: (record: CentralReceivingSummaryType['recent_records'][number]) => record.item_name,
+        quantity: (record: CentralReceivingSummaryType['recent_records'][number]) => record.quantity,
+        recordedBy: (record: CentralReceivingSummaryType['recent_records'][number]) => record.recorded_by,
+        timestamp: (record: CentralReceivingSummaryType['recent_records'][number]) => record.recorded_at,
+    }), []);
+    const { sortedRows, sort, requestSort } = useSortableData<CentralReceivingSummaryType['recent_records'][number], ReceivingSortKey>(summary.recent_records, accessors, { key: 'date', direction: 'desc' });
     const metrics = [
         { label: 'Receiving records', value: summary.record_count, icon: Rows3 },
         { label: 'Supply types', value: summary.item_types, icon: Warehouse },
@@ -73,13 +85,15 @@ export default function CentralReceivingSummary({ summary, canViewCatalog }: Pro
                         </caption>
                         <thead className="border-b border-slate-100 text-slate-500 dark:border-slate-800 dark:text-slate-400">
                             <tr>
-                                {['Date received', 'Supply / stock number', 'Quantity', 'Recorded by', 'Entry timestamp'].map(label => (
-                                    <th key={label} scope="col" className="whitespace-nowrap px-4 py-3 font-medium">{label}</th>
-                                ))}
+                                <SortableTableHeader column="date" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3 font-medium">Date received</SortableTableHeader>
+                                <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3 font-medium">Supply / stock number</SortableTableHeader>
+                                <SortableTableHeader column="quantity" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3 font-medium">Quantity</SortableTableHeader>
+                                <SortableTableHeader column="recordedBy" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3 font-medium">Recorded by</SortableTableHeader>
+                                <SortableTableHeader column="timestamp" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3 font-medium">Entry timestamp</SortableTableHeader>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {summary.recent_records.map(record => (
+                            {sortedRows.map(record => (
                                 <tr key={record.id}>
                                     <td className="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300">
                                         <time dateTime={record.date_received || undefined}>{record.date_received_formatted || 'Not set'}</time>

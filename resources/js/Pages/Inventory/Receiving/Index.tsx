@@ -11,6 +11,7 @@ import {
     ReceivingRecord,
     PaginatedData,
     ReceivingFormData,
+    ReceivingSortKey,
 } from './types';
 import { ReceivingToolbar } from './components/ReceivingToolbar';
 import { ReceivingTable } from './components/ReceivingTable';
@@ -18,6 +19,7 @@ import { ReceivingFormModal } from './components/ReceivingFormModal';
 import { ReceivingDetailsModal } from './components/ReceivingDetailsModal';
 import { RfidReceivingModal } from './components/RfidReceivingModal';
 import { useRfidScanner } from './hooks/useRfidScanner';
+import { compareSortValues, SortDirection, SortValue } from '@/Hooks/useSortableData';
 
 export default function ReceivingIndex({
     auth,
@@ -47,16 +49,39 @@ export default function ReceivingIndex({
     // Filters state
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const [supplierFilter, setSupplierFilter] = useState<number | string>(filters.supplier || '');
+    const [sortKey, setSortKey] = useState<ReceivingSortKey>(filters.sort || 'date');
+    const [sortDirection, setSortDirection] = useState<SortDirection>(filters.direction || 'desc');
     const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
+    useEffect(() => {
+        if (searchDebounceRef.current) return;
+        setSearchTerm(filters.search || '');
+        setSupplierFilter(filters.supplier || '');
+        setSortKey(filters.sort || 'date');
+        setSortDirection(filters.direction || 'desc');
+    }, [filters.search, filters.supplier, filters.sort, filters.direction]);
+    useEffect(() => {
+        const cancelPending = () => {
+            if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+            searchDebounceRef.current = null;
+        };
+        window.addEventListener('popstate', cancelPending);
+        return () => { cancelPending(); window.removeEventListener('popstate', cancelPending); };
+    }, []);
 
     // Server-side filter query execution
-    const executeServerFilter = (search: string, supplier: number | string, page: number = 1) => {
+    const executeServerFilter = (search: string, supplier: number | string, page: number = 1, nextSort: ReceivingSortKey = sortKey, nextDirection: SortDirection = sortDirection) => {
+        if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+        searchDebounceRef.current = null;
+        if (!isPaginated) return;
         router.get(
             route('inventory.receiving'),
             {
                 search: search || undefined,
                 supplier: supplier || undefined,
                 page: page > 1 ? page : undefined,
+                per_page: paginationMeta?.per_page,
+                sort: nextSort,
+                direction: nextDirection,
             },
             {
                 preserveState: true,
@@ -71,6 +96,7 @@ export default function ReceivingIndex({
         if (searchDebounceRef.current) {
             clearTimeout(searchDebounceRef.current);
         }
+        if (!isPaginated) return;
         searchDebounceRef.current = setTimeout(() => {
             executeServerFilter(value, supplierFilter, 1);
         }, 350);
@@ -90,7 +116,7 @@ export default function ReceivingIndex({
         if (isPaginated) {
             return rawList;
         }
-        return rawList.filter((item) => {
+        const filtered = rawList.filter((item) => {
             const lowerSearch = searchTerm.toLowerCase();
             const matchesSearch =
                 !searchTerm ||
@@ -105,7 +131,26 @@ export default function ReceivingIndex({
 
             return matchesSearch && matchesSupplier;
         });
-    }, [isPaginated, rawList, searchTerm, supplierFilter]);
+        const accessors: Record<ReceivingSortKey, (item: ReceivingRecord) => SortValue> = {
+            item: (item) => item.item,
+            supplier: (item) => item.supplier,
+            quantity: (item) => item.quantity,
+            remaining: (item) => item.quantity_remaining,
+            unit_cost: (item) => item.unit_cost,
+            amount: (item) => item.amount,
+            date: (item) => new Date(item.date_received || item.date),
+        };
+        return filtered.sort((left, right) => {
+            return compareSortValues(accessors[sortKey](left), accessors[sortKey](right), sortDirection);
+        });
+    }, [isPaginated, rawList, searchTerm, supplierFilter, sortKey, sortDirection]);
+
+    const handleSort = (key: ReceivingSortKey) => {
+        const direction: SortDirection = sortKey === key && sortDirection === 'asc' ? 'desc' : 'asc';
+        setSortKey(key);
+        setSortDirection(direction);
+        if (isPaginated) executeServerFilter(searchTerm, supplierFilter, 1, key, direction);
+    };
 
     // --- MODAL & TRANSACTION FORM STATES ---
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -369,7 +414,9 @@ export default function ReceivingIndex({
                             paginationMeta={paginationMeta}
                             onPageChange={handlePageChange}
                             onView={handleOpenDetailsModal}
-                            onUpdate={handleOpenEditModal}
+                            sortKey={sortKey}
+                            sortDirection={sortDirection}
+                            onSort={handleSort}
                             isFiltered={isFiltered}
                         />
                     </div>

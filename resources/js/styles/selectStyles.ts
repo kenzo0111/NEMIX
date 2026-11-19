@@ -8,14 +8,16 @@ import { StylesConfig } from 'react-select';
  * - Light maroon hover options (#fef2f2) and solid maroon active selection
  * - Clear error state styling
  */
-export const getInstitutionalSelectStyles = (hasError: boolean = false): StylesConfig<any, any> => ({
+export const getInstitutionalSelectStyles = <Option = any, IsMulti extends boolean = false>(hasError: boolean = false): StylesConfig<Option, IsMulti> => ({
     control: (provided, state) => ({
         ...provided,
         borderRadius: '0.5rem',
         borderColor: hasError ? '#f87171' : state.isFocused ? '#7f1d1d' : 'var(--border-color, #d1d5db)',
         borderWidth: '1px',
         backgroundColor: 'var(--surface-card, #ffffff)',
-        minHeight: '40px',
+        minHeight: 'var(--control-height)',
+        height: state.isMulti ? 'auto' : 'var(--control-height)',
+        boxSizing: 'border-box',
         fontSize: '0.875rem',
         fontWeight: 500,
         boxShadow: state.isFocused
@@ -27,6 +29,16 @@ export const getInstitutionalSelectStyles = (hasError: boolean = false): StylesC
             borderColor: hasError ? '#ef4444' : '#7f1d1d',
         },
         transition: 'all 0.15s ease-in-out',
+    }),
+    valueContainer: (provided) => ({
+        ...provided,
+        minHeight: 'calc(var(--control-height) - 2px)',
+        paddingTop: 0,
+        paddingBottom: 0,
+    }),
+    indicatorsContainer: (provided) => ({
+        ...provided,
+        height: 'calc(var(--control-height) - 2px)',
     }),
     option: (provided, state) => ({
         ...provided,
@@ -75,6 +87,9 @@ export const getInstitutionalSelectStyles = (hasError: boolean = false): StylesC
     input: (provided) => ({
         ...provided,
         color: 'var(--text-primary, #111827)',
+        margin: 0,
+        padding: 0,
+        input: { minHeight: 0 },
     }),
     placeholder: (provided) => ({
         ...provided,

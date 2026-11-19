@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useDashboardScope } from '../useDashboardScope';
 import { Link } from '@inertiajs/react';
 import { CriticalStockItem } from '../types';
 import { AlertCircle, ArrowRight } from 'lucide-react';
+import { useSortableData } from '@/Hooks/useSortableData';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
+
+type CriticalSortKey = 'item' | 'stock' | 'status';
 
 interface CriticalStockOverviewProps {
     items?: CriticalStockItem[];
@@ -11,6 +15,12 @@ interface CriticalStockOverviewProps {
 
 export default function CriticalStockOverview({ items = [], className = '' }: CriticalStockOverviewProps) {
     const { inventoryHref } = useDashboardScope();
+    const accessors = useMemo(() => ({
+        item: (item: CriticalStockItem) => item.name,
+        stock: (item: CriticalStockItem) => item.current,
+        status: (item: CriticalStockItem) => item.priority,
+    }), []);
+    const { sortedRows, sort, requestSort } = useSortableData<CriticalStockItem, CriticalSortKey>(items, accessors, { key: 'stock', direction: 'asc' });
     return (
         <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs flex flex-col justify-between h-full min-w-0 transition-colors ${className}`}>
             <div>
@@ -38,13 +48,13 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
                         <table className="w-full text-left text-sm">
                             <thead>
                                 <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold normal-case text-sm tracking-normal">
-                                    <th className="pb-2 w-auto">Item</th>
-                                    <th className="pb-2 text-center w-36 sm:w-44">Available / Min</th>
-                                    <th className="pb-2 text-right w-24 sm:w-28">Status</th>
+                                    <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="pb-2 w-auto">Item</SortableTableHeader>
+                                    <SortableTableHeader column="stock" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="center" className="pb-2 w-36 sm:w-44">Available / Min</SortableTableHeader>
+                                    <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="pb-2 w-24 sm:w-28">Status</SortableTableHeader>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                {items.map((item, idx) => {
+                                {sortedRows.map((item, idx) => {
                                     const isCritical = item.priority === 'Critical';
                                     return (
                                         <tr key={item.id ?? idx} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/60 transition-colors">

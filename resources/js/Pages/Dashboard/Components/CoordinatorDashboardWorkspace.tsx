@@ -10,6 +10,7 @@ import type { CentralReceivingSummary as CentralReceivingSummaryType, Coordinato
 import useAuthorization from '@/Hooks/useAuthorization';
 import { COORDINATOR_TOUR_START_EVENT } from './CoordinatorWalkthroughGuide';
 import CentralReceivingSummary from './CentralReceivingSummary';
+import CoordinatorStockAttention from './CoordinatorStockAttention';
 
 interface Props {
     auth: {
@@ -124,22 +125,7 @@ export default function CoordinatorDashboardWorkspace({
                                 {can('coordinator.inventory.index') && <Link href={inventoryHref} className={quietLink}>View all<ArrowRight size={13} aria-hidden="true" /></Link>}
                             </div>
                             {criticalStock.length ? (
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left text-xs">
-                                        <thead className="border-b border-slate-100 text-slate-500 dark:border-slate-800 dark:text-slate-400"><tr>{['Item', 'On hand', 'Minimum', 'Status', 'Action'].map(label => <th key={label} scope="col" className="whitespace-nowrap px-4 py-3 font-medium">{label}</th>)}</tr></thead>
-                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                            {criticalStock.slice(0, 4).map((item, index) => (
-                                                <tr key={item.id ?? index}>
-                                                    <th scope="row" className="px-4 py-4 font-normal"><div className="flex items-center gap-2.5"><span className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 sm:flex dark:bg-slate-800 dark:text-slate-400"><Package size={21} aria-hidden="true" /></span><div className="min-w-32"><p className="font-semibold">{item.name}</p><p className="mt-1 text-slate-500 dark:text-slate-400">{item.sku}</p></div></div></th>
-                                                    <td className="whitespace-nowrap px-4 py-4 tabular-nums">{item.current} {item.unit}</td>
-                                                    <td className="whitespace-nowrap px-4 py-4 tabular-nums text-slate-500 dark:text-slate-400">{item.min} {item.unit}</td>
-                                                    <td className="whitespace-nowrap px-4 py-4"><span className={`rounded-md px-2 py-1 font-medium ${item.current <= 0 || item.priority === 'Critical' ? 'bg-red-50 text-red-800 dark:bg-red-950/60 dark:text-red-300' : 'bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'}`}>{item.status || 'Low stock'}</span></td>
-                                                    <td className="px-4 py-4">{can('inventory.requests.store') ? <Link href={route('inventory.requests.index', { create: 1, ...(item.item_id ? { item_id: item.item_id } : {}) })} aria-label={`Request replenishment for ${item.name}`} className="inline-flex min-h-9 items-center rounded-lg border border-slate-200 px-3 font-medium hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:border-slate-700 dark:hover:bg-slate-800">Request</Link> : <span className="text-slate-400">—</span>}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <CoordinatorStockAttention items={criticalStock} canRequest={can('inventory.requests.store')} />
                             ) : <p className="flex items-center gap-2 px-4 py-8 text-sm text-slate-500 dark:text-slate-400"><CheckCircle2 size={18} aria-hidden="true" />No stock alerts right now.</p>}
                             {criticalCount > Math.min(criticalStock.length, 4) && <p className="border-t border-slate-100 px-4 py-2 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">Showing {Math.min(criticalStock.length, 4)} of {criticalCount} alerts. View all in inventory.</p>}
                         </section>
@@ -147,7 +133,7 @@ export default function CoordinatorDashboardWorkspace({
                         <section aria-labelledby="movement-heading" className={`${surface} p-4`}>
                             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3 dark:border-slate-800">
                                 <h3 id="movement-heading" className="flex items-center gap-2 text-base font-semibold"><ChartColumn size={20} className="text-slate-400" aria-hidden="true" />Inventory movement trends</h3>
-                                <select aria-label="Movement chart period" value={filters?.chartFilter || 'monthly'} onChange={event => router.get(route('dashboard'), { chart_filter: event.target.value }, { preserveState: true, preserveScroll: true, replace: true })} className="min-h-9 rounded-lg border-slate-200 bg-white py-1 pl-3 pr-8 text-xs focus:border-red-800 focus:ring-red-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                                <select aria-label="Movement chart period" value={filters?.chartFilter || 'monthly'} onChange={event => router.get(route('dashboard'), { chart_filter: event.target.value }, { preserveState: true, preserveScroll: true, replace: true })} className="table-control rounded-lg border-slate-200 bg-white pl-3 pr-8 text-xs focus:border-red-800 focus:ring-red-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
                                     <option value="monthly">Last 6 months</option><option value="yearly">Last 5 years</option>{filters?.chartFilter === 'custom' && <option value="custom">Custom period</option>}
                                 </select>
                             </div>

@@ -1,3 +1,4 @@
+import { rowSelectionProps } from '@/Hooks/useTableSelection';
 import React from 'react';
 import { formatRisNumber } from '@/utils/risFormatter';
 import { IssuanceRecord } from '../types';
@@ -6,20 +7,20 @@ import { formatDisplayDate } from '@/utils/dateUtils';
 
 interface IssuanceRowProps {
     issuance: IssuanceRecord;
-    onViewDetails: (issuance: IssuanceRecord) => void;
-    onViewRisForm: (issuance: IssuanceRecord) => void;
+    selected: boolean;
+    onSelect: (issuance: IssuanceRecord) => void;
 }
 
 export const IssuanceRow: React.FC<IssuanceRowProps> = ({
     issuance,
-    onViewDetails,
-    onViewRisForm,
+    selected,
+    onSelect,
 }) => {
     const displayDate = formatDisplayDate(issuance.date_issued || issuance.date, 'MM/DD/YYYY') || issuance.date_issued || issuance.date;
     const totalQty = issuance.total_quantity ?? issuance.quantity ?? 0;
 
     return (
-        <tr className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0 group">
+        <tr   {...rowSelectionProps(selected, () => onSelect(issuance))}  className={`cursor-pointer transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-800 ${selected ? 'bg-red-50 shadow-[inset_3px_0_0_#7f1d1d] dark:bg-red-950/30' : 'hover:bg-red-50/30 dark:hover:bg-red-950/20'}`}>
             {/* RIS / Issuance Number */}
             <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-slate-100 tabular-nums tracking-normal">
                 {formatRisNumber(issuance.ris_number)}
@@ -57,25 +58,6 @@ export const IssuanceRow: React.FC<IssuanceRowProps> = ({
                 <IssuanceStatus status={issuance.status} />
             </td>
 
-            {/* Actions: View & RIS Form (Institutional maroon & neutral outline, no green/blue buttons) */}
-            <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right">
-                <div className="inline-flex items-center gap-2.5">
-                    <button
-                        type="button"
-                        onClick={() => onViewDetails(issuance)}
-                        className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
-                    >
-                        View
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => onViewRisForm(issuance)}
-                        className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-600 font-semibold text-sm px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
-                    >
-                        RIS Form
-                    </button>
-                </div>
-            </td>
         </tr>
     );
 };

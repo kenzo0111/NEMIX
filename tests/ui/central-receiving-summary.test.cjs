@@ -2,20 +2,12 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const ts = require('typescript');
 const React = require('react');
 const { renderToStaticMarkup } = require('react-dom/server');
 
 const componentPath = path.resolve(__dirname, '../../resources/js/Pages/Dashboard/Components/CentralReceivingSummary.tsx');
-const exportsObject = {};
-const source = ts.transpileModule(fs.readFileSync(componentPath, 'utf8'), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
-}).outputText;
-const resolve = id => id === '@inertiajs/react'
-    ? { Link: ({ children, ...props }) => React.createElement('a', props, children) }
-    : require(id);
-new Function('require', 'exports', source)(resolve, exportsObject);
-const CentralReceivingSummary = exportsObject.default;
+const load = require('./helpers/load-ts.cjs')({ '@inertiajs/react': { Link: ({ children, ...props }) => React.createElement('a', props, children) } });
+const CentralReceivingSummary = load(componentPath).default;
 global.route = name => `/${name.replaceAll('.', '/')}`;
 
 const summary = {
@@ -73,7 +65,9 @@ test('the receiving table distinguishes receipt dates from recording timestamps 
 test('the central catalog link follows the coordinators access', () => {
     assert.match(render(), /href="\/coordinator\/catalog\/index"/);
     assert.doesNotMatch(render(summary, false), /View central catalog|<a\b/);
-    assert.doesNotMatch(render(), /<form\b|<button\b/);
+    assert.doesNotMatch(render(), /<form\b/);
+    assert.match(render(), /aria-sort="descending"/);
+    assert.equal((render().match(/<button\b/g) || []).length, 5);
 });
 
 test('an empty month shows a clear state without older records or a stale timestamp', () => {

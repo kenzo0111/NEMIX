@@ -70,3 +70,5 @@ export interface StaffStats {
     disabled: number;
     rolesAssigned: number;
 }
+
+export type StaffSortKey = 'name' | 'role' | 'department' | 'verification' | 'status';

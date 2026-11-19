@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { compareSortValues } from '@/Hooks/useSortableData';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/Components/ui/chart';
 import { Activity, Search } from 'lucide-react';
@@ -143,6 +145,8 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
     const [metric, setMetric] = useState<HeatMetric>('requested');
     const [search, setSearch] = useState('');
     const [showAll, setShowAll] = useState(false);
+    const [sort, setSort] = useState({ key: 'total', direction: 'desc' as 'asc' | 'desc' });
+    const requestSort = (key: string) => setSort(current => ({ key, direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc' }));
     const months = [...new Set(rows.map((row) => row.month))].sort();
     const departments = [...new Set(rows.map((row) => row.department))];
     const totals = new Map<string, number>();
@@ -153,21 +157,24 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
     }
     const matches = departments
         .filter((name) => name.toLowerCase().includes(search.trim().toLowerCase()))
-        .sort((a, b) => (totals.get(b) ?? 0) - (totals.get(a) ?? 0) || a.localeCompare(b));
+        .sort((a, b) => {
+            const value = (name: string) => sort.key === 'department' ? name : sort.key === 'total' ? totals.get(name) ?? 0 : cells.get(`${name}|${sort.key}`) ?? 0;
+            return compareSortValues(value(a), value(b), sort.direction) || compareSortValues(a, b);
+        });
     const visible = showAll ? matches : matches.slice(0, 10);
     const max = Math.max(0, ...rows.map((row) => row[metric]));
     return (
         <div>
-            <div className="mb-5 flex flex-wrap items-center gap-3">
+            <div className="table-toolbar mb-5 flex flex-wrap items-center gap-3">
                 <div className="relative min-w-0 flex-1 sm:max-w-sm">
-                    <Search size={16} className="pointer-events-none absolute left-3 top-3.5 text-slate-400" />
+                    <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                         type="search"
                         aria-label="Search offices in demand heatmap"
                         placeholder="Find an office…"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="min-h-11 w-full rounded-lg border-slate-300 bg-white pl-9 text-sm focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950"
+                        className="table-control w-full rounded-lg border-slate-300 bg-white pl-9 text-sm focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950"
                     />
                 </div>
                 <div className="w-full sm:w-56">
@@ -195,19 +202,19 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
                         </caption>
                         <thead>
                             <tr>
-                                <th className="sticky left-0 top-0 z-20 min-w-44 bg-white p-2 text-left font-medium text-slate-500 dark:bg-slate-900">
+                                <SortableTableHeader column="department" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="sticky left-0 top-0 z-20 min-w-44 bg-white p-2 text-left font-medium text-slate-500 dark:bg-slate-900">
                                     Department / office
-                                </th>
+                                </SortableTableHeader>
                                 {months.map((month) => (
-                                    <th
+                                    <SortableTableHeader
                                         key={month}
-                                        scope="col"
+                                        column={month} activeColumn={sort.key} direction={sort.direction} onSort={requestSort}
                                         className="sticky top-0 z-10 min-w-16 bg-white p-2 font-medium text-slate-500 dark:bg-slate-900"
                                     >
                                         {month}
-                                    </th>
+                                    </SortableTableHeader>
                                 ))}
-                                <th className="sticky top-0 bg-white p-2 text-slate-500 dark:bg-slate-900">Total</th>
+                                <SortableTableHeader column="total" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="sticky top-0 bg-white p-2 text-slate-500 dark:bg-slate-900">Total</SortableTableHeader>
                             </tr>
                         </thead>
                         <tbody>
@@ -258,7 +265,7 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
                     onClick={() => setShowAll(!showAll)}
                     className="mt-4 text-sm font-semibold text-red-900 dark:text-red-300"
                 >
-                    {showAll ? 'Show top 10 offices' : 'Show all offices'}
+                    {showAll ? 'Show first 10 offices' : 'Show all offices'}
                 </button>
             )}
         </div>

@@ -1,6 +1,9 @@
-import React from 'react';
-import { IssuanceRecord, PaginatedData } from '../types';
+import React, { useEffect, useState } from 'react';
+import { IssuanceRecord, PaginatedData, IssuanceSortKey } from '../types';
 import { IssuanceRow } from './IssuanceRow';
+import type { SortDirection } from '@/Hooks/useSortableData';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
+import TableSelectionAction from '@/Components/ui/table-selection-action';
 
 interface IssuanceTableProps {
     issuances: IssuanceRecord[];
@@ -8,6 +11,9 @@ interface IssuanceTableProps {
     onPageChange: (page: number) => void;
     onViewDetails: (issuance: IssuanceRecord) => void;
     onViewRisForm: (issuance: IssuanceRecord) => void;
+    sortKey: IssuanceSortKey;
+    sortDirection: SortDirection;
+    onSort: (key: IssuanceSortKey) => void;
 }
 
 export const IssuanceTable: React.FC<IssuanceTableProps> = ({
@@ -16,47 +22,53 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
     onPageChange,
     onViewDetails,
     onViewRisForm,
+    sortKey,
+    sortDirection,
+    onSort,
 }) => {
     const currentPage = pagination?.current_page || 1;
     const lastPage = pagination?.last_page || 1;
     const totalRecords = pagination?.total ?? issuances.length;
     const fromRecord = pagination?.from ?? (totalRecords === 0 ? 0 : (currentPage - 1) * 10 + 1);
     const toRecord = pagination?.to ?? Math.min(currentPage * 10, totalRecords);
+    const [selectedId, setSelectedId] = useState<number | null>(null);
+    const selectedIssuance = issuances.find((issuance) => issuance.id === selectedId) || null;
+    useEffect(() => {
+        if (selectedId !== null && !issuances.some((issuance) => issuance.id === selectedId)) setSelectedId(null);
+    }, [issuances, selectedId]);
 
     return (
         <div className="overflow-hidden min-w-0">
+            <TableSelectionAction selectedLabel={selectedIssuance ? `${selectedIssuance.ris_number} — ${selectedIssuance.recipient}` : null} onAction={() => selectedIssuance && onViewDetails(selectedIssuance)} actionLabel="View selected" />
             {/* Table Container */}
             <div className="overflow-x-auto min-w-0">
                 <table className="w-full text-left border-collapse min-w-[700px]">
                     <thead className="bg-gray-50/80 dark:bg-slate-900/80 border-b border-gray-200 dark:border-slate-800">
                         <tr>
-                            <th className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="ris_number" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 RIS No.
-                            </th>
-                            <th className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="recipient" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Recipient / Office
-                            </th>
-                            <th className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Items Issued
-                            </th>
-                            <th className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="quantity" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Total Quantity
-                            </th>
-                            <th className="hidden md:table-cell px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="date" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="hidden md:table-cell px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Date Issued
-                            </th>
-                            <th className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Status
-                            </th>
-                            <th className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums w-36">
-                                Actions
-                            </th>
+                            </SortableTableHeader>
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
                         {issuances.length === 0 ? (
                             <tr>
-                                <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
+                                <td colSpan={6} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
                                     <div className="flex flex-col items-center justify-center">
                                         <svg
                                             className="w-10 h-10 text-gray-300 dark:text-slate-600 mb-2"
@@ -83,8 +95,8 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
                                 <IssuanceRow
                                     key={issuance.id}
                                     issuance={issuance}
-                                    onViewDetails={onViewDetails}
-                                    onViewRisForm={onViewRisForm}
+                                    selected={issuance.id === selectedId}
+                                    onSelect={(row) => setSelectedId(row.id)}
                                 />
                             ))
                         )}

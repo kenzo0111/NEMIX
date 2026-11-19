@@ -169,6 +169,8 @@ export interface TransactionAuditFilters {
     date_to?: string | null;
     view_mode?: 'business' | 'technical';
     page?: number;
+    sort?: 'user' | 'activity' | 'module' | 'result' | 'date';
+    direction?: 'asc' | 'desc';
 }
 
 export interface PaginatedLink {

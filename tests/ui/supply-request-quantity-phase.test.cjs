@@ -30,7 +30,7 @@ function load(file) {
             router: { post: () => {} },
         };
         if (id === '@/Hooks/useAuthorization') return { default: () => ({ can: name => permissions.has(name) }), __esModule: true };
-        if (id === '@/Components/Modal') return { default: () => null, __esModule: true };
+        if (id === '@/Components/Modal') return { default: ({ show, children }) => show ? React.createElement('div', { role: 'dialog' }, children) : null, __esModule: true };
         if (id.startsWith('.') || id.startsWith('@/')) {
             const base = id.startsWith('@/') ? path.join(root, id.slice(2)) : path.resolve(path.dirname(file), id);
             const target = [base, `${base}.tsx`, `${base}.ts`].find(candidate => fs.existsSync(candidate) && fs.statSync(candidate).isFile());
@@ -60,6 +60,7 @@ function render(status, canApprove = true, document = false) {
         requests: [{ ...request, status, requires_supporting_document: document,
             items: request.items.map(line => ({ ...line, approved_quantity: pending ? null : 10 })) }],
         onPreview: () => {},
+        focusRequestId: 1,
     }));
 }
 

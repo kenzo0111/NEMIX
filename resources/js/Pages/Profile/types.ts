@@ -5,6 +5,7 @@ export interface LoginTrailItem {
     user_agent: string;
     time_ago: string;
     timestamp: string;
+    created_at?: string;
 }
 
 export interface ActiveSessionItem {

@@ -39,7 +39,7 @@ export default function InventoryToolbar({
     }));
 
     return (
-        <div className="p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 dark:border-slate-800 flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4 bg-gray-50/50 dark:bg-slate-900/50">
+        <div className="table-toolbar p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 dark:border-slate-800 flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4 bg-gray-50/50 dark:bg-slate-900/50">
             <div>
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100">All items</h2>
             </div>
@@ -61,7 +61,7 @@ export default function InventoryToolbar({
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search name or SKU..."
                         aria-label="Search inventory by name or SKU"
-                        className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-xs placeholder-gray-400 dark:placeholder-slate-500"
+                        className="table-control w-full pl-9 pr-4 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-xs placeholder-gray-400 dark:placeholder-slate-500"
                     />
                 </div>
 
@@ -98,7 +98,7 @@ export default function InventoryToolbar({
                     <button
                         type="button"
                         onClick={onResetFilters}
-                        className="px-2.5 py-2 text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-red-900 dark:hover:text-red-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-md transition-colors flex items-center justify-center gap-1.5 min-h-[38px] cursor-pointer"
+                        className="px-2.5 py-2 text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-red-900 dark:hover:text-red-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-md transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                         title="Reset all filters"
                         aria-label="Reset all filters and clear search"
                     >
@@ -111,7 +111,7 @@ export default function InventoryToolbar({
                 {!readOnly && can('inventory.store') && <button
                     type="button"
                     onClick={onOpenCreateModal}
-                    className="w-full sm:w-auto bg-red-950 hover:bg-red-900 text-white font-semibold py-2 px-4 rounded-md shadow-xs transition-colors text-sm flex items-center justify-center gap-2 whitespace-nowrap normal-case tracking-normal cursor-pointer min-h-[38px]"
+                    className="w-full sm:w-auto bg-red-950 hover:bg-red-900 text-white font-semibold py-2 px-4 rounded-md shadow-xs transition-colors text-sm flex items-center justify-center gap-2 whitespace-nowrap normal-case tracking-normal cursor-pointer"
                 >
                     <Plus className="w-4 h-4 text-amber-300" aria-hidden="true" />
                     <span>Add Item</span>

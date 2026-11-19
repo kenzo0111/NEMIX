@@ -8,6 +8,7 @@ use App\Models\SystemSetting;
 use App\Policies\ResourceOwnershipPolicy;
 use App\Services\AccessControl\PermissionResolver;
 use App\Services\SystemSettingsService;
+use App\Support\TableSort;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -99,9 +100,22 @@ class InventoryController extends Controller
             $itemsQuery->where('status', $request->input('status'));
         }
 
-        $itemsQuery->orderBy('id', 'desc');
+        $sort = TableSort::fromRequest($request, [
+            'id' => 'items.id',
+            'sku' => 'items.sku',
+            'name' => 'items.name',
+            'description' => 'items.description',
+            'unit' => 'items.unit_of_issue',
+            'stock' => 'items.stock',
+            'status' => 'items.status',
+            // Match Item::inventory_value, including batches and legacy amount fallback.
+            'value' => fn ($query, $direction) => $query->orderByRaw(
+                '(COALESCE((SELECT CASE WHEN SUM(quantity_remaining * unit_cost) > 0 THEN SUM(quantity_remaining * unit_cost) ELSE 0 END FROM inventory_batches WHERE inventory_batches.item_id = items.id AND inventory_batches.deleted_at IS NULL GROUP BY item_id), items.amount, COALESCE(items.stock, 0) * COALESCE(items.unit_cost, 0))) '.$direction
+            ),
+        ], 'id', 'desc');
+        $sort->apply($itemsQuery, 'items.id');
 
-        $perPage = (int) $request->input('per_page', 10);
+        $perPage = TableSort::pageSize($request, 10);
         $paginator = $itemsQuery->paginate($perPage)->withQueryString();
 
         $itemsList = collect($paginator->items())->map(function ($item) {
@@ -157,6 +171,7 @@ class InventoryController extends Controller
                 'search' => $request->input('search', ''),
                 'supplier' => $request->input('supplier', ''),
                 'status' => $request->input('status', ''),
+                ...$sort->filters(),
             ],
             'suppliers' => $suppliersQuery->get(['id', 'name']),
             'lowStockThreshold' => $lowStockThreshold,
@@ -400,7 +415,7 @@ class InventoryController extends Controller
         $supplierId = $request->input('supplier', '');
 
         $receivingsQuery = ResourceOwnershipPolicy::scopeQuery(
-            Receiving::with(['item', 'supplier', 'batch']),
+            Receiving::with(['item' => fn ($query) => $query->withTrashed(), 'supplier' => fn ($query) => $query->withTrashed(), 'batch']),
             auth()->user()
         );
 
@@ -420,10 +435,23 @@ class InventoryController extends Controller
             $receivingsQuery->where('supplier_id', $supplierId);
         }
 
+        // These values are Receiving accessors, rather than columns on receivings.
+        $batchCondition = 'inventory_batches.receiving_id = receivings.id AND inventory_batches.deleted_at IS NULL';
+        $unitCost = "COALESCE((SELECT unit_cost FROM inventory_batches WHERE {$batchCondition} ORDER BY id LIMIT 1), (SELECT unit_cost FROM items WHERE items.id = receivings.item_id), 0)";
+        $remaining = "COALESCE((SELECT quantity_remaining FROM inventory_batches WHERE {$batchCondition} ORDER BY id LIMIT 1), receivings.quantity)";
+        $sort = TableSort::fromRequest($request, [
+            'quantity' => 'receivings.quantity',
+            'remaining' => fn ($query, $direction) => $query->orderByRaw($remaining.' '.$direction),
+            'unit_cost' => fn ($query, $direction) => $query->orderByRaw($unitCost.' '.$direction),
+            'amount' => fn ($query, $direction) => $query->orderByRaw("ROUND(receivings.quantity * ({$unitCost}), 2) ".$direction),
+            'date' => 'receivings.date_received',
+            'item' => fn ($query, $direction) => $query->orderBy(Item::withTrashed()->select('name')->whereColumn('items.id', 'receivings.item_id'), $direction),
+            'supplier' => fn ($query, $direction) => $query->orderBy(Supplier::withTrashed()->select('name')->whereColumn('suppliers.id', 'receivings.supplier_id'), $direction),
+        ], 'date', 'desc');
+        $sort->apply($receivingsQuery, 'receivings.id');
+
         $paginated = $receivingsQuery
-            ->latest('date_received')
-            ->latest('id')
-            ->paginate(10)
+            ->paginate(TableSort::pageSize($request, 10))
             ->withQueryString();
 
         $transformed = $paginated->through(function ($receiving) {
@@ -474,6 +502,7 @@ class InventoryController extends Controller
             'filters' => [
                 'search' => $search,
                 'supplier' => $supplierId ? (int) $supplierId : '',
+                ...$sort->filters(),
             ],
         ]);
     }
@@ -686,10 +715,26 @@ class InventoryController extends Controller
             $issuancesQuery->where('recipient', $recipient);
         }
 
+        $sort = TableSort::fromRequest($request, [
+            'ris_number' => 'issuances.ris_number',
+            'recipient' => 'issuances.recipient',
+            'department' => 'issuances.department',
+            'date' => 'issuances.date_issued',
+            'status' => 'issuances.status',
+            'item' => fn ($query, $direction) => $query->orderBy(
+                IssuanceItem::select('items.name')
+                    ->join('items', 'items.id', '=', 'issuance_items.item_id')
+                    ->whereColumn('issuance_items.issuance_id', 'issuances.id')
+                    ->orderBy('items.name')
+                    ->limit(1),
+                $direction
+            ),
+            'quantity' => fn ($query, $direction) => $query->orderByRaw('COALESCE((SELECT SUM(quantity) FROM issuance_items WHERE issuance_items.issuance_id = issuances.id), issuances.quantity, 0) '.$direction),
+        ], 'date', 'desc');
+        $sort->apply($issuancesQuery, 'issuances.id');
+
         $paginated = $issuancesQuery
-            ->latest('date_issued')
-            ->latest('id')
-            ->paginate(10)
+            ->paginate(TableSort::pageSize($request, 10))
             ->withQueryString();
 
         $signatories = app(SystemSettingsService::class)->getIssuanceSignatories();
@@ -835,6 +880,7 @@ class InventoryController extends Controller
             'filters' => [
                 'search' => $search,
                 'recipient' => $recipient,
+                ...$sort->filters(),
             ],
         ]);
     }

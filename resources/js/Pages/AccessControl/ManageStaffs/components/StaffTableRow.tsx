@@ -1,32 +1,21 @@
+import { rowSelectionProps } from '@/Hooks/useTableSelection';
 import React from 'react';
 import { Shield, ShieldCheck, CheckCircle2, Clock } from 'lucide-react';
-import useAuthorization from '@/Hooks/useAuthorization';
 import { Staff } from '../types';
 
 interface StaffTableRowProps {
     staff: Staff;
     currentUserId?: number;
-    canEdit: boolean;
-    canToggleStatus: boolean;
-    canResendInvite: boolean;
-    isResending: boolean;
-    onEdit: (staff: Staff) => void;
-    onToggleStatus: (staff: Staff) => void;
-    onResendInvitation: (staff: Staff) => void;
+    selected: boolean;
+    onSelect: (staff: Staff) => void;
 }
 
 export default function StaffTableRow({
     staff,
     currentUserId,
-    canEdit,
-    canToggleStatus,
-    canResendInvite,
-    isResending,
-    onEdit,
-    onToggleStatus,
-    onResendInvitation,
+    selected,
+    onSelect,
 }: StaffTableRowProps) {
-    const { isSystemAdmin: currentUserIsAdmin } = useAuthorization();
     const isActive = staff.status === 'Active';
     const isSelf = staff.id === currentUserId;
     const targetIsSystemAdmin = Boolean(
@@ -36,13 +25,6 @@ export default function StaffTableRow({
     );
     const isAuditor = staff.role.toLowerCase().includes('auditor');
 
-    // Target-level capability enforcement: Non-admins cannot mutate System Admin accounts
-    const canEditTarget = canEdit && (currentUserIsAdmin || !targetIsSystemAdmin);
-    const canToggleTarget = canToggleStatus && !isSelf && (currentUserIsAdmin || !targetIsSystemAdmin);
-    const canResendInviteTarget = canResendInvite && (currentUserIsAdmin || !targetIsSystemAdmin);
-
-    const hasAnyAction = canEditTarget || canToggleTarget || ((!isActive || !staff.email_verified) && canResendInviteTarget);
-
     // Deterministic avatar styling by role
     const avatarColor = targetIsSystemAdmin
         ? 'bg-red-50 dark:bg-red-950/50 text-red-950 dark:text-red-300 border-red-200/80 dark:border-red-900/40'
@@ -51,7 +33,7 @@ export default function StaffTableRow({
         : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700';
 
     return (
-        <tr className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800 last:border-0 group">
+        <tr   {...rowSelectionProps(selected, () => onSelect(staff))}  className={`cursor-pointer transition-colors border-b border-gray-100 dark:border-slate-800 last:border-0 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-800 ${selected ? 'bg-red-50 shadow-[inset_3px_0_0_#7f1d1d] dark:bg-red-950/30' : 'hover:bg-red-50/30 dark:hover:bg-red-950/20'}`}>
             {/* Staff Member */}
             <td className="px-6 py-3.5">
                 <div className="flex items-center gap-3">
@@ -134,52 +116,6 @@ export default function StaffTableRow({
                 )}
             </td>
 
-            {/* Actions: Matching standard institutional styling */}
-            <td className="px-6 py-3.5 whitespace-nowrap text-right">
-                <div className="inline-flex items-center justify-end gap-2.5">
-                    {/* Resend Invite (for disabled/unverified accounts) */}
-                    {(!isActive || !staff.email_verified) && canResendInviteTarget && (
-                        <button
-                            type="button"
-                            onClick={() => onResendInvitation(staff)}
-                            disabled={isResending}
-                            className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-white font-semibold text-sm transition-colors cursor-pointer py-1 px-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
-                            title="Resend registration invitation email"
-                        >
-                            {isResending ? 'Sending...' : 'Resend Invite'}
-                        </button>
-                    )}
-
-                    {/* Edit Staff */}
-                    {canEditTarget && (
-                        <button
-                            type="button"
-                            onClick={() => onEdit(staff)}
-                            className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-white font-semibold text-sm transition-colors cursor-pointer py-1 px-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700"
-                            title="Edit staff details and role"
-                        >
-                            Edit
-                        </button>
-                    )}
-
-                    {/* Toggle Status (Enable / Disable) */}
-                    {canToggleTarget && (
-                        <button
-                            type="button"
-                            onClick={() => onToggleStatus(staff)}
-                            title={isActive ? 'Disable staff account' : 'Enable staff account'}
-                            className="border font-semibold text-sm px-2.5 py-1 rounded transition-colors shadow-2xs border-red-900/30 dark:border-red-800/50 text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-700 cursor-pointer"
-                        >
-                            {isActive ? 'Disable' : 'Enable'}
-                        </button>
-                    )}
-
-                    {/* Minimal placeholder when no actions permitted for this account */}
-                    {!hasAnyAction && (
-                        <span className="text-sm text-gray-400 dark:text-slate-600 select-none px-2">—</span>
-                    )}
-                </div>
-            </td>
         </tr>
     );
 }

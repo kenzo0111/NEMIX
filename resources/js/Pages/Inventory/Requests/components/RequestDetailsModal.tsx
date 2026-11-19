@@ -1,10 +1,13 @@
 import SupportingDocumentPanel from './SupportingDocumentPanel';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ClipboardList, X, FileText } from 'lucide-react';
 import Modal from '@/Components/Modal';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { getFundClusterDisplay } from '../../Issuance/constants';
-import { SupplyRequest } from '../types';
+import { SupplyRequest, RequestLine } from '../types';
+import useAuthorization from '@/Hooks/useAuthorization';
+import { useSortableData } from '@/Hooks/useSortableData';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
 import { RequestStatusBadge, ItemQuantityDisplay } from './RequestStatusBadge';
 
 export function RequestDetailsModal({
@@ -14,6 +17,10 @@ export function RequestDetailsModal({
     onOpenRis,
     defaultIssuedBy,
     defaultIssuedByDesignation,
+    onEdit,
+    onCancel,
+    busy = false,
+    readOnly = false,
 }: {
     show: boolean;
     request: SupplyRequest | null;
@@ -21,7 +28,17 @@ export function RequestDetailsModal({
     onOpenRis?: (request: SupplyRequest) => void;
     defaultIssuedBy?: string;
     defaultIssuedByDesignation?: string;
+    onEdit?: (request: SupplyRequest) => void;
+    onCancel?: (request: SupplyRequest) => void;
+    busy?: boolean;
+    readOnly?: boolean;
 }) {
+    const { can } = useAuthorization();
+    const accessors = useMemo(() => ({
+        item: (line: RequestLine) => line.item?.name, sku: (line: RequestLine) => line.item?.sku,
+        requested: (line: RequestLine) => line.quantity, approved: (line: RequestLine) => line.approved_quantity,
+    }), []);
+    const { sortedRows, sort, requestSort } = useSortableData(request?.items || [], accessors, { key: 'item', direction: 'asc' });
     if (!request) return null;
 
     const totalRequested = request.items.reduce((sum, line) => sum + line.quantity, 0);
@@ -146,14 +163,14 @@ export function RequestDetailsModal({
                             <table className="w-full text-left text-sm">
                                 <thead className="bg-gray-50 dark:bg-slate-950 text-gray-600 dark:text-slate-400 normal-case tabular-nums">
                                     <tr>
-                                        <th className="px-3 py-3">Item Description</th>
-                                        <th className="px-3 py-3">SKU</th>
-                                        <th className="px-3 py-3 text-right">Requested Qty</th>
-                                        <th className="px-3 py-3 text-right">Approved / Final Qty</th>
+                                        <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3 py-3">Item Description</SortableTableHeader>
+                                        <SortableTableHeader column="sku" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3 py-3">SKU</SortableTableHeader>
+                                        <SortableTableHeader column="requested" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3 py-3">Requested Qty</SortableTableHeader>
+                                        <SortableTableHeader column="approved" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3 py-3">Approved / Final Qty</SortableTableHeader>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
-                                    {request.items.map((line) => (
+                                    {sortedRows.map((line) => (
                                         <tr key={line.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/40">
                                             <td className="px-3 py-3 font-medium text-gray-900 dark:text-slate-100">
                                                 {line.item?.name || 'Unavailable item'}
@@ -243,8 +260,10 @@ export function RequestDetailsModal({
                     )}
                 </div>
 
-                <div className="px-6 py-3.5 bg-gray-50 dark:bg-slate-900/80 border-t border-gray-200 dark:border-slate-800 flex items-center justify-between">
-                    <div>
+                <div className="table-toolbar px-6 py-3.5 bg-gray-50 dark:bg-slate-900/80 border-t border-gray-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex flex-wrap gap-2">
+                        {!readOnly && onEdit && can('inventory.requests.update') && ['Pending', 'Pending Verification', 'For Correction'].includes(request.status) && <button type="button" onClick={() => onEdit(request)} className="rounded-lg bg-red-950 px-4 text-sm font-semibold text-white hover:bg-red-900">Edit request</button>}
+                        {!readOnly && onCancel && can('inventory.requests.cancel') && ['Pending', 'Approved', 'Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup'].includes(request.status) && <button type="button" disabled={busy} onClick={() => onCancel(request)} className="rounded-lg border border-red-300 px-4 text-sm font-semibold text-red-900 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:text-red-300">{busy ? 'Cancelling…' : 'Cancel request'}</button>}
                         {isApprovedOrIssued && onOpenRis && (
                             <button
                                 type="button"

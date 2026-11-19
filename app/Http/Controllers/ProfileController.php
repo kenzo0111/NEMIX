@@ -59,6 +59,7 @@ class ProfileController extends Controller
                             'user_agent' => $trail->user_agent ?? 'Browser session',
                             'time_ago' => $trail->created_at ? $trail->created_at->diffForHumans() : 'Recently',
                             'timestamp' => $trail->created_at ? $trail->created_at->format('M d, Y h:i A') : '',
+                            'created_at' => $trail->created_at?->toIso8601String(),
                         ];
                     })
                     ->values()

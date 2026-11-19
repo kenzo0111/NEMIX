@@ -1,5 +1,5 @@
 import DashboardContent from '@/Layouts/DashboardContent';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
 import DashboardLayout from '@/Layouts/DashboardLayout';
@@ -10,12 +10,14 @@ import {
     SupplierFormData,
     StatusOption,
     SupplierStatus,
+    SupplierSortKey,
 } from './types';
 import { DEFAULT_CATEGORY } from './constants';
 import { SupplierToolbar } from './Components/SupplierToolbar';
 import { SupplierTable } from './Components/SupplierTable';
 import { SupplierDetailsModal } from './Components/SupplierDetailsModal';
 import { SupplierFormModal } from './Components/SupplierFormModal';
+import { useSortableData } from '@/Hooks/useSortableData';
 
 export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierPageProps) {
     const user = auth.user;
@@ -77,10 +79,22 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
         return true;
     });
 
+    const supplierSortAccessors = useMemo(() => ({
+        name: (supplier: Supplier) => supplier.name,
+        registration: (supplier: Supplier) => supplier.tin || supplier.reg_number || '',
+        classification: (supplier: Supplier) => supplier.classification || supplier.category || DEFAULT_CATEGORY,
+        status: (supplier: Supplier) => supplier.status,
+    }), []);
+    const { sortedRows: sortedSuppliers, sort, requestSort } = useSortableData<Supplier, SupplierSortKey>(
+        filteredSuppliers,
+        supplierSortAccessors,
+        { key: 'name', direction: 'asc' }
+    );
+
     // Pagination calculations
     const totalCount = filteredSuppliers.length;
     const totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
-    const paginatedSuppliers = filteredSuppliers.slice(
+    const paginatedSuppliers = sortedSuppliers.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
@@ -211,7 +225,9 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
                                 totalPages={totalPages}
                                 onPageChange={setCurrentPage}
                                 onViewSupplier={openViewModal}
-                                onEditSupplier={openEditModal}
+                                sortKey={sort.key}
+                                sortDirection={sort.direction}
+                                onSort={requestSort}
                             />
                         </div>
                     </DashboardContent>

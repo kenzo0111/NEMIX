@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { SupplierTableProps } from '../types';
 import { SupplierRow } from './SupplierRow';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
+import TableSelectionAction from '@/Components/ui/table-selection-action';
 
 export const SupplierTable: React.FC<SupplierTableProps> = ({
     suppliers,
@@ -9,33 +11,44 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
     totalPages,
     onPageChange,
     onViewSupplier,
-    onEditSupplier,
+    sortKey,
+    sortDirection,
+    onSort,
 }) => {
+    const [selectedId, setSelectedId] = useState<number | null>(null);
+    const selectedSupplier = suppliers.find((supplier) => supplier.id === selectedId) || null;
+
+    useEffect(() => {
+        if (selectedId !== null && !suppliers.some((supplier) => supplier.id === selectedId)) {
+            setSelectedId(null);
+        }
+    }, [selectedId, suppliers]);
     const startIndex = totalCount === 0 ? 0 : (currentPage - 1) * 10 + 1;
     const endIndex = Math.min(currentPage * 10, totalCount);
 
     return (
         <div>
+            <TableSelectionAction
+                selectedLabel={selectedSupplier?.name}
+                onAction={() => selectedSupplier && onViewSupplier(selectedSupplier)}
+            />
             {/* Table */}
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[750px]">
                     <thead className="bg-gray-50/75 dark:bg-slate-900/75 border-b border-gray-200 dark:border-slate-800">
                         <tr>
-                            <th scope="col" className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
+                            <SortableTableHeader column="name" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
                                 Supplier
-                            </th>
-                            <th scope="col" className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="registration" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
                                 Registration
-                            </th>
-                            <th scope="col" className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="classification" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
                                 Classification
-                            </th>
-                            <th scope="col" className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
                                 Status
-                            </th>
-                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
-                                Actions
-                            </th>
+                            </SortableTableHeader>
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
@@ -43,14 +56,14 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
                             <SupplierRow
                                 key={supplier.id}
                                 supplier={supplier}
-                                onView={onViewSupplier}
-                                onEdit={onEditSupplier}
+                                selected={supplier.id === selectedId}
+                                onSelect={(row) => setSelectedId(row.id)}
                             />
                         ))}
 
                         {suppliers.length === 0 && (
                             <tr>
-                                <td colSpan={5} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-slate-400 font-medium">
+                                <td colSpan={4} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-slate-400 font-medium">
                                     No consumable office supplies suppliers found matching your criteria.
                                 </td>
                             </tr>

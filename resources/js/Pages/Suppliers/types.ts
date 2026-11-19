@@ -72,14 +72,18 @@ export interface SupplierTableProps {
     totalPages: number;
     onPageChange: (page: number) => void;
     onViewSupplier: (supplier: Supplier) => void;
-    onEditSupplier: (supplier: Supplier) => void;
+    sortKey: SupplierSortKey;
+    sortDirection: import('@/Hooks/useSortableData').SortDirection;
+    onSort: (key: SupplierSortKey) => void;
 }
 
 export interface SupplierRowProps {
     supplier: Supplier;
-    onView: (supplier: Supplier) => void;
-    onEdit: (supplier: Supplier) => void;
+    selected: boolean;
+    onSelect: (supplier: Supplier) => void;
 }
+
+export type SupplierSortKey = 'name' | 'registration' | 'classification' | 'status';
 
 export interface SupplierDetailsModalProps {
     show: boolean;

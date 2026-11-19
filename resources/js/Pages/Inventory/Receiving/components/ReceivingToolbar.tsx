@@ -32,7 +32,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
         supplierOptions.find((o) => o.value === Number(supplierFilter)) || null;
 
     return (
-        <div className="p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-50/50 dark:bg-slate-900/50">
+        <div className="table-toolbar p-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-gray-50/50 dark:bg-slate-900/50">
             <div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
                     Receiving records
@@ -66,7 +66,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search item or SKU..."
                         aria-label="Search receiving records by item or SKU"
-                        className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-xs placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
+                        className="table-control w-full pl-9 pr-3 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-xs placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
                     />
                 </div>
 
@@ -88,7 +88,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
                 {can('inventory.receiving.store') && <button
                     type="button"
                     onClick={onScanRfid}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3.5 py-2 border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 rounded-md font-semibold text-sm transition-colors shadow-2xs cursor-pointer whitespace-nowrap min-h-[38px]"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3.5 py-2 border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 rounded-md font-semibold text-sm transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
                 >
                     <svg className="w-4 h-4 text-red-950 dark:text-red-400" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -105,7 +105,7 @@ export const ReceivingToolbar: React.FC<ReceivingToolbarProps> = ({
                 {can('inventory.receiving.store') && <button
                     type="button"
                     onClick={onRecordReceiving}
-                    className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-sm flex items-center justify-center gap-2 whitespace-nowrap normal-case tabular-nums tracking-normal cursor-pointer min-h-[38px]"
+                    className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-sm flex items-center justify-center gap-2 whitespace-nowrap normal-case tabular-nums tracking-normal cursor-pointer"
                 >
                     <svg className="w-4 h-4 text-amber-300" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />

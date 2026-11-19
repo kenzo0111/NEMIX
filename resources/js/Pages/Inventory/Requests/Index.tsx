@@ -1,3 +1,4 @@
+import { rowSelectionProps } from '@/Hooks/useTableSelection';
 import DashboardContent from '@/Layouts/DashboardContent';
 import { notify } from '@/utils/notifications';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -19,6 +20,10 @@ import { Plus, Search, FileText } from 'lucide-react';
 import useAuthorization from '@/Hooks/useAuthorization';
 import useStockRefresh from '@/Hooks/useStockRefresh';
 import CoordinatorRequestsWorkspace from './components/CoordinatorRequestsWorkspace';
+import type { RequestSortKey } from './components/CoordinatorRequestsWorkspace';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
+import TableSelectionAction from '@/Components/ui/table-selection-action';
+import { compareSortValues } from '@/Hooks/useSortableData';
 
 const PAGE_SIZE = 10;
 type RequestPage = {
@@ -61,7 +66,7 @@ export default function MyRequests({
     divisions?: DivisionGroup[];
     initialItemId?: number | null;
     requestSummary?: Record<string, number>;
-    requestFilters?: { search?: string; status?: string };
+    requestFilters?: { search?: string; status?: string; sort?: RequestSortKey; direction?: 'asc' | 'desc' };
     focusedRequest?: SupplyRequest | null;
     defaultApprovedBy?: string;
     defaultApprovedByDesignation?: string;
@@ -131,14 +136,21 @@ export default function MyRequests({
     const [preview, setPreview] = useState<IssuanceRecord | null>(null);
     const [previewRequestId, setPreviewRequestId] = useState<number | null>(null);
     const [busy, setBusy] = useState<number | null>(null);
+    const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+    const [requestSort, setRequestSort] = useState<RequestSortKey>(() => requestFilters.sort || 'date');
+    const [requestDirection, setRequestDirection] = useState<'asc' | 'desc'>(() => requestFilters.direction || 'desc');
     const initialCoordinatorSearch = useRef(true);
+    const coordinatorSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         if (!isCoordinator) return;
+        if (coordinatorSearchTimer.current) return;
         setSearchTerm(requestFilters.search || '');
         setStatusFilter(requestFilters.status || '');
         setCurrentPage(coordinatorPage?.current_page || 1);
-    }, [isCoordinator, requestFilters.search, requestFilters.status, coordinatorPage?.current_page]);
+        setRequestSort(requestFilters.sort || 'date');
+        setRequestDirection(requestFilters.direction || 'desc');
+    }, [isCoordinator, requestFilters.search, requestFilters.status, requestFilters.sort, requestFilters.direction, coordinatorPage?.current_page]);
 
     useEffect(() => {
         if (focusedRequest) setDetailsRequest(focusedRequest);
@@ -149,10 +161,15 @@ export default function MyRequests({
         setDetailsRequest(current => current ? requestList.find(record => record.id === current.id) || current : null);
     }, [requests]);
 
-    const visitCoordinatorRequests = (next: { search?: string; status?: string; page?: number }) => {
+    const visitCoordinatorRequests = (next: { search?: string; status?: string; sort?: RequestSortKey; direction?: 'asc' | 'desc'; page?: number }) => {
+        if (coordinatorSearchTimer.current) clearTimeout(coordinatorSearchTimer.current);
+        coordinatorSearchTimer.current = null;
         router.get(route('inventory.requests.index'), {
+            per_page: coordinatorPage?.per_page,
             ...(next.search?.trim() ? { search: next.search.trim() } : {}),
             ...(next.status ? { status: next.status } : {}),
+            ...(next.sort ? { sort: next.sort } : {}),
+            ...(next.direction ? { direction: next.direction } : {}),
             ...(next.page && next.page > 1 ? { page: next.page } : {}),
         }, {
             preserveState: true,
@@ -169,9 +186,21 @@ export default function MyRequests({
             return;
         }
         if (searchTerm === (requestFilters.search || '')) return;
-        const timeout = window.setTimeout(() => visitCoordinatorRequests({ search: searchTerm, status: statusFilter }), 350);
-        return () => window.clearTimeout(timeout);
+        const timeout = window.setTimeout(() => visitCoordinatorRequests({ search: searchTerm, status: statusFilter, sort: requestSort, direction: requestDirection }), 350);
+        coordinatorSearchTimer.current = timeout;
+        return () => {
+            window.clearTimeout(timeout);
+            if (coordinatorSearchTimer.current === timeout) coordinatorSearchTimer.current = null;
+        };
     }, [isCoordinator, searchTerm]);
+    useEffect(() => {
+        const cancelPending = () => {
+            if (coordinatorSearchTimer.current) clearTimeout(coordinatorSearchTimer.current);
+            coordinatorSearchTimer.current = null;
+        };
+        window.addEventListener('popstate', cancelPending);
+        return () => { cancelPending(); window.removeEventListener('popstate', cancelPending); };
+    }, []);
 
     // Summary counts
     const counts = useMemo(() => {
@@ -217,11 +246,41 @@ export default function MyRequests({
         });
     }, [isCoordinator, requestList, searchTerm, statusFilter]);
 
-    const lastPage = isCoordinator ? Math.max(1, coordinatorPage?.last_page || 1) : Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const sortedFiltered = useMemo(() => {
+        if (isCoordinator) return filtered;
+        const accessors: Record<RequestSortKey, (request: SupplyRequest) => import('@/Hooks/useSortableData').SortValue> = {
+            reference: request => request.ris_number || request.id,
+            purpose: request => request.purpose,
+            recipient: request => request.recipient || request.requester?.name || '',
+            status: request => request.status,
+            date: request => new Date(request.date_requested || request.created_at),
+            items: request => request.items.length,
+        };
+        return filtered.map((request, index) => ({ request, index })).sort((left, right) => {
+            const comparison = compareSortValues(accessors[requestSort](left.request), accessors[requestSort](right.request), requestDirection);
+            if (comparison === 0) return left.index - right.index;
+            return comparison;
+        }).map(({ request }) => request);
+    }, [filtered, isCoordinator, requestDirection, requestSort]);
+
+    const lastPage = isCoordinator ? Math.max(1, coordinatorPage?.last_page || 1) : Math.max(1, Math.ceil(sortedFiltered.length / PAGE_SIZE));
     const safePage = isCoordinator ? coordinatorPage?.current_page || 1 : Math.min(currentPage, lastPage);
-    const visible = isCoordinator ? requestList : filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+    const visible = isCoordinator ? requestList : sortedFiltered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
     const from = isCoordinator ? coordinatorPage?.from || 0 : filtered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1;
-    const to = isCoordinator ? coordinatorPage?.to || 0 : Math.min(safePage * PAGE_SIZE, filtered.length);
+    const to = isCoordinator ? coordinatorPage?.to || 0 : Math.min(safePage * PAGE_SIZE, sortedFiltered.length);
+    const selectedRequest = visible.find(request => request.id === selectedRequestId) || null;
+
+    useEffect(() => {
+        if (selectedRequestId !== null && !visible.some(request => request.id === selectedRequestId)) setSelectedRequestId(null);
+    }, [selectedRequestId, visible]);
+
+    const changeRequestSort = (sort: RequestSortKey) => {
+        const direction = requestSort === sort && requestDirection === 'asc' ? 'desc' : 'asc';
+        setRequestSort(sort);
+        setRequestDirection(direction);
+        setCurrentPage(1);
+        if (isCoordinator) visitCoordinatorRequests({ search: searchTerm, status: statusFilter, sort, direction });
+    };
 
     const openCreate = () => {
         if (!canCreateRequest) return;
@@ -329,15 +388,18 @@ export default function MyRequests({
                     from={from}
                     to={to}
                     busy={busy}
+                    sort={requestSort}
+                    direction={requestDirection}
                     onSearch={value => { setSearchTerm(value); setCurrentPage(1); }}
                     onStatus={value => {
                         setStatusFilter(value);
                         setCurrentPage(1);
-                        visitCoordinatorRequests({ search: searchTerm, status: value });
+                        visitCoordinatorRequests({ search: searchTerm, status: value, sort: requestSort, direction: requestDirection });
                     }}
+                    onSort={changeRequestSort}
                     onPage={page => {
                         setCurrentPage(page);
-                        visitCoordinatorRequests({ search: searchTerm, status: statusFilter, page });
+                        visitCoordinatorRequests({ search: searchTerm, status: statusFilter, sort: requestSort, direction: requestDirection, page });
                     }}
                     onCreate={openCreate}
                     onDetails={setDetailsRequest}
@@ -415,7 +477,7 @@ export default function MyRequests({
                     {/* Main Requisitions Table Card */}
                     <div data-tour="system-admin-requests-workspace" className="bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-slate-200/90 dark:border-slate-800 overflow-hidden">
                         {/* Toolbar */}
-                        <div className="p-4 sm:px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
+                        <div className="table-toolbar p-4 sm:px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
                             <div>
                                 <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                                     My Supply Requests
@@ -472,35 +534,25 @@ export default function MyRequests({
                             </div>
                         </div>
 
+                        <TableSelectionAction selectedLabel={selectedRequest ? (selectedRequest.ris_number || `Request #${selectedRequest.id}`) : null} actionLabel={readOnly ? 'View selected' : 'Manage selected'} onAction={() => selectedRequest && setDetailsRequest(selectedRequest)} />
+
                         {/* Table */}
                         <div className="overflow-x-auto min-w-0">
                             <table className="w-full text-left border-collapse min-w-[900px]">
                                 <thead className="bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
                                     <tr>
-                                        {[
-                                            'RIS No.',
-                                            'Recipient & Department',
-                                            'Fund Cluster / Purpose',
-                                            'Items',
-                                            'Date Requested',
-                                            'Approval Status',
-                                            'Actions',
-                                        ].map((label) => (
-                                            <th
-                                                key={label}
-                                                className={`px-4 lg:px-5 py-3 text-sm font-bold tracking-normal text-slate-600 dark:text-slate-400 normal-case tabular-nums ${
-                                                    label === 'Actions' ? 'text-right' : ''
-                                                }`}
-                                            >
-                                                {label}
-                                            </th>
-                                        ))}
+                                        <SortableTableHeader column="reference" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">RIS No.</SortableTableHeader>
+                                        <SortableTableHeader column="recipient" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Recipient &amp; Department</SortableTableHeader>
+                                        <SortableTableHeader column="purpose" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Fund Cluster / Purpose</SortableTableHeader>
+                                        <SortableTableHeader column="items" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Items</SortableTableHeader>
+                                        <SortableTableHeader column="date" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Date Requested</SortableTableHeader>
+                                        <SortableTableHeader column="status" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Approval Status</SortableTableHeader>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
                                     {visible.length === 0 ? (
                                         <tr>
-                                            <td colSpan={7} className="px-6 py-12 text-center">
+                                            <td colSpan={6} className="px-6 py-12 text-center">
                                                 <div className="flex flex-col items-center">
                                                     <FileText className="w-9 h-9 text-slate-300 dark:text-slate-600 mb-2" />
                                                     <p className="leading-relaxed font-semibold text-sm text-slate-800 dark:text-slate-200">
@@ -531,7 +583,11 @@ export default function MyRequests({
                                             return (
                                                 <tr
                                                     key={request.id}
-                                                    className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-100 dark:border-slate-800/80 last:border-0"
+                                                    
+                                                    
+                                                    {...rowSelectionProps(selectedRequestId === request.id, () => setSelectedRequestId(request.id))}
+                                                    
+                                                    className={`cursor-pointer transition-colors border-b border-slate-100 dark:border-slate-800/80 last:border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-800 ${selectedRequestId === request.id ? 'bg-red-50 shadow-[inset_3px_0_0_#7f1d1d] dark:bg-red-950/30' : 'hover:bg-red-50/30 dark:hover:bg-red-950/20'}`}
                                                 >
                                                     {/* RIS No. */}
                                                     <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap">
@@ -635,50 +691,6 @@ export default function MyRequests({
                                                         <RequestStatusBadge status={request.status} />
                                                     </td>
 
-                                                    {/* Actions */}
-                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap text-right">
-                                                        <div className="inline-flex items-center gap-2.5">
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => setDetailsRequest(request)}
-                                                                className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
-                                                            >
-                                                                View
-                                                            </button>
-
-                                                            {!readOnly && ['Pending', 'Pending Verification', 'For Correction'].includes(request.status) && can('inventory.requests.update') && (
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => openEdit(request)}
-                                                                    className="text-red-950 dark:text-red-400 font-semibold text-sm py-1 px-1.5 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
-                                                                >
-                                                                    Edit
-                                                                </button>
-                                                            )}
-
-                                                            {isReviewed && (
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => openRis(request)}
-                                                                    className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 font-semibold text-sm px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
-                                                                >
-                                                                    View RIS
-                                                                </button>
-                                                            )}
-
-                                                            {!readOnly && ['Pending', 'Approved', 'Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup'].includes(request.status) && can('inventory.requests.cancel') && (
-                                                                <button
-                                                                    type="button"
-                                                                    disabled={busy === request.id}
-                                                                    onClick={() => cancel(request)}
-                                                                    className="text-gray-400 hover:text-rose-700 dark:hover:text-rose-400 font-semibold text-sm py-1 px-1.5 rounded hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer disabled:opacity-50"
-                                                                    title="Cancel Request"
-                                                                >
-                                                                    Cancel
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    </td>
                                                 </tr>
                                             );
                                         })
@@ -746,6 +758,10 @@ export default function MyRequests({
                 defaultIssuedBy={defaultIssuedBy}
                 defaultIssuedByDesignation={defaultIssuedByDesignation}
                 onClose={() => setDetailsRequest(null)}
+                readOnly={readOnly}
+                busy={busy === detailsRequest?.id}
+                onEdit={(request) => { setDetailsRequest(null); openEdit(request); }}
+                onCancel={cancel}
                 onOpenRis={(req) => {
                     setDetailsRequest(null);
                     openRis(req);

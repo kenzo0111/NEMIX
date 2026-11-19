@@ -107,9 +107,13 @@ export interface IssuancePageProps {
     filters?: {
         search?: string;
         recipient?: string;
+        sort?: IssuanceSortKey;
+        direction?: import('@/Hooks/useSortableData').SortDirection;
     };
     systemSettings?: import('@/types').SystemSettings;
     system?: {
         settings?: Record<string, any>;
     };
 }
+
+export type IssuanceSortKey = 'ris_number' | 'recipient' | 'department' | 'item' | 'quantity' | 'date' | 'status';

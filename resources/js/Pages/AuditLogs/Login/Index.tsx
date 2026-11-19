@@ -93,13 +93,19 @@ export default function LoginAuditIndex({
     );
 
     const handleFilterChange = (newFilters: LoginAuditFilters) => {
-        const queryParams: Record<string, string | number> = {};
+        const queryParams: Record<string, string | number> = {
+            sort: newFilters.sort || filters.sort || 'date',
+            direction: newFilters.direction || filters.direction || 'desc',
+            per_page: paginationData.per_page,
+        };
 
         if (newFilters.search) queryParams.search = newFilters.search;
         if (newFilters.role) queryParams.role = newFilters.role;
         if (newFilters.status) queryParams.status = newFilters.status;
         if (newFilters.date_from) queryParams.date_from = newFilters.date_from;
         if (newFilters.date_to) queryParams.date_to = newFilters.date_to;
+        if (newFilters.sort) queryParams.sort = newFilters.sort;
+        if (newFilters.direction) queryParams.direction = newFilters.direction;
         if (newFilters.page && newFilters.page > 1) queryParams.page = newFilters.page;
 
         router.get(route('audit-logs.login-trails'), queryParams, {
@@ -111,7 +117,7 @@ export default function LoginAuditIndex({
     };
 
     const handleReset = () => {
-        router.get(route('audit-logs.login-trails'), {}, {
+        router.get(route('audit-logs.login-trails'), { sort: filters.sort || 'date', direction: filters.direction || 'desc', per_page: paginationData.per_page }, {
             preserveState: true,
             preserveScroll: true,
             replace: true,
@@ -211,6 +217,14 @@ export default function LoginAuditIndex({
                             records={records}
                             hasActiveFilters={hasActiveFilters}
                             onResetFilters={handleReset}
+                            sort={filters.sort || 'date'}
+                            direction={filters.direction || 'desc'}
+                            onSort={(sort) => handleFilterChange({
+                                ...filters,
+                                sort,
+                                direction: filters.sort === sort && filters.direction === 'asc' ? 'desc' : 'asc',
+                                page: 1,
+                            })}
                         />
 
                         {/* Server-side Pagination Footer */}

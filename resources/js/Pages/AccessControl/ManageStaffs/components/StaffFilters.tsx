@@ -1,7 +1,8 @@
 import React from 'react';
-import Select, { StylesConfig } from 'react-select';
+import Select from 'react-select';
 import { Search, UserPlus, Shield } from 'lucide-react';
 import { SelectOption } from '../types';
+import { institutionalSelectStyles } from '@/styles/selectStyles';
 
 interface StaffFiltersProps {
     searchQuery: string;
@@ -18,49 +19,6 @@ const statusOptions: SelectOption[] = [
     { value: 'Disabled', label: 'Disabled Status' },
 ];
 
-const filterSelectStyles: StylesConfig<SelectOption, false> = {
-    control: (provided, state) => ({
-        ...provided,
-        borderRadius: '0.5rem',
-        borderColor: state.isFocused ? '#7f1d1d' : 'var(--border-color, #e5e7eb)',
-        borderWidth: '1px',
-        padding: '0 2px',
-        minWidth: '170px',
-        boxShadow: state.isFocused ? '0 0 0 1px #7f1d1d' : 'none',
-        fontSize: '0.875rem',
-        fontWeight: '500',
-        backgroundColor: 'var(--surface-card, #f9fafb)',
-        color: 'var(--text-primary, #111827)',
-        transition: 'all 0.15s ease',
-        '&:hover': {
-            borderColor: '#7f1d1d',
-        },
-    }),
-    singleValue: (provided) => ({
-        ...provided,
-        color: 'var(--text-primary, #111827)',
-    }),
-    option: (provided, state) => ({
-        ...provided,
-        backgroundColor: state.isSelected ? '#7f1d1d' : state.isFocused ? 'rgba(127, 29, 29, 0.15)' : 'var(--surface-card, #ffffff)',
-        color: state.isSelected ? '#ffffff' : 'var(--text-primary, #111827)',
-        padding: '8px 12px',
-        fontSize: '0.875rem',
-        fontWeight: state.isSelected ? '600' : '500',
-        cursor: 'pointer',
-    }),
-    menu: (provided) => ({
-        ...provided,
-        borderRadius: '0.5rem',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        border: '1px solid var(--border-color, #e5e7eb)',
-        backgroundColor: 'var(--surface-card, #ffffff)',
-        overflow: 'hidden',
-        zIndex: 50,
-    }),
-    indicatorSeparator: () => ({ display: 'none' }),
-};
-
 export default function StaffFilters({
     searchQuery,
     onSearchChange,
@@ -73,7 +31,7 @@ export default function StaffFilters({
     const isFiltered = Boolean(searchQuery || statusFilter);
 
     return (
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl p-3.5 sm:p-4 shadow-2xs">
+        <div className="table-toolbar flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl p-3.5 sm:p-4 shadow-2xs">
             {/* Search and Status Dropdown */}
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 flex-1">
                 {/* Search Input */}
@@ -104,7 +62,7 @@ export default function StaffFilters({
                         options={statusOptions}
                         value={statusFilter}
                         onChange={onStatusFilterChange}
-                        styles={filterSelectStyles}
+                        styles={institutionalSelectStyles}
                         placeholder="Filter by status"
                         isClearable
                     />

@@ -68,7 +68,11 @@ export interface FilterState {
     search: string;
     supplier: string | number | null;
     status: InventoryStatus | '' | null;
+    sort?: InventorySortKey;
+    direction?: import('@/Hooks/useSortableData').SortDirection;
 }
+
+export type InventorySortKey = 'id' | 'sku' | 'name' | 'description' | 'unit' | 'stock' | 'value' | 'status';
 
 export interface SelectOption<T = string | number> {
     value: T;

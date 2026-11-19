@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { formatRisNumber } from '@/utils/risFormatter';
 import Modal from '@/Components/Modal';
-import { IssuanceRecord } from '../types';
+import { IssuanceRecord, IssuanceItemDetail } from '../types';
+import { useSortableData } from '@/Hooks/useSortableData';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
 import { IssuanceStatus } from './IssuanceStatus';
 import { getFundClusterDisplay } from '../constants';
 import { formatDisplayDate } from '@/utils/dateUtils';
@@ -11,16 +13,24 @@ interface IssuanceDetailsModalProps {
     show: boolean;
     issuance: IssuanceRecord | null;
     onClose: () => void;
+    onViewRis?: (issuance: IssuanceRecord) => void;
 }
 
 export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
     show,
     issuance,
     onClose,
+    onViewRis,
 }) => {
+    const accessors = useMemo(() => ({
+        item: (line: IssuanceItemDetail) => line.item || line.item_name,
+        stock_no: (line: IssuanceItemDetail) => line.stock_no,
+        quantity: (line: IssuanceItemDetail) => line.quantity,
+        cost: (line: IssuanceItemDetail) => line.unit_cost,
+        amount: (line: IssuanceItemDetail) => line.amount,
+    }), []);
+    const { sortedRows: items, sort, requestSort } = useSortableData(issuance?.items?.length ? issuance.items : issuance?.items_list || [], accessors, { key: 'item', direction: 'asc' });
     if (!issuance) return null;
-
-    const items = issuance.items && issuance.items.length > 0 ? issuance.items : issuance.items_list || [];
     const displayDate = formatDisplayDate(issuance.date_issued || issuance.date, 'MM/DD/YYYY') || issuance.date_issued || issuance.date;
     const totalQty = issuance.total_quantity ?? issuance.quantity ?? 0;
     const totalAmt = issuance.total_amount ?? issuance.amount ?? 0;
@@ -125,20 +135,20 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                             </span>
                         </div>
 
-                        <div className="border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden">
-                            <table className="w-full text-left border-collapse">
+                        <div className="border border-gray-200 dark:border-slate-800 rounded-lg overflow-x-auto">
+                            <table className="w-full min-w-[600px] text-left border-collapse">
                                 <thead className="bg-gray-50 dark:bg-slate-950 border-b border-gray-200 dark:border-slate-800 text-sm text-gray-600 dark:text-slate-400 normal-case tabular-nums">
                                     <tr>
-                                        <th className="px-3 py-3">Item Description</th>
-                                        <th className="px-3 py-3">Stock No.</th>
-                                        <th className="px-3 py-3 text-right">Quantity</th>
-                                        <th className="px-3 py-3 text-right">Unit Cost</th>
-                                        <th className="px-3 py-3 text-right">Total Amount</th>
+                                        <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3 py-3">Item Description</SortableTableHeader>
+                                        <SortableTableHeader column="stock_no" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3 py-3">Stock No.</SortableTableHeader>
+                                        <SortableTableHeader column="quantity" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3 py-3">Quantity</SortableTableHeader>
+                                        <SortableTableHeader column="cost" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3 py-3">Unit Cost</SortableTableHeader>
+                                        <SortableTableHeader column="amount" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3 py-3">Total Amount</SortableTableHeader>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
-                                    {items.map((line, idx) => (
-                                        <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50">
+                                    {items.map((line) => (
+                                        <tr key={line.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50">
                                             <td className="px-3 py-3 font-medium text-gray-900 dark:text-slate-100">
                                                 {line.item || line.item_name}
                                             </td>
@@ -201,7 +211,8 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                 </div>
 
                 {/* Modal Footer */}
-                <div className="px-6 py-3.5 bg-gray-50 dark:bg-slate-900/80 border-t border-gray-200 dark:border-slate-800 flex items-center justify-end flex-shrink-0">
+                <div className="table-toolbar px-6 py-3.5 bg-gray-50 dark:bg-slate-900/80 border-t border-gray-200 dark:border-slate-800 flex items-center justify-between gap-3 flex-shrink-0">
+                    {onViewRis && <button type="button" onClick={() => { onClose(); onViewRis(issuance); }} className="inline-flex h-10 items-center justify-center rounded-md bg-red-950 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-900">View RIS Form</button>}
                     <button
                         type="button"
                         onClick={onClose}

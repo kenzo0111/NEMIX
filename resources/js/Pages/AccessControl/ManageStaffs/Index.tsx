@@ -11,6 +11,7 @@ import {
     SelectOption,
     StaffStats,
     StaffCapabilities,
+    StaffSortKey,
 } from './types';
 import StaffSummary from './components/StaffSummary';
 import StaffFilters from './components/StaffFilters';
@@ -21,6 +22,7 @@ import AccountStatusModal from './components/AccountStatusModal';
 import SecurityNotice from './components/SecurityNotice';
 import ReadOnlyNotice from './components/ReadOnlyNotice';
 import useAuthorization from '@/Hooks/useAuthorization';
+import { useSortableData } from '@/Hooks/useSortableData';
 
 const defaultRoleOptions: SelectOption[] = [
     { value: 'System Admin', label: 'System Admin' },
@@ -101,6 +103,14 @@ export default function StaffManagementIndex({
             return true;
         });
     }, [staffs, searchQuery, selectedStatusFilter]);
+    const staffSortAccessors = useMemo(() => ({
+        name: (staff: Staff) => staff.name,
+        role: (staff: Staff) => staff.role,
+        department: (staff: Staff) => staff.department || staff.office_head?.name || '',
+        verification: (staff: Staff) => Boolean(staff.email_verified),
+        status: (staff: Staff) => staff.status,
+    }), []);
+    const { sortedRows: sortedStaffs, sort, requestSort } = useSortableData<Staff, StaffSortKey>(filteredStaffs, staffSortAccessors, { key: 'name', direction: 'asc' });
 
     // Compute roster statistics
     const stats: StaffStats = useMemo(() => {
@@ -259,7 +269,7 @@ export default function StaffManagementIndex({
 
                     {/* Primary Content: Staff Table */}
                     <StaffTable
-                        staffs={filteredStaffs}
+                        staffs={sortedStaffs}
                         totalStaffCount={staffs.length}
                         currentUserId={user?.id}
                         canEdit={capabilities.canUpdate}
@@ -272,6 +282,9 @@ export default function StaffManagementIndex({
                         onEdit={handleEditClick}
                         onToggleStatus={handleToggleStatusClick}
                         onResendInvitation={handleResendInvitation}
+                        sortKey={sort.key}
+                        sortDirection={sort.direction}
+                        onSort={requestSort}
                     />
 
                     {/* Security Advisory Panel */}

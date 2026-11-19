@@ -91,7 +91,11 @@ export default function TransactionAuditIndex({
     );
 
     const handleFilterChange = (newFilters: TransactionAuditFilters) => {
-        const queryParams: Record<string, string | number> = {};
+        const queryParams: Record<string, string | number> = {
+            sort: newFilters.sort || filters.sort || 'date',
+            direction: newFilters.direction || filters.direction || 'desc',
+            per_page: paginationData.per_page,
+        };
 
         if (newFilters.search) queryParams.search = newFilters.search;
         if (newFilters.module) queryParams.module = newFilters.module;
@@ -99,6 +103,8 @@ export default function TransactionAuditIndex({
         if (newFilters.date_from) queryParams.date_from = newFilters.date_from;
         if (newFilters.date_to) queryParams.date_to = newFilters.date_to;
         if (newFilters.view_mode && newFilters.view_mode !== 'business') queryParams.view_mode = newFilters.view_mode;
+        if (newFilters.sort) queryParams.sort = newFilters.sort;
+        if (newFilters.direction) queryParams.direction = newFilters.direction;
         if (newFilters.page && newFilters.page > 1) queryParams.page = newFilters.page;
 
         router.get(route('audit-logs.transaction-trails'), queryParams, {
@@ -110,7 +116,7 @@ export default function TransactionAuditIndex({
     };
 
     const handleReset = () => {
-        router.get(route('audit-logs.transaction-trails'), {}, {
+        router.get(route('audit-logs.transaction-trails'), { sort: filters.sort || 'date', direction: filters.direction || 'desc', per_page: paginationData.per_page }, {
             preserveState: true,
             preserveScroll: true,
             replace: true,
@@ -200,6 +206,14 @@ export default function TransactionAuditIndex({
                             records={records}
                             hasActiveFilters={hasActiveFilters}
                             onResetFilters={handleReset}
+                            sort={filters.sort || 'date'}
+                            direction={filters.direction || 'desc'}
+                            onSort={(sort) => handleFilterChange({
+                                ...filters,
+                                sort,
+                                direction: filters.sort === sort && filters.direction === 'asc' ? 'desc' : 'asc',
+                                page: 1,
+                            })}
                         />
 
                         {/* Pagination */}

@@ -37,6 +37,8 @@ interface PageProps {
     recordsFilters?: {
         search?: string;
         status?: string;
+        sort?: 'name' | 'sku' | 'rfid' | 'status' | 'supplier' | 'updated';
+        direction?: 'asc' | 'desc';
     };
     selectedItemId?: string | number | null;
     rfidDevices?: { device_uuid: string; device_name: string }[];

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CoordinatorMovement;
 use App\Models\CoordinatorStock;
 use App\Services\CoordinatorInventoryService;
+use App\Support\TableSort;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -26,13 +27,20 @@ class CoordinatorInventoryController extends Controller
         ]);
         $search = trim($filters['search'] ?? '');
         $availability = $filters['availability'] ?? 'all';
+        $sort = TableSort::fromRequest($request, [
+            'name' => 'items.name',
+            'sku' => 'items.sku',
+            'unit' => 'items.unit_of_issue',
+            'on_hand' => 'items.stock',
+            'available' => 'available_quantity',
+        ], 'name');
         $minimumStockThreshold = InventoryPolicy::lowThreshold();
         $usage = WeeklyRequestQuota::usage($request->user()->id);
         $weekEnd = Carbon::parse(WeeklyRequestQuota::week(), config('app.timezone'))->addWeek()->toIso8601String();
         $reservations = SupplyRequestService::reservationQuery()->groupBy('lines.item_id')
             ->selectRaw('lines.item_id, SUM(lines.approved_quantity) as quantity');
         $available = "(items.stock - COALESCE(reservations.quantity, 0) - {$minimumStockThreshold})";
-        $items = DB::table('items')->whereNull('items.deleted_at')
+        $query = DB::table('items')->whereNull('items.deleted_at')
             ->leftJoinSub($reservations, 'reservations', 'reservations.item_id', '=', 'items.id')
             ->select('items.id', 'items.name', 'items.sku', 'items.description', 'items.unit_of_issue', 'items.stock', 'items.weekly_request_limit')
             ->selectRaw("CASE WHEN {$available} > 0 THEN {$available} ELSE 0 END as available_quantity")
@@ -41,9 +49,9 @@ class CoordinatorInventoryController extends Controller
                 $query->whereRaw('LOWER(items.name) LIKE ?', [$pattern])->orWhereRaw('LOWER(items.sku) LIKE ?', [$pattern]);
             }))
             ->when($availability === 'available', fn ($query) => $query->whereRaw("{$available} > 0"))
-            ->when($availability === 'unavailable', fn ($query) => $query->whereRaw("{$available} <= 0"))
-            ->orderBy('items.name')->orderBy('items.id')->paginate(15)
-            ->appends(['search' => $search, 'availability' => $availability])
+            ->when($availability === 'unavailable', fn ($query) => $query->whereRaw("{$available} <= 0"));
+        $sort->apply($query, 'items.id', 'asc');
+        $items = $query->paginate(TableSort::pageSize($request, 15))->withQueryString()
             ->through(fn ($item) => [
                 'id' => $item->id, 'name' => $item->name, 'sku' => $item->sku,
                 'description' => $item->description, 'unit' => $item->unit_of_issue,
@@ -55,7 +63,7 @@ class CoordinatorInventoryController extends Controller
 
         return Inertia::render('Inventory/Coordinator/Catalog', [
             'inventoryScope' => 'coordinator', 'items' => $items,
-            'filters' => ['search' => $search, 'availability' => $availability],
+            'filters' => ['search' => $search, 'availability' => $availability, ...$sort->filters()],
             'lowStockThreshold' => $minimumStockThreshold,
         ]);
     }
@@ -63,14 +71,38 @@ class CoordinatorInventoryController extends Controller
     public function index(Request $request)
     {
         abort_unless($request->user()->usesCoordinatorInventory(), 403);
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:150'],
+            'type' => ['nullable', 'in:all,receipt,issue'],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
+        $search = trim($filters['search'] ?? '');
+        $type = $filters['type'] ?? 'all';
+        $sort = TableSort::fromRequest($request, [
+            'date' => 'coordinator_movements.date',
+            'item' => fn ($query, $direction) => $query->orderBy(
+                CoordinatorStock::select('name')->whereColumn('coordinator_stocks.id', 'coordinator_movements.coordinator_stock_id'), $direction
+            ),
+            'type' => 'coordinator_movements.type',
+            'quantity' => 'coordinator_movements.quantity',
+            'source' => fn ($query, $direction) => $query->orderByRaw("CASE WHEN coordinator_movements.type = 'receipt' THEN 'Supply Office' ELSE coordinator_movements.office END ".$direction),
+        ], 'date', 'desc');
+        $movements = CoordinatorMovement::forCoordinator($request->user()->id)->with('stock:id,name,sku,unit')
+            ->when($type !== 'all', fn ($query) => $query->where('type', $type))
+            ->when($search !== '', fn ($query) => $query->where(function ($query) use ($search) {
+                $pattern = '%'.mb_strtolower($search).'%';
+                $query->whereRaw('LOWER(COALESCE(reference, ?)) LIKE ?', ['', $pattern])
+                    ->orWhereRaw('LOWER(COALESCE(office, ?)) LIKE ?', ['', $pattern])
+                    ->orWhereHas('stock', fn ($stock) => $stock->whereRaw('LOWER(name) LIKE ?', [$pattern])->orWhereRaw('LOWER(sku) LIKE ?', [$pattern]));
+            }));
+        $sort->apply($movements, 'coordinator_movements.id');
 
         return Inertia::render('Inventory/Coordinator/Index', [
             'inventoryScope' => 'coordinator',
             'lowStockThreshold' => InventoryPolicy::lowThreshold(),
             'stocks' => CoordinatorStock::where('coordinator_id', $request->user()->id)->orderBy('name')->get(),
-            'movements' => CoordinatorMovement::forCoordinator($request->user()->id)
-                ->with('stock:id,name,sku,unit')
-                ->latest('date')->latest('id')->paginate(20)->appends(['tab' => 'history'])
+            'historyFilters' => ['search' => $search, 'type' => $type, ...$sort->filters()],
+            'movements' => $movements->paginate(TableSort::pageSize($request, 20))->withQueryString()->appends(['tab' => 'history'])
                 ->through(fn (CoordinatorMovement $movement) => [
                     'id' => $movement->id,
                     'date' => $movement->date->toDateString(),

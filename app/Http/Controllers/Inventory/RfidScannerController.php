@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Inventory;
 use App\Http\Controllers\Controller;
 use App\Models\RfidDevice;
 use App\Policies\ResourceOwnershipPolicy;
+use App\Support\TableSort;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -55,6 +56,16 @@ class RfidScannerController extends Controller
         $search = $request->input('search');
         $statusFilter = $request->input('status', 'all');
         $perPage = (int) $request->input('per_page', 10);
+        $sort = TableSort::fromRequest($request, [
+            'name' => 'items.name',
+            'sku' => 'items.sku',
+            'rfid' => 'items.rfid_tag',
+            'status' => fn ($query, $direction) => $query->orderByRaw("CASE WHEN items.rfid_tag IS NULL OR items.rfid_tag = '' THEN 1 ELSE 0 END ".$direction),
+            'updated' => 'items.updated_at',
+            'supplier' => fn ($query, $direction) => $query->orderBy(
+                DB::table('suppliers')->select('name')->whereColumn('suppliers.id', 'items.supplier_id')->limit(1), $direction
+            ),
+        ], 'updated', 'desc');
 
         $recordsList = [];
         $recordsPagination = null;
@@ -71,12 +82,12 @@ class RfidScannerController extends Controller
             }
 
             if ($statusFilter === 'tagged') {
-                $recordsQuery->whereNotNull('rfid_tag');
+                $recordsQuery->whereNotNull('rfid_tag')->where('rfid_tag', '!=', '');
             } elseif ($statusFilter === 'untagged') {
-                $recordsQuery->whereNull('rfid_tag');
+                $recordsQuery->where(fn ($query) => $query->whereNull('rfid_tag')->orWhere('rfid_tag', ''));
             }
 
-            $recordsQuery->orderBy('id', 'desc');
+            $sort->apply($recordsQuery, 'items.id');
             $paginator = $recordsQuery->paginate($perPage)->withQueryString();
 
             $recordsList = collect($paginator->items())->map(function ($item) {
@@ -112,6 +123,7 @@ class RfidScannerController extends Controller
             'recordsFilters' => [
                 'search' => $search ?? '',
                 'status' => $statusFilter,
+                ...$sort->filters(),
             ],
             'selectedItemId' => $validated['item_id'] ?? null,
             'rfidDevices' => RfidDevice::with('settings')->where('status', '!=', 'disabled')->get()->map(fn ($device) => [

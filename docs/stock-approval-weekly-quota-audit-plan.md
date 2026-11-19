@@ -1,7 +1,7 @@
 # Stock deduction at approval and weekly item quotas
 
 Audit date: 19 November 2026. Scope: local SupplySync source in this workspace.
-Status: implemented in local source after user authorization. The findings below describe the pre-implementation audit and the original plan. See [implementation and rollout notes](stock-approval-weekly-quota-implementation.md) for the final design, verification, and activation steps. The application database has not been migrated or converted.
+Status: implemented and deployed after user authorization on 19 November 2026. The findings below describe the pre-implementation audit and the original plan. See [implementation and rollout notes](stock-approval-weekly-quota-implementation.md) for the final design and [the deployment record](stock-approval-weekly-quota-deployment-2026-11-19.md) for verified production migration, conversion, and configuration.
 
 ## Requested behavior and confirmed policy
 
@@ -167,6 +167,6 @@ Illustrative example only: with 100 units in central stock, a protected minimum 
 
 ## Outstanding configuration
 
-- Actual numeric weekly limits for each item must be configured before enforcement is activated.
+- The user supplied a limit of 10 in each item's own unit per user, applied to all 23 listed records during deployment. New items require configuration.
 - Monday-based weeks and a five-second visible-page polling interval are proposed implementation defaults.
-- Implementation is complete in source. Deployment, application database migration/conversion, and actual item-limit configuration remain rollout steps; see the implementation notes.
+- Implementation and deployment are complete. Migration, existing approval conversion, and the supplied item-limit configuration were verified in production; see the deployment record.

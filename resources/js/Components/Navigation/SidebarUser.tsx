@@ -3,7 +3,7 @@ import { usePage } from '@inertiajs/react';
 import type { PageProps } from '@/types';
 import { roleDesignation } from '@/utils/systemIdentity';
 import { Link } from '@inertiajs/react';
-import { LogOut, PanelLeftClose, PanelLeftOpen, Settings, User } from 'lucide-react';
+import { ChevronsLeft, ChevronsRight, LogOut, Settings, User } from 'lucide-react';
 import { SidebarUser as UserType } from '@/types/navigation';
 import ThemeToggle from '@/Components/ThemeToggle';
 
@@ -64,10 +64,12 @@ export default function SidebarUser({
                     <button
                         type="button"
                         onClick={onToggleCollapse}
-                        className="p-2 rounded-lg text-red-200/70 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-                        title="Expand Sidebar"
+                        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-red-200/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
+                        title="Expand sidebar"
+                        aria-label="Expand sidebar"
+                        aria-expanded={false}
                     >
-                        <PanelLeftOpen className="w-4 h-4" />
+                        <ChevronsRight className="w-5 h-5" aria-hidden="true" />
                     </button>
                 )}
 
@@ -99,11 +101,11 @@ export default function SidebarUser({
                 </Link>
                 <ThemeToggle variant="compact" placement="right-end" />
             </div>
-            <div className="flex items-center justify-between gap-2 border-t border-red-900/40 pt-1">
+            <div className="grid gap-1 border-t border-red-900/40 pt-1">
                 <button type="button" onClick={onOpenLogoutModal} className="flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm text-red-200/80 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
                     <LogOut size={18} aria-hidden="true" />Sign Out
                 </button>
-                {onToggleCollapse && <button type="button" onClick={onToggleCollapse} aria-label="Collapse sidebar" title="Collapse sidebar" className="hidden h-10 w-10 items-center justify-center rounded-lg text-red-200/70 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 md:inline-flex"><PanelLeftClose size={17} aria-hidden="true" /></button>}
+                {onToggleCollapse && <button type="button" onClick={onToggleCollapse} aria-label="Collapse sidebar" aria-expanded={true} title="Collapse sidebar" className="hidden min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-red-100 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 md:inline-flex"><ChevronsLeft size={19} aria-hidden="true" /><span>Collapse sidebar</span></button>}
             </div>
         </div>
     );

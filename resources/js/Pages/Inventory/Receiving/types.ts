@@ -84,7 +84,11 @@ export interface ReceivingFilters {
     search?: string;
     supplier?: number | string;
     page?: number;
+    sort?: ReceivingSortKey;
+    direction?: import('@/Hooks/useSortableData').SortDirection;
 }
+
+export type ReceivingSortKey = 'item' | 'supplier' | 'quantity' | 'remaining' | 'unit_cost' | 'amount' | 'date';
 
 export interface ReceivingPageProps {
     auth: {

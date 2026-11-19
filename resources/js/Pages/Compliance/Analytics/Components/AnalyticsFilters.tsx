@@ -48,10 +48,6 @@ export function AnalyticsSelect({
             styles={{
                 ...institutionalSelectStyles,
                 menuPortal: (base) => ({ ...base, zIndex: 80 }),
-                input: (base, state) => ({
-                    ...institutionalSelectStyles.input?.(base, state),
-                    input: { minHeight: 0 },
-                }),
                 placeholder: (base, state) => ({
                     ...institutionalSelectStyles.placeholder?.(base, state),
                     whiteSpace: 'nowrap',

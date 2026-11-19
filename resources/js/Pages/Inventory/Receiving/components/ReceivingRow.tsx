@@ -1,22 +1,21 @@
+import { rowSelectionProps } from '@/Hooks/useTableSelection';
 import React from 'react';
 import { ReceivingRecord } from '../types';
 import { formatDisplayDate } from '@/utils/dateUtils';
-import useAuthorization from '@/Hooks/useAuthorization';
 
 interface ReceivingRowProps {
     receiving: ReceivingRecord;
-    onView: (receiving: ReceivingRecord) => void;
-    onUpdate: (receiving: ReceivingRecord) => void;
+    selected: boolean;
+    onSelect: (receiving: ReceivingRecord) => void;
 }
 
 export const ReceivingRow: React.FC<ReceivingRowProps> = ({
     receiving,
-    onView,
-    onUpdate,
+    selected,
+    onSelect,
 }) => {
-    const { can } = useAuthorization();
     return (
-        <tr className="hover:bg-red-50/20 dark:hover:bg-slate-800/50 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0">
+        <tr   {...rowSelectionProps(selected, () => onSelect(receiving))}  className={`cursor-pointer transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-800 ${selected ? 'bg-red-50 shadow-[inset_3px_0_0_#7f1d1d] dark:bg-red-950/30' : 'hover:bg-red-50/30 dark:hover:bg-red-950/20'}`}>
             {/* Item Received & SKU */}
             <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center gap-2">
@@ -93,25 +92,6 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
                 {formatDisplayDate(receiving.date || receiving.date_received, 'MM/DD/YYYY') || receiving.date}
             </td>
 
-            {/* Direct Row Actions: View and Update only (Institutional Maroon Palette) */}
-            <td className="px-6 py-4 whitespace-nowrap text-right">
-                <div className="inline-flex items-center gap-2.5">
-                    <button
-                        type="button"
-                        onClick={() => onView(receiving)}
-                        className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
-                    >
-                        View
-                    </button>
-                    {can('inventory.receiving.update') && <button
-                        type="button"
-                        onClick={() => onUpdate(receiving)}
-                        className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 font-semibold text-sm px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
-                    >
-                        Update
-                    </button>}
-                </div>
-            </td>
         </tr>
     );
 };

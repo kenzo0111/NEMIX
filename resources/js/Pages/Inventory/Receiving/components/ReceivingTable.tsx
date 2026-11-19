@@ -1,13 +1,18 @@
-import React from 'react';
-import { ReceivingRecord, PaginatedData } from '../types';
+import React, { useEffect, useState } from 'react';
+import { ReceivingRecord, PaginatedData, ReceivingSortKey } from '../types';
 import { ReceivingRow } from './ReceivingRow';
+import type { SortDirection } from '@/Hooks/useSortableData';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
+import TableSelectionAction from '@/Components/ui/table-selection-action';
 
 interface ReceivingTableProps {
     receivings: ReceivingRecord[];
     paginationMeta: PaginatedData<ReceivingRecord> | null;
     onPageChange: (page: number) => void;
     onView: (receiving: ReceivingRecord) => void;
-    onUpdate: (receiving: ReceivingRecord) => void;
+    sortKey: ReceivingSortKey;
+    sortDirection: SortDirection;
+    onSort: (key: ReceivingSortKey) => void;
     isFiltered: boolean;
 }
 
@@ -16,7 +21,9 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
     paginationMeta,
     onPageChange,
     onView,
-    onUpdate,
+    sortKey,
+    sortDirection,
+    onSort,
     isFiltered,
 }) => {
     const currentPage = paginationMeta ? paginationMeta.current_page : 1;
@@ -24,44 +31,48 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
     const totalRecords = paginationMeta ? paginationMeta.total : receivings.length;
     const fromRecord = paginationMeta ? paginationMeta.from || (receivings.length > 0 ? 1 : 0) : (receivings.length > 0 ? 1 : 0);
     const toRecord = paginationMeta ? paginationMeta.to || receivings.length : receivings.length;
+    const [selectedId, setSelectedId] = useState<number | null>(null);
+    const selectedReceiving = receivings.find((receiving) => receiving.id === selectedId) || null;
+
+    useEffect(() => {
+        if (selectedId !== null && !receivings.some((receiving) => receiving.id === selectedId)) setSelectedId(null);
+    }, [receivings, selectedId]);
 
     return (
         <div className="overflow-hidden min-w-0">
+            <TableSelectionAction selectedLabel={selectedReceiving ? `${selectedReceiving.item} — ${selectedReceiving.date_received || selectedReceiving.date}` : null} onAction={() => selectedReceiving && onView(selectedReceiving)} />
             {/* Table */}
             <div className="overflow-x-auto min-w-0">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
                     <thead className="bg-gray-50/80 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800">
                         <tr>
-                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Item Received
-                            </th>
-                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="supplier" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Supplier
-                            </th>
-                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="quantity" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Received
-                            </th>
-                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="remaining" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Remaining
-                            </th>
-                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="unit_cost" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Unit Cost
-                            </th>
-                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="amount" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Batch Amount
-                            </th>
-                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            </SortableTableHeader>
+                            <SortableTableHeader column="date" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Date Received
-                            </th>
-                            <th className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
-                                Actions
-                            </th>
+                            </SortableTableHeader>
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
                         {receivings.length === 0 ? (
                             <tr>
-                                <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
+                                <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
                                     <div className="flex flex-col items-center justify-center">
                                         <svg
                                             className="w-10 h-10 text-gray-300 dark:text-slate-600 mb-2"
@@ -96,8 +107,8 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                                 <ReceivingRow
                                     key={receiving.id}
                                     receiving={receiving}
-                                    onView={onView}
-                                    onUpdate={onUpdate}
+                                    selected={receiving.id === selectedId}
+                                    onSelect={(row) => setSelectedId(row.id)}
                                 />
                             ))
                         )}

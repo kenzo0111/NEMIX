@@ -1,7 +1,14 @@
 import SupportingDocumentPanel from '../../Requests/components/SupportingDocumentPanel';
 import { SupplyRequest } from '../../Requests/types';
 import { PageProps } from '@/types';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { useSortableData } from '@/Hooks/useSortableData';
+import { useTableSelection, cardSelectionProps } from '@/Hooks/useTableSelection';
+import RecordTable from '@/Components/ui/record-table';
+import RecordDetailsModal from '@/Components/ui/record-details-modal';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
+import TableSelectionAction from '@/Components/ui/table-selection-action';
+import TableSortControls from '@/Components/ui/table-sort-controls';
 import { router, usePage } from '@inertiajs/react';
 import {
     CheckCircle2,
@@ -86,7 +93,12 @@ export function SupplyRequestQueue({
     const canReject = can('inventory.requests.reject');
     const canRelease = can('inventory.requests.release');
     // Workspace tabs: 'pending' | 'approved' | 'all'
-    const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'all'>('pending');
+    const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'all'>(() => {
+        const focused = requests.find(request => request.id === focusRequestId);
+        return !focused || ['Pending', 'Pending Verification', 'Under Review', 'For Correction'].includes(focused.status) ? 'pending' : ['Approved', 'Ready for Pickup'].includes(focused.status) ? 'approved' : 'all';
+    });
+    const focusHandled = useRef<number | null>(null);
+    const [showDetails, setShowDetails] = useState(Boolean(focusRequestId));
     const [searchQuery, setSearchQuery] = useState('');
 
     // Adjusted quantities state: [requestId][lineId] => quantity
@@ -111,13 +123,14 @@ export function SupplyRequestQueue({
     const allList = requests;
 
     useEffect(() => {
-        if (!focusRequestId) return;
+        if (!focusRequestId || focusHandled.current === focusRequestId) return;
         const focused = requests.find((request) => request.id === focusRequestId);
         if (!focused) return;
         setActiveTab(['Pending', 'Pending Verification', 'Under Review', 'For Correction'].includes(focused.status) ? 'pending' : ['Approved', 'Ready for Pickup'].includes(focused.status) ? 'approved' : 'all');
         setSearchQuery(focused.ris_number || String(focusRequestId));
-        const timer = window.setTimeout(() => document.getElementById(`supply-request-${focusRequestId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-        return () => window.clearTimeout(timer);
+        focusHandled.current = focusRequestId;
+        selectRow(focused);
+        setShowDetails(true);
     }, [focusRequestId, requests]);
 
     // Filter by search
@@ -139,6 +152,19 @@ export function SupplyRequestQueue({
         });
     }, [activeTab, pendingList, approvedList, allList, searchQuery]);
 
+    const columns = useMemo(() => [
+        { key: 'reference', label: 'Request', value: (request: QueueRequest) => request.ris_number || String(request.id), render: (request: QueueRequest) => <span className="font-semibold">{request.ris_number || ('Request #' + request.id)}</span> },
+        { key: 'date', label: 'Submitted', value: (request: QueueRequest) => new Date(request.date_requested || request.created_at), render: (request: QueueRequest) => formatDisplayDate(request.date_requested || request.created_at, 'short') },
+        { key: 'recipient', label: 'Recipient', value: (request: QueueRequest) => request.recipient || request.requester?.name },
+        { key: 'department', label: 'Office', value: (request: QueueRequest) => request.department },
+        { key: 'items', label: 'Items', value: (request: QueueRequest) => request.items.length, align: 'right' as const },
+        { key: 'status', label: 'Status', value: (request: QueueRequest) => request.status, render: (request: QueueRequest) => <RequestStatusBadge status={request.status} /> },
+    ], []);
+    const accessors = useMemo(() => Object.fromEntries(columns.map(column => [column.key, column.value])), [columns]);
+    const { sortedRows: sortedRequests, sort, requestSort } = useSortableData(filteredRequests, accessors, { key: 'date', direction: 'desc' });
+    const { selectedKey, selectedRow: selectedRequest, selectRow } = useTableSelection(sortedRequests, request => request.id, focusRequestId ?? null);
+    useEffect(() => { if (!selectedRequest) setShowDetails(false); }, [selectedRequest]);
+
     // Quantity helpers
     const getEffectiveQuantity = (requestId: number, lineId: number, originalQuantity: number, approvedQuantity: number | null): number => {
         if (quantities[requestId]?.[lineId] !== undefined) {
@@ -146,6 +172,15 @@ export function SupplyRequestQueue({
         }
         return approvedQuantity !== null && approvedQuantity !== undefined ? approvedQuantity : originalQuantity;
     };
+
+    const lineAccessors = useMemo(() => ({
+        item: (line: QueueRequest['items'][number]) => line.item?.name,
+        stock: (line: QueueRequest['items'][number]) => line.item?.stock,
+        requested: (line: QueueRequest['items'][number]) => line.quantity,
+        approved: (line: QueueRequest['items'][number]) => selectedRequest && canApprove && ['Pending', 'Under Review', 'Pending Verification'].includes(selectedRequest.status)
+            ? getEffectiveQuantity(selectedRequest.id, line.id, line.quantity, line.approved_quantity) : line.approved_quantity,
+    }), [quantities, selectedRequest?.id, selectedRequest?.status, canApprove]);
+    const { sortedRows: sortedLines, sort: lineSort, requestSort: sortLines } = useSortableData(selectedRequest?.items || [], lineAccessors, { key: 'item', direction: 'asc' });
 
     const handleQuantityChange = (requestId: number, lineId: number, value: number, max: number) => {
         const cleanVal = Math.max(0, Math.min(max, isNaN(value) ? 0 : value));
@@ -307,14 +342,15 @@ export function SupplyRequestQueue({
                 </div>
 
                 {/* Workspace Navigation Tabs & Search */}
-                <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-gray-200/70 dark:border-slate-800">
-                    <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-slate-800/60 p-1 rounded-lg">
+                <div className="table-toolbar mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-gray-200/70 dark:border-slate-800">
+                    <div className="flex flex-wrap items-center gap-1.5 rounded-lg">
                         <button
                             type="button"
                             onClick={() => setActiveTab('pending')}
+                            aria-pressed={activeTab === 'pending'}
                             className={`px-3 py-1.5 rounded-md text-sm font-semibold cursor-pointer transition-all ${
                                 activeTab === 'pending'
-                                    ? 'bg-white dark:bg-slate-900 text-red-950 dark:text-red-400 shadow-2xs font-bold'
+                                    ? 'bg-red-900 text-white shadow-2xs font-bold'
                                     : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200'
                             }`}
                         >
@@ -323,9 +359,10 @@ export function SupplyRequestQueue({
                         <button
                             type="button"
                             onClick={() => setActiveTab('approved')}
+                            aria-pressed={activeTab === 'approved'}
                             className={`px-3 py-1.5 rounded-md text-sm font-semibold cursor-pointer transition-all ${
                                 activeTab === 'approved'
-                                    ? 'bg-white dark:bg-slate-900 text-blue-800 dark:text-blue-400 shadow-2xs font-bold'
+                                    ? 'bg-red-900 text-white shadow-2xs font-bold'
                                     : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200'
                             }`}
                         >
@@ -334,9 +371,10 @@ export function SupplyRequestQueue({
                         <button
                             type="button"
                             onClick={() => setActiveTab('all')}
+                            aria-pressed={activeTab === 'all'}
                             className={`px-3 py-1.5 rounded-md text-sm font-semibold cursor-pointer transition-all ${
                                 activeTab === 'all'
-                                    ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 shadow-2xs font-bold'
+                                    ? 'bg-red-900 text-white shadow-2xs font-bold'
                                     : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200'
                             }`}
                         >
@@ -350,6 +388,7 @@ export function SupplyRequestQueue({
                         </div>
                         <input
                             type="search"
+                            aria-label="Search requisition queue"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Filter queue by keyword..."
@@ -360,7 +399,7 @@ export function SupplyRequestQueue({
             </div>
 
             {/* Error Notification Banner */}
-            {actionError && (
+            {actionError && !showDetails && (
                 <div role="alert" className="mx-6 mt-4 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-lg text-sm text-rose-800 dark:text-rose-300 flex items-start justify-between gap-3">
                     <div className="flex items-start gap-2">
                         <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
@@ -370,24 +409,22 @@ export function SupplyRequestQueue({
                 </div>
             )}
 
-            {/* Content Queue */}
-            <div className="p-4 sm:p-6 space-y-5">
-                {filteredRequests.length === 0 ? (
-                    <div className="py-12 text-center text-gray-500 dark:text-slate-400 text-sm flex flex-col items-center">
-                        <Clock className="w-8 h-8 text-gray-300 dark:text-slate-600 mb-2" />
-                        <p className="leading-relaxed font-semibold text-sm text-gray-700 dark:text-slate-300">
-                            {activeTab === 'pending'
-                                ? 'No supply requests awaiting approval'
-                                : activeTab === 'approved'
-                                ? 'No approved requests currently awaiting pickup'
-                                : 'No matching supply requests found'}
-                        </p>
-                        <p className="text-gray-400 mt-0.5">
-                            {searchQuery ? 'Try clearing your search query.' : 'New submissions from the Supply Coordinator will appear here.'}
-                        </p>
-                    </div>
-                ) : (
-                    filteredRequests.map((request) => {
+            <TableSelectionAction selectedLabel={selectedRequest?.ris_number || (selectedRequest ? 'Request #' + selectedRequest.id : null)} actionLabel={canApprove || canReject || canRelease ? 'Manage selected' : 'View selected'} onAction={() => setShowDetails(true)}>
+                <TableSortControls sortKey={sort.key} direction={sort.direction} options={columns.map(column => ({ value: column.key, label: column.label }))} onSort={requestSort} className="lg:hidden" />
+            </TableSelectionAction>
+            <RecordTable rows={sortedRequests} columns={columns} rowKey={request => request.id} sort={sort} onSort={requestSort} selectedKey={selectedKey} onSelect={selectRow} className="min-w-[780px]" containerClassName="hidden lg:block" emptyMessage="No matching requisitions in this queue." />
+            <div className="grid gap-3 p-4 lg:hidden">
+                {sortedRequests.map(request => <article key={request.id} {...cardSelectionProps(selectedKey === request.id, () => selectRow(request))} className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+                    <div className="flex flex-wrap items-start justify-between gap-2"><h3 className="font-semibold">{request.ris_number || ('Request #' + request.id)}</h3><RequestStatusBadge status={request.status} /></div>
+                    <p className="mt-2 text-sm">{request.recipient || request.requester?.name} · {request.department}</p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{formatDisplayDate(request.date_requested || request.created_at, 'short')} · {request.items.length} items</p>
+                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{request.purpose}</p>
+                </article>)}
+                {!sortedRequests.length && <p className="py-8 text-center text-slate-500 dark:text-slate-400">No matching requisitions in this queue.</p>}
+            </div>
+            <RecordDetailsModal show={showDetails && !!selectedRequest} title="Requisition review and release" maxWidth="5xl" onClose={() => setShowDetails(false)}>
+                {actionError && <div role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/30 dark:text-red-200">{actionError}</div>}
+                {(selectedRequest ? [selectedRequest] : []).map((request) => {
                         const isPending = ['Pending', 'Under Review'].includes(request.status);
                         const canAdjustQuantities = canApprove && (isPending || request.status === 'Pending Verification');
                         const isApproved = ['Approved', 'Ready for Pickup'].includes(request.status);
@@ -520,19 +557,19 @@ export function SupplyRequestQueue({
                                         </div>
 
                                         <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-800">
-                                            <table className="w-full text-left text-sm">
+                                            <table className="w-full min-w-[640px] text-left text-sm">
                                                 <thead className="bg-gray-50 dark:bg-slate-950 text-gray-600 dark:text-slate-400 normal-case tabular-nums text-sm">
                                                     <tr>
-                                                        <th className="px-3 py-3">Item Description & SKU</th>
-                                                        <th className="px-3 py-3 text-center">Warehouse Stock</th>
-                                                        <th className="px-3 py-3 text-right">Requested</th>
-                                                        <th className="px-3 py-3 text-right min-w-44">
+                                                        <SortableTableHeader column="item" activeColumn={lineSort.key} direction={lineSort.direction} onSort={sortLines} className="px-3 py-3">Item Description & SKU</SortableTableHeader>
+                                                        <SortableTableHeader column="stock" activeColumn={lineSort.key} direction={lineSort.direction} onSort={sortLines} align="center" className="px-3 py-3">Warehouse Stock</SortableTableHeader>
+                                                        <SortableTableHeader column="requested" activeColumn={lineSort.key} direction={lineSort.direction} onSort={sortLines} align="right" className="px-3 py-3">Requested</SortableTableHeader>
+                                                        <SortableTableHeader column="approved" activeColumn={lineSort.key} direction={lineSort.direction} onSort={sortLines} align="right" className="px-3 py-3 min-w-44">
                                                             {canAdjustQuantities ? 'Authorized / Approved Qty' : 'Final Approved Qty'}
-                                                        </th>
+                                                        </SortableTableHeader>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
-                                                    {request.items.map((line) => {
+                                                    {sortedLines.map((line) => {
                                                         const currentQty = getEffectiveQuantity(
                                                             request.id,
                                                             line.id,
@@ -588,6 +625,7 @@ export function SupplyRequestQueue({
                                                                             )}
                                                                             <input
                                                                                 type="number"
+                                                                                aria-label={"Authorized quantity for " + (line.item?.name || line.id)}
                                                                                 min="0"
                                                                                 max={line.max_approval_quantity ?? line.quantity}
                                                                                 value={currentQty}
@@ -793,9 +831,8 @@ export function SupplyRequestQueue({
                                 </div>
                             </article>
                         );
-                    })
-                )}
-            </div>
+                    })}
+            </RecordDetailsModal>
 
             {/* Rejection Modal */}
             <Modal

@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useSortableData, type SortValue } from '@/Hooks/useSortableData';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
 import { Head, router } from '@inertiajs/react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import {
@@ -28,7 +30,7 @@ import AnalyticsFilters, { AnalyticsSelect } from './Components/AnalyticsFilters
 import { ChartEmpty, DepartmentHeatmap, QuantityComparisonChart, SupplyTrendChart } from './Charts/SupplyDemandCharts';
 
 const field =
-    'min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950';
+    'table-control w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950';
 const number = (value: number) => value.toLocaleString();
 function Panel({
     title,
@@ -75,7 +77,7 @@ function Panel({
                         )}
                     </div>
                 </div>
-                {controls && <div className="w-full shrink-0 sm:w-64 xl:w-72">{controls}</div>}
+                {controls && <div className="table-toolbar w-full shrink-0 sm:w-64 xl:w-72">{controls}</div>}
             </div>
             <div className="p-5 sm:p-6">{children}</div>
         </section>
@@ -155,25 +157,18 @@ function DataTable({
     initialAscending?: boolean;
 }) {
     const [search, setSearch] = useState('');
-    const [sort, setSort] = useState(initialSort);
-    const [ascending, setAscending] = useState(initialAscending);
     const [page, setPage] = useState(0);
-    useEffect(() => setPage(0), [rows, search]);
-    const filtered = rows
+    const accessors = useMemo(() => Object.fromEntries(columns.map(column => [column.key, (row: any): SortValue => row[column.key]])), [columns]);
+    const matches = rows
         .filter((row) =>
             Object.values(row).some((value) =>
                 String(value ?? '')
                     .toLowerCase()
                     .includes(search.toLowerCase()),
             ),
-        )
-        .sort((a, b) => {
-            const comparison =
-                typeof a[sort] === 'number'
-                    ? a[sort] - b[sort]
-                    : String(a[sort] ?? '').localeCompare(String(b[sort] ?? ''));
-            return ascending ? comparison : -comparison;
-        });
+        );
+    const { sortedRows: filtered, sort, requestSort } = useSortableData(matches, accessors, { key: initialSort, direction: initialAscending ? 'asc' : 'desc' });
+    useEffect(() => setPage(0), [rows, search, sort.key, sort.direction]);
     const exportCsv = () => {
         const cell = (value: unknown) =>
             `"${String(value ?? '')
@@ -192,11 +187,11 @@ function DataTable({
     };
     return (
         <div>
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="table-toolbar mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="relative w-full sm:max-w-sm">
                     <Search
                         size={16}
-                        className="pointer-events-none absolute left-3 top-3.5 text-slate-400"
+                        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
                         aria-hidden="true"
                     />
                     <input
@@ -221,21 +216,16 @@ function DataTable({
                     <thead className="bg-slate-50 text-slate-600 dark:bg-slate-950 dark:text-slate-300">
                         <tr>
                             {columns.map((column) => (
-                                <th
+                                <SortableTableHeader
                                     key={column.key}
+                                    column={column.key}
+                                    activeColumn={sort.key}
+                                    direction={sort.direction}
+                                    onSort={requestSort}
                                     className="whitespace-nowrap p-3"
-                                    aria-sort={sort === column.key ? (ascending ? 'ascending' : 'descending') : 'none'}
                                 >
-                                    <button
-                                        className="text-left"
-                                        onClick={() => {
-                                            setSort(column.key);
-                                            setAscending(sort === column.key ? !ascending : true);
-                                        }}
-                                    >
-                                        {column.label} {sort === column.key ? (ascending ? '↑' : '↓') : '↕'}
-                                    </button>
-                                </th>
+                                    {column.label}
+                                </SortableTableHeader>
                             ))}
                         </tr>
                     </thead>

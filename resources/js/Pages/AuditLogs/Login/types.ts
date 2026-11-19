@@ -35,6 +35,8 @@ export interface LoginAuditFilters {
     date_from?: string | null;
     date_to?: string | null;
     page?: number;
+    sort?: 'user' | 'role' | 'date' | 'ip' | 'result';
+    direction?: 'asc' | 'desc';
 }
 
 export interface PaginatedLink {

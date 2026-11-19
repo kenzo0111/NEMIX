@@ -4,7 +4,9 @@ import Select from 'react-select';
 import { customSelectStyles, REPORT_TYPE_OPTIONS } from '../constants';
 import { getFieldMappingMatrix } from './parsers/fieldMapping';
 import { useHistoricalMigration } from '../hooks/useHistoricalMigration';
-import { MigrationFormType } from './migrationTypes';
+import { MigrationFormType, MigrationItem } from './migrationTypes';
+import { sortRows, type SortState, type SortAccessors } from '@/Hooks/useSortableData';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
 import useAuthorization from '@/Hooks/useAuthorization';
 
 interface MigrationDialogProps {
@@ -42,6 +44,13 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
     } = migration;
 
     const [selectedSheetTab, setSelectedSheetTab] = useState<string>('ALL');
+    const [recordSort, setRecordSort] = useState<SortState>({ key: 'date', direction: 'asc' });
+    const sortRecords = (key: string) => setRecordSort(current => ({ key, direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc' }));
+    const recordAccessors: SortAccessors<MigrationItem, string> = {
+        reference: row => row.reference, date: row => row.date ? new Date(row.date) : null,
+        item: row => row.item_name, quantity: row => row.quantity ?? row.issue_qty ?? row.receipt_qty,
+        recipient: row => row.recipient || row.department, status: row => row.errors?.[0] || 'Ready to Import',
+    };
 
     useEffect(() => {
         if (show && allowedFormTypes.length > 0 && !allowedFormTypes.some(({ value }) => value === formType)) {
@@ -296,6 +305,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                         <button
                                             type="button"
                                             onClick={() => setSelectedSheetTab('ALL')}
+                                            aria-pressed={selectedSheetTab === 'ALL'}
                                             className={`px-2.5 py-1 rounded-md text-sm tabular-nums transition-all shrink-0 cursor-pointer ${
                                                 selectedSheetTab === 'ALL'
                                                     ? 'bg-red-900 text-white font-bold shadow-xs'
@@ -311,6 +321,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                                     key={sName}
                                                     type="button"
                                                     onClick={() => setSelectedSheetTab(sName)}
+                                                    aria-pressed={selectedSheetTab === sName}
                                                     className={`px-2.5 py-1 rounded-md text-sm tabular-nums transition-all shrink-0 cursor-pointer ${
                                                         selectedSheetTab === sName
                                                             ? 'bg-red-900 text-white font-bold shadow-xs'
@@ -356,16 +367,16 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                         <table className="w-full text-left text-sm border-collapse">
                                             <thead className="bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-300 font-semibold normal-case text-sm tracking-normal sticky top-0 border-b border-gray-200 dark:border-slate-700">
                                                 <tr>
-                                                    <th className="py-3 px-3">Reference</th>
-                                                    <th className="py-3 px-3">Date</th>
-                                                    <th className="py-3 px-3">Item Description</th>
-                                                    <th className="py-3 px-3 text-right">Quantity</th>
-                                                    <th className="py-3 px-3">Recipient / Office</th>
-                                                    <th className="py-3 px-3">Status</th>
+                                                    <SortableTableHeader column="reference" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3">Reference</SortableTableHeader>
+                                                    <SortableTableHeader column="date" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3">Date</SortableTableHeader>
+                                                    <SortableTableHeader column="item" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3">Item Description</SortableTableHeader>
+                                                    <SortableTableHeader column="quantity" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} align="right" className="py-3 px-3">Quantity</SortableTableHeader>
+                                                    <SortableTableHeader column="recipient" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3">Recipient / Office</SortableTableHeader>
+                                                    <SortableTableHeader column="status" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3">Status</SortableTableHeader>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
-                                                {group.items.map((row, rIdx) => {
+                                                {sortRows(group.items, recordAccessors, recordSort).map((row, rIdx) => {
                                                     const hasError = row.errors && row.errors.length > 0;
                                                     return (
                                                         <tr

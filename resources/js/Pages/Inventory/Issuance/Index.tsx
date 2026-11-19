@@ -7,7 +7,7 @@ import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { useAuthorization } from '@/Hooks/useAuthorization';
 import useStockRefresh from '@/Hooks/useStockRefresh';
-import { IssuancePageProps, IssuanceRecord, PaginatedData } from './types';
+import { IssuancePageProps, IssuanceRecord, PaginatedData, IssuanceSortKey } from './types';
 import { IssuanceToolbar } from './components/IssuanceToolbar';
 import { IssuanceTable } from './components/IssuanceTable';
 import { IssuanceFormModal } from './components/IssuanceFormModal';
@@ -15,6 +15,7 @@ import { IssuanceDetailsModal } from './components/IssuanceDetailsModal';
 import { RisPreviewModal } from './components/RisPreviewModal';
 import { SupplyRequestQueue, QueueRequest } from './components/SupplyRequestQueue';
 import { ClipboardCheck, PackageCheck } from 'lucide-react';
+import { compareSortValues, SortDirection, SortValue } from '@/Hooks/useSortableData';
 
 export default function IssuanceIndex({
     auth,
@@ -99,7 +100,24 @@ export default function IssuanceIndex({
     // Filters state (initialized from server filters)
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const [recipientFilter, setRecipientFilter] = useState(filters.recipient || '');
+    const [sortKey, setSortKey] = useState<IssuanceSortKey>(filters.sort || 'date');
+    const [sortDirection, setSortDirection] = useState<SortDirection>(filters.direction || 'desc');
     const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
+    useEffect(() => {
+        if (searchDebounceRef.current) return;
+        setSearchTerm(filters.search || '');
+        setRecipientFilter(filters.recipient || '');
+        setSortKey(filters.sort || 'date');
+        setSortDirection(filters.direction || 'desc');
+    }, [filters.search, filters.recipient, filters.sort, filters.direction]);
+    useEffect(() => {
+        const cancelPending = () => {
+            if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+            searchDebounceRef.current = null;
+        };
+        window.addEventListener('popstate', cancelPending);
+        return () => { cancelPending(); window.removeEventListener('popstate', cancelPending); };
+    }, []);
 
     // Modal states
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -133,13 +151,19 @@ export default function IssuanceIndex({
     }, [recipients, rawList]);
 
     // Server-side filter query execution
-    const executeServerFilter = (search: string, recipient: string, page: number = 1) => {
+    const executeServerFilter = (search: string, recipient: string, page: number = 1, nextSort: IssuanceSortKey = sortKey, nextDirection: SortDirection = sortDirection) => {
+        if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+        searchDebounceRef.current = null;
+        if (!isPaginated) return;
         router.get(
             route('inventory.issuance'),
             {
                 search: search || undefined,
                 recipient: recipient || undefined,
                 page: page > 1 ? page : undefined,
+                per_page: paginationMeta?.per_page,
+                sort: nextSort,
+                direction: nextDirection,
             },
             {
                 preserveState: true,
@@ -154,6 +178,7 @@ export default function IssuanceIndex({
         if (searchDebounceRef.current) {
             clearTimeout(searchDebounceRef.current);
         }
+        if (!isPaginated) return;
         searchDebounceRef.current = setTimeout(() => {
             executeServerFilter(value, recipientFilter, 1);
         }, 350);
@@ -167,6 +192,30 @@ export default function IssuanceIndex({
     const handlePageChange = (newPage: number) => {
         executeServerFilter(searchTerm, recipientFilter, newPage);
     };
+
+    const handleSort = (key: IssuanceSortKey) => {
+        const direction: SortDirection = sortKey === key && sortDirection === 'asc' ? 'desc' : 'asc';
+        setSortKey(key);
+        setSortDirection(direction);
+        if (isPaginated) executeServerFilter(searchTerm, recipientFilter, 1, key, direction);
+    };
+
+    const displayedIssuances = useMemo(() => {
+        if (isPaginated) return rawList;
+        const accessors: Record<IssuanceSortKey, (row: IssuanceRecord) => SortValue> = {
+            ris_number: (row) => row.ris_number,
+            recipient: (row) => row.recipient,
+            department: (row) => row.department,
+            item: (row) => row.item,
+            quantity: (row) => row.total_quantity ?? row.quantity,
+            date: (row) => new Date(row.date_issued || row.date),
+            status: (row) => row.status,
+        };
+        const search = searchTerm.trim().toLowerCase();
+        return rawList.filter(row => (!search || [row.ris_number, row.recipient, row.department, row.item, row.sku].some(value => value?.toLowerCase().includes(search))) && (!recipientFilter || row.recipient === recipientFilter)).sort((left, right) => {
+            return compareSortValues(accessors[sortKey](left), accessors[sortKey](right), sortDirection);
+        });
+    }, [isPaginated, rawList, sortKey, sortDirection, searchTerm, recipientFilter]);
 
     // Modal openers
     const handleOpenRecordModal = () => setIsFormModalOpen(true);
@@ -276,6 +325,7 @@ export default function IssuanceIndex({
                             {canReviewRequests && <button
                                 type="button"
                                 onClick={() => setViewMode('approvals')}
+                                aria-pressed={viewMode === 'approvals'}
                                 className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
                                     viewMode === 'approvals'
                                         ? 'bg-red-950 text-white shadow-xs'
@@ -294,6 +344,7 @@ export default function IssuanceIndex({
                             <button
                                 type="button"
                                 onClick={() => setViewMode('issuances')}
+                                aria-pressed={viewMode === 'issuances'}
                                 className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
                                     viewMode === 'issuances'
                                         ? 'bg-red-950 text-white shadow-xs'
@@ -335,11 +386,14 @@ export default function IssuanceIndex({
                             />
 
                             <IssuanceTable
-                                issuances={rawList}
+                                issuances={displayedIssuances}
                                 pagination={paginationMeta}
                                 onPageChange={handlePageChange}
                                 onViewDetails={handleViewDetails}
                                 onViewRisForm={handleViewRisForm}
+                                sortKey={sortKey}
+                                sortDirection={sortDirection}
+                                onSort={handleSort}
                             />
                         </div>
                     )}
@@ -366,6 +420,7 @@ export default function IssuanceIndex({
                 show={isDetailsModalOpen}
                 issuance={selectedIssuance}
                 onClose={handleCloseDetails}
+                onViewRis={handleViewRisForm}
             />
 
             {/* RIS Preview & Print Modal */}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Modal from '@/Components/Modal';
 import { Portal } from '@headlessui/react';
-import Select from 'react-select';
+import Select, { type StylesConfig } from 'react-select';
 import axios from 'axios';
 import { X, Loader2, Lock, PackagePlus, Edit3, ChevronDown, ChevronUp, Check, AlertCircle } from 'lucide-react';
 import { Supplier, InventoryItem, SelectOption } from '../types';
@@ -57,16 +57,9 @@ export default function InventoryFormModal({
 }: InventoryFormModalProps) {
     const [isGeneratingStockNo, setIsGeneratingStockNo] = useState(false);
     const [selectPortal, setSelectPortal] = useState<HTMLDivElement | null>(null);
-    const formSelectStyles = {
+    const formSelectStyles: StylesConfig<any, false> = {
         ...customSelectStyles,
-        control: (base: Record<string, unknown>, state: { isFocused: boolean }) => ({
-            ...customSelectStyles.control(base, state),
-            minHeight: '44px',
-            minWidth: 0,
-            fontSize: '0.875rem',
-            borderRadius: '0.5rem',
-        }),
-        menuPortal: (base: Record<string, unknown>) => ({ ...base, zIndex: 100 }),
+        menuPortal: (base) => ({ ...base, zIndex: 100 }),
     };
 
     // Initial batch accordion state: collapsed by default when registering empty item,

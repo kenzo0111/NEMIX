@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useSortableData } from '@/Hooks/useSortableData';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
 import Modal from '@/Components/Modal';
 import { ExternalLink, X, Package } from 'lucide-react';
 import {
@@ -26,6 +28,14 @@ export default function FocusedItemsModal({
     onClose,
     items,
 }: FocusedItemsModalProps) {
+    const accessors = useMemo(() => ({
+        name: (item: InventoryAnalyticsItem) => item.name,
+        stock: (item: InventoryAnalyticsItem) => item.stock,
+        cost: (item: InventoryAnalyticsItem) => item.unitCost,
+        value: (item: InventoryAnalyticsItem) => item.amount,
+        status: (item: InventoryAnalyticsItem) => item.status,
+    }), []);
+    const { sortedRows, sort, requestSort } = useSortableData(items, accessors, { key: 'name', direction: 'asc' });
     const handleNavigateToInventory = () => {
         if (typeof route === 'function') {
             try {
@@ -84,7 +94,7 @@ export default function FocusedItemsModal({
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500 dark:text-slate-400">
                         <span>Showing {items.length} registered items</span>
-                        <span className="text-gray-400 dark:text-slate-500 tabular-nums">Sorted by latest records</span>
+                        <span className="text-gray-400 dark:text-slate-500 tabular-nums">Select a column heading to sort</span>
                     </div>
 
                     {items.length > 0 ? (
@@ -92,15 +102,15 @@ export default function FocusedItemsModal({
                             <Table className="min-w-[580px]">
                                 <TableHeader>
                                     <TableRow className="bg-gray-50/80 dark:bg-slate-800/80">
-                                        <TableHead className="w-[45%]">Item / SKU</TableHead>
-                                        <TableHead className="text-right">Stock</TableHead>
-                                        <TableHead className="text-right">Unit Cost</TableHead>
-                                        <TableHead className="text-right">Total Value</TableHead>
-                                        <TableHead className="text-center">Status</TableHead>
+                                        <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3">Item / SKU</SortableTableHeader>
+                                        <SortableTableHeader column="stock" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3">Stock</SortableTableHeader>
+                                        <SortableTableHeader column="cost" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3">Unit Cost</SortableTableHeader>
+                                        <SortableTableHeader column="value" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3">Total Value</SortableTableHeader>
+                                        <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="center" className="px-4 py-3">Status</SortableTableHeader>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {items.map((item) => (
+                                    {sortedRows.map((item) => (
                                         <TableRow key={item.id} className="hover:bg-gray-50/60 dark:hover:bg-slate-800/50">
                                             <TableCell className="py-2.5">
                                                 <p className="leading-relaxed font-semibold text-gray-900 dark:text-slate-100 text-sm truncate max-w-[200px]">

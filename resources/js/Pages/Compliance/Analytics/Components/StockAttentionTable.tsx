@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useSortableData } from '@/Hooks/useSortableData';
+import SortableTableHeader from '@/Components/ui/sortable-table-header';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import {
     Table,
@@ -20,6 +22,15 @@ function formatCurrency(val: number): string {
 }
 
 export default function StockAttentionTable({ items }: StockAttentionTableProps) {
+    type AttentionItem = StockAttentionTableProps['items'][number];
+    const accessors = useMemo(() => ({
+        name: (item: AttentionItem) => item.name,
+        stock: (item: AttentionItem) => item.stock,
+        unit: (item: AttentionItem) => item.unitOfIssue,
+        status: (item: AttentionItem) => Number(item.stock) <= 0 ? 'Critical / Out of Stock' : 'Low Stock',
+        value: (item: AttentionItem) => item.amount,
+    }), []);
+    const { sortedRows, sort, requestSort } = useSortableData(items, accessors, { key: 'stock', direction: 'asc' });
     const hasItems = items && items.length > 0;
 
     return (
@@ -47,15 +58,15 @@ export default function StockAttentionTable({ items }: StockAttentionTableProps)
                         <Table className="min-w-[650px]">
                             <TableHeader>
                                 <TableRow className="bg-gray-50/60 dark:bg-slate-800/60 hover:bg-gray-50/60 dark:hover:bg-slate-800/60">
-                                    <TableHead className="w-[40%] pl-6">Item Name & SKU</TableHead>
-                                    <TableHead className="text-right">Stock On Hand</TableHead>
-                                    <TableHead className="text-center">Unit of Issue</TableHead>
-                                    <TableHead className="text-center">Status</TableHead>
-                                    <TableHead className="text-right pr-6">Calculated Value</TableHead>
+                                    <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="pl-6 py-3">Item Name & SKU</SortableTableHeader>
+                                    <SortableTableHeader column="stock" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3">Stock On Hand</SortableTableHeader>
+                                    <SortableTableHeader column="unit" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="center" className="px-4 py-3">Unit of Issue</SortableTableHeader>
+                                    <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="center" className="px-4 py-3">Status</SortableTableHeader>
+                                    <SortableTableHeader column="value" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="pr-6 py-3">Calculated Value</SortableTableHeader>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {items.map((item) => {
+                                {sortedRows.map((item) => {
                                     const isOut = Number(item.stock) <= 0;
                                     return (
                                         <TableRow key={item.id} className="hover:bg-gray-50/80 dark:hover:bg-slate-800/50">

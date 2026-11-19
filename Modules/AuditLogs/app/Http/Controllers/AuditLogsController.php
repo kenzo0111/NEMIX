@@ -3,7 +3,9 @@
 namespace Modules\AuditLogs\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Support\TableSort;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Modules\AuditLogs\Models\LoginTrail;
 use Modules\AuditLogs\Models\TransactionTrail;
@@ -100,8 +102,27 @@ class AuditLogsController extends Controller
         ];
 
         // Paginate results (25 per page by default)
-        $paginated = $query->latest('created_at')
-            ->paginate(25)
+        $sort = TableSort::fromRequest($request, [
+            'user' => 'login_trails.name',
+            'date' => 'login_trails.created_at',
+            'ip' => 'login_trails.ip_address',
+            'result' => 'login_trails.status',
+            'role' => fn ($query, $direction) => $query->orderBy(
+                DB::table('users')
+                    ->join('model_has_roles', 'model_has_roles.model_id', '=', 'users.id')
+                    ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+                    ->select('roles.name')
+                    ->whereColumn('users.id', 'login_trails.user_id')
+                    ->where('model_has_roles.model_type', (new \App\Models\User)->getMorphClass())
+                    ->orderBy('roles.id')
+                    ->limit(1),
+                $direction
+            ),
+        ], 'date', 'desc');
+        $sort->apply($query, 'login_trails.id');
+
+        $paginated = $query
+            ->paginate(TableSort::pageSize($request, 25))
             ->withQueryString();
 
         $paginated->through(function ($trail) {
@@ -157,6 +178,7 @@ class AuditLogsController extends Controller
                 'status' => $status ?: null,
                 'date_from' => $dateFrom ?: null,
                 'date_to' => $dateTo ?: null,
+                ...$sort->filters(),
             ],
             'availableRoles' => $availableRoles,
             'availableStatuses' => $availableStatuses,
@@ -267,8 +289,22 @@ class AuditLogsController extends Controller
         ];
 
         // Paginate results (25 business event groups per page by default)
-        $paginated = $query->latest('created_at')
-            ->paginate(25)
+        $sort = TableSort::fromRequest($request, [
+            'activity' => 'transaction_trails.action',
+            'module' => 'transaction_trails.module',
+            'result' => 'transaction_trails.status',
+            'date' => 'transaction_trails.created_at',
+            'user' => fn ($query, $direction) => $query->orderBy(
+                DB::table('users')->select('name')
+                    ->whereColumn('users.id', 'transaction_trails.user_id')
+                    ->limit(1),
+                $direction
+            ),
+        ], 'date', 'desc');
+        $sort->apply($query, 'transaction_trails.id');
+
+        $paginated = $query
+            ->paginate(TableSort::pageSize($request, 25))
             ->withQueryString();
 
         $paginated->through(function ($trail) {
@@ -464,6 +500,7 @@ class AuditLogsController extends Controller
                 'date_from' => $dateFrom ?: null,
                 'date_to' => $dateTo ?: null,
                 'view_mode' => $viewMode,
+                ...$sort->filters(),
             ],
             'availableModules' => $availableModules,
             'availableActions' => $availableActions,

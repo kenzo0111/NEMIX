@@ -1,6 +1,8 @@
 # Approval stock deduction and weekly item quotas
 
-Implemented locally on 19 November 2026 for Authorized Personnel, Supply Coordinators, and Inventory Staff. Existing action permissions and ownership restrictions still apply. No deployment or application database migration/conversion has been performed.
+Implemented and deployed to https://unc-nemix.com on 19 November 2026 for Authorized Personnel, Supply Coordinators, and Inventory Staff. Existing action permissions and ownership restrictions still apply. The migration and legacy-approval conversion have completed. See [the deployment record](stock-approval-weekly-quota-deployment-2026-11-19.md).
+
+The user supplied a weekly limit of **10 in each item's own unit per user**, applied to all 23 listed inventory records. Both Highlighter Pen records have the same limit; inventory records and their history were preserved. New items still require their own configured limit.
 
 ## Procedure and stock effects
 
