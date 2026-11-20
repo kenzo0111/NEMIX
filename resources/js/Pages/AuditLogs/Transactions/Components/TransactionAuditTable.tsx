@@ -1,13 +1,10 @@
-import { rowSelectionProps } from '@/Hooks/useTableSelection';
-import React, { useEffect, useState } from 'react';
-import { Shield } from 'lucide-react';
+import React, { useState } from 'react';
+import { Shield, ChevronDown, ChevronRight } from 'lucide-react';
 import { TransactionAuditRecord } from '../types';
 import { TransactionAuditStatus } from './TransactionAuditStatus';
 import { TransactionAuditExpandedDetails } from './TransactionAuditExpandedDetails';
 import { getAuditSecondaryText } from '../../utils/auditMetadata';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
-import TableSelectionAction from '@/Components/ui/table-selection-action';
-import RecordDetailsModal from '@/Components/ui/record-details-modal';
 
 type TransactionSortKey = 'user' | 'activity' | 'module' | 'result' | 'date';
 
@@ -56,16 +53,11 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
     direction,
     onSort,
 }) => {
-    const [showDetails, setShowDetails] = useState(false);
-    const [selectedRowId, setSelectedRowId] = useState<number | string | null>(null);
-    const selectedRecord = records.find((record) => record.id === selectedRowId) || null;
+    const [expandedRowId, setExpandedRowId] = useState<number | string | null>(null);
 
-    useEffect(() => {
-        if (selectedRowId !== null && !records.some((record) => record.id === selectedRowId)) {
-            setSelectedRowId(null);
-            setShowDetails(false);
-        }
-    }, [records, selectedRowId]);
+    const toggleRow = (id: number | string) => {
+        setExpandedRowId((prev) => (prev === id ? null : id));
+    };
 
     if (records.length === 0) {
         return (
@@ -109,15 +101,11 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
 
     return (
         <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200/90 dark:border-slate-800 shadow-2xs overflow-hidden w-full min-w-0">
-            <TableSelectionAction
-                selectedLabel={selectedRecord ? (selectedRecord.action || selectedRecord.reference || `Record #${selectedRecord.id}`) : null}
-                actionLabel="View selected"
-                onAction={() => setShowDetails(true)}
-            />
             <div className="overflow-x-auto w-full">
                 <table className="w-full text-left border-collapse min-w-[760px]">
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/60 text-sm font-bold text-gray-600 dark:text-slate-300 normal-case tracking-normal">
+                            <th className="py-3 px-3 w-12 text-center" aria-label="Expand or collapse row"></th>
                             <SortableTableHeader column="user" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 w-1/4">User</SortableTableHeader>
                             <SortableTableHeader column="activity" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 w-1/3">Activity</SortableTableHeader>
                             <SortableTableHeader column="module" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 w-1/6">Module</SortableTableHeader>
@@ -127,20 +115,39 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-slate-800 text-sm">
                         {records.map((record, index) => {
+                            const isExpanded = expandedRowId === record.id;
                             const childrenCount = record.children?.length || 0;
                             const secondaryText = getAuditSecondaryText(record);
 
                             return (
                                 <React.Fragment key={record.id || index}>
                                     <tr
-                                        
-                                        
-                                        {...rowSelectionProps(selectedRowId === record.id, () => { setSelectedRowId(record.id); setShowDetails(false); })}
-                                        
+                                        onClick={() => toggleRow(record.id)}
                                         className={`cursor-pointer transition-colors ${
-                                            selectedRowId === record.id ? 'bg-red-50 shadow-[inset_3px_0_0_#7f1d1d] dark:bg-red-950/30' : 'hover:bg-red-50/30 dark:hover:bg-red-950/20'
+                                            isExpanded
+                                                ? 'bg-red-50/30 dark:bg-red-950/20'
+                                                : 'hover:bg-gray-50/80 dark:hover:bg-slate-800/50'
                                         }`}
                                     >
+                                        {/* EXPAND TOGGLE */}
+                                        <td className="py-3.5 px-3 text-center">
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleRow(record.id);
+                                                }}
+                                                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 rounded transition-colors cursor-pointer"
+                                                aria-label={isExpanded ? 'Collapse transaction details' : 'Expand transaction details'}
+                                            >
+                                                {isExpanded ? (
+                                                    <ChevronDown className="w-4 h-4 text-red-900 dark:text-red-400" />
+                                                ) : (
+                                                    <ChevronRight className="w-4 h-4 text-gray-400 dark:text-slate-500" />
+                                                )}
+                                            </button>
+                                        </td>
+
                                         {/* USER */}
                                         <td className="py-3.5 px-4">
                                             <div className="font-semibold text-gray-900 dark:text-slate-100 leading-tight truncate">
@@ -170,7 +177,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                             )}
                                         </td>
 
-                                        {/* MODULE (Normalized, Plain text) */}
+                                        {/* MODULE */}
                                         <td className="py-3.5 px-4">
                                             <span className="text-sm text-gray-700 dark:text-slate-300 font-medium">
                                                 {record.module || 'System'}
@@ -191,15 +198,23 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                         </td>
                                     </tr>
 
+                                    {/* EXPANDED DETAILS */}
+                                    {isExpanded && (
+                                        <tr className="bg-gray-50/40 dark:bg-slate-950/40">
+                                            <td colSpan={6} className="px-4 sm:px-6 py-4 border-t border-gray-100 dark:border-slate-800">
+                                                <TransactionAuditExpandedDetails
+                                                    record={record}
+                                                    formatDate={formatDisplayDate}
+                                                />
+                                            </td>
+                                        </tr>
+                                    )}
                                 </React.Fragment>
                             );
                         })}
                     </tbody>
                 </table>
             </div>
-            <RecordDetailsModal show={showDetails && !!selectedRecord} title="Transaction audit details" maxWidth="5xl" onClose={() => setShowDetails(false)}>
-                {selectedRecord && <TransactionAuditExpandedDetails record={selectedRecord} formatDate={formatDisplayDate} />}
-            </RecordDetailsModal>
         </div>
     );
 };

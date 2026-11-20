@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { IssuanceRecord, PaginatedData, IssuanceSortKey } from '../types';
 import { IssuanceRow } from './IssuanceRow';
 import type { SortDirection } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
-import TableSelectionAction from '@/Components/ui/table-selection-action';
 
 interface IssuanceTableProps {
     issuances: IssuanceRecord[];
@@ -31,15 +30,9 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
     const totalRecords = pagination?.total ?? issuances.length;
     const fromRecord = pagination?.from ?? (totalRecords === 0 ? 0 : (currentPage - 1) * 10 + 1);
     const toRecord = pagination?.to ?? Math.min(currentPage * 10, totalRecords);
-    const [selectedId, setSelectedId] = useState<number | null>(null);
-    const selectedIssuance = issuances.find((issuance) => issuance.id === selectedId) || null;
-    useEffect(() => {
-        if (selectedId !== null && !issuances.some((issuance) => issuance.id === selectedId)) setSelectedId(null);
-    }, [issuances, selectedId]);
 
     return (
         <div className="overflow-hidden min-w-0">
-            <TableSelectionAction selectedLabel={selectedIssuance ? `${selectedIssuance.ris_number} — ${selectedIssuance.recipient}` : null} onAction={() => selectedIssuance && onViewDetails(selectedIssuance)} actionLabel="View selected" />
             {/* Table Container */}
             <div className="overflow-x-auto min-w-0">
                 <table className="w-full text-left border-collapse min-w-[700px]">
@@ -63,12 +56,15 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
                             <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Status
                             </SortableTableHeader>
+                            <th scope="col" className="px-4 lg:px-6 py-3.5 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
                         {issuances.length === 0 ? (
                             <tr>
-                                <td colSpan={6} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
+                                <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
                                     <div className="flex flex-col items-center justify-center">
                                         <svg
                                             className="w-10 h-10 text-gray-300 dark:text-slate-600 mb-2"
@@ -95,8 +91,8 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
                                 <IssuanceRow
                                     key={issuance.id}
                                     issuance={issuance}
-                                    selected={issuance.id === selectedId}
-                                    onSelect={(row) => setSelectedId(row.id)}
+                                    onViewDetails={onViewDetails}
+                                    onViewRisForm={onViewRisForm}
                                 />
                             ))
                         )}

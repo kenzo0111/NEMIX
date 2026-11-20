@@ -1,4 +1,3 @@
-import { rowSelectionProps } from '@/Hooks/useTableSelection';
 import DashboardContent from '@/Layouts/DashboardContent';
 import { notify } from '@/utils/notifications';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -22,7 +21,6 @@ import useStockRefresh from '@/Hooks/useStockRefresh';
 import CoordinatorRequestsWorkspace from './components/CoordinatorRequestsWorkspace';
 import type { RequestSortKey } from './components/CoordinatorRequestsWorkspace';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
-import TableSelectionAction from '@/Components/ui/table-selection-action';
 import { compareSortValues } from '@/Hooks/useSortableData';
 
 const PAGE_SIZE = 10;
@@ -136,7 +134,6 @@ export default function MyRequests({
     const [preview, setPreview] = useState<IssuanceRecord | null>(null);
     const [previewRequestId, setPreviewRequestId] = useState<number | null>(null);
     const [busy, setBusy] = useState<number | null>(null);
-    const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
     const [requestSort, setRequestSort] = useState<RequestSortKey>(() => requestFilters.sort || 'date');
     const [requestDirection, setRequestDirection] = useState<'asc' | 'desc'>(() => requestFilters.direction || 'desc');
     const initialCoordinatorSearch = useRef(true);
@@ -534,8 +531,6 @@ export default function MyRequests({
                             </div>
                         </div>
 
-                        <TableSelectionAction selectedLabel={selectedRequest ? (selectedRequest.ris_number || `Request #${selectedRequest.id}`) : null} actionLabel={readOnly ? 'View selected' : 'Manage selected'} onAction={() => selectedRequest && setDetailsRequest(selectedRequest)} />
-
                         {/* Table */}
                         <div className="overflow-x-auto min-w-0">
                             <table className="w-full text-left border-collapse min-w-[900px]">
@@ -546,13 +541,14 @@ export default function MyRequests({
                                         <SortableTableHeader column="purpose" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Fund Cluster / Purpose</SortableTableHeader>
                                         <SortableTableHeader column="items" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Items</SortableTableHeader>
                                         <SortableTableHeader column="date" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Date Requested</SortableTableHeader>
-                                        <SortableTableHeader column="status" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Approval Status</SortableTableHeader>
+                                        <SortableTableHeader column="status" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Approval Status</SortableTableHeader>
+                                        <th scope="col" className="px-4 lg:px-5 py-3 text-sm font-bold text-slate-600 dark:text-slate-400 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
                                     {visible.length === 0 ? (
                                         <tr>
-                                            <td colSpan={6} className="px-6 py-12 text-center">
+                                            <td colSpan={7} className="px-6 py-12 text-center">
                                                 <div className="flex flex-col items-center">
                                                     <FileText className="w-9 h-9 text-slate-300 dark:text-slate-600 mb-2" />
                                                     <p className="leading-relaxed font-semibold text-sm text-slate-800 dark:text-slate-200">
@@ -583,11 +579,7 @@ export default function MyRequests({
                                             return (
                                                 <tr
                                                     key={request.id}
-                                                    
-                                                    
-                                                    {...rowSelectionProps(selectedRequestId === request.id, () => setSelectedRequestId(request.id))}
-                                                    
-                                                    className={`cursor-pointer transition-colors border-b border-slate-100 dark:border-slate-800/80 last:border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-800 ${selectedRequestId === request.id ? 'bg-red-50 shadow-[inset_3px_0_0_#7f1d1d] dark:bg-red-950/30' : 'hover:bg-red-50/30 dark:hover:bg-red-950/20'}`}
+                                                    className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors border-b border-slate-100 dark:border-slate-800/80 last:border-0"
                                                 >
                                                     {/* RIS No. */}
                                                     <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap">

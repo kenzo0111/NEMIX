@@ -205,3 +205,64 @@ test('sidebar control uses Chevrons icons, clear labels, and accessible click ta
     assert.match(expanded, /lucide-chevrons-left/);
 });
 
+test('table rows render direct action buttons (View, Edit, RIS Form, Update) on each row', () => {
+    const tableLoader = createLoader({
+        '@/Hooks/useAuthorization': { __esModule: true, default: () => ({ can: () => true }) },
+        '@/utils/dateUtils': { __esModule: true, formatDisplayDate: (d) => d || '2026-11-20' },
+        '@/utils/risFormatter': { __esModule: true, formatRisNumber: (n) => n || 'RIS-2026-0001' },
+    });
+
+    const IssuanceRow = tableLoader('resources/js/Pages/Inventory/Issuance/components/IssuanceRow.tsx').IssuanceRow;
+    const issuanceMarkup = renderToStaticMarkup(React.createElement('table', null,
+        React.createElement('tbody', null,
+            React.createElement(IssuanceRow, {
+                issuance: { id: 1, ris_number: 'RIS-001', recipient: 'Juan Cruz', item: 'Bond Paper', total_quantity: 5, date: '2026-11-20', status: 'Approved' },
+                onViewDetails: () => {},
+                onViewRisForm: () => {},
+            })
+        )
+    ));
+    assert.match(issuanceMarkup, />View<\/button>/);
+    assert.match(issuanceMarkup, />RIS Form<\/button>/);
+
+    const SupplierRow = tableLoader('resources/js/Pages/Suppliers/Components/SupplierRow.tsx').SupplierRow;
+    const supplierMarkup = renderToStaticMarkup(React.createElement('table', null,
+        React.createElement('tbody', null,
+            React.createElement(SupplierRow, {
+                supplier: { id: 1, name: 'Acme Supplies', tin: '123-456', reg_number: 'REG-001', status: 'active' },
+                onView: () => {},
+                onEdit: () => {},
+            })
+        )
+    ));
+    assert.match(supplierMarkup, />View<\/button>/);
+    assert.match(supplierMarkup, />Update<\/button>/);
+});
+
+test('audit trail rows render expandable accordion rows with forensic details', () => {
+    const auditLoader = createLoader({
+        '@/utils/dateUtils': { __esModule: true, formatDisplayDate: () => '11/20/2026', formatDisplayTime: () => '01:00 PM' },
+    });
+    const LoginAuditTable = auditLoader('resources/js/Pages/AuditLogs/Login/Components/LoginAuditTable.tsx').LoginAuditTable;
+    const markup = renderToStaticMarkup(React.createElement(LoginAuditTable, {
+        records: [{
+            id: 101,
+            user: { name: 'Admin User', email: 'admin@unc.edu.ph', role: 'System Administrator' },
+            account: 'admin@unc.edu.ph',
+            role: 'System Administrator',
+            ip_address: '192.168.1.1',
+            status: 'Success',
+            created_at: '2026-11-20T05:00:00Z',
+            user_agent: 'Mozilla/5.0 Chrome',
+            failure_reason: null,
+        }],
+        sort: 'date',
+        direction: 'desc',
+        onSort: () => {},
+    }));
+    assert.match(markup, /aria-label="Expand audit details"/);
+    assert.match(markup, /192\.168\.1\.1/);
+    assert.match(markup, /System Administrator/);
+});
+
+

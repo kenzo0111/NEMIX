@@ -1,4 +1,3 @@
-import { rowSelectionProps } from '@/Hooks/useTableSelection';
 import { useState, useMemo, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { PaginationMeta, RFIDInventoryItem } from '../types';
@@ -14,9 +13,6 @@ import {
     Filter,
 } from 'lucide-react';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
-import TableSelectionAction from '@/Components/ui/table-selection-action';
-import RecordDetailsModal from '@/Components/ui/record-details-modal';
-import TableSortControls from '@/Components/ui/table-sort-controls';
 import useAuthorization from '@/Hooks/useAuthorization';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { compareSortValues, type SortValue } from '@/Hooks/useSortableData';
@@ -318,16 +314,6 @@ export default function RFIDRecordsTable({
                         </div>
                     </div>
 
-                    <TableSelectionAction
-                        selectedLabel={pendingItem?.name}
-                        actionLabel={can('rfid.assign') ? 'Manage selected' : 'View selected'}
-                        onAction={() => setShowDetails(true)}
-                    >
-                        <TableSortControls sortKey={sort} direction={direction} onSort={handleSort} options={[
-                            { value: 'name', label: 'Item' }, { value: 'sku', label: 'Property no.' }, { value: 'rfid', label: 'RFID tag' }, { value: 'status', label: 'Tag status' }, { value: 'supplier', label: 'Supplier' }, { value: 'updated', label: 'Last updated' },
-                        ]} />
-                    </TableSelectionAction>
-
                     {/* Table View */}
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[760px] text-left text-sm divide-y divide-gray-200 dark:divide-slate-800">
@@ -337,12 +323,13 @@ export default function RFIDRecordsTable({
                                     <SortableTableHeader column="sku" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3 px-6 tabular-nums">Property No.</SortableTableHeader>
                                     <SortableTableHeader column="rfid" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3 px-6 tabular-nums">RFID Tag ID</SortableTableHeader>
                                     <SortableTableHeader column="status" activeColumn={sort} direction={direction} onSort={handleSort} align="center" className="py-3 px-6">Status</SortableTableHeader>
+                                    <th scope="col" className="py-3 px-6 text-right font-semibold text-sm">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
                                 {displayItems.length === 0 ? (
                                     <tr>
-                                        <td colSpan={4} className="py-10 text-center">
+                                        <td colSpan={5} className="py-10 text-center">
                                             <div className="flex flex-col items-center justify-center text-gray-400 dark:text-slate-500">
                                                 <Filter className="w-6 h-6 mb-2 text-gray-300 dark:text-slate-600" />
                                                 <p className="leading-relaxed text-sm font-medium text-gray-600 dark:text-slate-300">No matching items found</p>
@@ -352,18 +339,14 @@ export default function RFIDRecordsTable({
                                     </tr>
                                 ) : (
                                     displayItems.map((item) => {
-                                        const isSelected = pendingSelectionId === item.id;
+                                        const isSelected = selectedItemId === item.id;
                                         const isTagged = Boolean(item.rfid_tag);
 
                                         return (
                                             <tr
                                                 key={item.id}
-                                                
-                                                
-                                                {...rowSelectionProps(isSelected, () => setPendingSelectionId(item.id))}
-                                                
-                                                className={`cursor-pointer transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-800 ${
-                                                    isSelected ? 'bg-red-50 shadow-[inset_3px_0_0_#7f1d1d] dark:bg-red-950/30' : 'hover:bg-red-50/30 dark:hover:bg-red-950/20'
+                                                className={`transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0 ${
+                                                    isSelected ? 'bg-red-50/70 dark:bg-red-950/40' : 'hover:bg-red-50/20 dark:hover:bg-red-950/20'
                                                 }`}
                                             >
                                                 <td className="py-3 px-6">
@@ -419,6 +402,28 @@ export default function RFIDRecordsTable({
                                                         <span>{isTagged ? 'Tagged' : 'Needs Tag'}</span>
                                                     </span>
                                                 </td>
+                                                <td className="py-3 px-6 text-right">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            onSelectItem(item);
+                                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                        }}
+                                                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all cursor-pointer shadow-2xs ${
+                                                            isSelected
+                                                                ? 'bg-red-950 text-white font-semibold'
+                                                                : isTagged
+                                                                ? 'bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600'
+                                                                : 'bg-red-900 hover:bg-red-950 text-white'
+                                                        }`}
+                                                    >
+                                                        {isSelected
+                                                            ? 'In Focus'
+                                                            : isTagged
+                                                            ? 'Manage'
+                                                            : 'Tag RFID'}
+                                                    </button>
+                                                </td>
                                             </tr>
                                         );
                                     })
@@ -460,15 +465,6 @@ export default function RFIDRecordsTable({
                     )}
                 </div>
             )}
-            <RecordDetailsModal show={showDetails && !!pendingItem} title="RFID item details" onClose={() => setShowDetails(false)} actions={pendingItem && can('rfid.assign') && <button type="button" className="table-control rounded-lg bg-red-900 px-4 text-sm font-semibold text-white hover:bg-red-800" onClick={() => {
-                setShowDetails(false);
-                onSelectItem(pendingItem);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}>{pendingItem.rfid_tag ? 'Manage RFID assignment' : 'Assign RFID tag'}</button>}>
-                {pendingItem && <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">{[
-                    ['Item', pendingItem.name], ['Property number', pendingItem.sku || '—'], ['RFID tag', pendingItem.rfid_tag || 'Untagged'], ['Supplier', pendingItem.supplier_name || '—'], ['On hand', `${pendingItem.stock} ${pendingItem.unit_of_issue || 'units'}`], ['Last updated', formatDisplayDate(pendingItem.updated_at, 'short') || '—'],
-                ].map(([label, value]) => <div key={label}><dt className="text-sm text-slate-500 dark:text-slate-400">{label}</dt><dd className="mt-1 break-words font-semibold">{value}</dd></div>)}</dl>}
-            </RecordDetailsModal>
         </div>
     );
 }

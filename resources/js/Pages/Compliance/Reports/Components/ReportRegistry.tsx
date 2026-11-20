@@ -1,12 +1,10 @@
-import { rowSelectionProps } from '@/Hooks/useTableSelection';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { getReportTypeShortLabel } from '../constants';
 import { ComplianceReport } from '../types';
 import useAuthorization from '@/Hooks/useAuthorization';
 import { useSortableData } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
-import TableSelectionAction from '@/Components/ui/table-selection-action';
 
 type ReportSortKey = 'reference' | 'type' | 'title' | 'coverage' | 'generated';
 
@@ -30,25 +28,32 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
         generated: (report: ComplianceReport) => new Date(report.created_at || report.createdAt || report.generatedDate || report.date || ''),
     }), []);
     const { sortedRows, sort, requestSort } = useSortableData<ComplianceReport, ReportSortKey>(reports, accessors, { key: 'generated', direction: 'desc' });
-    const [selectedId, setSelectedId] = useState<number | string | null>(null);
-    const selectedReport = sortedRows.find(report => report.id === selectedId) || null;
-    useEffect(() => {
-        if (selectedId !== null && !reports.some(report => report.id === selectedId)) setSelectedId(null);
-    }, [reports, selectedId]);
+
     return (
         <div className="overflow-hidden">
             {reports.length > 0 ? (
-                <>
-                <TableSelectionAction selectedLabel={selectedReport?.reference} actionLabel="View selected COA form" onAction={() => selectedReport && onViewReport(selectedReport)} />
                 <div className="overflow-x-auto">
                     <table className="w-full min-w-[750px] text-left border-collapse">
                         <thead className="bg-gray-50/80 dark:bg-slate-800/60 border-b border-gray-200 dark:border-slate-700">
                             <tr>
-                                <SortableTableHeader column="reference" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300">Reference No.</SortableTableHeader>
-                                <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300">Form Type</SortableTableHeader>
-                                <SortableTableHeader column="title" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300">Document Title</SortableTableHeader>
-                                <SortableTableHeader column="coverage" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300">Coverage Period</SortableTableHeader>
-                                <SortableTableHeader column="generated" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="hidden px-4 py-3.5 text-sm font-bold text-gray-700 md:table-cell lg:px-6 dark:text-slate-300">Date Generated</SortableTableHeader>
+                                <SortableTableHeader column="reference" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300">
+                                    Reference No.
+                                </SortableTableHeader>
+                                <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300">
+                                    Form Type
+                                </SortableTableHeader>
+                                <SortableTableHeader column="title" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300">
+                                    Document Title
+                                </SortableTableHeader>
+                                <SortableTableHeader column="coverage" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300">
+                                    Coverage Period
+                                </SortableTableHeader>
+                                <SortableTableHeader column="generated" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="hidden px-4 py-3.5 text-sm font-bold text-gray-700 md:table-cell lg:px-6 dark:text-slate-300">
+                                    Date Generated
+                                </SortableTableHeader>
+                                <th scope="col" className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums w-44">
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
                         <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
@@ -66,11 +71,7 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                                 return (
                                     <tr
                                         key={report.id}
-                                        
-                                        
-                                        {...rowSelectionProps(selectedId === report.id, () => setSelectedId(report.id))}
-                                        
-                                        className={`cursor-pointer transition-colors border-b border-gray-100 dark:border-slate-800 last:border-0 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-800 ${selectedId === report.id ? 'bg-red-50 shadow-[inset_3px_0_0_#7f1d1d] dark:bg-red-950/30' : 'hover:bg-red-50/30 dark:hover:bg-red-950/20'}`}
+                                        className="hover:bg-red-50/20 dark:hover:bg-slate-800/50 transition-colors border-b border-gray-100 dark:border-slate-800 last:border-0 group"
                                     >
                                         <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-slate-100 tabular-nums tracking-normal">
                                             {report.reference}
@@ -96,13 +97,31 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                                         <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-slate-400 tabular-nums">
                                             {formatDisplayDate(genDate, 'MM/DD/YYYY')}
                                         </td>
+                                        {/* Actions: View & Official COA Form */}
+                                        <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right">
+                                            <div className="inline-flex items-center gap-2.5">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onViewReport(report)}
+                                                    className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
+                                                >
+                                                    View
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onViewReport(report)}
+                                                    className="border border-red-900/30 dark:border-red-800/50 text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-800 font-semibold text-sm px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
+                                                >
+                                                    COA Form
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 );
                             })}
                         </tbody>
                     </table>
                 </div>
-                </>
             ) : (
                 <div className="p-12 text-center">
                     <div className="w-12 h-12 mx-auto bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 rounded-full flex items-center justify-center mb-3">
@@ -114,19 +133,20 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                     <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
                         There are no documents matching your search or filter criteria. You can generate a new report or migrate historical records.
                     </p>
-                    {can('compliance.reports.store') && can('compliance.reports.preview_dataset') && <button
-                        type="button"
-                        onClick={onOpenGenerate}
-                        className="mt-4 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-sm inline-flex items-center justify-center gap-2 whitespace-nowrap normal-case tabular-nums tracking-normal cursor-pointer"
-                    >
-                        <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Generate Report
-                    </button>}
+                    {can('compliance.reports.store') && can('compliance.reports.preview_dataset') && (
+                        <button
+                            type="button"
+                            onClick={onOpenGenerate}
+                            className="mt-4 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2 px-4 rounded-md shadow-xs transition-colors text-sm inline-flex items-center justify-center gap-2 whitespace-nowrap normal-case tabular-nums tracking-normal cursor-pointer"
+                        >
+                            <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Generate Report
+                        </button>
+                    )}
                 </div>
             )}
         </div>
     );
 };
-

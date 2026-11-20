@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { PackageOpen, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { InventoryItem, PaginationMeta } from '../types';
 import InventoryRow from './InventoryRow';
 import { InventorySortKey } from '../types';
 import type { SortDirection } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
-import TableSelectionAction from '@/Components/ui/table-selection-action';
-import TableSortControls from '@/Components/ui/table-sort-controls';
 
 interface InventoryTableProps {
     items: InventoryItem[];
@@ -16,6 +14,8 @@ interface InventoryTableProps {
     totalPages: number;
     onPageChange: (page: number) => void;
     onView: (item: InventoryItem) => void;
+    onEdit?: (item: InventoryItem) => void;
+    onDelete?: (item: InventoryItem) => void;
     sortKey: InventorySortKey;
     sortDirection: SortDirection;
     onSort: (key: InventorySortKey) => void;
@@ -32,6 +32,8 @@ export default function InventoryTable({
     totalPages,
     onPageChange,
     onView,
+    onEdit,
+    onDelete,
     sortKey,
     sortDirection,
     onSort,
@@ -47,22 +49,9 @@ export default function InventoryTable({
     const toCount = pagination
         ? (pagination.to ?? items.length)
         : Math.min(currentPage * itemsPerPage, totalCount);
-    const [selectedId, setSelectedId] = useState<number | null>(null);
-    const selectedItem = items.find((item) => item.id === selectedId) || null;
-
-    useEffect(() => {
-        if (selectedId !== null && !items.some((item) => item.id === selectedId)) setSelectedId(null);
-    }, [items, selectedId]);
 
     return (
         <div className="w-full overflow-hidden min-w-0">
-            <TableSelectionAction
-                selectedLabel={selectedItem ? `${selectedItem.name}${selectedItem.sku ? ` (${selectedItem.sku})` : ''}` : null}
-                onAction={() => selectedItem && onView(selectedItem)}
-                actionLabel={readOnly ? 'View selected' : 'View / Edit selected'}
-            >
-                <TableSortControls options={[{ value: 'id', label: 'Record ID' }, { value: 'sku', label: 'Stock No.' }, { value: 'name', label: 'Item' }, { value: 'description', label: 'Description' }, { value: 'unit', label: 'Unit' }, { value: 'stock', label: 'On hand' }, { value: 'value', label: 'Inventory value' }, { value: 'status', label: 'Status' }]} sortKey={sortKey} direction={sortDirection} onSort={onSort} className="md:hidden" />
-            </TableSelectionAction>
             <div className="overflow-x-auto min-w-0">
                 <table className="w-full text-left border-collapse min-w-full sm:min-w-[640px]">
                     <thead className="bg-gray-50/80 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800">
@@ -88,12 +77,15 @@ export default function InventoryTable({
                             <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-3 sm:px-5 py-3 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Status
                             </SortableTableHeader>
+                            <th scope="col" className="px-5 py-3 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
                         {items.length === 0 ? (
                             <tr>
-                                <td colSpan={7} className="px-6 py-16 text-center text-gray-500 dark:text-slate-400">
+                                <td colSpan={8} className="px-6 py-16 text-center text-gray-500 dark:text-slate-400">
                                     <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
                                         <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-gray-400 dark:text-slate-500 mb-3">
                                             <PackageOpen className="w-6 h-6" />
@@ -123,8 +115,10 @@ export default function InventoryTable({
                                 <InventoryRow
                                     key={item.id}
                                     item={item}
-                                    selected={item.id === selectedId}
-                                    onSelect={(row) => setSelectedId(row.id)}
+                                    onView={onView}
+                                    onEdit={onEdit}
+                                    onDelete={onDelete}
+                                    readOnly={readOnly}
                                 />
                             ))
                         )}

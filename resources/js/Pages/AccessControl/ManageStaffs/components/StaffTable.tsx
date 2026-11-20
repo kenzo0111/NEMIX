@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Search } from 'lucide-react';
 import { Staff, StaffSortKey } from '../types';
 import StaffTableRow from './StaffTableRow';
 import type { SortDirection } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
-import TableSelectionAction from '@/Components/ui/table-selection-action';
-import RecordDetailsModal from '@/Components/ui/record-details-modal';
-import useAuthorization from '@/Hooks/useAuthorization';
 
 interface StaffTableProps {
     staffs: Staff[];
@@ -45,20 +42,8 @@ export default function StaffTable({
     sortDirection,
     onSort,
 }: StaffTableProps) {
-    const [selectedId, setSelectedId] = useState<number | null>(null);
-    const selectedStaff = staffs.find((staff) => staff.id === selectedId) || null;
-    const [detailsOpen, setDetailsOpen] = useState(false);
-    const { isSystemAdmin: currentUserIsAdmin } = useAuthorization();
-    useEffect(() => {
-        if (selectedId !== null && !staffs.some((staff) => staff.id === selectedId)) setSelectedId(null);
-    }, [selectedId, staffs]);
-    const targetIsSystemAdmin = Boolean(selectedStaff && (selectedStaff.is_system_admin || ['system admin', 'system administrator'].includes(selectedStaff.role.toLowerCase())));
-    const targetCanMutate = Boolean(selectedStaff && (currentUserIsAdmin || !targetIsSystemAdmin));
-    const canToggleSelected = Boolean(selectedStaff && canToggleStatus && selectedStaff.id !== currentUserId && targetCanMutate);
-    const canResendSelected = Boolean(selectedStaff && canResendInvite && (!selectedStaff.email_verified || selectedStaff.status !== 'Active') && targetCanMutate);
     return (
         <section data-tour="system-admin-staff-directory" aria-label="Staff accounts roster" className="bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl shadow-2xs overflow-hidden flex flex-col">
-            <TableSelectionAction selectedLabel={selectedStaff ? `${selectedStaff.name} — ${selectedStaff.role}` : null} actionLabel={canEdit || canToggleStatus || canResendInvite ? 'Manage selected' : 'View selected'} onAction={() => setDetailsOpen(true)} />
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[760px]">
                     <thead>
@@ -69,13 +54,18 @@ export default function StaffTable({
                             <SortableTableHeader column="role" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5">
                                 Role
                             </SortableTableHeader>
-                            <SortableTableHeader column="department" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5">Delivery Unit / Office Head</SortableTableHeader>
+                            <SortableTableHeader column="department" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5">
+                                Delivery Unit / Office Head
+                            </SortableTableHeader>
                             <SortableTableHeader column="verification" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5">
                                 Verification
                             </SortableTableHeader>
                             <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5">
                                 Status
                             </SortableTableHeader>
+                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-semibold text-gray-600 dark:text-slate-300 normal-case w-2/12">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
@@ -85,13 +75,18 @@ export default function StaffTable({
                                     key={staff.id}
                                     staff={staff}
                                     currentUserId={currentUserId}
-                                    selected={staff.id === selectedId}
-                                    onSelect={(row) => setSelectedId(row.id)}
+                                    canEdit={canEdit}
+                                    canToggleStatus={canToggleStatus}
+                                    canResendInvite={canResendInvite}
+                                    isResending={resendingStaffId === staff.id}
+                                    onEdit={onEdit}
+                                    onToggleStatus={onToggleStatus}
+                                    onResendInvitation={onResendInvitation}
                                 />
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={5} className="px-6 py-14 text-center">
+                                <td colSpan={6} className="px-6 py-14 text-center">
                                     <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
                                         <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center mb-3">
                                             <Search className="w-5 h-5" />
@@ -133,20 +128,6 @@ export default function StaffTable({
                     </span>
                 )}
             </div>
-            <RecordDetailsModal show={detailsOpen && Boolean(selectedStaff)} title="Staff account details" description={selectedStaff?.name} onClose={() => setDetailsOpen(false)} actions={selectedStaff && <>
-                {canEdit && targetCanMutate && <button type="button" onClick={() => { setDetailsOpen(false); onEdit(selectedStaff); }} className="rounded-lg bg-red-950 px-4 text-sm font-semibold text-white hover:bg-red-900">Edit staff details</button>}
-                {canToggleSelected && <button type="button" onClick={() => { setDetailsOpen(false); onToggleStatus(selectedStaff); }} className="rounded-lg border border-red-300 px-4 text-sm font-semibold text-red-900 hover:bg-red-50 dark:border-red-900 dark:text-red-300">{selectedStaff.status === 'Active' ? 'Disable account' : 'Enable account'}</button>}
-                {canResendSelected && <button type="button" disabled={resendingStaffId === selectedStaff.id} onClick={() => onResendInvitation(selectedStaff)} className="rounded-lg border border-slate-300 px-4 text-sm font-semibold text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200">{resendingStaffId === selectedStaff.id ? 'Sending invitation…' : 'Resend invitation'}</button>}
-            </>}>
-                {selectedStaff && <dl className="grid gap-4 text-sm sm:grid-cols-2">
-                    {[
-                        ['Name', selectedStaff.name], ['Email', selectedStaff.email], ['Role', selectedStaff.role],
-                        ['Delivery Unit', selectedStaff.department || 'Not assigned'],
-                        ['Office Head', selectedStaff.office_head?.name || 'Not assigned'],
-                        ['Verification', selectedStaff.email_verified ? 'Verified' : 'Unverified'], ['Status', selectedStaff.status],
-                    ].map(([label, value]) => <div key={label}><dt className="text-slate-500 dark:text-slate-400">{label}</dt><dd className="mt-1 break-words font-medium text-slate-900 dark:text-slate-100">{value}</dd></div>)}
-                </dl>}
-            </RecordDetailsModal>
         </section>
     );
 }

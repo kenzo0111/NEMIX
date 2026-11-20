@@ -1,11 +1,8 @@
-import { rowSelectionProps } from '@/Hooks/useTableSelection';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Plus, Search, Shield, ShieldCheck, Lock, Users } from 'lucide-react';
 import { Role } from '../types';
 import { useSortableData } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
-import TableSelectionAction from '@/Components/ui/table-selection-action';
-import RecordDetailsModal from '@/Components/ui/record-details-modal';
 
 type RoleSortKey = 'name' | 'permissions' | 'type';
 
@@ -38,12 +35,7 @@ export default function RoleTable({
         type: (role: Role) => role.is_system ? 'system' : 'custom',
     }), []);
     const { sortedRows, sort, requestSort } = useSortableData<Role, RoleSortKey>(roles, accessors, { key: 'name', direction: 'asc' });
-    const [selectedId, setSelectedId] = useState<number | null>(null);
-    const selectedRole = sortedRows.find((role) => role.id === selectedId) || null;
-    const [detailsOpen, setDetailsOpen] = useState(false);
-    useEffect(() => {
-        if (selectedId !== null && !roles.some((role) => role.id === selectedId)) setSelectedId(null);
-    }, [roles, selectedId]);
+
     return (
         <section
             data-tour="system-admin-role-directory"
@@ -100,8 +92,6 @@ export default function RoleTable({
                 </div>
             </div>
 
-            <TableSelectionAction selectedLabel={selectedRole?.name} actionLabel={canUpdate || canDelete ? 'Manage selected' : 'View selected'} onAction={() => setDetailsOpen(true)} />
-
             {/* Table */}
             <div className="overflow-x-auto flex-1 min-w-full">
                 <table className="w-full text-left border-collapse min-w-[640px]">
@@ -116,6 +106,9 @@ export default function RoleTable({
                             <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 w-1/6">
                                 Type
                             </SortableTableHeader>
+                            <th scope="col" className="px-6 py-3.5 text-right w-1/5 text-sm font-semibold tracking-normal text-gray-600 dark:text-slate-300 normal-case">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200/80 dark:divide-slate-800 text-sm">
@@ -128,11 +121,7 @@ export default function RoleTable({
                                 return (
                                     <tr
                                         key={role.id}
-                                        
-                                        
-                                        {...rowSelectionProps(role.id === selectedId, () => setSelectedId(role.id))}
-                                        
-                                        className={`cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-800 ${role.id === selectedId ? 'bg-red-50 shadow-[inset_3px_0_0_#7f1d1d] dark:bg-red-950/30' : 'hover:bg-red-50/30 dark:hover:bg-red-950/20'}`}
+                                        className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800 last:border-0 group"
                                     >
                                         {/* Role Name, Icon & Details */}
                                         <td className="px-6 py-4">
@@ -195,12 +184,41 @@ export default function RoleTable({
                                             )}
                                         </td>
 
+                                        {/* Actions */}
+                                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                                            <div className="inline-flex items-center justify-end gap-2.5">
+                                                {canUpdate && role.is_editable && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => onEditRole(role)}
+                                                        className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-white font-semibold text-sm transition-colors cursor-pointer py-1 px-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                )}
+
+                                                {canDelete && !isSystem && role.is_deletable && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => onDeleteRole(role)}
+                                                        title="Delete role"
+                                                        className="border font-semibold text-sm px-2.5 py-1 rounded transition-colors shadow-2xs border-red-900/30 dark:border-red-800/50 text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-700 cursor-pointer"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                )}
+
+                                                {(!canUpdate || !role.is_editable) && (!canDelete || !role.is_deletable) && (
+                                                    <span className="text-sm text-gray-400 dark:text-slate-600 select-none px-2">—</span>
+                                                )}
+                                            </div>
+                                        </td>
                                     </tr>
                                 );
                             })
                         ) : (
                             <tr>
-                                <td colSpan={3} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
+                                <td colSpan={4} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
                                     <div className="flex flex-col items-center gap-2">
                                         <Search className="w-8 h-8 text-gray-300 dark:text-slate-600" />
                                         <p className="leading-relaxed font-semibold text-gray-700 dark:text-slate-300 text-sm">
@@ -232,19 +250,6 @@ export default function RoleTable({
                     Showing <span className="font-semibold text-gray-800 dark:text-slate-200">{roles.length}</span> configured {roles.length === 1 ? 'role' : 'roles'}
                 </span>
             </div>
-            <RecordDetailsModal show={detailsOpen && Boolean(selectedRole)} title="Role details" description={selectedRole?.name} onClose={() => setDetailsOpen(false)} actions={selectedRole && <>
-                {canUpdate && selectedRole.is_editable && <button type="button" onClick={() => { setDetailsOpen(false); onEditRole(selectedRole); }} className="rounded-lg bg-red-950 px-4 text-sm font-semibold text-white hover:bg-red-900">Edit role and permissions</button>}
-                {canDelete && !selectedRole.is_system && selectedRole.is_deletable && <button type="button" onClick={() => { setDetailsOpen(false); onDeleteRole(selectedRole); }} className="rounded-lg border border-red-300 px-4 text-sm font-semibold text-red-900 hover:bg-red-50 dark:border-red-900 dark:text-red-300">Delete role</button>}
-            </>}>
-                {selectedRole && <dl className="grid gap-4 text-sm sm:grid-cols-2">
-                    {[
-                        ['Role', selectedRole.name], ['Type', selectedRole.is_system ? 'System Role' : 'Custom Role'],
-                        ['Access granted', String(selectedRole.permissions_count ?? selectedRole.permissions.length) + ' permissions'],
-                        ['Assigned staff', String(selectedRole.users_count ?? 0)],
-                    ].map(([label, value]) => <div key={label}><dt className="text-slate-500 dark:text-slate-400">{label}</dt><dd className="mt-1 font-medium text-slate-900 dark:text-slate-100">{value}</dd></div>)}
-                </dl>}
-            </RecordDetailsModal>
         </section>
     );
 }
-

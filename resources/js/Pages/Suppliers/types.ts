@@ -72,6 +72,7 @@ export interface SupplierTableProps {
     totalPages: number;
     onPageChange: (page: number) => void;
     onViewSupplier: (supplier: Supplier) => void;
+    onEditSupplier: (supplier: Supplier) => void;
     sortKey: SupplierSortKey;
     sortDirection: import('@/Hooks/useSortableData').SortDirection;
     onSort: (key: SupplierSortKey) => void;
@@ -79,8 +80,8 @@ export interface SupplierTableProps {
 
 export interface SupplierRowProps {
     supplier: Supplier;
-    selected: boolean;
-    onSelect: (supplier: Supplier) => void;
+    onView: (supplier: Supplier) => void;
+    onEdit: (supplier: Supplier) => void;
 }
 
 export type SupplierSortKey = 'name' | 'registration' | 'classification' | 'status';

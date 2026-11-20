@@ -225,6 +225,7 @@ export default function ManageSupplier({ auth, suppliers = [] }: ManageSupplierP
                                 totalPages={totalPages}
                                 onPageChange={setCurrentPage}
                                 onViewSupplier={openViewModal}
+                                onEditSupplier={openEditModal}
                                 sortKey={sort.key}
                                 sortDirection={sort.direction}
                                 onSort={requestSort}

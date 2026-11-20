@@ -401,6 +401,8 @@ export default function AllItemsIndex({
                             totalPages={totalPages}
                             onPageChange={handlePageChange}
                             onView={(item) => setViewItem(item)}
+                            onEdit={(item) => openEditModal(item)}
+                            onDelete={(item) => setItemToDelete(item)}
                             sortKey={sortKey}
                             sortDirection={sortDirection}
                             onSort={handleSort}

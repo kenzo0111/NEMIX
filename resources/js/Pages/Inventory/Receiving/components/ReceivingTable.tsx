@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ReceivingRecord, PaginatedData, ReceivingSortKey } from '../types';
 import { ReceivingRow } from './ReceivingRow';
 import type { SortDirection } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
-import TableSelectionAction from '@/Components/ui/table-selection-action';
 
 interface ReceivingTableProps {
     receivings: ReceivingRecord[];
     paginationMeta: PaginatedData<ReceivingRecord> | null;
     onPageChange: (page: number) => void;
     onView: (receiving: ReceivingRecord) => void;
+    onUpdate?: (receiving: ReceivingRecord) => void;
     sortKey: ReceivingSortKey;
     sortDirection: SortDirection;
     onSort: (key: ReceivingSortKey) => void;
@@ -21,6 +21,7 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
     paginationMeta,
     onPageChange,
     onView,
+    onUpdate,
     sortKey,
     sortDirection,
     onSort,
@@ -31,16 +32,9 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
     const totalRecords = paginationMeta ? paginationMeta.total : receivings.length;
     const fromRecord = paginationMeta ? paginationMeta.from || (receivings.length > 0 ? 1 : 0) : (receivings.length > 0 ? 1 : 0);
     const toRecord = paginationMeta ? paginationMeta.to || receivings.length : receivings.length;
-    const [selectedId, setSelectedId] = useState<number | null>(null);
-    const selectedReceiving = receivings.find((receiving) => receiving.id === selectedId) || null;
-
-    useEffect(() => {
-        if (selectedId !== null && !receivings.some((receiving) => receiving.id === selectedId)) setSelectedId(null);
-    }, [receivings, selectedId]);
 
     return (
         <div className="overflow-hidden min-w-0">
-            <TableSelectionAction selectedLabel={selectedReceiving ? `${selectedReceiving.item} — ${selectedReceiving.date_received || selectedReceiving.date}` : null} onAction={() => selectedReceiving && onView(selectedReceiving)} />
             {/* Table */}
             <div className="overflow-x-auto min-w-0">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
@@ -67,12 +61,15 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                             <SortableTableHeader column="date" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums">
                                 Date Received
                             </SortableTableHeader>
+                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
                         {receivings.length === 0 ? (
                             <tr>
-                                <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
+                                <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
                                     <div className="flex flex-col items-center justify-center">
                                         <svg
                                             className="w-10 h-10 text-gray-300 dark:text-slate-600 mb-2"
@@ -107,8 +104,8 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                                 <ReceivingRow
                                     key={receiving.id}
                                     receiving={receiving}
-                                    selected={receiving.id === selectedId}
-                                    onSelect={(row) => setSelectedId(row.id)}
+                                    onView={onView}
+                                    onUpdate={onUpdate}
                                 />
                             ))
                         )}
@@ -117,39 +114,36 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
             </div>
 
             {/* Pagination Controls */}
-            <div className="px-6 lg:px-8 py-4 border-t border-gray-200/80 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <span className="text-sm text-gray-600 dark:text-slate-400 font-medium">
-                    Showing <span className="font-semibold text-gray-900 dark:text-slate-200">{fromRecord}</span> to{' '}
-                    <span className="font-semibold text-gray-900 dark:text-slate-200">{toRecord}</span> of{' '}
-                    <span className="font-semibold text-gray-900 dark:text-slate-200">{totalRecords}</span> receiving records
-                </span>
-
-                {lastPage > 1 && (
-                    <div className="flex items-center gap-1.5">
+            {paginationMeta && totalRecords > 0 && (
+                <div className="px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="text-sm text-gray-600 dark:text-slate-400">
+                        Showing <span className="font-semibold text-gray-900 dark:text-slate-200">{fromRecord}</span> to{' '}
+                        <span className="font-semibold text-gray-900 dark:text-slate-200">{toRecord}</span> of{' '}
+                        <span className="font-semibold text-gray-900 dark:text-slate-200">{totalRecords}</span> entries
+                    </div>
+                    <div className="flex items-center gap-1">
                         <button
                             type="button"
-                            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+                            onClick={() => onPageChange(currentPage - 1)}
                             disabled={currentPage <= 1}
-                            aria-label="Go to previous page"
-                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs inline-flex items-center justify-center cursor-pointer"
+                            className="px-3 py-1.5 text-sm font-medium rounded border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                         >
                             Previous
                         </button>
-                        <span className="px-2 text-sm text-gray-600 dark:text-slate-400 font-medium">
+                        <span className="px-3 text-sm text-gray-600 dark:text-slate-400">
                             Page {currentPage} of {lastPage}
                         </span>
                         <button
                             type="button"
-                            onClick={() => onPageChange(Math.min(lastPage, currentPage + 1))}
+                            onClick={() => onPageChange(currentPage + 1)}
                             disabled={currentPage >= lastPage}
-                            aria-label="Go to next page"
-                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs inline-flex items-center justify-center cursor-pointer"
+                            className="px-3 py-1.5 text-sm font-medium rounded border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                         >
                             Next
                         </button>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 };

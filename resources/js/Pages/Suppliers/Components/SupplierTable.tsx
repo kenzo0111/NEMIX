@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { SupplierTableProps } from '../types';
 import { SupplierRow } from './SupplierRow';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
-import TableSelectionAction from '@/Components/ui/table-selection-action';
 
 export const SupplierTable: React.FC<SupplierTableProps> = ({
     suppliers,
@@ -11,27 +10,16 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
     totalPages,
     onPageChange,
     onViewSupplier,
+    onEditSupplier,
     sortKey,
     sortDirection,
     onSort,
 }) => {
-    const [selectedId, setSelectedId] = useState<number | null>(null);
-    const selectedSupplier = suppliers.find((supplier) => supplier.id === selectedId) || null;
-
-    useEffect(() => {
-        if (selectedId !== null && !suppliers.some((supplier) => supplier.id === selectedId)) {
-            setSelectedId(null);
-        }
-    }, [selectedId, suppliers]);
     const startIndex = totalCount === 0 ? 0 : (currentPage - 1) * 10 + 1;
     const endIndex = Math.min(currentPage * 10, totalCount);
 
     return (
         <div>
-            <TableSelectionAction
-                selectedLabel={selectedSupplier?.name}
-                onAction={() => selectedSupplier && onViewSupplier(selectedSupplier)}
-            />
             {/* Table */}
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[750px]">
@@ -49,6 +37,9 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
                             <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
                                 Status
                             </SortableTableHeader>
+                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
@@ -56,14 +47,14 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
                             <SupplierRow
                                 key={supplier.id}
                                 supplier={supplier}
-                                selected={supplier.id === selectedId}
-                                onSelect={(row) => setSelectedId(row.id)}
+                                onView={onViewSupplier}
+                                onEdit={onEditSupplier}
                             />
                         ))}
 
                         {suppliers.length === 0 && (
                             <tr>
-                                <td colSpan={4} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-slate-400 font-medium">
+                                <td colSpan={5} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-slate-400 font-medium">
                                     No consumable office supplies suppliers found matching your criteria.
                                 </td>
                             </tr>
@@ -72,35 +63,41 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
                 </table>
             </div>
 
-            {/* Pagination */}
-            <div className="px-4 sm:px-6 lg:px-8 py-3.5 border-t border-gray-200/80 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-gray-600 dark:text-slate-400">
-                <div>
-                    Showing <span className="font-semibold text-gray-900 dark:text-slate-100">{totalCount === 0 ? 0 : `${startIndex}–${endIndex}`}</span> of{' '}
-                    <span className="font-semibold text-gray-900 dark:text-slate-100">{totalCount}</span> records
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <button
-                        type="button"
-                        onClick={() => onPageChange(currentPage - 1)}
-                        disabled={currentPage <= 1}
-                        className="px-3 py-1 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-xs cursor-pointer"
-                    >
-                        Previous
-                    </button>
-                    <span className="text-sm text-gray-500 dark:text-slate-400 font-medium px-1">
-                        Page {currentPage} of {totalPages}
+            {/* Pagination Controls */}
+            {totalCount > 0 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 text-sm">
+                    <span className="text-gray-600 dark:text-slate-400 font-medium">
+                        Showing <span className="font-semibold text-gray-900 dark:text-slate-100">{startIndex}</span> to{' '}
+                        <span className="font-semibold text-gray-900 dark:text-slate-100">{endIndex}</span> of{' '}
+                        <span className="font-semibold text-gray-900 dark:text-slate-100">{totalCount}</span> suppliers
                     </span>
-                    <button
-                        type="button"
-                        onClick={() => onPageChange(currentPage + 1)}
-                        disabled={currentPage >= totalPages}
-                        className="px-3 py-1 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-xs cursor-pointer"
-                    >
-                        Next
-                    </button>
+
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => onPageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            aria-label="Go to previous page"
+                            className="min-h-[38px] px-3.5 py-1.5 border border-gray-300 dark:border-slate-700 rounded text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                        >
+                            Previous
+                        </button>
+                        <span className="text-gray-600 dark:text-slate-400 font-medium px-1">
+                            Page <span className="font-semibold text-gray-900 dark:text-slate-100">{currentPage}</span> of{' '}
+                            <span className="font-semibold text-gray-900 dark:text-slate-100">{totalPages}</span>
+                        </span>
+                        <button
+                            type="button"
+                            onClick={() => onPageChange(currentPage + 1)}
+                            disabled={currentPage >= totalPages}
+                            aria-label="Go to next page"
+                            className="min-h-[38px] px-3.5 py-1.5 border border-gray-300 dark:border-slate-700 rounded text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                        >
+                            Next
+                        </button>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };

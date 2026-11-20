@@ -414,6 +414,7 @@ export default function ReceivingIndex({
                             paginationMeta={paginationMeta}
                             onPageChange={handlePageChange}
                             onView={handleOpenDetailsModal}
+                            onUpdate={handleOpenEditModal}
                             sortKey={sortKey}
                             sortDirection={sortDirection}
                             onSort={handleSort}
