@@ -265,11 +265,6 @@ export default function MyRequests({
     const visible = isCoordinator ? requestList : sortedFiltered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
     const from = isCoordinator ? coordinatorPage?.from || 0 : filtered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1;
     const to = isCoordinator ? coordinatorPage?.to || 0 : Math.min(safePage * PAGE_SIZE, sortedFiltered.length);
-    const selectedRequest = visible.find(request => request.id === selectedRequestId) || null;
-
-    useEffect(() => {
-        if (selectedRequestId !== null && !visible.some(request => request.id === selectedRequestId)) setSelectedRequestId(null);
-    }, [selectedRequestId, visible]);
 
     const changeRequestSort = (sort: RequestSortKey) => {
         const direction = requestSort === sort && requestDirection === 'asc' ? 'desc' : 'asc';
@@ -541,7 +536,8 @@ export default function MyRequests({
                                         <SortableTableHeader column="purpose" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Fund Cluster / Purpose</SortableTableHeader>
                                         <SortableTableHeader column="items" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Items</SortableTableHeader>
                                         <SortableTableHeader column="date" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Date Requested</SortableTableHeader>
-                                        <SortableTableHeader column="status" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Approval Status</SortableTableHeader>
+                                        <SortableTableHeader column="status" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Approval Status</SortableTableHeader>
+
                                         <th scope="col" className="px-4 lg:px-5 py-3 text-sm font-bold text-slate-600 dark:text-slate-400 text-right">Actions</th>
                                     </tr>
                                 </thead>
