@@ -44,24 +44,23 @@ class InventoryController extends Controller
 
     public function generateUniqueSku(?int $supplierId = null, ?string $name = null): string
     {
-        $codePart = '';
-        if (! empty($name)) {
-            $clean = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $name));
-            if (strlen($clean) >= 2) {
-                $codePart = '-'.substr($clean, 0, 4);
+        $max = 0;
+        $skus = Item::withTrashed()->pluck('sku');
+        foreach ($skus as $sku) {
+            if ($sku !== null && ctype_digit(trim((string) $sku))) {
+                $val = (int) $sku;
+                if ($val > $max) {
+                    $max = $val;
+                }
             }
         }
 
-        $count = Item::withTrashed()->count();
-        $index = $count + 1;
-        do {
-            $sku = sprintf('ITEM%s-%04d', $codePart, $index);
-            $exists = Item::withTrashed()->where('sku', $sku)->exists();
-            if (! $exists) {
-                return $sku;
-            }
-            $index++;
-        } while (true);
+        $next = $max + 1;
+        while (Item::withTrashed()->where('sku', (string) $next)->exists()) {
+            $next++;
+        }
+
+        return (string) $next;
     }
 
     public function index(Request $request)
@@ -102,7 +101,19 @@ class InventoryController extends Controller
 
         $sort = TableSort::fromRequest($request, [
             'id' => 'items.id',
-            'sku' => 'items.sku',
+            'sku' => function ($query, $direction) {
+                $driver = DB::connection()->getDriverName();
+                if ($driver === 'pgsql') {
+                    $query->orderByRaw("CASE WHEN items.sku ~ '^[0-9]+$' THEN CAST(items.sku AS INTEGER) ELSE NULL END {$direction}")
+                          ->orderBy('items.sku', $direction);
+                } elseif ($driver === 'sqlite') {
+                    $query->orderByRaw("CAST(items.sku AS INTEGER) {$direction}")
+                          ->orderBy('items.sku', $direction);
+                } else {
+                    $query->orderByRaw("CAST(items.sku AS UNSIGNED) {$direction}")
+                          ->orderBy('items.sku', $direction);
+                }
+            },
             'name' => 'items.name',
             'description' => 'items.description',
             'unit' => 'items.unit_of_issue',

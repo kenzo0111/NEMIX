@@ -37,8 +37,9 @@ class ItemSeeder extends Seeder
             ['name' => 'Paper Clips (Jumbo)', 'unit_of_issue' => 'box', 'stock' => 0, 'unit_cost' => 35.00, 'amount' => 0.00, 'status' => 'Out of Stock', 'description' => 'Box of 100 jumbo paper clips.'],
         ];
 
+        $counter = 1;
         foreach ($items as $itemData) {
-            $itemData['sku'] = strtoupper(Str::random(8));
+            $itemData['sku'] = (string) $counter++;
             Item::create($itemData);
         }
     }

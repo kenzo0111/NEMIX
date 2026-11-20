@@ -29,7 +29,19 @@ class CoordinatorInventoryController extends Controller
         $availability = $filters['availability'] ?? 'all';
         $sort = TableSort::fromRequest($request, [
             'name' => 'items.name',
-            'sku' => 'items.sku',
+            'sku' => function ($query, $direction) {
+                $driver = DB::connection()->getDriverName();
+                if ($driver === 'pgsql') {
+                    $query->orderByRaw("CASE WHEN items.sku ~ '^[0-9]+$' THEN CAST(items.sku AS INTEGER) ELSE NULL END {$direction}")
+                          ->orderBy('items.sku', $direction);
+                } elseif ($driver === 'sqlite') {
+                    $query->orderByRaw("CAST(items.sku AS INTEGER) {$direction}")
+                          ->orderBy('items.sku', $direction);
+                } else {
+                    $query->orderByRaw("CAST(items.sku AS UNSIGNED) {$direction}")
+                          ->orderBy('items.sku', $direction);
+                }
+            },
             'unit' => 'items.unit_of_issue',
             'on_hand' => 'items.stock',
             'available' => 'available_quantity',
