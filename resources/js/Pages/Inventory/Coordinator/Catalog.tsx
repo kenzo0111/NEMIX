@@ -11,6 +11,14 @@ import type { CatalogItem, CatalogSortKey } from './catalog';
 import type { SortDirection } from '@/Hooks/useSortableData';
 import useAuthorization from '@/Hooks/useAuthorization';
 import useStockRefresh from '@/Hooks/useStockRefresh';
+import Select from 'react-select';
+import { institutionalSelectStyles } from '@/styles/selectStyles';
+
+const availabilityOptions = [
+    { value: 'all', label: 'All supplies' },
+    { value: 'available', label: 'Available to request' },
+    { value: 'unavailable', label: 'Currently unavailable' },
+];
 
 interface Props {
     items: { data: CatalogItem[]; from: number | null; to: number | null; total: number; links: { url: string | null; label: string; active: boolean }[] };
@@ -54,7 +62,7 @@ export default function CentralSupplyCatalog({ items, filters, lowStockThreshold
                 <section data-tour="coordinator-catalog-search" className={`${panel} overflow-hidden`} aria-label="Browse central consumables">
                     <form onSubmit={event => { event.preventDefault(); load(search, availability); }} className="table-toolbar flex flex-col gap-3 p-4 sm:p-5 xl:flex-row xl:items-center">
                         <div className="relative min-w-0 flex-1"><Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" /><input type="search" aria-label="Search central supplies by name or stock number" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search item name or stock number…" maxLength={150} className="table-control w-full rounded-lg border-slate-300 pl-10 text-sm placeholder:text-slate-400 focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100" /></div>
-                        <div className="flex flex-wrap items-center gap-2.5"><label className="flex w-full min-w-0 items-center gap-2 text-sm text-slate-500 sm:w-auto sm:flex-1 dark:text-slate-400"><span>Availability</span><select value={availability} onChange={event => { setAvailability(event.target.value); load(search, event.target.value); }} className="table-control min-w-0 flex-1 rounded-lg border-slate-300 py-2 pl-3 pr-9 text-sm text-slate-700 focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-200"><option value="all">All supplies</option><option value="available">Available to request</option><option value="unavailable">Currently unavailable</option></select></label><button disabled={loading} className={`${secondaryButton} flex-1 disabled:opacity-50 sm:flex-none`}>{loading ? <Loader2 size={15} className="animate-spin" /> : <Search size={15} />}Search</button><button type="button" aria-label="Refresh central stock availability" disabled={loading} onClick={() => router.reload({ only: ['items', 'lowStockThreshold'], onStart: () => setLoading(true), onFinish: () => setLoading(false) })} className={`${secondaryButton} px-3 disabled:opacity-50`}><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /></button></div>
+                        <div className="flex flex-wrap items-center gap-2.5"><div className="w-full sm:w-52 min-w-0"><Select value={availabilityOptions.find(opt => opt.value === availability) || availabilityOptions[0]} onChange={opt => { const nextVal = opt?.value || 'all'; setAvailability(nextVal); load(search, nextVal); }} options={availabilityOptions} styles={institutionalSelectStyles} classNamePrefix="react-select" isSearchable={false} aria-label="Filter central supplies availability" /></div><button disabled={loading} className={`${secondaryButton} flex-1 disabled:opacity-50 sm:flex-none`}>{loading ? <Loader2 size={15} className="animate-spin" /> : <Search size={15} />}Search</button><button type="button" aria-label="Refresh central stock availability" disabled={loading} onClick={() => router.reload({ only: ['items', 'lowStockThreshold'], onStart: () => setLoading(true), onFinish: () => setLoading(false) })} className={`${secondaryButton} px-3 disabled:opacity-50`}><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /></button></div>
                     </form>
                     <div role="status" className="border-t border-slate-100 px-5 py-3 text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400">Showing {items.from ?? 0}–{items.to ?? 0} of {items.total} consumable items{filters.search && <> matching “{filters.search}”</>}</div>
                 </section>

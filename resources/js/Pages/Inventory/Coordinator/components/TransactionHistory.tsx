@@ -4,6 +4,14 @@ import { ArrowDownLeft, ArrowUpRight, Search } from 'lucide-react';
 import { Movement, displayDate, secondaryButton } from '../inventory';
 import type { SortDirection } from '@/Hooks/useSortableData';
 import RecordTable, { type RecordColumn } from '@/Components/ui/record-table';
+import Select from 'react-select';
+import { institutionalSelectStyles } from '@/styles/selectStyles';
+
+const movementOptions = [
+    { value: 'all', label: 'All movements' },
+    { value: 'receipt', label: 'Received' },
+    { value: 'issue', label: 'Issued' },
+];
 
 declare function route(name: string, params?: any): string;
 
@@ -138,19 +146,21 @@ export default function TransactionHistory({
                         className="table-control w-full rounded-lg border-slate-300 pl-9 text-sm focus:border-red-800 focus:ring-red-800 dark:border-slate-700 dark:bg-slate-950"
                     />
                 </div>
-                <select
-                    aria-label="Filter transaction movement"
-                    value={type}
-                    onChange={event => {
-                        setType(event.target.value);
-                        load(search, event.target.value);
-                    }}
-                    className="table-control rounded-lg border-slate-300 pl-3 pr-8 text-sm focus:border-red-800 focus:ring-red-800 dark:border-slate-700 dark:bg-slate-950"
-                >
-                    <option value="all">All movements</option>
-                    <option value="receipt">Received</option>
-                    <option value="issue">Issued</option>
-                </select>
+                <div className="w-full sm:w-48">
+                    <Select
+                        aria-label="Filter transaction movement"
+                        value={movementOptions.find(opt => opt.value === type) || movementOptions[0]}
+                        onChange={opt => {
+                            const nextVal = opt?.value || 'all';
+                            setType(nextVal);
+                            load(search, nextVal);
+                        }}
+                        options={movementOptions}
+                        styles={institutionalSelectStyles}
+                        classNamePrefix="react-select"
+                        isSearchable={false}
+                    />
+                </div>
                 <button className={secondaryButton} type="submit">Search</button>
                 {(search || type !== 'all') && (
                     <button className={secondaryButton} type="button" onClick={() => { setSearch(''); setType('all'); load('', 'all'); }}>

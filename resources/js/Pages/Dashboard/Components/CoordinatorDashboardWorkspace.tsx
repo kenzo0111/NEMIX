@@ -11,6 +11,14 @@ import useAuthorization from '@/Hooks/useAuthorization';
 import { COORDINATOR_TOUR_START_EVENT } from './CoordinatorWalkthroughGuide';
 import CentralReceivingSummary from './CentralReceivingSummary';
 import CoordinatorStockAttention from './CoordinatorStockAttention';
+import Select from 'react-select';
+import { institutionalSelectStyles } from '@/styles/selectStyles';
+
+const chartPeriodOptions = [
+    { value: 'monthly', label: 'Last 6 months' },
+    { value: 'yearly', label: 'Last 5 years' },
+    { value: 'custom', label: 'Custom period' },
+];
 
 interface Props {
     auth: {
@@ -133,9 +141,17 @@ export default function CoordinatorDashboardWorkspace({
                         <section aria-labelledby="movement-heading" className={`${surface} p-4`}>
                             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3 dark:border-slate-800">
                                 <h3 id="movement-heading" className="flex items-center gap-2 text-base font-semibold"><ChartColumn size={20} className="text-slate-400" aria-hidden="true" />Inventory movement trends</h3>
-                                <select aria-label="Movement chart period" value={filters?.chartFilter || 'monthly'} onChange={event => router.get(route('dashboard'), { chart_filter: event.target.value }, { preserveState: true, preserveScroll: true, replace: true })} className="table-control rounded-lg border-slate-200 bg-white pl-3 pr-8 text-xs focus:border-red-800 focus:ring-red-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-                                    <option value="monthly">Last 6 months</option><option value="yearly">Last 5 years</option>{filters?.chartFilter === 'custom' && <option value="custom">Custom period</option>}
-                                </select>
+                                <div className="w-44">
+                                    <Select
+                                        aria-label="Movement chart period"
+                                        value={chartPeriodOptions.find(opt => opt.value === (filters?.chartFilter || 'monthly')) || chartPeriodOptions[0]}
+                                        onChange={opt => router.get(route('dashboard'), { chart_filter: opt?.value || 'monthly' }, { preserveState: true, preserveScroll: true, replace: true })}
+                                        options={filters?.chartFilter === 'custom' ? chartPeriodOptions : chartPeriodOptions.filter(o => o.value !== 'custom')}
+                                        styles={institutionalSelectStyles}
+                                        classNamePrefix="react-select"
+                                        isSearchable={false}
+                                    />
+                                </div>
                             </div>
                             <InventoryMovementChart data={movement} />
                             <div className="mt-3 flex flex-wrap items-center justify-end gap-4 text-xs text-slate-500 dark:text-slate-400"><span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-emerald-500" />Received</span><span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-amber-500" />Issued</span><span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-3 bg-red-800 dark:bg-red-400" />Balance</span></div>

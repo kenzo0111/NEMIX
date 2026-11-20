@@ -8,6 +8,8 @@ import CoordinatorPortalHeader from '../../Coordinator/components/CoordinatorPor
 import { panel, secondaryButton } from '../../Coordinator/inventory';
 import { SupplyRequest } from '../types';
 import { RequestStatusBadge } from './RequestStatusBadge';
+import Select from 'react-select';
+import { institutionalSelectStyles } from '@/styles/selectStyles';
 
 export type RequestSortKey = 'reference' | 'purpose' | 'recipient' | 'status' | 'date' | 'items';
 
@@ -168,14 +170,17 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                                 </button>
                             )}
                         </div>
-                        <label className="flex min-w-0 items-center gap-2.5 text-sm text-slate-500 dark:text-slate-400">
-                            <span className="shrink-0">Status</span>
-                            <select value={props.status} onChange={event => props.onStatus(event.target.value)} className="h-11 min-w-0 flex-1 rounded-lg border-slate-300 bg-white pl-3 pr-9 text-sm text-slate-700 focus:border-red-800 focus:ring-red-800 sm:w-64 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-200">
-                                {props.statusOptions.map(option => (
-                                    <option key={option.value} value={option.value}>{option.label}</option>
-                                ))}
-                            </select>
-                        </label>
+                        <div className="w-full sm:w-64 min-w-0">
+                            <Select
+                                value={props.statusOptions.find(opt => opt.value === props.status) || props.statusOptions[0]}
+                                onChange={opt => props.onStatus(opt?.value || '')}
+                                options={props.statusOptions}
+                                styles={institutionalSelectStyles}
+                                classNamePrefix="react-select"
+                                isSearchable={false}
+                                aria-label="Filter requests by status"
+                            />
+                        </div>
                     </div>
 
                     {props.requests.length ? (
