@@ -11,6 +11,7 @@ use Illuminate\Validation\ValidationException;
 use Modules\AuditLogs\Models\TransactionTrail;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\SupplyRequest;
+use Modules\Inventory\Models\SupplyRequestAlert;
 
 class SupplyRequestService
 {
@@ -130,6 +131,7 @@ class SupplyRequestService
                 'ris_number' => $request->ris_number ?: self::generateOfficialRisNumber($request->date_requested ? $request->date_requested->toDateString() : null),
             ]);
             self::audit($request, $reviewerId, 'Approved Supply Request');
+            SupplyRequestAlert::updateOrCreate(['user_id' => $request->requested_by, 'supply_request_id' => $request->id], ['read_at' => null]);
         }, 5);
     }
 
@@ -194,6 +196,7 @@ class SupplyRequestService
                 app(CoordinatorInventoryService::class)->receiveRelease($request, $issuerId);
             }
             self::audit($request, $issuerId, 'Released Supply Request');
+            SupplyRequestAlert::updateOrCreate(['user_id' => $request->requested_by, 'supply_request_id' => $request->id], ['read_at' => null]);
         }, 5);
     }
 }

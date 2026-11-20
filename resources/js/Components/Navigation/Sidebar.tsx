@@ -300,7 +300,7 @@ export default function Sidebar({
 
                 {/* Main Navigation Body */}
                 <nav aria-label="Workspace pages" className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-3 relative z-10 scrollbar-hide no-scrollbar space-y-5">
-                    {((canAny(['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release', 'inventory.requests.verify-document']) && capabilities?.inventory?.issuance) || (capabilities as any)?.requiresSupportingDocument) && (
+                    {((canAny(['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release', 'inventory.requests.verify-document']) && capabilities?.inventory?.issuance) || isAuthorizedPersonnel || isCoordinator) && (
                         <SupplyRequestAlerts collapsed={effectiveCollapsed} onExpand={onToggleCollapse} />
                     )}
                     {navigationGroups.map((group) => {

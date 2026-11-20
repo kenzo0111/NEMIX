@@ -27,7 +27,8 @@ export default function SupplyRequestAlerts({
     collapsed: boolean;
     onExpand?: () => void;
 }) {
-    const requester = Boolean((usePage().props as any).auth?.capabilities?.requiresSupportingDocument);
+    const capabilities = (usePage().props as any).auth?.capabilities;
+    const requester = Boolean(capabilities?.requiresSupportingDocument || capabilities?.coordinatorInventory);
     const [data, setData] = useState<AlertResponse>({ unread_count: 0, pending_count: 0, alerts: [], has_more: false });
     const [open, setOpen] = useState(false);
     const [newAlert, setNewAlert] = useState<Alert | null>(null);
@@ -40,7 +41,7 @@ export default function SupplyRequestAlerts({
             const response = await axios.get<AlertResponse>(route('inventory.request-alerts.index'));
             const next = response.data;
             if (previousIds.current !== null) {
-                const newest = next.alerts.find((alert) => !previousIds.current?.has(`${alert.id}:${alert.status}`) && ['Pending', 'Pending Verification', 'For Correction', 'Ready for Pickup'].includes(alert.status));
+                const newest = next.alerts.find((alert) => !previousIds.current?.has(`${alert.id}:${alert.status}`) && ['Pending', 'Pending Verification', 'For Correction', 'Ready for Pickup', 'Approved', 'Rejected', 'Released', 'Issued'].includes(alert.status));
                 if (newest) setNewAlert(newest);
             }
             if (previousPending.current !== null && previousPending.current !== next.pending_count
@@ -136,7 +137,7 @@ export default function SupplyRequestAlerts({
             </button>
             {open && !collapsed && (
                 <div className="mt-1 rounded-lg border border-red-800 bg-red-950 p-2 shadow-lg" role="region" aria-label="Supply request alerts">
-                    <div className="px-2 py-1 text-sm font-semibold text-amber-300">{data.unread_count} unread · {data.pending_count} awaiting approval</div>
+                    <div className="px-2 py-1 text-sm font-semibold text-amber-300">{data.unread_count} unread · {data.pending_count} {requester ? 'pending approval' : 'awaiting approval'}</div>
                     <div className="max-h-72 overflow-y-auto">
                         {data.alerts.length === 0 && <p className="leading-relaxed px-2 py-3 text-sm text-red-200">No request alerts yet.</p>}
                         {data.alerts.map((alert) => (
@@ -156,7 +157,7 @@ export default function SupplyRequestAlerts({
             {newAlert && !collapsed && (
                 <button type="button" onClick={() => void openRequest(newAlert)} role="alert"
                     className="mt-2 w-full rounded-lg border border-amber-400 bg-amber-100 px-3 py-2 text-left text-sm font-semibold text-red-950 shadow-lg">
-                    {requester ? newAlert.status : 'New supply request'}: {newAlert.ris_number || `#${newAlert.request_id}`} · View request
+                    {requester ? `Request ${newAlert.status}` : 'New supply request'}: {newAlert.ris_number || `#${newAlert.request_id}`} · View request
                 </button>
             )}
         </div>

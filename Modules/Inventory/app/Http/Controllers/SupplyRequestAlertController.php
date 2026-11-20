@@ -13,7 +13,7 @@ class SupplyRequestAlertController extends Controller
 {
     private function authorizeApprover(Request $request): void
     {
-        abort_unless($request->user()->requiresSupportingDocument() || collect(['approve', 'reject', 'release', 'verify-document'])->contains(
+        abort_unless($request->user()->requiresSupportingDocument() || $request->user()->usesCoordinatorInventory() || collect(['approve', 'reject', 'release', 'verify-document'])->contains(
             fn ($action) => PermissionResolver::hasPermission($request->user(), 'route:inventory.requests.'.$action)
         ), 403);
     }

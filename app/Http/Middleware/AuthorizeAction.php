@@ -70,6 +70,11 @@ class AuthorizeAction
             return $next($request);
         }
 
+        if (in_array($routeName, ['inventory.request-alerts.index', 'inventory.request-alerts.read', 'inventory.requests.ris-pdf', 'inventory.requests.document'], true)
+            && $user->usesCoordinatorInventory()) {
+            return $next($request);
+        }
+
         if (in_array($routeName, ['inventory.issuance', 'inventory.request-alerts.index', 'inventory.request-alerts.read', 'inventory.requests.ris-pdf', 'inventory.requests.document'], true)
             && collect(['approve', 'reject', 'release', 'verify-document'])->contains(
                 fn ($action) => \App\Services\AccessControl\PermissionResolver::hasPermission($user, 'route:inventory.requests.'.$action)

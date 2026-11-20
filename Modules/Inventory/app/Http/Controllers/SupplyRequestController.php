@@ -499,6 +499,10 @@ class SupplyRequestController extends Controller
                 foreach (User::where('is_active', true)->get()->filter(fn ($user) => PermissionResolver::hasPermission($user, 'route:inventory.requests.verify-document')) as $verifier) {
                     SupplyRequestAlert::updateOrCreate(['user_id' => $verifier->id, 'supply_request_id' => $locked->id], ['read_at' => null]);
                 }
+            } else {
+                foreach (User::where('is_active', true)->get()->filter(fn (User $user) => $this->canReviewRequests($user)) as $approver) {
+                    SupplyRequestAlert::updateOrCreate(['user_id' => $approver->id, 'supply_request_id' => $locked->id], ['read_at' => null]);
+                }
             }
         });
 
@@ -538,6 +542,7 @@ class SupplyRequestController extends Controller
             }
             $locked->update(['status' => 'Rejected', 'reviewed_by' => $request->user()->id, 'reviewed_at' => now(), 'review_remarks' => $data['remarks']]);
             SupplyRequestService::audit($locked, $request->user()->id, 'Rejected Supply Request');
+            SupplyRequestAlert::updateOrCreate(['user_id' => $locked->requested_by, 'supply_request_id' => $locked->id], ['read_at' => null]);
         });
 
         return back()->with('success', 'Request rejected.');

@@ -40,9 +40,10 @@ class SupplyRequestAlertTest extends TestCase
         $first = $this->user('Property Custodian');
         $second = $this->user('Property Custodian');
         $inactive = $this->user('Property Custodian', false);
+        $unauthorized = User::factory()->create(['is_active' => true]);
         $item = Item::create(['weekly_request_limit' => 1000000,
-            'name' => 'Paper', 'sku' => 'PAPER-ALERT', 'stock' => 10,
-            'unit_cost' => 5, 'amount' => 50, 'status' => 'Available', 'unit_of_issue' => 'ream',
+            'name' => 'Paper', 'sku' => 'PAPER-ALERT', 'stock' => 50,
+            'unit_cost' => 5, 'amount' => 250, 'status' => 'Available', 'unit_of_issue' => 'ream',
         ]);
 
         $this->actingAs($coordinator)->post(route('inventory.requests.store'), [
@@ -61,7 +62,9 @@ class SupplyRequestAlertTest extends TestCase
         $this->actingAs($first)->get(route('inventory.request-alerts.index'))
             ->assertOk()->assertJsonPath('unread_count', 1)->assertJsonPath('pending_count', 1)
             ->assertJsonPath('alerts.0.request_id', $request->id);
-        $this->actingAs($coordinator)->get(route('inventory.request-alerts.index'))->assertForbidden();
+        $this->actingAs($coordinator)->get(route('inventory.request-alerts.index'))
+            ->assertOk()->assertJsonPath('unread_count', 0)->assertJsonPath('pending_count', 1);
+        $this->actingAs($unauthorized)->get(route('inventory.request-alerts.index'))->assertForbidden();
         $this->actingAs($first)->post(route('inventory.request-alerts.read', $secondAlert))->assertForbidden();
         $this->actingAs($first)->post(route('inventory.request-alerts.read', $firstAlert))->assertOk();
         $this->actingAs($first)->get(route('inventory.request-alerts.index'))
@@ -75,8 +78,8 @@ class SupplyRequestAlertTest extends TestCase
         $coordinator = $this->user('Supply Coordinator');
         $custodian = $this->user('Property Custodian');
         $item = Item::create(['weekly_request_limit' => 1000000,
-            'name' => 'Pens', 'sku' => 'PEN-ALERT', 'stock' => 10,
-            'unit_cost' => 2, 'amount' => 20, 'status' => 'Available', 'unit_of_issue' => 'box',
+            'name' => 'Pens', 'sku' => 'PEN-ALERT', 'stock' => 50,
+            'unit_cost' => 2, 'amount' => 100, 'status' => 'Available', 'unit_of_issue' => 'box',
         ]);
         $this->actingAs($coordinator)->post(route('inventory.requests.store'), [
             'department' => 'Registrar', 'purpose' => 'Office work',
@@ -90,6 +93,14 @@ class SupplyRequestAlertTest extends TestCase
         ])->assertRedirect();
         $this->actingAs($custodian)->get(route('inventory.request-alerts.index'))
             ->assertOk()->assertJsonPath('pending_count', 0)->assertJsonPath('alerts.0.status', 'Approved');
+
+        $this->actingAs($coordinator)->get(route('inventory.request-alerts.index'))
+            ->assertOk()->assertJsonPath('unread_count', 1)->assertJsonPath('pending_count', 0)
+            ->assertJsonPath('alerts.0.status', 'Approved');
+        $coordinatorAlert = SupplyRequestAlert::where('user_id', $coordinator->id)->firstOrFail();
+        $this->actingAs($coordinator)->post(route('inventory.request-alerts.read', $coordinatorAlert))->assertOk();
+        $this->actingAs($coordinator)->get(route('inventory.request-alerts.index'))
+            ->assertJsonPath('unread_count', 0);
     }
 
     public function test_older_unread_alerts_can_be_loaded_and_read(): void
