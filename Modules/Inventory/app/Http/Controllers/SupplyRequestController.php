@@ -117,9 +117,11 @@ class SupplyRequestController extends Controller
             'initialItemId' => $initialItemId,
             'departmentAssignment' => $isCoordinator ? [
                 'department' => $request->user()->department,
-                'recipient' => $request->user()->officeHead?->name,
-                'recipient_designation' => $request->user()->officeHead?->designation,
-                'ready' => $this->hasDepartmentAssignment($request->user()),
+                'recipient' => $request->user()->requiresSupportingDocument() ? $request->user()->name : $request->user()->officeHead?->name,
+                'recipient_designation' => $request->user()->requiresSupportingDocument() ? ($request->user()->designation ?: $request->user()->officeHead?->designation) : $request->user()->officeHead?->designation,
+                'ready' => $request->user()->requiresSupportingDocument()
+                    ? (trim($request->user()->department ?? '') !== '')
+                    : $this->hasDepartmentAssignment($request->user()),
             ] : null,
             ...$requestProps,
             'items' => $items,
@@ -392,6 +394,9 @@ class SupplyRequestController extends Controller
                 $request->merge(['department' => $request->user()->department]);
             }
             $request->merge(['recipient' => $request->user()->name]);
+            if (! $request->filled('recipient_designation') && trim($request->user()->designation ?? '') !== '') {
+                $request->merge(['recipient_designation' => $request->user()->designation]);
+            }
         }
         $requiresDocument = $request->user()->requiresSupportingDocument();
         $data = $request->validate([
@@ -463,6 +468,9 @@ class SupplyRequestController extends Controller
             $request->merge($supplyRequest->only(['department', 'recipient', 'recipient_designation']));
         } elseif ($request->user()->requiresSupportingDocument()) {
             $request->merge(['recipient' => $request->user()->name]);
+            if (! $request->filled('recipient_designation') && trim($request->user()->designation ?? '') !== '') {
+                $request->merge(['recipient_designation' => $request->user()->designation]);
+            }
         }
         $requiresDocument = $supplyRequest->requires_supporting_document || $request->user()->requiresSupportingDocument();
         $data = $request->validate([

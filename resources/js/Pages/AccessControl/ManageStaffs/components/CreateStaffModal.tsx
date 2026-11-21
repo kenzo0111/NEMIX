@@ -61,6 +61,7 @@ export default function CreateStaffModal({
 }: CreateStaffModalProps) {
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm<CreateStaffFormData>({
         department: '',
+        designation: '',
         office_head_id: '',
         office_head_name: '',
         office_head_designation: '',
@@ -241,9 +242,13 @@ export default function CreateStaffModal({
                                 <p className="leading-relaxed mt-1.5 text-sm text-red-600 dark:text-red-400 font-medium">{errors.role}</p>
                             )}
                         </div>
-                        <DepartmentAssignmentFields data={data} errors={errors}
-                            required={data.role === 'Supply Coordinator'}
-                            onChange={(field, value) => { setData(field, value); clearErrors(field); }} />
+                        <DepartmentAssignmentFields
+                            data={data}
+                            errors={errors}
+                            role={data.role}
+                            required={data.role === 'Supply Coordinator' || data.role === 'Authorized Personnel'}
+                            onChange={(field, value) => { setData(field, value); clearErrors(field); }}
+                        />
                     </div>
 
                     {/* Modal Actions */}

@@ -100,6 +100,7 @@ export default function StaffTableRow({
             {/* Delivery Unit / Office Head */}
             <td className="px-6 py-3.5 text-sm text-gray-600 dark:text-slate-300">
                 <span className="font-medium text-gray-900 dark:text-slate-100">{staff.department || '—'}</span>
+                {staff.designation && <span className="block text-xs font-medium text-slate-700 dark:text-slate-300">{staff.designation}</span>}
                 {staff.office_head && <span className="block text-xs text-gray-500 dark:text-slate-400">Head: {staff.office_head.name}<br />{staff.office_head.designation}</span>}
             </td>
 

@@ -38,6 +38,7 @@ class ManageStaffController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'department' => $user->department,
+                'designation' => $user->designation,
                 'office_head_id' => $user->office_head_id,
                 'office_head' => $user->officeHead,
                 'role' => $user->isSystemAdmin() ? 'System Admin' : ($user->roles->first()?->name ?? 'No Role'),
@@ -79,6 +80,8 @@ class ManageStaffController extends Controller
             'role' => ['required', 'string', 'exists:roles,name'],
             ...$this->departmentRules($request),
         ], [
+            'department.required' => 'The department / office field is required.',
+            'designation.required' => 'The designation of the authorized personnel is required.',
             'office_head_id.required' => 'Please select an office head or manually enter their name and designation.',
             'office_head_designation.required' => 'The head designation field is required when manually entering an office head.',
         ]);
@@ -95,6 +98,7 @@ class ManageStaffController extends Controller
             'password' => Hash::make(Str::random(24)),
             'is_active' => false,
             'department' => $validated['department'] ?? null,
+            'designation' => $validated['designation'] ?? null,
             'office_head_id' => $validated['office_head_id'] ?? null,
         ]);
 
@@ -169,6 +173,8 @@ class ManageStaffController extends Controller
             'role' => ['required', 'string', 'exists:roles,name'],
             ...$this->departmentRules($request, $user),
         ], [
+            'department.required' => 'The department / office field is required.',
+            'designation.required' => 'The designation of the authorized personnel is required.',
             'office_head_id.required' => 'Please select an office head or manually enter their name and designation.',
             'office_head_designation.required' => 'The head designation field is required when manually entering an office head.',
         ]);
@@ -197,6 +203,7 @@ class ManageStaffController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'department' => array_key_exists('department', $validated) ? $validated['department'] : $user->department,
+            'designation' => array_key_exists('designation', $validated) ? $validated['designation'] : $user->designation,
             'office_head_id' => array_key_exists('office_head_id', $validated) ? $validated['office_head_id'] : $user->office_head_id,
         ]);
 
@@ -208,6 +215,9 @@ class ManageStaffController extends Controller
 
     private function fillDepartmentHead(Request $request, ?User $user = null): void
     {
+        $role = $request->input('role');
+        $isAuthorizedPersonnel = $role === 'Authorized Personnel';
+
         $headName = trim((string) $request->input('office_head_name', ''));
         $headDesignation = trim((string) $request->input('office_head_designation', ''));
         $department = trim((string) $request->input('department', ''));
@@ -252,6 +262,11 @@ class ManageStaffController extends Controller
             return;
         }
 
+        // For Authorized Personnel, department head is optional. Do not auto-force a head unless explicitly assigned.
+        if ($isAuthorizedPersonnel && ! $request->filled('office_head_id')) {
+            return;
+        }
+
         if ($request->filled('office_head_id') || !is_string($request->input('department'))) return;
 
         $department = trim($request->input('department'));
@@ -262,11 +277,22 @@ class ManageStaffController extends Controller
 
     private function departmentRules(Request $request, ?User $user = null): array
     {
-        $required = $request->input('role') === 'Supply Coordinator';
+        $role = $request->input('role');
+        $isCoordinator = $role === 'Supply Coordinator';
+        $isAuthorizedPersonnel = $role === 'Authorized Personnel';
         $hasManualHead = $request->filled('office_head_name') || $request->filled('office_head_designation');
 
         return [
-            'department' => [$required ? 'required' : 'nullable', 'string', 'max:255'],
+            'department' => [
+                ($isCoordinator || $isAuthorizedPersonnel) ? 'required' : 'nullable',
+                'string',
+                'max:255',
+            ],
+            'designation' => [
+                $isAuthorizedPersonnel ? 'required' : 'nullable',
+                'string',
+                'max:255',
+            ],
             'office_head_name' => ['nullable', 'string', 'max:255'],
             'office_head_designation' => [
                 $hasManualHead ? 'required' : 'nullable',
@@ -274,7 +300,7 @@ class ManageStaffController extends Controller
                 'max:255',
             ],
             'office_head_id' => [
-                $required ? 'required' : 'nullable',
+                $isCoordinator ? 'required' : 'nullable',
                 'integer',
                 Rule::exists('signatories', 'id')->where(function ($query) use ($user) {
                     $query->where(function ($query) use ($user) {

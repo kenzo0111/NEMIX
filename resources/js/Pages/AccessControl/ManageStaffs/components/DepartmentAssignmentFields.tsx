@@ -6,6 +6,7 @@ import { UserPlus, ListFilter, CheckCircle2 } from 'lucide-react';
 
 type Assignment = {
     department: string;
+    designation?: string;
     office_head_id: string;
     office_head_name?: string;
     office_head_designation?: string;
@@ -20,11 +21,12 @@ type OfficeHead = {
     is_active: boolean;
 };
 
-export default function DepartmentAssignmentFields({ data, onChange, errors, required }: {
+export default function DepartmentAssignmentFields({ data, onChange, errors, required, role }: {
     data: Assignment;
     onChange: (field: keyof Assignment, value: string) => void;
     errors: Partial<Record<keyof Assignment, string>>;
     required: boolean;
+    role?: string;
 }) {
     const { departments = [], officeHeads = [], departmentHeads = {} } = usePage().props as unknown as {
         departments: string[];
@@ -32,7 +34,9 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
         departmentHeads: Record<string, number>;
     };
 
+    const isAuthorizedPersonnel = role === 'Authorized Personnel';
     const [isManualMode, setIsManualMode] = useState<boolean>(() => Boolean(data.office_head_name && !data.office_head_id));
+    const [showOptionalHead, setShowOptionalHead] = useState<boolean>(() => Boolean(data.office_head_id || data.office_head_name));
 
     useEffect(() => {
         if (data.office_head_name && !data.office_head_id) {
@@ -42,7 +46,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
 
     const selectDepartment = (department: string) => {
         onChange('department', department);
-        if (!isManualMode) {
+        if (!isAuthorizedPersonnel && !isManualMode) {
             const defaultHeadId = departmentHeads[department] ? String(departmentHeads[department]) : '';
             onChange('office_head_id', defaultHeadId);
             if (defaultHeadId) {
@@ -131,146 +135,290 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
 
     return (
         <fieldset className="min-w-0 space-y-5 text-gray-700 dark:text-slate-300">
-            <legend className="font-semibold text-gray-900 dark:text-slate-100">Delivery Unit assignment</legend>
+            <legend className="font-semibold text-gray-900 dark:text-slate-100">
+                {isAuthorizedPersonnel ? 'Office & Designation details' : 'Delivery Unit assignment'}
+            </legend>
             <p className="pt-1 text-sm leading-relaxed text-gray-500 dark:text-slate-400">
-                {required
+                {isAuthorizedPersonnel
+                    ? 'Enter the department/office and designation of the Authorized Personnel. Department head assignment is optional.'
+                    : required
                     ? 'Select a Delivery Unit and office head. These details fill the requesting office on supply requests.'
                     : 'Delivery Unit assignment is optional for this role. When assigned, the Delivery Unit can prefill the request form.'}
             </p>
 
-            {/* Department / Delivery Unit */}
-            <div>
-                <label htmlFor="staff-department" className="block text-sm font-semibold mb-1">
-                    Department / Delivery Unit {required && '*'}
-                </label>
-                <CreatableSelect<{ value: string; label: string }, false>
-                    {...selectLayout}
-                    inputId="staff-department"
-                    name="department"
-                    required={required}
-                    value={data.department ? { value: data.department, label: data.department } : null}
-                    options={departments.map(name => ({ value: name, label: name }))}
-                    onChange={option => selectDepartment(option?.value || '')}
-                    onCreateOption={value => selectDepartment(value.trim().slice(0, 255))}
-                    formatCreateLabel={value => `Use “${value}”`}
-                    styles={selectStyles(Boolean(errors.department))}
-                    isClearable
-                    isSearchable
-                    placeholder="Search or enter a department"
-                />
-                {errors.department && (
-                    <p role="alert" className="text-sm text-red-600 mt-1">{errors.department}</p>
-                )}
-            </div>
-
-            {/* Department / Office Head */}
-            <div>
-                <div className="flex items-center justify-between mb-1">
-                    <label htmlFor="staff-office-head" className="block text-sm font-semibold">
-                        Department / Office Head {required && '*'}
-                    </label>
-                    <button
-                        type="button"
-                        onClick={() => toggleManualMode(!isManualMode)}
-                        className="text-xs font-medium text-red-900 dark:text-red-400 hover:underline flex items-center gap-1 cursor-pointer"
-                    >
-                        {isManualMode ? (
-                            <>
-                                <ListFilter className="w-3 h-3" />
-                                <span>Choose from existing list</span>
-                            </>
-                        ) : (
-                            <>
-                                <UserPlus className="w-3 h-3" />
-                                <span>Can't find head? Enter manually</span>
-                            </>
-                        )}
-                    </button>
-                </div>
-
-                {isManualMode ? (
-                    <div className="space-y-1.5">
-                        <input
-                            id="staff-office-head-name"
-                            type="text"
-                            value={data.office_head_name || ''}
-                            onChange={e => onChange('office_head_name', e.target.value)}
-                            placeholder="Enter full name of office head (e.g. Dr. Juan Dela Cruz)"
-                            className={`${inputClass} ${headErrorMessage ? 'border-red-500' : ''}`}
-                            required={required}
-                            autoFocus
+            {isAuthorizedPersonnel ? (
+                <>
+                    {/* Department / Office */}
+                    <div>
+                        <label htmlFor="staff-department" className="block text-sm font-semibold mb-1">
+                            Department / Office <span className="text-red-600 dark:text-red-400">*</span>
+                        </label>
+                        <CreatableSelect<{ value: string; label: string }, false>
+                            {...selectLayout}
+                            inputId="staff-department"
+                            name="department"
+                            required
+                            value={data.department ? { value: data.department, label: data.department } : null}
+                            options={departments.map(name => ({ value: name, label: name }))}
+                            onChange={option => selectDepartment(option?.value || '')}
+                            onCreateOption={value => selectDepartment(value.trim().slice(0, 255))}
+                            formatCreateLabel={value => `Use “${value}”`}
+                            styles={selectStyles(Boolean(errors.department))}
+                            isClearable
+                            isSearchable
+                            placeholder="Search or enter department / office"
                         />
-                        <p className="text-xs text-amber-800 dark:text-amber-400">
-                            Entering a new office head will register them for this department upon saving.
-                        </p>
+                        {errors.department && (
+                            <p role="alert" className="text-sm text-red-600 mt-1">{errors.department}</p>
+                        )}
                     </div>
-                ) : (
-                    <CreatableSelect<{ value: string; label: string; head?: OfficeHead }, false>
-                        {...selectLayout}
-                        inputId="staff-office-head"
-                        name="office_head_id"
-                        required={required && !data.office_head_name}
-                        options={headOptions}
-                        value={headOptions.find(option => option.value === data.office_head_id) || null}
-                        onChange={handleSelectHead}
-                        onCreateOption={handleCreateHead}
-                        formatCreateLabel={value => `Enter “${value}” as new head`}
-                        styles={selectStyles(Boolean(headErrorMessage))}
-                        isSearchable
-                        isClearable
-                        placeholder="Search for an office head or type new name..."
-                    />
-                )}
 
-                {headErrorMessage && (
-                    <p role="alert" className="text-sm text-red-600 mt-1">{headErrorMessage}</p>
-                )}
-            </div>
+                    {/* Designation of Authorized Personnel */}
+                    <div>
+                        <label htmlFor="staff-authorized-designation" className="block text-sm font-semibold mb-1">
+                            Designation <span className="text-red-600 dark:text-red-400">*</span>
+                        </label>
+                        <input
+                            id="staff-authorized-designation"
+                            type="text"
+                            name="designation"
+                            value={data.designation || ''}
+                            onChange={e => onChange('designation', e.target.value)}
+                            placeholder="e.g. Instructor I, Assistant Professor, Research Associate, Admin Officer"
+                            className={`${inputClass} ${errors.designation ? 'border-red-500' : ''}`}
+                            required
+                        />
+                        <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
+                            Official position / designation of the authorized personnel.
+                        </p>
+                        {errors.designation && (
+                            <p role="alert" className="text-sm text-red-600 mt-1">{errors.designation}</p>
+                        )}
+                    </div>
 
-            {/* Head's Designation */}
-            <div>
-                <div className="flex items-center justify-between mb-1">
-                    <label htmlFor="staff-head-designation" className="block text-sm font-semibold">
-                        Head’s Designation {required && (isManualMode || Boolean(data.office_head_name)) && '*'}
-                    </label>
-                    {!isManualMode && head && (
-                        <span className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                            <span>Linked to official</span>
-                        </span>
+                    {/* Optional Department Head for Authorized Personnel */}
+                    <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-semibold text-gray-600 dark:text-slate-400">
+                                Department / Office Head (Optional)
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setShowOptionalHead(!showOptionalHead)}
+                                className="text-xs font-medium text-red-900 dark:text-red-400 hover:underline cursor-pointer"
+                            >
+                                {showOptionalHead ? 'Hide optional head' : '+ Assign office head (optional)'}
+                            </button>
+                        </div>
+
+                        {showOptionalHead && (
+                            <div className="space-y-4 p-3 bg-gray-50/70 dark:bg-slate-850/60 rounded-lg border border-gray-200/60 dark:border-slate-800">
+                                <div>
+                                    <div className="flex items-center justify-between mb-1">
+                                        <label htmlFor="staff-office-head" className="block text-xs font-semibold text-gray-700 dark:text-slate-300">
+                                            Department Head (Optional)
+                                        </label>
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleManualMode(!isManualMode)}
+                                            className="text-2xs font-medium text-red-900 dark:text-red-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                        >
+                                            {isManualMode ? 'Choose from list' : 'Enter head manually'}
+                                        </button>
+                                    </div>
+
+                                    {isManualMode ? (
+                                        <input
+                                            id="staff-office-head-name"
+                                            type="text"
+                                            value={data.office_head_name || ''}
+                                            onChange={e => onChange('office_head_name', e.target.value)}
+                                            placeholder="Enter full name of office head"
+                                            className={`${inputClass} text-xs`}
+                                        />
+                                    ) : (
+                                        <CreatableSelect<{ value: string; label: string; head?: OfficeHead }, false>
+                                            {...selectLayout}
+                                            inputId="staff-office-head"
+                                            name="office_head_id"
+                                            options={headOptions}
+                                            value={headOptions.find(option => option.value === data.office_head_id) || null}
+                                            onChange={handleSelectHead}
+                                            onCreateOption={handleCreateHead}
+                                            formatCreateLabel={value => `Enter “${value}” as new head`}
+                                            styles={selectStyles(Boolean(headErrorMessage))}
+                                            isSearchable
+                                            isClearable
+                                            placeholder="Search for an office head..."
+                                        />
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label htmlFor="staff-head-designation" className="block text-2xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                        Head’s Designation (Optional)
+                                    </label>
+                                    {isManualMode ? (
+                                        <input
+                                            id="staff-head-designation"
+                                            type="text"
+                                            value={data.office_head_designation || ''}
+                                            onChange={e => onChange('office_head_designation', e.target.value)}
+                                            placeholder="e.g. Dean, Department Head"
+                                            className={`${inputClass} text-xs`}
+                                        />
+                                    ) : (
+                                        <input
+                                            id="staff-head-designation"
+                                            type="text"
+                                            value={head?.designation || data.office_head_designation || ''}
+                                            readOnly
+                                            placeholder="Select an office head to display designation"
+                                            className={`${inputClass} text-xs bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-400 cursor-not-allowed`}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </>
+            ) : (
+                <>
+                    {/* Department / Delivery Unit */}
+                    <div>
+                        <label htmlFor="staff-department" className="block text-sm font-semibold mb-1">
+                            Department / Delivery Unit {required && '*'}
+                        </label>
+                        <CreatableSelect<{ value: string; label: string }, false>
+                            {...selectLayout}
+                            inputId="staff-department"
+                            name="department"
+                            required={required}
+                            value={data.department ? { value: data.department, label: data.department } : null}
+                            options={departments.map(name => ({ value: name, label: name }))}
+                            onChange={option => selectDepartment(option?.value || '')}
+                            onCreateOption={value => selectDepartment(value.trim().slice(0, 255))}
+                            formatCreateLabel={value => `Use “${value}”`}
+                            styles={selectStyles(Boolean(errors.department))}
+                            isClearable
+                            isSearchable
+                            placeholder="Search or enter a department"
+                        />
+                        {errors.department && (
+                            <p role="alert" className="text-sm text-red-600 mt-1">{errors.department}</p>
+                        )}
+                    </div>
+
+                    {/* Department / Office Head */}
+                    <div>
+                        <div className="flex items-center justify-between mb-1">
+                            <label htmlFor="staff-office-head" className="block text-sm font-semibold">
+                                Department / Office Head {required && '*'}
+                            </label>
+                            <button
+                                type="button"
+                                onClick={() => toggleManualMode(!isManualMode)}
+                                className="text-xs font-medium text-red-900 dark:text-red-400 hover:underline flex items-center gap-1 cursor-pointer"
+                            >
+                                {isManualMode ? (
+                                    <>
+                                        <ListFilter className="w-3 h-3" />
+                                        <span>Choose from existing list</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <UserPlus className="w-3 h-3" />
+                                        <span>Can't find head? Enter manually</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+
+                        {isManualMode ? (
+                            <div className="space-y-1.5">
+                                <input
+                                    id="staff-office-head-name"
+                                    type="text"
+                                    value={data.office_head_name || ''}
+                                    onChange={e => onChange('office_head_name', e.target.value)}
+                                    placeholder="Enter full name of office head (e.g. Dr. Juan Dela Cruz)"
+                                    className={`${inputClass} ${headErrorMessage ? 'border-red-500' : ''}`}
+                                    required={required}
+                                    autoFocus
+                                />
+                                <p className="text-xs text-amber-800 dark:text-amber-400">
+                                    Entering a new office head will register them for this department upon saving.
+                                </p>
+                            </div>
+                        ) : (
+                            <CreatableSelect<{ value: string; label: string; head?: OfficeHead }, false>
+                                {...selectLayout}
+                                inputId="staff-office-head"
+                                name="office_head_id"
+                                required={required && !data.office_head_name}
+                                options={headOptions}
+                                value={headOptions.find(option => option.value === data.office_head_id) || null}
+                                onChange={handleSelectHead}
+                                onCreateOption={handleCreateHead}
+                                formatCreateLabel={value => `Enter “${value}” as new head`}
+                                styles={selectStyles(Boolean(headErrorMessage))}
+                                isSearchable
+                                isClearable
+                                placeholder="Search for an office head or type new name..."
+                            />
+                        )}
+
+                        {headErrorMessage && (
+                            <p role="alert" className="text-sm text-red-600 mt-1">{headErrorMessage}</p>
+                        )}
+                    </div>
+
+                    {/* Head's Designation */}
+                    <div>
+                        <div className="flex items-center justify-between mb-1">
+                            <label htmlFor="staff-head-designation" className="block text-sm font-semibold">
+                                Head’s Designation {required && (isManualMode || Boolean(data.office_head_name)) && '*'}
+                            </label>
+                            {!isManualMode && head && (
+                                <span className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1">
+                                    <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                    <span>Linked to official</span>
+                                </span>
+                            )}
+                        </div>
+
+                        {isManualMode ? (
+                            <input
+                                id="staff-head-designation"
+                                type="text"
+                                value={data.office_head_designation || ''}
+                                onChange={e => onChange('office_head_designation', e.target.value)}
+                                placeholder="e.g. Dean, Department Head, Director, Division Chief"
+                                className={`${inputClass} ${errors.office_head_designation ? 'border-red-500' : ''}`}
+                                required={required && Boolean(data.office_head_name)}
+                            />
+                        ) : (
+                            <input
+                                id="staff-head-designation"
+                                type="text"
+                                value={head?.designation || data.office_head_designation || ''}
+                                readOnly
+                                placeholder="Select an office head above to display designation"
+                                className={`${inputClass} bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-400 cursor-not-allowed`}
+                            />
+                        )}
+
+                        {errors.office_head_designation && (
+                            <p role="alert" className="text-sm text-red-600 mt-1">{errors.office_head_designation}</p>
+                        )}
+                    </div>
+
+                    {head && !head.is_active && !isManualMode && (
+                        <p className="text-sm text-amber-700 dark:text-amber-400">
+                            This head is inactive. Select an active head before the coordinator can submit new requests.
+                        </p>
                     )}
-                </div>
-
-                {isManualMode ? (
-                    <input
-                        id="staff-head-designation"
-                        type="text"
-                        value={data.office_head_designation || ''}
-                        onChange={e => onChange('office_head_designation', e.target.value)}
-                        placeholder="e.g. Dean, Department Head, Director, Division Chief"
-                        className={`${inputClass} ${errors.office_head_designation ? 'border-red-500' : ''}`}
-                        required={required && Boolean(data.office_head_name)}
-                    />
-                ) : (
-                    <input
-                        id="staff-head-designation"
-                        type="text"
-                        value={head?.designation || data.office_head_designation || ''}
-                        readOnly
-                        placeholder="Select an office head above to display designation"
-                        className={`${inputClass} bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-400 cursor-not-allowed`}
-                    />
-                )}
-
-                {errors.office_head_designation && (
-                    <p role="alert" className="text-sm text-red-600 mt-1">{errors.office_head_designation}</p>
-                )}
-            </div>
-
-            {head && !head.is_active && !isManualMode && (
-                <p className="text-sm text-amber-700 dark:text-amber-400">
-                    This head is inactive. Select an active head before the coordinator can submit new requests.
-                </p>
+                </>
             )}
         </fieldset>
     );

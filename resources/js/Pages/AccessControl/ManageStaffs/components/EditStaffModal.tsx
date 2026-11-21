@@ -61,6 +61,7 @@ export default function EditStaffModal({
 }: EditStaffModalProps) {    const { departmentHeads = {} } = usePage().props as unknown as { departmentHeads: Record<string, number> };
     const { data, setData, put, processing, errors, reset, clearErrors } = useForm<EditStaffFormData>({
         department: '',
+        designation: '',
         office_head_id: '',
         office_head_name: '',
         office_head_designation: '',
@@ -85,6 +86,7 @@ export default function EditStaffModal({
         if (staff && isOpen) {
             setData({
                 department: staff.department || '',
+                designation: staff.designation || '',
                 office_head_id: staff.office_head_id ? String(staff.office_head_id) : (departmentHeads[staff.department || ''] ? String(departmentHeads[staff.department || '']) : ''),
                 office_head_name: '',
                 office_head_designation: staff.office_head?.designation || '',
@@ -265,9 +267,13 @@ export default function EditStaffModal({
                             )}
                         </div>
                         </section>
-                        <DepartmentAssignmentFields data={data} errors={errors}
-                            required={data.role === 'Supply Coordinator'}
-                            onChange={(field, value) => { setData(field, value); clearErrors(field); }} />
+                        <DepartmentAssignmentFields
+                            data={data}
+                            errors={errors}
+                            role={data.role}
+                            required={data.role === 'Supply Coordinator' || data.role === 'Authorized Personnel'}
+                            onChange={(field, value) => { setData(field, value); clearErrors(field); }}
+                        />
                     </div>
 
                     {/* Modal Actions */}

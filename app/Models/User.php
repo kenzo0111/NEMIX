@@ -60,6 +60,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_active',
         'is_demo_account',
         'department',
+        'designation',
         'office_head_id',
     ];
 

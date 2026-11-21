@@ -262,4 +262,38 @@ class AuthorizedPersonnelWorkflowTest extends TestCase
         $this->post(route('inventory.requests.verify-document', $request), ['decision' => 'verified'])->assertSessionHasErrors('request');
         $this->assertSame('Pending Verification', $request->fresh()->status);
     }
+
+    public function test_admin_creates_authorized_personnel_with_department_and_designation_and_optional_head(): void
+    {
+        $adminRole = Role::firstOrCreate(['name' => 'System Admin', 'guard_name' => 'web']);
+        $admin = User::factory()->create(['is_active' => true]);
+        $admin->assignRole($adminRole);
+
+        $payload = [
+            'name' => 'Authorized Staff User',
+            'email' => 'auth_staff_new@example.com',
+            'role' => 'Authorized Personnel',
+            'department' => 'Physics Laboratory',
+            'designation' => 'Research Specialist I',
+        ];
+
+        $response = $this->actingAs($admin)->post(route('access-control.staffs.store'), $payload);
+        $response->assertSessionHasNoErrors();
+
+        $user = User::where('email', 'auth_staff_new@example.com')->firstOrFail();
+        $this->assertSame('Physics Laboratory', $user->department);
+        $this->assertSame('Research Specialist I', $user->designation);
+        $this->assertNull($user->office_head_id); // Optional for Authorized Personnel!
+
+        // Designation is required for Authorized Personnel
+        $invalidPayload = [
+            'name' => 'Invalid Auth Staff',
+            'email' => 'auth_staff_invalid@example.com',
+            'role' => 'Authorized Personnel',
+            'department' => 'Physics Laboratory',
+            'designation' => '',
+        ];
+        $this->post(route('access-control.staffs.store'), $invalidPayload)
+            ->assertSessionHasErrors(['designation']);
+    }
 }
