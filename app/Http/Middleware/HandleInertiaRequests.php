@@ -48,6 +48,8 @@ class HandleInertiaRequests extends Middleware
                 'role' => $primaryRole,
                 'primary_role' => $primaryRole,
                 'roles' => $user->getRoleNames()->toArray(),
+                'department' => $user->department,
+                'designation' => $user->designation,
                 'created_at' => $user->created_at?->toIso8601String(),
                 'created_at_formatted' => $user->created_at?->format('F d, Y'),
             ];

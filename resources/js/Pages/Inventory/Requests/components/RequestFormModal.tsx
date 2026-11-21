@@ -61,6 +61,7 @@ export function RequestFormModal({
     const assignment = pageProps.departmentAssignment as { department: string | null; recipient: string | null; recipient_designation: string | null; ready: boolean } | null;
     const assignedUnit = Boolean(pageProps.auth?.capabilities?.coordinatorInventory);
     const loginUserName = pageProps.auth?.user?.name || defaultRecipient;
+    const loginUserDesignation = pageProps.auth?.user?.designation || assignment?.recipient_designation || '';
     const departmentLocked = assignedUnit && (!isAuthorizedPersonnel || Boolean(assignment?.department));
     const assignmentMissing = assignedUnit && !isAuthorizedPersonnel && !request && !assignment?.ready;
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -73,7 +74,7 @@ export function RequestFormModal({
         recipient: isAuthorizedPersonnel ? loginUserName : (request?.recipient || (assignedUnit ? assignment?.recipient || '' : defaultRecipient)),
         date_requested: getLocalDateString(),
         department: request?.department || (assignedUnit ? assignment?.department || '' : ''),
-        recipient_designation: request?.recipient_designation || (assignedUnit && !isAuthorizedPersonnel ? assignment?.recipient_designation || '' : ''),
+        recipient_designation: request?.recipient_designation || (isAuthorizedPersonnel ? loginUserDesignation : (assignedUnit ? assignment?.recipient_designation || '' : '')),
         fund_cluster: '01',
         purpose: '',
         approved_by: defaultApprovedBy,
@@ -94,7 +95,7 @@ export function RequestFormModal({
                 recipient: isAuthorizedPersonnel ? loginUserName : (request.recipient || request.requester?.name || defaultRecipient),
                 date_requested: request.date_requested ? request.date_requested.slice(0, 10) : (request.created_at ? request.created_at.slice(0, 10) : getLocalDateString()),
                 department: request.department || '',
-                recipient_designation: request.recipient_designation || '',
+                recipient_designation: request.recipient_designation || (isAuthorizedPersonnel ? loginUserDesignation : ''),
                 fund_cluster: request.fund_cluster || '01',
                 purpose: request.purpose || '',
                 approved_by: defaultApprovedBy,
@@ -116,7 +117,7 @@ export function RequestFormModal({
                 recipient: isAuthorizedPersonnel ? loginUserName : (assignedUnit ? assignment?.recipient || '' : defaultRecipient),
                 date_requested: getLocalDateString(),
                 department: assignedUnit ? assignment?.department || '' : '',
-                recipient_designation: assignedUnit && !isAuthorizedPersonnel ? assignment?.recipient_designation || '' : '',
+                recipient_designation: isAuthorizedPersonnel ? loginUserDesignation : (assignedUnit ? assignment?.recipient_designation || '' : ''),
                 fund_cluster: '01',
                 purpose: '',
                 approved_by: defaultApprovedBy,
@@ -127,7 +128,7 @@ export function RequestFormModal({
             });
         }
         form.clearErrors();
-    }, [show, request?.id, initialItemId, defaultRecipient, defaultApprovedBy, defaultApprovedByDesignation, defaultIssuedBy, defaultIssuedByDesignation, assignment?.department, assignment?.recipient, assignment?.recipient_designation, assignedUnit]);
+    }, [show, request?.id, initialItemId, defaultRecipient, defaultApprovedBy, defaultApprovedByDesignation, defaultIssuedBy, defaultIssuedByDesignation, assignment?.department, assignment?.recipient, assignment?.recipient_designation, assignedUnit, isAuthorizedPersonnel, loginUserDesignation]);
 
     useEffect(() => {
         if (!show || !form.data.supporting_document) { setPreviewUrl(null); return; }

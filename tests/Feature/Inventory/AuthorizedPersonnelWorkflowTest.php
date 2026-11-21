@@ -296,4 +296,49 @@ class AuthorizedPersonnelWorkflowTest extends TestCase
         $this->post(route('access-control.staffs.store'), $invalidPayload)
             ->assertSessionHasErrors(['designation']);
     }
+
+    public function test_authorized_personnel_designation_is_shared_and_autofilled(): void
+    {
+        $user = $this->user();
+        $user->update([
+            'department' => 'Chemistry Department',
+            'designation' => 'Laboratory Custodian',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('inventory.requests.index'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Inventory/Requests/Index')
+                ->where('auth.user.designation', 'Laboratory Custodian')
+                ->where('departmentAssignment.recipient_designation', 'Laboratory Custodian')
+                ->where('departmentAssignment.recipient', $user->name)
+                ->where('departmentAssignment.department', 'Chemistry Department')
+            );
+
+        // Submit request without explicitly providing recipient_designation
+        $item = Item::create([
+            'weekly_request_limit' => 1000000,
+            'name' => 'Chemical Beaker',
+            'sku' => 'BEAKER-01',
+            'stock' => 50,
+            'unit_cost' => 100,
+            'amount' => 5000,
+            'status' => 'Available',
+            'unit_of_issue' => 'piece',
+        ]);
+
+        $response = $this->actingAs($user)->post(route('inventory.requests.store'), [
+            'department' => 'Chemistry Department',
+            'purpose' => 'Lab experiments',
+            'items' => [['item_id' => $item->id, 'quantity' => 2]],
+            'supporting_document_type' => 'Approved Letter',
+            'supporting_document' => $this->document(),
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $request = SupplyRequest::latest('id')->firstOrFail();
+        $this->assertSame('Laboratory Custodian', $request->recipient_designation);
+        $this->assertSame($user->name, $request->recipient);
+    }
 }

@@ -11,6 +11,8 @@ export interface User {
     role?: string;
     primary_role?: string;
     roles?: string[];
+    department?: string | null;
+    designation?: string | null;
     created_at?: string;
     created_at_formatted?: string;
 }
