@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react';
 import DashboardContent from '@/Layouts/DashboardContent';
 import { Link, usePage } from '@inertiajs/react';
 import { ArrowRight, CheckCircle2, ChevronRight, ClipboardList, Clock3, Eye, FileText, PackageCheck, Pencil, Plus, Search, X } from 'lucide-react';
@@ -42,6 +43,7 @@ interface Props {
 const reference = (request: SupplyRequest) => request.ris_number || `Request #${request.id}`;
 const adjusted = (request: SupplyRequest) => ['Approved', 'Issued', 'Ready for Pickup', 'Released'].includes(request.status)
     && request.items.some(line => line.approved_quantity != null && line.approved_quantity !== line.quantity);
+const isUrgent = (request: SupplyRequest) => Boolean(request.purpose && /\[URGENT\]/i.test(request.purpose));
 
 function RequestedSupplies({ request, includePurpose = true }: { request: SupplyRequest; includePurpose?: boolean }) {
     return (
@@ -61,6 +63,14 @@ function RequestedSupplies({ request, includePurpose = true }: { request: Supply
 export default function CoordinatorRequestsWorkspace(props: Props) {
     const { can } = useAuthorization();
     const { auth } = usePage<any>().props;
+
+    const displayRequests = useMemo(() => {
+        return [...props.requests].sort((a, b) => {
+            const aUrgent = isUrgent(a) ? 1 : 0;
+            const bUrgent = isUrgent(b) ? 1 : 0;
+            return bUrgent - aUrgent;
+        });
+    }, [props.requests]);
 
     const isAuthorizedPersonnel = Boolean(auth.capabilities?.requiresSupportingDocument);
     const supplyOwner = isAuthorizedPersonnel ? 'office' : 'unit';
@@ -213,52 +223,72 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                        {props.requests.map(request => (
-                                            <tr key={request.id} className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
-                                                <th scope="row" className="min-w-36 px-5 py-5 align-top font-semibold text-slate-900 dark:text-slate-100">
-                                                    {reference(request)}
-                                                </th>
-                                                <td className="whitespace-nowrap px-5 py-5 align-top text-slate-500 dark:text-slate-400">
-                                                    {formatDisplayDate(request.date_requested || request.created_at, 'short')}
-                                                </td>
-                                                <td className="min-w-52 px-5 py-5 align-top">
-                                                    <RequestedSupplies request={request} includePurpose={false} />
-                                                </td>
-                                                <td className="min-w-52 max-w-xs px-5 py-5 align-top text-slate-500 dark:text-slate-400">
-                                                    {request.purpose}
-                                                </td>
-                                                <td className="min-w-44 max-w-56 px-5 py-5 align-top">
-                                                    <p className="text-sm font-medium">{request.recipient || request.requester?.name || props.userName}</p>
-                                                    <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{request.department}</p>
-                                                </td>
-                                                <td className="px-5 py-5 align-top">
-                                                    {status(request)}
-                                                </td>
-                                                <td className="min-w-52 px-5 py-5 align-top text-right">
-                                                    {actions(request)}
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        {displayRequests.map(request => {
+                                            const urgent = isUrgent(request);
+                                            return (
+                                                <tr key={request.id} className={`transition ${urgent ? 'bg-red-50/50 hover:bg-red-50/80 dark:bg-red-950/20 dark:hover:bg-red-950/30 border-l-4 border-red-600' : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'}`}>
+                                                    <th scope="row" className="min-w-36 px-5 py-5 align-top font-semibold text-slate-900 dark:text-slate-100">
+                                                        <div className="flex flex-col gap-1 items-start">
+                                                            <span>{reference(request)}</span>
+                                                            {urgent && (
+                                                                <span className="inline-flex items-center gap-1 rounded-md bg-rose-600 text-white px-2 py-0.5 text-xs font-black tracking-wide uppercase shadow-xs">
+                                                                    ⚡ Urgent
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </th>
+                                                    <td className="whitespace-nowrap px-5 py-5 align-top text-slate-500 dark:text-slate-400">
+                                                        {formatDisplayDate(request.date_requested || request.created_at, 'short')}
+                                                    </td>
+                                                    <td className="min-w-52 px-5 py-5 align-top">
+                                                        <RequestedSupplies request={request} includePurpose={false} />
+                                                    </td>
+                                                    <td className="min-w-52 max-w-xs px-5 py-5 align-top text-slate-500 dark:text-slate-400">
+                                                        {request.purpose.replace(/^\[URGENT\]\s*/i, '')}
+                                                    </td>
+                                                    <td className="min-w-44 max-w-56 px-5 py-5 align-top">
+                                                        <p className="text-sm font-medium">{request.recipient || request.requester?.name || props.userName}</p>
+                                                        <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{request.department}</p>
+                                                    </td>
+                                                    <td className="px-5 py-5 align-top">
+                                                        {status(request)}
+                                                    </td>
+                                                    <td className="min-w-52 px-5 py-5 align-top text-right">
+                                                        {actions(request)}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
                             <div className="divide-y divide-slate-100 lg:hidden dark:divide-slate-800">
-                                {props.requests.map(request => (
-                                    <article key={request.id} className="space-y-4 p-4 sm:p-5">
-                                        <div className="flex flex-wrap items-start justify-between gap-3">
-                                            <div>
-                                                <h2 className="text-xl font-semibold">{reference(request)}</h2>
-                                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{formatDisplayDate(request.date_requested || request.created_at, 'short')}</p>
+                                {displayRequests.map(request => {
+                                    const urgent = isUrgent(request);
+                                    return (
+                                        <article key={request.id} className={`space-y-4 p-4 sm:p-5 ${urgent ? 'bg-red-50/50 dark:bg-red-950/20 border-l-4 border-red-600' : ''}`}>
+                                            <div className="flex flex-wrap items-start justify-between gap-3">
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <h2 className="text-xl font-semibold">{reference(request)}</h2>
+                                                        {urgent && (
+                                                            <span className="inline-flex items-center gap-1 rounded-md bg-rose-600 text-white px-2 py-0.5 text-xs font-black tracking-wide uppercase">
+                                                                ⚡ Urgent
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{formatDisplayDate(request.date_requested || request.created_at, 'short')}</p>
+                                                </div>
+                                                {status(request)}
                                             </div>
-                                            {status(request)}
-                                        </div>
-                                        <RequestedSupplies request={request} />
-                                        <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">{request.recipient || request.requester?.name || props.userName} · {request.department}</p>
-                                        <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                                            {actions(request)}
-                                        </div>
-                                    </article>
-                                ))}
+                                            <RequestedSupplies request={request} />
+                                            <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">{request.recipient || request.requester?.name || props.userName} · {request.department}</p>
+                                            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                                                {actions(request)}
+                                            </div>
+                                        </article>
+                                    );
+                                })}
                             </div>
                         </>
                     ) : empty}

@@ -74,6 +74,15 @@ export function RequestDetailsModal({
                 </div>
 
                 <div className="p-6 overflow-y-auto space-y-6 text-sm">
+                    {request.purpose && /\[URGENT\]/i.test(request.purpose) && (
+                        <div className="flex items-center gap-3 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-900 dark:text-rose-200 shadow-2xs">
+                            <span className="text-xl">⚡</span>
+                            <div>
+                                <h4 className="font-bold text-sm">Urgent Priority Requisition</h4>
+                                <p className="text-xs text-rose-700 dark:text-rose-300">This request was designated as high priority for immediate department or institutional operations.</p>
+                            </div>
+                        </div>
+                    )}
                     <SupportingDocumentPanel request={request} />
                     {/* Status & RIS Header */}
                     <div className="p-4 rounded-lg bg-gray-50/70 dark:bg-slate-800/40 border border-gray-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">

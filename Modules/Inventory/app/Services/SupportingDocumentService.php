@@ -18,7 +18,21 @@ class SupportingDocumentService
         }
 
         return [
-            'supporting_document_type' => ['required', Rule::in(['Approved MOA', 'Approved Research', 'Approved Letter', 'Others'])],
+            'supporting_document_type' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    $standard = ['Approved MOA', 'Approved Research', 'Approved Letter', 'Others', 'Specify Other'];
+                    if (in_array($value, $standard, true)) {
+                        return;
+                    }
+                    if (preg_match('/^(Others|Specify Other):\s*.+/i', $value)) {
+                        return;
+                    }
+                    $fail('The selected supporting document type is invalid.');
+                },
+            ],
             'supporting_document' => [Rule::requiredIf(! $supplyRequest?->supporting_document_path), 'nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'extensions:pdf,jpg,jpeg,png', 'max:10240'],
         ];
     }

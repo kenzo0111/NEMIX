@@ -18,6 +18,10 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+Route::get('/showcase', function () {
+    return response()->file(public_path('showcase.html'));
+})->name('showcase');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

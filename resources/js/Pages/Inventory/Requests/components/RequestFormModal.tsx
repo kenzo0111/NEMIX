@@ -8,6 +8,13 @@ import { getLocalDateString } from '@/utils/dateUtils';
 import { FUND_CLUSTER_OPTIONS, FALLBACK_DIVISIONS } from '../../Issuance/constants';
 import { DivisionGroup, RequestItem, SupplyRequest } from '../types';
 
+export const SUPPORTING_DOCUMENT_TYPE_OPTIONS = [
+    { value: 'Approved MOA', label: 'Approved MOA' },
+    { value: 'Approved Research', label: 'Approved Research' },
+    { value: 'Approved Letter', label: 'Approved Letter' },
+    { value: 'Specify Other', label: 'Specify Other' },
+];
+
 type FormLine = { item_id: string; quantity: string };
 
 interface RequestFormModalProps {
@@ -65,6 +72,7 @@ export function RequestFormModal({
     const departmentLocked = assignedUnit && (!isAuthorizedPersonnel || Boolean(assignment?.department));
     const assignmentMissing = assignedUnit && !isAuthorizedPersonnel && !request && !assignment?.ready;
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [otherDocumentSpecification, setOtherDocumentSpecification] = useState('');
     const divisionList = divisions && divisions.length > 0 ? divisions : FALLBACK_DIVISIONS;
 
     const form = useForm({
@@ -88,6 +96,11 @@ export function RequestFormModal({
         if (!show) return;
 
         if (request) {
+            const initialDocType = request?.supporting_document_type || '';
+            const isOther = initialDocType === 'Others' || initialDocType === 'Specify Other' || /^(Specify Other|Others):\s*/i.test(initialDocType);
+            const extractedCustomText = isOther ? initialDocType.replace(/^(Specify Other|Others):\s*/i, '') : '';
+            setOtherDocumentSpecification(extractedCustomText);
+
             form.setData({
                 submission_key: undefined,
                 supporting_document: null,
@@ -110,6 +123,7 @@ export function RequestFormModal({
                     : [{ item_id: '', quantity: '' }],
             });
         } else {
+            setOtherDocumentSpecification('');
             form.setData({
                 submission_key: globalThis.crypto?.randomUUID?.(),
                 supporting_document: null,
@@ -154,6 +168,25 @@ export function RequestFormModal({
             ) || FUND_CLUSTER_OPTIONS[0]
         );
     }, [form.data.fund_cluster]);
+
+    // Whether currently set to Specify Other
+    const isSpecifyOther = useMemo(() => {
+        const type = form.data.supporting_document_type || '';
+        return type === 'Others' || type === 'Specify Other' || /^(Specify Other|Others):\s*/i.test(type);
+    }, [form.data.supporting_document_type]);
+
+    // Selected supporting document type option for react-select
+    const selectedDocumentTypeOption = useMemo(() => {
+        if (!form.data.supporting_document_type) return null;
+        if (isSpecifyOther) {
+            return { value: 'Specify Other', label: 'Specify Other' };
+        }
+        return (
+            SUPPORTING_DOCUMENT_TYPE_OPTIONS.find(
+                (opt) => opt.value === form.data.supporting_document_type || opt.label === form.data.supporting_document_type
+            ) || { value: form.data.supporting_document_type, label: form.data.supporting_document_type }
+        );
+    }, [form.data.supporting_document_type, isSpecifyOther]);
 
     // List of item IDs currently selected across all rows
     const selectedItemIds = useMemo(() => {
@@ -225,9 +258,17 @@ export function RequestFormModal({
         e.preventDefault();
         if (assignmentMissing) return;
 
-        if (requiresDocument && (!form.data.supporting_document_type || (!form.data.supporting_document && !request?.supporting_document_name))) {
-            form.setError('supporting_document', 'Select a document type and upload an approved supporting document.');
-            return;
+        if (requiresDocument) {
+            if (!form.data.supporting_document_type || (isSpecifyOther && !otherDocumentSpecification.trim())) {
+                form.setError('supporting_document_type', isSpecifyOther && !otherDocumentSpecification.trim()
+                    ? 'Please specify the other document type.'
+                    : 'Select a document type.');
+                return;
+            }
+            if (!form.data.supporting_document && !request?.supporting_document_name) {
+                form.setError('supporting_document', 'Upload an approved supporting document.');
+                return;
+            }
         }
         const validRows = form.data.items.filter((line) => line.item_id && line.quantity);
         if (validRows.length === 0) {
@@ -462,6 +503,31 @@ export function RequestFormModal({
                                 {form.errors.purpose && (
                                     <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.purpose}</p>
                                 )}
+
+                                {/* Urgency Priority Checkbox (Inspired by COMPASS) */}
+                                <div className="mt-3 p-3 rounded-lg border border-red-200 dark:border-red-900/40 bg-red-50/50 dark:bg-red-950/20">
+                                    <div className="flex items-start gap-3">
+                                        <input
+                                            id="req_urgent_toggle"
+                                            type="checkbox"
+                                            checked={form.data.purpose.startsWith('[URGENT] ')}
+                                            onChange={(e) => {
+                                                const isUrgent = e.target.checked;
+                                                const clean = form.data.purpose.replace(/^\[URGENT\]\s*/i, '');
+                                                form.setData('purpose', isUrgent ? `[URGENT] ${clean}` : clean);
+                                            }}
+                                            className="mt-0.5 h-4 w-4 rounded border-gray-300 text-red-900 focus:ring-red-900 dark:border-slate-700 dark:bg-slate-900 cursor-pointer"
+                                        />
+                                        <div className="text-xs">
+                                            <label htmlFor="req_urgent_toggle" className="font-bold text-red-950 dark:text-red-300 cursor-pointer flex items-center gap-1.5">
+                                                ⚡ This requisition is urgent
+                                            </label>
+                                            <p className="text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed">
+                                                Mark this if the department or office urgently requires these supplies for immediate operations, exams, or official events. Urgent requests are prioritized at the top of the SPMO queue.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -717,17 +783,77 @@ export function RequestFormModal({
                         </div>
                     </div>
 
-                    {requiresDocument && <section data-tour="authorized-personnel-supporting-document" className="space-y-3 rounded-lg border border-slate-200 p-4 dark:border-slate-700">
-                        <h4 className="font-semibold">Supporting Document</h4>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">An approved supporting document is required before submission. This is proof of authorization, separate from the RIS. PDF, JPG, JPEG, or PNG, up to 10 MB.</p>
-                        <label className="block text-sm font-medium">Document type
-                            <select required value={form.data.supporting_document_type} onChange={e => form.setData('supporting_document_type', e.target.value)} className="mt-1 block min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-slate-900 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100">
-                                <option value="">Select document type</option>
-                                {['Approved MOA', 'Approved Research', 'Approved Letter', 'Others'].map(type => <option key={type}>{type}</option>)}
-                            </select>
-                        </label>
-                        <label className="block text-sm font-medium">Upload Approved Supporting Document
-                            <input key={`${request?.id || 'new'}-${show}`} type="file" accept=".pdf,.jpg,.jpeg,.png" required={!request?.supporting_document_name && !form.data.supporting_document} onChange={e => {
+                    {requiresDocument && <section data-tour="authorized-personnel-supporting-document" className="space-y-4 rounded-lg border border-slate-200 p-4 dark:border-slate-700 bg-white dark:bg-slate-900/40">
+                        <div>
+                            <h4 className="font-semibold text-slate-900 dark:text-slate-100">Supporting Document</h4>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">An approved supporting document is required before submission. This is proof of authorization, separate from the RIS. PDF, JPG, JPEG, or PNG, up to 10 MB.</p>
+                        </div>
+                        <div>
+                            <label htmlFor="req_supporting_document_type" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                Document type <span className="text-red-600" aria-hidden="true">*</span>
+                                <span className="sr-only"> (required)</span>
+                            </label>
+                            <Select
+                                inputId="req_supporting_document_type"
+                                name="supporting_document_type"
+                                aria-label="Document type"
+                                aria-invalid={Boolean(form.errors.supporting_document_type)}
+                                value={selectedDocumentTypeOption}
+                                onChange={(selected) => {
+                                    const nextVal = selected?.value || '';
+                                    if (nextVal === 'Specify Other') {
+                                        const trimmed = otherDocumentSpecification.trim();
+                                        form.setData('supporting_document_type', trimmed ? `Specify Other: ${trimmed}` : 'Specify Other');
+                                    } else {
+                                        setOtherDocumentSpecification('');
+                                        form.setData('supporting_document_type', nextVal);
+                                    }
+                                    form.clearErrors('supporting_document_type');
+                                }}
+                                options={SUPPORTING_DOCUMENT_TYPE_OPTIONS}
+                                placeholder="Select document type..."
+                                styles={getInstitutionalSelectStyles(Boolean(form.errors.supporting_document_type))}
+                                classNamePrefix="react-select"
+                                isSearchable={false}
+                            />
+                            {form.errors.supporting_document_type && (
+                                <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.supporting_document_type}</p>
+                            )}
+                        </div>
+
+                        {isSpecifyOther && (
+                            <div className="rounded-lg p-3.5 bg-red-50/50 dark:bg-red-950/20 border border-red-200/80 dark:border-red-900/40 space-y-1.5 transition-all">
+                                <label htmlFor="req_specify_other_document" className="block text-sm font-semibold text-gray-800 dark:text-slate-200">
+                                    Specify Other Document Type <span className="text-red-600" aria-hidden="true">*</span>
+                                    <span className="sr-only"> (required)</span>
+                                </label>
+                                <input
+                                    id="req_specify_other_document"
+                                    name="specify_other_document"
+                                    type="text"
+                                    required
+                                    value={otherDocumentSpecification}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setOtherDocumentSpecification(val);
+                                        form.clearErrors('supporting_document_type');
+                                        const trimmed = val.trim();
+                                        form.setData('supporting_document_type', trimmed ? `Specify Other: ${trimmed}` : 'Specify Other');
+                                    }}
+                                    placeholder="e.g. Special Order No. 12, Approved Project Contract, Board Resolution..."
+                                    className="w-full h-10 px-3 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 placeholder-gray-400 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs"
+                                />
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    Please enter the specific name, title, or reference number of this authorization document.
+                                </p>
+                            </div>
+                        )}
+                        <div>
+                            <label htmlFor="req_supporting_document" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                Upload Approved Supporting Document <span className="text-red-600" aria-hidden="true">*</span>
+                                <span className="sr-only"> (required)</span>
+                            </label>
+                            <input id="req_supporting_document" key={`${request?.id || 'new'}-${show}`} type="file" accept=".pdf,.jpg,.jpeg,.png" required={!request?.supporting_document_name && !form.data.supporting_document} onChange={e => {
                                 const file = e.target.files?.[0] || null;
                                 form.clearErrors('supporting_document');
                                 if (file && (!/\.(pdf|jpe?g|png)$/i.test(file.name) || !['application/pdf', 'image/jpeg', 'image/png'].includes(file.type) || file.size > 10 * 1024 * 1024)) {
@@ -737,16 +863,15 @@ export function RequestFormModal({
                                     return;
                                 }
                                 form.setData('supporting_document', file);
-                            }} className="mt-2 block w-full rounded-md border border-slate-300 bg-white p-2 text-sm text-slate-700 file:mr-3 file:rounded file:border-0 file:bg-slate-200 file:px-2 file:py-1 file:font-medium dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:file:bg-slate-700" />
-                        </label>
-                        {form.errors.supporting_document_type && <p role="alert" className="text-sm text-red-600">{form.errors.supporting_document_type}</p>}
-                        {form.errors.supporting_document && <p role="alert" className="text-sm text-red-600">{form.errors.supporting_document}</p>}
+                            }} className="mt-1 block w-full rounded-md border border-slate-300 bg-white p-2 text-sm text-slate-700 file:mr-3 file:rounded file:border-0 file:bg-slate-200 file:px-2 file:py-1 file:font-medium dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:file:bg-slate-700 cursor-pointer" />
+                            {form.errors.supporting_document && <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.supporting_document}</p>}
+                        </div>
                         {form.data.supporting_document && <div className="flex flex-wrap items-center gap-3 text-sm">
-                            <span>{form.data.supporting_document.name}</span>
-                            {previewUrl && <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-red-900 dark:text-red-300">Preview</a>}
-                            <button type="button" onClick={() => { form.setData('supporting_document', null); const input = document.querySelector<HTMLInputElement>('input[type="file"]'); if (input) input.value = ''; }} className="font-semibold text-red-900 dark:text-red-300">Remove selection</button>
+                            <span className="font-medium text-slate-700 dark:text-slate-300">{form.data.supporting_document.name}</span>
+                            {previewUrl && <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-red-900 hover:text-red-700 dark:text-red-300 dark:hover:text-red-200 underline">Preview</a>}
+                            <button type="button" onClick={() => { form.setData('supporting_document', null); const input = document.querySelector<HTMLInputElement>('#req_supporting_document'); if (input) input.value = ''; }} className="font-semibold text-red-900 hover:text-red-700 dark:text-red-300 dark:hover:text-red-200">Remove selection</button>
                         </div>}
-                        {!form.data.supporting_document && request?.supporting_document_name && <p className="text-sm">Current: <a className="underline" href={route('inventory.requests.document', { supplyRequest: request.id, inline: 1 })} target="_blank" rel="noopener noreferrer">{request.supporting_document_name}</a>. Select a file to replace it.</p>}
+                        {!form.data.supporting_document && request?.supporting_document_name && <p className="text-sm text-slate-600 dark:text-slate-400">Current: <a className="underline font-medium text-slate-800 dark:text-slate-200" href={route('inventory.requests.document', { supplyRequest: request.id, inline: 1 })} target="_blank" rel="noopener noreferrer">{request.supporting_document_name}</a>. Select a file to replace it.</p>}
                     </section>}
                     {/* Footer Actions */}
                     <div className="pt-4 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
