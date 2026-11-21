@@ -51,6 +51,8 @@ export type ManageStaffsPageProps = BasePageProps<{
 export interface CreateStaffFormData {
     department: string;
     office_head_id: string;
+    office_head_name?: string;
+    office_head_designation?: string;
     name: string;
     email: string;
     role: string;
@@ -59,6 +61,8 @@ export interface CreateStaffFormData {
 export interface EditStaffFormData {
     department: string;
     office_head_id: string;
+    office_head_name?: string;
+    office_head_designation?: string;
     name: string;
     email: string;
     role: string;

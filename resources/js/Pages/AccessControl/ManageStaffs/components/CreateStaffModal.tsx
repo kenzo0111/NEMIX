@@ -62,6 +62,8 @@ export default function CreateStaffModal({
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm<CreateStaffFormData>({
         department: '',
         office_head_id: '',
+        office_head_name: '',
+        office_head_designation: '',
         name: '',
         email: '',
         role: defaultRole,

@@ -62,6 +62,8 @@ export default function EditStaffModal({
     const { data, setData, put, processing, errors, reset, clearErrors } = useForm<EditStaffFormData>({
         department: '',
         office_head_id: '',
+        office_head_name: '',
+        office_head_designation: '',
         name: '',
         email: '',
         role: '',
@@ -84,6 +86,8 @@ export default function EditStaffModal({
             setData({
                 department: staff.department || '',
                 office_head_id: staff.office_head_id ? String(staff.office_head_id) : (departmentHeads[staff.department || ''] ? String(departmentHeads[staff.department || '']) : ''),
+                office_head_name: '',
+                office_head_designation: staff.office_head?.designation || '',
                 name: staff.name,
                 email: staff.email,
                 role: staff.role,

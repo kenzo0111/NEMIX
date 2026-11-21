@@ -78,6 +78,9 @@ class ManageStaffController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'role' => ['required', 'string', 'exists:roles,name'],
             ...$this->departmentRules($request),
+        ], [
+            'office_head_id.required' => 'Please select an office head or manually enter their name and designation.',
+            'office_head_designation.required' => 'The head designation field is required when manually entering an office head.',
         ]);
 
         // Prevent assigning protected System Admin role by lower-privileged users
@@ -165,6 +168,9 @@ class ManageStaffController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'role' => ['required', 'string', 'exists:roles,name'],
             ...$this->departmentRules($request, $user),
+        ], [
+            'office_head_id.required' => 'Please select an office head or manually enter their name and designation.',
+            'office_head_designation.required' => 'The head designation field is required when manually entering an office head.',
         ]);
 
         $currentRole = $user->roles->first()?->name ?? '';
@@ -202,6 +208,50 @@ class ManageStaffController extends Controller
 
     private function fillDepartmentHead(Request $request, ?User $user = null): void
     {
+        $headName = trim((string) $request->input('office_head_name', ''));
+        $headDesignation = trim((string) $request->input('office_head_designation', ''));
+        $department = trim((string) $request->input('department', ''));
+
+        if ($headName !== '' && $headDesignation !== '') {
+            $normalized = Signatory::normalizeName($headName);
+            $signatory = Signatory::where('normalized_name', $normalized)->first();
+
+            if (! $signatory) {
+                $signatory = Signatory::create([
+                    'name' => mb_strtoupper($headName, 'UTF-8'),
+                    'designation' => $headDesignation,
+                    'department' => $department ?: null,
+                    'office' => $department ?: null,
+                    'is_active' => true,
+                ]);
+            } else {
+                $updates = [];
+                if (! $signatory->is_active) {
+                    $updates['is_active'] = true;
+                }
+                if (empty($signatory->designation) || $signatory->designation !== $headDesignation) {
+                    $updates['designation'] = $headDesignation;
+                }
+                if (empty($signatory->department) && ! empty($department)) {
+                    $updates['department'] = $department;
+                    $updates['office'] = $department;
+                }
+                if (! empty($updates)) {
+                    $signatory->update($updates);
+                }
+            }
+
+            if (! empty($department)) {
+                DeliveryUnitHead::updateOrCreate(
+                    ['department' => $department],
+                    ['office_head_id' => $signatory->id]
+                );
+            }
+
+            $request->merge(['office_head_id' => $signatory->id]);
+            return;
+        }
+
         if ($request->filled('office_head_id') || !is_string($request->input('department'))) return;
 
         $department = trim($request->input('department'));
@@ -213,11 +263,19 @@ class ManageStaffController extends Controller
     private function departmentRules(Request $request, ?User $user = null): array
     {
         $required = $request->input('role') === 'Supply Coordinator';
+        $hasManualHead = $request->filled('office_head_name') || $request->filled('office_head_designation');
 
         return [
             'department' => [$required ? 'required' : 'nullable', 'string', 'max:255'],
+            'office_head_name' => ['nullable', 'string', 'max:255'],
+            'office_head_designation' => [
+                $hasManualHead ? 'required' : 'nullable',
+                'string',
+                'max:255',
+            ],
             'office_head_id' => [
-                $required ? 'required' : 'nullable', 'integer',
+                $required ? 'required' : 'nullable',
+                'integer',
                 Rule::exists('signatories', 'id')->where(function ($query) use ($user) {
                     $query->where(function ($query) use ($user) {
                         $query->where('is_active', true);

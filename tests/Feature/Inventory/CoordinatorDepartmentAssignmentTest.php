@@ -136,4 +136,57 @@ class CoordinatorDepartmentAssignmentTest extends TestCase
             ->has('requests.data', 0)->where('requests.total', 0)
             ->where('departmentAssignment.department', 'HR')->where('departmentAssignment.recipient', 'HR Head'));
     }
+
+    public function test_admin_can_manually_enter_office_head_and_designation_when_generating_staff_account(): void
+    {
+        Notification::fake();
+        $admin = $this->user('System Admin');
+
+        $payload = [
+            'name' => 'Guidance Coordinator',
+            'email' => 'guidance@example.com',
+            'role' => 'Supply Coordinator',
+            'department' => 'Guidance Office',
+            'office_head_name' => 'Dr. Maria Clara',
+            'office_head_designation' => 'Director, Guidance and Counseling',
+        ];
+
+        $response = $this->actingAs($admin)->post(route('access-control.staffs.store'), $payload);
+        $response->assertSessionHasNoErrors();
+
+        $user = User::where('email', 'guidance@example.com')->firstOrFail();
+        $this->assertSame('Guidance Office', $user->department);
+        $this->assertNotNull($user->office_head_id);
+
+        $head = Signatory::find($user->office_head_id);
+        $this->assertNotNull($head);
+        $this->assertSame('DR. MARIA CLARA', $head->name);
+        $this->assertSame('Director, Guidance and Counseling', $head->designation);
+        $this->assertSame('Guidance Office', $head->department);
+        $this->assertTrue($head->is_active);
+
+        // Verify DeliveryUnitHead was also registered
+        $this->assertDatabaseHas('delivery_unit_heads', [
+            'department' => 'Guidance Office',
+            'office_head_id' => $head->id,
+        ]);
+    }
+
+    public function test_manual_head_requires_designation_when_name_is_provided(): void
+    {
+        Notification::fake();
+        $admin = $this->user('System Admin');
+
+        $payload = [
+            'name' => 'Guidance Coordinator',
+            'email' => 'guidance2@example.com',
+            'role' => 'Supply Coordinator',
+            'department' => 'Guidance Office',
+            'office_head_name' => 'Dr. Maria Clara',
+            'office_head_designation' => '',
+        ];
+
+        $response = $this->actingAs($admin)->post(route('access-control.staffs.store'), $payload);
+        $response->assertSessionHasErrors(['office_head_designation']);
+    }
 }
