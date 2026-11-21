@@ -724,7 +724,7 @@ export function RequestFormModal({
                                                     ? request.reviewed_at.slice(0, 10)
                                                     : (request?.status === 'Approved' || request?.status === 'Issued'
                                                         ? (request.date_requested ? request.date_requested.slice(0, 10) : getLocalDateString())
-                                                        : 'Pending Custodian Approval')
+                                                        : 'Pending Head of Office Approval')
                                             }
                                             readOnly
                                             className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
