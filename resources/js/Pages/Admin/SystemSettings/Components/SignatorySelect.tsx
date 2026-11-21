@@ -41,14 +41,20 @@ export default function SignatorySelect({
     const { can } = useAuthorization();
     const canCreateSignatory = Boolean(onCreateSignatory) && can('admin.signatories.store');
     const canDeleteSignatory = Boolean(onDeleteSignatory) && can('admin.signatories.destroy');
-    // Transform directory list into react-select options
+    // Transform directory list into react-select options (excluding deans)
     const options: SignatoryOption[] = useMemo(() => {
-        return signatories.map((sig) => ({
-            value: sig.id,
-            label: sig.name,
-            designation: sig.designation,
-            signatory: sig,
-        }));
+        return signatories
+            .filter(
+                (sig) =>
+                    !sig.designation ||
+                    !sig.designation.toLowerCase().includes('dean')
+            )
+            .map((sig) => ({
+                value: sig.id,
+                label: sig.name,
+                designation: sig.designation,
+                signatory: sig,
+            }));
     }, [signatories]);
 
     // Find current selected option by ID or name fallback

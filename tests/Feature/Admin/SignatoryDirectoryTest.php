@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin;
 use App\Models\Signatory;
 use App\Models\SystemSetting;
 use App\Models\User;
+use Database\Seeders\CollegeDeanSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -385,5 +386,49 @@ class SignatoryDirectoryTest extends TestCase
         $this->assertSame($sig2->id, SystemSetting::get('signatories.rpci_verified_by_id'));
         $this->assertSame($sig1->id, SystemSetting::get('signatories.stock_card_custodian_id'));
         $this->assertSame($sig2->id, SystemSetting::get('signatories.mor_issued_by_id'));
+    }
+
+    public function test_system_settings_and_directory_exclude_college_deans_and_protect_them_from_deletion(): void
+    {
+        $this->seed(CollegeDeanSeeder::class);
+        $this->assertSame(10, Signatory::count());
+
+        // 1. System Settings index must exclude all deans
+        $settingsResponse = $this->actingAs($this->adminUser)
+            ->get(route('system.settings.index', ['tab' => 'signatories']));
+        $settingsResponse->assertOk();
+        $settingsResponse->assertInertia(fn ($page) => $page
+            ->component('Admin/SystemSettings/Index')
+            ->has('signatories', 0)
+        );
+
+        // 2. Directory JSON index must also exclude deans by default
+        $jsonResponse = $this->actingAs($this->adminUser)
+            ->getJson(route('admin.signatories.index'));
+        $jsonResponse->assertOk();
+        $jsonResponse->assertJsonCount(0, 'signatories');
+
+        // 3. Adding an institutional signatory shows only that signatory
+        $created = $this->actingAs($this->adminUser)
+            ->postJson(route('admin.signatories.store'), [
+                'name' => 'ARSENIO GEM A. GARCILLANOSA',
+                'designation' => 'SUPPLY OFFICER III / ADMIN OFFICER V',
+                'office' => 'Supply & Property Management Office (SPMO)',
+            ]);
+        $created->assertStatus(201);
+
+        $jsonAfterAdd = $this->actingAs($this->adminUser)
+            ->getJson(route('admin.signatories.index'));
+        $jsonAfterAdd->assertOk();
+        $jsonAfterAdd->assertJsonCount(1, 'signatories');
+        $jsonAfterAdd->assertJsonPath('signatories.0.name', 'ARSENIO GEM A. GARCILLANOSA');
+
+        // 4. Attempting to delete a dean via System Settings API is blocked
+        $dean = Signatory::whereRaw('LOWER(designation) LIKE ?', ['%dean%'])->firstOrFail();
+        $deleteResponse = $this->actingAs($this->adminUser)
+            ->deleteJson(route('admin.signatories.destroy', $dean->id));
+        $deleteResponse->assertStatus(422);
+        $deleteResponse->assertJsonPath('message', "Cannot remove \"{$dean->name}\" because they are assigned as a Delivery Unit Head / College Dean.");
+        $this->assertDatabaseHas('signatories', ['id' => $dean->id]);
     }
 }

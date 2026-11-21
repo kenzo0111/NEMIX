@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreSignatoryRequest;
+use App\Models\DeliveryUnitHead;
 use App\Models\Signatory;
 use App\Models\SystemSetting;
 use Illuminate\Http\JsonResponse;
@@ -43,6 +44,10 @@ class SignatoryController extends Controller
 
         if ($request->boolean('active_only')) {
             $query->active();
+        }
+
+        if (! $request->boolean('include_deans', false)) {
+            $query->excludeDeans();
         }
 
         $signatories = $query->orderBy('name')->get();
@@ -96,6 +101,12 @@ class SignatoryController extends Controller
         if ($assigned) {
             return response()->json([
                 'message' => "Cannot remove \"{$signatory->name}\" because they are currently assigned to one or more active roles in System Settings. Please reassign those roles before removing this signatory.",
+            ], 422);
+        }
+
+        if (DeliveryUnitHead::where('office_head_id', $signatory->id)->exists() || str_contains(mb_strtolower($signatory->designation), 'dean')) {
+            return response()->json([
+                'message' => "Cannot remove \"{$signatory->name}\" because they are assigned as a Delivery Unit Head / College Dean.",
             ], 422);
         }
 

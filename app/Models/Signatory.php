@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Signatory extends Model
 {
@@ -49,10 +50,28 @@ class Signatory extends Model
     }
 
     /**
+     * Delivery unit head mapping if assigned to a college or department.
+     */
+    public function deliveryUnitHead(): HasOne
+    {
+        return $this->hasOne(DeliveryUnitHead::class, 'office_head_id');
+    }
+
+    /**
      * Scope query to only active signatories.
      */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope query to exclude college deans and delivery unit heads,
+     * keeping only institutional signatories added for system settings.
+     */
+    public function scopeExcludeDeans(Builder $query): Builder
+    {
+        return $query->whereDoesntHave('deliveryUnitHead')
+            ->whereRaw('LOWER(designation) NOT LIKE ?', ['%dean%']);
     }
 }

@@ -78,7 +78,7 @@ class SystemSettingController extends Controller
             'activeTab' => $activeTab,
             'numberingPreviews' => $numberingPreviews,
             'telemetry' => $telemetry,
-            'signatories' => Signatory::orderBy('name')->get(),
+            'signatories' => Signatory::excludeDeans()->orderBy('name')->get(),
             'rfidDevices' => RfidDevice::with('settings')->get()->map(fn (RfidDevice $device) => [
                 'id' => $device->id,
                 'device_uuid' => $device->device_uuid,

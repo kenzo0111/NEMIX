@@ -43,9 +43,11 @@ export default function Index({
     const { can } = useAuthorization();
     const canUpdateSettings = can('system.settings.update');
 
-    // Centralized Signatories directory state
-    const [signatoriesList, setSignatoriesList] = useState<Signatory[]>(
-        () => initialSignatories || []
+    // Centralized Signatories directory state (excluding any deans)
+    const [signatoriesList, setSignatoriesList] = useState<Signatory[]>(() =>
+        (initialSignatories || []).filter(
+            (s) => !s.designation || !s.designation.toLowerCase().includes('dean')
+        )
     );
 
     const handleAddSignatory = (newSig: Signatory) => {

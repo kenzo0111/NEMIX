@@ -49,7 +49,7 @@ class StoreSignatoryRequest extends FormRequest
             $name = (string) $this->input('name', '');
             if (! empty(trim($name))) {
                 $normalized = Signatory::normalizeName($name);
-                $exists = Signatory::where('normalized_name', $normalized)->exists();
+                $exists = Signatory::excludeDeans()->where('normalized_name', $normalized)->exists();
 
                 if ($exists) {
                     $v->errors()->add('name', 'A signatory with this name already exists in the directory.');
