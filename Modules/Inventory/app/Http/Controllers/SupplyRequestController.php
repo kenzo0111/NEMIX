@@ -228,7 +228,7 @@ class SupplyRequestController extends Controller
     {
         return [
             'items:id,supply_request_id,item_id,quantity,approved_quantity',
-            'items.item:id,name,sku,stock,unit_of_issue',
+            'items.item:id,name,sku,stock,unit_of_issue,weekly_request_limit',
             'items.item.activeBatches:id,item_id,supplier_stock_no,quantity_remaining',
             'requester:id,name',
             'reviewer:id,name',

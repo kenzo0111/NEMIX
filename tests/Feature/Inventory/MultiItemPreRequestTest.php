@@ -5,13 +5,14 @@ namespace Tests\Feature\Inventory;
 use App\Models\Signatory;
 use App\Models\SystemSetting;
 use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\SupplyRequest;
-use Modules\Inventory\Models\SupplyRequestAlert;
 use Modules\Inventory\Services\InventoryReceivingService;
 use Modules\Suppliers\Models\Supplier;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -25,7 +26,7 @@ class MultiItemPreRequestTest extends TestCase
     {
         parent::setUp();
         $this->withoutVite();
-        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
+        $this->withoutMiddleware(ValidateCsrfToken::class);
         Storage::fake('local');
 
         SystemSetting::set('inventory.low_stock_threshold', 10);
@@ -224,10 +225,32 @@ class MultiItemPreRequestTest extends TestCase
         ]);
     }
 
-    public function test_coordinator_can_convert_stock_restocked_request_to_official_requisition(): void
+    public static function restockedAllowances(): array
+    {
+        return [
+            'unused allowance' => [0, 150],
+            'partially used allowance' => [115, 35],
+            'exhausted allowance' => [150, 0],
+        ];
+    }
+
+    #[DataProvider('restockedAllowances')]
+    public function test_restocked_requisition_displays_and_enforces_remaining_weekly_allowance(int $used, int $remaining): void
     {
         $coordinator = $this->coordinator();
-        $item = $this->item('Wireless Optical Mouse', 15);
+        $item = $this->item('Floor Cleaner', 250);
+        $item->update(['weekly_request_limit' => 150, 'unit_of_issue' => 'bottle']);
+
+        if ($used > 0) {
+            $pending = SupplyRequest::create([
+                'requested_by' => $coordinator->id,
+                'status' => 'Pending',
+                'request_type' => 'requisition',
+                'department' => 'College of Engineering',
+                'purpose' => 'Earlier weekly request',
+            ]);
+            $pending->items()->create(['item_id' => $item->id, 'quantity' => $used]);
+        }
 
         $preRequest = SupplyRequest::create([
             'requested_by' => $coordinator->id,
@@ -237,12 +260,29 @@ class MultiItemPreRequestTest extends TestCase
             'date_requested' => now()->toDateString(),
             'department' => 'College of Engineering',
             'fund_cluster' => '01',
-            'purpose' => 'Computer laboratory peripherals',
+            'purpose' => 'Cleaning supplies',
         ]);
         $preRequest->items()->create([
             'item_id' => $item->id,
-            'quantity' => 10,
+            'quantity' => 35,
         ]);
+
+        $this->actingAs($coordinator)->get(route('inventory.requests.index', [
+            'status' => 'Stock Restocked',
+            'request_id' => $preRequest->id,
+        ]))->assertOk()->assertInertia(fn ($page) => $page
+            ->component('Inventory/Requests/Index')
+            ->has('requests.data', 1)
+            ->where('items.0.stock', 250)
+            ->where('items.0.quota_remaining', $remaining)
+            ->where('requests.data.0.items.0.item.weekly_request_limit', 150)
+            ->where('requests.data.0.items.0.quota_remaining', $remaining)
+            ->where('requests.data.0.items.0.max_request_quantity', $remaining)
+            ->where('requests.data.0.items.0.max_approval_quantity', min(35, $remaining))
+            ->where('focusedRequest.items.0.item.weekly_request_limit', 150)
+            ->where('focusedRequest.items.0.quota_remaining', $remaining)
+            ->where('focusedRequest.items.0.max_request_quantity', $remaining)
+        );
 
         $updatePayload = [
             'request_type' => 'requisition',
@@ -251,9 +291,9 @@ class MultiItemPreRequestTest extends TestCase
             'department' => 'College of Engineering',
             'recipient_designation' => 'Unit Coordinator',
             'fund_cluster' => '01',
-            'purpose' => 'Computer laboratory peripherals - Ready for issue',
+            'purpose' => 'Cleaning supplies - Ready for issue',
             'items' => [
-                ['item_id' => $item->id, 'quantity' => 10],
+                ['item_id' => $item->id, 'quantity' => 35],
             ],
         ];
 
@@ -262,12 +302,18 @@ class MultiItemPreRequestTest extends TestCase
             $updatePayload
         );
 
-        $response->assertSessionHasNoErrors();
-        $response->assertRedirect();
-
         $fresh = $preRequest->fresh();
-        $this->assertEquals('Pending', $fresh->status);
-        $this->assertEquals('requisition', $fresh->request_type);
+        if ($remaining < 35) {
+            $response->assertSessionHasErrors('items.0.quantity');
+            $this->assertSame('Stock Restocked', $fresh->status);
+            $this->assertSame('pre_request', $fresh->request_type);
+        } else {
+            $response->assertSessionHasNoErrors();
+            $response->assertRedirect();
+            $this->assertSame('Pending', $fresh->status);
+            $this->assertSame('requisition', $fresh->request_type);
+        }
+        $this->assertSame(250, $item->fresh()->stock);
     }
 
     public function test_pre_request_submission_routes_to_unit_demand_and_not_to_issuance(): void
