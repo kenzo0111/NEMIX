@@ -218,6 +218,13 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
                     requiredCapability: (caps) => caps.inventory.issuance,
                     requiredPermission: 'route:inventory.issuance',
                 },
+                {
+                    key: 'pre-orders',
+                    title: 'Pre-Orders / Unit Demand',
+                    href: route('inventory.pre-orders.index'),
+                    requiredCapability: (caps) => caps.inventory.view,
+                    requiredPermission: 'route:inventory.index',
+                },
             ],
         },
         {

@@ -51,10 +51,18 @@ class CoordinatorInventoryController extends Controller
         $weekEnd = Carbon::parse(WeeklyRequestQuota::week(), config('app.timezone'))->addWeek()->toIso8601String();
         $reservations = SupplyRequestService::reservationQuery()->groupBy('lines.item_id')
             ->selectRaw('lines.item_id, SUM(lines.approved_quantity) as quantity');
+        $userPreOrders = DB::table('item_pre_orders')
+            ->where('user_id', $request->user()->id)
+            ->where('status', 'pending')
+            ->select('id as pre_order_id', 'item_id', 'quantity_requested as pre_order_quantity', 'urgency as pre_order_urgency', 'purpose as pre_order_purpose', 'created_at as pre_order_created_at');
         $available = "(items.stock - COALESCE(reservations.quantity, 0) - {$minimumStockThreshold})";
         $query = DB::table('items')->whereNull('items.deleted_at')
             ->leftJoinSub($reservations, 'reservations', 'reservations.item_id', '=', 'items.id')
-            ->select('items.id', 'items.name', 'items.sku', 'items.description', 'items.unit_of_issue', 'items.stock', 'items.weekly_request_limit')
+            ->leftJoinSub($userPreOrders, 'user_pre_orders', 'user_pre_orders.item_id', '=', 'items.id')
+            ->select(
+                'items.id', 'items.name', 'items.sku', 'items.description', 'items.unit_of_issue', 'items.stock', 'items.weekly_request_limit',
+                'user_pre_orders.pre_order_id', 'user_pre_orders.pre_order_quantity', 'user_pre_orders.pre_order_urgency', 'user_pre_orders.pre_order_purpose', 'user_pre_orders.pre_order_created_at'
+            )
             ->selectRaw("CASE WHEN {$available} > 0 THEN {$available} ELSE 0 END as available_quantity")
             ->when($search !== '', fn ($query) => $query->where(function ($query) use ($search) {
                 $pattern = '%'.mb_strtolower($search).'%';
@@ -71,6 +79,13 @@ class CoordinatorInventoryController extends Controller
                 'weekly_request_limit' => $item->weekly_request_limit,
                 'quota_remaining' => $item->weekly_request_limit === null ? 0 : max(0, $item->weekly_request_limit - ($usage[$item->id] ?? 0)),
                 'quota_week_end' => $weekEnd,
+                'user_pre_order' => $item->pre_order_id ? [
+                    'id' => (int) $item->pre_order_id,
+                    'quantity' => (int) $item->pre_order_quantity,
+                    'urgency' => $item->pre_order_urgency,
+                    'purpose' => $item->pre_order_purpose,
+                    'created_at' => $item->pre_order_created_at,
+                ] : null,
             ]);
 
         return Inertia::render('Inventory/Coordinator/Catalog', [

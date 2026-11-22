@@ -73,6 +73,13 @@ export default function InventoryRow({ item, onView, onEdit, onDelete, readOnly 
             {/* 7. Inventory Status */}
             <td className="px-3 sm:px-5 py-3.5 align-middle">
                 <InventoryStatus status={item.status} />
+                {Number(item.pre_orders_count ?? 0) > 0 && (
+                    <div className="mt-1">
+                        <span className="inline-flex items-center gap-1 rounded bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-900 border border-amber-200/80 dark:bg-amber-950/40 dark:border-amber-800/60 dark:text-amber-300">
+                            {item.pre_orders_count} DU{Number(item.pre_orders_count) > 1 ? 's' : ''} waiting ({item.pre_orders_demanded ?? 0} {item.unit_of_issue || 'units'})
+                        </span>
+                    </div>
+                )}
             </td>
 
             {/* 8. Institutional Actions */}

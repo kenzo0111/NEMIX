@@ -159,6 +159,16 @@ class InventoryReceivingService
 
                 // 4. Update cached stock & valuation
                 $this->balanceService->synchronizeItem($item);
+
+                // 4b. Transition pending pre-orders to notified since item has been replenished
+                if ($item->stock > 0 && class_exists(\Modules\Inventory\Models\ItemPreOrder::class)) {
+                    \Modules\Inventory\Models\ItemPreOrder::where('item_id', $item->id)
+                        ->where('status', 'pending')
+                        ->update([
+                            'status' => 'notified',
+                            'notified_at' => now(),
+                        ]);
+                }
             } finally {
                 AuditGroupContext::stop();
             }

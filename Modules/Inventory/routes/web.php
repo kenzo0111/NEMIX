@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Inventory\Http\Controllers\InventoryController;
+use Modules\Inventory\Http\Controllers\ItemPreOrderController;
 use Modules\Inventory\Http\Controllers\SupplyRequestController;
 use Modules\Inventory\Http\Controllers\SupplyRequestAlertController;
 
@@ -30,4 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('inventory/my-requests/{supplyRequest}/approve', [SupplyRequestController::class, 'approve'])->name('inventory.requests.approve');
     Route::post('inventory/my-requests/{supplyRequest}/reject', [SupplyRequestController::class, 'reject'])->name('inventory.requests.reject');
     Route::post('inventory/my-requests/{supplyRequest}/release', [SupplyRequestController::class, 'release'])->name('inventory.requests.release');
+    Route::get('inventory/pre-orders', [ItemPreOrderController::class, 'index'])->name('inventory.pre-orders.index');
+    Route::post('inventory/pre-orders', [ItemPreOrderController::class, 'store'])->name('inventory.pre-orders.store');
+    Route::delete('inventory/pre-orders/{preOrder}', [ItemPreOrderController::class, 'destroy'])->name('inventory.pre-orders.destroy');
 });

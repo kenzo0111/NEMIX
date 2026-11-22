@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { formatRisNumber } from '@/utils/risFormatter';
 import Modal from '@/Components/Modal';
 import { Link } from '@inertiajs/react';
-import { X, Edit3, Tag, Package, History, Layers, Trash2 } from 'lucide-react';
+import { X, Edit3, Tag, Package, History, Layers, Trash2, Clock } from 'lucide-react';
 import useAuthorization from '@/Hooks/useAuthorization';
 import { InventoryItem, ReceivingBatchRecord, RecentIssuanceRecord } from '../types';
 import { useSortableData } from '@/Hooks/useSortableData';
@@ -268,7 +268,67 @@ export default function InventoryDetailsModal({
                         )}
                     </div>
 
-                    {/* 3. RECENT ISSUANCE SECTION */}
+                    {/* 3. PRE-ORDERS / UNIT DEMAND SECTION */}
+                    {Boolean(item.pre_orders && item.pre_orders.length > 0) && (
+                        <div>
+                            <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100 dark:border-slate-800">
+                                <div className="flex items-center gap-2">
+                                    <Clock className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+                                    <h4 className="text-base font-bold text-gray-800 dark:text-slate-200">
+                                        Delivery Unit Pre-Orders ({item.pre_orders_count})
+                                    </h4>
+                                </div>
+                                <span className="text-xs font-semibold text-amber-900 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded dark:bg-amber-950/40 dark:border-amber-800/60 dark:text-amber-300">
+                                    Total Needed: {item.pre_orders_demanded} {item.unit_of_issue || 'units'}
+                                </span>
+                            </div>
+
+                            <div className="overflow-x-auto rounded border border-gray-200 dark:border-slate-800">
+                                <table className="w-full min-w-[500px] text-left border-collapse text-sm">
+                                    <thead className="bg-gray-50 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
+                                        <tr>
+                                            <th className="px-3 py-2.5">Delivery Unit / Office</th>
+                                            <th className="px-3 py-2.5 text-right">Quantity Needed</th>
+                                            <th className="px-3 py-2.5">Priority</th>
+                                            <th className="px-3 py-2.5">Purpose / Remarks</th>
+                                            <th className="px-3 py-2.5">Requested Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
+                                        {item.pre_orders!.map((po) => (
+                                            <tr key={po.id} className="hover:bg-gray-50/60 dark:hover:bg-slate-800/50">
+                                                <td className="px-3 py-2.5 font-medium text-slate-900 dark:text-slate-100">
+                                                    {po.delivery_unit}
+                                                </td>
+                                                <td className="px-3 py-2.5 text-right font-bold text-red-900 dark:text-red-300 tabular-nums">
+                                                    {po.quantity.toLocaleString()} {item.unit_of_issue || 'units'}
+                                                </td>
+                                                <td className="px-3 py-2.5">
+                                                    {po.urgency === 'urgent' ? (
+                                                        <span className="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">
+                                                            Urgent
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                                                            Normal
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="px-3 py-2.5 text-xs text-slate-600 dark:text-slate-400 max-w-xs truncate" title={po.purpose || ''}>
+                                                    {po.purpose || '—'}
+                                                </td>
+                                                <td className="px-3 py-2.5 text-xs tabular-nums text-slate-500">
+                                                    {po.created_at ? new Date(po.created_at).toLocaleDateString() : '—'}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 4. RECENT ISSUANCE SECTION */}
                     {recentIssuances.length > 0 ? (
                         <div>
                             <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100 dark:border-slate-800">

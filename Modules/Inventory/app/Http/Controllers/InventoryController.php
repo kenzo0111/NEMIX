@@ -129,7 +129,14 @@ class InventoryController extends Controller
         $perPage = TableSort::pageSize($request, 10);
         $paginator = $itemsQuery->paginate($perPage)->withQueryString();
 
-        $itemsList = collect($paginator->items())->map(function ($item) {
+        $paginatedIds = collect($paginator->items())->pluck('id')->all();
+        $preOrdersByItem = \Modules\Inventory\Models\ItemPreOrder::whereIn('item_id', $paginatedIds)
+            ->where('status', 'pending')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->groupBy('item_id');
+
+        $itemsList = collect($paginator->items())->map(function ($item) use ($preOrdersByItem) {
             $receivingBatches = $item->batches ? $item->batches->map(function ($batch) {
                 return [
                     'id' => $batch->id,
@@ -143,6 +150,16 @@ class InventoryController extends Controller
                     'date_received' => $batch->date_received ? $batch->date_received->format('Y-m-d') : '',
                 ];
             })->values()->all() : [];
+
+            $itemPreOrders = $preOrdersByItem->get($item->id, collect());
+            $preOrdersData = $itemPreOrders->map(fn ($po) => [
+                'id' => $po->id,
+                'delivery_unit' => $po->delivery_unit,
+                'quantity' => (int) $po->quantity_requested,
+                'urgency' => $po->urgency,
+                'purpose' => $po->purpose,
+                'created_at' => $po->created_at?->toIso8601String(),
+            ])->values()->all();
 
             return [
                 'id' => $item->id,
@@ -164,6 +181,10 @@ class InventoryController extends Controller
                 ] : null,
                 'rfid_tag' => $item->rfid_tag,
                 'receiving_batches' => $receivingBatches,
+                'pre_orders_count' => $itemPreOrders->count(),
+                'pre_orders_demanded' => (int) $itemPreOrders->sum('quantity_requested'),
+                'pre_orders_urgent' => $itemPreOrders->where('urgency', 'urgent')->count(),
+                'pre_orders' => $preOrdersData,
             ];
         })->values()->all();
 

@@ -182,4 +182,9 @@ class Item extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function preOrders(): HasMany
+    {
+        return $this->hasMany(ItemPreOrder::class, 'item_id');
+    }
 }

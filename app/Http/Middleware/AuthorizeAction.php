@@ -56,8 +56,8 @@ class AuthorizeAction
         if ($user->usesCoordinatorInventory()
             && (Str::startsWith($routeName, ['compliance.', 'rfid-scanner.', 'suppliers.'])
                 || (Str::startsWith($routeName, 'inventory.')
-                    && ! Str::startsWith($routeName, ['inventory.requests.', 'inventory.request-alerts.']))
-                || in_array($routeName, ['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release', 'inventory.requests.verify-document', 'inventory.requests.ready'], true))) {
+                    && ! Str::startsWith($routeName, ['inventory.requests.', 'inventory.request-alerts.', 'inventory.pre-orders.']))
+                || in_array($routeName, ['inventory.requests.approve', 'inventory.requests.reject', 'inventory.requests.release', 'inventory.requests.verify-document', 'inventory.requests.ready', 'inventory.pre-orders.index'], true))) {
             abort(403);
         }
 

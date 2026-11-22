@@ -33,6 +33,15 @@ export interface RecentIssuanceRecord {
     recipient: string;
 }
 
+export interface ItemPreOrderRecord {
+    id: number;
+    delivery_unit: string;
+    quantity: number;
+    urgency: 'normal' | 'urgent';
+    purpose?: string | null;
+    created_at?: string;
+}
+
 export interface InventoryItem {
     weekly_request_limit?: number | null;
     id: number;
@@ -53,6 +62,10 @@ export interface InventoryItem {
     rfid_tag?: string | null;
     receiving_batches?: ReceivingBatchRecord[];
     recent_issuances?: RecentIssuanceRecord[];
+    pre_orders_count?: number;
+    pre_orders_demanded?: number;
+    pre_orders_urgent?: number;
+    pre_orders?: ItemPreOrderRecord[];
 }
 
 export interface PaginationMeta {
