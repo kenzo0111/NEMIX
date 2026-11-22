@@ -140,7 +140,7 @@ export default function SystemSummary({
                         </div>
                     </div>
                     <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
-                        {isCoordinator ? 'Request replenishment from Supply Office' : 'Awaiting disposal'}
+                        {isCoordinator ? 'Request replenishment from Supply Office' : 'Awaiting for Replenishment Item'}
                     </div>
                 </Link>
             </div>
