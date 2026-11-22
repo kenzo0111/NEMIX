@@ -161,15 +161,15 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                         )}
                     </div>
                 </section>
-                <section data-tour="coordinator-request-summary" aria-label="My request overview" className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-7">
+                <section data-tour="coordinator-request-summary" aria-label="My request overview" className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
                     {stats.map(stat => (
                         <button key={stat.label} type="button" onClick={() => props.onStatus(stat.status)} aria-label={`Show ${stat.label.toLowerCase()}`} aria-pressed={props.status === stat.status} className={`${panel} flex min-w-0 items-start justify-between gap-3 p-4 text-left transition hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 sm:p-5 ${props.status === stat.status ? 'border-red-300 bg-red-50/70 ring-1 ring-red-900/20 dark:border-red-800 dark:bg-red-950/20' : ''}`}>
-                            <span className="min-w-0">
-                                <span className="block text-sm text-slate-600 dark:text-slate-400">{stat.label}</span>
-                                <span className="mt-2 block text-2xl font-bold tabular-nums">{stat.count}</span>
-                                <span className="mt-2 block text-sm text-slate-500 dark:text-slate-400">{stat.hint}</span>
+                            <span className="min-w-0 flex-1">
+                                <span className="block text-sm font-medium text-slate-700 dark:text-slate-300">{stat.label}</span>
+                                <span className="mt-2 block text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100">{stat.count}</span>
+                                <span className="mt-1.5 block text-xs leading-relaxed text-slate-500 sm:text-sm dark:text-slate-400">{stat.hint}</span>
                             </span>
-                            <span className={`hidden rounded-xl p-2.5 sm:inline-flex ${stat.color}`}>
+                            <span className={`hidden shrink-0 rounded-xl p-2.5 sm:inline-flex ${stat.color}`}>
                                 <stat.icon size={20} />
                             </span>
                         </button>
