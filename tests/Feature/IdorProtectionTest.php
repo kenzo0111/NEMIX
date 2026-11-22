@@ -10,11 +10,12 @@ use Modules\Inventory\Models\Issuance;
 use Modules\Suppliers\Models\Supplier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
+use Tests\Concerns\CreatesStaffUsers;
 use Tests\TestCase;
 
 class IdorProtectionTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesStaffUsers, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -201,10 +202,9 @@ class IdorProtectionTest extends TestCase
         $toggleResponse->assertStatus(403);
     }
 
-    public function test_system_admin_can_manage_all_resources()
+    public function test_authorized_property_staff_can_manage_another_users_report()
     {
-        $admin = User::factory()->create();
-        $admin->assignRole('System Admin');
+        $staff = $this->createStaffUser(['compliance.reports.update']);
 
         $user = User::factory()->create();
         $report = ComplianceReport::create([
@@ -215,14 +215,13 @@ class IdorProtectionTest extends TestCase
             'created_by' => $user->id,
         ]);
 
-        // Admin updates report successfully
-        $response = $this->actingAs($admin)->put("/compliance/reports/{$report->id}", [
-            'title' => 'Updated by Admin',
+        $response = $this->actingAs($staff)->put("/compliance/reports/{$report->id}", [
+            'title' => 'Updated by Staff',
             'type' => 'RPCI',
             'reference' => 'REF-999',
             'periodType' => 'specific',
         ]);
         $response->assertRedirect();
-        $this->assertEquals('Updated by Admin', $report->fresh()->title);
+        $this->assertEquals('Updated by Staff', $report->fresh()->title);
     }
 }

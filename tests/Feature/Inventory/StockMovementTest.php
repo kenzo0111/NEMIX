@@ -8,14 +8,14 @@ use Modules\Inventory\Models\Issuance;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\Receiving;
 use Modules\Suppliers\Models\Supplier;
-use Spatie\Permission\Models\Role;
+use Tests\Concerns\CreatesStaffUsers;
 use Tests\TestCase;
 
 class StockMovementTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesStaffUsers, RefreshDatabase;
 
-    protected User $adminUser;
+    protected User $staffUser;
     protected Supplier $supplier;
     protected Item $item;
 
@@ -23,10 +23,10 @@ class StockMovementTest extends TestCase
     {
         parent::setUp();
 
-        Role::firstOrCreate(['name' => 'System Admin']);
-
-        $this->adminUser = User::factory()->create(['is_active' => true]);
-        $this->adminUser->assignRole('System Admin');
+        $this->staffUser = $this->createStaffUser([
+            'inventory.receiving', 'inventory.receiving.store', 'inventory.receiving.update',
+            'inventory.issuance.store', 'inventory.issuance.destroy',
+        ]);
 
         $this->supplier = Supplier::create([
             'name' => 'Gov Supplies Direct Inc.',
@@ -35,7 +35,7 @@ class StockMovementTest extends TestCase
             'reg_number' => 'REG-99999',
             'category' => 'General Merchandise',
             'status' => 'active',
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $this->item = Item::create([
@@ -47,13 +47,13 @@ class StockMovementTest extends TestCase
             'amount' => 1750.00,
             'status' => 'Available',
             'unit_of_issue' => 'Piece',
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
     }
 
     public function test_receiving_stock_increments_item_inventory(): void
     {
-        $response = $this->actingAs($this->adminUser)->post(route('inventory.receiving.store'), [
+        $response = $this->actingAs($this->staffUser)->post(route('inventory.receiving.store'), [
             'item_id' => $this->item->id,
             'supplier_id' => $this->supplier->id,
             'quantity' => 25,
@@ -74,7 +74,7 @@ class StockMovementTest extends TestCase
 
     public function test_issuance_stock_deducts_item_inventory(): void
     {
-        $response = $this->actingAs($this->adminUser)->post(route('inventory.issuance.store'), [
+        $response = $this->actingAs($this->staffUser)->post(route('inventory.issuance.store'), [
             'issuances' => [
                 [
                     'item_id' => $this->item->id,
@@ -101,7 +101,7 @@ class StockMovementTest extends TestCase
 
     public function test_over_issuance_is_prevented_when_stock_is_insufficient(): void
     {
-        $response = $this->actingAs($this->adminUser)->post(route('inventory.issuance.store'), [
+        $response = $this->actingAs($this->staffUser)->post(route('inventory.issuance.store'), [
             'issuances' => [
                 [
                     'item_id' => $this->item->id,
@@ -128,14 +128,14 @@ class StockMovementTest extends TestCase
             'department' => 'Registrar',
             'date_issued' => now()->toDateString(),
             'status' => 'Issued',
-            'issued_by' => $this->adminUser->id,
+            'issued_by' => $this->staffUser->id,
         ]);
 
         // Simulate deduction at issuance
         $this->item->stock -= 15;
         $this->item->save();
 
-        $response = $this->actingAs($this->adminUser)->delete(route('inventory.issuance.destroy', $issuance));
+        $response = $this->actingAs($this->staffUser)->delete(route('inventory.issuance.destroy', $issuance));
         $response->assertRedirect(route('inventory.issuance'));
 
         $this->item->refresh();
@@ -150,13 +150,13 @@ class StockMovementTest extends TestCase
             'supplier_id' => $this->supplier->id,
             'quantity' => 20,
             'date_received' => now()->toDateString(),
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
         $this->item->stock += 20;
         $this->item->save();
 
         // Increase receiving from 20 to 35 (+15 diff)
-        $response = $this->actingAs($this->adminUser)->put(route('inventory.receiving.update', $receiving), [
+        $response = $this->actingAs($this->staffUser)->put(route('inventory.receiving.update', $receiving), [
             'item_id' => $this->item->id,
             'supplier_id' => $this->supplier->id,
             'quantity' => 35,
@@ -168,7 +168,7 @@ class StockMovementTest extends TestCase
         $this->assertEquals(85, $this->item->stock); // 70 + 15 = 85
 
         // Decrease receiving from 35 to 25 (-10 diff)
-        $response = $this->actingAs($this->adminUser)->put(route('inventory.receiving.update', $receiving), [
+        $response = $this->actingAs($this->staffUser)->put(route('inventory.receiving.update', $receiving), [
             'item_id' => $this->item->id,
             'supplier_id' => $this->supplier->id,
             'quantity' => 25,
@@ -187,14 +187,14 @@ class StockMovementTest extends TestCase
             'supplier_id' => $this->supplier->id,
             'quantity' => 50,
             'date_received' => now()->toDateString(),
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
         // Set item current stock to 10 (e.g., 40 were already issued)
         $this->item->stock = 10;
         $this->item->save();
 
         // Attempt to reduce receiving from 50 to 10 (diff = -40, but stock is only 10, resulting in -30)
-        $response = $this->actingAs($this->adminUser)->put(route('inventory.receiving.update', $receiving), [
+        $response = $this->actingAs($this->staffUser)->put(route('inventory.receiving.update', $receiving), [
             'item_id' => $this->item->id,
             'supplier_id' => $this->supplier->id,
             'quantity' => 10,
@@ -213,10 +213,10 @@ class StockMovementTest extends TestCase
             'supplier_id' => $this->supplier->id,
             'quantity' => 10,
             'date_received' => now()->toDateString(),
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
-        $response = $this->actingAs($this->adminUser)->get(route('inventory.receiving', [
+        $response = $this->actingAs($this->staffUser)->get(route('inventory.receiving', [
             'search' => 'Tape',
             'supplier' => $this->supplier->id,
         ]));

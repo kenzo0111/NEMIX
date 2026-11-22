@@ -14,14 +14,16 @@ use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\Receiving;
 use Modules\Suppliers\Models\Supplier;
 use Spatie\Permission\Models\Role;
+use Tests\Concerns\CreatesStaffUsers;
 use Tests\TestCase;
 
 class IsoIec25010DefectFixesTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesStaffUsers, RefreshDatabase;
 
     protected User $adminUser;
     protected User $staffUser;
+    protected User $inventoryStaff;
     protected Supplier $supplier;
 
     protected function setUp(): void
@@ -44,6 +46,7 @@ class IsoIec25010DefectFixesTest extends TestCase
             'is_active' => true,
         ]);
         $this->staffUser->assignRole('Supply Staff');
+        $this->inventoryStaff = $this->createStaffUser(['inventory.issuance.update']);
 
         $this->supplier = Supplier::create([
             'name' => 'National Supplies Depot',
@@ -710,7 +713,7 @@ class IsoIec25010DefectFixesTest extends TestCase
         $item1->update(['stock' => 15]);
 
         // Update issuance: Ballpen Red = 3 (returns 5, deducts 3 -> stock should be 17), Folder Long = 5 (deducts 5 -> stock should be 10)
-        $response = $this->actingAs($this->adminUser)->put(route('inventory.issuance.update', $issuance->id), [
+        $response = $this->actingAs($this->inventoryStaff)->put(route('inventory.issuance.update', $issuance->id), [
             'issuances' => [
                 ['item_id' => $item1->id, 'quantity' => 3],
                 ['item_id' => $item2->id, 'quantity' => 5],
@@ -779,7 +782,7 @@ class IsoIec25010DefectFixesTest extends TestCase
         $item1->update(['stock' => 8]); // 10 - 2
 
         // Attempt update requesting 4 of Flash Drive and 5 of Highlighter (Highlighter only has 2!)
-        $response = $this->actingAs($this->adminUser)->put(route('inventory.issuance.update', $issuance->id), [
+        $response = $this->actingAs($this->inventoryStaff)->put(route('inventory.issuance.update', $issuance->id), [
             'issuances' => [
                 ['item_id' => $item1->id, 'quantity' => 4],
                 ['item_id' => $item2->id, 'quantity' => 5], // Exceeds available 2!

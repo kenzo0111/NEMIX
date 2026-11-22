@@ -13,11 +13,12 @@ use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\SupplyRequest;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Tests\Concerns\CreatesStaffUsers;
 use Tests\TestCase;
 
 class ConsumableSupplyAnalyticsTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesStaffUsers, RefreshDatabase;
 
     private User $admin;
 
@@ -158,9 +159,10 @@ class ConsumableSupplyAnalyticsTest extends TestCase
         $this->assertCount(3, $data['demandHistory']);
     }
 
-    public function test_admin_receives_dashboard_and_invalid_ranges_are_rejected(): void
+    public function test_authorized_staff_receive_analytics_and_invalid_ranges_are_rejected(): void
     {
-        $this->actingAs($this->admin)->get(route('compliance.analytics', ['year' => 2026]))->assertOk()->assertInertia(fn (Assert $page) => $page->component('Compliance/ManageAnalytics')->has('supplyAnalytics.stats')->has('analytics.stats'));
+        $staff = $this->createStaffUser(['compliance.analytics']);
+        $this->actingAs($staff)->get(route('compliance.analytics', ['year' => 2026]))->assertOk()->assertInertia(fn (Assert $page) => $page->component('Compliance/ManageAnalytics')->has('supplyAnalytics.stats')->has('analytics.stats'));
         $this->getJson(route('compliance.analytics', ['start_date' => '2026-10-31', 'end_date' => '2026-10-01']))->assertUnprocessable();
     }
 

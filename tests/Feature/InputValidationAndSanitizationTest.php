@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\Validator;
 use Modules\Inventory\Models\Item;
 use Modules\Suppliers\Models\Supplier;
 use Spatie\Permission\Models\Role;
+use Tests\Concerns\CreatesStaffUsers;
 use Tests\TestCase;
 
 class InputValidationAndSanitizationTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesStaffUsers, RefreshDatabase;
 
     protected User $user;
     protected User $admin;
@@ -114,6 +115,7 @@ class InputValidationAndSanitizationTest extends TestCase
 
     public function test_inventory_creation_rejects_negative_stock(): void
     {
+        $inventoryStaff = $this->createStaffUser(['inventory.store']);
         $supplier = Supplier::create([
             'name' => 'Supplier 1',
             'tin' => 'TIN-001',
@@ -124,7 +126,7 @@ class InputValidationAndSanitizationTest extends TestCase
             'created_by' => $this->admin->id,
         ]);
 
-        $response = $this->actingAs($this->admin)->post('/inventories', [
+        $response = $this->actingAs($inventoryStaff)->post('/inventories', [
             'name' => 'Item 1',
             'supplier_id' => $supplier->id,
             'stock' => -5, // Invalid negative stock

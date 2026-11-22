@@ -72,10 +72,10 @@ class SupplyRequestWorkflowTest extends TestCase
             ->assertInertia(fn ($page) => $page->has('items', 0));
         $item->update(['stock' => 10]);
         $this->actingAs($coordinator)->get(route('inventory.requests.index'))
-            ->assertInertia(fn ($page) => $page->has('items', 0));
-        $item->update(['stock' => 11]);
+            ->assertInertia(fn ($page) => $page->has('items', 1)->where('items.0.max_request_quantity', 10));
+        $item->update(['stock' => 5]);
         $this->actingAs($coordinator)->get(route('inventory.requests.index'))
-            ->assertInertia(fn ($page) => $page->has('items', 1)->where('items.0.id', $item->id));
+            ->assertInertia(fn ($page) => $page->has('items', 1)->where('items.0.id', $item->id)->where('items.0.max_request_quantity', 5));
     }
 
     public function test_zero_stock_item_cannot_be_submitted_directly(): void
@@ -369,7 +369,7 @@ class SupplyRequestWorkflowTest extends TestCase
         $custodian = $this->user('Property Custodian');
         $item = $this->item(20);
         $first = $this->submit($coordinator, $item, 8);
-        $second = $this->submit($coordinator, $item, 5);
+        $second = $this->submit($coordinator, $item, 13);
         $firstLine = $first->items()->firstOrFail();
         $secondLine = $second->items()->firstOrFail();
 
@@ -377,22 +377,22 @@ class SupplyRequestWorkflowTest extends TestCase
             'approved_quantities' => [$firstLine->id => 8],
         ])->assertRedirect();
         $this->actingAs($custodian)->post(route('inventory.requests.approve', $second), [
-            'approved_quantities' => [$secondLine->id => 5],
+            'approved_quantities' => [$secondLine->id => 13],
         ])->assertSessionHasErrors('approved_quantities');
         $this->assertSame('Pending', $second->fresh()->status);
 
         $this->actingAs($coordinator)->post(route('inventory.requests.cancel', $first))->assertRedirect();
         $this->actingAs($custodian)->post(route('inventory.requests.approve', $second), [
-            'approved_quantities' => [$secondLine->id => 5],
+            'approved_quantities' => [$secondLine->id => 13],
         ])->assertRedirect();
-        $this->assertSame(15, $item->fresh()->stock);
+        $this->assertSame(7, $item->fresh()->stock);
         $this->assertSame('Approved', $second->fresh()->status);
 
         $this->actingAs($custodian)->post(route('inventory.requests.approve', $second), [
             'approved_quantities' => [$secondLine->id => 3],
         ])->assertSessionHasErrors('request');
-        $this->assertSame(5, $secondLine->fresh()->approved_quantity);
-        $this->assertSame(15, $item->fresh()->stock);
+        $this->assertSame(13, $secondLine->fresh()->approved_quantity);
+        $this->assertSame(7, $item->fresh()->stock);
     }
 
     public function test_allocated_stock_cannot_be_changed_through_item_edit(): void

@@ -3,32 +3,19 @@
 namespace Tests\Feature\Compliance;
 
 use App\Models\ComplianceReport;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Spatie\Permission\Models\Role;
+use Tests\Concerns\CreatesStaffUsers;
 use Tests\TestCase;
 
 class ComplianceReportScaleMemoryTest extends TestCase
 {
-    use RefreshDatabase;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Role::create(['name' => 'System Admin']);
-        Role::create(['name' => 'Property Staff']);
-    }
+    use CreatesStaffUsers, RefreshDatabase;
 
     public function test_initial_compliance_reports_request_does_not_load_all_records_and_remains_bounded(): void
     {
-        $admin = User::factory()->create([
-            'email_verified_at' => now(),
-            'is_active' => true,
-        ]);
-        $admin->assignRole('System Admin');
+        $staff = $this->createStaffUser(['compliance.reports']);
 
         // Create sample compliance reports
         for ($i = 1; $i <= 30; $i++) {
@@ -36,7 +23,7 @@ class ComplianceReportScaleMemoryTest extends TestCase
                 'title' => "RSMI Report {$i}",
                 'type' => 'RSMI',
                 'reference' => sprintf('2026-09-01-%04d', $i),
-                'created_by' => $admin->id,
+                'created_by' => $staff->id,
                 'payload' => ['sample' => 'data'],
                 'date' => '2026-09-01',
                 'period_type' => 'monthly',
@@ -50,7 +37,7 @@ class ComplianceReportScaleMemoryTest extends TestCase
             $batch = [];
             for ($i = 1; $i <= 1000; $i++) {
                 $batch[] = [
-                    'issued_by' => $admin->id,
+                    'issued_by' => $staff->id,
                     'department' => 'CCMS',
                     'recipient' => 'Accountable Officer',
                     'date_issued' => '2026-09-01',
@@ -115,7 +102,7 @@ class ComplianceReportScaleMemoryTest extends TestCase
 
         $memBefore = memory_get_usage();
 
-        $response = $this->actingAs($admin)->get('/compliance/reports');
+        $response = $this->actingAs($staff)->get('/compliance/reports');
         $response->assertOk();
 
         $memAfter = memory_get_usage();
@@ -141,13 +128,9 @@ class ComplianceReportScaleMemoryTest extends TestCase
 
     public function test_compliance_report_preview_dataset_uses_bounded_period_queries(): void
     {
-        $admin = User::factory()->create([
-            'email_verified_at' => now(),
-            'is_active' => true,
-        ]);
-        $admin->assignRole('System Admin');
+        $staff = $this->createStaffUser(['compliance.reports.preview_dataset']);
 
-        $response = $this->actingAs($admin)->postJson(route('compliance.reports.preview_dataset'), [
+        $response = $this->actingAs($staff)->postJson(route('compliance.reports.preview_dataset'), [
             'type' => 'RSMI',
             'periodType' => 'monthly',
             'selectedMonth' => 9,

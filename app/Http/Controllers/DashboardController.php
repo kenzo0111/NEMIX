@@ -15,10 +15,26 @@ class DashboardController
 
     public function index(Request $request): Response
     {
+        // Gather data common to all users
+        $validated = $request->validate([
+            'chart_filter' => ['nullable', 'string', 'in:monthly,yearly,custom'],
+            'start_date' => ['nullable', 'date_format:Y-m-d'],
+            'end_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
+        ]);
+
+        $chartFilter = $validated['chart_filter'] ?? 'monthly';
+        $startDate = $validated['start_date'] ?? null;
+        $endDate = $validated['end_date'] ?? null;
+
+        // Coordinator inventory view
+        if ($request->user()->usesCoordinatorInventory()) {
+            return Inertia::render('Dashboard', app(\App\Services\CoordinatorInventoryService::class)
+                ->dashboard($request->user(), $chartFilter, $startDate, $endDate));
+        }
+
+        // Pull admin‑wide overview when the user is a system admin
+        $adminOverview = [];
         if ($request->user()->isSystemAdmin()) {
-            // System Admins receive organization-wide operational metrics alongside
-            // the technical overview below. DashboardService queries institution-wide
-            // inventory records; coordinator scoping is only applied in its own branch.
             $supplySummary = $this->dashboardService->getSummaryStats();
             $criticalStock = $this->dashboardService->getCriticalStock(5);
             $recentReceiving = $this->dashboardService->getRecentReceivings(5);
@@ -46,7 +62,7 @@ class DashboardController
             $systemMode = 'Unavailable';
             $latestActivity = collect();
             $backupFiles = glob(storage_path('app/private/backups/supply-sync-*')) ?: [];
-            usort($backupFiles, fn ($left, $right) => filemtime($right) <=> filemtime($left));
+            usort($backupFiles, fn($l, $r) => filemtime($r) <=> filemtime($l));
             $backupStatus = $backupFiles
                 ? 'Latest database backup: '.date('Y-m-d H:i', filemtime($backupFiles[0]))
                 : 'Daily backup is scheduled; no database backup has run yet';
@@ -58,60 +74,43 @@ class DashboardController
                 }
                 $systemMode = \App\Models\SystemConfiguration::current()->active_mode;
                 if (class_exists(\Modules\AuditLogs\Models\TransactionTrail::class)) {
-                    $latestActivity = \Modules\AuditLogs\Models\TransactionTrail::with('user')->latest()->limit(8)->get()->map(fn ($trail) => [
-                        'id' => $trail->id,
-                        'action' => $trail->action,
-                        'module' => $trail->module,
-                        'actor' => $trail->user?->name ?? 'System',
-                        'created_at' => $trail->created_at?->toIso8601String(),
-                        'status' => $trail->status,
-                    ])->values();
+                    $latestActivity = \Modules\AuditLogs\Models\TransactionTrail::with('user')
+                        ->latest()
+                        ->limit(8)
+                        ->get()
+                        ->map(fn($t) => [
+                            'id' => $t->id,
+                            'action' => $t->action,
+                            'module' => $t->module,
+                            'actor' => $t->user?->name ?? 'System',
+                            'created_at' => $t->created_at?->toIso8601String(),
+                            'status' => $t->status,
+                        ])->values();
                 }
             } catch (\Throwable $e) {
                 report($e);
             }
 
-            return Inertia::render('Admin/SystemDashboard', [
-                'supplyOverview' => [
-                    'summary' => $supplySummary['summary'],
-                    'stats' => $supplySummary['stats'],
-                    'criticalStock' => $criticalStock,
-                    'recentReceiving' => $recentReceiving,
-                    'recentIssuance' => $recentIssuance,
-                    'requestSummary' => $requestSummary,
-                ],
-                'adminOverview' => [
-                    'totalUsers' => $totalUsers ?? 'Unavailable',
-                    'activeUsers' => $activeUsers ?? 'Unavailable',
-                    'databaseStatus' => $databaseStatus,
-                    'emailStatus' => filled(config('mail.default')) ? 'Configured' : 'Not configured',
-                    'failedJobs' => $failedJobs,
-                    'storageFreeBytes' => @disk_free_space(storage_path()) ?: null,
-                    'systemMode' => $systemMode,
-                    'backupStatus' => $backupStatus,
-                    'checkedAt' => now()->toIso8601String(),
-                ],
+            $adminOverview = [
+                'totalUsers' => $totalUsers ?? 'Unavailable',
+                'activeUsers' => $activeUsers ?? 'Unavailable',
+                'databaseStatus' => $databaseStatus,
+                'emailStatus' => filled(config('mail.default')) ? 'Configured' : 'Not configured',
+                'failedJobs' => $failedJobs,
+                'storageFreeBytes' => @disk_free_space(storage_path()) ?: null,
+                'systemMode' => $systemMode,
+                'backupStatus' => $backupStatus,
+                'checkedAt' => now()->toIso8601String(),
                 'recentAdminActivity' => $latestActivity,
-            ]);
+            ];
+            // Overwrite the earlier supply overview variables with admin data where appropriate
+            $summaryData = $supplySummary;
+        } else {
+            // Regular (non‑admin) summary
+            $summaryData = $this->dashboardService->getSummaryStats();
         }
 
-        $validated = $request->validate([
-            'chart_filter' => ['nullable', 'string', 'in:monthly,yearly,custom'],
-            'start_date' => ['nullable', 'date_format:Y-m-d'],
-            'end_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
-        ]);
-
-        $chartFilter = $validated['chart_filter'] ?? 'monthly';
-        $startDate = $validated['start_date'] ?? null;
-        $endDate = $validated['end_date'] ?? null;
-
-        if ($request->user()->usesCoordinatorInventory()) {
-            return Inertia::render('Dashboard', app(\App\Services\CoordinatorInventoryService::class)
-                ->dashboard($request->user(), $chartFilter, $startDate, $endDate));
-        }
-
-        // Authoritative metrics & movement from DashboardService
-        $summaryData = $this->dashboardService->getSummaryStats();
+        // Authoritative metrics for all users
         $movementData = $this->dashboardService->getInventoryMovement($chartFilter, $startDate, $endDate);
         $recentReceiving = $this->dashboardService->getRecentReceivings(5);
         $recentIssuance = $this->dashboardService->getRecentIssuances(5);
@@ -122,14 +121,16 @@ class DashboardController
         $recentActivity = $this->dashboardService->getRecentActivity($request->user(), 8);
 
         $roles = class_exists(\Spatie\Permission\Models\Role::class)
-            ? \Spatie\Permission\Models\Role::pluck('name')->map(fn($r) => ['value' => $r, 'label' => $r])->all()
+            ? \Spatie\Permission\Models\Role::pluck('name')
+                ->map(fn($r) => ['value' => $r, 'label' => $r])
+                ->all()
             : [];
 
         return Inertia::render('Dashboard', [
-            // Modern, strongly-typed system overview payload
-            'summary' => $summaryData['summary'],
-            'movement' => $movementData['movement'],
-            'movementSummary' => $movementData['movementSummary'],
+            // Modern payload
+            'summary' => $summaryData['summary'] ?? null,
+            'movement' => $movementData['movement'] ?? null,
+            'movementSummary' => $movementData['movementSummary'] ?? null,
             'recentReceiving' => $recentReceiving,
             'recentIssuance' => $recentIssuance,
             'criticalStock' => $criticalStock,
@@ -138,10 +139,9 @@ class DashboardController
             'supplierSummary' => $supplierSummary,
             'complianceSummary' => $complianceSummary,
             'recentActivity' => $recentActivity,
-
-            // Legacy keys preserved for backward-compatibility with existing tests & consumers
-            'stats' => $summaryData['stats'],
-            'chartData' => $movementData['chartData'],
+            // Legacy keys for backward compatibility
+            'stats' => $summaryData['stats'] ?? null,
+            'chartData' => $movementData['chartData'] ?? null,
             'filters' => [
                 'chartFilter' => $chartFilter,
                 'customStartDate' => $startDate,
@@ -156,6 +156,8 @@ class DashboardController
             'chartLabels' => $movementData['chartLabels'],
             'stockInData' => $movementData['stockInData'],
             'risIssuedData' => $movementData['risIssuedData'],
+            // Admin specific payload (only present for system admins)
+            'adminOverview' => $adminOverview,
         ]);
     }
 }

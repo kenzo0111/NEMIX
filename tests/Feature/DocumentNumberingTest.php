@@ -131,6 +131,7 @@ class DocumentNumberingTest extends TestCase
         $item = Item::create(['name' => 'Paper', 'sku' => 'NUM-PAPER', 'stock' => 10, 'unit_cost' => 10, 'amount' => 100, 'status' => 'Available', 'unit_of_issue' => 'ream']);
         $reserved = SupplyRequestService::generateOfficialRisNumber('2026-10-01');
         $request = SupplyRequest::create(['ris_number' => $reserved, 'requested_by' => $user->id, 'department' => 'Office', 'purpose' => 'Test', 'status' => 'Approved', 'date_requested' => '2026-10-01']);
+        $request->items()->create(['item_id' => $item->id, 'quantity' => 1, 'approved_quantity' => 1]);
         $service = app(InventoryIssuanceService::class);
         $data = ['date_issued' => '2026-10-01', 'recipient' => 'Office'];
         $lines = [['item_id' => $item->id, 'quantity' => 1]];

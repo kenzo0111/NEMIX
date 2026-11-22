@@ -10,14 +10,14 @@ use Modules\Inventory\Models\InventoryBatch;
 use Modules\Inventory\Models\Item;
 use Modules\Inventory\Models\Receiving;
 use Modules\Suppliers\Models\Supplier;
-use Spatie\Permission\Models\Role;
+use Tests\Concerns\CreatesStaffUsers;
 use Tests\TestCase;
 
 class RfidBulkReceivingTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesStaffUsers, RefreshDatabase;
 
-    private User $admin;
+    private User $receivingStaff;
     private Supplier $supplier;
     private Item $first;
     private Item $second;
@@ -25,13 +25,14 @@ class RfidBulkReceivingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Role::firstOrCreate(['name' => 'System Admin']);
-        $this->admin = User::factory()->create(['is_active' => true]);
-        $this->admin->assignRole('System Admin');
+        $this->receivingStaff = $this->createStaffUser([
+            'inventory.receiving.store', 'inventory.receiving.update',
+            'rfid-scanner.status', 'rfid-scanner.lookup', 'rfid-scanner.live-feed',
+        ], roleName: 'Inventory Staff');
         $this->supplier = Supplier::create([
             'name' => 'RFID Supply', 'tin' => '111-222-333-000', 'address' => 'Daet',
             'reg_number' => 'RFID-BULK', 'category' => 'Office Supplies',
-            'status' => 'active', 'created_by' => $this->admin->id,
+            'status' => 'active', 'created_by' => $this->receivingStaff->id,
         ]);
         $this->first = $this->makeItem('TAG-ONE', 'First item');
         $this->second = $this->makeItem('TAG-TWO', 'Second item');
@@ -43,7 +44,7 @@ class RfidBulkReceivingTest extends TestCase
             'name' => $name, 'sku' => $tag, 'rfid_tag' => $tag,
             'supplier_id' => $this->supplier->id, 'stock' => 0,
             'unit_cost' => 12.5, 'status' => 'Available',
-            'created_by' => $this->admin->id,
+            'created_by' => $this->receivingStaff->id,
         ]);
     }
 
@@ -60,7 +61,7 @@ class RfidBulkReceivingTest extends TestCase
 
     public function test_multiple_tags_create_one_receipt_and_batch_per_item(): void
     {
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE', 'TAG-TWO']))
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE', 'TAG-TWO']))
             ->assertRedirect(route('inventory.receiving'));
 
         $this->assertSame(2, Receiving::count());
@@ -77,7 +78,7 @@ class RfidBulkReceivingTest extends TestCase
         $payload = $this->payload(['TAG-ONE', 'TAG-TWO']);
         $payload['items'][0]['quantity'] = 20;
         $payload['items'][1]['quantity'] = 5;
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasNoErrors();
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('receivings', ['item_id' => $this->first->id, 'quantity' => 20, 'scanned_rfid_tag' => 'TAG-ONE']);
         $this->assertDatabaseHas('receivings', ['item_id' => $this->second->id, 'quantity' => 5, 'scanned_rfid_tag' => 'TAG-TWO']);
@@ -89,20 +90,20 @@ class RfidBulkReceivingTest extends TestCase
     {
         $payload = $this->payload(['TAG-ONE', 'TAG-TWO']);
         $payload['items'][0]['quantity'] = 20;
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasNoErrors();
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasNoErrors();
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasNoErrors();
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasNoErrors();
         $this->assertSame(2, Receiving::count());
         $this->assertSame(20, $this->first->fresh()->stock);
         $payload['items'][0]['unit_cost'] = 99;
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasErrors(['submission_key']);
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasErrors(['submission_key']);
         $this->assertSame(2, Receiving::count());
     }
 
     public function test_scanned_receipt_cannot_be_reassigned_to_another_item(): void
     {
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE']))->assertSessionHasNoErrors();
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE']))->assertSessionHasNoErrors();
         $receipt = Receiving::firstOrFail();
-        $this->actingAs($this->admin)->put(route('inventory.receiving.update', $receipt), [
+        $this->actingAs($this->receivingStaff)->put(route('inventory.receiving.update', $receipt), [
             'item_id' => $this->second->id, 'supplier_id' => $this->supplier->id,
             'quantity' => 1, 'unit_cost' => 14.75, 'date_received' => '2026-09-19',
         ])->assertSessionHasErrors(['item_id']);
@@ -114,10 +115,10 @@ class RfidBulkReceivingTest extends TestCase
     {
         $payload = $this->payload(['TAG-ONE', 'TAG-TWO']);
         $payload['items'][1]['unit_cost'] = -1;
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasErrors(['items.1.unit_cost']);
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasErrors(['items.1.unit_cost']);
         $payload['items'][1]['unit_cost'] = 14.75;
         $payload['items'][1]['supplier_id'] = 999999;
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasErrors(['items.1.supplier_id']);
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasErrors(['items.1.supplier_id']);
         $this->assertSame(0, Receiving::count());
         $this->assertSame(0, DB::table('rfid_receiving_submissions')->count());
     }
@@ -126,7 +127,7 @@ class RfidBulkReceivingTest extends TestCase
     {
         $payload = $this->payload(['TAG-ONE', 'TAG-TWO']);
         $payload['items'][1]['quantity'] = 0;
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $payload)
             ->assertSessionHasErrors(['items.1.quantity']);
         $this->assertSame(0, Receiving::count());
     }
@@ -135,11 +136,11 @@ class RfidBulkReceivingTest extends TestCase
     {
         $this->supplier->update(['status' => 'inactive']);
         $payload = $this->payload(['TAG-ONE']);
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $payload)
             ->assertSessionHasErrors(['items.0.supplier_id']);
         $this->supplier->update(['status' => 'active']);
         $payload['items'][0]['unit_cost'] = 0;
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasNoErrors();
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $payload)->assertSessionHasNoErrors();
         $this->assertSame('0.00', Receiving::firstOrFail()->batch->unit_cost);
     }
 
@@ -147,7 +148,7 @@ class RfidBulkReceivingTest extends TestCase
     {
         $other = User::factory()->create(['is_active' => true]);
         $this->second->update(['created_by' => $other->id]);
-        $staff = User::factory()->create(['is_active' => true]);
+        $staff = $this->createStaffUser(['inventory.receiving.store'], roleName: 'Inventory Staff');
         $this->first->update(['created_by' => $staff->id]);
         $this->supplier->update(['created_by' => $staff->id]);
         $this->actingAs($staff)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE', 'TAG-TWO']))->assertForbidden();
@@ -156,7 +157,7 @@ class RfidBulkReceivingTest extends TestCase
 
     public function test_foreign_owned_supplier_is_forbidden(): void
     {
-        $staff = User::factory()->create(['is_active' => true]);
+        $staff = $this->createStaffUser(['inventory.receiving.store'], roleName: 'Inventory Staff');
         $this->first->update(['created_by' => $staff->id]);
         $this->actingAs($staff)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE']))->assertForbidden();
         $this->assertSame(0, Receiving::count());
@@ -168,17 +169,17 @@ class RfidBulkReceivingTest extends TestCase
             ['tag' => 'TAG-ONE', 'occurred_at' => 100, 'created_at' => now()],
             ['tag' => 'TAG-TWO', 'occurred_at' => 101, 'created_at' => now()],
         ]);
-        $response = $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed'));
+        $response = $this->actingAs($this->receivingStaff)->getJson(route('rfid-scanner.live-feed'));
         $response->assertOk()->assertJsonCount(2, 'events');
         $cursor = $response->json('events.0.id');
-        $this->actingAs($this->admin)->getJson(route('rfid-scanner.lookup', 'TAG-ONE'))->assertOk();
-        $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', ['since' => $cursor]))
+        $this->actingAs($this->receivingStaff)->getJson(route('rfid-scanner.lookup', 'TAG-ONE'))->assertOk();
+        $this->actingAs($this->receivingStaff)->getJson(route('rfid-scanner.live-feed', ['since' => $cursor]))
             ->assertJsonCount(1, 'events')->assertJsonPath('events.0.tag', 'TAG-TWO');
     }
 
     public function test_single_item_receiving_form_still_creates_a_batch(): void
     {
-        $this->actingAs($this->admin)->post(route('inventory.receiving.store'), [
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.store'), [
             'item_id' => $this->first->id, 'supplier_id' => $this->supplier->id,
             'quantity' => 3, 'unit_cost' => 8.25, 'date_received' => '2026-09-19',
         ])->assertSessionHasNoErrors();
@@ -190,7 +191,7 @@ class RfidBulkReceivingTest extends TestCase
 
     public function test_duplicate_tags_reject_the_entire_receipt(): void
     {
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE', 'tag-one']))
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE', 'tag-one']))
             ->assertSessionHasErrors(['items.1.tag']);
 
         $this->assertSame(0, Receiving::count());
@@ -199,9 +200,9 @@ class RfidBulkReceivingTest extends TestCase
 
     public function test_unknown_or_invalid_tag_rejects_the_entire_receipt(): void
     {
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE', 'MISSING']))
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE', 'MISSING']))
             ->assertSessionHasErrors(['items.1.tag']);
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE', 'BAD!TAG']))
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE', 'BAD!TAG']))
             ->assertSessionHasErrors(['items.1.tag']);
 
         $this->assertSame(0, Receiving::count());
@@ -215,11 +216,11 @@ class RfidBulkReceivingTest extends TestCase
         ]);
 
         // Station 1 listening to DEVICE-A
-        $resA = $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', ['device_uuid' => 'DEVICE-A']));
+        $resA = $this->actingAs($this->receivingStaff)->getJson(route('rfid-scanner.live-feed', ['device_uuid' => 'DEVICE-A']));
         $resA->assertOk()->assertJsonCount(1, 'events')->assertJsonPath('events.0.tag', 'TAG-STATION-A');
 
         // Station 2 listening to DEVICE-B
-        $resB = $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', ['device_uuid' => 'DEVICE-B']));
+        $resB = $this->actingAs($this->receivingStaff)->getJson(route('rfid-scanner.live-feed', ['device_uuid' => 'DEVICE-B']));
         $resB->assertOk()->assertJsonCount(1, 'events')->assertJsonPath('events.0.tag', 'TAG-STATION-B');
     }
 
@@ -229,12 +230,12 @@ class RfidBulkReceivingTest extends TestCase
             ['tag' => 'TAG-HIST-1', 'device_uuid' => 'DEV-CURSOR', 'occurred_at' => 100, 'created_at' => now()],
         ]);
 
-        $initial = $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', ['device_uuid' => 'DEV-CURSOR']));
+        $initial = $this->actingAs($this->receivingStaff)->getJson(route('rfid-scanner.live-feed', ['device_uuid' => 'DEV-CURSOR']));
         $initial->assertOk()->assertJsonCount(1, 'events');
         $latestEventId = $initial->json('latest_event_id');
 
         // Same cursor returns 0 events
-        $subsequent = $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', [
+        $subsequent = $this->actingAs($this->receivingStaff)->getJson(route('rfid-scanner.live-feed', [
             'device_uuid' => 'DEV-CURSOR',
             'since' => $latestEventId,
         ]));
@@ -245,7 +246,7 @@ class RfidBulkReceivingTest extends TestCase
             ['tag' => 'TAG-HIST-2', 'device_uuid' => 'DEV-CURSOR', 'occurred_at' => 105, 'created_at' => now()],
         ]);
 
-        $polled = $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', [
+        $polled = $this->actingAs($this->receivingStaff)->getJson(route('rfid-scanner.live-feed', [
             'device_uuid' => 'DEV-CURSOR',
             'since' => $latestEventId,
         ]));
@@ -259,7 +260,7 @@ class RfidBulkReceivingTest extends TestCase
             'occurred_at' => microtime(true), 'created_at' => now(),
         ]);
 
-        $initial = $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', [
+        $initial = $this->actingAs($this->receivingStaff)->getJson(route('rfid-scanner.live-feed', [
             'device_uuid' => 'DEV-SESSION', 'station' => 'A', 'initialize' => 1,
         ]));
         $initial->assertOk()->assertJsonCount(0, 'events');
@@ -270,7 +271,7 @@ class RfidBulkReceivingTest extends TestCase
             'tag' => 'TAG-TWO', 'device_uuid' => 'DEV-SESSION', 'station_id' => 'A',
             'occurred_at' => microtime(true), 'created_at' => now(),
         ]);
-        $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', [
+        $this->actingAs($this->receivingStaff)->getJson(route('rfid-scanner.live-feed', [
             'device_uuid' => 'DEV-SESSION', 'station' => 'A', 'since' => $cursor,
         ]))->assertJsonCount(1, 'events')->assertJsonPath('events.0.tag', 'TAG-TWO');
     }
@@ -281,18 +282,18 @@ class RfidBulkReceivingTest extends TestCase
             'tag' => 'TAG-ONE', 'device_uuid' => 'DEV-SESSION', 'station_id' => null,
             'occurred_at' => microtime(true), 'created_at' => now(),
         ]);
-        $this->actingAs($this->admin)->getJson(route('rfid-scanner.live-feed', [
+        $this->actingAs($this->receivingStaff)->getJson(route('rfid-scanner.live-feed', [
             'device_uuid' => 'DEV-SESSION', 'station' => 'A', 'since' => 0,
         ]))->assertJsonCount(0, 'events');
     }
 
     public function test_rfid_receipt_quantity_can_be_corrected_from_inspection_record(): void
     {
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE']))->assertSessionHasNoErrors();
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $this->payload(['TAG-ONE']))->assertSessionHasNoErrors();
         $receipt = Receiving::firstOrFail();
 
         // Quantity can be corrected while the scanned item identity stays fixed.
-        $this->actingAs($this->admin)->put(route('inventory.receiving.update', $receipt), [
+        $this->actingAs($this->receivingStaff)->put(route('inventory.receiving.update', $receipt), [
             'item_id' => $this->first->id,
             'supplier_id' => $this->supplier->id,
             'quantity' => 5,
@@ -301,7 +302,7 @@ class RfidBulkReceivingTest extends TestCase
         ])->assertSessionHasNoErrors();
 
         // Cost and date corrections also remain available.
-        $this->actingAs($this->admin)->put(route('inventory.receiving.update', $receipt), [
+        $this->actingAs($this->receivingStaff)->put(route('inventory.receiving.update', $receipt), [
             'item_id' => $this->first->id,
             'supplier_id' => $this->supplier->id,
             'quantity' => 5,
@@ -323,12 +324,12 @@ class RfidBulkReceivingTest extends TestCase
         }
 
         // 101 items exceeds max:100 validation
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $this->payload($tags101))
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $this->payload($tags101))
             ->assertSessionHasErrors(['items']);
 
         // Exactly 100 items is accepted
         $tags100 = array_slice($tags101, 0, 100);
-        $this->actingAs($this->admin)->post(route('inventory.receiving.rfid.store'), $this->payload($tags100))
+        $this->actingAs($this->receivingStaff)->post(route('inventory.receiving.rfid.store'), $this->payload($tags100))
             ->assertSessionHasNoErrors();
 
         $this->assertSame(100, Receiving::count());

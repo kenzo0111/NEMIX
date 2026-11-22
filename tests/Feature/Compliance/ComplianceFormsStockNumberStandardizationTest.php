@@ -16,12 +16,12 @@ use Modules\Inventory\Models\Receiving;
 use Modules\Inventory\Services\InventoryIssuanceService;
 use Modules\Inventory\Services\InventoryReceivingService;
 use Modules\Suppliers\Models\Supplier;
-use Spatie\Permission\Models\Role;
+use Tests\Concerns\CreatesStaffUsers;
 use Tests\TestCase;
 
 class ComplianceFormsStockNumberStandardizationTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesStaffUsers, RefreshDatabase;
 
     protected User $user;
     protected Supplier $supplier;
@@ -33,9 +33,9 @@ class ComplianceFormsStockNumberStandardizationTest extends TestCase
     {
         parent::setUp();
 
-        Role::firstOrCreate(['name' => 'System Admin']);
-        $this->user = User::factory()->create(['is_active' => true]);
-        $this->user->assignRole('System Admin');
+        $this->user = $this->createStaffUser([
+            'compliance.reports.preview_dataset', 'compliance.reports.store',
+        ]);
         $this->actingAs($this->user);
 
         $this->supplier = Supplier::create([

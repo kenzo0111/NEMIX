@@ -7,23 +7,23 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Inventory\Models\Item;
 use Modules\Suppliers\Models\Supplier;
 use Spatie\Permission\Models\Role;
+use Tests\Concerns\CreatesStaffUsers;
 use Tests\TestCase;
 
 class InventoryManagementTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesStaffUsers, RefreshDatabase;
 
-    protected User $adminUser;
+    protected User $staffUser;
     protected Supplier $supplier;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        Role::firstOrCreate(['name' => 'System Admin']);
-
-        $this->adminUser = User::factory()->create(['is_active' => true]);
-        $this->adminUser->assignRole('System Admin');
+        $this->staffUser = $this->createStaffUser([
+            'inventory.index', 'inventory.store', 'inventory.update', 'inventory.destroy',
+        ]);
 
         $this->supplier = Supplier::create([
             'name' => 'Test Supplier Co.',
@@ -32,13 +32,13 @@ class InventoryManagementTest extends TestCase
             'reg_number' => 'REG-12345',
             'category' => 'Office Supplies',
             'status' => 'active',
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
     }
 
     public function test_inventory_list_page_can_be_rendered(): void
     {
-        $response = $this->actingAs($this->adminUser)->get(route('inventory.index'));
+        $response = $this->actingAs($this->staffUser)->get(route('inventory.index'));
         $response->assertOk();
     }
 
@@ -58,7 +58,7 @@ class InventoryManagementTest extends TestCase
             'unit_cost' => 15000.00,
             'amount' => 75000.00,
             'status' => 'Available',
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $response = $this->actingAs($propertyStaff)->get(route('inventory.index'));
@@ -72,7 +72,7 @@ class InventoryManagementTest extends TestCase
 
     public function test_inventory_item_can_be_created(): void
     {
-        $response = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
+        $response = $this->actingAs($this->staffUser)->post(route('inventory.store'), [
             'name' => 'Bond Paper A4 80gsm',
             'supplier_id' => $this->supplier->id,
             'sku' => 'PAP-A4-80G-001',
@@ -103,10 +103,10 @@ class InventoryManagementTest extends TestCase
             'amount' => 750.00,
             'status' => 'Available',
             'unit_of_issue' => 'Piece',
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
-        $response = $this->actingAs($this->adminUser)->put(route('inventory.update', $item), [
+        $response = $this->actingAs($this->staffUser)->put(route('inventory.update', $item), [
             'name' => 'Ballpen Black (Gel 0.5mm)',
             'supplier_id' => $this->supplier->id,
             'sku' => 'PEN-BLK-001',
@@ -134,10 +134,10 @@ class InventoryManagementTest extends TestCase
             'stock' => 10,
             'unit_cost' => 120.00,
             'status' => 'Available',
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
-        $response = $this->actingAs($this->adminUser)->delete(route('inventory.destroy', $item));
+        $response = $this->actingAs($this->staffUser)->delete(route('inventory.destroy', $item));
 
         $response->assertRedirect(route('inventory.index'));
         $this->assertSoftDeleted('items', ['id' => $item->id]);
@@ -145,7 +145,7 @@ class InventoryManagementTest extends TestCase
 
     public function test_auto_generates_unique_sku_when_sku_is_empty(): void
     {
-        $response = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
+        $response = $this->actingAs($this->staffUser)->post(route('inventory.store'), [
             'name' => 'Correction Tape 5mm',
             'supplier_id' => $this->supplier->id,
             'sku' => '',
@@ -159,17 +159,26 @@ class InventoryManagementTest extends TestCase
         $item = Item::where('name', 'Correction Tape 5mm')->first();
         $this->assertNotNull($item);
         $this->assertNotEmpty($item->sku);
-        $this->assertStringStartsWith('ITEM-', $item->sku);
+        $this->assertSame('1', $item->sku);
 
         $batch = $item->batches()->first();
         $this->assertNotNull($batch);
         $this->assertStringStartsWith('TSC-', $batch->supplier_stock_no);
+
+        $this->actingAs($this->staffUser)->post(route('inventory.store'), [
+            'name' => 'Glue Stick 20g',
+            'sku' => '',
+            'stock' => 0,
+            'unit_of_issue' => 'Piece',
+        ])->assertSessionHasNoErrors()->assertRedirect(route('inventory.index'));
+        $this->assertSame('2', Item::where('name', 'Glue Stick 20g')->firstOrFail()->sku);
+        $this->assertSame('1', $item->fresh()->sku);
     }
 
     public function test_authoritative_status_and_amount_calculations(): void
     {
         // 0 stock should be authoritative 'Out of Stock'
-        $response = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
+        $response = $this->actingAs($this->staffUser)->post(route('inventory.store'), [
             'name' => 'Special Paper Cream',
             'supplier_id' => $this->supplier->id,
             'stock' => 0,
@@ -192,10 +201,10 @@ class InventoryManagementTest extends TestCase
             'sku' => 'HLT-YEL-001',
             'stock' => 15,
             'status' => 'Low Stock',
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
-        $response = $this->actingAs($this->adminUser)->get(route('inventory.index', [
+        $response = $this->actingAs($this->staffUser)->get(route('inventory.index', [
             'search' => 'Highlighter',
             'status' => 'Low Stock',
         ]));

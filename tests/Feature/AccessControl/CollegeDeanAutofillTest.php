@@ -77,7 +77,7 @@ class CollegeDeanAutofillTest extends TestCase
         $this->assertSame($head->id, $staff->fresh()->office_head_id);
 
         // The assigned dean then fills the request and its saved signatory fields.
-        $item = Item::create(['name' => 'Paper', 'sku' => 'DEAN-PAPER', 'stock' => 5, 'unit_cost' => 1, 'amount' => 5, 'status' => 'Available']);
+        $item = Item::create(['name' => 'Paper', 'sku' => 'DEAN-PAPER', 'stock' => 5, 'unit_cost' => 1, 'amount' => 5, 'status' => 'Available', 'weekly_request_limit' => 5]);
         $this->actingAs($staff->fresh())->post(route('inventory.requests.store'), [
             'purpose' => 'College operations', 'items' => [['item_id' => $item->id, 'quantity' => 1]],
         ])->assertSessionHasNoErrors();

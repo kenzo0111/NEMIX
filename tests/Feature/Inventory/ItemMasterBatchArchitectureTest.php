@@ -17,14 +17,14 @@ use Modules\Inventory\Services\InventoryDuplicateDetectionService;
 use Modules\Inventory\Services\InventoryIssuanceService;
 use Modules\Inventory\Services\InventoryReceivingService;
 use Modules\Suppliers\Models\Supplier;
-use Spatie\Permission\Models\Role;
+use Tests\Concerns\CreatesStaffUsers;
 use Tests\TestCase;
 
 class ItemMasterBatchArchitectureTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesStaffUsers, RefreshDatabase;
 
-    protected User $adminUser;
+    protected User $staffUser;
     protected Supplier $supplierA;
     protected Supplier $supplierB;
     protected InventoryReceivingService $receivingService;
@@ -37,10 +37,9 @@ class ItemMasterBatchArchitectureTest extends TestCase
     {
         parent::setUp();
 
-        Role::firstOrCreate(['name' => 'System Admin']);
-
-        $this->adminUser = User::factory()->create(['is_active' => true]);
-        $this->adminUser->assignRole('System Admin');
+        $this->staffUser = $this->createStaffUser([
+            'inventory.receiving.store', 'inventory.show', 'inventory.supplier-stock-no', 'inventory.store',
+        ]);
 
         $this->supplierA = Supplier::create([
             'name' => 'Crown Paper Supplies Corp.',
@@ -49,7 +48,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'reg_number' => 'REG-001',
             'category' => 'Office Supplies',
             'status' => 'active',
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $this->supplierB = Supplier::create([
@@ -59,7 +58,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'reg_number' => 'REG-002',
             'category' => 'Office Supplies',
             'status' => 'active',
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $this->receivingService = app(InventoryReceivingService::class);
@@ -84,7 +83,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'unit_cost' => 0.00,
             'amount' => 0.00,
             'status' => 'Out of Stock',
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         // Batch 1: Supplier A, 50 reams @ 230.00
@@ -94,7 +93,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 50,
             'unit_cost' => 230.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Batch 2: Supplier B, 30 reams @ 245.00
         $result2 = $this->receivingService->record([
@@ -103,7 +102,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 30,
             'unit_cost' => 245.00,
             'date_received' => '2026-09-05',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Exactly 1 Item Master exists
         $this->assertEquals(1, Item::where('name', 'Bond Paper A4 80 GSM')->count());
@@ -130,7 +129,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'unit_of_issue' => 'Piece',
             'stock' => 0,
             'status' => 'Out of Stock',
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $this->receivingService->record([
@@ -139,7 +138,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 100,
             'unit_cost' => 12.50,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $this->receivingService->record([
             'item_id' => $item->id,
@@ -147,7 +146,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 75,
             'unit_cost' => 13.00,
             'date_received' => '2026-09-02',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $item->refresh();
         $sumOfBatches = (int) $item->activeBatches()->sum('quantity_remaining');
@@ -165,7 +164,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'MKR-BLK-PERM',
             'unit_of_issue' => 'Piece',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         // 40 units @ 45.00 = 1,800.00
@@ -175,7 +174,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 40,
             'unit_cost' => 45.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // 20 units @ 50.00 = 1,000.00
         $this->receivingService->record([
@@ -184,7 +183,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 20,
             'unit_cost' => 50.00,
             'date_received' => '2026-09-03',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $item->refresh();
         // 1,800 + 1,000 = 2,800.00
@@ -203,7 +202,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'unit_of_issue' => 'Piece',
             'stock' => 0,
             'unit_cost' => 150.00, // Legacy fallback unit cost
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         // Batch 1: 10 @ 200.00 = 2000.00
@@ -213,7 +212,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 10,
             'unit_cost' => 200.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Batch 2: 10 @ 250.00 = 2500.00
         $this->receivingService->record([
@@ -222,7 +221,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 10,
             'unit_cost' => 250.00,
             'date_received' => '2026-09-02',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $item->refresh();
         // Total value must be 4,500.00, NOT stock (20) * 150.00 (3,000.00)
@@ -240,13 +239,13 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'FLD-LNG-WHT',
             'unit_of_issue' => 'Piece',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $initialItemCount = Item::count();
 
         // HTTP Receiving 1
-        $this->actingAs($this->adminUser)->post(route('inventory.receiving.store'), [
+        $this->actingAs($this->staffUser)->post(route('inventory.receiving.store'), [
             'item_id' => $item->id,
             'supplier_id' => $this->supplierA->id,
             'quantity' => 50,
@@ -255,7 +254,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
         ]);
 
         // HTTP Receiving 2 with different supplier and cost
-        $this->actingAs($this->adminUser)->post(route('inventory.receiving.store'), [
+        $this->actingAs($this->staffUser)->post(route('inventory.receiving.store'), [
             'item_id' => $item->id,
             'supplier_id' => $this->supplierB->id,
             'quantity' => 30,
@@ -279,7 +278,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'COR-PEN-7ML',
             'unit_of_issue' => 'Piece',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         // Batch 1 (Oldest): 50 units @ 30.00
@@ -289,7 +288,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 50,
             'unit_cost' => 30.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Batch 2 (Newer): 30 units @ 35.00
         $res2 = $this->receivingService->record([
@@ -298,7 +297,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 30,
             'unit_cost' => 35.00,
             'date_received' => '2026-09-05',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Issue 40 units
         $this->issuanceService->store([
@@ -308,7 +307,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'recipient' => 'Prof. Alan Turing',
             'department' => 'Computer Science',
             'date_issued' => '2026-09-06',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $batch1 = $res1['batch']->fresh();
         $batch2 = $res2['batch']->fresh();
@@ -332,7 +331,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'PAP-SHT-70G',
             'unit_of_issue' => 'Ream',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         // Batch 1: 15 reams @ 200.00
@@ -342,7 +341,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 15,
             'unit_cost' => 200.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Batch 2: 25 reams @ 220.00
         $res2 = $this->receivingService->record([
@@ -351,7 +350,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 25,
             'unit_cost' => 220.00,
             'date_received' => '2026-09-05',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Issue 25 reams (15 from Batch 1, 10 from Batch 2)
         $issuance = $this->issuanceService->store([
@@ -361,7 +360,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'recipient' => 'Registrar Office',
             'department' => 'Administration',
             'date_issued' => '2026-09-06',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $batch1 = $res1['batch']->fresh();
         $batch2 = $res2['batch']->fresh();
@@ -399,7 +398,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'WBM-BLU-001',
             'unit_of_issue' => 'Piece',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $this->receivingService->record([
@@ -408,7 +407,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 10,
             'unit_cost' => 50.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $this->receivingService->record([
             'item_id' => $item->id,
@@ -416,7 +415,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 10,
             'unit_cost' => 60.00,
             'date_received' => '2026-09-02',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Issue 15 units (10 @ 50 = 500, 5 @ 60 = 300; total = 800.00)
         $issuance = $this->issuanceService->store([
@@ -426,7 +425,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'recipient' => 'Dean Office',
             'department' => 'Education',
             'date_issued' => '2026-09-03',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $issuanceItem = $issuance->items()->first();
         $this->assertEquals(800.00, $issuanceItem->amount);
@@ -443,7 +442,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'SCI-08-INC',
             'unit_of_issue' => 'Piece',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $this->receivingService->record([
@@ -452,7 +451,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 10,
             'unit_cost' => 75.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $this->expectException(ValidationException::class);
 
@@ -462,7 +461,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             ],
             'recipient' => 'Procurement Office',
             'date_issued' => '2026-09-02',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
     }
 
     /**
@@ -475,7 +474,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'GLU-STK-21G',
             'unit_of_issue' => 'Piece',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $res1 = $this->receivingService->record([
@@ -484,7 +483,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 20,
             'unit_cost' => 25.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $res2 = $this->receivingService->record([
             'item_id' => $item->id,
@@ -492,7 +491,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 20,
             'unit_cost' => 30.00,
             'date_received' => '2026-09-02',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Issue 25 (20 from Batch 1, 5 from Batch 2)
         $issuance = $this->issuanceService->store([
@@ -501,14 +500,14 @@ class ItemMasterBatchArchitectureTest extends TestCase
             ],
             'recipient' => 'Library',
             'date_issued' => '2026-09-03',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $this->assertEquals(0, $res1['batch']->fresh()->quantity_remaining);
         $this->assertEquals(15, $res2['batch']->fresh()->quantity_remaining);
         $this->assertEquals(15, $item->fresh()->stock);
 
         // Destroy / void the issuance
-        $this->issuanceService->destroy($issuance, $this->adminUser->id);
+        $this->issuanceService->destroy($issuance, $this->staffUser->id);
 
         // Batch 1 and Batch 2 must be restored
         $this->assertEquals(20, $res1['batch']->fresh()->quantity_remaining);
@@ -526,7 +525,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'BAT-AA-2PK',
             'unit_of_issue' => 'Pack',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $result = $this->receivingService->record([
@@ -535,7 +534,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 30,
             'unit_cost' => 80.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $receiving = $result['receiving'];
         $batch = $result['batch'];
@@ -545,7 +544,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 45,
             'unit_cost' => 80.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $batch->refresh();
         $this->assertEquals(45, $batch->quantity_received);
@@ -566,7 +565,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'TAP-PKG-2IN',
             'unit_of_issue' => 'Roll',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $result = $this->receivingService->record([
@@ -575,7 +574,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 50,
             'unit_cost' => 60.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Issue 35 rolls from this batch
         $this->issuanceService->store([
@@ -584,7 +583,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             ],
             'recipient' => 'Property Custodian',
             'date_issued' => '2026-09-02',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Attempt to update receiving to 30 (which is less than the 35 already issued)
         $this->expectException(ValidationException::class);
@@ -592,7 +591,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
         $this->receivingService->update($result['receiving'], [
             'quantity' => 30,
             'unit_cost' => 60.00,
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
     }
 
     /**
@@ -606,7 +605,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'unit_of_issue' => 'Ream',
             'description' => 'Multi-purpose copy paper 80gsm A4 size',
             'stock' => 10,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         // Exact match with different casing & spacing
@@ -637,7 +636,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'FLD-SHT-WHT',
             'unit_of_issue' => 'Piece',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $item2 = Item::create([
@@ -645,7 +644,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'CLP-BND-1IN',
             'unit_of_issue' => 'Box',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         // Supplier A delivers Item 1: 50 @ 10.00 = 500.00
@@ -655,7 +654,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 50,
             'unit_cost' => 10.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Supplier A delivers Item 2: 20 @ 30.00 = 600.00
         $this->receivingService->record([
@@ -664,7 +663,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 20,
             'unit_cost' => 30.00,
             'date_received' => '2026-09-02',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Supplier B delivers Item 1: 30 @ 12.00 = 360.00
         $this->receivingService->record([
@@ -673,7 +672,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 30,
             'unit_cost' => 12.00,
             'date_received' => '2026-09-03',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Total on-hand supplied by Supplier A: 500 + 600 = 1,100.00
         $this->assertEquals(1100.00, $this->supplierA->contract_supplies_value);
@@ -688,7 +687,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             ],
             'recipient' => 'Accounting Office',
             'date_issued' => '2026-09-04',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Now Supplier A's batch 1 has 20 remaining @ 10 = 200. Plus batch 2: 600. Total = 800.00
         $this->assertEquals(800.00, $this->supplierA->fresh()->contract_supplies_value);
@@ -707,7 +706,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'BOND-A4-80',
             'unit_of_issue' => 'Ream',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $batch1 = $this->receivingService->record([
@@ -717,7 +716,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 330,
             'unit_cost' => 50.00,
             'date_received' => '2026-09-10',
-        ], $this->adminUser->id)['batch'];
+        ], $this->staffUser->id)['batch'];
 
         $batch2 = $this->receivingService->record([
             'item_id' => $item->id,
@@ -726,13 +725,13 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 5000,
             'unit_cost' => 15.00,
             'date_received' => '2026-09-12',
-        ], $this->adminUser->id)['batch'];
+        ], $this->staffUser->id)['batch'];
 
         $this->assertEquals('COS-26-09-001-0001', $batch1->fresh()->supplier_stock_no);
         $this->assertEquals('APC-26-09-001-0001', $batch2->fresh()->supplier_stock_no);
 
         // Fetch item details through controller show endpoint
-        $response = $this->actingAs($this->adminUser)->get(route('inventory.show', $item->id));
+        $response = $this->actingAs($this->staffUser)->get(route('inventory.show', $item->id));
         $response->assertOk();
         $batchesData = $response->json('receiving_batches');
         $this->assertCount(2, $batchesData);
@@ -752,7 +751,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'BOND-A4-80',
             'unit_of_issue' => 'Ream',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         // Batch from Supplier A (COS)
@@ -763,7 +762,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 330,
             'unit_cost' => 50.00,
             'date_received' => '2026-09-10',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Batch from Supplier B (APC)
         $this->receivingService->record([
@@ -773,7 +772,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 5000,
             'unit_cost' => 15.00,
             'date_received' => '2026-09-12',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // 1. Query RPCI for Supplier A
         $rpciA = $rpciService->getRpciRecords(['supplier_id' => $this->supplierA->id]);
@@ -805,7 +804,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'BOND-A4-80',
             'unit_of_issue' => 'Ream',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         // Batch 1 from Supplier A
@@ -816,7 +815,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 300,
             'unit_cost' => 50.00,
             'date_received' => '2026-09-10',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Batch 2 from Supplier A with different stock number & price
         $this->receivingService->record([
@@ -826,7 +825,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 200,
             'unit_cost' => 55.00,
             'date_received' => '2026-10-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         $rpci = $rpciService->getRpciRecords(['supplier_id' => $this->supplierA->id]);
         $rows = collect($rpci['items'])->where('article', 'A4 Bond Paper 80 GSM')->values();
@@ -851,7 +850,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'MKR-WHT-BLK',
             'unit_of_issue' => 'Piece',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         $batch = $this->receivingService->record([
@@ -861,7 +860,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 100,
             'unit_cost' => 45.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id)['batch'];
+        ], $this->staffUser->id)['batch'];
 
         // Change supplier name and details
         $this->supplierA->update([
@@ -889,7 +888,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'PAP-PARCH-01',
             'unit_of_issue' => 'Ream',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         // Received 100 on Sept 1
@@ -900,7 +899,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 100,
             'unit_cost' => 120.00,
             'date_received' => '2026-09-01',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Issued 30 on Sept 10
         $this->issuanceService->store([
@@ -909,7 +908,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             ],
             'recipient' => 'President Office',
             'date_issued' => '2026-09-10',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Issued 20 on Sept 20
         $this->issuanceService->store([
@@ -918,7 +917,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             ],
             'recipient' => 'VP Academic Affairs',
             'date_issued' => '2026-09-20',
-        ], $this->adminUser->id);
+        ], $this->staffUser->id);
 
         // Query historical RPCI As-at Sept 5 (before any issuances): balance should be 100
         $rpciSept5 = $rpciService->getRpciRecords([
@@ -951,7 +950,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'BOND-LG-70',
             'unit_of_issue' => 'Ream',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
         // Receiving without providing supplier_stock_no (e.g. from automatic form submission)
@@ -961,7 +960,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 100,
             'unit_cost' => 180.00,
             'date_received' => '2026-09-12',
-        ], $this->adminUser->id)['batch'];
+        ], $this->staffUser->id)['batch'];
 
         $this->assertNotEmpty($batch->supplier_stock_no);
         $this->assertStringStartsWith('CPS-26-09-', $batch->supplier_stock_no);
@@ -973,7 +972,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'quantity' => 50,
             'unit_cost' => 190.00,
             'date_received' => '2026-09-15',
-        ], $this->adminUser->id)['batch'];
+        ], $this->staffUser->id)['batch'];
 
         $this->assertNotEmpty($batch2->supplier_stock_no);
         $this->assertNotEquals($batch->supplier_stock_no, $batch2->supplier_stock_no);
@@ -990,10 +989,10 @@ class ItemMasterBatchArchitectureTest extends TestCase
             'sku' => 'MRK-BLK',
             'unit_of_issue' => 'Piece',
             'stock' => 0,
-            'created_by' => $this->adminUser->id,
+            'created_by' => $this->staffUser->id,
         ]);
 
-        $response = $this->actingAs($this->adminUser)->getJson(route('inventory.supplier-stock-no', [
+        $response = $this->actingAs($this->staffUser)->getJson(route('inventory.supplier-stock-no', [
             'supplier_id' => $this->supplierB->id, // "Bicol School & Office Depot" -> "BSO"
             'item_id' => $item->id,
             'date_received' => '2026-09-12',
@@ -1011,7 +1010,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
     public function test_supplier_stock_no_api_generates_preview_for_new_item_without_item_id(): void
     {
         // Supplier A (Camarines Office Supplies -> COS)
-        $responseA = $this->actingAs($this->adminUser)->getJson(route('inventory.supplier-stock-no', [
+        $responseA = $this->actingAs($this->staffUser)->getJson(route('inventory.supplier-stock-no', [
             'supplier_id' => $this->supplierA->id,
             'date_received' => '2026-09-10',
         ]));
@@ -1022,7 +1021,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
         $this->assertStringStartsWith('CPS-26-09-', $generatedA);
 
         // When switching preferred supplier to Supplier B (Bicol School & Office Depot -> BSO)
-        $responseB = $this->actingAs($this->adminUser)->getJson(route('inventory.supplier-stock-no', [
+        $responseB = $this->actingAs($this->staffUser)->getJson(route('inventory.supplier-stock-no', [
             'supplier_id' => $this->supplierB->id,
             'date_received' => '2026-09-10',
         ]));
@@ -1040,7 +1039,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
      */
     public function test_initial_stock_creates_batch_with_supplier_stock_no_and_leaves_item_sku_internal(): void
     {
-        $response = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
+        $response = $this->actingAs($this->staffUser)->post(route('inventory.store'), [
             'name' => 'A4 Bond Paper 80 GSM Premium',
             'supplier_id' => $this->supplierA->id,
             'supplier_stock_no' => 'COS-26-09-001-0001',
@@ -1055,7 +1054,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
         $item = Item::where('name', 'A4 Bond Paper 80 GSM Premium')->first();
         $this->assertNotNull($item);
         // Item Master identity is internal and not the supplier stock number
-        $this->assertStringStartsWith('ITEM-', $item->sku);
+        $this->assertSame('1', $item->sku);
         $this->assertNotEquals('COS-26-09-001-0001', $item->sku);
 
         // Supplier stock number belongs strictly to the initial inventory batch
@@ -1073,7 +1072,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
      */
     public function test_zero_initial_stock_creates_item_master_without_receiving_batch(): void
     {
-        $response = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
+        $response = $this->actingAs($this->staffUser)->post(route('inventory.store'), [
             'name' => 'A4 Colored Paper Blue',
             'stock' => 0,
             'unit_of_issue' => 'Ream',
@@ -1096,7 +1095,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
     public function test_initial_stock_requires_supplier_and_positive_unit_cost(): void
     {
         // Missing supplier_id with stock > 0
-        $response1 = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
+        $response1 = $this->actingAs($this->staffUser)->post(route('inventory.store'), [
             'name' => 'Correction Pen Red',
             'stock' => 10,
             'unit_cost' => 25.00,
@@ -1105,7 +1104,7 @@ class ItemMasterBatchArchitectureTest extends TestCase
         $response1->assertSessionHasErrors('supplier_id');
 
         // Zero unit_cost with stock > 0
-        $response2 = $this->actingAs($this->adminUser)->post(route('inventory.store'), [
+        $response2 = $this->actingAs($this->staffUser)->post(route('inventory.store'), [
             'name' => 'Correction Pen Green',
             'supplier_id' => $this->supplierA->id,
             'stock' => 10,

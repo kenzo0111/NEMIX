@@ -271,7 +271,7 @@ class ApprovalStockWeeklyQuotaTest extends TestCase
         $this->assertSame(0, SupplyRequest::whereNotNull('stock_allocated_at')->count());
     }
 
-    public function test_conversion_honors_existing_approvals_below_current_minimum_stock(): void
+    public function test_conversion_honors_existing_approvals_and_keeps_low_stock_requestable(): void
     {
         $user = $this->user('Supply Coordinator');
         $request = SupplyRequest::create(['requested_by' => $user->id, 'department' => 'Registrar', 'purpose' => 'Existing commitment', 'status' => 'Approved']);
@@ -285,9 +285,8 @@ class ApprovalStockWeeklyQuotaTest extends TestCase
         $this->assertSame([6, 9], Item::orderBy('id')->pluck('stock')->all());
         $this->assertSame(22, (int) RequestBatchAllocation::where('state', 'allocated')->sum('quantity'));
         $this->assertSame('Approved', $request->fresh()->status);
-        foreach (Item::all() as $item) {
-            $this->assertSame(0, SupplyRequestService::requestableQuantity($item->stock, 0));
-        }
+        $this->assertSame([6, 9], Item::orderBy('id')->get()
+            ->map(fn ($item) => SupplyRequestService::requestableQuantity($item->stock, 0))->all());
     }
 
     public function test_item_maintainer_can_configure_weekly_limit(): void

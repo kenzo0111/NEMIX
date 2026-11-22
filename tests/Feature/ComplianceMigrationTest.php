@@ -9,23 +9,23 @@ use App\Models\Compliance\StockCardMigratedRecord;
 use App\Models\Compliance\MemorandumReceiptMigratedRecord;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\CreatesStaffUsers;
 use Tests\TestCase;
 
 class ComplianceMigrationTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesStaffUsers, RefreshDatabase;
 
     public function test_migration_rejects_oversized_or_malformed_batches(): void
     {
-        $admin = User::factory()->create(['email_verified_at' => now()]);
-        $admin->assignRole(\Spatie\Permission\Models\Role::firstOrCreate(['name' => 'System Admin']));
+        $staff = $this->createStaffUser(['compliance.migrations.store']);
 
-        $this->actingAs($admin)->post(route('compliance.migrations.store'), [
+        $this->actingAs($staff)->post(route('compliance.migrations.store'), [
             'form_type' => 'RSMI',
             'records' => array_fill(0, 501, ['item_name' => 'Item']),
         ])->assertSessionHasErrors('records');
 
-        $this->actingAs($admin)->post(route('compliance.migrations.store'), [
+        $this->actingAs($staff)->post(route('compliance.migrations.store'), [
             'form_type' => 'RSMI',
             'records' => [['item_name' => ['malformed'], 'quantity' => -1]],
         ])->assertSessionHasErrors(['records.0.item_name', 'records.0.quantity']);
