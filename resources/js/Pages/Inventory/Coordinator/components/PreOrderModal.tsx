@@ -55,7 +55,7 @@ export default function PreOrderModal({ item, onClose }: Props) {
 
     const handleCancelPreOrder = () => {
         if (!item?.user_pre_order?.id) return;
-        if (!confirm('Are you sure you want to cancel this pre-order? The Supply Office will no longer track this unit demand.')) return;
+        if (!confirm('Are you sure you want to cancel this pre-request? The Supply Office will no longer track this unit demand.')) return;
 
         router.delete(route('inventory.pre-orders.destroy', item.user_pre_order.id), {
             preserveScroll: true,
@@ -70,7 +70,7 @@ export default function PreOrderModal({ item, onClose }: Props) {
             closeable={!form.processing}
             maxWidth="lg"
             initialFocus={quantityRef}
-            ariaLabel={`Pre-Order ${item?.name ?? 'item'}`}
+            ariaLabel={`Pre-Request ${item?.name ?? 'item'}`}
         >
             <form onSubmit={handleSubmit}>
                 <div className="flex items-start justify-between gap-3 border-b border-slate-200 p-6 dark:border-slate-800">
@@ -79,7 +79,7 @@ export default function PreOrderModal({ item, onClose }: Props) {
                             Central Stock Replenishment Demand
                         </p>
                         <h2 className="text-xl font-semibold">
-                            {isExisting ? 'Manage Item Pre-Order' : 'Pre-Order Out-of-Stock Item'}
+                            {isExisting ? 'Manage Item Pre-Request' : 'Pre-Request Out-of-Stock Item'}
                         </h2>
                         <p className="leading-relaxed mt-1 text-sm text-slate-500 dark:text-slate-400">
                             Notify the Supply Office that your {supplyOwner.toLowerCase()} requires this item so they can expedite replenishment.
@@ -213,7 +213,7 @@ export default function PreOrderModal({ item, onClose }: Props) {
                     <div className="flex items-start gap-2.5 rounded-lg bg-blue-50/70 p-3 text-xs leading-relaxed text-blue-800 dark:bg-blue-950/30 dark:text-blue-300">
                         <AlertCircle size={15} className="mt-0.5 shrink-0 text-blue-700 dark:text-blue-400" />
                         <p>
-                            Pre-ordering signals your demand directly to the Supply Office. Once stock is received in the central warehouse, you will receive an alert to submit your official Requisition and Issue Slip (RIS).
+                            Pre-requesting signals your demand directly to the Supply Office. Once stock is received in the central warehouse, you will receive an alert to submit your official Requisition and Issue Slip (RIS).
                         </p>
                     </div>
                 </div>
@@ -228,7 +228,7 @@ export default function PreOrderModal({ item, onClose }: Props) {
                                 className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-50 hover:text-red-900 dark:text-red-400 dark:hover:bg-red-950/40 transition-colors"
                             >
                                 <Trash2 size={14} />
-                                Cancel Pre-Order
+                                Cancel Pre-Request
                             </button>
                         )}
                     </div>
@@ -254,8 +254,8 @@ export default function PreOrderModal({ item, onClose }: Props) {
                             {form.processing
                                 ? 'Submitting…'
                                 : isExisting
-                                ? 'Update Pre-Order'
-                                : 'Submit Pre-Order'}
+                                ? 'Update Pre-Request'
+                                : 'Submit Pre-Request'}
                         </button>
                     </div>
                 </div>

@@ -145,19 +145,19 @@ export default function PreOrdersIndex({
 
     return (
         <>
-            <Head title="Pre-Orders & Unit Demand | Supply Office" />
+            <Head title="Pre-Requests & Unit Demand | Supply Office" />
 
             <DashboardLayout
-                modules={getSidebarModules('Inventory', 'Pre-Orders / Unit Demand')}
+                modules={getSidebarModules('Inventory', 'Pre-Requests / Unit Demand')}
                 user={auth.user}
             >
                 <PageHeader
-                    title="Pre-Orders & Unit Demand"
+                    title="Pre-Requests & Unit Demand"
                     description="Monitor out-of-stock items needed by Delivery Units and Offices to prioritize purchase orders and warehouse replenishment."
                     breadcrumbs={[
                         { name: 'Dashboard', href: route('dashboard') },
                         { name: 'Inventory', href: route('inventory.index') },
-                        { name: 'Pre-Orders / Unit Demand' },
+                        { name: 'Pre-Requests / Unit Demand' },
                     ]}
                     actions={
                         <div className="flex items-center gap-2">
@@ -238,7 +238,7 @@ export default function PreOrdersIndex({
                         <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                             <div className="flex items-center justify-between">
                                 <p className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                                    Active Pre-Orders
+                                    Active Pre-Requests
                                 </p>
                                 <span className="rounded-lg bg-slate-100 p-2 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                                     <Layers3 size={18} />
@@ -248,7 +248,7 @@ export default function PreOrdersIndex({
                                 {stats.total_pending_orders}
                             </p>
                             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                Pending pre-order tickets from coordinators
+                                Pending pre-request tickets from coordinators
                             </p>
                         </div>
                     </section>
@@ -287,7 +287,7 @@ export default function PreOrdersIndex({
                                     }`}
                                 >
                                     <FileText size={16} />
-                                    <span>All Pre-Order Submissions</span>
+                                    <span>All Pre-Request Submissions</span>
                                     <span className="hidden rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 sm:inline dark:bg-slate-800 dark:text-slate-300">
                                         {detailedOrders.total}
                                     </span>
@@ -442,10 +442,10 @@ export default function PreOrdersIndex({
                                                 <td colSpan={7} className="px-5 py-12 text-center text-slate-500 dark:text-slate-400">
                                                     <CheckCircle2 size={32} className="mx-auto mb-2 text-emerald-600" />
                                                     <p className="text-base font-semibold text-slate-800 dark:text-slate-200">
-                                                        No pending pre-orders matching your filters
+                                                        No pending pre-requests matching your filters
                                                     </p>
                                                     <p className="mt-1 text-xs">
-                                                        Delivery Units have not submitted any pre-orders for out-of-stock supplies.
+                                                        Delivery Units have not submitted any pre-requests for out-of-stock supplies.
                                                     </p>
                                                 </td>
                                             </tr>
@@ -549,7 +549,7 @@ export default function PreOrdersIndex({
 
                         {/* Pagination */}
                         {tab === 'all_requests' && detailedOrders.total > 15 && (
-                            <nav aria-label="Pre-order pagination" className="flex flex-wrap justify-center gap-1.5 border-t border-slate-100 p-4 dark:border-slate-800">
+                            <nav aria-label="Pre-request pagination" className="flex flex-wrap justify-center gap-1.5 border-t border-slate-100 p-4 dark:border-slate-800">
                                 {detailedOrders.links.map((link, i) =>
                                     link.url ? (
                                         <Link

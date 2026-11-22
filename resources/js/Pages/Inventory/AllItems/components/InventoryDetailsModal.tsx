@@ -268,14 +268,14 @@ export default function InventoryDetailsModal({
                         )}
                     </div>
 
-                    {/* 3. PRE-ORDERS / UNIT DEMAND SECTION */}
+                    {/* 3. PRE-REQUESTS / UNIT DEMAND SECTION */}
                     {Boolean(item.pre_orders && item.pre_orders.length > 0) && (
                         <div>
                             <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100 dark:border-slate-800">
                                 <div className="flex items-center gap-2">
                                     <Clock className="w-4 h-4 text-amber-700 dark:text-amber-400" />
                                     <h4 className="text-base font-bold text-gray-800 dark:text-slate-200">
-                                        Delivery Unit Pre-Orders ({item.pre_orders_count})
+                                        Delivery Unit Pre-Requests ({item.pre_orders_count})
                                     </h4>
                                 </div>
                                 <span className="text-xs font-semibold text-amber-900 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded dark:bg-amber-950/40 dark:border-amber-800/60 dark:text-amber-300">

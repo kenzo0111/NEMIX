@@ -96,7 +96,7 @@ export default function CatalogTable({
                                                         className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs cursor-pointer"
                                                     >
                                                         <Clock size={13} />
-                                                        Pre-Ordered ({item.user_pre_order.quantity})
+                                                        Pre-Requested ({item.user_pre_order.quantity})
                                                     </button>
                                                 ) : (
                                                     <button
@@ -105,7 +105,7 @@ export default function CatalogTable({
                                                         className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50/80 px-3 py-1.5 text-xs font-semibold text-red-900 hover:bg-red-100 dark:border-red-800/60 dark:bg-red-950/40 dark:text-red-300 transition-colors shadow-2xs cursor-pointer"
                                                     >
                                                         <PackagePlus size={14} className="text-red-800 dark:text-red-400" />
-                                                        Pre-Order
+                                                        Pre-Request
                                                     </button>
                                                 )
                                             ) : (
@@ -168,7 +168,7 @@ export default function CatalogTable({
                                                 className="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs cursor-pointer"
                                             >
                                                 <Clock size={13} />
-                                                Pre-Ordered ({item.user_pre_order.quantity})
+                                                Pre-Requested ({item.user_pre_order.quantity})
                                             </button>
                                         ) : (
                                             <button
@@ -177,7 +177,7 @@ export default function CatalogTable({
                                                 className="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50/80 px-3 py-1.5 text-xs font-semibold text-red-900 hover:bg-red-100 dark:border-red-800/60 dark:bg-red-950/40 dark:text-red-300 transition-colors shadow-2xs cursor-pointer"
                                             >
                                                 <PackagePlus size={14} className="text-red-800 dark:text-red-400" />
-                                                Pre-Order This Item
+                                                Pre-Request This Item
                                             </button>
                                         )
                                     ) : (

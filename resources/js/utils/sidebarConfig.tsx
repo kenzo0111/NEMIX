@@ -220,7 +220,7 @@ export function getSidebarModules(activeModule?: string, activeSubmodule?: strin
                 },
                 {
                     key: 'pre-orders',
-                    title: 'Pre-Orders / Unit Demand',
+                    title: 'Pre-Requests / Unit Demand',
                     href: route('inventory.pre-orders.index'),
                     requiredCapability: (caps) => caps.inventory.view,
                     requiredPermission: 'route:inventory.index',

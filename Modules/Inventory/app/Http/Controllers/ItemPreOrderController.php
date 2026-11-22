@@ -198,7 +198,7 @@ class ItemPreOrderController extends Controller
             ]
         );
 
-        return back()->with('success', "Pre-order for \"{$item->name}\" submitted. The Supply Office has been notified to prioritize replenishment.");
+        return back()->with('success', "Pre-request for \"{$item->name}\" submitted. The Supply Office has been notified to prioritize replenishment.");
     }
 
     /**
@@ -211,6 +211,6 @@ class ItemPreOrderController extends Controller
 
         $preOrder->update(['status' => 'cancelled']);
 
-        return back()->with('success', 'Pre-order cancelled successfully.');
+        return back()->with('success', 'Pre-request cancelled successfully.');
     }
 }
