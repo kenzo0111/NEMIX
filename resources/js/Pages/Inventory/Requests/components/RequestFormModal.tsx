@@ -52,24 +52,6 @@ export function RequestFormModal({
 }: RequestFormModalProps) {
     const pageProps = usePage().props as any;
     const minimumStockThreshold = Number(pageProps.minimumStockThreshold ?? 10);
-    const isPreRequest = form?.data?.request_type === 'pre_request';
-    const isRestocked = request?.status === 'Stock Restocked';
-    const activeCatalogItems = useMemo(() => {
-        if (isPreRequest && preRequestableItems && preRequestableItems.length > 0) {
-            return preRequestableItems;
-        }
-        return items;
-    }, [isPreRequest, preRequestableItems, items]);
-
-    const maximumQuantity = (item: RequestItem) => isPreRequest ? 10000 : Math.min(
-        1000000, Math.max(0, request?.items?.find(line => line.item_id === item.id)?.max_request_quantity ?? item.max_request_quantity ?? item.stock)
-    );
-    const requestableItems = useMemo(
-        () => isPreRequest ? activeCatalogItems : activeCatalogItems.filter((item) => maximumQuantity(item) > 0),
-        [isPreRequest, activeCatalogItems, request]
-    );
-    const quantityLimitMessage = (item: RequestItem) =>
-        `Request at most ${maximumQuantity(item)} ${item.unit_of_issue || 'units'} based on available warehouse stock and your weekly allowance. Approved quantities are already deducted.`;
     const sharedRoles = pageProps.auth?.roles || pageProps.auth?.user?.roles;
     const roleNames: string[] = Array.isArray(sharedRoles) ? sharedRoles : [];
     const isAuthorizedPersonnel = roleNames.some((role) => String(role).toLowerCase() === 'authorized personnel');
@@ -105,6 +87,25 @@ export function RequestFormModal({
         issued_by_position: defaultIssuedByDesignation,
         items: [{ item_id: '', quantity: '' }] as FormLine[],
     });
+
+    const isPreRequest = form.data.request_type === 'pre_request';
+    const isRestocked = request?.status === 'Stock Restocked';
+    const activeCatalogItems = useMemo(() => {
+        if (isPreRequest && preRequestableItems && preRequestableItems.length > 0) {
+            return preRequestableItems;
+        }
+        return items;
+    }, [isPreRequest, preRequestableItems, items]);
+
+    const maximumQuantity = (item: RequestItem) => isPreRequest ? 10000 : Math.min(
+        1000000, Math.max(0, request?.items?.find(line => line.item_id === item.id)?.max_request_quantity ?? item.max_request_quantity ?? item.stock)
+    );
+    const requestableItems = useMemo(
+        () => isPreRequest ? activeCatalogItems : activeCatalogItems.filter((item) => maximumQuantity(item) > 0),
+        [isPreRequest, activeCatalogItems, request]
+    );
+    const quantityLimitMessage = (item: RequestItem) =>
+        `Request at most ${maximumQuantity(item)} ${item.unit_of_issue || 'units'} based on available warehouse stock and your weekly allowance. Approved quantities are already deducted.`;
 
     useEffect(() => {
         if (!show) return;
