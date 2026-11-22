@@ -120,8 +120,25 @@ export function RequestFormModal({
     const quantityLimitMessage = (item: RequestItem) =>
         `Request at most ${maximumQuantity(item)} ${item.unit_of_issue || 'units'} based on available warehouse stock and your weekly allowance. Approved quantities are already deducted.`;
 
+    const isModalOpen = useRef(false);
+    const editingRequestId = useRef<number | null | undefined>(undefined);
+
     useEffect(() => {
-        if (!show) return;
+        if (!show) {
+            isModalOpen.current = false;
+            editingRequestId.current = undefined;
+            return;
+        }
+
+        const isNewlyOpened = !isModalOpen.current;
+        const isDifferentRequest = request?.id !== editingRequestId.current;
+
+        if (!isNewlyOpened && !isDifferentRequest) {
+            return;
+        }
+
+        isModalOpen.current = true;
+        editingRequestId.current = request?.id;
 
         if (request) {
             const initialDocType = request?.supporting_document_type || '';
@@ -178,7 +195,7 @@ export function RequestFormModal({
             });
         }
         form.clearErrors();
-    }, [show, request?.id, initialMode, initialItemId, preRequestableItems, items, defaultRecipient, defaultApprovedBy, defaultApprovedByDesignation, defaultIssuedBy, defaultIssuedByDesignation, assignment?.department, assignment?.recipient, assignment?.recipient_designation, assignedUnit, isAuthorizedPersonnel, loginUserDesignation]);
+    }, [show, request?.id, initialMode, initialItemId]);
 
     useEffect(() => {
         if (!show || !form.data.supporting_document) { setPreviewUrl(null); return; }

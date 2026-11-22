@@ -307,6 +307,13 @@ export default function MyRequests({
     const closeForm = () => {
         setFormOpen(false);
         setEditingRequest(null);
+        if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('create') === '1') {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('create');
+            url.searchParams.delete('mode');
+            url.searchParams.delete('item_id');
+            window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
+        }
     };
 
     const cancel = (request: SupplyRequest) => {
