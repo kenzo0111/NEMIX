@@ -316,14 +316,14 @@ export default function RFIDRecordsTable({
 
                     {/* Table View */}
                     <div className="overflow-x-auto">
-                        <table className="w-full min-w-[760px] text-left text-sm divide-y divide-gray-200 dark:divide-slate-800">
+                        <table className="w-full min-w-[850px] text-left text-sm divide-y divide-gray-200 dark:divide-slate-800">
                             <thead>
                                 <tr className="bg-gray-50/60 dark:bg-slate-950 text-gray-500 dark:text-slate-400 font-semibold text-sm border-b border-gray-200 dark:border-slate-800">
-                                    <SortableTableHeader column="name" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3 px-6">Item Description</SortableTableHeader>
-                                    <SortableTableHeader column="sku" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3 px-6 tabular-nums">Property No.</SortableTableHeader>
-                                    <SortableTableHeader column="rfid" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3 px-6 tabular-nums">RFID Tag ID</SortableTableHeader>
-                                    <SortableTableHeader column="status" activeColumn={sort} direction={direction} onSort={handleSort} align="center" className="py-3 px-6">Status</SortableTableHeader>
-                                    <th scope="col" className="py-3 px-6 text-right font-semibold text-sm">Actions</th>
+                                    <SortableTableHeader column="name" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3 px-6 whitespace-nowrap min-w-[200px]">Item Description</SortableTableHeader>
+                                    <SortableTableHeader column="sku" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3 px-6 tabular-nums whitespace-nowrap">Property No.</SortableTableHeader>
+                                    <SortableTableHeader column="rfid" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3 px-6 tabular-nums whitespace-nowrap">RFID Tag ID</SortableTableHeader>
+                                    <SortableTableHeader column="status" activeColumn={sort} direction={direction} onSort={handleSort} align="center" className="py-3 px-6 whitespace-nowrap">Status</SortableTableHeader>
+                                    <th scope="col" className="py-3 px-6 text-right font-semibold text-sm whitespace-nowrap min-w-[140px]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
@@ -349,12 +349,12 @@ export default function RFIDRecordsTable({
                                                     isSelected ? 'bg-red-50/70 dark:bg-red-950/40' : 'hover:bg-red-50/20 dark:hover:bg-red-950/20'
                                                 }`}
                                             >
-                                                <td className="py-3 px-6">
+                                                <td className="py-3 px-6 min-w-[200px] break-words">
                                                     <div className="font-medium text-gray-900 dark:text-slate-100 text-sm">
                                                         {item.name}
                                                     </div>
                                                     {item.supplier_name && (
-                                                        <div className="text-sm text-gray-400 dark:text-slate-500 truncate max-w-xs">
+                                                        <div className="text-sm text-gray-400 dark:text-slate-500 break-words max-w-sm">
                                                             {item.supplier_name}
                                                         </div>
                                                     )}
@@ -402,7 +402,7 @@ export default function RFIDRecordsTable({
                                                         <span>{isTagged ? 'Tagged' : 'Needs Tag'}</span>
                                                     </span>
                                                 </td>
-                                                <td className="py-3 px-6 text-right">
+                                                <td className="py-3 px-6 text-right whitespace-nowrap min-w-[140px]">
                                                     <button
                                                         type="button"
                                                         onClick={() => {

@@ -33,25 +33,25 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
         <div className="overflow-hidden">
             {reports.length > 0 ? (
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-[750px] text-left border-collapse">
+                    <table className="w-full min-w-[850px] text-left border-collapse">
                         <thead className="bg-gray-50/80 dark:bg-slate-800/60 border-b border-gray-200 dark:border-slate-700">
                             <tr>
-                                <SortableTableHeader column="reference" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300">
+                                <SortableTableHeader column="reference" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[130px]">
                                     Reference No.
                                 </SortableTableHeader>
-                                <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300">
+                                <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[110px]">
                                     Form Type
                                 </SortableTableHeader>
-                                <SortableTableHeader column="title" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300">
+                                <SortableTableHeader column="title" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[200px]">
                                     Document Title
                                 </SortableTableHeader>
-                                <SortableTableHeader column="coverage" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300">
+                                <SortableTableHeader column="coverage" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[140px]">
                                     Coverage Period
                                 </SortableTableHeader>
-                                <SortableTableHeader column="generated" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="hidden px-4 py-3.5 text-sm font-bold text-gray-700 md:table-cell lg:px-6 dark:text-slate-300">
+                                <SortableTableHeader column="generated" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="hidden px-4 py-3.5 text-sm font-bold text-gray-700 md:table-cell lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[130px]">
                                     Date Generated
                                 </SortableTableHeader>
-                                <th scope="col" className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums w-44">
+                                <th scope="col" className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[160px]">
                                     Actions
                                 </th>
                             </tr>
@@ -81,7 +81,7 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                                                 {shortType}
                                             </span>
                                         </td>
-                                        <td className="px-4 lg:px-6 py-4 text-sm font-medium text-gray-900 dark:text-slate-100 max-w-xs truncate">
+                                        <td className="px-4 lg:px-6 py-4 text-sm font-medium text-gray-900 dark:text-slate-100 min-w-[200px] max-w-sm break-words">
                                             <div className="font-semibold text-gray-900 dark:text-slate-100 leading-tight">
                                                 {report.title}
                                             </div>
@@ -98,7 +98,7 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                                             {formatDisplayDate(genDate, 'MM/DD/YYYY')}
                                         </td>
                                         {/* Actions: View & Official COA Form */}
-                                        <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right">
+                                        <td className="px-4 lg:px-6 py-4 whitespace-nowrap min-w-[160px] text-right">
                                             <div className="inline-flex items-center gap-2.5">
                                                 <button
                                                     type="button"

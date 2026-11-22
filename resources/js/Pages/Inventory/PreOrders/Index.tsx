@@ -355,16 +355,16 @@ export default function PreOrdersIndex({
                         {/* TAB 1: Consolidated Demand by Item */}
                         {tab === 'by_item' && (
                             <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm">
+                                <table className="w-full text-left text-sm min-w-[960px]">
                                     <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-400">
                                         <tr>
-                                            <th className="px-5 py-3.5">Stock No.</th>
-                                            <th className="px-5 py-3.5">Item Name</th>
-                                            <th className="px-5 py-3.5 text-right">In Warehouse</th>
-                                            <th className="px-5 py-3.5 text-right">Units Demanded</th>
-                                            <th className="px-5 py-3.5">Requesting Delivery Units</th>
-                                            <th className="px-5 py-3.5">Priority</th>
-                                            <th className="px-5 py-3.5 text-right">Actions</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap">Stock No.</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[180px]">Item Name</th>
+                                            <th className="px-5 py-3.5 text-right whitespace-nowrap">In Warehouse</th>
+                                            <th className="px-5 py-3.5 text-right whitespace-nowrap">Units Demanded</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[200px]">Requesting Delivery Units</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap">Priority</th>
+                                            <th className="px-5 py-3.5 text-right whitespace-nowrap min-w-[140px]">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -374,7 +374,7 @@ export default function PreOrdersIndex({
                                                     <td className="whitespace-nowrap px-5 py-4 font-mono font-medium text-slate-600 dark:text-slate-300">
                                                         {item.sku}
                                                     </td>
-                                                    <td className="px-5 py-4 max-w-sm">
+                                                    <td className="px-5 py-4 min-w-[180px] max-w-md break-words">
                                                         <p className="font-semibold text-slate-900 dark:text-slate-100">
                                                             {item.item_name}
                                                         </p>
@@ -425,7 +425,7 @@ export default function PreOrdersIndex({
                                                             </span>
                                                         )}
                                                     </td>
-                                                    <td className="whitespace-nowrap px-5 py-4 text-right">
+                                                    <td className="whitespace-nowrap px-5 py-4 text-right min-w-[140px]">
                                                         <Link
                                                             href={route('inventory.receiving')}
                                                             className="inline-flex min-h-8 items-center gap-1.5 rounded-lg border border-red-200 bg-red-50/70 px-3 py-1.5 text-xs font-semibold text-red-900 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300 transition"
@@ -458,17 +458,17 @@ export default function PreOrdersIndex({
                         {/* TAB 2: All Pre-Order Submissions */}
                         {tab === 'all_requests' && (
                             <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm">
+                                <table className="w-full text-left text-sm min-w-[960px]">
                                     <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-400">
                                         <tr>
-                                            <th className="px-5 py-3.5">ID</th>
-                                            <th className="px-5 py-3.5">Delivery Unit / Office</th>
-                                            <th className="px-5 py-3.5">Item Demanded</th>
-                                            <th className="px-5 py-3.5 text-right">Qty Needed</th>
-                                            <th className="px-5 py-3.5">Priority</th>
-                                            <th className="px-5 py-3.5">Purpose / Remarks</th>
-                                            <th className="px-5 py-3.5">Date Submitted</th>
-                                            <th className="px-5 py-3.5">Status</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap">ID</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[180px]">Delivery Unit / Office</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[180px]">Item Demanded</th>
+                                            <th className="px-5 py-3.5 text-right whitespace-nowrap">Qty Needed</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap">Priority</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[200px]">Purpose / Remarks</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap">Date Submitted</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -478,7 +478,7 @@ export default function PreOrdersIndex({
                                                     <td className="whitespace-nowrap px-5 py-4 font-mono text-xs text-slate-500">
                                                         #{order.id}
                                                     </td>
-                                                    <td className="px-5 py-4">
+                                                    <td className="px-5 py-4 min-w-[180px] break-words">
                                                         <p className="font-semibold text-slate-900 dark:text-slate-100">
                                                             {order.delivery_unit}
                                                         </p>
@@ -486,7 +486,7 @@ export default function PreOrdersIndex({
                                                             By {order.user_name} {order.user_designation ? `· ${order.user_designation}` : ''}
                                                         </p>
                                                     </td>
-                                                    <td className="px-5 py-4 max-w-xs">
+                                                    <td className="px-5 py-4 min-w-[180px] max-w-xs break-words">
                                                         <p className="font-medium text-slate-900 dark:text-slate-100">
                                                             {order.item_name}
                                                         </p>
@@ -511,7 +511,7 @@ export default function PreOrdersIndex({
                                                             </span>
                                                         )}
                                                     </td>
-                                                    <td className="px-5 py-4 max-w-sm text-xs text-slate-600 dark:text-slate-300">
+                                                    <td className="px-5 py-4 min-w-[200px] max-w-sm text-xs text-slate-600 dark:text-slate-300 break-words">
                                                         {order.purpose || <span className="text-slate-400 italic">None specified</span>}
                                                     </td>
                                                     <td className="whitespace-nowrap px-5 py-4 text-xs tabular-nums text-slate-500">

@@ -33,7 +33,7 @@ export default function RecordTable<T, K extends string = string>({ rows, column
         <table className={cn('w-full text-left text-sm', className)}>
             {caption && <caption className="px-4 py-3 text-left text-sm text-slate-500 dark:text-slate-400">{caption}</caption>}
             <thead className="border-b border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-400">
-                <tr>{columns.map(column => <SortableTableHeader key={column.key} column={column.key} activeColumn={sort.key} direction={sort.direction} onSort={onSort} align={column.align} className={cn('px-4 py-3 font-semibold', column.className)}>{column.label}</SortableTableHeader>)}</tr>
+                <tr>{columns.map(column => <SortableTableHeader key={column.key} column={column.key} activeColumn={sort.key} direction={sort.direction} onSort={onSort} align={column.align} className={cn('px-4 py-3 font-semibold whitespace-nowrap', column.className)}>{column.label}</SortableTableHeader>)}</tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {rows.map(row => <tr key={rowKey(row)} {...(onSelect ? rowSelectionProps(selectedKey === rowKey(row), () => onSelect(row)) : {})} className="transition-colors hover:bg-red-50/20 dark:hover:bg-red-950/20">

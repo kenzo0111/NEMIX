@@ -26,7 +26,7 @@ export const IssuanceRow: React.FC<IssuanceRowProps> = ({
             </td>
 
             {/* Recipient / Office (Normal text, no decorative circular avatars) */}
-            <td className="px-4 lg:px-6 py-4 text-sm">
+            <td className="px-4 lg:px-6 py-4 text-sm min-w-[180px] max-w-xs break-words">
                 <div className="font-semibold text-gray-900 dark:text-slate-100 leading-tight">
                     {issuance.recipient}
                 </div>
@@ -38,7 +38,7 @@ export const IssuanceRow: React.FC<IssuanceRowProps> = ({
             </td>
 
             {/* Items Issued */}
-            <td className="px-4 lg:px-6 py-4 text-sm text-gray-800 dark:text-slate-200 font-medium max-w-xs truncate" title={issuance.item}>
+            <td className="px-4 lg:px-6 py-4 text-sm text-gray-800 dark:text-slate-200 font-medium min-w-[180px] max-w-sm break-words line-clamp-2" title={issuance.item}>
                 {issuance.item || 'N/A'}
             </td>
 
@@ -58,7 +58,7 @@ export const IssuanceRow: React.FC<IssuanceRowProps> = ({
             </td>
 
             {/* Actions: View & RIS Form */}
-            <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right">
+            <td className="px-4 lg:px-6 py-4 whitespace-nowrap min-w-[150px] text-right">
                 <div className="inline-flex items-center gap-2.5">
                     <button
                         type="button"

@@ -18,7 +18,7 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
     return (
         <tr className="hover:bg-red-50/20 dark:hover:bg-slate-800/50 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0">
             {/* Item Received & SKU */}
-            <td className="px-6 py-4 whitespace-nowrap">
+            <td className="px-6 py-4 min-w-[200px] max-w-xs break-words">
                 <div className="flex items-center gap-2">
                     <div className="text-sm font-semibold text-gray-900 dark:text-slate-100">{receiving.item}</div>
                     {receiving.scanned_rfid_tag && (
@@ -36,7 +36,7 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
             </td>
 
             {/* Supplier & Supplier Stock No */}
-            <td className="px-6 py-4 whitespace-nowrap">
+            <td className="px-6 py-4 min-w-[180px] max-w-xs break-words">
                 <div className="text-sm text-gray-800 dark:text-slate-200 font-medium">{receiving.supplier || 'N/A'}</div>
                 {receiving.supplier_stock_no ? (
                     <div className="text-sm tabular-nums text-gray-600 dark:text-slate-400 mt-0.5">
@@ -94,7 +94,7 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
             </td>
 
             {/* Direct Row Actions: View and Update */}
-            <td className="px-6 py-4 whitespace-nowrap text-right">
+            <td className="px-6 py-4 whitespace-nowrap min-w-[140px] text-right">
                 <div className="inline-flex items-center gap-2.5">
                     <button
                         type="button"

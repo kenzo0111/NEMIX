@@ -208,28 +208,28 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                     {props.requests.length ? (
                         <>
                             <div className="hidden overflow-x-auto lg:block">
-                                <table className="w-full text-left text-sm">
+                                <table className="w-full text-left text-sm min-w-[960px]">
                                     <thead className="bg-slate-50 text-sm normal-case tracking-normal text-slate-500 dark:bg-slate-950/50 dark:text-slate-400">
                                         <tr>
-                                            <SortableTableHeader column="reference" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold">
+                                            <SortableTableHeader column="reference" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[120px]">
                                                 Request
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="date" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold">
+                                            <SortableTableHeader column="date" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[110px]">
                                                 Date
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="items" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold">
+                                            <SortableTableHeader column="items" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[180px]">
                                                 Supplies
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="purpose" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold">
+                                            <SortableTableHeader column="purpose" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[180px]">
                                                 Purpose
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="recipient" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold">
+                                            <SortableTableHeader column="recipient" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[180px]">
                                                 Recipient / Office
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="status" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold">
+                                            <SortableTableHeader column="status" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[120px]">
                                                 Status
                                             </SortableTableHeader>
-                                            <th scope="col" className="whitespace-nowrap px-5 py-3.5 font-semibold text-right">
+                                            <th scope="col" className="whitespace-nowrap px-5 py-3.5 font-semibold text-right min-w-[200px]">
                                                 Actions
                                             </th>
                                         </tr>
@@ -265,7 +265,7 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                                                     <td className="px-5 py-5 align-top">
                                                         {status(request)}
                                                     </td>
-                                                    <td className="min-w-52 px-5 py-5 align-top text-right">
+                                                    <td className="min-w-[200px] whitespace-nowrap px-5 py-5 align-top text-right">
                                                         {actions(request)}
                                                     </td>
                                                 </tr>

@@ -523,10 +523,10 @@ export function SupplyRequestQueue({
                                             <table className="w-full text-left text-sm">
                                                 <thead className="bg-gray-50 dark:bg-slate-950 text-gray-600 dark:text-slate-400 normal-case tabular-nums text-sm">
                                                     <tr>
-                                                        <th className="px-3 py-3">Item Description & SKU</th>
-                                                        <th className="px-3 py-3 text-center">Warehouse Stock</th>
-                                                        <th className="px-3 py-3 text-right">Requested</th>
-                                                        <th className="px-3 py-3 text-right min-w-44">
+                                                        <th className="px-3 py-3 whitespace-nowrap min-w-[200px]">Item Description & SKU</th>
+                                                        <th className="px-3 py-3 text-center whitespace-nowrap">Warehouse Stock</th>
+                                                        <th className="px-3 py-3 text-right whitespace-nowrap">Requested</th>
+                                                        <th className="px-3 py-3 text-right whitespace-nowrap min-w-44">
                                                             {canAdjustQuantities ? 'Authorized / Approved Qty' : 'Final Approved Qty'}
                                                         </th>
                                                     </tr>

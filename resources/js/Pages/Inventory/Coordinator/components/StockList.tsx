@@ -65,10 +65,10 @@ export default function StockList({
     return (
         <>
             <div className="hidden overflow-x-auto sm:block">
-                <table className="w-full text-left text-sm">
+                <table className="w-full text-left text-sm min-w-[760px]">
                     <thead className="bg-slate-50 text-sm normal-case tracking-normal text-slate-500 dark:bg-slate-950/50 dark:text-slate-400">
                         <tr>
-                            <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3.5 pl-6 font-semibold">
+                            <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3.5 pl-6 font-semibold min-w-[200px]">
                                 Item / Stock No.
                             </SortableTableHeader>
                             <SortableTableHeader column="quantity" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3.5 font-semibold">
@@ -81,7 +81,7 @@ export default function StockList({
                                 Stock value
                             </SortableTableHeader>
                             {hasActions && (
-                                <th scope="col" className="whitespace-nowrap px-4 py-3.5 pr-6 font-semibold text-right">
+                                <th scope="col" className="whitespace-nowrap px-4 py-3.5 pr-6 font-semibold text-right min-w-[160px]">
                                     Actions
                                 </th>
                             )}
@@ -110,7 +110,7 @@ export default function StockList({
                                         {money(Number(stock.value))}
                                     </td>
                                     {hasActions && (
-                                        <td className="py-4 pl-4 pr-6">
+                                        <td className="whitespace-nowrap py-4 pl-4 pr-6 min-w-[160px]">
                                             <div className="flex justify-end">{actions(stock)}</div>
                                         </td>
                                     )}

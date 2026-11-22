@@ -102,15 +102,15 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
     return (
         <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200/90 dark:border-slate-800 shadow-2xs overflow-hidden w-full min-w-0">
             <div className="overflow-x-auto w-full">
-                <table className="w-full text-left border-collapse min-w-[760px]">
+                <table className="w-full text-left border-collapse min-w-[850px]">
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/60 text-sm font-bold text-gray-600 dark:text-slate-300 normal-case tracking-normal">
                             <th className="py-3 px-3 w-12 text-center" aria-label="Expand or collapse row"></th>
-                            <SortableTableHeader column="user" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 w-1/4">User</SortableTableHeader>
-                            <SortableTableHeader column="activity" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 w-1/3">Activity</SortableTableHeader>
-                            <SortableTableHeader column="module" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 w-1/6">Module</SortableTableHeader>
-                            <SortableTableHeader column="result" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 w-28">Result</SortableTableHeader>
-                            <SortableTableHeader column="date" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 w-44">Date &amp; Time</SortableTableHeader>
+                            <SortableTableHeader column="user" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[180px]">User</SortableTableHeader>
+                            <SortableTableHeader column="activity" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[220px]">Activity</SortableTableHeader>
+                            <SortableTableHeader column="module" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[140px]">Module</SortableTableHeader>
+                            <SortableTableHeader column="result" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[110px]">Result</SortableTableHeader>
+                            <SortableTableHeader column="date" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[160px]">Date &amp; Time</SortableTableHeader>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-slate-800 text-sm">

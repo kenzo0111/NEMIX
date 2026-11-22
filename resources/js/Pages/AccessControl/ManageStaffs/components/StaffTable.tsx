@@ -45,25 +45,25 @@ export default function StaffTable({
     return (
         <section data-tour="system-admin-staff-directory" aria-label="Staff accounts roster" className="bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl shadow-2xs overflow-hidden flex flex-col">
             <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[760px]">
+                <table className="w-full text-left border-collapse min-w-[960px]">
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/80 dark:bg-slate-800/80 text-sm font-semibold tracking-normal text-gray-600 dark:text-slate-300 normal-case">
-                            <SortableTableHeader column="name" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 w-4/12">
+                            <SortableTableHeader column="name" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 whitespace-nowrap min-w-[200px]">
                                 Staff Member
                             </SortableTableHeader>
-                            <SortableTableHeader column="role" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5">
+                            <SortableTableHeader column="role" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 whitespace-nowrap min-w-[140px]">
                                 Role
                             </SortableTableHeader>
-                            <SortableTableHeader column="department" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5">
+                            <SortableTableHeader column="department" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 whitespace-nowrap min-w-[200px]">
                                 Delivery Unit / Office Head
                             </SortableTableHeader>
-                            <SortableTableHeader column="verification" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5">
+                            <SortableTableHeader column="verification" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 whitespace-nowrap min-w-[130px]">
                                 Verification
                             </SortableTableHeader>
-                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5">
+                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 whitespace-nowrap min-w-[120px]">
                                 Status
                             </SortableTableHeader>
-                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-semibold text-gray-600 dark:text-slate-300 normal-case w-2/12">
+                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-semibold text-gray-600 dark:text-slate-300 normal-case whitespace-nowrap min-w-[220px]">
                                 Actions
                             </th>
                         </tr>

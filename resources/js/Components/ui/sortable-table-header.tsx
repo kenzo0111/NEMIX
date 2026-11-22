@@ -30,7 +30,7 @@ export default function SortableTableHeader<K extends string>({
             {...props}
             scope="col"
             aria-sort={active ? (direction === 'asc' ? 'ascending' : 'descending') : 'none'}
-            className={cn(className)}
+            className={cn('whitespace-nowrap', className)}
         >
             <button
                 type="button"
@@ -41,7 +41,7 @@ export default function SortableTableHeader<K extends string>({
                     align === 'right' && 'justify-end text-right'
                 )}
             >
-                <span>{children}</span>
+                <span className="whitespace-nowrap">{children}</span>
                 <Icon
                     className={cn(
                         'h-3.5 w-3.5 shrink-0',

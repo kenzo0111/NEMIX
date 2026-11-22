@@ -110,15 +110,15 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
     return (
         <div className={`bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 overflow-hidden ${coordinatorLayout ? 'rounded-xl shadow-sm [&_td]:py-5 [&_th]:py-3.5' : 'rounded-lg shadow-2xs'}`}>
             <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[760px]">
+                <table className="w-full text-left border-collapse min-w-[850px]">
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/80 dark:bg-slate-800/80 text-sm font-bold text-gray-600 dark:text-slate-300 normal-case tracking-normal">
                             <th className="py-3 px-3 w-8" aria-label="Expand or collapse row"></th>
-                            <SortableTableHeader column="user" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4">User Details</SortableTableHeader>
-                            <SortableTableHeader column="role" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4">Access Role</SortableTableHeader>
-                            <SortableTableHeader column="date" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4">Date &amp; Time</SortableTableHeader>
-                            <SortableTableHeader column="ip" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4">IP Address</SortableTableHeader>
-                            <SortableTableHeader column="result" activeColumn={sort} direction={direction} onSort={onSort} align="center" className="py-3 px-4">Result</SortableTableHeader>
+                            <SortableTableHeader column="user" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[200px]">User Details</SortableTableHeader>
+                            <SortableTableHeader column="role" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[140px]">Access Role</SortableTableHeader>
+                            <SortableTableHeader column="date" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[160px]">Date &amp; Time</SortableTableHeader>
+                            <SortableTableHeader column="ip" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[130px]">IP Address</SortableTableHeader>
+                            <SortableTableHeader column="result" activeColumn={sort} direction={direction} onSort={onSort} align="center" className="py-3 px-4 whitespace-nowrap min-w-[120px]">Result</SortableTableHeader>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-sm">

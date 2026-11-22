@@ -37,31 +37,31 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
         <div className="overflow-hidden min-w-0">
             {/* Table */}
             <div className="overflow-x-auto min-w-0">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                <table className="w-full text-left border-collapse min-w-[960px] divide-y divide-gray-200 dark:divide-slate-800">
                     <thead className="bg-gray-50/80 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800">
                         <tr>
-                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[200px]">
                                 Item Received
                             </SortableTableHeader>
-                            <SortableTableHeader column="supplier" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="supplier" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[180px]">
                                 Supplier
                             </SortableTableHeader>
-                            <SortableTableHeader column="quantity" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="quantity" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Received
                             </SortableTableHeader>
-                            <SortableTableHeader column="remaining" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="remaining" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Remaining
                             </SortableTableHeader>
-                            <SortableTableHeader column="unit_cost" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="unit_cost" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Unit Cost
                             </SortableTableHeader>
-                            <SortableTableHeader column="amount" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="amount" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Batch Amount
                             </SortableTableHeader>
-                            <SortableTableHeader column="date" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="date" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Date Received
                             </SortableTableHeader>
-                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[140px]">
                                 Actions
                             </th>
                         </tr>

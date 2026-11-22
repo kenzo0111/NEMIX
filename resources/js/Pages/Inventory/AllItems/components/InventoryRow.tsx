@@ -30,8 +30,8 @@ export default function InventoryRow({ item, onView, onEdit, onDelete, readOnly 
             </td>
 
             {/* 2. Item Name & Mobile Stock No / RFID Badge */}
-            <td className="px-4 sm:px-5 py-3.5 align-middle">
-                <div className="text-sm font-semibold text-gray-900 dark:text-slate-100 leading-snug">{item.name}</div>
+            <td className="px-4 sm:px-5 py-3.5 align-middle min-w-[200px]">
+                <div className="text-sm font-semibold text-gray-900 dark:text-slate-100 leading-snug break-words">{item.name}</div>
                 <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
                     {item.sku && (
                         <span className="md:hidden tabular-nums text-sm font-semibold text-gray-700 dark:text-slate-300 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-gray-200 dark:border-slate-700">
@@ -48,7 +48,7 @@ export default function InventoryRow({ item, onView, onEdit, onDelete, readOnly 
             </td>
 
             {/* 3. Description / Specification (Desktop) */}
-            <td className="hidden md:table-cell px-5 py-3.5 align-middle text-sm text-gray-600 dark:text-slate-400 max-w-[200px] truncate" title={item.description || ''}>
+            <td className="hidden md:table-cell px-5 py-3.5 align-middle text-sm text-gray-600 dark:text-slate-400 min-w-[180px] max-w-xs break-words" title={item.description || ''}>
                 {item.description || '—'}
             </td>
 
@@ -83,7 +83,7 @@ export default function InventoryRow({ item, onView, onEdit, onDelete, readOnly 
             </td>
 
             {/* 8. Institutional Actions */}
-            <td className="px-3 sm:px-5 py-3.5 align-middle text-right whitespace-nowrap text-sm">
+            <td className="px-3 sm:px-5 py-3.5 align-middle text-right whitespace-nowrap min-w-[140px] text-sm">
                 <div className="inline-flex items-center justify-end gap-1.5 sm:gap-2">
                     {/* View Action */}
                     <button

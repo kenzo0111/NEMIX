@@ -13,7 +13,7 @@ export const SupplierRow: React.FC<SupplierRowProps> = ({
     return (
         <tr className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0">
             {/* Supplier Business Name */}
-            <td className="px-6 py-4 whitespace-nowrap">
+            <td className="px-6 py-4 min-w-[200px] max-w-sm break-words">
                 <div className="text-sm font-semibold text-gray-900 dark:text-slate-100">
                     {supplier.name}
                 </div>
@@ -42,7 +42,7 @@ export const SupplierRow: React.FC<SupplierRowProps> = ({
             </td>
 
             {/* Actions: View & Update */}
-            <td className="px-6 py-4 whitespace-nowrap text-right">
+            <td className="px-6 py-4 whitespace-nowrap min-w-[140px] text-right">
                 <div className="inline-flex items-center justify-end gap-2.5">
                     <button
                         type="button"

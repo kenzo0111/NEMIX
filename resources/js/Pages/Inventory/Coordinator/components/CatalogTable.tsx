@@ -24,13 +24,13 @@ export default function CatalogTable({
         <>
             <section data-tour="coordinator-catalog-items" aria-label="Central consumable items" className={panel + ' overflow-hidden'}>
                 <div className="hidden overflow-x-auto lg:block">
-                    <table className="w-full text-left text-sm">
+                    <table className="w-full text-left text-sm min-w-[850px]">
                         <thead className="bg-slate-50 text-sm normal-case tracking-normal text-slate-500 dark:bg-slate-950/50 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                             <tr>
                                 <SortableTableHeader column="sku" activeColumn={sort.key} direction={sort.direction} onSort={onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold">
                                     Stock No.
                                 </SortableTableHeader>
-                                <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold">
+                                <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[180px]">
                                     Item
                                 </SortableTableHeader>
                                 <SortableTableHeader column="unit" activeColumn={sort.key} direction={sort.direction} onSort={onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold">
@@ -42,7 +42,7 @@ export default function CatalogTable({
                                 <SortableTableHeader column="available" activeColumn={sort.key} direction={sort.direction} onSort={onSort} align="right" className="whitespace-nowrap px-5 py-3.5 font-semibold">
                                     Available to request
                                 </SortableTableHeader>
-                                <th scope="col" className="whitespace-nowrap px-5 py-3.5 font-semibold text-right">
+                                <th scope="col" className="whitespace-nowrap px-5 py-3.5 font-semibold text-right min-w-[140px]">
                                     Actions
                                 </th>
                             </tr>
@@ -77,7 +77,7 @@ export default function CatalogTable({
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="whitespace-nowrap px-5 py-4 text-right">
+                                        <td className="whitespace-nowrap px-5 py-4 text-right min-w-[140px]">
                                             {eligible ? (
                                                 <Link
                                                     href={route('inventory.requests.index', { create: 1, item_id: item.id })}

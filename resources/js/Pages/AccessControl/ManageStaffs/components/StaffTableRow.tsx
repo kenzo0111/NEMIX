@@ -53,7 +53,7 @@ export default function StaffTableRow({
     return (
         <tr className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800 last:border-0 group">
             {/* Staff Member */}
-            <td className="px-6 py-3.5">
+            <td className="px-6 py-3.5 min-w-[200px]">
                 <div className="flex items-center gap-3">
                     <div
                         className={`h-9 w-9 rounded-full font-bold flex items-center justify-center text-sm shrink-0 border ${avatarColor}`}
@@ -62,7 +62,7 @@ export default function StaffTableRow({
                     </div>
                     <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-2">
-                            <span className="font-semibold text-gray-900 dark:text-slate-100 text-sm truncate">
+                            <span className="font-semibold text-gray-900 dark:text-slate-100 text-sm break-words">
                                 {staff.name}
                             </span>
                             {isSelf && (
@@ -71,7 +71,7 @@ export default function StaffTableRow({
                                 </span>
                             )}
                         </div>
-                        <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums truncate">
+                        <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums">
                             {staff.email}
                         </span>
                     </div>
@@ -79,7 +79,7 @@ export default function StaffTableRow({
             </td>
 
             {/* Role */}
-            <td className="px-6 py-3.5">
+            <td className="px-6 py-3.5 min-w-[140px] whitespace-nowrap">
                 {targetIsSystemAdmin ? (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-semibold bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-300 border border-red-200/80 dark:border-red-900/40">
                         <Shield className="w-3 h-3 text-red-900 dark:text-red-400 shrink-0" />
@@ -98,7 +98,7 @@ export default function StaffTableRow({
             </td>
 
             {/* Delivery Unit / Office Head */}
-            <td className="px-6 py-3.5 text-sm text-gray-600 dark:text-slate-300">
+            <td className="px-6 py-3.5 text-sm text-gray-600 dark:text-slate-300 min-w-[200px] break-words">
                 <span className="font-medium text-gray-900 dark:text-slate-100">{staff.department || '—'}</span>
                 {staff.designation && <span className="block text-xs font-medium text-slate-700 dark:text-slate-300">{staff.designation}</span>}
                 {staff.office_head && <span className="block text-xs text-gray-500 dark:text-slate-400">Head: {staff.office_head.name}<br />{staff.office_head.designation}</span>}
@@ -135,7 +135,7 @@ export default function StaffTableRow({
             </td>
 
             {/* Actions: Direct action buttons */}
-            <td className="px-6 py-3.5 whitespace-nowrap text-right">
+            <td className="px-6 py-3.5 whitespace-nowrap min-w-[220px] text-right">
                 <div className="inline-flex items-center justify-end gap-2.5">
                     {/* Resend Invite */}
                     {(!isActive || !staff.email_verified) && canResendInviteTarget && (

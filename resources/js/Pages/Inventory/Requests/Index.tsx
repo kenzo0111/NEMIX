@@ -553,17 +553,17 @@ export default function MyRequests({
 
                         {/* Table */}
                         <div className="overflow-x-auto min-w-0">
-                            <table className="w-full text-left border-collapse min-w-[900px]">
+                            <table className="w-full text-left border-collapse min-w-[960px]">
                                 <thead className="bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
                                     <tr>
-                                        <SortableTableHeader column="reference" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">RIS No.</SortableTableHeader>
-                                        <SortableTableHeader column="recipient" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Recipient &amp; Department</SortableTableHeader>
-                                        <SortableTableHeader column="purpose" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Fund Cluster / Purpose</SortableTableHeader>
-                                        <SortableTableHeader column="items" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Items</SortableTableHeader>
-                                        <SortableTableHeader column="date" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Date Requested</SortableTableHeader>
-                                        <SortableTableHeader column="status" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400">Approval Status</SortableTableHeader>
+                                        <SortableTableHeader column="reference" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[120px]">RIS No.</SortableTableHeader>
+                                        <SortableTableHeader column="recipient" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[180px]">Recipient &amp; Department</SortableTableHeader>
+                                        <SortableTableHeader column="purpose" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[180px]">Fund Cluster / Purpose</SortableTableHeader>
+                                        <SortableTableHeader column="items" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[140px]">Items</SortableTableHeader>
+                                        <SortableTableHeader column="date" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[130px]">Date Requested</SortableTableHeader>
+                                        <SortableTableHeader column="status" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[130px]">Approval Status</SortableTableHeader>
 
-                                        <th scope="col" className="px-4 lg:px-5 py-3 text-sm font-bold text-slate-600 dark:text-slate-400 text-right">Actions</th>
+                                        <th scope="col" className="px-4 lg:px-5 py-3 text-sm font-bold text-slate-600 dark:text-slate-400 text-right whitespace-nowrap min-w-[120px]">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
@@ -700,10 +700,22 @@ export default function MyRequests({
                                                     </td>
 
                                                     {/* Approval Status */}
-                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap">
+                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap min-w-[130px]">
                                                         <RequestStatusBadge status={request.status} />
                                                     </td>
 
+                                                    {/* Actions */}
+                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap min-w-[120px] text-right">
+                                                        <div className="inline-flex items-center justify-end gap-2">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setDetailsRequest(request)}
+                                                                className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer py-1 px-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
+                                                            >
+                                                                Details
+                                                            </button>
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             );
                                         })

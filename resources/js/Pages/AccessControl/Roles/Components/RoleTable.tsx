@@ -94,19 +94,19 @@ export default function RoleTable({
 
             {/* Table */}
             <div className="overflow-x-auto flex-1 min-w-full">
-                <table className="w-full text-left border-collapse min-w-[640px]">
+                <table className="w-full text-left border-collapse min-w-[760px]">
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/90 dark:bg-slate-800/90 text-sm font-semibold tracking-normal text-gray-600 dark:text-slate-300 normal-case">
-                            <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 w-2/5">
+                            <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 whitespace-nowrap min-w-[200px]">
                                 Role
                             </SortableTableHeader>
-                            <SortableTableHeader column="permissions" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 w-1/4">
+                            <SortableTableHeader column="permissions" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 whitespace-nowrap min-w-[160px]">
                                 Access granted
                             </SortableTableHeader>
-                            <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 w-1/6">
+                            <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 whitespace-nowrap min-w-[120px]">
                                 Type
                             </SortableTableHeader>
-                            <th scope="col" className="px-6 py-3.5 text-right w-1/5 text-sm font-semibold tracking-normal text-gray-600 dark:text-slate-300 normal-case">
+                            <th scope="col" className="px-6 py-3.5 text-right whitespace-nowrap min-w-[140px] text-sm font-semibold tracking-normal text-gray-600 dark:text-slate-300 normal-case">
                                 Actions
                             </th>
                         </tr>
@@ -124,7 +124,7 @@ export default function RoleTable({
                                         className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800 last:border-0 group"
                                     >
                                         {/* Role Name, Icon & Details */}
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-4 min-w-[200px]">
                                             <div className="flex items-center gap-3">
                                                 <div
                                                     className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border ${
@@ -140,7 +140,7 @@ export default function RoleTable({
                                                     )}
                                                 </div>
                                                 <div className="flex flex-col min-w-0">
-                                                    <span className="font-bold text-gray-900 dark:text-slate-100 text-sm truncate">
+                                                    <span className="font-bold text-gray-900 dark:text-slate-100 text-sm break-words">
                                                         {role.name}
                                                     </span>
                                                     <div className="flex items-center gap-2 mt-0.5 text-sm text-gray-400 dark:text-slate-500">
@@ -185,7 +185,7 @@ export default function RoleTable({
                                         </td>
 
                                         {/* Actions */}
-                                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                                        <td className="px-6 py-4 whitespace-nowrap min-w-[140px] text-right">
                                             <div className="inline-flex items-center justify-end gap-2.5">
                                                 {canUpdate && role.is_editable && (
                                                     <button

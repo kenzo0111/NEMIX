@@ -35,28 +35,28 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
         <div className="overflow-hidden min-w-0">
             {/* Table Container */}
             <div className="overflow-x-auto min-w-0">
-                <table className="w-full text-left border-collapse min-w-[700px]">
+                <table className="w-full text-left border-collapse min-w-[960px]">
                     <thead className="bg-gray-50/80 dark:bg-slate-900/80 border-b border-gray-200 dark:border-slate-800">
                         <tr>
-                            <SortableTableHeader column="ris_number" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="ris_number" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 RIS No.
                             </SortableTableHeader>
-                            <SortableTableHeader column="recipient" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="recipient" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[180px]">
                                 Recipient / Office
                             </SortableTableHeader>
-                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[180px]">
                                 Items Issued
                             </SortableTableHeader>
-                            <SortableTableHeader column="quantity" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="quantity" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Total Quantity
                             </SortableTableHeader>
-                            <SortableTableHeader column="date" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="hidden md:table-cell px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="date" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="hidden md:table-cell px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Date Issued
                             </SortableTableHeader>
-                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums">
+                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Status
                             </SortableTableHeader>
-                            <th scope="col" className="px-4 lg:px-6 py-3.5 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case">
+                            <th scope="col" className="px-4 lg:px-6 py-3.5 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case whitespace-nowrap min-w-[150px]">
                                 Actions
                             </th>
                         </tr>
