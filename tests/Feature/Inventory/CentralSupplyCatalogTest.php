@@ -123,4 +123,15 @@ class CentralSupplyCatalogTest extends TestCase
         }
         $this->assertSame(0, SupplyRequest::count());
     }
+
+    public function test_pre_request_prefill_accepts_out_of_stock_item(): void
+    {
+        $coordinator = $this->user();
+        $out = $this->item('Out of stock item', 0);
+        $this->actingAs($coordinator)->get(route('inventory.requests.index', ['create' => 1, 'mode' => 'pre_request', 'item_id' => $out->id]))
+            ->assertInertia(fn ($page) => $page
+                ->where('initialItemId', $out->id)
+                ->where('initialMode', 'pre_request')
+                ->has('preRequestableItems'));
+    }
 }

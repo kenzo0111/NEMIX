@@ -70,6 +70,7 @@ export function RequestFormModal({
     const [otherDocumentSpecification, setOtherDocumentSpecification] = useState('');
     const divisionList = divisions && divisions.length > 0 ? divisions : FALLBACK_DIVISIONS;
 
+    const initialType = (initialMode || (request?.status === 'Pre-Requested' ? 'pre_request' : 'requisition')) as 'requisition' | 'pre_request';
     const form = useForm({
         submission_key: globalThis.crypto?.randomUUID?.(),
         supporting_document: null as File | null,
@@ -80,12 +81,14 @@ export function RequestFormModal({
         recipient_designation: request?.recipient_designation || (isAuthorizedPersonnel ? loginUserDesignation : (assignedUnit ? assignment?.recipient_designation || '' : '')),
         fund_cluster: '01',
         purpose: '',
-        request_type: (initialMode || (request?.status === 'Pre-Requested' ? 'pre_request' : 'requisition')) as 'requisition' | 'pre_request',
+        request_type: initialType,
         approved_by: defaultApprovedBy,
         approved_by_designation: defaultApprovedByDesignation,
         issued_by_name: defaultIssuedBy,
         issued_by_position: defaultIssuedByDesignation,
-        items: [{ item_id: '', quantity: '' }] as FormLine[],
+        items: (request?.items && request.items.length > 0
+            ? request.items.map((line) => ({ item_id: String(line.item_id), quantity: String(line.quantity) }))
+            : [{ item_id: initialItemId ? String(initialItemId) : '', quantity: '' }]) as FormLine[],
     });
 
     const isPreRequest = form.data.request_type === 'pre_request';
@@ -96,6 +99,16 @@ export function RequestFormModal({
         }
         return items;
     }, [isPreRequest, preRequestableItems, items]);
+
+    const findItemById = (itemId: string | number) => {
+        const id = Number(itemId);
+        if (!id) return null;
+        return activeCatalogItems.find((item) => item.id === id)
+            || preRequestableItems?.find((item) => item.id === id)
+            || items.find((item) => item.id === id)
+            || request?.items?.find((entry) => entry.item_id === id)?.item
+            || null;
+    };
 
     const maximumQuantity = (item: RequestItem) => isPreRequest ? 10000 : Math.min(
         1000000, Math.max(0, request?.items?.find(line => line.item_id === item.id)?.max_request_quantity ?? item.max_request_quantity ?? item.stock)
@@ -144,10 +157,7 @@ export function RequestFormModal({
             });
         } else {
             setOtherDocumentSpecification('');
-            const isPre = (initialMode === 'pre_request' || isPreRequest);
-            const hasItem = initialItemId && ((isPre && preRequestableItems && preRequestableItems.length > 0)
-                ? preRequestableItems.some(i => i.id === initialItemId)
-                : requestableItems.some(i => i.id === initialItemId));
+            const targetType = initialMode || 'requisition';
 
             form.setData({
                 submission_key: globalThis.crypto?.randomUUID?.(),
@@ -159,16 +169,16 @@ export function RequestFormModal({
                 recipient_designation: isAuthorizedPersonnel ? loginUserDesignation : (assignedUnit ? assignment?.recipient_designation || '' : ''),
                 fund_cluster: '01',
                 purpose: '',
-                request_type: initialMode || 'requisition',
+                request_type: targetType,
                 approved_by: defaultApprovedBy,
                 approved_by_designation: defaultApprovedByDesignation,
                 issued_by_name: defaultIssuedBy,
                 issued_by_position: defaultIssuedByDesignation,
-                items: [{ item_id: hasItem ? String(initialItemId) : '', quantity: '' }],
+                items: [{ item_id: initialItemId ? String(initialItemId) : '', quantity: '' }],
             });
         }
         form.clearErrors();
-    }, [show, request?.id, initialMode, initialItemId, defaultRecipient, defaultApprovedBy, defaultApprovedByDesignation, defaultIssuedBy, defaultIssuedByDesignation, assignment?.department, assignment?.recipient, assignment?.recipient_designation, assignedUnit, isAuthorizedPersonnel, loginUserDesignation]);
+    }, [show, request?.id, initialMode, initialItemId, preRequestableItems, items, defaultRecipient, defaultApprovedBy, defaultApprovedByDesignation, defaultIssuedBy, defaultIssuedByDesignation, assignment?.department, assignment?.recipient, assignment?.recipient_designation, assignedUnit, isAuthorizedPersonnel, loginUserDesignation]);
 
     useEffect(() => {
         if (!show || !form.data.supporting_document) { setPreviewUrl(null); return; }
@@ -231,8 +241,7 @@ export function RequestFormModal({
             };
         }
         const item = requestableItems.find((item) => item.id === Number(line.item_id));
-        const selectedItem = items.find((item) => item.id === Number(line.item_id))
-            || request?.items?.find((entry) => entry.item_id === Number(line.item_id))?.item;
+        const selectedItem = findItemById(line.item_id);
         const outOfStock = !selectedItem || selectedItem.stock <= 0;
         const remainingQuota = request?.items?.find(entry => entry.item_id === Number(line.item_id))?.quota_remaining ?? selectedItem?.quota_remaining;
         const quotaMessage = selectedItem?.weekly_request_limit === null
@@ -267,7 +276,7 @@ export function RequestFormModal({
     };
 
     const handleChangeItem = (index: number, itemId: string) => {
-        if (itemId && !requestableItems.some((item) => item.id === Number(itemId))) return;
+        if (itemId && !requestableItems.some((item) => item.id === Number(itemId)) && !activeCatalogItems.some((item) => item.id === Number(itemId))) return;
         const next = [...form.data.items];
         next[index] = { ...next[index], item_id: itemId };
         form.setData('items', next);
@@ -655,8 +664,7 @@ export function RequestFormModal({
                         </p>
                         <div className="space-y-3">
                             {form.data.items.map((line, index) => {
-                                const selectedItem = items.find((item) => item.id === Number(line.item_id))
-                                    || request?.items?.find((entry) => entry.item_id === Number(line.item_id))?.item;
+                                const selectedItem = findItemById(line.item_id);
                                 const unavailable = Boolean(stockErrors[index].item);
                                 const maxQuantity = selectedItem && !unavailable ? maximumQuantity(selectedItem) : 0;
                                 const availableItemOptions = requestableItems
@@ -670,6 +678,12 @@ export function RequestFormModal({
                                             : `${item.name} (${item.sku}) — Stock: ${item.stock} ${item.unit_of_issue || 'pcs'} · Max request: ${maximumQuantity(item)}`,
                                     }));
                                 const selectedOption = availableItemOptions.find((opt) => opt.value === line.item_id)
+                                    || (selectedItem ? {
+                                        value: String(selectedItem.id),
+                                        label: isPreRequest
+                                            ? `${selectedItem.name} (${selectedItem.sku}) · Stock: ${selectedItem.stock} ${selectedItem.unit_of_issue || 'pcs'}${selectedItem.stock <= 0 ? ' [Out of Stock]' : ''}`
+                                            : `${selectedItem.name} (${selectedItem.sku}) — Stock: ${selectedItem.stock} ${selectedItem.unit_of_issue || 'pcs'} · Max request: ${maximumQuantity(selectedItem)}`
+                                    } : null)
                                     || (unavailable ? { value: line.item_id, label: `${selectedItem?.name || 'Previously selected item'} — ${!selectedItem || selectedItem.stock <= 0 ? 'Unserviceable (Out of stock)' : 'Unavailable to request'}` } : null);
 
                                 const errorItem = stockErrors[index].item || form.errors[`items.${index}.item_id` as keyof typeof form.errors];

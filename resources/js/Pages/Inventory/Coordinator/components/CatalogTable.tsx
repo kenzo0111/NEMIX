@@ -89,9 +89,9 @@ export default function CatalogTable({
                                             ) : isOutOfStock ? (
                                                 item.user_pre_order ? (
                                                     <Link
-                                                        href={route('inventory.requests.index', { status: 'Pre-Requested' })}
+                                                        href={route('inventory.requests.index', { create: 1, mode: 'pre_request', item_id: item.id })}
                                                         className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs"
-                                                        title="View your pre-requests under My Requests"
+                                                        title="Pre-request this item"
                                                     >
                                                         <Clock size={13} />
                                                         Pre-Requested ({item.user_pre_order.quantity})
@@ -162,9 +162,9 @@ export default function CatalogTable({
                                     ) : isOutOfStock ? (
                                         item.user_pre_order ? (
                                             <Link
-                                                href={route('inventory.requests.index', { status: 'Pre-Requested' })}
+                                                href={route('inventory.requests.index', { create: 1, mode: 'pre_request', item_id: item.id })}
                                                 className="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs"
-                                                title="View your pre-requests under My Requests"
+                                                title="Pre-request this item"
                                             >
                                                 <Clock size={13} />
                                                 Pre-Requested ({item.user_pre_order.quantity})

@@ -98,13 +98,17 @@ class SupplyRequestController extends Controller
         $isPreRequestMode = $request->boolean('pre_request') || $request->query('mode') === 'pre_request';
         $initialItemId = isset($prefill['item_id'])
             ? ($isPreRequestMode
-                ? Item::whereKey($prefill['item_id'])->value('id')
-                : Item::whereKey($prefill['item_id'])->where('stock', '>', 0)->value('id'))
+                ? (int) Item::whereKey($prefill['item_id'])->value('id')
+                : (int) Item::whereKey($prefill['item_id'])->where('stock', '>', 0)->value('id'))
             : null;
+        if (! $initialItemId) {
+            $initialItemId = null;
+        }
         $preRequestableItems = Item::query()
-            ->select('id', 'name', 'sku', 'stock', 'unit_of_issue')
+            ->select('id', 'name', 'sku', 'stock', 'unit_of_issue', 'weekly_request_limit')
             ->orderBy('name')
             ->get();
+        $preRequestableItems->each(fn ($item) => WeeklyRequestQuota::decorate($item, $usage));
 
         $signatories = app(SystemSettingsService::class)->getIssuanceSignatories();
         $defaultApprovedBy = $signatories['approved_by_name'];
