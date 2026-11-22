@@ -121,7 +121,12 @@ export const ReportPreviewDialog: React.FC<ReportPreviewDialogProps> = ({
             });
             notify({ type: 'success', message: 'Report PDF generated. Check your browser downloads.' });
         } catch (error) {
-            notify({ type: 'error', message: notificationError(error, 'Unable to generate the report PDF. Try again; if the problem continues, use Print Form to save a PDF.') });
+            notify({
+                type: 'error',
+                message: notificationError(error, error instanceof Error
+                    ? error.message
+                    : 'Unable to generate the report PDF. Try again; if the problem continues, use Print Form to save a PDF.'),
+            });
         } finally {
             setIsDownloading(false);
         }

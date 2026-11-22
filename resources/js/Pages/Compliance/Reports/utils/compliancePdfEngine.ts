@@ -2,6 +2,8 @@
  * Standardized server-backed PDF generation for official COA compliance forms.
  */
 
+import axios from 'axios';
+
 export interface ReportPdfMetadata {
     id?: number | string | null;
     report_id?: number | string | null;
@@ -48,10 +50,6 @@ export const buildCompliancePdfRequestBody = (
 export const downloadCompliancePdfFromBackend = async (
     reportInfo: ReportPdfMetadata,
 ): Promise<void> => {
-    const csrfToken =
-        (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ||
-        '';
-
     const safeName = [reportInfo.type, reportInfo.reference, reportInfo.title]
         .filter(Boolean)
         .join('_')
@@ -62,30 +60,31 @@ export const downloadCompliancePdfFromBackend = async (
 
     const requestBody = buildCompliancePdfRequestBody(reportInfo);
 
-    const response = await fetch('/compliance/reports/export-pdf', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-            Accept: 'application/pdf',
-        },
-        body: JSON.stringify(requestBody),
-    });
-
-    if (!response.ok) {
-        let message = `PDF export failed with status ${response.status}`;
-        try {
-            const errorBody = await response.json();
-            if (typeof errorBody?.message === 'string' && errorBody.message.trim()) {
-                message = errorBody.message;
+    let blob: Blob;
+    try {
+        // Inertia login regenerates the session token without replacing the page's
+        // CSRF meta tag. Axios reads the current XSRF-TOKEN cookie for each request.
+        const response = await axios.post<Blob>('/compliance/reports/export-pdf', requestBody, {
+            responseType: 'blob',
+            // Laravel uses the first accepted type to format validation/session errors.
+            headers: { Accept: 'application/json, application/pdf' },
+        });
+        blob = response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data instanceof Blob) {
+            try {
+                error.response.data = JSON.parse(await error.response.data.text());
+            } catch {
+                // Keep the HTTP error when the server did not return JSON.
             }
-        } catch {
-            // Keep the status-based error when the server did not return JSON.
         }
-        throw new Error(message);
+        throw error;
     }
 
-    const blob = await response.blob();
+    if (blob.type.split(';')[0].trim().toLowerCase() !== 'application/pdf') {
+        throw new Error('The server did not return a report PDF. Please try again.');
+    }
+
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
