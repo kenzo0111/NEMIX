@@ -54,15 +54,15 @@ export default function StockAttentionTable({ items }: StockAttentionTableProps)
 
             <CardContent className="p-0">
                 {hasItems ? (
-                    <div className="overflow-x-auto">
-                        <Table className="min-w-[650px]">
+                    <div className="w-full min-w-0 overflow-x-auto">
+                        <Table className="min-w-[40.625rem]">
                             <TableHeader>
                                 <TableRow className="bg-gray-50/60 dark:bg-slate-800/60 hover:bg-gray-50/60 dark:hover:bg-slate-800/60">
-                                    <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="pl-6 py-3">Item Name & SKU</SortableTableHeader>
-                                    <SortableTableHeader column="stock" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3">Stock On Hand</SortableTableHeader>
-                                    <SortableTableHeader column="unit" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="center" className="px-4 py-3">Unit of Issue</SortableTableHeader>
-                                    <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="center" className="px-4 py-3">Status</SortableTableHeader>
-                                    <SortableTableHeader column="value" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="pr-6 py-3">Calculated Value</SortableTableHeader>
+                                    <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="pl-6 py-3.5 align-middle">Item Name & SKU</SortableTableHeader>
+                                    <SortableTableHeader column="stock" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3.5 align-middle">Stock On Hand</SortableTableHeader>
+                                    <SortableTableHeader column="unit" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="center" className="px-4 py-3.5 align-middle">Unit of Issue</SortableTableHeader>
+                                    <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="center" className="px-4 py-3.5 align-middle">Status</SortableTableHeader>
+                                    <SortableTableHeader column="value" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="pr-6 py-3.5 align-middle">Calculated Value</SortableTableHeader>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -70,19 +70,19 @@ export default function StockAttentionTable({ items }: StockAttentionTableProps)
                                     const isOut = Number(item.stock) <= 0;
                                     return (
                                         <TableRow key={item.id} className="hover:bg-gray-50/80 dark:hover:bg-slate-800/50">
-                                            <TableCell className="pl-6 py-3">
+                                            <TableCell className="pl-6 py-3.5 align-middle">
                                                 <div>
                                                     <p className="leading-relaxed font-semibold text-gray-900 dark:text-slate-100 text-sm">{item.name}</p>
                                                     <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 tabular-nums">SKU: {item.sku || 'N/A'}</p>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-right py-3 font-semibold tabular-nums text-sm text-gray-900 dark:text-slate-100">
+                                            <TableCell className="text-right py-3.5 font-semibold tabular-nums text-sm text-gray-900 dark:text-slate-100 align-middle">
                                                 {Number(item.stock).toLocaleString()}
                                             </TableCell>
-                                            <TableCell className="text-center py-3 text-sm text-gray-600 dark:text-slate-400">
+                                            <TableCell className="text-center py-3.5 text-sm text-gray-600 dark:text-slate-400 align-middle">
                                                 {item.unitOfIssue || 'Units'}
                                             </TableCell>
-                                            <TableCell className="text-center py-3">
+                                            <TableCell className="text-center py-3.5 align-middle">
                                                 <span
                                                     className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold ${
                                                         isOut
@@ -93,7 +93,7 @@ export default function StockAttentionTable({ items }: StockAttentionTableProps)
                                                     {isOut ? 'Critical / Out of Stock' : 'Low Stock'}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="text-right pr-6 py-3 tabular-nums text-sm text-gray-700 dark:text-slate-300">
+                                            <TableCell className="text-right pr-6 py-3.5 tabular-nums text-sm text-gray-700 dark:text-slate-300 align-middle">
                                                 {formatCurrency(Number(item.amount || 0))}
                                             </TableCell>
                                         </TableRow>

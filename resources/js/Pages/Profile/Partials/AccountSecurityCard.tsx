@@ -189,20 +189,20 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                 <div className="p-4 sm:p-6">
                     {displayedHistory.length > 0 ? (
                         <div className="space-y-3">
-                            <div className="w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg">
-                                <table className="min-w-[600px] w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm">
+                            <div className="w-full min-w-0 overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg">
+                                <table className="w-full min-w-[37.5rem] divide-y divide-slate-200 dark:divide-slate-800 text-sm">
                                     <thead className="bg-slate-50 dark:bg-slate-850">
                                         <tr>
-                                            <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3">Verification Status</SortableTableHeader>
-                                            <SortableTableHeader column="ip" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3">Client IP Address</SortableTableHeader>
-                                            <SortableTableHeader column="timestamp" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3">Audit Timestamp</SortableTableHeader>
-                                            <SortableTableHeader column="agent" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3">Client Signature</SortableTableHeader>
+                                            <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 align-middle">Verification Status</SortableTableHeader>
+                                            <SortableTableHeader column="ip" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 align-middle">Client IP Address</SortableTableHeader>
+                                            <SortableTableHeader column="timestamp" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 align-middle">Audit Timestamp</SortableTableHeader>
+                                            <SortableTableHeader column="agent" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 align-middle">Client Signature</SortableTableHeader>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
                                         {displayedHistory.map((item) => (
                                             <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-850/50 transition-colors">
-                                                <td className="px-4 py-3 whitespace-nowrap">
+                                                <td className="px-4 py-3.5 whitespace-nowrap align-middle">
                                                     <span
                                                         className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-semibold ${
                                                             item.status === 'Success'
@@ -218,16 +218,16 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                                                         <span>{item.status}</span>
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-3 tabular-nums text-slate-800 dark:text-slate-200 font-semibold whitespace-nowrap">
+                                                <td className="px-4 py-3.5 tabular-nums text-slate-800 dark:text-slate-200 font-semibold whitespace-nowrap align-middle">
                                                     {item.ip_address}
                                                 </td>
-                                                <td className="px-4 py-3 whitespace-nowrap">
+                                                <td className="px-4 py-3.5 whitespace-nowrap align-middle">
                                                     <span className="text-slate-900 dark:text-slate-100 font-medium">{item.timestamp}</span>
                                                     <span className="text-sm text-slate-400 dark:text-slate-500 tabular-nums block mt-0.5">
                                                         {item.time_ago}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-sm truncate max-w-xs">
+                                                <td className="px-4 py-3.5 text-slate-500 dark:text-slate-400 text-sm truncate max-w-xs align-middle">
                                                     {item.user_agent}
                                                 </td>
                                             </tr>

@@ -315,15 +315,15 @@ export default function RFIDRecordsTable({
                     </div>
 
                     {/* Table View */}
-                    <div className="overflow-x-auto">
-                        <table className="w-full min-w-[850px] text-left text-sm divide-y divide-gray-200 dark:divide-slate-800">
+                    <div className="overflow-x-auto w-full min-w-0">
+                        <table className="w-full min-w-[53rem] text-left text-sm divide-y divide-gray-200 dark:divide-slate-800 border-collapse">
                             <thead>
                                 <tr className="bg-gray-50/60 dark:bg-slate-950 text-gray-500 dark:text-slate-400 font-semibold text-sm border-b border-gray-200 dark:border-slate-800">
-                                    <SortableTableHeader column="name" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3 px-6 whitespace-nowrap min-w-[200px]">Item Description</SortableTableHeader>
-                                    <SortableTableHeader column="sku" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3 px-6 tabular-nums whitespace-nowrap">Property No.</SortableTableHeader>
-                                    <SortableTableHeader column="rfid" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3 px-6 tabular-nums whitespace-nowrap">RFID Tag ID</SortableTableHeader>
-                                    <SortableTableHeader column="status" activeColumn={sort} direction={direction} onSort={handleSort} align="center" className="py-3 px-6 whitespace-nowrap">Status</SortableTableHeader>
-                                    <th scope="col" className="py-3 px-6 text-right font-semibold text-sm whitespace-nowrap min-w-[140px]">Actions</th>
+                                    <SortableTableHeader column="name" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3.5 px-6 whitespace-nowrap min-w-[12.5rem] align-middle">Item Description</SortableTableHeader>
+                                    <SortableTableHeader column="sku" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3.5 px-6 tabular-nums whitespace-nowrap align-middle">Property No.</SortableTableHeader>
+                                    <SortableTableHeader column="rfid" activeColumn={sort} direction={direction} onSort={handleSort} className="py-3.5 px-6 tabular-nums whitespace-nowrap align-middle">RFID Tag ID</SortableTableHeader>
+                                    <SortableTableHeader column="status" activeColumn={sort} direction={direction} onSort={handleSort} align="center" className="py-3.5 px-6 whitespace-nowrap align-middle">Status</SortableTableHeader>
+                                    <th scope="col" className="py-3.5 px-6 text-right font-semibold text-sm whitespace-nowrap min-w-[10rem] align-middle">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
@@ -349,7 +349,7 @@ export default function RFIDRecordsTable({
                                                     isSelected ? 'bg-red-50/70 dark:bg-red-950/40' : 'hover:bg-red-50/20 dark:hover:bg-red-950/20'
                                                 }`}
                                             >
-                                                <td className="py-3 px-6 min-w-[200px] break-words">
+                                                <td className="py-3.5 px-6 align-middle min-w-[12.5rem] break-words">
                                                     <div className="font-medium text-gray-900 dark:text-slate-100 text-sm">
                                                         {item.name}
                                                     </div>
@@ -359,12 +359,12 @@ export default function RFIDRecordsTable({
                                                         </div>
                                                     )}
                                                 </td>
-                                                <td className="py-3 px-6 tabular-nums text-gray-600 dark:text-slate-400 text-sm">
+                                                <td className="py-3.5 px-6 align-middle tabular-nums text-gray-600 dark:text-slate-400 text-sm">
                                                     <span className="bg-gray-50 dark:bg-slate-800 px-2 py-0.5 rounded border border-gray-200/80 dark:border-slate-700 text-gray-700 dark:text-slate-300">
                                                         {item.sku || 'N/A'}
                                                     </span>
                                                 </td>
-                                                <td className="py-3 px-6 tabular-nums">
+                                                <td className="py-3.5 px-6 align-middle tabular-nums">
                                                     {isTagged ? (
                                                         <button
                                                             type="button"
@@ -386,7 +386,7 @@ export default function RFIDRecordsTable({
                                                         </span>
                                                     )}
                                                 </td>
-                                                <td className="py-3 px-6 text-center">
+                                                <td className="py-3.5 px-6 align-middle text-center">
                                                     <span
                                                         className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-medium border ${
                                                             isTagged
@@ -402,27 +402,29 @@ export default function RFIDRecordsTable({
                                                         <span>{isTagged ? 'Tagged' : 'Needs Tag'}</span>
                                                     </span>
                                                 </td>
-                                                <td className="py-3 px-6 text-right whitespace-nowrap min-w-[140px]">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            onSelectItem(item);
-                                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                                        }}
-                                                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all cursor-pointer shadow-2xs ${
-                                                            isSelected
-                                                                ? 'bg-red-950 text-white font-semibold'
+                                                <td className="py-3.5 px-6 align-middle text-right whitespace-nowrap min-w-[10rem]">
+                                                    <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                onSelectItem(item);
+                                                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                            }}
+                                                            className={`inline-flex items-center justify-center min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 text-sm font-semibold rounded-lg transition-all cursor-pointer shadow-2xs whitespace-nowrap gap-1.5 ${
+                                                                isSelected
+                                                                    ? 'bg-red-950 text-white font-semibold'
+                                                                    : isTagged
+                                                                    ? 'bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600'
+                                                                    : 'bg-red-900 hover:bg-red-950 text-white'
+                                                            }`}
+                                                        >
+                                                            {isSelected
+                                                                ? 'In Focus'
                                                                 : isTagged
-                                                                ? 'bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600'
-                                                                : 'bg-red-900 hover:bg-red-950 text-white'
-                                                        }`}
-                                                    >
-                                                        {isSelected
-                                                            ? 'In Focus'
-                                                            : isTagged
-                                                            ? 'Manage'
-                                                            : 'Tag RFID'}
-                                                    </button>
+                                                                ? 'Manage'
+                                                                : 'Tag RFID'}
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         );

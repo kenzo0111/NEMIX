@@ -142,7 +142,12 @@ function Ranking({
         </div>
     );
 }
-type Column = { key: string; label: string; render?: (value: any, row: any, index: number) => React.ReactNode };
+type Column = {
+    key: string;
+    label: string;
+    align?: 'left' | 'center' | 'right';
+    render?: (value: any, row: any, index: number) => React.ReactNode;
+};
 function DataTable({
     rows,
     columns,
@@ -211,8 +216,8 @@ function DataTable({
                     Export CSV
                 </button>
             </div>
-            <div className="overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-700/70">
-                <table className="w-full text-left text-sm">
+            <div className="w-full min-w-0 overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-700/70">
+                <table className="w-full text-left text-sm min-w-[42rem]">
                     <thead className="bg-slate-50 text-slate-600 dark:bg-slate-950 dark:text-slate-300">
                         <tr>
                             {columns.map((column) => (
@@ -222,7 +227,8 @@ function DataTable({
                                     activeColumn={sort.key}
                                     direction={sort.direction}
                                     onSort={requestSort}
-                                    className="whitespace-nowrap p-3"
+                                    align={column.align}
+                                    className="whitespace-nowrap px-4 py-3.5 align-middle"
                                 >
                                     {column.label}
                                 </SortableTableHeader>
@@ -236,7 +242,16 @@ function DataTable({
                                 className="border-b border-slate-100 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/40"
                             >
                                 {columns.map((column) => (
-                                    <td key={column.key} className="p-3">
+                                    <td
+                                        key={column.key}
+                                        className={`px-4 py-3.5 align-middle ${
+                                            column.align === 'right'
+                                                ? 'text-right tabular-nums'
+                                                : column.align === 'center'
+                                                ? 'text-center'
+                                                : 'text-left'
+                                        }`}
+                                    >
                                         {column.render
                                             ? column.render(row[column.key], row, page * 10 + index)
                                             : typeof row[column.key] === 'number'
@@ -279,9 +294,9 @@ function DataTable({
 }
 const itemColumns: Column[] = [
     { key: 'name', label: 'Consumable item' },
-    { key: 'frequency', label: 'Requisitions containing item' },
-    { key: 'requested', label: 'Quantity requested' },
-    { key: 'issued', label: 'Supplies issued' },
+    { key: 'frequency', label: 'Requisitions containing item', align: 'right' },
+    { key: 'requested', label: 'Quantity requested', align: 'right' },
+    { key: 'issued', label: 'Supplies issued', align: 'right' },
     { key: 'latest', label: 'Latest requisition', render: (value) => (value ? String(value).slice(0, 10) : '—') },
 ];
 
@@ -712,9 +727,9 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                 rows={data.trends.map((row) => ({ ...row, name: row.month }))}
                                 columns={[
                                     { key: 'month', label: 'Month' },
-                                    { key: 'requisitions', label: 'Requisitions' },
-                                    { key: 'requested', label: 'Quantity requested' },
-                                    { key: 'issued', label: 'Supplies issued' },
+                                    { key: 'requisitions', label: 'Requisitions', align: 'right' },
+                                    { key: 'requested', label: 'Quantity requested', align: 'right' },
+                                    { key: 'issued', label: 'Supplies issued', align: 'right' },
                                     { key: 'topItem', label: 'Most frequent item' },
                                 ]}
                                 searchLabel="Search monthly history"
@@ -760,11 +775,12 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                                     : 'Active',
                                     }))}
                                 columns={[
-                                    { key: 'rank', label: `Rank (${departmentMetric})` },
+                                    { key: 'rank', label: `Rank (${departmentMetric})`, align: 'right' },
                                     { key: 'name', label: 'Department / office' },
                                     {
                                         key: 'activity',
                                         label: 'Activity',
+                                        align: 'center',
                                         render: (value) => (
                                             <span
                                                 className={`rounded-full px-2 py-1 text-xs font-medium ${value === 'Highest' ? 'bg-red-100 text-red-900' : value === 'Low' ? 'bg-amber-100 text-amber-900' : 'bg-slate-100 text-slate-600'}`}
@@ -773,17 +789,18 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                             </span>
                                         ),
                                     },
-                                    { key: 'requisitions', label: 'Requisitions' },
-                                    { key: 'requested', label: 'Quantity requested' },
-                                    { key: 'issued', label: 'Supplies issued' },
+                                    { key: 'requisitions', label: 'Requisitions', align: 'right' },
+                                    { key: 'requested', label: 'Quantity requested', align: 'right' },
+                                    { key: 'issued', label: 'Supplies issued', align: 'right' },
                                     { key: 'topItem', label: 'Most frequent item' },
-                                    { key: 'distinctItems', label: 'Distinct items' },
-                                    { key: 'previousRequested', label: 'Previous requested' },
+                                    { key: 'distinctItems', label: 'Distinct items', align: 'right' },
+                                    { key: 'previousRequested', label: 'Previous requested', align: 'right' },
                                     {
                                         key: 'demandChange',
                                         label: 'Demand change',
+                                        align: 'right',
                                         render: (value) => (
-                                            <span>
+                                            <span className="tabular-nums">
                                                 {value > 0 ? '↑ +' : value < 0 ? '↓ ' : ''}
                                                 {number(value)}
                                             </span>

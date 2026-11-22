@@ -519,14 +519,14 @@ export function SupplyRequestQueue({
                                             )}
                                         </div>
 
-                                        <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-800">
-                                            <table className="w-full text-left text-sm">
+                                        <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-800">
+                                            <table className="w-full text-left text-sm min-w-[38rem]">
                                                 <thead className="bg-gray-50 dark:bg-slate-950 text-gray-600 dark:text-slate-400 normal-case tabular-nums text-sm">
                                                     <tr>
-                                                        <th className="px-3 py-3 whitespace-nowrap min-w-[200px]">Item Description & SKU</th>
-                                                        <th className="px-3 py-3 text-center whitespace-nowrap">Warehouse Stock</th>
-                                                        <th className="px-3 py-3 text-right whitespace-nowrap">Requested</th>
-                                                        <th className="px-3 py-3 text-right whitespace-nowrap min-w-44">
+                                                        <th className="px-3.5 py-3.5 whitespace-nowrap min-w-[12.5rem] align-middle">Item Description & SKU</th>
+                                                        <th className="px-3.5 py-3.5 text-center whitespace-nowrap min-w-[8rem] align-middle">Warehouse Stock</th>
+                                                        <th className="px-3.5 py-3.5 text-right whitespace-nowrap min-w-[7rem] align-middle">Requested</th>
+                                                        <th className="px-3.5 py-3.5 text-right whitespace-nowrap min-w-[11rem] align-middle">
                                                             {canAdjustQuantities ? 'Authorized / Approved Qty' : 'Final Approved Qty'}
                                                         </th>
                                                     </tr>
@@ -547,7 +547,7 @@ export function SupplyRequestQueue({
 
                                                         return (
                                                             <tr key={line.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/40">
-                                                                <td className="px-3 py-3 font-medium text-gray-900 dark:text-slate-100">
+                                                                <td className="px-3.5 py-3.5 font-medium text-gray-900 dark:text-slate-100 align-middle">
                                                                     <div className="font-semibold">{line.item?.name}</div>
                                                                     <div className="tabular-nums text-sm text-gray-400">
                                                                         SKU: {line.item?.sku || '—'}
@@ -555,7 +555,7 @@ export function SupplyRequestQueue({
                                                                 </td>
 
                                                                 {/* On hand stock */}
-                                                                <td className="px-3 py-3 text-center tabular-nums">
+                                                                <td className="px-3.5 py-3.5 text-center tabular-nums align-middle">
                                                                     <span
                                                                         className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-bold ${
                                                                             line.item?.stock === 0
@@ -570,12 +570,12 @@ export function SupplyRequestQueue({
                                                                 </td>
 
                                                                 {/* Requested Qty */}
-                                                                <td className="px-3 py-3 text-right tabular-nums text-gray-800 dark:text-slate-200">
+                                                                <td className="px-3.5 py-3.5 text-right tabular-nums text-gray-800 dark:text-slate-200 align-middle">
                                                                     {line.quantity} {line.item?.unit_of_issue || 'pcs'}
                                                                 </td>
 
                                                                 {/* Approved / Adjustable Qty */}
-                                                                <td className="px-3 py-3 text-right">
+                                                                <td className="px-3.5 py-3.5 text-right align-middle">
                                                                     {canAdjustQuantities ? (
                                                                         <div className="flex items-center justify-end gap-2">
                                                                             {isExceedingStock && (

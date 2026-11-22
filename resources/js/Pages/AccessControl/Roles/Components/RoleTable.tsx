@@ -93,20 +93,20 @@ export default function RoleTable({
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto flex-1 min-w-full">
-                <table className="w-full text-left border-collapse min-w-[760px]">
+            <div className="overflow-x-auto flex-1 min-w-0 w-full">
+                <table className="w-full text-left border-collapse min-w-[48rem]">
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/90 dark:bg-slate-800/90 text-sm font-semibold tracking-normal text-gray-600 dark:text-slate-300 normal-case">
-                            <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 whitespace-nowrap min-w-[200px]">
+                            <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 whitespace-nowrap min-w-[12.5rem]">
                                 Role
                             </SortableTableHeader>
-                            <SortableTableHeader column="permissions" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 whitespace-nowrap min-w-[160px]">
+                            <SortableTableHeader column="permissions" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 whitespace-nowrap min-w-[10rem]">
                                 Access granted
                             </SortableTableHeader>
-                            <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 whitespace-nowrap min-w-[120px]">
+                            <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-6 py-3.5 whitespace-nowrap min-w-[7.5rem]">
                                 Type
                             </SortableTableHeader>
-                            <th scope="col" className="px-6 py-3.5 text-right whitespace-nowrap min-w-[140px] text-sm font-semibold tracking-normal text-gray-600 dark:text-slate-300 normal-case">
+                            <th scope="col" className="px-6 py-3.5 text-right whitespace-nowrap min-w-[10rem] text-sm font-semibold tracking-normal text-gray-600 dark:text-slate-300 normal-case">
                                 Actions
                             </th>
                         </tr>
@@ -124,7 +124,7 @@ export default function RoleTable({
                                         className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800 last:border-0 group"
                                     >
                                         {/* Role Name, Icon & Details */}
-                                        <td className="px-6 py-4 min-w-[200px]">
+                                        <td className="px-6 py-3.5 align-middle min-w-[12.5rem]">
                                             <div className="flex items-center gap-3">
                                                 <div
                                                     className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border ${
@@ -163,14 +163,14 @@ export default function RoleTable({
                                         </td>
 
                                         {/* Permissions Count */}
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-3.5 align-middle">
                                             <span className="font-semibold text-gray-800 dark:text-slate-200 tabular-nums">
                                                 {assignedCount} {assignedCount === 1 ? 'permission' : 'permissions'}
                                             </span>
                                         </td>
 
                                         {/* Role Type */}
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-3.5 align-middle">
                                             {isSystem ? (
                                                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                                     <Lock className="w-3 h-3 text-slate-500 dark:text-slate-400" />
@@ -185,13 +185,13 @@ export default function RoleTable({
                                         </td>
 
                                         {/* Actions */}
-                                        <td className="px-6 py-4 whitespace-nowrap min-w-[140px] text-right">
-                                            <div className="inline-flex items-center justify-end gap-2.5">
+                                        <td className="px-6 py-3.5 align-middle whitespace-nowrap min-w-[10rem] text-right">
+                                            <div className="inline-flex items-center justify-end gap-2 flex-wrap">
                                                 {canUpdate && role.is_editable && (
                                                     <button
                                                         type="button"
                                                         onClick={() => onEditRole(role)}
-                                                        className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-white font-semibold text-sm transition-colors cursor-pointer py-1 px-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700"
+                                                        className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-white font-semibold text-sm transition-colors cursor-pointer min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700 inline-flex items-center justify-center whitespace-nowrap gap-1.5"
                                                     >
                                                         Edit
                                                     </button>
@@ -202,7 +202,7 @@ export default function RoleTable({
                                                         type="button"
                                                         onClick={() => onDeleteRole(role)}
                                                         title="Delete role"
-                                                        className="border font-semibold text-sm px-2.5 py-1 rounded transition-colors shadow-2xs border-red-900/30 dark:border-red-800/50 text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-700 cursor-pointer"
+                                                        className="border font-semibold text-sm min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded transition-colors shadow-2xs border-red-900/30 dark:border-red-800/50 text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-700 cursor-pointer inline-flex items-center justify-center whitespace-nowrap gap-1.5"
                                                     >
                                                         Delete
                                                     </button>

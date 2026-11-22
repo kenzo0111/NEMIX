@@ -30,7 +30,13 @@ export default function SortableTableHeader<K extends string>({
             {...props}
             scope="col"
             aria-sort={active ? (direction === 'asc' ? 'ascending' : 'descending') : 'none'}
-            className={cn('whitespace-nowrap', className)}
+            className={cn(
+                'whitespace-nowrap align-middle',
+                align === 'center' && 'text-center',
+                align === 'right' && 'text-right',
+                align === 'left' && 'text-left',
+                className
+            )}
         >
             <button
                 type="button"
@@ -38,7 +44,8 @@ export default function SortableTableHeader<K extends string>({
                 className={cn(
                     'group inline-flex w-full items-center gap-1.5 rounded px-1 py-1 font-medium text-inherit transition-colors hover:bg-red-50 hover:text-red-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:hover:bg-red-950/30 dark:hover:text-red-300',
                     align === 'center' && 'justify-center text-center',
-                    align === 'right' && 'justify-end text-right'
+                    align === 'right' && 'justify-end text-right',
+                    align === 'left' && 'justify-start text-left'
                 )}
             >
                 <span className="whitespace-nowrap">{children}</span>

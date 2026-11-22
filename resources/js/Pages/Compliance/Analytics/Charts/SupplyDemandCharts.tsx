@@ -194,7 +194,7 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
             {!visible.length || !months.length ? (
                 <ChartEmpty message="No offices match your search and reporting filters." />
             ) : (
-                <div className="max-h-[480px] overflow-auto rounded-lg border border-slate-100 dark:border-slate-800">
+                <div className="w-full min-w-0 max-h-[480px] overflow-auto rounded-lg border border-slate-100 dark:border-slate-800">
                     <table className="w-full border-separate border-spacing-1 text-xs">
                         <caption className="sr-only">
                             Monthly department {metric}. Darker cells indicate higher values; zero indicates no recorded
@@ -202,19 +202,19 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
                         </caption>
                         <thead>
                             <tr>
-                                <SortableTableHeader column="department" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="sticky left-0 top-0 z-20 min-w-44 bg-white p-2 text-left font-medium text-slate-500 dark:bg-slate-900">
+                                <SortableTableHeader column="department" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="sticky left-0 top-0 z-20 min-w-44 bg-white p-2 text-left font-medium text-slate-500 dark:bg-slate-900 align-middle">
                                     Department / office
                                 </SortableTableHeader>
                                 {months.map((month) => (
                                     <SortableTableHeader
                                         key={month}
                                         column={month} activeColumn={sort.key} direction={sort.direction} onSort={requestSort}
-                                        className="sticky top-0 z-10 min-w-16 bg-white p-2 font-medium text-slate-500 dark:bg-slate-900"
+                                        className="sticky top-0 z-10 min-w-16 bg-white p-2 font-medium text-slate-500 dark:bg-slate-900 align-middle"
                                     >
                                         {month}
                                     </SortableTableHeader>
                                 ))}
-                                <SortableTableHeader column="total" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="sticky top-0 bg-white p-2 text-slate-500 dark:bg-slate-900">Total</SortableTableHeader>
+                                <SortableTableHeader column="total" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="sticky top-0 z-10 min-w-16 bg-white p-2 text-slate-500 dark:bg-slate-900 align-middle">Total</SortableTableHeader>
                             </tr>
                         </thead>
                         <tbody>
@@ -222,7 +222,7 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
                                 <tr key={name}>
                                     <th
                                         scope="row"
-                                        className="sticky left-0 z-10 max-w-56 bg-white p-2 text-left font-medium text-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                                        className="sticky left-0 z-10 max-w-56 bg-white p-2 text-left font-medium text-slate-700 dark:bg-slate-900 dark:text-slate-200 align-middle"
                                     >
                                         {name}
                                     </th>
@@ -233,13 +233,13 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
                                             <td
                                                 key={month}
                                                 title={`${name} · ${month}: ${value.toLocaleString()} ${config[metric].label}`}
-                                                className={`rounded-md px-2 py-3 text-center tabular-nums ${levels[level]}`}
+                                                className={`rounded-md px-2 py-3 text-center tabular-nums align-middle ${levels[level]}`}
                                             >
                                                 {value.toLocaleString()}
                                             </td>
                                         );
                                     })}
-                                    <td className="px-3 text-center font-semibold tabular-nums text-slate-700 dark:text-slate-200">
+                                    <td className="px-3 text-center font-semibold tabular-nums text-slate-700 dark:text-slate-200 align-middle">
                                         {(totals.get(name) ?? 0).toLocaleString()}
                                     </td>
                                 </tr>

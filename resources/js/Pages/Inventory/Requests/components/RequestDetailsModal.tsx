@@ -168,29 +168,29 @@ export function RequestDetailsModal({
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-800">
-                            <table className="w-full text-left text-sm">
+                        <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-800">
+                            <table className="w-full text-left text-sm min-w-[32rem]">
                                 <thead className="bg-gray-50 dark:bg-slate-950 text-gray-600 dark:text-slate-400 normal-case tabular-nums">
                                     <tr>
-                                        <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3 py-3">Item Description</SortableTableHeader>
-                                        <SortableTableHeader column="sku" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3 py-3">SKU</SortableTableHeader>
-                                        <SortableTableHeader column="requested" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3 py-3">Requested Qty</SortableTableHeader>
-                                        <SortableTableHeader column="approved" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3 py-3">Approved / Final Qty</SortableTableHeader>
+                                        <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3.5 py-3 align-middle">Item Description</SortableTableHeader>
+                                        <SortableTableHeader column="sku" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3.5 py-3 align-middle">SKU</SortableTableHeader>
+                                        <SortableTableHeader column="requested" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3.5 py-3 align-middle">Requested Qty</SortableTableHeader>
+                                        <SortableTableHeader column="approved" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3.5 py-3 align-middle">Approved / Final Qty</SortableTableHeader>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                                     {sortedRows.map((line) => (
                                         <tr key={line.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/40">
-                                            <td className="px-3 py-3 font-medium text-gray-900 dark:text-slate-100">
+                                            <td className="px-3.5 py-3 font-medium text-gray-900 dark:text-slate-100 align-middle">
                                                 {line.item?.name || 'Unavailable item'}
                                             </td>
-                                            <td className="px-3 py-3 tabular-nums text-gray-500">
+                                            <td className="px-3.5 py-3 tabular-nums text-gray-500 align-middle">
                                                 {line.item?.sku || '—'}
                                             </td>
-                                            <td className="px-3 py-3 text-right tabular-nums">
+                                            <td className="px-3.5 py-3 text-right tabular-nums align-middle">
                                                 {line.quantity} {line.item?.unit_of_issue || 'pcs'}
                                             </td>
-                                            <td className="px-3 py-3 text-right">
+                                            <td className="px-3.5 py-3 text-right align-middle">
                                                 <ItemQuantityDisplay
                                                     requested={line.quantity}
                                                     approved={line.approved_quantity}

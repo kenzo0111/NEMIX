@@ -22,15 +22,15 @@ export default function CatalogTable({
 
     return (
         <>
-            <section data-tour="coordinator-catalog-items" aria-label="Central consumable items" className={panel + ' overflow-hidden'}>
-                <div className="hidden overflow-x-auto lg:block">
-                    <table className="w-full text-left text-sm min-w-[850px]">
+            <section data-tour="coordinator-catalog-items" aria-label="Central consumable items" className={panel + ' overflow-hidden w-full min-w-0'}>
+                <div className="hidden overflow-x-auto lg:block w-full min-w-0">
+                    <table className="w-full text-left text-sm min-w-[53rem] border-collapse">
                         <thead className="bg-slate-50 text-sm normal-case tracking-normal text-slate-500 dark:bg-slate-950/50 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                             <tr>
                                 <SortableTableHeader column="sku" activeColumn={sort.key} direction={sort.direction} onSort={onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold">
                                     Stock No.
                                 </SortableTableHeader>
-                                <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[180px]">
+                                <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[11.25rem]">
                                     Item
                                 </SortableTableHeader>
                                 <SortableTableHeader column="unit" activeColumn={sort.key} direction={sort.direction} onSort={onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold">
@@ -42,7 +42,7 @@ export default function CatalogTable({
                                 <SortableTableHeader column="available" activeColumn={sort.key} direction={sort.direction} onSort={onSort} align="right" className="whitespace-nowrap px-5 py-3.5 font-semibold">
                                     Available to request
                                 </SortableTableHeader>
-                                <th scope="col" className="whitespace-nowrap px-5 py-3.5 font-semibold text-right min-w-[140px]">
+                                <th scope="col" className="whitespace-nowrap px-5 py-3.5 font-semibold text-right min-w-[10rem]">
                                     Actions
                                 </th>
                             </tr>
@@ -54,22 +54,22 @@ export default function CatalogTable({
 
                                 return (
                                     <tr key={item.id} className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
-                                        <td className="whitespace-nowrap px-5 py-4 tabular-nums font-medium text-slate-600 dark:text-slate-300">
+                                        <td className="whitespace-nowrap px-5 py-3.5 align-middle tabular-nums font-medium text-slate-600 dark:text-slate-300">
                                             {item.sku}
                                         </td>
-                                        <td className="px-5 py-4 max-w-sm">
+                                        <td className="px-5 py-3.5 align-middle max-w-sm">
                                             <p className="font-semibold text-slate-900 dark:text-slate-100">{item.name}</p>
                                             {item.description && (
                                                 <p className="mt-1 line-clamp-1 text-sm text-slate-500 dark:text-slate-400">{item.description}</p>
                                             )}
                                         </td>
-                                        <td className="whitespace-nowrap px-5 py-4 text-slate-600 dark:text-slate-300">
+                                        <td className="whitespace-nowrap px-5 py-3.5 align-middle text-slate-600 dark:text-slate-300">
                                             {item.unit || 'units'}
                                         </td>
-                                        <td className="whitespace-nowrap px-5 py-4 text-right tabular-nums text-slate-700 dark:text-slate-300">
+                                        <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right tabular-nums text-slate-700 dark:text-slate-300">
                                             {item.on_hand.toLocaleString()}
                                         </td>
-                                        <td className="whitespace-nowrap px-5 py-4 text-right tabular-nums">
+                                        <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right tabular-nums">
                                             <strong className="text-red-900 dark:text-red-300">{item.available_quantity.toLocaleString()}</strong>
                                             {item.is_low_stock && (
                                                 <span className="block text-[11px] font-semibold text-amber-700 dark:text-amber-400">
@@ -77,45 +77,47 @@ export default function CatalogTable({
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="whitespace-nowrap px-5 py-4 text-right min-w-[140px]">
-                                            {eligible ? (
-                                                <Link
-                                                    href={route('inventory.requests.index', { create: 1, item_id: item.id })}
-                                                    className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg bg-red-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-950 transition-colors shadow-2xs"
-                                                >
-                                                    Request
-                                                    <ArrowRight size={14} />
-                                                </Link>
-                                            ) : isOutOfStock ? (
-                                                item.user_pre_order ? (
+                                        <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right min-w-[10rem]">
+                                            <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+                                                {eligible ? (
                                                     <Link
-                                                        href={route('inventory.requests.index', { create: 1, mode: 'pre_request', item_id: item.id })}
-                                                        className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs"
-                                                        title="Pre-request this item"
+                                                        href={route('inventory.requests.index', { create: 1, item_id: item.id })}
+                                                        className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg bg-red-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-950 transition-colors shadow-2xs whitespace-nowrap"
                                                     >
-                                                        <Clock size={13} />
-                                                        Pre-Requested ({item.user_pre_order.quantity})
-                                                        <ArrowRight size={13} />
-                                                    </Link>
-                                                ) : (
-                                                    <Link
-                                                        href={route('inventory.requests.index', { create: 1, mode: 'pre_request', item_id: item.id })}
-                                                        className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs"
-                                                    >
-                                                        <PackagePlus size={14} className="text-amber-800 dark:text-amber-400" />
-                                                        Pre-Request
+                                                        Request
                                                         <ArrowRight size={14} />
                                                     </Link>
-                                                )
-                                            ) : (
-                                                <span className="text-sm text-slate-400 dark:text-slate-500 italic">
-                                                    {item.weekly_request_limit === null
-                                                        ? 'Limit unconfigured'
-                                                        : item.quota_remaining === 0
-                                                        ? 'Quota used'
-                                                        : 'Unavailable'}
-                                                </span>
-                                            )}
+                                                ) : isOutOfStock ? (
+                                                    item.user_pre_order ? (
+                                                        <Link
+                                                            href={route('inventory.requests.index', { create: 1, mode: 'pre_request', item_id: item.id })}
+                                                            className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs whitespace-nowrap"
+                                                            title="Pre-request this item"
+                                                        >
+                                                            <Clock size={13} />
+                                                            Pre-Requested ({item.user_pre_order.quantity})
+                                                            <ArrowRight size={13} />
+                                                        </Link>
+                                                    ) : (
+                                                        <Link
+                                                            href={route('inventory.requests.index', { create: 1, mode: 'pre_request', item_id: item.id })}
+                                                            className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs whitespace-nowrap"
+                                                        >
+                                                            <PackagePlus size={14} className="text-amber-800 dark:text-amber-400" />
+                                                            Pre-Request
+                                                            <ArrowRight size={14} />
+                                                        </Link>
+                                                    )
+                                                ) : (
+                                                    <span className="text-sm text-slate-400 dark:text-slate-500 italic">
+                                                        {item.weekly_request_limit === null
+                                                            ? 'Limit unconfigured'
+                                                            : item.quota_remaining === 0
+                                                            ? 'Quota used'
+                                                            : 'Unavailable'}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 );

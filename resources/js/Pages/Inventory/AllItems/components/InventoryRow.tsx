@@ -83,13 +83,13 @@ export default function InventoryRow({ item, onView, onEdit, onDelete, readOnly 
             </td>
 
             {/* 8. Institutional Actions */}
-            <td className="px-3 sm:px-5 py-3.5 align-middle text-right whitespace-nowrap min-w-[140px] text-sm">
-                <div className="inline-flex items-center justify-end gap-1.5 sm:gap-2">
+            <td className="px-3 sm:px-5 py-3.5 align-middle text-right whitespace-nowrap min-w-[10rem] text-sm">
+                <div className="inline-flex items-center justify-end gap-2 flex-wrap">
                     {/* View Action */}
                     <button
                         type="button"
                         onClick={() => onView(item)}
-                        className="min-h-[36px] px-2.5 py-1.5 text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-slate-800 inline-flex items-center"
+                        className="min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-slate-800 inline-flex items-center justify-center whitespace-nowrap gap-1.5"
                     >
                         View
                     </button>
@@ -99,7 +99,7 @@ export default function InventoryRow({ item, onView, onEdit, onDelete, readOnly 
                         <button
                             type="button"
                             onClick={() => onEdit(item)}
-                            className="min-h-[36px] px-2.5 sm:px-3 py-1.5 border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 font-semibold text-sm rounded transition-colors cursor-pointer shadow-2xs inline-flex items-center"
+                            className="min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 font-semibold text-sm rounded transition-colors cursor-pointer shadow-2xs inline-flex items-center justify-center whitespace-nowrap gap-1.5"
                         >
                             Edit
                         </button>
@@ -109,7 +109,7 @@ export default function InventoryRow({ item, onView, onEdit, onDelete, readOnly 
                     {(canTag || (canDelete && onDelete)) && (
                         <Menu as="div" className="relative inline-block text-left">
                             <MenuButton
-                                className="min-h-[36px] min-w-[36px] p-2 text-gray-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer flex items-center justify-center"
+                                className="min-h-[2.25rem] min-w-[2.25rem] h-[2.25rem] w-[2.25rem] p-2 text-gray-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer flex items-center justify-center"
                                 title="More actions"
                                 aria-label="More actions"
                             >

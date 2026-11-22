@@ -60,33 +60,33 @@ export default function NumberingSettings({ previews }: NumberingSettingsProps) 
             </div>
 
             {/* Sequence Table / Grid */}
-            <div className="border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left">
+            <div className="w-full min-w-0 border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
+                <div className="w-full min-w-0 overflow-x-auto">
+                    <table className="w-full text-sm text-left min-w-[42rem]">
                         <thead>
                             <tr className="bg-slate-50 dark:bg-slate-850 border-b border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-semibold normal-case tracking-normal text-sm">
-                                <th className="px-5 py-3.5">Document Type</th>
-                                <th className="px-5 py-3.5 w-48">Number Format</th>
-                                <th className="px-5 py-3.5 w-32">Reset Rule</th>
-                                <th className="px-5 py-3.5 w-52">Suggested Next Number</th>
+                                <th className="px-5 py-3.5 align-middle">Document Type</th>
+                                <th className="px-5 py-3.5 w-48 min-w-[12rem] align-middle">Number Format</th>
+                                <th className="px-5 py-3.5 w-32 min-w-[8rem] align-middle">Reset Rule</th>
+                                <th className="px-5 py-3.5 w-52 min-w-[13rem] align-middle">Suggested Next Number</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {sequences.map((seq) => (
                                 <tr key={seq.key} className="hover:bg-slate-50/50 dark:hover:bg-slate-850/50 transition-colors">
-                                    <td className="px-5 py-4">
+                                    <td className="px-5 py-3.5 align-middle">
                                         <div className="font-semibold text-slate-900 dark:text-slate-100">{seq.name}</div>
                                         <div className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{seq.description}</div>
                                     </td>
-                                    <td className="px-5 py-4">
+                                    <td className="px-5 py-3.5 align-middle">
                                         <span className="tabular-nums text-slate-700 dark:text-slate-300">{seq.format}</span>
                                     </td>
-                                    <td className="px-5 py-4">
+                                    <td className="px-5 py-3.5 align-middle">
                                         <span className="inline-block px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 tabular-nums text-sm font-medium">
                                             {seq.resetRule}
                                         </span>
                                     </td>
-                                    <td className="px-5 py-4">
+                                    <td className="px-5 py-3.5 align-middle">
                                         <span className="inline-block px-3 py-1 rounded-lg bg-red-50/70 dark:bg-red-950/40 border border-red-200/80 dark:border-red-900/40 tabular-nums font-bold text-red-950 dark:text-red-300 text-sm">
                                             {previews?.[seq.key] || '�'}
                                         </span>

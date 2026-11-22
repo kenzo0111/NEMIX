@@ -192,29 +192,29 @@ export default function InventoryDetailsModal({
                                 </p>
                             </div>
                         ) : (
-                            <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-800">
-                                <table className="w-full min-w-[780px] text-left border-collapse">
+                            <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-800">
+                                <table className="w-full min-w-[48.75rem] text-left border-collapse">
                                     <thead className="bg-gray-50/80 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800">
                                         <tr>
-                                            <SortableTableHeader column="date" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} className="px-2 py-3">
+                                            <SortableTableHeader column="date" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} className="px-2 py-3 align-middle">
                                                 Date
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="supplier" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} className="px-2 py-3">
+                                            <SortableTableHeader column="supplier" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} className="px-2 py-3 align-middle">
                                                 Supplier
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="stock_no" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} className="px-2 py-3">
+                                            <SortableTableHeader column="stock_no" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} className="px-2 py-3 align-middle">
                                                 Supplier Stock No.
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="received" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} align="right" className="px-2 py-3">
+                                            <SortableTableHeader column="received" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} align="right" className="px-2 py-3 align-middle">
                                                 Received
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="remaining" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} align="right" className="px-2 py-3">
+                                            <SortableTableHeader column="remaining" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} align="right" className="px-2 py-3 align-middle">
                                                 Remaining
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="cost" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} align="right" className="px-2 py-3">
+                                            <SortableTableHeader column="cost" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} align="right" className="px-2 py-3 align-middle">
                                                 Unit Cost
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="value" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} align="right" className="px-2 py-3">
+                                            <SortableTableHeader column="value" activeColumn={batchSort.key} direction={batchSort.direction} onSort={sortBatches} align="right" className="px-2 py-3 align-middle">
                                                 Batch Value
                                             </SortableTableHeader>
                                         </tr>
@@ -283,27 +283,27 @@ export default function InventoryDetailsModal({
                                 </span>
                             </div>
 
-                            <div className="overflow-x-auto rounded border border-gray-200 dark:border-slate-800">
-                                <table className="w-full min-w-[500px] text-left border-collapse text-sm">
+                            <div className="w-full min-w-0 overflow-x-auto rounded border border-gray-200 dark:border-slate-800">
+                                <table className="w-full min-w-[31.25rem] text-left border-collapse text-sm">
                                     <thead className="bg-gray-50 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
                                         <tr>
-                                            <th className="px-3 py-2.5">Delivery Unit / Office</th>
-                                            <th className="px-3 py-2.5 text-right">Quantity Needed</th>
-                                            <th className="px-3 py-2.5">Priority</th>
-                                            <th className="px-3 py-2.5">Purpose / Remarks</th>
-                                            <th className="px-3 py-2.5">Requested Date</th>
+                                            <th className="px-3 py-2.5 align-middle">Delivery Unit / Office</th>
+                                            <th className="px-3 py-2.5 text-right align-middle">Quantity Needed</th>
+                                            <th className="px-3 py-2.5 align-middle">Priority</th>
+                                            <th className="px-3 py-2.5 align-middle">Purpose / Remarks</th>
+                                            <th className="px-3 py-2.5 align-middle">Requested Date</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
                                         {item.pre_orders!.map((po) => (
                                             <tr key={po.id} className="hover:bg-gray-50/60 dark:hover:bg-slate-800/50">
-                                                <td className="px-3 py-2.5 font-medium text-slate-900 dark:text-slate-100">
+                                                <td className="px-3 py-2.5 font-medium text-slate-900 dark:text-slate-100 align-middle">
                                                     {po.delivery_unit}
                                                 </td>
-                                                <td className="px-3 py-2.5 text-right font-bold text-red-900 dark:text-red-300 tabular-nums">
+                                                <td className="px-3 py-2.5 text-right font-bold text-red-900 dark:text-red-300 tabular-nums align-middle">
                                                     {po.quantity.toLocaleString()} {item.unit_of_issue || 'units'}
                                                 </td>
-                                                <td className="px-3 py-2.5">
+                                                <td className="px-3 py-2.5 align-middle">
                                                     {po.urgency === 'urgent' ? (
                                                         <span className="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">
                                                             Urgent
@@ -314,10 +314,10 @@ export default function InventoryDetailsModal({
                                                         </span>
                                                     )}
                                                 </td>
-                                                <td className="px-3 py-2.5 text-xs text-slate-600 dark:text-slate-400 max-w-xs truncate" title={po.purpose || ''}>
+                                                <td className="px-3 py-2.5 text-xs text-slate-600 dark:text-slate-400 max-w-xs truncate align-middle" title={po.purpose || ''}>
                                                     {po.purpose || '—'}
                                                 </td>
-                                                <td className="px-3 py-2.5 text-xs tabular-nums text-slate-500">
+                                                <td className="px-3 py-2.5 text-xs tabular-nums text-slate-500 align-middle">
                                                     {po.created_at ? new Date(po.created_at).toLocaleDateString() : '—'}
                                                 </td>
                                             </tr>
@@ -338,23 +338,23 @@ export default function InventoryDetailsModal({
                                 </h4>
                             </div>
 
-                            <div className="overflow-x-auto rounded border border-gray-200 dark:border-slate-800">
-                                <table className="w-full min-w-[600px] text-left border-collapse">
+                            <div className="w-full min-w-0 overflow-x-auto rounded border border-gray-200 dark:border-slate-800">
+                                <table className="w-full min-w-[37.5rem] text-left border-collapse">
                                     <thead className="bg-gray-50 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800">
                                         <tr>
-                                            <SortableTableHeader column="date" activeColumn={issuanceSort.key} direction={issuanceSort.direction} onSort={sortIssuances} className="px-2 py-3">
+                                            <SortableTableHeader column="date" activeColumn={issuanceSort.key} direction={issuanceSort.direction} onSort={sortIssuances} className="px-2 py-3 align-middle">
                                                 Date
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="reference" activeColumn={issuanceSort.key} direction={issuanceSort.direction} onSort={sortIssuances} className="px-2 py-3">
+                                            <SortableTableHeader column="reference" activeColumn={issuanceSort.key} direction={issuanceSort.direction} onSort={sortIssuances} className="px-2 py-3 align-middle">
                                                 RIS Reference
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="recipient" activeColumn={issuanceSort.key} direction={issuanceSort.direction} onSort={sortIssuances} className="px-2 py-3">
+                                            <SortableTableHeader column="recipient" activeColumn={issuanceSort.key} direction={issuanceSort.direction} onSort={sortIssuances} className="px-2 py-3 align-middle">
                                                 Recipient / Office
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="quantity" activeColumn={issuanceSort.key} direction={issuanceSort.direction} onSort={sortIssuances} align="right" className="px-2 py-3">
+                                            <SortableTableHeader column="quantity" activeColumn={issuanceSort.key} direction={issuanceSort.direction} onSort={sortIssuances} align="right" className="px-2 py-3 align-middle">
                                                 Quantity
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="value" activeColumn={issuanceSort.key} direction={issuanceSort.direction} onSort={sortIssuances} align="right" className="px-2 py-3">
+                                            <SortableTableHeader column="value" activeColumn={issuanceSort.key} direction={issuanceSort.direction} onSort={sortIssuances} align="right" className="px-2 py-3 align-middle">
                                                 Issued Value
                                             </SortableTableHeader>
                                         </tr>
@@ -362,19 +362,19 @@ export default function InventoryDetailsModal({
                                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800 text-sm">
                                         {recentIssuances.map((iss) => (
                                             <tr key={iss.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50">
-                                                <td className="px-2 py-3 tabular-nums text-gray-600 dark:text-slate-400 truncate">
+                                                <td className="px-2 py-3 tabular-nums text-gray-600 dark:text-slate-400 truncate align-middle">
                                                     {formatDisplayDate(iss.date_issued, 'MM/DD/YYYY') || iss.date_issued}
                                                 </td>
-                                                <td className="px-2 py-3 tabular-nums font-semibold text-gray-800 dark:text-slate-200 truncate" title={iss.ris_number}>
+                                                <td className="px-2 py-3 tabular-nums font-semibold text-gray-800 dark:text-slate-200 truncate align-middle" title={iss.ris_number}>
                                                     {formatRisNumber(iss.ris_number)}
                                                 </td>
-                                                <td className="px-2 py-3 text-gray-700 dark:text-slate-300 truncate" title={iss.recipient}>
+                                                <td className="px-2 py-3 text-gray-700 dark:text-slate-300 truncate align-middle" title={iss.recipient}>
                                                     {iss.recipient}
                                                 </td>
-                                                <td className="px-1.5 py-3 text-right tabular-nums text-red-700 dark:text-red-400 font-semibold truncate">
+                                                <td className="px-1.5 py-3 text-right tabular-nums text-red-700 dark:text-red-400 font-semibold truncate align-middle">
                                                     -{formatNumber(iss.quantity)}
                                                 </td>
-                                                <td className="px-2 py-3 text-right tabular-nums font-bold text-gray-800 dark:text-slate-200 truncate">
+                                                <td className="px-2 py-3 text-right tabular-nums font-bold text-gray-800 dark:text-slate-200 truncate align-middle">
                                                     {formatCurrency(iss.amount)}
                                                 </td>
                                             </tr>

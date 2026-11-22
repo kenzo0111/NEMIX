@@ -30,28 +30,28 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
     const { sortedRows, sort, requestSort } = useSortableData<ComplianceReport, ReportSortKey>(reports, accessors, { key: 'generated', direction: 'desc' });
 
     return (
-        <div className="overflow-hidden">
+        <div className="w-full min-w-0 overflow-hidden">
             {reports.length > 0 ? (
-                <div className="overflow-x-auto">
-                    <table className="w-full min-w-[850px] text-left border-collapse">
+                <div className="w-full min-w-0 overflow-x-auto">
+                    <table className="w-full min-w-[53rem] text-left border-collapse">
                         <thead className="bg-gray-50/80 dark:bg-slate-800/60 border-b border-gray-200 dark:border-slate-700">
                             <tr>
-                                <SortableTableHeader column="reference" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[130px]">
+                                <SortableTableHeader column="reference" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[8.125rem] align-middle">
                                     Reference No.
                                 </SortableTableHeader>
-                                <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[110px]">
+                                <SortableTableHeader column="type" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[7rem] align-middle">
                                     Form Type
                                 </SortableTableHeader>
-                                <SortableTableHeader column="title" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[200px]">
+                                <SortableTableHeader column="title" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[12.5rem] align-middle">
                                     Document Title
                                 </SortableTableHeader>
-                                <SortableTableHeader column="coverage" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[140px]">
+                                <SortableTableHeader column="coverage" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 text-sm font-bold text-gray-700 lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[8.75rem] align-middle">
                                     Coverage Period
                                 </SortableTableHeader>
-                                <SortableTableHeader column="generated" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="hidden px-4 py-3.5 text-sm font-bold text-gray-700 md:table-cell lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[130px]">
+                                <SortableTableHeader column="generated" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="hidden px-4 py-3.5 text-sm font-bold text-gray-700 md:table-cell lg:px-6 dark:text-slate-300 whitespace-nowrap min-w-[8.125rem] align-middle">
                                     Date Generated
                                 </SortableTableHeader>
-                                <th scope="col" className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[160px]">
+                                <th scope="col" className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[10rem] align-middle">
                                     Actions
                                 </th>
                             </tr>
@@ -73,15 +73,15 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                                         key={report.id}
                                         className="hover:bg-red-50/20 dark:hover:bg-slate-800/50 transition-colors border-b border-gray-100 dark:border-slate-800 last:border-0 group"
                                     >
-                                        <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-slate-100 tabular-nums tracking-normal">
+                                        <td className="px-4 lg:px-6 py-3.5 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-slate-100 tabular-nums tracking-normal align-middle">
                                             {report.reference}
                                         </td>
-                                        <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                                        <td className="px-4 lg:px-6 py-3.5 whitespace-nowrap align-middle">
                                             <span className="inline-flex items-center px-2 py-0.5 rounded text-sm font-bold normal-case tracking-normal bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-200/80 dark:border-red-900/40 tabular-nums">
                                                 {shortType}
                                             </span>
                                         </td>
-                                        <td className="px-4 lg:px-6 py-4 text-sm font-medium text-gray-900 dark:text-slate-100 min-w-[200px] max-w-sm break-words">
+                                        <td className="px-4 lg:px-6 py-3.5 text-sm font-medium text-gray-900 dark:text-slate-100 min-w-[12.5rem] max-w-sm break-words align-middle">
                                             <div className="font-semibold text-gray-900 dark:text-slate-100 leading-tight">
                                                 {report.title}
                                             </div>
@@ -91,26 +91,26 @@ export const ReportRegistry: React.FC<ReportRegistryProps> = ({
                                                 </div>
                                             )}
                                         </td>
-                                        <td className="px-4 lg:px-6 py-4 text-sm text-gray-600 dark:text-slate-400 whitespace-nowrap font-medium">
+                                        <td className="px-4 lg:px-6 py-3.5 text-sm text-gray-600 dark:text-slate-400 whitespace-nowrap font-medium align-middle">
                                             {coverageText}
                                         </td>
-                                        <td className="hidden md:table-cell px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-slate-400 tabular-nums">
+                                        <td className="hidden md:table-cell px-4 lg:px-6 py-3.5 whitespace-nowrap text-sm text-gray-600 dark:text-slate-400 tabular-nums align-middle">
                                             {formatDisplayDate(genDate, 'MM/DD/YYYY')}
                                         </td>
                                         {/* Actions: View & Official COA Form */}
-                                        <td className="px-4 lg:px-6 py-4 whitespace-nowrap min-w-[160px] text-right">
-                                            <div className="inline-flex items-center gap-2.5">
+                                        <td className="px-4 lg:px-6 py-3.5 whitespace-nowrap min-w-[10rem] text-right align-middle">
+                                            <div className="inline-flex items-center justify-end gap-2 flex-wrap">
                                                 <button
                                                     type="button"
                                                     onClick={() => onViewReport(report)}
-                                                    className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
+                                                    className="min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 inline-flex items-center justify-center text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-slate-800 whitespace-nowrap"
                                                 >
                                                     View
                                                 </button>
                                                 <button
                                                     type="button"
                                                     onClick={() => onViewReport(report)}
-                                                    className="border border-red-900/30 dark:border-red-800/50 text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-800 font-semibold text-sm px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
+                                                    className="min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 inline-flex items-center justify-center border border-red-900/30 dark:border-red-800/50 text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-800 font-semibold text-sm rounded transition-colors cursor-pointer shadow-2xs whitespace-nowrap"
                                                 >
                                                     COA Form
                                                 </button>

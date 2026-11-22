@@ -53,7 +53,7 @@ export default function StaffTableRow({
     return (
         <tr className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800 last:border-0 group">
             {/* Staff Member */}
-            <td className="px-6 py-3.5 min-w-[200px]">
+            <td className="px-6 py-3.5 align-middle min-w-[12.5rem]">
                 <div className="flex items-center gap-3">
                     <div
                         className={`h-9 w-9 rounded-full font-bold flex items-center justify-center text-sm shrink-0 border ${avatarColor}`}
@@ -79,7 +79,7 @@ export default function StaffTableRow({
             </td>
 
             {/* Role */}
-            <td className="px-6 py-3.5 min-w-[140px] whitespace-nowrap">
+            <td className="px-6 py-3.5 align-middle min-w-[8.75rem] whitespace-nowrap">
                 {targetIsSystemAdmin ? (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-semibold bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-300 border border-red-200/80 dark:border-red-900/40">
                         <Shield className="w-3 h-3 text-red-900 dark:text-red-400 shrink-0" />
@@ -98,14 +98,14 @@ export default function StaffTableRow({
             </td>
 
             {/* Delivery Unit / Office Head */}
-            <td className="px-6 py-3.5 text-sm text-gray-600 dark:text-slate-300 min-w-[200px] break-words">
+            <td className="px-6 py-3.5 align-middle text-sm text-gray-600 dark:text-slate-300 min-w-[12.5rem] break-words">
                 <span className="font-medium text-gray-900 dark:text-slate-100">{staff.department || '—'}</span>
                 {staff.designation && <span className="block text-xs font-medium text-slate-700 dark:text-slate-300">{staff.designation}</span>}
                 {staff.office_head && <span className="block text-xs text-gray-500 dark:text-slate-400">Head: {staff.office_head.name}<br />{staff.office_head.designation}</span>}
             </td>
 
             {/* Verification Status */}
-            <td className="px-6 py-3.5">
+            <td className="px-6 py-3.5 align-middle whitespace-nowrap">
                 {staff.email_verified ? (
                     <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-800 dark:text-emerald-400">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -120,7 +120,7 @@ export default function StaffTableRow({
             </td>
 
             {/* Account Status */}
-            <td className="px-6 py-3.5">
+            <td className="px-6 py-3.5 align-middle whitespace-nowrap">
                 {isActive ? (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/50">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 shrink-0"></span>
@@ -135,15 +135,15 @@ export default function StaffTableRow({
             </td>
 
             {/* Actions: Direct action buttons */}
-            <td className="px-6 py-3.5 whitespace-nowrap min-w-[220px] text-right">
-                <div className="inline-flex items-center justify-end gap-2.5">
+            <td className="px-6 py-3.5 align-middle whitespace-nowrap min-w-[14rem] text-right">
+                <div className="inline-flex items-center justify-end gap-2 flex-wrap">
                     {/* Resend Invite */}
                     {(!isActive || !staff.email_verified) && canResendInviteTarget && (
                         <button
                             type="button"
                             onClick={() => onResendInvitation(staff)}
                             disabled={isResending}
-                            className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-white font-semibold text-sm transition-colors cursor-pointer py-1 px-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-white font-semibold text-sm transition-colors cursor-pointer min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center whitespace-nowrap gap-1.5"
                             title="Resend registration invitation email"
                         >
                             {isResending ? 'Sending...' : 'Resend Invite'}
@@ -155,7 +155,7 @@ export default function StaffTableRow({
                         <button
                             type="button"
                             onClick={() => onEdit(staff)}
-                            className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-white font-semibold text-sm transition-colors cursor-pointer py-1 px-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700"
+                            className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-white font-semibold text-sm transition-colors cursor-pointer min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700 inline-flex items-center justify-center whitespace-nowrap gap-1.5"
                             title="Edit staff details and role"
                         >
                             Edit
@@ -168,7 +168,7 @@ export default function StaffTableRow({
                             type="button"
                             onClick={() => onToggleStatus(staff)}
                             title={isActive ? 'Disable staff account' : 'Enable staff account'}
-                            className="border font-semibold text-sm px-2.5 py-1 rounded transition-colors shadow-2xs border-red-900/30 dark:border-red-800/50 text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-700 cursor-pointer"
+                            className="border font-semibold text-sm min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded transition-colors shadow-2xs border-red-900/30 dark:border-red-800/50 text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-700 cursor-pointer inline-flex items-center justify-center whitespace-nowrap gap-1.5"
                         >
                             {isActive ? 'Disable' : 'Enable'}
                         </button>

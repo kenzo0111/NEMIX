@@ -354,27 +354,27 @@ export default function PreOrdersIndex({
 
                         {/* TAB 1: Consolidated Demand by Item */}
                         {tab === 'by_item' && (
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm min-w-[960px]">
-                                    <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-400">
+                            <div className="overflow-x-auto w-full min-w-0">
+                                <table className="w-full text-left text-sm min-w-[60rem] border-collapse">
+                                    <thead className="border-b border-slate-200 bg-slate-50 text-sm font-semibold tracking-normal text-slate-600 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-300 normal-case">
                                         <tr>
                                             <th className="px-5 py-3.5 whitespace-nowrap">Stock No.</th>
-                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[180px]">Item Name</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[11.25rem]">Item Name</th>
                                             <th className="px-5 py-3.5 text-right whitespace-nowrap">In Warehouse</th>
                                             <th className="px-5 py-3.5 text-right whitespace-nowrap">Units Demanded</th>
-                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[200px]">Requesting Delivery Units</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[12.5rem]">Requesting Delivery Units</th>
                                             <th className="px-5 py-3.5 whitespace-nowrap">Priority</th>
-                                            <th className="px-5 py-3.5 text-right whitespace-nowrap min-w-[140px]">Actions</th>
+                                            <th className="px-5 py-3.5 text-right whitespace-nowrap min-w-[10rem]">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                         {consolidatedItems.length > 0 ? (
                                             consolidatedItems.map((item) => (
                                                 <tr key={item.item_id} className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
-                                                    <td className="whitespace-nowrap px-5 py-4 font-mono font-medium text-slate-600 dark:text-slate-300">
+                                                    <td className="whitespace-nowrap px-5 py-3.5 align-middle font-mono font-medium text-slate-600 dark:text-slate-300">
                                                         {item.sku}
                                                     </td>
-                                                    <td className="px-5 py-4 min-w-[180px] max-w-md break-words">
+                                                    <td className="px-5 py-3.5 align-middle min-w-[11.25rem] max-w-md break-words">
                                                         <p className="font-semibold text-slate-900 dark:text-slate-100">
                                                             {item.item_name}
                                                         </p>
@@ -382,18 +382,18 @@ export default function PreOrdersIndex({
                                                             Unit of issue: {item.unit}
                                                         </p>
                                                     </td>
-                                                    <td className="whitespace-nowrap px-5 py-4 text-right tabular-nums">
+                                                    <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right tabular-nums">
                                                         <span className="inline-flex items-center rounded-md bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800 dark:bg-red-950/60 dark:text-red-300">
                                                             {item.on_hand} {item.unit} (Out of Stock)
                                                         </span>
                                                     </td>
-                                                    <td className="whitespace-nowrap px-5 py-4 text-right tabular-nums">
+                                                    <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right tabular-nums">
                                                         <strong className="text-base font-bold text-red-900 dark:text-red-300">
                                                             {item.total_quantity_demanded.toLocaleString()}
                                                         </strong>{' '}
                                                         <span className="text-xs text-slate-500">{item.unit}</span>
                                                     </td>
-                                                    <td className="px-5 py-4 max-w-md">
+                                                    <td className="px-5 py-3.5 align-middle max-w-md">
                                                         <div className="flex flex-wrap gap-1.5">
                                                             {item.waiting_units.map((unit, idx) => (
                                                                 <span
@@ -413,7 +413,7 @@ export default function PreOrdersIndex({
                                                             ))}
                                                         </div>
                                                     </td>
-                                                    <td className="whitespace-nowrap px-5 py-4">
+                                                    <td className="whitespace-nowrap px-5 py-3.5 align-middle">
                                                         {item.urgent_pre_orders_count > 0 ? (
                                                             <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">
                                                                 <Zap size={12} />
@@ -425,15 +425,17 @@ export default function PreOrdersIndex({
                                                             </span>
                                                         )}
                                                     </td>
-                                                    <td className="whitespace-nowrap px-5 py-4 text-right min-w-[140px]">
-                                                        <Link
-                                                            href={route('inventory.receiving')}
-                                                            className="inline-flex min-h-8 items-center gap-1.5 rounded-lg border border-red-200 bg-red-50/70 px-3 py-1.5 text-xs font-semibold text-red-900 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300 transition"
-                                                        >
-                                                            <PackagePlus size={13} />
-                                                            Receive
-                                                            <ArrowRight size={12} />
-                                                        </Link>
+                                                    <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right min-w-[10rem]">
+                                                        <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+                                                            <Link
+                                                                href={route('inventory.receiving')}
+                                                                className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50/70 px-3 py-1.5 text-sm font-semibold text-red-900 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300 transition whitespace-nowrap"
+                                                            >
+                                                                <PackagePlus size={14} />
+                                                                Receive
+                                                                <ArrowRight size={13} />
+                                                            </Link>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))
@@ -457,28 +459,28 @@ export default function PreOrdersIndex({
 
                         {/* TAB 2: All Pre-Order Submissions */}
                         {tab === 'all_requests' && (
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm min-w-[960px]">
-                                    <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-400">
+                            <div className="overflow-x-auto w-full min-w-0">
+                                <table className="w-full text-left text-sm min-w-[60rem] border-collapse">
+                                    <thead className="border-b border-slate-200 bg-slate-50 text-sm font-semibold tracking-normal text-slate-600 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-300 normal-case">
                                         <tr>
-                                            <th className="px-5 py-3.5 whitespace-nowrap">ID</th>
-                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[180px]">Delivery Unit / Office</th>
-                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[180px]">Item Demanded</th>
-                                            <th className="px-5 py-3.5 text-right whitespace-nowrap">Qty Needed</th>
-                                            <th className="px-5 py-3.5 whitespace-nowrap">Priority</th>
-                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[200px]">Purpose / Remarks</th>
-                                            <th className="px-5 py-3.5 whitespace-nowrap">Date Submitted</th>
-                                            <th className="px-5 py-3.5 whitespace-nowrap">Status</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap align-middle">ID</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[11.25rem] align-middle">Delivery Unit / Office</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[11.25rem] align-middle">Item Demanded</th>
+                                            <th className="px-5 py-3.5 text-right whitespace-nowrap align-middle">Qty Needed</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap align-middle">Priority</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap min-w-[12.5rem] align-middle">Purpose / Remarks</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap align-middle">Date Submitted</th>
+                                            <th className="px-5 py-3.5 whitespace-nowrap align-middle">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                         {detailedOrders.data.length > 0 ? (
                                             detailedOrders.data.map((order) => (
                                                 <tr key={order.id} className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
-                                                    <td className="whitespace-nowrap px-5 py-4 font-mono text-xs text-slate-500">
+                                                    <td className="whitespace-nowrap px-5 py-3.5 align-middle font-mono text-xs text-slate-500">
                                                         #{order.id}
                                                     </td>
-                                                    <td className="px-5 py-4 min-w-[180px] break-words">
+                                                    <td className="px-5 py-3.5 align-middle min-w-[11.25rem] break-words">
                                                         <p className="font-semibold text-slate-900 dark:text-slate-100">
                                                             {order.delivery_unit}
                                                         </p>
@@ -486,7 +488,7 @@ export default function PreOrdersIndex({
                                                             By {order.user_name} {order.user_designation ? `· ${order.user_designation}` : ''}
                                                         </p>
                                                     </td>
-                                                    <td className="px-5 py-4 min-w-[180px] max-w-xs break-words">
+                                                    <td className="px-5 py-3.5 align-middle min-w-[11.25rem] max-w-xs break-words">
                                                         <p className="font-medium text-slate-900 dark:text-slate-100">
                                                             {order.item_name}
                                                         </p>
@@ -494,13 +496,13 @@ export default function PreOrdersIndex({
                                                             {order.sku}
                                                         </p>
                                                     </td>
-                                                    <td className="whitespace-nowrap px-5 py-4 text-right tabular-nums">
+                                                    <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right tabular-nums">
                                                         <strong className="text-sm font-bold text-red-900 dark:text-red-300">
                                                             {order.quantity_requested.toLocaleString()}
                                                         </strong>{' '}
                                                         <span className="text-xs text-slate-500">{order.unit}</span>
                                                     </td>
-                                                    <td className="whitespace-nowrap px-5 py-4">
+                                                    <td className="whitespace-nowrap px-5 py-3.5 align-middle">
                                                         {order.urgency === 'urgent' ? (
                                                             <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">
                                                                 <Zap size={11} /> Urgent
@@ -511,13 +513,13 @@ export default function PreOrdersIndex({
                                                             </span>
                                                         )}
                                                     </td>
-                                                    <td className="px-5 py-4 min-w-[200px] max-w-sm text-xs text-slate-600 dark:text-slate-300 break-words">
+                                                    <td className="px-5 py-3.5 align-middle min-w-[12.5rem] max-w-sm text-xs text-slate-600 dark:text-slate-300 break-words">
                                                         {order.purpose || <span className="text-slate-400 italic">None specified</span>}
                                                     </td>
-                                                    <td className="whitespace-nowrap px-5 py-4 text-xs tabular-nums text-slate-500">
+                                                    <td className="whitespace-nowrap px-5 py-3.5 align-middle text-xs tabular-nums text-slate-500">
                                                         {order.created_at ? new Date(order.created_at).toLocaleDateString() : '—'}
                                                     </td>
-                                                    <td className="whitespace-nowrap px-5 py-4">
+                                                    <td className="whitespace-nowrap px-5 py-3.5 align-middle">
                                                         <span className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold ${
                                                             order.status === 'pending'
                                                                 ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300'

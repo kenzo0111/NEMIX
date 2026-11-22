@@ -32,19 +32,19 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
     const toRecord = pagination?.to ?? Math.min(currentPage * 10, totalRecords);
 
     return (
-        <div className="overflow-hidden min-w-0">
+        <div className="overflow-hidden min-w-0 w-full">
             {/* Table Container */}
-            <div className="overflow-x-auto min-w-0">
-                <table className="w-full text-left border-collapse min-w-[960px]">
+            <div className="overflow-x-auto min-w-0 w-full">
+                <table className="w-full text-left border-collapse min-w-[60rem]">
                     <thead className="bg-gray-50/80 dark:bg-slate-900/80 border-b border-gray-200 dark:border-slate-800">
                         <tr>
                             <SortableTableHeader column="ris_number" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 RIS No.
                             </SortableTableHeader>
-                            <SortableTableHeader column="recipient" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[180px]">
+                            <SortableTableHeader column="recipient" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[11.25rem]">
                                 Recipient / Office
                             </SortableTableHeader>
-                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[180px]">
+                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[11.25rem]">
                                 Items Issued
                             </SortableTableHeader>
                             <SortableTableHeader column="quantity" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
@@ -56,7 +56,7 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
                             <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Status
                             </SortableTableHeader>
-                            <th scope="col" className="px-4 lg:px-6 py-3.5 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case whitespace-nowrap min-w-[150px]">
+                            <th scope="col" className="px-4 lg:px-6 py-3.5 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case whitespace-nowrap min-w-[10rem]">
                                 Actions
                             </th>
                         </tr>

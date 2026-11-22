@@ -34,16 +34,16 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
     const toRecord = paginationMeta ? paginationMeta.to || receivings.length : receivings.length;
 
     return (
-        <div className="overflow-hidden min-w-0">
+        <div className="overflow-hidden min-w-0 w-full">
             {/* Table */}
-            <div className="overflow-x-auto min-w-0">
-                <table className="w-full text-left border-collapse min-w-[960px] divide-y divide-gray-200 dark:divide-slate-800">
+            <div className="overflow-x-auto min-w-0 w-full">
+                <table className="w-full text-left border-collapse min-w-[60rem] divide-y divide-gray-200 dark:divide-slate-800">
                     <thead className="bg-gray-50/80 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800">
                         <tr>
-                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[200px]">
+                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[12.5rem]">
                                 Item Received
                             </SortableTableHeader>
-                            <SortableTableHeader column="supplier" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[180px]">
+                            <SortableTableHeader column="supplier" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[11.25rem]">
                                 Supplier
                             </SortableTableHeader>
                             <SortableTableHeader column="quantity" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
@@ -61,7 +61,7 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                             <SortableTableHeader column="date" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Date Received
                             </SortableTableHeader>
-                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[140px]">
+                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[10rem]">
                                 Actions
                             </th>
                         </tr>

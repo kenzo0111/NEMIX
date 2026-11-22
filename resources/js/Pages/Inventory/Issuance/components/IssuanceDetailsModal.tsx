@@ -135,33 +135,33 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                             </span>
                         </div>
 
-                        <div className="border border-gray-200 dark:border-slate-800 rounded-lg overflow-x-auto">
-                            <table className="w-full min-w-[600px] text-left border-collapse">
+                        <div className="w-full min-w-0 border border-gray-200 dark:border-slate-800 rounded-lg overflow-x-auto">
+                            <table className="w-full min-w-[37.5rem] text-left border-collapse">
                                 <thead className="bg-gray-50 dark:bg-slate-950 border-b border-gray-200 dark:border-slate-800 text-sm text-gray-600 dark:text-slate-400 normal-case tabular-nums">
                                     <tr>
-                                        <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3 py-3">Item Description</SortableTableHeader>
-                                        <SortableTableHeader column="stock_no" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3 py-3">Stock No.</SortableTableHeader>
-                                        <SortableTableHeader column="quantity" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3 py-3">Quantity</SortableTableHeader>
-                                        <SortableTableHeader column="cost" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3 py-3">Unit Cost</SortableTableHeader>
-                                        <SortableTableHeader column="amount" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3 py-3">Total Amount</SortableTableHeader>
+                                        <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3 py-3 align-middle">Item Description</SortableTableHeader>
+                                        <SortableTableHeader column="stock_no" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3 py-3 align-middle">Stock No.</SortableTableHeader>
+                                        <SortableTableHeader column="quantity" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3 py-3 align-middle">Quantity</SortableTableHeader>
+                                        <SortableTableHeader column="cost" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3 py-3 align-middle">Unit Cost</SortableTableHeader>
+                                        <SortableTableHeader column="amount" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-3 py-3 align-middle">Total Amount</SortableTableHeader>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
                                     {items.map((line) => (
                                         <tr key={line.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50">
-                                            <td className="px-3 py-3 font-medium text-gray-900 dark:text-slate-100">
+                                            <td className="px-3 py-3 font-medium text-gray-900 dark:text-slate-100 align-middle">
                                                 {line.item || line.item_name}
                                             </td>
-                                            <td className="px-3 py-3 tabular-nums text-gray-500 dark:text-slate-400">
+                                            <td className="px-3 py-3 tabular-nums text-gray-500 dark:text-slate-400 align-middle">
                                                 {line.stock_no || '—'}
                                             </td>
-                                            <td className="px-3 py-3 tabular-nums font-bold text-gray-800 dark:text-slate-200 text-right">
+                                            <td className="px-3 py-3 tabular-nums font-bold text-gray-800 dark:text-slate-200 text-right align-middle">
                                                 {line.quantity} {line.unit || 'pcs'}
                                             </td>
-                                            <td className="px-3 py-3 tabular-nums text-gray-600 dark:text-slate-400 text-right">
+                                            <td className="px-3 py-3 tabular-nums text-gray-600 dark:text-slate-400 text-right align-middle">
                                                 ₱{Number(line.unit_cost || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                             </td>
-                                            <td className="px-3 py-3 tabular-nums font-semibold text-gray-900 dark:text-slate-100 text-right">
+                                            <td className="px-3 py-3 tabular-nums font-semibold text-gray-900 dark:text-slate-100 text-right align-middle">
                                                 ₱{Number(line.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                             </td>
                                         </tr>
@@ -169,14 +169,14 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                                 </tbody>
                                 <tfoot className="bg-gray-50 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800 tabular-nums text-sm">
                                     <tr>
-                                        <td colSpan={2} className="px-3 py-3 font-bold text-gray-700 dark:text-slate-300 normal-case">
+                                        <td colSpan={2} className="px-3 py-3 font-bold text-gray-700 dark:text-slate-300 normal-case align-middle">
                                             Transaction Total
                                         </td>
-                                        <td className="px-3 py-3 text-right font-bold text-gray-900 dark:text-slate-100">
+                                        <td className="px-3 py-3 text-right font-bold text-gray-900 dark:text-slate-100 align-middle">
                                             {totalQty} pcs
                                         </td>
-                                        <td className="px-3 py-3 text-right text-gray-400 dark:text-slate-500">—</td>
-                                        <td className="px-3 py-3 text-right font-bold text-red-950 dark:text-red-400">
+                                        <td className="px-3 py-3 text-right text-gray-400 dark:text-slate-500 align-middle">—</td>
+                                        <td className="px-3 py-3 text-right font-bold text-red-950 dark:text-red-400 align-middle">
                                             ₱{Number(totalAmt).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                         </td>
                                     </tr>

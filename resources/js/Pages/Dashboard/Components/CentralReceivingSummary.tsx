@@ -78,35 +78,35 @@ export default function CentralReceivingSummary({ summary, canViewCatalog }: Pro
             </div>
 
             {summary.recent_records.length > 0 ? (
-                <div className="overflow-x-auto">
-                    <table className="w-full min-w-[760px] text-left text-xs">
+                <div className="w-full min-w-0 overflow-x-auto">
+                    <table className="w-full min-w-[47.5rem] text-left text-xs">
                         <caption className="px-4 py-3 text-left text-xs text-slate-500 dark:text-slate-400">
                             Showing {summary.recent_records.length} of {summary.record_count} receiving records for {summary.period_label}, newest entries first.
                         </caption>
                         <thead className="border-b border-slate-100 text-slate-500 dark:border-slate-800 dark:text-slate-400">
                             <tr>
-                                <SortableTableHeader column="date" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3 font-medium">Date received</SortableTableHeader>
-                                <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3 font-medium">Supply / stock number</SortableTableHeader>
-                                <SortableTableHeader column="quantity" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3 font-medium">Quantity</SortableTableHeader>
-                                <SortableTableHeader column="recordedBy" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3 font-medium">Recorded by</SortableTableHeader>
-                                <SortableTableHeader column="timestamp" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3 font-medium">Entry timestamp</SortableTableHeader>
+                                <SortableTableHeader column="date" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3.5 font-medium align-middle">Date received</SortableTableHeader>
+                                <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3.5 font-medium align-middle">Supply / stock number</SortableTableHeader>
+                                <SortableTableHeader column="quantity" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3.5 font-medium align-middle">Quantity</SortableTableHeader>
+                                <SortableTableHeader column="recordedBy" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3.5 font-medium align-middle">Recorded by</SortableTableHeader>
+                                <SortableTableHeader column="timestamp" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3.5 font-medium align-middle">Entry timestamp</SortableTableHeader>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {sortedRows.map(record => (
                                 <tr key={record.id}>
-                                    <td className="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300">
+                                    <td className="whitespace-nowrap px-4 py-3.5 text-slate-600 dark:text-slate-300 align-middle">
                                         <time dateTime={record.date_received || undefined}>{record.date_received_formatted || 'Not set'}</time>
                                     </td>
-                                    <th scope="row" className="px-4 py-3 font-normal">
+                                    <th scope="row" className="px-4 py-3.5 font-normal align-middle">
                                         <p className="font-semibold text-slate-900 dark:text-slate-100">{record.item_name}</p>
                                         <p className="mt-1 text-slate-500 dark:text-slate-400">{record.stock_no}</p>
                                     </th>
-                                    <td className="whitespace-nowrap px-4 py-3 font-semibold tabular-nums text-emerald-700 dark:text-emerald-300">
+                                    <td className="whitespace-nowrap px-4 py-3.5 font-semibold tabular-nums text-emerald-700 dark:text-emerald-300 align-middle">
                                         +{record.quantity.toLocaleString()} {record.unit}
                                     </td>
-                                    <td className="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300">{record.recorded_by}</td>
-                                    <td className="whitespace-nowrap px-4 py-3 text-slate-500 dark:text-slate-400">
+                                    <td className="whitespace-nowrap px-4 py-3.5 text-slate-600 dark:text-slate-300 align-middle">{record.recorded_by}</td>
+                                    <td className="whitespace-nowrap px-4 py-3.5 text-slate-500 dark:text-slate-400 align-middle">
                                         <time dateTime={record.recorded_at || undefined}>{record.recorded_at_formatted || 'Not available'}</time>
                                     </td>
                                 </tr>

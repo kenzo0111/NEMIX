@@ -44,13 +44,13 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
                         </p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
+                    <div className="w-full min-w-0 overflow-x-auto">
+                        <table className="w-full text-left text-sm min-w-[26rem]">
                             <thead>
                                 <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold normal-case text-sm tracking-normal">
-                                    <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="pb-2 w-auto">Item</SortableTableHeader>
-                                    <SortableTableHeader column="stock" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="center" className="pb-2 w-36 sm:w-44">Available / Min</SortableTableHeader>
-                                    <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="pb-2 w-24 sm:w-28">Status</SortableTableHeader>
+                                    <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="pb-2 w-auto align-middle">Item</SortableTableHeader>
+                                    <SortableTableHeader column="stock" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="center" className="pb-2 w-36 sm:w-44 align-middle">Available / Min</SortableTableHeader>
+                                    <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="pb-2 w-24 sm:w-28 align-middle">Status</SortableTableHeader>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -58,7 +58,7 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
                                     const isCritical = item.priority === 'Critical';
                                     return (
                                         <tr key={item.id ?? idx} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/60 transition-colors">
-                                            <td className="py-3 pr-3 min-w-0">
+                                            <td className="py-3 pr-3 min-w-0 align-middle">
                                                 <div className="font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[220px] sm:max-w-[360px]">
                                                     {item.name}
                                                 </div>
@@ -66,7 +66,7 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
                                                     {item.sku}
                                                 </div>
                                             </td>
-                                            <td className="py-3 px-2 text-center tabular-nums whitespace-nowrap">
+                                            <td className="py-3 px-2 text-center tabular-nums whitespace-nowrap align-middle">
                                                 <span className={`font-bold ${isCritical ? 'text-red-700 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'}`}>
                                                     {item.current}
                                                 </span>
@@ -74,7 +74,7 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
                                                 <span className="text-slate-600 dark:text-slate-300">{item.min}</span>
                                                 <span className="text-sm text-slate-400 dark:text-slate-500 ml-1">{item.unit}</span>
                                             </td>
-                                            <td className="py-3 pl-2 text-right whitespace-nowrap">
+                                            <td className="py-3 pl-2 text-right whitespace-nowrap align-middle">
                                                 <span
                                                     className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-bold normal-case tracking-normal ${
                                                         isCritical

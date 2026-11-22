@@ -262,23 +262,23 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                             <h4 className="text-base font-bold normal-case text-gray-700 dark:text-slate-300 tracking-normal">
                                 Field Mapping Schema ({formType})
                             </h4>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm border-collapse">
+                            <div className="w-full min-w-0 overflow-x-auto">
+                                <table className="w-full text-left text-sm border-collapse min-w-[32rem]">
                                     <thead>
                                         <tr className="border-b border-gray-200 dark:border-slate-800 text-gray-600 dark:text-slate-400 font-semibold normal-case text-sm tracking-normal">
-                                            <th className="py-3 px-3">COA Document Field</th>
-                                            <th className="py-3 px-3">Mapped Database Field</th>
-                                            <th className="py-3 px-3">Data Type</th>
-                                            <th className="py-3 px-3">Sample Detected Value</th>
+                                            <th className="py-3 px-3 align-middle whitespace-nowrap">COA Document Field</th>
+                                            <th className="py-3 px-3 align-middle whitespace-nowrap">Mapped Database Field</th>
+                                            <th className="py-3 px-3 align-middle whitespace-nowrap">Data Type</th>
+                                            <th className="py-3 px-3 align-middle whitespace-nowrap">Sample Detected Value</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
                                         {mappingMatrix.map((item, idx) => (
                                             <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/50">
-                                                <td className="py-3 px-3 font-semibold text-gray-900 dark:text-slate-100">{item.field}</td>
-                                                <td className="py-3 px-3 tabular-nums text-red-900 dark:text-red-300">{item.dbField}</td>
-                                                <td className="py-3 px-3 text-gray-500 dark:text-slate-400">{item.type}</td>
-                                                <td className="py-3 px-3 text-gray-700 dark:text-slate-300 font-medium">
+                                                <td className="py-3 px-3 font-semibold text-gray-900 dark:text-slate-100 align-middle">{item.field}</td>
+                                                <td className="py-3 px-3 tabular-nums text-red-900 dark:text-red-300 align-middle">{item.dbField}</td>
+                                                <td className="py-3 px-3 text-gray-500 dark:text-slate-400 align-middle">{item.type}</td>
+                                                <td className="py-3 px-3 text-gray-700 dark:text-slate-300 font-medium align-middle">
                                                     {String(item.sample || '—')}
                                                 </td>
                                             </tr>
@@ -363,16 +363,16 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                         </div>
                                     </div>
 
-                                    <div className="overflow-x-auto max-h-60">
-                                        <table className="w-full text-left text-sm border-collapse">
-                                            <thead className="bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-300 font-semibold normal-case text-sm tracking-normal sticky top-0 border-b border-gray-200 dark:border-slate-700">
+                                    <div className="w-full min-w-0 overflow-x-auto max-h-60">
+                                        <table className="w-full text-left text-sm border-collapse min-w-[44rem]">
+                                            <thead className="bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-300 font-semibold normal-case text-sm tracking-normal sticky top-0 z-10 border-b border-gray-200 dark:border-slate-700">
                                                 <tr>
-                                                    <SortableTableHeader column="reference" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3">Reference</SortableTableHeader>
-                                                    <SortableTableHeader column="date" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3">Date</SortableTableHeader>
-                                                    <SortableTableHeader column="item" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3">Item Description</SortableTableHeader>
-                                                    <SortableTableHeader column="quantity" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} align="right" className="py-3 px-3">Quantity</SortableTableHeader>
-                                                    <SortableTableHeader column="recipient" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3">Recipient / Office</SortableTableHeader>
-                                                    <SortableTableHeader column="status" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3">Status</SortableTableHeader>
+                                                    <SortableTableHeader column="reference" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3 min-w-[7.5rem] align-middle">Reference</SortableTableHeader>
+                                                    <SortableTableHeader column="date" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3 min-w-[6.5rem] align-middle">Date</SortableTableHeader>
+                                                    <SortableTableHeader column="item" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3 min-w-[10rem] align-middle">Item Description</SortableTableHeader>
+                                                    <SortableTableHeader column="quantity" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} align="right" className="py-3 px-3 min-w-[6rem] align-middle">Quantity</SortableTableHeader>
+                                                    <SortableTableHeader column="recipient" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3 min-w-[9rem] align-middle">Recipient / Office</SortableTableHeader>
+                                                    <SortableTableHeader column="status" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3 min-w-[7.5rem] align-middle">Status</SortableTableHeader>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
@@ -383,22 +383,22 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                                             key={rIdx}
                                                             className={hasError ? 'bg-red-50/40 dark:bg-red-950/20' : 'hover:bg-gray-50/50 dark:hover:bg-slate-800/50'}
                                                         >
-                                                            <td className="py-3 px-3 tabular-nums font-semibold text-gray-900 dark:text-slate-100">
+                                                            <td className="py-3 px-3 tabular-nums font-semibold text-gray-900 dark:text-slate-100 align-middle">
                                                                 {row.reference || '—'}
                                                             </td>
-                                                            <td className="py-3 px-3 text-gray-600 dark:text-slate-400">
+                                                            <td className="py-3 px-3 text-gray-600 dark:text-slate-400 align-middle">
                                                                 {row.date || '—'}
                                                             </td>
-                                                            <td className="py-3 px-3 font-medium text-gray-800 dark:text-slate-200 max-w-xs truncate">
+                                                            <td className="py-3 px-3 font-medium text-gray-800 dark:text-slate-200 max-w-xs truncate align-middle">
                                                                 {row.item_name || '—'}
                                                             </td>
-                                                            <td className="py-3 px-3 text-right tabular-nums font-bold text-gray-900 dark:text-slate-100">
+                                                            <td className="py-3 px-3 text-right tabular-nums font-bold text-gray-900 dark:text-slate-100 align-middle">
                                                                 {row.quantity ?? row.issue_qty ?? row.receipt_qty ?? 0}
                                                             </td>
-                                                            <td className="py-3 px-3 text-gray-600 dark:text-slate-400">
+                                                            <td className="py-3 px-3 text-gray-600 dark:text-slate-400 align-middle">
                                                                 {row.recipient || row.department || '—'}
                                                             </td>
-                                                            <td className="py-3 px-3 whitespace-nowrap">
+                                                            <td className="py-3 px-3 whitespace-nowrap align-middle">
                                                                 {hasError ? (
                                                                     <span className="inline-flex items-center px-2 py-0.5 rounded text-sm font-bold bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300">
                                                                         {row.errors![0]}

@@ -18,7 +18,7 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
     return (
         <tr className="hover:bg-red-50/20 dark:hover:bg-slate-800/50 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0">
             {/* Item Received & SKU */}
-            <td className="px-6 py-4 min-w-[200px] max-w-xs break-words">
+            <td className="px-6 py-3.5 align-middle min-w-[12.5rem] max-w-xs break-words">
                 <div className="flex items-center gap-2">
                     <div className="text-sm font-semibold text-gray-900 dark:text-slate-100">{receiving.item}</div>
                     {receiving.scanned_rfid_tag && (
@@ -36,7 +36,7 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
             </td>
 
             {/* Supplier & Supplier Stock No */}
-            <td className="px-6 py-4 min-w-[180px] max-w-xs break-words">
+            <td className="px-6 py-3.5 align-middle min-w-[11.25rem] max-w-xs break-words">
                 <div className="text-sm text-gray-800 dark:text-slate-200 font-medium">{receiving.supplier || 'N/A'}</div>
                 {receiving.supplier_stock_no ? (
                     <div className="text-sm tabular-nums text-gray-600 dark:text-slate-400 mt-0.5">
@@ -48,13 +48,13 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
             </td>
 
             {/* Quantity Received */}
-            <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800 dark:text-slate-200 tabular-nums text-right">
+            <td className="px-6 py-3.5 align-middle whitespace-nowrap text-sm font-semibold text-gray-800 dark:text-slate-200 tabular-nums text-right">
                 <span className="text-emerald-700 dark:text-emerald-400 font-bold mr-0.5">+</span>
                 {receiving.quantity} <span className="text-gray-500 dark:text-slate-400 text-sm font-normal font-sans">{receiving.unit || 'pcs'}</span>
             </td>
 
             {/* Quantity Remaining */}
-            <td className="px-6 py-4 whitespace-nowrap text-sm tabular-nums text-right">
+            <td className="px-6 py-3.5 align-middle whitespace-nowrap text-sm tabular-nums text-right">
                 {receiving.quantity_remaining !== null && receiving.quantity_remaining !== undefined ? (
                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold ${
                         receiving.quantity_remaining > 0
@@ -69,7 +69,7 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
             </td>
 
             {/* Unit Cost */}
-            <td className="px-6 py-4 whitespace-nowrap text-sm tabular-nums text-right text-gray-900 dark:text-slate-100">
+            <td className="px-6 py-3.5 align-middle whitespace-nowrap text-sm tabular-nums text-right text-gray-900 dark:text-slate-100">
                 {receiving.unit_cost !== null && receiving.unit_cost !== undefined ? (
                     `₱${Number(receiving.unit_cost).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                 ) : (
@@ -78,7 +78,7 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
             </td>
 
             {/* Batch Amount / Value */}
-            <td className="px-6 py-4 whitespace-nowrap text-sm tabular-nums font-semibold text-right text-gray-900 dark:text-slate-100">
+            <td className="px-6 py-3.5 align-middle whitespace-nowrap text-sm tabular-nums font-semibold text-right text-gray-900 dark:text-slate-100">
                 {receiving.amount !== null && receiving.amount !== undefined ? (
                     `₱${Number(receiving.amount).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                 ) : receiving.unit_cost ? (
@@ -89,17 +89,17 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
             </td>
 
             {/* Date Received */}
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-slate-400 tabular-nums">
+            <td className="px-6 py-3.5 align-middle whitespace-nowrap text-sm text-gray-600 dark:text-slate-400 tabular-nums">
                 {formatDisplayDate(receiving.date || receiving.date_received, 'MM/DD/YYYY') || receiving.date}
             </td>
 
             {/* Direct Row Actions: View and Update */}
-            <td className="px-6 py-4 whitespace-nowrap min-w-[140px] text-right">
-                <div className="inline-flex items-center gap-2.5">
+            <td className="px-6 py-3.5 align-middle whitespace-nowrap min-w-[10rem] text-right">
+                <div className="inline-flex items-center justify-end gap-2 flex-wrap">
                     <button
                         type="button"
                         onClick={() => onView(receiving)}
-                        className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer py-1 px-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
+                        className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 inline-flex items-center justify-center whitespace-nowrap gap-1.5"
                     >
                         View
                     </button>
@@ -107,7 +107,7 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
                         <button
                             type="button"
                             onClick={() => onUpdate(receiving)}
-                            className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 font-semibold text-sm px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
+                            className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 font-semibold text-sm min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded transition-colors cursor-pointer shadow-2xs inline-flex items-center justify-center whitespace-nowrap gap-1.5"
                         >
                             Update
                         </button>

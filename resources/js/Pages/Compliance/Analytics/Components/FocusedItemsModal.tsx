@@ -98,21 +98,21 @@ export default function FocusedItemsModal({
                     </div>
 
                     {items.length > 0 ? (
-                        <div className="border border-gray-200 dark:border-slate-800 rounded-md overflow-x-auto">
-                            <Table className="min-w-[580px]">
+                        <div className="w-full min-w-0 border border-gray-200 dark:border-slate-800 rounded-md overflow-x-auto">
+                            <Table className="min-w-[36.25rem]">
                                 <TableHeader>
                                     <TableRow className="bg-gray-50/80 dark:bg-slate-800/80">
-                                        <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3">Item / SKU</SortableTableHeader>
-                                        <SortableTableHeader column="stock" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3">Stock</SortableTableHeader>
-                                        <SortableTableHeader column="cost" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3">Unit Cost</SortableTableHeader>
-                                        <SortableTableHeader column="value" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3">Total Value</SortableTableHeader>
-                                        <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="center" className="px-4 py-3">Status</SortableTableHeader>
+                                        <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 align-middle">Item / SKU</SortableTableHeader>
+                                        <SortableTableHeader column="stock" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3.5 align-middle">Stock</SortableTableHeader>
+                                        <SortableTableHeader column="cost" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3.5 align-middle">Unit Cost</SortableTableHeader>
+                                        <SortableTableHeader column="value" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="right" className="px-4 py-3.5 align-middle">Total Value</SortableTableHeader>
+                                        <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} align="center" className="px-4 py-3.5 align-middle">Status</SortableTableHeader>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {sortedRows.map((item) => (
                                         <TableRow key={item.id} className="hover:bg-gray-50/60 dark:hover:bg-slate-800/50">
-                                            <TableCell className="py-2.5">
+                                            <TableCell className="py-3.5 align-middle">
                                                 <p className="leading-relaxed font-semibold text-gray-900 dark:text-slate-100 text-sm truncate max-w-[200px]">
                                                     {item.name}
                                                 </p>
@@ -120,16 +120,16 @@ export default function FocusedItemsModal({
                                                     {item.sku || 'No SKU'}
                                                 </p>
                                             </TableCell>
-                                            <TableCell className="text-right py-2.5 tabular-nums text-sm font-semibold text-gray-900 dark:text-slate-100">
+                                            <TableCell className="text-right py-3.5 tabular-nums text-sm font-semibold text-gray-900 dark:text-slate-100 align-middle">
                                                 {Number(item.stock).toLocaleString()}
                                             </TableCell>
-                                            <TableCell className="text-right py-2.5 tabular-nums text-sm text-gray-600 dark:text-slate-400">
+                                            <TableCell className="text-right py-3.5 tabular-nums text-sm text-gray-600 dark:text-slate-400 align-middle">
                                                 {formatCurrency(Number(item.unitCost || 0))}
                                             </TableCell>
-                                            <TableCell className="text-right py-2.5 tabular-nums text-sm font-semibold text-gray-900 dark:text-slate-100">
+                                            <TableCell className="text-right py-3.5 tabular-nums text-sm font-semibold text-gray-900 dark:text-slate-100 align-middle">
                                                 {formatCurrency(Number(item.amount || 0))}
                                             </TableCell>
-                                            <TableCell className="text-center py-2.5">
+                                            <TableCell className="text-center py-3.5 align-middle">
                                                 <span
                                                     className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold ${
                                                         item.status === 'Available'

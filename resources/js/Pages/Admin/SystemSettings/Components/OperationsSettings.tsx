@@ -102,7 +102,7 @@ export default function OperationsSettings({
                     </p>
                 </div>
 
-                <div className="border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs max-w-2xl">
+                <div className="w-full min-w-0 border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs max-w-2xl">
                     <div className="px-5 py-3 bg-slate-50 dark:bg-slate-850 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
                         <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                             <Server className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
@@ -115,50 +115,52 @@ export default function OperationsSettings({
                         )}
                     </div>
 
-                    <table className="w-full text-sm text-left">
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            <tr>
-                                <th className="px-5 py-3 font-medium text-slate-500 dark:text-slate-400 w-1/3 bg-slate-50/40 dark:bg-slate-850/40">
-                                    PHP Runtime
-                                </th>
-                                <td className="px-5 py-3 font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
-                                    {telemetry?.php_version ?? 'Unavailable'}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th className="px-5 py-3 font-medium text-slate-500 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-850/40">
-                                    Framework
-                                </th>
-                                <td className="px-5 py-3 font-semibold text-slate-900 dark:text-slate-100">
-                                    {telemetry?.laravel_version ? `Laravel ${telemetry.laravel_version}` : 'Unavailable'}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th className="px-5 py-3 font-medium text-slate-500 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-850/40">
-                                    Database Driver
-                                </th>
-                                <td className="px-5 py-3 font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
-                                    {telemetry?.database_driver ? telemetry.database_driver.toUpperCase() : 'Unavailable'}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th className="px-5 py-3 font-medium text-slate-500 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-850/40">
-                                    Operating Mode
-                                </th>
-                                <td className="px-5 py-3 font-semibold text-slate-900 dark:text-slate-100">
-                                    {telemetry?.system_mode ?? 'Unavailable'}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th className="px-5 py-3 font-medium text-slate-500 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-850/40">
-                                    Server Node
-                                </th>
-                                <td className="px-5 py-3 font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
-                                    {telemetry?.server_node ?? 'Unavailable'}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div className="w-full min-w-0 overflow-x-auto">
+                        <table className="w-full text-sm text-left min-w-[28rem]">
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr>
+                                    <th className="px-5 py-3.5 font-medium text-slate-500 dark:text-slate-400 w-1/3 bg-slate-50/40 dark:bg-slate-850/40 align-middle">
+                                        PHP Runtime
+                                    </th>
+                                    <td className="px-5 py-3.5 font-semibold text-slate-900 dark:text-slate-100 tabular-nums align-middle">
+                                        {telemetry?.php_version ?? 'Unavailable'}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th className="px-5 py-3.5 font-medium text-slate-500 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-850/40 align-middle">
+                                        Framework
+                                    </th>
+                                    <td className="px-5 py-3.5 font-semibold text-slate-900 dark:text-slate-100 align-middle">
+                                        {telemetry?.laravel_version ? `Laravel ${telemetry.laravel_version}` : 'Unavailable'}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th className="px-5 py-3.5 font-medium text-slate-500 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-850/40 align-middle">
+                                        Database Driver
+                                    </th>
+                                    <td className="px-5 py-3.5 font-semibold text-slate-900 dark:text-slate-100 tabular-nums align-middle">
+                                        {telemetry?.database_driver ? telemetry.database_driver.toUpperCase() : 'Unavailable'}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th className="px-5 py-3.5 font-medium text-slate-500 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-850/40 align-middle">
+                                        Operating Mode
+                                    </th>
+                                    <td className="px-5 py-3.5 font-semibold text-slate-900 dark:text-slate-100 align-middle">
+                                        {telemetry?.system_mode ?? 'Unavailable'}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th className="px-5 py-3.5 font-medium text-slate-500 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-850/40 align-middle">
+                                        Server Node
+                                    </th>
+                                    <td className="px-5 py-3.5 font-semibold text-slate-700 dark:text-slate-300 tabular-nums align-middle">
+                                        {telemetry?.server_node ?? 'Unavailable'}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

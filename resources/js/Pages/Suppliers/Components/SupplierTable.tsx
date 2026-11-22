@@ -19,25 +19,25 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
     const endIndex = Math.min(currentPage * 10, totalCount);
 
     return (
-        <div>
+        <div className="w-full min-w-0">
             {/* Table */}
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[850px]">
+            <div className="overflow-x-auto min-w-0 w-full">
+                <table className="w-full text-left border-collapse min-w-[53rem]">
                     <thead className="bg-gray-50/75 dark:bg-slate-900/75 border-b border-gray-200 dark:border-slate-800">
                         <tr>
-                            <SortableTableHeader column="name" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[200px]">
+                            <SortableTableHeader column="name" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[12.5rem]">
                                 Supplier
                             </SortableTableHeader>
-                            <SortableTableHeader column="registration" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[150px]">
+                            <SortableTableHeader column="registration" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[9.375rem]">
                                 Registration
                             </SortableTableHeader>
-                            <SortableTableHeader column="classification" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[140px]">
+                            <SortableTableHeader column="classification" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[8.75rem]">
                                 Classification
                             </SortableTableHeader>
-                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[120px]">
+                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[7.5rem]">
                                 Status
                             </SortableTableHeader>
-                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[140px]">
+                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[10rem]">
                                 Actions
                             </th>
                         </tr>

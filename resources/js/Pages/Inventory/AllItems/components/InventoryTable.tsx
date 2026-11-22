@@ -52,32 +52,32 @@ export default function InventoryTable({
 
     return (
         <div className="w-full overflow-hidden min-w-0">
-            <div className="overflow-x-auto min-w-0">
-                <table className="w-full text-left border-collapse min-w-[960px]">
+            <div className="overflow-x-auto min-w-0 w-full">
+                <table className="w-full text-left border-collapse min-w-[60rem]">
                     <thead className="bg-gray-50/80 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800">
                         <tr>
-                            <SortableTableHeader column="sku" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="hidden md:table-cell px-5 py-3 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="sku" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="hidden md:table-cell px-4 sm:px-5 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Stock No.
                             </SortableTableHeader>
-                            <SortableTableHeader column="name" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 sm:px-5 py-3 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[200px]">
+                            <SortableTableHeader column="name" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 sm:px-5 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[12.5rem]">
                                 Item
                             </SortableTableHeader>
-                            <SortableTableHeader column="description" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="hidden md:table-cell px-5 py-3 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[180px]">
+                            <SortableTableHeader column="description" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="hidden md:table-cell px-4 sm:px-5 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[11.25rem]">
                                 Description
                             </SortableTableHeader>
-                            <SortableTableHeader column="unit" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="hidden md:table-cell px-5 py-3 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="unit" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="hidden md:table-cell px-4 sm:px-5 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Unit
                             </SortableTableHeader>
-                            <SortableTableHeader column="stock" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 sm:px-5 py-3 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="stock" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 sm:px-5 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 On Hand
                             </SortableTableHeader>
-                            <SortableTableHeader column="value" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="hidden md:table-cell px-5 py-3 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="value" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="hidden md:table-cell px-4 sm:px-5 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Inventory Value
                             </SortableTableHeader>
-                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-3 sm:px-5 py-3 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-3 sm:px-5 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Status
                             </SortableTableHeader>
-                            <th scope="col" className="px-5 py-3 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[140px]">
+                            <th scope="col" className="px-4 sm:px-5 py-3.5 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[10rem]">
                                 Actions
                             </th>
                         </tr>

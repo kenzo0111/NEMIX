@@ -108,17 +108,17 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
     }
 
     return (
-        <div className={`bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 overflow-hidden ${coordinatorLayout ? 'rounded-xl shadow-sm [&_td]:py-5 [&_th]:py-3.5' : 'rounded-lg shadow-2xs'}`}>
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[850px]">
+        <div className={`w-full min-w-0 bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 overflow-hidden ${coordinatorLayout ? 'rounded-xl shadow-sm [&_td]:py-5 [&_th]:py-3.5' : 'rounded-lg shadow-2xs'}`}>
+            <div className="w-full min-w-0 overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[53rem]">
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/80 dark:bg-slate-800/80 text-sm font-bold text-gray-600 dark:text-slate-300 normal-case tracking-normal">
-                            <th className="py-3 px-3 w-8" aria-label="Expand or collapse row"></th>
-                            <SortableTableHeader column="user" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[200px]">User Details</SortableTableHeader>
-                            <SortableTableHeader column="role" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[140px]">Access Role</SortableTableHeader>
-                            <SortableTableHeader column="date" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[160px]">Date &amp; Time</SortableTableHeader>
-                            <SortableTableHeader column="ip" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[130px]">IP Address</SortableTableHeader>
-                            <SortableTableHeader column="result" activeColumn={sort} direction={direction} onSort={onSort} align="center" className="py-3 px-4 whitespace-nowrap min-w-[120px]">Result</SortableTableHeader>
+                            <th className="py-3 px-3 w-8 align-middle" aria-label="Expand or collapse row"></th>
+                            <SortableTableHeader column="user" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[12.5rem] align-middle">User Details</SortableTableHeader>
+                            <SortableTableHeader column="role" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[8.75rem] align-middle">Access Role</SortableTableHeader>
+                            <SortableTableHeader column="date" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[10rem] align-middle">Date &amp; Time</SortableTableHeader>
+                            <SortableTableHeader column="ip" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[8.125rem] align-middle">IP Address</SortableTableHeader>
+                            <SortableTableHeader column="result" activeColumn={sort} direction={direction} onSort={onSort} align="center" className="py-3 px-4 whitespace-nowrap min-w-[7.5rem] align-middle">Result</SortableTableHeader>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-sm">
@@ -139,7 +139,7 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                                             isExpanded ? 'bg-red-50/30 dark:bg-red-950/20' : ''
                                         }`}
                                     >
-                                        <td className="py-3.5 px-3 text-center">
+                                        <td className="py-3.5 px-3 text-center align-middle">
                                             <button
                                                 type="button"
                                                 onClick={(e) => {
@@ -156,7 +156,7 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                                                 )}
                                             </button>
                                         </td>
-                                        <td className="py-3.5 px-4">
+                                        <td className="py-3.5 px-4 align-middle">
                                             <div className="flex flex-col">
                                                 <span className="font-semibold text-gray-900 dark:text-slate-100 group-hover:text-red-950 dark:group-hover:text-red-300 transition-colors">
                                                     {displayName}
@@ -166,7 +166,7 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="py-3.5 px-4">
+                                        <td className="py-3.5 px-4 align-middle">
                                             {displayRole !== '—' ? (
                                                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-medium border ${
                                                     displayRole.toLowerCase().includes('admin')
@@ -179,10 +179,10 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                                                 <span className="text-gray-400 dark:text-slate-500 font-medium">—</span>
                                             )}
                                         </td>
-                                        <td className="py-3.5 px-4 text-gray-700 dark:text-slate-300 font-medium tabular-nums">
+                                        <td className="py-3.5 px-4 text-gray-700 dark:text-slate-300 font-medium tabular-nums align-middle">
                                             {formattedDate}
                                         </td>
-                                        <td className="py-3.5 px-4">
+                                        <td className="py-3.5 px-4 align-middle">
                                             <div className="inline-flex items-center gap-1.5">
                                                 <span className="tabular-nums text-sm text-gray-700 dark:text-slate-300 bg-gray-50 dark:bg-slate-800 border border-gray-200/90 dark:border-slate-700 px-2 py-0.5 rounded shadow-2xs">
                                                     {rawIp}
@@ -203,7 +203,7 @@ export const LoginAuditTable: React.FC<LoginAuditTableProps> = ({
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="py-3.5 px-4 text-center">
+                                        <td className="py-3.5 px-4 text-center align-middle">
                                             <LoginAuditStatus event={record.event || record.status || 'login_success'} />
                                         </td>
                                     </tr>

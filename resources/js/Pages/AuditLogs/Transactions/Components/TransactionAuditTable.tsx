@@ -101,16 +101,16 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
 
     return (
         <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200/90 dark:border-slate-800 shadow-2xs overflow-hidden w-full min-w-0">
-            <div className="overflow-x-auto w-full">
-                <table className="w-full text-left border-collapse min-w-[850px]">
+            <div className="overflow-x-auto w-full min-w-0">
+                <table className="w-full text-left border-collapse min-w-[53rem]">
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/60 text-sm font-bold text-gray-600 dark:text-slate-300 normal-case tracking-normal">
-                            <th className="py-3 px-3 w-12 text-center" aria-label="Expand or collapse row"></th>
-                            <SortableTableHeader column="user" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[180px]">User</SortableTableHeader>
-                            <SortableTableHeader column="activity" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[220px]">Activity</SortableTableHeader>
-                            <SortableTableHeader column="module" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[140px]">Module</SortableTableHeader>
-                            <SortableTableHeader column="result" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[110px]">Result</SortableTableHeader>
-                            <SortableTableHeader column="date" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[160px]">Date &amp; Time</SortableTableHeader>
+                            <th className="py-3 px-3 w-12 text-center align-middle" aria-label="Expand or collapse row"></th>
+                            <SortableTableHeader column="user" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[11.25rem] align-middle">User</SortableTableHeader>
+                            <SortableTableHeader column="activity" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[13.75rem] align-middle">Activity</SortableTableHeader>
+                            <SortableTableHeader column="module" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[8.75rem] align-middle">Module</SortableTableHeader>
+                            <SortableTableHeader column="result" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[7rem] align-middle">Result</SortableTableHeader>
+                            <SortableTableHeader column="date" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[10rem] align-middle">Date &amp; Time</SortableTableHeader>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-slate-800 text-sm">
@@ -130,7 +130,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                         }`}
                                     >
                                         {/* EXPAND TOGGLE */}
-                                        <td className="py-3.5 px-3 text-center">
+                                        <td className="py-3.5 px-3 text-center align-middle">
                                             <button
                                                 type="button"
                                                 onClick={(e) => {
@@ -149,7 +149,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                         </td>
 
                                         {/* USER */}
-                                        <td className="py-3.5 px-4">
+                                        <td className="py-3.5 px-4 align-middle">
                                             <div className="font-semibold text-gray-900 dark:text-slate-100 leading-tight truncate">
                                                 {record.user_name || record.user || 'System Administrator'}
                                             </div>
@@ -159,7 +159,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                         </td>
 
                                         {/* ACTIVITY (Primary bold title + Secondary subtitle) */}
-                                        <td className="py-3.5 px-4">
+                                        <td className="py-3.5 px-4 align-middle">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-semibold text-gray-900 dark:text-slate-100 leading-tight">
                                                     {record.action || 'Action unavailable'}
@@ -178,14 +178,14 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                         </td>
 
                                         {/* MODULE */}
-                                        <td className="py-3.5 px-4">
+                                        <td className="py-3.5 px-4 align-middle">
                                             <span className="text-sm text-gray-700 dark:text-slate-300 font-medium">
                                                 {record.module || 'System'}
                                             </span>
                                         </td>
 
                                         {/* RESULT */}
-                                        <td className="py-3.5 px-4">
+                                        <td className="py-3.5 px-4 align-middle">
                                             <TransactionAuditStatus
                                                 status={record.audit_status}
                                                 result={record.result}
@@ -193,7 +193,7 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                         </td>
 
                                         {/* DATE & TIME */}
-                                        <td className="py-3.5 px-4 text-gray-600 dark:text-slate-400 font-medium whitespace-nowrap">
+                                        <td className="py-3.5 px-4 text-gray-600 dark:text-slate-400 font-medium whitespace-nowrap align-middle">
                                             {formatDisplayDate(record.occurred_at || record.time)}
                                         </td>
                                     </tr>

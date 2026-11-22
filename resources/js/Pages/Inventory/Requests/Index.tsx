@@ -552,24 +552,24 @@ export default function MyRequests({
                         </div>
 
                         {/* Table */}
-                        <div className="overflow-x-auto min-w-0">
-                            <table className="w-full text-left border-collapse min-w-[960px]">
+                        <div className="w-full min-w-0 overflow-x-auto">
+                            <table className="w-full text-left border-collapse min-w-[60rem]">
                                 <thead className="bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
                                     <tr>
-                                        <SortableTableHeader column="reference" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[120px]">RIS No.</SortableTableHeader>
-                                        <SortableTableHeader column="recipient" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[180px]">Recipient &amp; Department</SortableTableHeader>
-                                        <SortableTableHeader column="purpose" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[180px]">Fund Cluster / Purpose</SortableTableHeader>
-                                        <SortableTableHeader column="items" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[140px]">Items</SortableTableHeader>
-                                        <SortableTableHeader column="date" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[130px]">Date Requested</SortableTableHeader>
-                                        <SortableTableHeader column="status" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[130px]">Approval Status</SortableTableHeader>
+                                        <SortableTableHeader column="reference" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[7.5rem] align-middle">RIS No.</SortableTableHeader>
+                                        <SortableTableHeader column="recipient" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[11.25rem] align-middle">Recipient &amp; Department</SortableTableHeader>
+                                        <SortableTableHeader column="purpose" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[11.25rem] align-middle">Fund Cluster / Purpose</SortableTableHeader>
+                                        <SortableTableHeader column="items" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[8.75rem] align-middle">Items</SortableTableHeader>
+                                        <SortableTableHeader column="date" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[8.125rem] align-middle">Date Requested</SortableTableHeader>
+                                        <SortableTableHeader column="status" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[8.125rem] align-middle">Approval Status</SortableTableHeader>
 
-                                        <th scope="col" className="px-4 lg:px-5 py-3 text-sm font-bold text-slate-600 dark:text-slate-400 text-right whitespace-nowrap min-w-[120px]">Actions</th>
+                                        <th scope="col" className="px-4 lg:px-5 py-3.5 text-sm font-bold text-slate-600 dark:text-slate-400 text-right whitespace-nowrap min-w-[7.5rem] align-middle">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
                                     {visible.length === 0 ? (
                                         <tr>
-                                            <td colSpan={7} className="px-6 py-12 text-center">
+                                            <td colSpan={7} className="px-6 py-12 text-center align-middle">
                                                 <div className="flex flex-col items-center">
                                                     <FileText className="w-9 h-9 text-slate-300 dark:text-slate-600 mb-2" />
                                                     <p className="leading-relaxed font-semibold text-sm text-slate-800 dark:text-slate-200">
@@ -603,7 +603,7 @@ export default function MyRequests({
                                                     className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors border-b border-slate-100 dark:border-slate-800/80 last:border-0"
                                                 >
                                                     {/* RIS No. */}
-                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap">
+                                                    <td className="px-4 lg:px-5 py-3.5 align-middle whitespace-nowrap">
                                                         <div className="flex flex-col">
                                                             <span className="tabular-nums font-bold text-sm text-slate-800 dark:text-slate-200 tracking-tight">
                                                                 {request.ris_number || `RIS-${String(request.id).padStart(4, '0')}`}
@@ -615,7 +615,7 @@ export default function MyRequests({
                                                     </td>
 
                                                     {/* Recipient & Department */}
-                                                    <td className="px-4 lg:px-5 py-3.5 align-top">
+                                                    <td className="px-4 lg:px-5 py-3.5 align-middle">
                                                         <div className="flex flex-col min-w-0 max-w-xs sm:max-w-sm">
                                                             <span
                                                                 className="font-bold text-sm text-slate-900 dark:text-slate-100 leading-snug truncate"
@@ -641,7 +641,7 @@ export default function MyRequests({
                                                     </td>
 
                                                     {/* Fund Cluster / Purpose */}
-                                                    <td className="px-4 lg:px-5 py-3.5 align-top">
+                                                    <td className="px-4 lg:px-5 py-3.5 align-middle">
                                                         <div className="flex flex-col min-w-0 max-w-xs">
                                                             <span className="tabular-nums text-sm text-slate-500 dark:text-slate-400 truncate">
                                                                 {(getFundClusterDisplay(request.fund_cluster) || '01 · Regular Agency Fund').replace(' - ', ' · ')}
@@ -656,7 +656,7 @@ export default function MyRequests({
                                                     </td>
 
                                                     {/* Items */}
-                                                    <td className="px-4 lg:px-5 py-3.5 align-top">
+                                                    <td className="px-4 lg:px-5 py-3.5 align-middle">
                                                         <div className="flex flex-col min-w-0">
                                                             <div className="flex items-center gap-1.5 tabular-nums text-sm">
                                                                 <span className="font-bold text-slate-900 dark:text-slate-100">
@@ -693,24 +693,24 @@ export default function MyRequests({
                                                     </td>
 
                                                     {/* Date Requested */}
-                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap text-sm text-slate-600 dark:text-slate-400 tabular-nums">
+                                                    <td className="px-4 lg:px-5 py-3.5 align-middle whitespace-nowrap text-sm text-slate-600 dark:text-slate-400 tabular-nums">
                                                         {formatDisplayDate(request.date_requested || request.created_at, 'MM/DD/YYYY') ||
                                                             request.date_requested ||
                                                             request.created_at}
                                                     </td>
 
                                                     {/* Approval Status */}
-                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap min-w-[130px]">
+                                                    <td className="px-4 lg:px-5 py-3.5 align-middle whitespace-nowrap min-w-[8.125rem]">
                                                         <RequestStatusBadge status={request.status} />
                                                     </td>
 
                                                     {/* Actions */}
-                                                    <td className="px-4 lg:px-5 py-3.5 align-top whitespace-nowrap min-w-[120px] text-right">
-                                                        <div className="inline-flex items-center justify-end gap-2">
+                                                    <td className="px-4 lg:px-5 py-3.5 align-middle whitespace-nowrap min-w-[7.5rem] text-right">
+                                                        <div className="inline-flex items-center justify-end gap-2 flex-wrap">
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setDetailsRequest(request)}
-                                                                className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer py-1 px-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
+                                                                className="min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 inline-flex items-center justify-center text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-slate-800 whitespace-nowrap"
                                                             >
                                                                 Details
                                                             </button>

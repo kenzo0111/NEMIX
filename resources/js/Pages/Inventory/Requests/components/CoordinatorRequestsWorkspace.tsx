@@ -101,8 +101,8 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
     );
 
     const actions = (request: SupplyRequest) => (
-        <div className="flex flex-wrap items-center gap-2">
-            <button type="button" aria-label={`View details for ${reference(request)}`} onClick={() => props.onDetails(request)} className={`${secondaryButton} min-h-9 px-3 text-sm cursor-pointer`}>
+        <div className="inline-flex items-center justify-end gap-2 flex-wrap">
+            <button type="button" aria-label={`View details for ${reference(request)}`} onClick={() => props.onDetails(request)} className={`${secondaryButton} min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 text-sm font-semibold rounded-lg whitespace-nowrap gap-1.5 inline-flex items-center justify-center cursor-pointer`}>
                 <Eye size={14} />Details
             </button>
             {request.status === 'Stock Restocked' && can('inventory.requests.update') && (
@@ -110,24 +110,24 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                     type="button"
                     aria-label={`Proceed with requisition for ${reference(request)}`}
                     onClick={() => props.onEdit(request)}
-                    className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+                    className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 text-sm font-semibold shadow-2xs transition-colors cursor-pointer whitespace-nowrap"
                 >
-                    <CheckCircle2 size={13} />Proceed to Requisition
+                    <CheckCircle2 size={14} />Proceed to Requisition
                 </button>
             )}
             {['Pending', 'Pending Verification', 'For Correction', 'Pre-Requested'].includes(request.status) && can('inventory.requests.update') && (
-                <button type="button" aria-label={`Edit ${reference(request)}`} onClick={() => props.onEdit(request)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-red-900 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/40 cursor-pointer">
-                    <Pencil size={13} />Edit
+                <button type="button" aria-label={`Edit ${reference(request)}`} onClick={() => props.onEdit(request)} className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-red-900 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/40 cursor-pointer whitespace-nowrap">
+                    <Pencil size={14} />Edit
                 </button>
             )}
             {['Approved', 'Issued', 'Ready for Pickup', 'Released'].includes(request.status) && (
-                <button type="button" aria-label={`View RIS for ${reference(request)}`} onClick={() => props.onRis(request)} className={`${secondaryButton} min-h-9 px-3 text-sm cursor-pointer`}>
+                <button type="button" aria-label={`View RIS for ${reference(request)}`} onClick={() => props.onRis(request)} className={`${secondaryButton} min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 text-sm font-semibold rounded-lg whitespace-nowrap gap-1.5 inline-flex items-center justify-center cursor-pointer`}>
                     <FileText size={14} />RIS Form
                 </button>
             )}
             {['Pending', 'Pending Verification', 'For Correction', 'Pre-Requested', 'Stock Restocked'].includes(request.status) && can('inventory.requests.delete') && (
-                <button type="button" aria-label={`Cancel request ${reference(request)}`} disabled={props.busy === request.id} onClick={() => props.onCancel(request)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-50 dark:text-rose-300 dark:hover:bg-rose-950/40 cursor-pointer">
-                    <X size={13} />Cancel
+                <button type="button" aria-label={`Cancel request ${reference(request)}`} disabled={props.busy === request.id} onClick={() => props.onCancel(request)} className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-50 dark:text-rose-300 dark:hover:bg-rose-950/40 cursor-pointer whitespace-nowrap">
+                    <X size={14} />Cancel
                 </button>
             )}
         </div>
@@ -207,29 +207,29 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
 
                     {props.requests.length ? (
                         <>
-                            <div className="hidden overflow-x-auto lg:block">
-                                <table className="w-full text-left text-sm min-w-[960px]">
-                                    <thead className="bg-slate-50 text-sm normal-case tracking-normal text-slate-500 dark:bg-slate-950/50 dark:text-slate-400">
+                            <div className="hidden overflow-x-auto lg:block w-full min-w-0">
+                                <table className="w-full text-left text-sm min-w-[60rem] border-collapse">
+                                    <thead className="bg-slate-50 text-sm normal-case tracking-normal text-slate-500 dark:bg-slate-950/50 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                                         <tr>
-                                            <SortableTableHeader column="reference" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[120px]">
+                                            <SortableTableHeader column="reference" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[7.5rem]">
                                                 Request
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="date" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[110px]">
+                                            <SortableTableHeader column="date" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[7rem]">
                                                 Date
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="items" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[180px]">
+                                            <SortableTableHeader column="items" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[11.25rem]">
                                                 Supplies
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="purpose" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[180px]">
+                                            <SortableTableHeader column="purpose" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[11.25rem]">
                                                 Purpose
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="recipient" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[180px]">
+                                            <SortableTableHeader column="recipient" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[11.25rem]">
                                                 Recipient / Office
                                             </SortableTableHeader>
-                                            <SortableTableHeader column="status" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[120px]">
+                                            <SortableTableHeader column="status" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[7.5rem]">
                                                 Status
                                             </SortableTableHeader>
-                                            <th scope="col" className="whitespace-nowrap px-5 py-3.5 font-semibold text-right min-w-[200px]">
+                                            <th scope="col" className="whitespace-nowrap px-5 py-3.5 font-semibold text-right min-w-[12.5rem]">
                                                 Actions
                                             </th>
                                         </tr>
@@ -239,7 +239,7 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                                             const urgent = isUrgent(request);
                                             return (
                                                 <tr key={request.id} className={`transition ${urgent ? 'bg-red-50/50 hover:bg-red-50/80 dark:bg-red-950/20 dark:hover:bg-red-950/30 border-l-4 border-red-600' : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'}`}>
-                                                    <th scope="row" className="min-w-36 px-5 py-5 align-top font-semibold text-slate-900 dark:text-slate-100">
+                                                    <th scope="row" className="min-w-36 px-5 py-3.5 align-middle font-semibold text-slate-900 dark:text-slate-100">
                                                         <div className="flex flex-col gap-1 items-start">
                                                             <span>{reference(request)}</span>
                                                             {urgent && (
@@ -249,23 +249,23 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                                                             )}
                                                         </div>
                                                     </th>
-                                                    <td className="whitespace-nowrap px-5 py-5 align-top text-slate-500 dark:text-slate-400">
+                                                    <td className="whitespace-nowrap px-5 py-3.5 align-middle text-slate-500 dark:text-slate-400">
                                                         {formatDisplayDate(request.date_requested || request.created_at, 'short')}
                                                     </td>
-                                                    <td className="min-w-52 px-5 py-5 align-top">
+                                                    <td className="min-w-52 px-5 py-3.5 align-middle">
                                                         <RequestedSupplies request={request} includePurpose={false} />
                                                     </td>
-                                                    <td className="min-w-52 max-w-xs px-5 py-5 align-top text-slate-500 dark:text-slate-400">
+                                                    <td className="min-w-52 max-w-xs px-5 py-3.5 align-middle text-slate-500 dark:text-slate-400">
                                                         {request.purpose.replace(/^\[URGENT\]\s*/i, '')}
                                                     </td>
-                                                    <td className="min-w-44 max-w-56 px-5 py-5 align-top">
+                                                    <td className="min-w-44 max-w-56 px-5 py-3.5 align-middle">
                                                         <p className="text-sm font-medium">{request.recipient || request.requester?.name || props.userName}</p>
                                                         <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{request.department}</p>
                                                     </td>
-                                                    <td className="px-5 py-5 align-top">
+                                                    <td className="px-5 py-3.5 align-middle">
                                                         {status(request)}
                                                     </td>
-                                                    <td className="min-w-[200px] whitespace-nowrap px-5 py-5 align-top text-right">
+                                                    <td className="min-w-[12.5rem] whitespace-nowrap px-5 py-3.5 align-middle text-right">
                                                         {actions(request)}
                                                     </td>
                                                 </tr>
