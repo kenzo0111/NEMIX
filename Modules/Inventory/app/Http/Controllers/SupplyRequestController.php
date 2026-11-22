@@ -93,7 +93,11 @@ class SupplyRequestController extends Controller
             ->orderBy('items.name')->get();
         $usage = WeeklyRequestQuota::usage($request->user()->id);
         $items->each(fn ($item) => WeeklyRequestQuota::decorate($item, $usage));
-        $initialItemId = isset($prefill['item_id']) ? $items->firstWhere('id', $prefill['item_id'])?->id : null;
+        $initialItemId = isset($prefill['item_id']) ? (Item::find($prefill['item_id'])?->id) : null;
+        $preRequestableItems = Item::query()
+            ->select('id', 'name', 'sku', 'stock', 'unit_of_issue')
+            ->orderBy('name')
+            ->get();
 
         $signatories = app(SystemSettingsService::class)->getIssuanceSignatories();
         $defaultApprovedBy = $signatories['approved_by_name'];
@@ -125,6 +129,8 @@ class SupplyRequestController extends Controller
             ] : null,
             ...$requestProps,
             'items' => $items,
+            'preRequestableItems' => $preRequestableItems,
+            'initialMode' => ($request->boolean('pre_request') || $request->query('mode') === 'pre_request') ? 'pre_request' : 'requisition',
             'minimumStockThreshold' => $minimumStockThreshold,
             'divisions' => config('university.divisions', []),
             'defaultApprovedBy' => $defaultApprovedBy,
@@ -151,6 +157,8 @@ class SupplyRequestController extends Controller
                 'Pending' => ['Pending', 'Pending Verification', 'Under Review'],
                 'Approved' => ['Approved', 'Ready for Pickup'],
                 'Issued' => ['Issued', 'Released'],
+                'Pre-Requested' => ['Pre-Requested'],
+                'Stock Restocked' => ['Stock Restocked'],
             ];
             $query->whereIn('status', $groupedStatuses[$status] ?? [$status]);
         }
@@ -240,6 +248,7 @@ class SupplyRequestController extends Controller
             'status' => $request->status,
             'department' => $request->department,
             'purpose' => $request->purpose,
+            'request_type' => $request->request_type ?: ($request->status === 'Pre-Requested' || $request->status === 'Stock Restocked' ? 'pre_request' : 'requisition'),
             'ris_number' => $request->ris_number,
             'review_remarks' => $request->review_remarks,
             'created_at' => $request->created_at?->toIso8601String(),
@@ -408,16 +417,21 @@ class SupplyRequestController extends Controller
             'date_requested' => ['nullable', 'date'],
             'department' => ['required', 'string', 'max:255'],
             'purpose' => ['required', 'string', 'max:2000'],
+            'request_type' => ['nullable', 'string', 'in:requisition,pre_request'],
             'items' => ['required', 'array', 'min:1', 'max:100'],
             'items.*.item_id' => ['required', 'integer', 'distinct', 'exists:items,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
         ]);
 
-        SupportingDocumentService::save($request, $requiresDocument, null, function (array $documentFields) use ($data, $request) {
+        $isPreRequest = ($data['request_type'] ?? 'requisition') === 'pre_request';
+
+        SupportingDocumentService::save($request, $requiresDocument, null, function (array $documentFields) use ($data, $request, $isPreRequest) {
             if (! empty($data['submission_key']) && SupplyRequest::where('requested_by', $request->user()->id)->where('submission_key', $data['submission_key'])->exists()) {
                 throw ValidationException::withMessages(['request' => 'This request was already submitted. Open My Requests to view it.']);
             }
-            $this->validateRequestStock($data['items'], $request->user()->id);
+            if (! $isPreRequest) {
+                $this->validateRequestStock($data['items'], $request->user()->id);
+            }
             $risNumber = SupplyRequestService::generateOfficialRisNumber($data['date_requested'] ?? null);
             $supplyRequest = SupplyRequest::create([
                 'submission_key' => $data['submission_key'] ?? null,
@@ -429,14 +443,15 @@ class SupplyRequestController extends Controller
                 'date_requested' => $data['date_requested'] ?? now()->toDateString(),
                 'department' => $data['department'],
                 'purpose' => $data['purpose'],
-                'status' => 'Pending',
+                'request_type' => $isPreRequest ? 'pre_request' : 'requisition',
+                'status' => $isPreRequest ? 'Pre-Requested' : 'Pending',
                 ...$documentFields,
             ]);
             $supplyRequest->items()->createMany($data['items']);
             if ($documentFields) {
                 SupplyRequestService::audit($supplyRequest, $request->user()->id, 'Uploaded Supporting Document');
             }
-            SupplyRequestService::audit($supplyRequest, $request->user()->id, 'Submitted Supply Request');
+            SupplyRequestService::audit($supplyRequest, $request->user()->id, $isPreRequest ? 'Submitted Multi-Item Pre-Request' : 'Submitted Supply Request');
             $approverIds = User::query()->where('is_active', true)->get()
                 ->filter(fn (User $user) => $this->canReviewRequests($user))->pluck('id');
             foreach ($approverIds as $approverId) {
@@ -447,7 +462,11 @@ class SupplyRequestController extends Controller
             }
         });
 
-        return redirect()->route('inventory.requests.index')->with('success', 'Request submitted to the Property Custodian.');
+        $message = $isPreRequest
+            ? 'Pre-request submitted. You can monitor replenishment status directly under My Requests.'
+            : 'Request submitted to the Property Custodian.';
+
+        return redirect()->route('inventory.requests.index')->with('success', $message);
     }
 
     public function cancel(Request $request, SupplyRequest $supplyRequest)
@@ -481,16 +500,24 @@ class SupplyRequestController extends Controller
             'date_requested' => ['nullable', 'date'],
             'department' => ['required', 'string', 'max:255'],
             'purpose' => ['required', 'string', 'max:2000'],
+            'request_type' => ['nullable', 'string', 'in:requisition,pre_request'],
             'items' => ['required', 'array', 'min:1', 'max:100'],
             'items.*.item_id' => ['required', 'integer', 'distinct', 'exists:items,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
         ]);
         SupportingDocumentService::save($request, $requiresDocument, $supplyRequest, function (array $documentFields) use ($supplyRequest, $data, $request) {
             $locked = SupplyRequest::whereKey($supplyRequest->id)->lockForUpdate()->firstOrFail();
-            if (! in_array($locked->status, ['Pending', 'Pending Verification', 'For Correction'], true)) {
-                throw ValidationException::withMessages(['request' => 'Only pending requests can be edited.']);
+            if (! in_array($locked->status, ['Pending', 'Pending Verification', 'For Correction', 'Pre-Requested', 'Stock Restocked'], true)) {
+                throw ValidationException::withMessages(['request' => 'Only active or restocked requests can be edited.']);
             }
-            $this->validateRequestStock($data['items'], $request->user()->id, $locked);
+            $targetType = $data['request_type'] ?? ($locked->status === 'Stock Restocked' ? 'requisition' : ($locked->request_type ?? 'requisition'));
+            if ($targetType === 'requisition') {
+                $this->validateRequestStock($data['items'], $request->user()->id, $locked);
+            }
+            $targetStatus = $targetType === 'pre_request'
+                ? 'Pre-Requested'
+                : ($locked->status === 'Stock Restocked' ? 'Pending' : $locked->status);
+
             $locked->update([
                 'recipient' => $data['recipient'] ?? $locked->recipient ?? $request->user()->name,
                 'recipient_designation' => $data['recipient_designation'] ?? $locked->recipient_designation,
@@ -498,6 +525,8 @@ class SupplyRequestController extends Controller
                 'date_requested' => $data['date_requested'] ?? $locked->date_requested ?? now()->toDateString(),
                 'department' => $data['department'],
                 'purpose' => $data['purpose'],
+                'request_type' => $targetType,
+                'status' => $targetStatus,
                 ...$documentFields,
             ]);
             $locked->items()->delete();

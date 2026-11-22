@@ -16,7 +16,7 @@ export type RequestSortKey = 'reference' | 'purpose' | 'recipient' | 'status' | 
 
 interface Props {
     userName: string;
-    counts: { total: number; pending: number; correction: number; approved: number; issued: number };
+    counts: { total: number; pending: number; correction: number; approved: number; issued: number; pre_requested?: number; stock_restocked?: number };
     requests: SupplyRequest[];
     search: string;
     status: string;
@@ -80,6 +80,8 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
         { label: 'Needs correction', count: props.counts.correction, status: 'For Correction', icon: Pencil, color: 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300', hint: 'Action required from you' },
         { label: 'Awaiting release', count: props.counts.approved, status: 'Approved', icon: PackageCheck, color: 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300', hint: 'Approved quantities confirmed' },
         { label: 'Released', count: props.counts.issued, status: 'Issued', icon: CheckCircle2, color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300', hint: `Added to your ${supplyOwner} inventory` },
+        { label: 'Pre-Requested', count: props.counts.pre_requested ?? 0, status: 'Pre-Requested', icon: Clock3, color: 'bg-amber-100/70 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300', hint: 'Awaiting central replenishment' },
+        { label: 'Stock Restocked', count: props.counts.stock_restocked ?? 0, status: 'Stock Restocked', icon: CheckCircle2, color: 'bg-emerald-100/70 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-300', hint: 'Restocked at SPMO' },
     ];
     const status = (request: SupplyRequest) => (
         <div className="space-y-2">
@@ -103,7 +105,17 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
             <button type="button" aria-label={`View details for ${reference(request)}`} onClick={() => props.onDetails(request)} className={`${secondaryButton} min-h-9 px-3 text-sm cursor-pointer`}>
                 <Eye size={14} />Details
             </button>
-            {['Pending', 'Pending Verification', 'For Correction'].includes(request.status) && can('inventory.requests.update') && (
+            {request.status === 'Stock Restocked' && can('inventory.requests.update') && (
+                <button
+                    type="button"
+                    aria-label={`Proceed with requisition for ${reference(request)}`}
+                    onClick={() => props.onEdit(request)}
+                    className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+                >
+                    <CheckCircle2 size={13} />Proceed to Requisition
+                </button>
+            )}
+            {['Pending', 'Pending Verification', 'For Correction', 'Pre-Requested'].includes(request.status) && can('inventory.requests.update') && (
                 <button type="button" aria-label={`Edit ${reference(request)}`} onClick={() => props.onEdit(request)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-red-900 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/40 cursor-pointer">
                     <Pencil size={13} />Edit
                 </button>
@@ -113,7 +125,7 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                     <FileText size={14} />RIS Form
                 </button>
             )}
-            {['Pending', 'Pending Verification', 'For Correction'].includes(request.status) && can('inventory.requests.delete') && (
+            {['Pending', 'Pending Verification', 'For Correction', 'Pre-Requested', 'Stock Restocked'].includes(request.status) && can('inventory.requests.delete') && (
                 <button type="button" aria-label={`Cancel request ${reference(request)}`} disabled={props.busy === request.id} onClick={() => props.onCancel(request)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-50 dark:text-rose-300 dark:hover:bg-rose-950/40 cursor-pointer">
                     <X size={13} />Cancel
                 </button>
@@ -149,7 +161,7 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                         )}
                     </div>
                 </section>
-                <section data-tour="coordinator-request-summary" aria-label="My request overview" className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-5">
+                <section data-tour="coordinator-request-summary" aria-label="My request overview" className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-7">
                     {stats.map(stat => (
                         <button key={stat.label} type="button" onClick={() => props.onStatus(stat.status)} aria-label={`Show ${stat.label.toLowerCase()}`} aria-pressed={props.status === stat.status} className={`${panel} flex min-w-0 items-start justify-between gap-3 p-4 text-left transition hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 sm:p-5 ${props.status === stat.status ? 'border-red-300 bg-red-50/70 ring-1 ring-red-900/20 dark:border-red-800 dark:bg-red-950/20' : ''}`}>
                             <span className="min-w-0">

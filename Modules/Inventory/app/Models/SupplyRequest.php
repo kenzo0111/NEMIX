@@ -27,6 +27,7 @@ class SupplyRequest extends Model
         'date_requested',
         'department',
         'purpose',
+        'request_type',
         'status',
         'reviewed_by',
         'reviewed_at',

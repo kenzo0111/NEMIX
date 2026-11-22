@@ -39,7 +39,8 @@ export type SupplyRequest = {
     recipient_designation?: string | null;
     fund_cluster?: string | null;
     date_requested?: string | null;
-    status: 'Pending' | 'Approved' | 'Rejected' | 'Cancelled' | 'Issued' | 'Pending Verification' | 'For Correction' | 'Under Review' | 'Ready for Pickup' | 'Released';
+    status: 'Pending' | 'Approved' | 'Rejected' | 'Cancelled' | 'Issued' | 'Pending Verification' | 'For Correction' | 'Under Review' | 'Ready for Pickup' | 'Released' | 'Pre-Requested' | 'Stock Restocked';
+    request_type?: 'requisition' | 'pre_request';
     department: string;
     purpose: string;
     ris_number: string | null;

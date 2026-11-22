@@ -45,11 +45,12 @@ class SupplyRequestService
         return "You can request at most {$maximum} {$unit} of {$item->name} based on available warehouse stock and approved reservations.";
     }
 
-    public static function audit(SupplyRequest $request, int $actorId, string $action): void
+    public static function audit(SupplyRequest $request, ?int $actorId, string $action): void
     {
         if (! class_exists(TransactionTrail::class)) {
             return;
         }
+        $actorId = $actorId ?? auth()->id() ?? (int) $request->requested_by;
         TransactionTrail::create([
             'user_id' => $actorId,
             'module' => 'Inventory',

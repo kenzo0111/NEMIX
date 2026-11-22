@@ -46,6 +46,20 @@ export function RequestStatusBadge({ status }: { status: SupplyRequest['status']
             border: 'border-gray-200 dark:border-slate-700',
             dot: 'bg-gray-400',
         },
+        'Pre-Requested': {
+            label: 'Pre-Requested · Awaiting Replenishment',
+            bg: 'bg-amber-50 dark:bg-amber-950/40',
+            text: 'text-amber-800 dark:text-amber-300',
+            border: 'border-amber-200 dark:border-amber-800',
+            dot: 'bg-amber-500',
+        },
+        'Stock Restocked': {
+            label: 'Stock Restocked · Ready for Requisition',
+            bg: 'bg-emerald-50 dark:bg-emerald-950/40',
+            text: 'text-emerald-800 dark:text-emerald-300',
+            border: 'border-emerald-200 dark:border-emerald-800',
+            dot: 'bg-emerald-500',
+        },
     };
 
     const item = config[status] || config.Pending;

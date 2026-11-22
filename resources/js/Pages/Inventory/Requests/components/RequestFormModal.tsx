@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import Select from 'react-select';
-import { FileSpreadsheet, X, Plus, Trash2, AlertTriangle } from 'lucide-react';
+import { FileSpreadsheet, X, Plus, Trash2, AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
 import Modal from '@/Components/Modal';
 import { getInstitutionalSelectStyles } from '@/styles/selectStyles';
 import { getLocalDateString } from '@/utils/dateUtils';
@@ -21,6 +21,8 @@ interface RequestFormModalProps {
     show: boolean;
     request: SupplyRequest | null;
     items: RequestItem[];
+    preRequestableItems?: RequestItem[];
+    initialMode?: 'requisition' | 'pre_request';
     initialItemId?: number | null;
     divisions?: DivisionGroup[];
     defaultRecipient?: string;
@@ -36,6 +38,8 @@ export function RequestFormModal({
     show,
     request,
     items,
+    preRequestableItems,
+    initialMode = 'requisition',
     initialItemId = null,
     divisions,
     defaultRecipient = '',
@@ -48,12 +52,21 @@ export function RequestFormModal({
 }: RequestFormModalProps) {
     const pageProps = usePage().props as any;
     const minimumStockThreshold = Number(pageProps.minimumStockThreshold ?? 10);
-    const maximumQuantity = (item: RequestItem) => Math.min(
+    const isPreRequest = form?.data?.request_type === 'pre_request';
+    const isRestocked = request?.status === 'Stock Restocked';
+    const activeCatalogItems = useMemo(() => {
+        if (isPreRequest && preRequestableItems && preRequestableItems.length > 0) {
+            return preRequestableItems;
+        }
+        return items;
+    }, [isPreRequest, preRequestableItems, items]);
+
+    const maximumQuantity = (item: RequestItem) => isPreRequest ? 10000 : Math.min(
         1000000, Math.max(0, request?.items?.find(line => line.item_id === item.id)?.max_request_quantity ?? item.max_request_quantity ?? item.stock)
     );
     const requestableItems = useMemo(
-        () => items.filter((item) => maximumQuantity(item) > 0),
-        [items, request]
+        () => isPreRequest ? activeCatalogItems : activeCatalogItems.filter((item) => maximumQuantity(item) > 0),
+        [isPreRequest, activeCatalogItems, request]
     );
     const quantityLimitMessage = (item: RequestItem) =>
         `Request at most ${maximumQuantity(item)} ${item.unit_of_issue || 'units'} based on available warehouse stock and your weekly allowance. Approved quantities are already deducted.`;
@@ -85,6 +98,7 @@ export function RequestFormModal({
         recipient_designation: request?.recipient_designation || (isAuthorizedPersonnel ? loginUserDesignation : (assignedUnit ? assignment?.recipient_designation || '' : '')),
         fund_cluster: '01',
         purpose: '',
+        request_type: (initialMode || (request?.status === 'Pre-Requested' ? 'pre_request' : 'requisition')) as 'requisition' | 'pre_request',
         approved_by: defaultApprovedBy,
         approved_by_designation: defaultApprovedByDesignation,
         issued_by_name: defaultIssuedBy,
@@ -101,6 +115,10 @@ export function RequestFormModal({
             const extractedCustomText = isOther ? initialDocType.replace(/^(Specify Other|Others):\s*/i, '') : '';
             setOtherDocumentSpecification(extractedCustomText);
 
+            const initialType = request.status === 'Stock Restocked'
+                ? 'requisition'
+                : (request.status === 'Pre-Requested' || request.request_type === 'pre_request' ? 'pre_request' : 'requisition');
+
             form.setData({
                 submission_key: undefined,
                 supporting_document: null,
@@ -111,6 +129,7 @@ export function RequestFormModal({
                 recipient_designation: request.recipient_designation || (isAuthorizedPersonnel ? loginUserDesignation : ''),
                 fund_cluster: request.fund_cluster || '01',
                 purpose: request.purpose || '',
+                request_type: initialType,
                 approved_by: defaultApprovedBy,
                 approved_by_designation: defaultApprovedByDesignation,
                 issued_by_name: defaultIssuedBy,
@@ -134,6 +153,7 @@ export function RequestFormModal({
                 recipient_designation: isAuthorizedPersonnel ? loginUserDesignation : (assignedUnit ? assignment?.recipient_designation || '' : ''),
                 fund_cluster: '01',
                 purpose: '',
+                request_type: initialMode || 'requisition',
                 approved_by: defaultApprovedBy,
                 approved_by_designation: defaultApprovedByDesignation,
                 issued_by_name: defaultIssuedBy,
@@ -142,7 +162,7 @@ export function RequestFormModal({
             });
         }
         form.clearErrors();
-    }, [show, request?.id, initialItemId, defaultRecipient, defaultApprovedBy, defaultApprovedByDesignation, defaultIssuedBy, defaultIssuedByDesignation, assignment?.department, assignment?.recipient, assignment?.recipient_designation, assignedUnit, isAuthorizedPersonnel, loginUserDesignation]);
+    }, [show, request?.id, initialMode, initialItemId, defaultRecipient, defaultApprovedBy, defaultApprovedByDesignation, defaultIssuedBy, defaultIssuedByDesignation, assignment?.department, assignment?.recipient, assignment?.recipient_designation, assignedUnit, isAuthorizedPersonnel, loginUserDesignation]);
 
     useEffect(() => {
         if (!show || !form.data.supporting_document) { setPreviewUrl(null); return; }
@@ -196,6 +216,14 @@ export function RequestFormModal({
     }, [form.data.items]);
 
     const stockErrors = form.data.items.map((line) => {
+        if (isPreRequest) {
+            return {
+                item: null,
+                quantity: line.quantity && (Number(line.quantity) <= 0 || Number(line.quantity) > 10000)
+                    ? 'Enter a valid replenishment quantity between 1 and 10,000 units.'
+                    : null,
+            };
+        }
         const item = requestableItems.find((item) => item.id === Number(line.item_id));
         const selectedItem = items.find((item) => item.id === Number(line.item_id))
             || request?.items?.find((entry) => entry.item_id === Number(line.item_id))?.item;
@@ -309,7 +337,7 @@ export function RequestFormModal({
             onClose={handleModalClose}
             maxWidth="3xl"
             closeable={!form.processing}
-            ariaLabel={request ? 'Edit Supply Request' : 'Create Supply Request'}
+            ariaLabel={isRestocked ? 'Complete Restocked Requisition' : isPreRequest ? (request ? 'Edit Pre-Request' : 'Create Multi-Item Pre-Request') : (request ? 'Edit Supply Request' : 'Create Supply Request')}
         >
             <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
                 {/* Institutional Maroon Top Accent Line */}
@@ -319,14 +347,28 @@ export function RequestFormModal({
                 <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-900/75 shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-2xs shrink-0">
-                            <FileSpreadsheet className="w-5 h-5 text-red-900 dark:text-red-400" />
+                            {isRestocked ? (
+                                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                            ) : isPreRequest ? (
+                                <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                            ) : (
+                                <FileSpreadsheet className="w-5 h-5 text-red-900 dark:text-red-400" />
+                            )}
                         </div>
                         <div className="min-w-0">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
-                                {request ? (request.ris_number ? `Edit Requisition (${request.ris_number})` : `Edit Supply Request #${request.id}`) : 'Create Supply Requisition (RIS)'}
+                                {isRestocked
+                                    ? `Stock Restocked · Complete Requisition (${request?.ris_number || `#${request?.id}`})`
+                                    : isPreRequest
+                                        ? (request ? `Edit Pre-Request #${request.id}` : 'Create Multi-Item Pre-Request')
+                                        : (request ? (request.ris_number ? `Edit Requisition (${request.ris_number})` : `Edit Supply Request #${request.id}`) : 'Create Supply Requisition (RIS)')}
                             </h3>
                             <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium truncate">
-                                Administrative Requisition & Issue Slip (RIS) Entry for Property Custodian Review
+                                {isRestocked
+                                    ? 'Supplies have arrived and have been restocked by Central Supply. Review line items and submit your official requisition.'
+                                    : isPreRequest
+                                        ? 'Submit demand for out-of-stock items so the Supply Office can prioritize restock and notify you when available.'
+                                        : 'Administrative Requisition & Issue Slip (RIS) Entry for Property Custodian Review'}
                             </p>
                         </div>
                     </div>
@@ -343,6 +385,54 @@ export function RequestFormModal({
 
                 {/* Form Body */}
                 <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto max-h-[75vh] space-y-6 text-sm">
+                    {!request && (
+                        <div className="flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                            <button
+                                type="button"
+                                onClick={() => form.setData('request_type', 'requisition')}
+                                className={`flex-1 py-2 px-3 text-xs sm:text-sm font-bold rounded-lg transition-all ${
+                                    !isPreRequest
+                                        ? 'bg-white dark:bg-slate-900 text-red-950 dark:text-red-400 shadow-2xs'
+                                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                                }`}
+                            >
+                                Standard Requisition (In-Stock)
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => form.setData('request_type', 'pre_request')}
+                                className={`flex-1 py-2 px-3 text-xs sm:text-sm font-bold rounded-lg transition-all ${
+                                    isPreRequest
+                                        ? 'bg-white dark:bg-slate-900 text-amber-700 dark:text-amber-400 shadow-2xs'
+                                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                                }`}
+                            >
+                                Pre-Request (Out-of-Stock Supplies)
+                            </button>
+                        </div>
+                    )}
+
+                    {isRestocked && (
+                        <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-emerald-950 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-200 flex items-start gap-3">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
+                            <div>
+                                <h5 className="font-bold text-sm">Supplies Restocked & Ready for Requisition</h5>
+                                <p className="mt-1 text-xs leading-relaxed text-emerald-800 dark:text-emerald-300">
+                                    Central Supply has received and verified shipment for these requested items. You can now confirm the quantities below and submit your official requisition to the Property Custodian.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {isPreRequest && !isRestocked && (
+                        <div className="rounded-xl border border-amber-300 bg-amber-50 p-3.5 text-amber-950 dark:border-amber-800/60 dark:bg-amber-950/30 dark:text-amber-200 flex items-start gap-2.5 text-xs leading-relaxed">
+                            <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                            <div>
+                                <strong>Multi-Item Pre-Request Mode:</strong> Select out-of-stock items your delivery unit requires. This ticket will be tracked under <em>My Requests</em> with status <strong>Pre-Requested</strong>. Once Central Supply receives these items into inventory, your ticket status will automatically update to <strong>Stock Restocked</strong>.
+                            </div>
+                        </div>
+                    )}
+
                     {assignedUnit && <div className={`rounded-lg border p-3 text-sm ${assignmentMissing ? 'border-amber-300 bg-amber-50 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200' : 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'}`}>
                         {assignmentMissing ? 'Ask an administrator to assign your Delivery Unit and an active office head with a designation in Staff Accounts before submitting a request.' : isAuthorizedPersonnel ? 'Your name is shown as the requester. Delivery Unit assignment is optional; choose a Division / Office if none is assigned.' : 'Department and Requested by details come from your administrator-assigned Delivery Unit. Your coordinator account is recorded as the submitter.'}
                     </div>}
@@ -569,7 +659,9 @@ export function RequestFormModal({
                                     )
                                     .map((item) => ({
                                         value: String(item.id),
-                                        label: `${item.name} (${item.sku}) — Stock: ${item.stock} ${item.unit_of_issue || 'pcs'} · Max request: ${maximumQuantity(item)}`,
+                                        label: isPreRequest
+                                            ? `${item.name} (${item.sku}) · Stock: ${item.stock} ${item.unit_of_issue || 'pcs'}${item.stock <= 0 ? ' [Out of Stock]' : ''}`
+                                            : `${item.name} (${item.sku}) — Stock: ${item.stock} ${item.unit_of_issue || 'pcs'} · Max request: ${maximumQuantity(item)}`,
                                     }));
                                 const selectedOption = availableItemOptions.find((opt) => opt.value === line.item_id)
                                     || (unavailable ? { value: line.item_id, label: `${selectedItem?.name || 'Previously selected item'} — ${!selectedItem || selectedItem.stock <= 0 ? 'Unserviceable (Out of stock)' : 'Unavailable to request'}` } : null);
@@ -635,7 +727,7 @@ export function RequestFormModal({
                                                     id={`req_qty_${index}`}
                                                     type="number"
                                                     min="1"
-                                                    max={selectedItem ? maxQuantity : 1000000}
+                                                    max={isPreRequest ? 10000 : (selectedItem ? maxQuantity : 1000000)}
                                                     required
                                                     disabled={unavailable}
                                                     aria-invalid={Boolean(errorQty)}
@@ -668,7 +760,7 @@ export function RequestFormModal({
                                         )}
                                         {selectedItem && !unavailable && !errorQty && (
                                             <p id={`req_qty_help_${index}`} className="mt-2 text-sm text-gray-500 dark:text-slate-400">
-                                                Maximum request: {maxQuantity} {selectedItem.unit_of_issue || 'units'}.
+                                                {isPreRequest ? 'Pre-request demand quantity up to 10,000 units.' : `Maximum request: ${maxQuantity} ${selectedItem.unit_of_issue || 'units'}.`}
                                             </p>
                                         )}
                                         {selectedItem && !unavailable && (Number(selectedItem.stock) <= minimumStockThreshold || (Number(line.quantity) > 0 && Number(selectedItem.stock) - Number(line.quantity) <= minimumStockThreshold)) && (
@@ -905,7 +997,13 @@ export function RequestFormModal({
                                     <span>Saving...</span>
                                 </>
                             ) : (
-                                <span>{request ? 'Save Changes' : 'Submit Supply Request'}</span>
+                                <span>
+                                    {isRestocked
+                                        ? 'Submit Official Requisition'
+                                        : isPreRequest
+                                            ? (request ? 'Update Pre-Request' : 'Submit Pre-Request')
+                                            : (request ? 'Save Changes' : 'Submit Supply Request')}
+                                </span>
                             )}
                         </button>
                     </div>

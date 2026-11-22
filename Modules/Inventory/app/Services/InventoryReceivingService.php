@@ -169,6 +169,38 @@ class InventoryReceivingService
                             'notified_at' => now(),
                         ]);
                 }
+
+                // 4c. Transition multi-item SupplyRequests with status 'Pre-Requested' to 'Stock Restocked'
+                if ($item->stock > 0 && class_exists(\Modules\Inventory\Models\SupplyRequest::class)) {
+                    $pendingPreRequests = \Modules\Inventory\Models\SupplyRequest::where('status', 'Pre-Requested')
+                        ->whereHas('items', fn ($q) => $q->where('item_id', $item->id))
+                        ->with('items.item')
+                        ->get();
+
+                    foreach ($pendingPreRequests as $preRequest) {
+                        $allRestocked = $preRequest->items->every(fn ($line) => ($line->item?->stock ?? 0) > 0);
+                        if ($allRestocked) {
+                            $preRequest->update([
+                                'status' => 'Stock Restocked',
+                            ]);
+
+                            if (class_exists(\Modules\Inventory\Models\SupplyRequestAlert::class)) {
+                                \Modules\Inventory\Models\SupplyRequestAlert::updateOrCreate(
+                                    ['user_id' => $preRequest->requested_by, 'supply_request_id' => $preRequest->id],
+                                    ['read_at' => null]
+                                );
+                            }
+
+                            if (class_exists(\Modules\Inventory\Services\SupplyRequestService::class)) {
+                                \Modules\Inventory\Services\SupplyRequestService::audit(
+                                    $preRequest,
+                                    $userId ?? auth()->id() ?? (int) $preRequest->requested_by,
+                                    'Pre-Requested Stock Restocked'
+                                );
+                            }
+                        }
+                    }
+                }
             } finally {
                 AuditGroupContext::stop();
             }

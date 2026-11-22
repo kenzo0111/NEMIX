@@ -38,6 +38,8 @@ const statusOptions = [
     { value: 'Pending', label: 'Pending Review' },
     { value: 'Approved', label: 'Approved · Awaiting Release' },
     { value: 'Issued', label: 'Issued · Released' },
+    { value: 'Pre-Requested', label: 'Pre-Requested · Awaiting Replenishment' },
+    { value: 'Stock Restocked', label: 'Stock Restocked · Ready for Requisition' },
     { value: 'Rejected', label: 'Rejected' },
     { value: 'Cancelled', label: 'Cancelled' },
 ];
@@ -47,6 +49,8 @@ export default function MyRequests({
     readOnly = false,
     requests = [],
     items = [],
+    preRequestableItems = [],
+    initialMode = 'requisition',
     divisions = [],
     initialItemId = null,
     requestSummary = {},
@@ -61,6 +65,8 @@ export default function MyRequests({
     readOnly?: boolean;
     requests: SupplyRequest[] | RequestPage;
     items: RequestItem[];
+    preRequestableItems?: RequestItem[];
+    initialMode?: 'requisition' | 'pre_request';
     divisions?: DivisionGroup[];
     initialItemId?: number | null;
     requestSummary?: Record<string, number>;
@@ -220,6 +226,12 @@ export default function MyRequests({
             rejectedOrCancelled: isCoordinator
                 ? Number(requestSummary.Rejected || 0) + Number(requestSummary.Cancelled || 0)
                 : requestList.filter((r) => ['Rejected', 'Cancelled'].includes(r.status)).length,
+            pre_requested: isCoordinator
+                ? Number(requestSummary['Pre-Requested'] || 0)
+                : requestList.filter((r) => r.status === 'Pre-Requested').length,
+            stock_restocked: isCoordinator
+                ? Number(requestSummary['Stock Restocked'] || 0)
+                : requestList.filter((r) => r.status === 'Stock Restocked').length,
         };
     }, [isCoordinator, requestList, requestSummary]);
 
@@ -727,8 +739,10 @@ export default function MyRequests({
             {!readOnly && (canCreateRequest || canUpdateRequest) && <RequestFormModal
                 show={formOpen}
                 initialItemId={initialItemId}
+                initialMode={initialMode}
                 request={editingRequest}
                 items={items}
+                preRequestableItems={preRequestableItems}
                 divisions={divisions}
                 defaultRecipient={auth.user.name}
                 defaultApprovedBy={defaultApprovedBy}
