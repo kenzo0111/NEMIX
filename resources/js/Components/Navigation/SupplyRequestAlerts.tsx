@@ -113,7 +113,11 @@ export default function SupplyRequestAlerts({
         }
         setNewAlert(null);
         setOpen(false);
-        router.visit(requester ? `${route('inventory.requests.index')}?request_id=${alert.request_id}` : `${route('inventory.issuance')}?request=${alert.request_id}`);
+        const isPreRequest = alert.status === 'Pre-Requested' || alert.status === 'Stock Restocked';
+        router.visit(requester
+            ? `${route('inventory.requests.index')}?request_id=${alert.request_id}`
+            : (isPreRequest ? route('inventory.pre-orders.index') : `${route('inventory.issuance')}?request=${alert.request_id}`)
+        );
     };
 
     return (

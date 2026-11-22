@@ -143,7 +143,7 @@ class SupplyRequestService
             if ($locked->status === 'Cancelled') {
                 return;
             }
-            if (! in_array($locked->status, ['Pending', 'Approved', 'Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup'], true)) {
+            if (! in_array($locked->status, ['Pending', 'Approved', 'Pending Verification', 'For Correction', 'Under Review', 'Ready for Pickup', 'Pre-Requested', 'Stock Restocked'], true)) {
                 throw ValidationException::withMessages(['request' => 'Only requests awaiting release can be cancelled.']);
             }
             $lines = $locked->items()->orderBy('item_id')->get();

@@ -160,6 +160,12 @@ export default function MyRequests({
     }, [focusedRequest?.id]);
 
     useEffect(() => {
+        if (!readOnly && canCreateRequest && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('create') === '1') {
+            setFormOpen(true);
+        }
+    }, [initialMode, initialItemId, readOnly, canCreateRequest]);
+
+    useEffect(() => {
         setEditingRequest(current => current ? requestList.find(record => record.id === current.id) || current : null);
         setDetailsRequest(current => current ? requestList.find(record => record.id === current.id) || current : null);
     }, [requests]);

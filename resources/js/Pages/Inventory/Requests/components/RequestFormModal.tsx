@@ -144,6 +144,11 @@ export function RequestFormModal({
             });
         } else {
             setOtherDocumentSpecification('');
+            const isPre = (initialMode === 'pre_request' || isPreRequest);
+            const hasItem = initialItemId && ((isPre && preRequestableItems && preRequestableItems.length > 0)
+                ? preRequestableItems.some(i => i.id === initialItemId)
+                : requestableItems.some(i => i.id === initialItemId));
+
             form.setData({
                 submission_key: globalThis.crypto?.randomUUID?.(),
                 supporting_document: null,
@@ -159,7 +164,7 @@ export function RequestFormModal({
                 approved_by_designation: defaultApprovedByDesignation,
                 issued_by_name: defaultIssuedBy,
                 issued_by_position: defaultIssuedByDesignation,
-                items: [{ item_id: initialItemId && requestableItems.some(item => item.id === initialItemId) ? String(initialItemId) : '', quantity: '' }],
+                items: [{ item_id: hasItem ? String(initialItemId) : '', quantity: '' }],
             });
         }
         form.clearErrors();

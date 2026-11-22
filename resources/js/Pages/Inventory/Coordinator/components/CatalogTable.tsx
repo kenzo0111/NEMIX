@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from '@inertiajs/react';
 import { ArrowRight, Clock, PackagePlus } from 'lucide-react';
 import useAuthorization from '@/Hooks/useAuthorization';
@@ -6,7 +6,6 @@ import type { SortState } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
 import type { CatalogItem, CatalogSortKey } from '../catalog';
 import { panel } from '../inventory';
-import PreOrderModal from './PreOrderModal';
 
 declare function route(name: string, params?: any): string;
 
@@ -20,7 +19,6 @@ export default function CatalogTable({
     onSort: (key: CatalogSortKey) => void;
 }) {
     const { can } = useAuthorization();
-    const [preOrderItem, setPreOrderItem] = useState<CatalogItem | null>(null);
 
     return (
         <>
@@ -90,23 +88,24 @@ export default function CatalogTable({
                                                 </Link>
                                             ) : isOutOfStock ? (
                                                 item.user_pre_order ? (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setPreOrderItem(item)}
-                                                        className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs cursor-pointer"
+                                                    <Link
+                                                        href={route('inventory.requests.index', { status: 'Pre-Requested' })}
+                                                        className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs"
+                                                        title="View your pre-requests under My Requests"
                                                     >
                                                         <Clock size={13} />
                                                         Pre-Requested ({item.user_pre_order.quantity})
-                                                    </button>
+                                                        <ArrowRight size={13} />
+                                                    </Link>
                                                 ) : (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setPreOrderItem(item)}
-                                                        className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50/80 px-3 py-1.5 text-xs font-semibold text-red-900 hover:bg-red-100 dark:border-red-800/60 dark:bg-red-950/40 dark:text-red-300 transition-colors shadow-2xs cursor-pointer"
+                                                    <Link
+                                                        href={route('inventory.requests.index', { create: 1, mode: 'pre_request', item_id: item.id })}
+                                                        className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs"
                                                     >
-                                                        <PackagePlus size={14} className="text-red-800 dark:text-red-400" />
+                                                        <PackagePlus size={14} className="text-amber-800 dark:text-amber-400" />
                                                         Pre-Request
-                                                    </button>
+                                                        <ArrowRight size={14} />
+                                                    </Link>
                                                 )
                                             ) : (
                                                 <span className="text-sm text-slate-400 dark:text-slate-500 italic">
@@ -162,23 +161,24 @@ export default function CatalogTable({
                                         </Link>
                                     ) : isOutOfStock ? (
                                         item.user_pre_order ? (
-                                            <button
-                                                type="button"
-                                                onClick={() => setPreOrderItem(item)}
-                                                className="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs cursor-pointer"
+                                            <Link
+                                                href={route('inventory.requests.index', { status: 'Pre-Requested' })}
+                                                className="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs"
+                                                title="View your pre-requests under My Requests"
                                             >
                                                 <Clock size={13} />
                                                 Pre-Requested ({item.user_pre_order.quantity})
-                                            </button>
+                                                <ArrowRight size={13} />
+                                            </Link>
                                         ) : (
-                                            <button
-                                                type="button"
-                                                onClick={() => setPreOrderItem(item)}
-                                                className="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50/80 px-3 py-1.5 text-xs font-semibold text-red-900 hover:bg-red-100 dark:border-red-800/60 dark:bg-red-950/40 dark:text-red-300 transition-colors shadow-2xs cursor-pointer"
+                                            <Link
+                                                href={route('inventory.requests.index', { create: 1, mode: 'pre_request', item_id: item.id })}
+                                                className="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs"
                                             >
-                                                <PackagePlus size={14} className="text-red-800 dark:text-red-400" />
+                                                <PackagePlus size={14} className="text-amber-800 dark:text-amber-400" />
                                                 Pre-Request This Item
-                                            </button>
+                                                <ArrowRight size={14} />
+                                            </Link>
                                         )
                                     ) : (
                                         <span className="text-sm text-slate-400 dark:text-slate-500 italic block text-center">
@@ -195,11 +195,6 @@ export default function CatalogTable({
                     })}
                 </div>
             </section>
-
-            <PreOrderModal
-                item={preOrderItem}
-                onClose={() => setPreOrderItem(null)}
-            />
         </>
     );
 }

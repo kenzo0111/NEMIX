@@ -16,6 +16,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Modules\Inventory\Models\Item;
+use Modules\Inventory\Models\ItemPreOrder;
 use Modules\Inventory\Models\SupplyRequest;
 use Modules\Inventory\Models\SupplyRequestAlert;
 use Modules\Inventory\Services\InventoryPolicy;
@@ -78,6 +79,7 @@ class SupplyRequestController extends Controller
             'status' => ['nullable', Rule::in([
                 'Pending', 'Pending Verification', 'For Correction', 'Under Review',
                 'Approved', 'Ready for Pickup', 'Issued', 'Released', 'Rejected', 'Cancelled',
+                'Pre-Requested', 'Stock Restocked',
             ])],
             'sort' => ['nullable', 'string', Rule::in(['reference', 'purpose', 'recipient', 'department', 'status', 'date', 'items'])],
             'direction' => ['nullable', 'string', Rule::in(['asc', 'desc'])],
@@ -93,7 +95,12 @@ class SupplyRequestController extends Controller
             ->orderBy('items.name')->get();
         $usage = WeeklyRequestQuota::usage($request->user()->id);
         $items->each(fn ($item) => WeeklyRequestQuota::decorate($item, $usage));
-        $initialItemId = isset($prefill['item_id']) ? (Item::find($prefill['item_id'])?->id) : null;
+        $isPreRequestMode = $request->boolean('pre_request') || $request->query('mode') === 'pre_request';
+        $initialItemId = isset($prefill['item_id'])
+            ? ($isPreRequestMode
+                ? Item::whereKey($prefill['item_id'])->value('id')
+                : Item::whereKey($prefill['item_id'])->where('stock', '>', 0)->value('id'))
+            : null;
         $preRequestableItems = Item::query()
             ->select('id', 'name', 'sku', 'stock', 'unit_of_issue')
             ->orderBy('name')
@@ -452,18 +459,48 @@ class SupplyRequestController extends Controller
                 SupplyRequestService::audit($supplyRequest, $request->user()->id, 'Uploaded Supporting Document');
             }
             SupplyRequestService::audit($supplyRequest, $request->user()->id, $isPreRequest ? 'Submitted Multi-Item Pre-Request' : 'Submitted Supply Request');
-            $approverIds = User::query()->where('is_active', true)->get()
-                ->filter(fn (User $user) => $this->canReviewRequests($user))->pluck('id');
-            foreach ($approverIds as $approverId) {
-                SupplyRequestAlert::create([
-                    'user_id' => $approverId,
-                    'supply_request_id' => $supplyRequest->id,
-                ]);
+
+            if ($isPreRequest && class_exists(ItemPreOrder::class)) {
+                foreach ($data['items'] as $itemData) {
+                    ItemPreOrder::updateOrCreate(
+                        [
+                            'item_id' => $itemData['item_id'],
+                            'user_id' => $request->user()->id,
+                            'status' => 'pending',
+                        ],
+                        [
+                            'delivery_unit' => $data['department'] ?: ($request->user()->department ?? 'Delivery Unit'),
+                            'quantity_requested' => $itemData['quantity'],
+                            'urgency' => $request->input('urgency', 'normal'),
+                            'purpose' => $data['purpose'] ?? null,
+                        ]
+                    );
+                }
+            }
+
+            if ($isPreRequest) {
+                $staffIds = User::query()->where('is_active', true)->get()
+                    ->filter(fn (User $user) => PermissionResolver::hasPermission($user, 'route:inventory.pre-orders.index') || PermissionResolver::hasPermission($user, 'route:inventory.index'))->pluck('id');
+                foreach ($staffIds as $staffId) {
+                    SupplyRequestAlert::create([
+                        'user_id' => $staffId,
+                        'supply_request_id' => $supplyRequest->id,
+                    ]);
+                }
+            } else {
+                $approverIds = User::query()->where('is_active', true)->get()
+                    ->filter(fn (User $user) => $this->canReviewRequests($user))->pluck('id');
+                foreach ($approverIds as $approverId) {
+                    SupplyRequestAlert::create([
+                        'user_id' => $approverId,
+                        'supply_request_id' => $supplyRequest->id,
+                    ]);
+                }
             }
         });
 
         $message = $isPreRequest
-            ? 'Pre-request submitted. You can monitor replenishment status directly under My Requests.'
+            ? 'Pre-request submitted and routed to Pre-Requests / Unit Demand in Central Supply.'
             : 'Request submitted to the Property Custodian.';
 
         return redirect()->route('inventory.requests.index')->with('success', $message);
@@ -474,6 +511,12 @@ class SupplyRequestController extends Controller
         $this->authorizeRequestAction($request);
         abort_unless($request->user()->id === $supplyRequest->requested_by || $request->user()->hasAnyRole(['System Admin', 'System Administrator']), 403);
         $this->service->cancel($supplyRequest, $request->user()->id);
+        if (($supplyRequest->request_type === 'pre_request' || $supplyRequest->status === 'Pre-Requested') && class_exists(ItemPreOrder::class)) {
+            ItemPreOrder::where('user_id', $supplyRequest->requested_by)
+                ->whereIn('item_id', $supplyRequest->items->pluck('item_id'))
+                ->where('status', 'pending')
+                ->update(['status' => 'cancelled']);
+        }
 
         return back()->with('success', 'Request cancelled.');
     }
@@ -532,7 +575,30 @@ class SupplyRequestController extends Controller
             $locked->items()->delete();
             $locked->items()->createMany($data['items']);
             SupplyRequestService::audit($locked, $request->user()->id, $documentFields ? 'Resubmitted Supporting Document' : 'Updated Supply Request');
-            if ($documentFields) {
+
+            if ($targetType === 'pre_request' && class_exists(ItemPreOrder::class)) {
+                foreach ($data['items'] as $itemData) {
+                    ItemPreOrder::updateOrCreate(
+                        [
+                            'item_id' => $itemData['item_id'],
+                            'user_id' => $request->user()->id,
+                            'status' => 'pending',
+                        ],
+                        [
+                            'delivery_unit' => $data['department'] ?: ($request->user()->department ?? 'Delivery Unit'),
+                            'quantity_requested' => $itemData['quantity'],
+                            'urgency' => $request->input('urgency', 'normal'),
+                            'purpose' => $data['purpose'] ?? null,
+                        ]
+                    );
+                }
+            }
+
+            if ($targetType === 'pre_request') {
+                foreach (User::where('is_active', true)->get()->filter(fn (User $user) => PermissionResolver::hasPermission($user, 'route:inventory.pre-orders.index') || PermissionResolver::hasPermission($user, 'route:inventory.index')) as $staff) {
+                    SupplyRequestAlert::updateOrCreate(['user_id' => $staff->id, 'supply_request_id' => $locked->id], ['read_at' => null]);
+                }
+            } elseif ($documentFields) {
                 foreach (User::where('is_active', true)->get()->filter(fn ($user) => PermissionResolver::hasPermission($user, 'route:inventory.requests.verify-document')) as $verifier) {
                     SupplyRequestAlert::updateOrCreate(['user_id' => $verifier->id, 'supply_request_id' => $locked->id], ['read_at' => null]);
                 }

@@ -898,6 +898,10 @@ class InventoryController extends Controller
             'issuances' => $transformed,
             'supplyRequests' => $canReviewRequests
                 ? SupplyRequest::with(['items.item.activeBatches', 'requester', 'reviewer', 'documentVerifier', 'issuance.items.allocations.inventoryBatch'])
+                    ->where(function ($query) {
+                        $query->whereNull('request_type')->orWhere('request_type', '!=', 'pre_request');
+                    })
+                    ->whereNotIn('status', ['Pre-Requested'])
                     ->latest()->get()->map(fn ($record) => RequestStockAllocation::decorateReview($record))
                 : [],
             'canCreateIssuance' => auth()->user()->hasAnyRole(['System Admin', 'System Administrator'])

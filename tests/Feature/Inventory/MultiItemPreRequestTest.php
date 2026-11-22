@@ -36,7 +36,11 @@ class MultiItemPreRequestTest extends TestCase
             'route:inventory.requests.index',
             'route:inventory.requests.store',
             'route:inventory.requests.update',
+            'route:inventory.requests.cancel',
             'route:coordinator.catalog.index',
+            'route:inventory.issuance',
+            'route:inventory.pre-orders.index',
+            'route:inventory.index',
         ];
 
         foreach ($permissions as $permName) {
@@ -44,7 +48,13 @@ class MultiItemPreRequestTest extends TestCase
         }
 
         $scRole = Role::firstOrCreate(['name' => 'Supply Coordinator', 'guard_name' => 'web']);
-        $scRole->syncPermissions($permissions);
+        $scRole->syncPermissions([
+            'route:inventory.requests.index',
+            'route:inventory.requests.store',
+            'route:inventory.requests.update',
+            'route:inventory.requests.cancel',
+            'route:coordinator.catalog.index',
+        ]);
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
@@ -258,5 +268,116 @@ class MultiItemPreRequestTest extends TestCase
         $fresh = $preRequest->fresh();
         $this->assertEquals('Pending', $fresh->status);
         $this->assertEquals('requisition', $fresh->request_type);
+    }
+
+    public function test_pre_request_submission_routes_to_unit_demand_and_not_to_issuance(): void
+    {
+        $coordinator = $this->coordinator();
+        $item = $this->item('Heavy Duty Tape Dispenser', 0);
+
+        $payload = [
+            'request_type' => 'pre_request',
+            'recipient' => $coordinator->name,
+            'date_requested' => now()->toDateString(),
+            'department' => 'College of Engineering',
+            'recipient_designation' => 'Unit Coordinator',
+            'fund_cluster' => '01',
+            'purpose' => 'Office packaging supplies demand',
+            'items' => [
+                ['item_id' => $item->id, 'quantity' => 8],
+            ],
+        ];
+
+        $response = $this->actingAs($coordinator)->post(route('inventory.requests.store'), $payload);
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect();
+
+        // 1. Assert routed to unit demand (ItemPreOrder record created)
+        $this->assertDatabaseHas('item_pre_orders', [
+            'item_id' => $item->id,
+            'user_id' => $coordinator->id,
+            'delivery_unit' => 'College of Engineering',
+            'quantity_requested' => 8,
+            'status' => 'pending',
+        ]);
+
+        // 2. Staff views Pre-Requests / Unit Demand portal
+        $staff = User::factory()->create(['is_active' => true]);
+        $staff->givePermissionTo(['route:inventory.pre-orders.index', 'route:inventory.index']);
+        $unitDemandResponse = $this->actingAs($staff)->get(route('inventory.pre-orders.index'));
+        $unitDemandResponse->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Inventory/PreOrders/Index')
+                ->where('stats.total_units_demanded', 8)
+                ->where('consolidatedItems.0.item_id', $item->id)
+                ->where('consolidatedItems.0.total_quantity_demanded', 8)
+            );
+
+        // 3. Staff views Issuance workspace -> pre-request must NOT be in supplyRequests
+        $staff->givePermissionTo(['route:inventory.issuance', 'route:inventory.requests.approve']);
+        $issuanceResponse = $this->actingAs($staff)->get(route('inventory.issuance'));
+        $issuanceResponse->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Inventory/Issuance')
+                ->where('supplyRequests', [])
+            );
+    }
+
+    public function test_cancelling_pre_request_cancels_corresponding_item_pre_orders(): void
+    {
+        $coordinator = $this->coordinator();
+        $item = $this->item('Permanent Markers Red', 0);
+
+        $payload = [
+            'request_type' => 'pre_request',
+            'recipient' => $coordinator->name,
+            'date_requested' => now()->toDateString(),
+            'department' => 'College of Engineering',
+            'recipient_designation' => 'Unit Coordinator',
+            'fund_cluster' => '01',
+            'purpose' => 'Color coding markers',
+            'items' => [
+                ['item_id' => $item->id, 'quantity' => 12],
+            ],
+        ];
+
+        $this->actingAs($coordinator)->post(route('inventory.requests.store'), $payload);
+        $preRequest = SupplyRequest::where('requested_by', $coordinator->id)->firstOrFail();
+
+        $this->assertDatabaseHas('item_pre_orders', [
+            'item_id' => $item->id,
+            'user_id' => $coordinator->id,
+            'status' => 'pending',
+        ]);
+
+        // Cancel the pre-request
+        $response = $this->actingAs($coordinator)->post(route('inventory.requests.cancel', $preRequest));
+        $response->assertSessionHasNoErrors();
+
+        $this->assertEquals('Cancelled', $preRequest->fresh()->status);
+        $this->assertDatabaseHas('item_pre_orders', [
+            'item_id' => $item->id,
+            'user_id' => $coordinator->id,
+            'status' => 'cancelled',
+        ]);
+    }
+
+    public function test_supply_catalog_pre_request_prefills_item_and_mode(): void
+    {
+        $coordinator = $this->coordinator();
+        $outOfStockItem = $this->item('A4 Glossy Photo Paper', 0);
+
+        $response = $this->actingAs($coordinator)->get(route('inventory.requests.index', [
+            'create' => 1,
+            'mode' => 'pre_request',
+            'item_id' => $outOfStockItem->id,
+        ]));
+
+        $response->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Inventory/Requests/Index')
+                ->where('initialItemId', $outOfStockItem->id)
+                ->where('initialMode', 'pre_request')
+            );
     }
 }
