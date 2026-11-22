@@ -73,6 +73,11 @@ export default function CatalogTable({
                                         </td>
                                         <td className="whitespace-nowrap px-5 py-4 text-right tabular-nums">
                                             <strong className="text-red-900 dark:text-red-300">{item.available_quantity.toLocaleString()}</strong>
+                                            {item.is_low_stock && (
+                                                <span className="block text-[11px] font-semibold text-amber-700 dark:text-amber-400">
+                                                    Low stock
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="whitespace-nowrap px-5 py-4 text-right">
                                             {eligible ? (
@@ -136,7 +141,14 @@ export default function CatalogTable({
                                     </div>
                                     <div>
                                         <dt className="text-slate-500 dark:text-slate-400">Available to request</dt>
-                                        <dd className="mt-1 font-semibold tabular-nums text-red-900 dark:text-red-300">{item.available_quantity.toLocaleString()} {item.unit}</dd>
+                                        <dd className="mt-1 font-semibold tabular-nums text-red-900 dark:text-red-300">
+                                            {item.available_quantity.toLocaleString()} {item.unit}
+                                            {item.is_low_stock && (
+                                                <span className="ml-2 text-xs font-semibold text-amber-700 dark:text-amber-400">
+                                                    (Low stock)
+                                                </span>
+                                            )}
+                                        </dd>
                                     </div>
                                 </dl>
                                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800">

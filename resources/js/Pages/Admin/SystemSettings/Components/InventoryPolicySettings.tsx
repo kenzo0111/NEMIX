@@ -102,7 +102,7 @@ export default function InventoryPolicySettings({
                         )}
                         <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
                             <Info className="w-3 h-3 text-slate-400 shrink-0" />
-                            Marks stock as low at this balance and sets the minimum stock that item requests must preserve.
+                            Marks stock as low at this balance and triggers replenishment notifications when stock meets or drops below this point, without blocking end-user requests.
                         </p>
                     </div>
 

@@ -14,6 +14,7 @@ export interface CatalogItem {
     unit: string | null;
     on_hand: number;
     available_quantity: number;
+    is_low_stock?: boolean;
     weekly_request_limit?: number | null;
     quota_remaining?: number;
     quota_week_end?: string;

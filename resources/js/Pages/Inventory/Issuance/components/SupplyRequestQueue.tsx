@@ -673,7 +673,7 @@ export function SupplyRequestQueue({
                                         <div className="pt-3 border-t border-gray-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm text-gray-500 font-sans">
-                                                    Approval saves the final quantities and deducts stock immediately. Quantities must preserve minimum stock and the requester's weekly allowance.
+                                                    Approval saves the final quantities and deducts stock immediately. Quantities are checked against available warehouse stock and the requester's weekly allowance.
                                                 </span>
                                             </div>
 

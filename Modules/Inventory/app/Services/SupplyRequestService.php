@@ -35,15 +35,14 @@ class SupplyRequestService
 
     public static function requestableQuantity(int $stock, int $reserved): int
     {
-        return max(0, $stock - $reserved - InventoryPolicy::lowThreshold());
+        return max(0, $stock - $reserved);
     }
 
     public static function stockLimitMessage(Item $item, int $maximum): string
     {
-        $minimum = InventoryPolicy::lowThreshold();
         $unit = $item->unit_of_issue ?: 'units';
 
-        return "You can request at most {$maximum} {$unit} of {$item->name}. A minimum stock of {$minimum} {$unit} must remain after existing reservations.";
+        return "You can request at most {$maximum} {$unit} of {$item->name} based on available warehouse stock and approved reservations.";
     }
 
     public static function audit(SupplyRequest $request, int $actorId, string $action): void

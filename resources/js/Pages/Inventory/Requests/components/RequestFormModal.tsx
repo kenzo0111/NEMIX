@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import Select from 'react-select';
-import { FileSpreadsheet, X, Plus, Trash2 } from 'lucide-react';
+import { FileSpreadsheet, X, Plus, Trash2, AlertTriangle } from 'lucide-react';
 import Modal from '@/Components/Modal';
 import { getInstitutionalSelectStyles } from '@/styles/selectStyles';
 import { getLocalDateString } from '@/utils/dateUtils';
@@ -49,14 +49,14 @@ export function RequestFormModal({
     const pageProps = usePage().props as any;
     const minimumStockThreshold = Number(pageProps.minimumStockThreshold ?? 10);
     const maximumQuantity = (item: RequestItem) => Math.min(
-        1000000, Math.max(0, request?.items?.find(line => line.item_id === item.id)?.max_request_quantity ?? item.max_request_quantity ?? item.stock - minimumStockThreshold)
+        1000000, Math.max(0, request?.items?.find(line => line.item_id === item.id)?.max_request_quantity ?? item.max_request_quantity ?? item.stock)
     );
     const requestableItems = useMemo(
         () => items.filter((item) => maximumQuantity(item) > 0),
-        [items, minimumStockThreshold, request]
+        [items, request]
     );
     const quantityLimitMessage = (item: RequestItem) =>
-        `Request at most ${maximumQuantity(item)} ${item.unit_of_issue || 'units'} to keep the minimum stock of ${minimumStockThreshold} ${item.unit_of_issue || 'units'} and stay within your weekly allowance. Approved quantities are already deducted.`;
+        `Request at most ${maximumQuantity(item)} ${item.unit_of_issue || 'units'} based on available warehouse stock and your weekly allowance. Approved quantities are already deducted.`;
     const sharedRoles = pageProps.auth?.roles || pageProps.auth?.user?.roles;
     const roleNames: string[] = Array.isArray(sharedRoles) ? sharedRoles : [];
     const isAuthorizedPersonnel = roleNames.some((role) => String(role).toLowerCase() === 'authorized personnel');
@@ -210,7 +210,7 @@ export function RequestFormModal({
             item: line.item_id && !item
                 ? (quotaMessage ?? (outOfStock
                     ? 'Unserviceable for requisition: out of stock. Remove this item or select another.'
-                    : `Unavailable for requisition: the minimum stock of ${minimumStockThreshold} units and approved reservations must be preserved. Remove this item or select another.`))
+                    : 'Unavailable for requisition: no stock currently available to request due to approved reservations. Remove this item or select another.'))
                 : null,
             quantity: item && Number(line.quantity) > maximumQuantity(item)
                 ? quantityLimitMessage(item)
@@ -555,7 +555,7 @@ export function RequestFormModal({
                         )}
 
                         <p className="mb-3 text-sm text-gray-500 dark:text-slate-400">
-                            Requests must leave at least {minimumStockThreshold} units in stock and stay within your weekly item allowance. Approved quantities are deducted immediately.
+                            Requisitions are subject to available warehouse stock and your weekly item allowance. Approved quantities are deducted immediately.
                         </p>
                         <div className="space-y-3">
                             {form.data.items.map((line, index) => {
@@ -670,6 +670,14 @@ export function RequestFormModal({
                                             <p id={`req_qty_help_${index}`} className="mt-2 text-sm text-gray-500 dark:text-slate-400">
                                                 Maximum request: {maxQuantity} {selectedItem.unit_of_issue || 'units'}.
                                             </p>
+                                        )}
+                                        {selectedItem && !unavailable && (Number(selectedItem.stock) <= minimumStockThreshold || (Number(line.quantity) > 0 && Number(selectedItem.stock) - Number(line.quantity) <= minimumStockThreshold)) && (
+                                            <div className="mt-2.5 p-2 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded text-xs text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
+                                                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                                                <span>
+                                                    <strong>Notice:</strong> This item {Number(selectedItem.stock) <= minimumStockThreshold ? `has met the low-stock replenishment threshold (${minimumStockThreshold} ${selectedItem.unit_of_issue || 'units'})` : `will meet or drop below the replenishment threshold (${minimumStockThreshold} ${selectedItem.unit_of_issue || 'units'}) after this request`}. You may proceed with your request; the Supply Office has been notified to replenish stock.
+                                                </span>
+                                            </div>
                                         )}
                                     </div>
                                 );

@@ -87,9 +87,9 @@ class SupplyRequestController extends Controller
             ->groupBy('lines.item_id')->selectRaw('lines.item_id, SUM(lines.approved_quantity) as quantity');
         $items = Item::query()
             ->leftJoinSub($reservations, 'reservations', 'reservations.item_id', '=', 'items.id')
-            ->whereRaw('items.stock - COALESCE(reservations.quantity, 0) > ?', [$minimumStockThreshold])
+            ->whereRaw('items.stock - COALESCE(reservations.quantity, 0) > 0')
             ->select('items.id', 'items.name', 'items.sku', 'items.stock', 'items.unit_of_issue', 'items.weekly_request_limit')
-            ->selectRaw('items.stock - COALESCE(reservations.quantity, 0) - ? as max_request_quantity', [$minimumStockThreshold])
+            ->selectRaw('items.stock - COALESCE(reservations.quantity, 0) as max_request_quantity')
             ->orderBy('items.name')->get();
         $usage = WeeklyRequestQuota::usage($request->user()->id);
         $items->each(fn ($item) => WeeklyRequestQuota::decorate($item, $usage));

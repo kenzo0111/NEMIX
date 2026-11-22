@@ -107,14 +107,16 @@ class SupplyRequestMinimumStockTest extends TestCase
         $item = $this->item(1500);
         SystemSetting::set('inventory.strict_stock_enforcement', false);
 
-        foreach ([1491, 1499, 1501] as $quantity) {
-            $this->actingAs($user)->post(route('inventory.requests.store'), $this->payload($user, $item, $quantity))
-                ->assertSessionHasErrors('items.0.quantity');
-            $this->assertDatabaseCount('supply_requests', 0);
-            $this->assertDatabaseCount('supply_request_items', 0);
-            $this->assertSame(1500, $item->fresh()->stock);
-            $this->assertSame([], Storage::disk('local')->allFiles());
-        }
+        $this->actingAs($user)->post(route('inventory.requests.store'), $this->payload($user, $item, 1501))
+            ->assertSessionHasErrors('items.0.quantity');
+        $this->assertDatabaseCount('supply_requests', 0);
+        $this->assertDatabaseCount('supply_request_items', 0);
+        $this->assertSame(1500, $item->fresh()->stock);
+        $this->assertSame([], Storage::disk('local')->allFiles());
+
+        $this->submit($user, $item, 1495);
+        $this->assertDatabaseCount('supply_requests', 1);
+        $this->assertSame(1500, $item->fresh()->stock);
     }
 
     #[DataProvider('requesterRoles')]
@@ -123,17 +125,17 @@ class SupplyRequestMinimumStockTest extends TestCase
         $user = $this->user($role);
         $custodian = $this->user('Property Custodian');
         $item = $this->item(1500);
-        $request = $this->submit($user, $item, 1490);
-        $this->approve($request, $custodian, 1490);
-        $this->assertSame(10, $item->fresh()->stock);
+        $request = $this->submit($user, $item, 1500);
+        $this->approve($request, $custodian, 1500);
+        $this->assertSame(0, $item->fresh()->stock);
         $this->assertSame(0, SupplyRequestService::reservedQuantity($item->id));
 
         $this->post(route('inventory.requests.release', $request), ['signed_ris_presented' => true])
             ->assertSessionHasNoErrors()->assertRedirect();
 
-        $this->assertSame(10, $item->fresh()->stock);
+        $this->assertSame(0, $item->fresh()->stock);
         $this->assertSame($user->requiresSupportingDocument() ? 'Released' : 'Issued', $request->fresh()->status);
-        $this->assertSame(1490, CoordinatorStock::where('coordinator_id', $user->id)->value('quantity'));
+        $this->assertSame(1500, CoordinatorStock::where('coordinator_id', $user->id)->value('quantity'));
         $this->assertSame(0, SupplyRequestService::reservedQuantity($item->id));
         $this->assertDatabaseCount('issuances', 1);
     }
@@ -150,7 +152,7 @@ class SupplyRequestMinimumStockTest extends TestCase
             ])->assertSessionHasNoErrors()->assertRedirect();
         }
         $original = $request->fresh();
-        $payload = $this->payload($user, $item, 91);
+        $payload = $this->payload($user, $item, 101);
         $payload['purpose'] = 'Changed purpose';
         $this->actingAs($user)->put(route('inventory.requests.update', $request), $payload)
             ->assertSessionHasErrors('items.0.quantity');
@@ -161,9 +163,9 @@ class SupplyRequestMinimumStockTest extends TestCase
         $this->assertSame($original->supporting_document_path, $request->fresh()->supporting_document_path);
         $this->assertCount($user->requiresSupportingDocument() ? 1 : 0, Storage::disk('local')->allFiles());
 
-        $this->put(route('inventory.requests.update', $request), $this->payload($user, $item, 90))
+        $this->put(route('inventory.requests.update', $request), $this->payload($user, $item, 100))
             ->assertSessionHasNoErrors()->assertRedirect();
-        $this->assertSame(90, $request->items()->firstOrFail()->quantity);
+        $this->assertSame(100, $request->items()->firstOrFail()->quantity);
         $this->assertSame(100, $item->fresh()->stock);
     }
 
@@ -181,14 +183,14 @@ class SupplyRequestMinimumStockTest extends TestCase
 
         $this->actingAs($user)->get(route('inventory.requests.index', ['item_id' => $item->id]))
             ->assertInertia(fn ($page) => $page->has('items', 1)->where('items.0.stock', 1500)
-                ->where('items.0.max_request_quantity', 90)->where('minimumStockThreshold', 10)
+                ->where('items.0.max_request_quantity', 100)->where('minimumStockThreshold', 10)
                 ->where('initialItemId', $item->id));
         $this->get(route('coordinator.catalog.index'))
-            ->assertInertia(fn ($page) => $page->where('items.data.0.on_hand', 1500)->where('items.data.0.available_quantity', 90));
-        $this->post(route('inventory.requests.store'), $this->payload($user, $item, 91))
+            ->assertInertia(fn ($page) => $page->where('items.data.0.on_hand', 1500)->where('items.data.0.available_quantity', 100));
+        $this->post(route('inventory.requests.store'), $this->payload($user, $item, 101))
             ->assertSessionHasErrors('items.0.quantity');
         $this->assertDatabaseCount('supply_requests', 4);
-        $this->submit($user, $item, 90);
+        $this->submit($user, $item, 100);
         $this->assertSame(1500, $item->fresh()->stock);
     }
 
@@ -196,19 +198,22 @@ class SupplyRequestMinimumStockTest extends TestCase
     public function test_stock_at_or_below_the_minimum_is_unavailable_for_requests(string $role): void
     {
         $user = $this->user($role);
-        foreach ([0, 5, 10] as $stock) {
-            $item = $this->item($stock);
-            $this->actingAs($user)->post(route('inventory.requests.store'), $this->payload($user, $item, 1))
-                ->assertSessionHasErrors($stock === 0 ? 'items.0.item_id' : 'items.0.quantity');
-            $this->get(route('inventory.requests.index', ['item_id' => $item->id]))
-                ->assertInertia(fn ($page) => $page->has('items', 0)->where('initialItemId', null));
-            $this->assertSame($stock, $item->fresh()->stock);
-        }
+        $zeroItem = $this->item(0);
+        $this->actingAs($user)->post(route('inventory.requests.store'), $this->payload($user, $zeroItem, 1))
+            ->assertSessionHasErrors('items.0.item_id');
+
+        $lowItem1 = $this->item(5);
+        $this->get(route('inventory.requests.index', ['item_id' => $lowItem1->id]))
+            ->assertInertia(fn ($page) => $page->where('initialItemId', $lowItem1->id)->where('items.0.max_request_quantity', 5));
+        $this->submit($user, $lowItem1, 5);
+
+        $lowItem2 = $this->item(10);
+        $this->get(route('inventory.requests.index', ['item_id' => $lowItem2->id]))
+            ->assertInertia(fn ($page) => $page->where('initialItemId', $lowItem2->id));
+        $this->submit($user, $lowItem2, 10);
+
         $this->get(route('coordinator.catalog.index', ['availability' => 'available']))
-            ->assertInertia(fn ($page) => $page->where('items.total', 0));
-        $this->get(route('coordinator.catalog.index', ['availability' => 'unavailable']))
-            ->assertInertia(fn ($page) => $page->where('items.total', 3));
-        $this->assertDatabaseCount('supply_requests', 0);
+            ->assertInertia(fn ($page) => $page->where('items.total', 2));
     }
 
     #[DataProvider('requesterRoles')]
@@ -218,11 +223,11 @@ class SupplyRequestMinimumStockTest extends TestCase
         $item = $this->item(100);
         SystemSetting::set('inventory.low_stock_threshold', 25);
         $this->actingAs($user)->get(route('inventory.requests.index'))
-            ->assertInertia(fn ($page) => $page->where('minimumStockThreshold', 25)->where('items.0.max_request_quantity', 75));
-        $this->post(route('inventory.requests.store'), $this->payload($user, $item, 76))
+            ->assertInertia(fn ($page) => $page->where('minimumStockThreshold', 25)->where('items.0.max_request_quantity', 100));
+        $this->post(route('inventory.requests.store'), $this->payload($user, $item, 101))
             ->assertSessionHasErrors('items.0.quantity');
         $this->assertDatabaseCount('supply_requests', 0);
-        $this->submit($user, $item, 75);
+        $this->submit($user, $item, 100);
     }
 
     #[DataProvider('requesterRoles')]

@@ -58,7 +58,8 @@ class CentralSupplyCatalogTest extends TestCase
         $this->actingAs($coordinator)->get(route('coordinator.catalog.index'))->assertOk()
             ->assertInertia(fn ($page) => $page->component('Inventory/Coordinator/Catalog')
                 ->where('items.total', 1)->where('items.data.0.id', $item->id)
-                ->where('items.data.0.on_hand', 20)->where('items.data.0.available_quantity', 5)
+                ->where('items.data.0.on_hand', 20)->where('items.data.0.available_quantity', 15)
+                ->where('items.data.0.is_low_stock', false)
                 ->missing('items.data.0.rfid_tag')->missing('items.data.0.unit_cost')
                 ->missing('items.data.0.created_by')->missing('requests')->missing('movements'));
         $this->assertSame($requestCount, SupplyRequest::count());
@@ -81,7 +82,7 @@ class CentralSupplyCatalogTest extends TestCase
         $this->actingAs($coordinator)->get(route('coordinator.catalog.index', ['search' => $available->sku]))
             ->assertInertia(fn ($page) => $page->where('items.total', 1)->where('items.data.0.id', $available->id));
         $this->actingAs($coordinator)->get(route('coordinator.catalog.index', ['availability' => 'available']))
-            ->assertInertia(fn ($page) => $page->where('items.total', 1)->where('items.data.0.available_quantity', 10));
+            ->assertInertia(fn ($page) => $page->where('items.total', 1)->where('items.data.0.available_quantity', 20));
         $this->actingAs($coordinator)->get(route('coordinator.catalog.index', ['availability' => 'unavailable']))
             ->assertInertia(fn ($page) => $page->where('items.total', 2)
                 ->where('items.data.0.id', $out->id)->where('items.data.1.id', $reserved->id)

@@ -55,7 +55,7 @@ class CoordinatorInventoryController extends Controller
             ->where('user_id', $request->user()->id)
             ->where('status', 'pending')
             ->select('id as pre_order_id', 'item_id', 'quantity_requested as pre_order_quantity', 'urgency as pre_order_urgency', 'purpose as pre_order_purpose', 'created_at as pre_order_created_at');
-        $available = "(items.stock - COALESCE(reservations.quantity, 0) - {$minimumStockThreshold})";
+        $available = "(items.stock - COALESCE(reservations.quantity, 0))";
         $query = DB::table('items')->whereNull('items.deleted_at')
             ->leftJoinSub($reservations, 'reservations', 'reservations.item_id', '=', 'items.id')
             ->leftJoinSub($userPreOrders, 'user_pre_orders', 'user_pre_orders.item_id', '=', 'items.id')
@@ -76,6 +76,7 @@ class CoordinatorInventoryController extends Controller
                 'id' => $item->id, 'name' => $item->name, 'sku' => $item->sku,
                 'description' => $item->description, 'unit' => $item->unit_of_issue,
                 'on_hand' => (int) $item->stock, 'available_quantity' => (int) $item->available_quantity,
+                'is_low_stock' => (int) $item->stock > 0 && (int) $item->stock <= $minimumStockThreshold,
                 'weekly_request_limit' => $item->weekly_request_limit,
                 'quota_remaining' => $item->weekly_request_limit === null ? 0 : max(0, $item->weekly_request_limit - ($usage[$item->id] ?? 0)),
                 'quota_week_end' => $weekEnd,
