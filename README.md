@@ -66,14 +66,6 @@ docker-compose exec laravel.test php artisan migrate
 
 The application will be available at `http://localhost:8080`
 
-### Database
-
-PostgreSQL is configured with:
-- Host: pgsql
-- Port: 5432
-- Database: laravel
-- Username: sail
-- Password: password
 
 ### Useful Docker Commands
 
