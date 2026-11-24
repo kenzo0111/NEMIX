@@ -189,7 +189,7 @@ export default function SystemModeBadge() {
         </span>
 
         <span className={`tabular-nums text-sm font-semibold tracking-normal ${config.badgeText}`}>
-          SYSTEM MODE: {config.label}
+          <span className="hidden sm:inline">SYSTEM MODE: </span>{config.label}
         </span>
 
         <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${config.badgeText} ${isOpen ? "rotate-180" : ""}`} />
@@ -197,7 +197,7 @@ export default function SystemModeBadge() {
 
       {/* Popover Switcher & Dynamic Runtime Diagnostics Panel */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2.5 w-[420px] max-w-[calc(100vw-2rem)] rounded-xl bg-gray-950 border border-red-900/80 shadow-2xl text-gray-100 z-50 overflow-hidden font-sans animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute left-0 top-full mt-2.5 w-[420px] max-w-[calc(100vw-2rem)] rounded-xl bg-gray-950 border border-red-900/80 shadow-2xl text-gray-100 z-50 overflow-hidden font-sans animate-in fade-in slide-in-from-top-2 duration-150 xl:left-auto xl:right-0">
           {/* Diagnostics Panel Header */}
           <div className="bg-red-950/90 border-b border-red-900 px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2.5">

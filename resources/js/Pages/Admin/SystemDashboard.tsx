@@ -6,7 +6,7 @@ import { Activity, Archive, CircleHelp, Database, HardDrive, Mail, ShieldCheck, 
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import DashboardContent from '@/Layouts/DashboardContent';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import DashboardControls from '@/Components/DashboardControls';
+import PageHeader from '@/Components/PageHeader';
 import { SYSTEM_ADMIN_TOUR_START_EVENT } from './systemAdminWalkthrough';
 
 type Overview = {
@@ -61,18 +61,12 @@ export default function SystemDashboard({ auth, adminOverview, recentAdminActivi
         <Head title="System Administration" />
         <DashboardLayout modules={getSidebarModules()} user={auth.user}>
             <DashboardContent>
-                <header data-tour="system-admin-dashboard-header" className="mb-6 flex flex-wrap items-end justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold normal-case tracking-[0.16em] text-blue-700 dark:text-blue-300">System Administration</p>
-                        <h1 className="mt-1 text-3xl font-semibold text-slate-900 dark:text-white">System overview</h1>
-                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Technical status, account administration, and security activity.</p>
-                    </div>
-                    <div className="flex max-w-full flex-wrap items-center gap-2 sm:gap-3">
+                <div data-tour="system-admin-dashboard-header">
+                    <PageHeader embedded title="System overview" description="Technical status, account administration, and security activity." actions={<>
                         <Button variant="secondary" type="button" data-tour="system-admin-guide-start" onClick={() => window.dispatchEvent(new Event(SYSTEM_ADMIN_TOUR_START_EVENT))} className="inline-flex min-h-10 items-center gap-2"><CircleHelp size={17} aria-hidden="true" />Walkthrough Guide</Button>
                         <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${adminOverview.databaseStatus === 'Connected' ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800"}`}><Activity size={16} /> Database {adminOverview.databaseStatus.toLowerCase()}</span>
-                        <DashboardControls className="w-auto" />
-                    </div>
-                </header>
+                    </>} />
+                </div>
 
                 <section data-tour="system-admin-dashboard-status" aria-label="System status" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     {cards.map(({ label, value, detail, icon: Icon }) => <article key={label} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">

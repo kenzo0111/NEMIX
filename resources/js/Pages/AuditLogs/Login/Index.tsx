@@ -1,13 +1,12 @@
 import { Button } from '@/Components/ui/button';
 import DashboardContent from '@/Layouts/DashboardContent';
 import React, { useState, useMemo, useEffect } from 'react';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import PageHeader from '@/Components/PageHeader';
-import MobileSidebarToggle from '@/Components/MobileSidebarToggle';
 import { secondaryButton } from '@/Pages/Inventory/Coordinator/inventory';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
-import { ShieldCheck, Printer, ChevronRight } from 'lucide-react';
+import { ShieldCheck, Printer } from 'lucide-react';
 import {
     LoginAuditPageProps,
     LoginAuditRecord,
@@ -141,26 +140,20 @@ export default function LoginAuditIndex({
             <DashboardLayout modules={modules} user={user}>
                 {/* PageHeader is completely hidden in print */}
                 <div className="print:hidden audit-print-hide">
-                    {isCoordinator ? <div className="px-4 pt-4 sm:px-7 lg:px-8"><></></div> : <PageHeader
-                        title="Login Audit Logs"
-                        description="Review sign-ins, access results, and source IP addresses."
+                    <PageHeader
+                        title={isCoordinator ? 'Login Audit' : 'Login Audit Logs'}
+                        description={isCoordinator ? 'Review recorded authentication activity, access results, and session details.' : 'Review sign-ins, access results, and source IP addresses.'}
                         breadcrumbs={[
-                            { name: 'Audit Logs' },
+                            isCoordinator ? { name: 'Coordinator Dashboard', href: route('dashboard') } : { name: 'Audit Logs' },
                             { name: 'Login Audit' },
                         ]}
-                    />}
+                        actions={isCoordinator ? <Button variant="secondary" type="button" onClick={handlePrintLedger} className={secondaryButton} title="Print or export official authentication audit ledger"><Printer size={17} />Print Ledger</Button> : undefined}
+                    />
                 </div>
 
                 <DashboardContent className="print:p-0 print:m-0 print:space-y-0 print:max-w-none print:w-full">
                     {/* Screen View (Interactive Dashboard Controls) - Hidden on Print */}
                     <div data-tour="system-admin-login-audit" className="space-y-6 print:hidden audit-print-hide">
-                        {isCoordinator && <>
-                            <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300 dark:text-red-300">Coordinator Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Login Audit</span></nav>
-                            <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
-                                <div><p className="leading-relaxed mb-2 text-sm font-semibold normal-case tracking-normal text-red-900 dark:text-red-300">Supply &amp; Property Management Office</p><h1 className="text-2xl sm:text-3xl font-sans font-semibold tracking-tight">Login Audit</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Review recorded authentication activity, access results, and session details.</p></div>
-                                <Button variant="secondary" type="button" onClick={handlePrintLedger} className={secondaryButton} title="Print or export official authentication audit ledger"><Printer size={17} />Print Ledger</Button>
-                            </section>
-                        </>}
                         {/* Subtle Institutional Security Header Banner */}
                         <div className={`${isCoordinator ? "hidden" : "flex"} flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 rounded-lg shadow-sm`}>
                             <div className="flex items-center gap-2.5">

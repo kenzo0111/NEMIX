@@ -4,6 +4,7 @@ import { Head, usePage } from '@inertiajs/react';
 import DashboardLayout from './DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import type { PageProps } from '@/types';
+import SystemHeader from '@/Components/SystemHeader';
 interface AppLayoutProps extends PropsWithChildren {
     title?: string; activeModule?: string; activeSubmodule?: string;
     header?: ReactNode; actions?: ReactNode; breadcrumbs?: ReactNode;
@@ -14,10 +15,7 @@ export default function AppLayout({ title, activeModule, activeSubmodule, header
         {title && <Head title={title} />}
         <DashboardContent>
             {breadcrumbs}
-            {(header || actions) && <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
-                <div className="min-w-0">{header}</div>
-                {actions && <div className="flex max-w-full flex-wrap items-center gap-2">{actions}</div>}
-            </div>}
+            <SystemHeader actions={actions}>{header || (title ? <h1 className="text-2xl font-semibold sm:text-3xl">{title}</h1> : undefined)}</SystemHeader>
             {children}
         </DashboardContent>
     </DashboardLayout>;

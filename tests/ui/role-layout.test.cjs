@@ -15,7 +15,8 @@ function load(file) {
     }).outputText;
     function resolve(id) {
         if (id === '@inertiajs/react') return { usePage: () => page, Head: () => null };
-        if (id === './SystemModeBadge' || id === './ThemeToggle') return { __esModule: true, default: () => null };
+        if (id === './SystemModeBadge') return { __esModule: true, default: () => React.createElement('button', { 'aria-label': 'System mode' }, 'System mode') };
+        if (id === './ThemeToggle') return { __esModule: true, default: () => React.createElement('button', { 'aria-label': 'Theme selection' }, 'Theme') };
         if (id === '@/Components/Sidebar') return { __esModule: true, default: () => React.createElement('aside', { 'aria-label': 'Main navigation' }) };
         if (id === '@/Hooks/useSidebarCollapse') return { useSidebarCollapse: () => [false, () => {}] };
         if (id.startsWith('@/')) return load(path.join('resources/js', id.slice(2)));
@@ -58,12 +59,14 @@ test('primary assigned role takes precedence over additional roles', () => {
     assert.equal(roleDesignation(session('Inventory Staff', { is_system_admin: true })), 'Administrator');
     assert.equal(roleDesignation({ user: null, roles: [], permissions: [] }), 'Staff');
 });
-test('module title and actions remain in the page overview', () => {
+test('module overview owns its scrolling header, system controls, navigation and page actions', () => {
     page = { props: { auth: session('System Admin') } };
     const html = renderToStaticMarkup(React.createElement(PageHeader, { title: 'Manage Staff', description: 'Manage user accounts.', actions: React.createElement('button', null, 'Add user') }));
     for (const text of ['Supply &amp; Property Management Office', 'Manage Staff', 'Add user', 'Manage user accounts.']) assert.ok(html.includes(text));
     assert.ok(html.includes('aria-label="Manage Staff overview"'));
-    assert.equal((html.match(/<header\b/g) || []).length, 0);
+    assert.equal((html.match(/<header\b/g) || []).length, 1);
+    for (const label of ['Toggle navigation menu', 'System mode', 'Theme selection']) assert.equal((html.match(new RegExp(`aria-label="${label}"`, 'g')) || []).length, 1);
+    assert.ok(!html.includes(SYSTEM_TITLE));
     assert.ok(!html.includes('sticky'));
     assert.ok(!html.includes('border-b'));
 });
@@ -71,21 +74,26 @@ test('operating mode notice remains visible', () => {
     page = { props: { auth: session('System Admin'), system: { mode: 'MAINTENANCE MODE' } } };
     assert.match(renderToStaticMarkup(React.createElement(Header)), /Maintenance mode: only System Administrators can make changes/);
 });
-test('shared layout preserves content, skip link, responsive sidebar offset and print behavior', () => {
-    const html = renderToStaticMarkup(React.createElement(Layout, null, React.createElement('p', null, 'Existing module')));
+test('shared layout preserves content and navigation without adding a separate header bar', () => {
+    const html = renderToStaticMarkup(React.createElement(Layout, null, React.createElement(PageHeader, { title: 'Existing module' }), React.createElement('p', null, 'Records')));
     for (const text of ['Existing module', 'Skip to content', 'md:ml-72', 'print:ml-0', 'min-w-0', 'workspace-content']) assert.ok(html.includes(text));
     assert.equal((html.match(/Toggle navigation menu/g) || []).length, 1);
     assert.equal((html.match(/<header\b/g) || []).length, 1);
     assert.ok(html.includes('Maintenance mode:'));
+    assert.ok(!html.includes('sticky'));
+    assert.ok(!html.includes(SYSTEM_TITLE));
 });
 
-test('composed module and alternate layout share one role header and navigation control', () => {
+test('alternate layout places system controls and navigation in its supplied page header', () => {
     page = { props: { auth: session('Authorized Personnel'), system: { mode: 'TRAINING SIMULATION' } } };
     const AppLayout = load('resources/js/Layouts/AppLayout.tsx').default;
     const html = renderToStaticMarkup(React.createElement(AppLayout, { title: 'My requests', header: React.createElement('h1', null, 'My requests') }, React.createElement('p', null, 'Records')));
     assert.equal((html.match(/Toggle navigation menu/g) || []).length, 1);
-    assert.equal((html.match(/data-role-designation/g) || []).length, 1);
-    assert.ok(html.includes('Authorized Personnel'));
+    assert.equal((html.match(/<header\b/g) || []).length, 1);
+    assert.equal((html.match(/aria-label="System mode"/g) || []).length, 1);
+    assert.equal((html.match(/aria-label="Theme selection"/g) || []).length, 1);
+    assert.ok(!html.includes(SYSTEM_TITLE));
+    assert.ok(!html.includes('sticky'));
     assert.ok(html.includes('Training mode: using sample data.'));
     assert.ok(html.includes('My requests') && html.includes('Records'));
 });
