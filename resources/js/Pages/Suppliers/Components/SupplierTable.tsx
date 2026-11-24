@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { SupplierTableProps } from '../types';
 import { SupplierRow } from './SupplierRow';
@@ -22,7 +23,7 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
         <div className="w-full min-w-0">
             {/* Table */}
             <div className="overflow-x-auto min-w-0 w-full">
-                <table className="w-full text-left border-collapse min-w-[53rem]">
+                <table className="ui-data-table w-full text-left border-collapse min-w-[53rem]">
                     <thead className="bg-gray-50/75 dark:bg-slate-900/75 border-b border-gray-200 dark:border-slate-800">
                         <tr>
                             <SortableTableHeader column="name" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal whitespace-nowrap min-w-[12.5rem]">
@@ -65,7 +66,7 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
 
             {/* Pagination Controls */}
             {totalCount > 0 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 text-sm">
+                <div className="ui-pagination flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 text-sm">
                     <span className="text-gray-600 dark:text-slate-400 font-medium">
                         Showing <span className="font-semibold text-gray-900 dark:text-slate-100">{startIndex}</span> to{' '}
                         <span className="font-semibold text-gray-900 dark:text-slate-100">{endIndex}</span> of{' '}
@@ -73,28 +74,28 @@ export const SupplierTable: React.FC<SupplierTableProps> = ({
                     </span>
 
                     <div className="flex items-center gap-2">
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => onPageChange(currentPage - 1)}
                             disabled={currentPage === 1}
                             aria-label="Go to previous page"
-                            className="min-h-[38px] px-3.5 py-1.5 border border-gray-300 dark:border-slate-700 rounded text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                            className="min-h-[38px]"
                         >
                             Previous
-                        </button>
+                        </Button>
                         <span className="text-gray-600 dark:text-slate-400 font-medium px-1">
                             Page <span className="font-semibold text-gray-900 dark:text-slate-100">{currentPage}</span> of{' '}
                             <span className="font-semibold text-gray-900 dark:text-slate-100">{totalPages}</span>
                         </span>
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => onPageChange(currentPage + 1)}
                             disabled={currentPage >= totalPages}
                             aria-label="Go to next page"
-                            className="min-h-[38px] px-3.5 py-1.5 border border-gray-300 dark:border-slate-700 rounded text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                            className="min-h-[38px]"
                         >
                             Next
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}

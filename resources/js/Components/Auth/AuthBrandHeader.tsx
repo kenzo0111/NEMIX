@@ -23,28 +23,28 @@ export default function AuthBrandHeader({
     const officeName = branding?.officeName || 'Supply & Property Management Office (SPMO)';
 
     return (
-        <div className={`pb-6 mb-6 border-b border-stone-200 dark:border-slate-800 ${alignment === 'center' ? 'text-center' : ''} ${className}`}>
-            <div className={`flex items-center gap-3 ${alignment === 'center' ? 'flex-col' : ''}`}>
-                <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-stone-200 dark:border-slate-700 shadow-xs shrink-0 flex items-center justify-center">
+        <div className={`pb-6 mb-6 border-b border-stone-200 dark:border-slate-800 ${alignment === 'center' ? "text-center" : ""} ${className}`}>
+            <div className={`flex items-center gap-3 ${alignment === 'center' ? "flex-col" : ""}`}>
+                <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-stone-200 dark:border-slate-700 shadow-sm shrink-0 flex items-center justify-center">
                     <ApplicationLogo alt={`${institutionName} Seal`} className="h-10 w-10 object-contain" />
                 </div>
-                <div className={`min-w-0 ${alignment === 'center' ? 'w-full text-center' : 'flex-1 text-left'}`}>
-                    <p className="text-[10px] sm:text-xs font-medium uppercase tracking-wide text-[#7B1113] dark:text-amber-300 mb-1">
+                <div className={`min-w-0 ${alignment === 'center' ? "w-full text-center" : "flex-1 text-left"}`}>
+                    <p className="text-sm sm:text-sm font-medium normal-case tracking-normal text-[#7B1113] dark:text-amber-300 mb-1">
                         REPUBLIC OF THE PHILIPPINES
                     </p>
-                    <h1 className="text-base sm:text-lg font-sans font-bold uppercase text-stone-900 dark:text-slate-100 leading-snug break-words">
+                    <p className="text-base sm:text-lg font-sans font-semibold normal-case text-stone-900 dark:text-slate-100 leading-snug break-words">
                         {institutionName}
-                    </h1>
-                    <p className="text-xs leading-snug text-stone-600 dark:text-slate-300 break-words">
+                    </p>
+                    <p className="text-sm leading-snug text-stone-600 dark:text-slate-300 break-words">
                         {officeName}
                     </p>
                 </div>
             </div>
             {showSystemBranding && (
                 <>
-                    <h2 className="text-xl font-bold tracking-tight text-[#7B1113] dark:text-red-400 leading-snug mt-4">
+                    <p className="text-xl font-semibold tracking-tight text-[#7B1113] dark:text-red-400 leading-snug mt-4">
                         {headline}
-                    </h2>
+                    </p>
                     <p className="mt-2 text-sm font-medium text-stone-600 dark:text-slate-300 leading-relaxed">
                         Consumable Supply Management
                     </p>

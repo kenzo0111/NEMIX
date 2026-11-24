@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Select, { SingleValue } from 'react-select';
 import { Search, RotateCcw, Calendar as CalendarIcon, X, Layers, ListFilter } from 'lucide-react';
@@ -190,39 +191,31 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
     );
 
     return (
-        <div className="table-toolbar bg-white dark:bg-slate-900 rounded-lg border border-gray-200/90 dark:border-slate-800 shadow-2xs p-4 space-y-3 w-full min-w-0">
+        <div className="table-toolbar bg-white dark:bg-slate-900 rounded-lg border border-gray-200/90 dark:border-slate-800 shadow-sm p-4 space-y-3 w-full min-w-0">
             {/* View Mode Toggle Strip & Search */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-slate-800">
                 <div className="flex items-center gap-1.5 p-1 bg-gray-100/80 dark:bg-slate-800 rounded-md border border-gray-200/80 dark:border-slate-700 self-start sm:self-auto">
-                    <button
+                    <Button variant="tab"
                         type="button"
                         onClick={() => handleToggleViewMode('business')}
                                 aria-pressed={viewMode === 'business'}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 text-sm font-semibold rounded transition-colors ${
-                            viewMode === 'business'
-                                ? 'bg-red-950 text-white shadow-2xs border border-red-950 font-bold'
-                                : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200'
-                        }`}
+                        className="inline-flex items-center gap-1.5"
                         title="Show clean top-level business transactions with expandable details"
                     >
                         <Layers className="w-3.5 h-3.5" />
                         <span>Business Events</span>
-                    </button>
+                    </Button>
 
-                    <button
+                    <Button variant="tab"
                         type="button"
                         onClick={() => handleToggleViewMode('technical')}
                                 aria-pressed={viewMode === 'technical'}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 text-sm font-semibold rounded transition-colors ${
-                            viewMode === 'technical'
-                                ? 'bg-red-950 text-white shadow-2xs border border-red-950 font-bold'
-                                : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200'
-                        }`}
+                        className="inline-flex items-center gap-1.5"
                         title="Show raw technical stream of all low-level system records"
                     >
                         <ListFilter className="w-3.5 h-3.5" />
                         <span>All Technical Events</span>
-                    </button>
+                    </Button>
                 </div>
 
                 <div className="text-sm text-gray-500 dark:text-slate-400 font-medium">
@@ -237,23 +230,23 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 {/* Search Box */}
                 <div className="relative flex-1 min-w-[240px]">
-                    <Search className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <Search className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                         type="text"
                         value={search}
                         onChange={(e) => handleSearchChange(e.target.value)}
                         placeholder="Search user, action, RIS number, reference, item name..."
-                        className="table-control w-full pl-9 pr-8 text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 font-medium placeholder-gray-400 dark:placeholder-slate-500"
+                        className="ui-field table-control w-full pl-9 pr-8 text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 focus:border-red-900 font-medium placeholder-gray-400 dark:placeholder-slate-500"
                     />
                     {search && (
-                        <button
+                        <Button variant="secondary" size="icon"
                             type="button"
                             onClick={handleClearSearch}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700"
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2"
                             title="Clear search"
                         >
                             <X className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                     )}
                 </div>
 
@@ -300,15 +293,15 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
 
                     {/* Reset Button */}
                     {hasActiveFilters && (
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={onReset}
-                            className="inline-flex table-control items-center gap-1.5 px-3 text-sm font-semibold text-red-900 dark:text-red-300 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/40 rounded-md transition-colors"
+                            className="inline-flex table-control items-center gap-1.5"
                             title="Reset all filters"
                         >
                             <RotateCcw className="w-3.5 h-3.5" />
                             <span>Reset</span>
-                        </button>
+                        </Button>
                     )}
                 </div>
             </div>
@@ -327,7 +320,7 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
                             type="date"
                             value={filters.date_from || ''}
                             onChange={(e) => handleCustomDateChange('from', e.target.value)}
-                            className="table-control px-2 text-sm border border-gray-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900 focus:border-red-900"
+                            className="ui-field table-control px-2 text-sm border border-gray-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900 focus:border-red-900"
                         />
                     </div>
 
@@ -337,12 +330,12 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
                             type="date"
                             value={filters.date_to || ''}
                             onChange={(e) => handleCustomDateChange('to', e.target.value)}
-                            className="table-control px-2 text-sm border border-gray-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900 focus:border-red-900"
+                            className="ui-field table-control px-2 text-sm border border-gray-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900 focus:border-red-900"
                         />
                     </div>
 
                     {(filters.date_from || filters.date_to) && (
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => {
                                 onFilterChange({
@@ -352,10 +345,10 @@ export const TransactionAuditToolbar: React.FC<TransactionAuditToolbarProps> = (
                                     page: 1,
                                 });
                             }}
-                            className="text-sm text-gray-500 dark:text-slate-400 hover:text-red-900 dark:hover:text-red-400 underline ml-auto"
+                            className="underline ml-auto"
                         >
                             Clear dates
-                        </button>
+                        </Button>
                     )}
                 </div>
             )}

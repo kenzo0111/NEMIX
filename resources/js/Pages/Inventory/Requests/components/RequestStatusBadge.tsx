@@ -1,77 +1,23 @@
 import React from 'react';
+import StatusBadge, { type StatusTone } from '@/Components/ui/status-badge';
 import { SupplyRequest } from '../types';
-
+const statuses: Record<SupplyRequest['status'], { label: string; tone: StatusTone }> = {
+    'Pending Verification': { label: 'Pending Verification', tone: 'warning' },
+    'For Correction': { label: 'For Correction', tone: 'danger' },
+    'Under Review': { label: 'Under Review', tone: 'warning' },
+    'Ready for Pickup': { label: 'Ready for Pickup', tone: 'info' },
+    Released: { label: 'Released', tone: 'success' },
+    Pending: { label: 'Pending Review', tone: 'warning' },
+    Approved: { label: 'Approved · Awaiting Release', tone: 'info' },
+    Issued: { label: 'Issued · Released', tone: 'success' },
+    Rejected: { label: 'Rejected', tone: 'danger' },
+    Cancelled: { label: 'Cancelled', tone: 'neutral' },
+    'Pre-Requested': { label: 'Pre-Requested · Awaiting Replenishment', tone: 'warning' },
+    'Stock Restocked': { label: 'Stock Restocked · Ready for Requisition', tone: 'success' },
+};
 export function RequestStatusBadge({ status }: { status: SupplyRequest['status'] }) {
-    const config: Record<
-        SupplyRequest['status'],
-        { label: string; bg: string; text: string; border: string; dot: string }
-    > = {
-        'Pending Verification': { label: 'Pending Verification', bg: 'bg-amber-50 dark:bg-amber-950/40', text: 'text-amber-800 dark:text-amber-300', border: 'border-amber-200 dark:border-amber-800', dot: 'bg-amber-500' },
-        'For Correction': { label: 'For Correction', bg: 'bg-rose-50 dark:bg-rose-950/40', text: 'text-rose-800 dark:text-rose-300', border: 'border-rose-200 dark:border-rose-800', dot: 'bg-rose-500' },
-        'Under Review': { label: 'Under Review', bg: 'bg-amber-50 dark:bg-amber-950/40', text: 'text-amber-800 dark:text-amber-300', border: 'border-amber-200 dark:border-amber-800', dot: 'bg-amber-500' },
-        'Ready for Pickup': { label: 'Ready for Pickup', bg: 'bg-blue-50 dark:bg-blue-950/40', text: 'text-blue-800 dark:text-blue-300', border: 'border-blue-200 dark:border-blue-800', dot: 'bg-blue-500' },
-        Released: { label: 'Released', bg: 'bg-emerald-50 dark:bg-emerald-950/40', text: 'text-emerald-800 dark:text-emerald-300', border: 'border-emerald-200 dark:border-emerald-800', dot: 'bg-emerald-500' },
-        Pending: {
-            label: 'Pending Review',
-            bg: 'bg-amber-50 dark:bg-amber-950/40',
-            text: 'text-amber-800 dark:text-amber-300',
-            border: 'border-amber-200 dark:border-amber-800',
-            dot: 'bg-amber-500',
-        },
-        Approved: {
-            label: 'Approved · Awaiting Release',
-            bg: 'bg-blue-50 dark:bg-blue-950/40',
-            text: 'text-blue-800 dark:text-blue-300',
-            border: 'border-blue-200 dark:border-blue-800',
-            dot: 'bg-blue-500',
-        },
-        Issued: {
-            label: 'Issued · Released',
-            bg: 'bg-emerald-50 dark:bg-emerald-950/40',
-            text: 'text-emerald-800 dark:text-emerald-300',
-            border: 'border-emerald-200 dark:border-emerald-800',
-            dot: 'bg-emerald-500',
-        },
-        Rejected: {
-            label: 'Rejected',
-            bg: 'bg-rose-50 dark:bg-rose-950/40',
-            text: 'text-rose-800 dark:text-rose-300',
-            border: 'border-rose-200 dark:border-rose-800',
-            dot: 'bg-rose-500',
-        },
-        Cancelled: {
-            label: 'Cancelled',
-            bg: 'bg-gray-100 dark:bg-slate-800',
-            text: 'text-gray-700 dark:text-slate-300',
-            border: 'border-gray-200 dark:border-slate-700',
-            dot: 'bg-gray-400',
-        },
-        'Pre-Requested': {
-            label: 'Pre-Requested · Awaiting Replenishment',
-            bg: 'bg-amber-50 dark:bg-amber-950/40',
-            text: 'text-amber-800 dark:text-amber-300',
-            border: 'border-amber-200 dark:border-amber-800',
-            dot: 'bg-amber-500',
-        },
-        'Stock Restocked': {
-            label: 'Stock Restocked · Ready for Requisition',
-            bg: 'bg-emerald-50 dark:bg-emerald-950/40',
-            text: 'text-emerald-800 dark:text-emerald-300',
-            border: 'border-emerald-200 dark:border-emerald-800',
-            dot: 'bg-emerald-500',
-        },
-    };
-
-    const item = config[status] || config.Pending;
-
-    return (
-        <span
-            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-sm font-semibold border leading-none whitespace-nowrap ${item.bg} ${item.text} ${item.border}`}
-        >
-            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${item.dot}`} />
-            <span>{item.label}</span>
-        </span>
-    );
+    const item = statuses[status] || statuses.Pending;
+    return <StatusBadge tone={item.tone}>{item.label}</StatusBadge>;
 }
 
 export function ItemQuantityDisplay({
@@ -88,7 +34,7 @@ export function ItemQuantityDisplay({
     if (status === 'Pending' || approved === null || approved === undefined) {
         return (
             <span className="tabular-nums font-medium text-gray-800 dark:text-slate-200">
-                {requested} <span className="text-gray-400 text-sm font-sans">{unit}</span>
+                {requested} <span className="text-slate-500 text-sm font-sans dark:text-slate-300">{unit}</span>
             </span>
         );
     }
@@ -98,10 +44,10 @@ export function ItemQuantityDisplay({
     return (
         <div className="inline-flex flex-col items-start tabular-nums">
             <div className="flex items-center gap-1.5">
-                <span className={`font-bold ${isAdjusted ? 'text-amber-700 dark:text-amber-400' : 'text-gray-900 dark:text-slate-100'}`}>
+                <span className={`font-semibold ${isAdjusted ? "text-amber-700 dark:text-amber-400" : "text-gray-900 dark:text-slate-100"}`}>
                     {approved}
                 </span>
-                <span className="text-gray-400 text-sm font-sans">
+                <span className="text-slate-500 text-sm font-sans dark:text-slate-300">
                     / {requested} {unit}
                 </span>
             </div>

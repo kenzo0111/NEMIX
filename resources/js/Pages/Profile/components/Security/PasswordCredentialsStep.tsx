@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { FormEventHandler } from 'react';
 import { Lock, KeyRound, Eye, EyeOff, AlertCircle, ArrowRight, RotateCcw } from 'lucide-react';
 import PasswordRequirements from './PasswordRequirements';
@@ -54,7 +55,7 @@ export default function PasswordCredentialsStep({
         <form onSubmit={onSubmit} className="space-y-6 max-w-2xl">
             {/* Information Header */}
             <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                <span className="font-bold text-slate-900 dark:text-slate-100">Security Verification:</span> To protect institutional integrity, advancing to the next step will verify your active credentials and dispatch a 6-digit one-time code to your registered university email.
+                <span className="font-semibold text-slate-900 dark:text-slate-100">Security Verification:</span> To protect institutional integrity, advancing to the next step will verify your active credentials and dispatch a 6-digit one-time code to your registered university email.
             </div>
 
             {/* General Error Banner */}
@@ -62,7 +63,7 @@ export default function PasswordCredentialsStep({
                 <div className="p-3.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-900 dark:text-rose-200 flex items-start gap-2.5 text-sm">
                     <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
                     <div>
-                        <p className="font-bold">Request Error</p>
+                        <p className="font-semibold">Request Error</p>
                         <p className="text-rose-700 dark:text-rose-300 mt-0.5">{errors.general}</p>
                     </div>
                 </div>
@@ -77,10 +78,10 @@ export default function PasswordCredentialsStep({
                     Current Password <span className="text-rose-600 dark:text-rose-400">*</span>
                 </label>
                 <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                         <Lock className="w-4 h-4" />
                     </div>
-                    <input
+                    <input aria-invalid={Boolean(errors.current_password)}
                         id="current_password"
                         ref={currentPasswordInputRef}
                         type={showCurrentPassword ? 'text' : 'password'}
@@ -89,21 +90,18 @@ export default function PasswordCredentialsStep({
                         required
                         autoComplete="current-password"
                         disabled={isSubmitting}
-                        className={`w-full pl-9 pr-10 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${
-                            errors.current_password
-                                ? 'border-rose-400 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500'
-                                : 'border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600'
-                        }`}
+                        className={"ui-field " + (`w-full pl-9 pr-10 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${errors.current_password
+    ? "border-rose-400 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"}`)}
                         placeholder="Enter your existing account password"
                     />
-                    <button
+                    <Button variant="secondary"
                         type="button"
                         onClick={() => setShowCurrentPassword((prev) => !prev)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none cursor-pointer"
+                        className="absolute inset-y-0 right-0 flex items-center"
                         tabIndex={-1}
                     >
                         {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
+                    </Button>
                 </div>
                 {errors.current_password && (
                     <p className="leading-relaxed mt-1 text-sm text-rose-600 dark:text-rose-400 flex items-center gap-1 font-medium">
@@ -124,10 +122,10 @@ export default function PasswordCredentialsStep({
                         New Password <span className="text-rose-600 dark:text-rose-400">*</span>
                     </label>
                     <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                             <KeyRound className="w-4 h-4" />
                         </div>
-                        <input
+                        <input aria-invalid={Boolean(errors.password)}
                             id="new_password"
                             ref={newPasswordInputRef}
                             type={showNewPassword ? 'text' : 'password'}
@@ -136,21 +134,18 @@ export default function PasswordCredentialsStep({
                             required
                             autoComplete="new-password"
                             disabled={isSubmitting}
-                            className={`w-full pl-9 pr-10 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${
-                                errors.password
-                                    ? 'border-rose-400 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500'
-                                    : 'border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600'
-                            }`}
+                            className={"ui-field " + (`w-full pl-9 pr-10 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${errors.password
+    ? "border-rose-400 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"}`)}
                             placeholder="Enter new password"
                         />
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => setShowNewPassword((prev) => !prev)}
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none cursor-pointer"
+                            className="absolute inset-y-0 right-0 flex items-center"
                             tabIndex={-1}
                         >
                             {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
+                        </Button>
                     </div>
                     {errors.password && (
                         <p className="leading-relaxed mt-1 text-sm text-rose-600 dark:text-rose-400 flex items-center gap-1 font-medium">
@@ -169,10 +164,10 @@ export default function PasswordCredentialsStep({
                         Confirm New Password <span className="text-rose-600 dark:text-rose-400">*</span>
                     </label>
                     <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                             <KeyRound className="w-4 h-4" />
                         </div>
-                        <input
+                        <input aria-invalid={Boolean(errors.password_confirmation)}
                             id="password_confirmation"
                             type={showConfirmPassword ? 'text' : 'password'}
                             value={confirmPassword}
@@ -180,21 +175,18 @@ export default function PasswordCredentialsStep({
                             required
                             autoComplete="new-password"
                             disabled={isSubmitting}
-                            className={`w-full pl-9 pr-10 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${
-                                errors.password_confirmation
-                                    ? 'border-rose-400 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500'
-                                    : 'border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600'
-                            }`}
+                            className={"ui-field " + (`w-full pl-9 pr-10 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 transition-all ${errors.password_confirmation
+    ? "border-rose-400 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500" : "border-slate-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"}`)}
                             placeholder="Confirm new password"
                         />
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => setShowConfirmPassword((prev) => !prev)}
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none cursor-pointer"
+                            className="absolute inset-y-0 right-0 flex items-center"
                             tabIndex={-1}
                         >
                             {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
+                        </Button>
                     </div>
                     {errors.password_confirmation && (
                         <p className="leading-relaxed mt-1 text-sm text-rose-600 dark:text-rose-400 flex items-center gap-1 font-medium">
@@ -218,24 +210,20 @@ export default function PasswordCredentialsStep({
                 </p>
 
                 <div className="flex items-center gap-3 ml-auto">
-                    <button
+                    <Button variant="secondary"
                         type="button"
                         onClick={onReset}
                         disabled={isSubmitting || (!currentPassword && !newPassword && !confirmPassword)}
-                        className="px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-750 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="flex items-center gap-1.5"
                     >
                         <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                         <span>Reset</span>
-                    </button>
+                    </Button>
 
-                    <button
+                    <Button variant="primary"
                         type="submit"
                         disabled={isSubmitting || !isStep1Valid}
-                        className={`px-4 py-2 rounded-xl text-sm font-semibold text-white flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98] ${
-                            isStep1Valid && !isSubmitting
-                                ? 'bg-red-900 hover:bg-red-800 active:bg-red-950 shadow-red-950/15 shadow-md'
-                                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed shadow-none'
-                        }`}
+                        className="flex items-center gap-2"
                     >
                         {isSubmitting ? (
                             <>
@@ -251,7 +239,7 @@ export default function PasswordCredentialsStep({
                                 <ArrowRight className="w-3.5 h-3.5" />
                             </>
                         )}
-                    </button>
+                    </Button>
                 </div>
             </div>
         </form>

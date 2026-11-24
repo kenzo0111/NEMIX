@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import useAuthorization from '@/Hooks/useAuthorization';
 import { router, usePage } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, CheckCircle2, Compass, X } from 'lucide-react';
@@ -241,15 +242,15 @@ export default function CoordinatorWalkthroughGuide() {
     if (!active || !usesRequesterWorkspace || !steps[stepIndex]) return null;
 
     if (completed) return <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-[1px]" role="dialog" aria-modal="true" aria-label={`${roleName} walkthrough completed`}>
-        <div ref={tooltipRef} tabIndex={-1} className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-2xl outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+        <div ref={tooltipRef} tabIndex={-1} className="w-full max-w-lg overflow-hidden rounded-xl border border-slate-200 bg-white text-slate-900 shadow-2xl outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
             <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-800 to-amber-400" />
             <div className="p-6 sm:p-7">
                 <div className="flex items-start justify-between gap-4">
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"><CheckCircle2 size={28} aria-hidden="true" /></span>
-                    <button type="button" onClick={close} aria-label="Close completion message" className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"><X size={18} /></button>
+                    <Button variant="ghost" size="icon" type="button" onClick={close} aria-label="Close completion message" className=""><X size={18} /></Button>
                 </div>
-                <p className="mt-5 text-sm font-bold text-emerald-700 dark:text-emerald-300">Walkthrough complete</p>
-                <h2 className="mt-1 text-2xl font-bold tracking-tight">You are ready for day-to-day operations</h2>
+                <p className="mt-5 text-sm font-semibold text-emerald-700 dark:text-emerald-300">Walkthrough complete</p>
+                <h2 className="mt-1 text-2xl font-semibold tracking-tight">You are ready for day-to-day operations</h2>
                 <div className="mt-5 space-y-3">
                     <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200">You can always return to this walkthrough from the <strong>Walkthrough Guide</strong> button on your dashboard.</p>
                     <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-950 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-200">{isAuthorizedPersonnel
@@ -258,7 +259,7 @@ export default function CoordinatorWalkthroughGuide() {
                 </div>
             </div>
             <div className="flex justify-end border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-800 dark:bg-slate-950/50">
-                <button type="button" onClick={() => { close(); router.visit(route('dashboard')); }} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-red-900 px-4 text-sm font-semibold text-white hover:bg-red-950">Go to Dashboard<ArrowRight size={16} aria-hidden="true" /></button>
+                <Button variant="primary" type="button" onClick={() => { close(); router.visit(route('dashboard')); }} className="inline-flex min-h-10 items-center gap-2">Go to Dashboard<ArrowRight size={16} aria-hidden="true" /></Button>
             </div>
         </div>
     </div>;
@@ -290,18 +291,18 @@ export default function CoordinatorWalkthroughGuide() {
             <div className="p-5">
                 <div className="flex items-start justify-between gap-4">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-900 dark:bg-red-950/50 dark:text-red-300"><Compass size={21} /></span>
-                    <button type="button" onClick={close} aria-label="Exit walkthrough" className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"><X size={18} /></button>
+                    <Button variant="secondary" size="icon" type="button" onClick={close} aria-label="Exit walkthrough" className=""><X size={18} /></Button>
                 </div>
-                <p className="mt-4 text-sm font-bold text-red-900 dark:text-red-300">{step.eyebrow}</p>
-                <h2 className="mt-1 text-xl font-bold tracking-tight">{step.title}</h2>
+                <p className="mt-4 text-sm font-semibold text-red-900 dark:text-red-300">{step.eyebrow}</p>
+                <h2 className="mt-1 text-xl font-semibold tracking-tight">{step.title}</h2>
                 <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{step.description}</p>
                 <p className="mt-3 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"><CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400" />This tour never changes records.</p>
             </div>
             <div className="flex items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-5 py-3.5 dark:border-slate-800 dark:bg-slate-950/50">
                 <span className="text-sm tabular-nums text-slate-500 dark:text-slate-400">{stepIndex + 1} / {steps.length}</span>
                 <div className="flex items-center gap-2">
-                    {stepIndex > 0 && <button type="button" onClick={() => moveTo(stepIndex - 1)} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"><ArrowLeft size={15} />Back</button>}
-                    <button type="button" onClick={() => stepIndex === steps.length - 1 ? complete() : moveTo(stepIndex + 1)} className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-red-900 px-3.5 text-sm font-semibold text-white hover:bg-red-950">{stepIndex === steps.length - 1 ? 'Finish' : 'Next'}{stepIndex < steps.length - 1 && <ArrowRight size={15} />}</button>
+                    {stepIndex > 0 && <Button variant="secondary" type="button" onClick={() => moveTo(stepIndex - 1)} className="inline-flex min-h-9 items-center gap-1"><ArrowLeft size={15} />Back</Button>}
+                    <Button variant="primary" type="button" onClick={() => stepIndex === steps.length - 1 ? complete() : moveTo(stepIndex + 1)} className="inline-flex min-h-9 items-center gap-1">{stepIndex === steps.length - 1 ? 'Finish' : 'Next'}{stepIndex < steps.length - 1 && <ArrowRight size={15} />}</Button>
                 </div>
             </div>
         </div>

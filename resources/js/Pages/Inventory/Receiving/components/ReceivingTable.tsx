@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { ReceivingRecord, PaginatedData, ReceivingSortKey } from '../types';
 import { ReceivingRow } from './ReceivingRow';
@@ -37,31 +38,31 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
         <div className="overflow-hidden min-w-0 w-full">
             {/* Table */}
             <div className="overflow-x-auto min-w-0 w-full">
-                <table className="w-full text-left border-collapse min-w-[60rem] divide-y divide-gray-200 dark:divide-slate-800">
+                <table className="ui-data-table w-full text-left border-collapse min-w-[60rem] divide-y divide-gray-200 dark:divide-slate-800">
                     <thead className="bg-gray-50/80 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800">
                         <tr>
-                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[12.5rem]">
+                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-semibold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[12.5rem]">
                                 Item Received
                             </SortableTableHeader>
-                            <SortableTableHeader column="supplier" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[11.25rem]">
+                            <SortableTableHeader column="supplier" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-semibold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[11.25rem]">
                                 Supplier
                             </SortableTableHeader>
-                            <SortableTableHeader column="quantity" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="quantity" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-semibold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Received
                             </SortableTableHeader>
-                            <SortableTableHeader column="remaining" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="remaining" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-semibold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Remaining
                             </SortableTableHeader>
-                            <SortableTableHeader column="unit_cost" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="unit_cost" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-semibold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Unit Cost
                             </SortableTableHeader>
-                            <SortableTableHeader column="amount" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-bold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="amount" activeColumn={sortKey} direction={sortDirection} onSort={onSort} align="right" className="px-6 py-3.5 text-sm font-semibold tracking-normal text-right text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Batch Amount
                             </SortableTableHeader>
-                            <SortableTableHeader column="date" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-bold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="date" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 text-sm font-semibold tracking-normal text-left text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Date Received
                             </SortableTableHeader>
-                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[10rem]">
+                            <th scope="col" className="px-6 py-3.5 text-right text-sm font-semibold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[10rem]">
                                 Actions
                             </th>
                         </tr>
@@ -72,7 +73,7 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
                                 <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
                                     <div className="flex flex-col items-center justify-center">
                                         <svg
-                                            className="w-10 h-10 text-gray-300 dark:text-slate-600 mb-2"
+                                            className="w-10 h-10 text-gray-300 dark:text-slate-400 mb-2"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -115,32 +116,32 @@ export const ReceivingTable: React.FC<ReceivingTableProps> = ({
 
             {/* Pagination Controls */}
             {paginationMeta && totalRecords > 0 && (
-                <div className="px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="ui-pagination px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="text-sm text-gray-600 dark:text-slate-400">
                         Showing <span className="font-semibold text-gray-900 dark:text-slate-200">{fromRecord}</span> to{' '}
                         <span className="font-semibold text-gray-900 dark:text-slate-200">{toRecord}</span> of{' '}
                         <span className="font-semibold text-gray-900 dark:text-slate-200">{totalRecords}</span> entries
                     </div>
                     <div className="flex items-center gap-1">
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => onPageChange(currentPage - 1)}
                             disabled={currentPage <= 1}
-                            className="px-3 py-1.5 text-sm font-medium rounded border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            className=""
                         >
                             Previous
-                        </button>
+                        </Button>
                         <span className="px-3 text-sm text-gray-600 dark:text-slate-400">
                             Page {currentPage} of {lastPage}
                         </span>
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => onPageChange(currentPage + 1)}
                             disabled={currentPage >= lastPage}
-                            className="px-3 py-1.5 text-sm font-medium rounded border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            className=""
                         >
                             Next
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}

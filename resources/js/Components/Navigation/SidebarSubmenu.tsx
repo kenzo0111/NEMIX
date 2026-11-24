@@ -24,10 +24,7 @@ export default function SidebarSubmenu({
             id={id}
             role="region"
             aria-label="Submenu"
-            className={`
-                overflow-hidden transition-all duration-200 ease-in-out
-                ${isExpanded ? 'max-h-64 opacity-100 mt-1' : 'max-h-0 opacity-0 pointer-events-none'}
-            `}
+            className={` overflow-hidden transition-all duration-200 ease-in-out ${isExpanded ? "max-h-64 opacity-100 mt-1" : "max-h-0 opacity-0 pointer-events-none"} `}
         >
             <div className="ml-5 pl-3 py-1 space-y-0.5 border-l border-amber-400/30">
                 {submodules.map((subItem) => (
@@ -35,20 +32,12 @@ export default function SidebarSubmenu({
                         key={subItem.key}
                         href={subItem.href}
                         aria-current={subItem.active ? 'page' : undefined}
-                        className={`
-                            flex items-center justify-between px-2.5 py-1.5 text-sm rounded-md transition-colors duration-150
-                            ${
-                                subItem.active
-                                    ? 'text-amber-300 font-medium bg-red-900/50'
-                                    : 'text-red-200/70 hover:text-white hover:bg-white/5'
-                            }
-                        `}
+                        className={` flex items-center justify-between px-2.5 py-1.5 text-sm rounded-md transition-colors duration-150 ${subItem.active
+    ? "text-amber-300 font-medium bg-red-900/50" : "text-red-200/70 hover:text-white hover:bg-white/5"} `}
                     >
                         <div className="flex min-w-0 items-center gap-2">
                             <span
-                                className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors ${
-                                    subItem.active ? 'bg-amber-400' : 'bg-red-800'
-                                }`}
+                                className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors ${subItem.active ? "bg-amber-400" : "bg-red-800"}`}
                             />
                             <span className="whitespace-normal text-left leading-snug">{subItem.title}</span>
                         </div>

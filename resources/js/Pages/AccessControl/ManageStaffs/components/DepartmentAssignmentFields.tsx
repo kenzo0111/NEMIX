@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import { usePage } from '@inertiajs/react';
 import React, { useState, useEffect } from 'react';
 import CreatableSelect from 'react-select/creatable';
@@ -169,7 +170,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                             placeholder="Search or enter department / office"
                         />
                         {errors.department && (
-                            <p role="alert" className="text-sm text-red-600 mt-1">{errors.department}</p>
+                            <p role="alert" className="text-sm text-red-600 mt-1 dark:text-red-300">{errors.department}</p>
                         )}
                     </div>
 
@@ -178,53 +179,53 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                         <label htmlFor="staff-authorized-designation" className="block text-sm font-semibold mb-1">
                             Designation <span className="text-red-600 dark:text-red-400">*</span>
                         </label>
-                        <input
+                        <input aria-invalid={Boolean(errors.designation)}
                             id="staff-authorized-designation"
                             type="text"
                             name="designation"
                             value={data.designation || ''}
                             onChange={e => onChange('designation', e.target.value)}
                             placeholder="e.g. Instructor I, Assistant Professor, Research Associate, Admin Officer"
-                            className={`${inputClass} ${errors.designation ? 'border-red-500' : ''}`}
+                            className={"ui-field " + (`${inputClass} ${errors.designation ? "border-red-500" : ""}`)}
                             required
                         />
-                        <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
+                        <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
                             Official position / designation of the authorized personnel.
                         </p>
                         {errors.designation && (
-                            <p role="alert" className="text-sm text-red-600 mt-1">{errors.designation}</p>
+                            <p role="alert" className="text-sm text-red-600 mt-1 dark:text-red-300">{errors.designation}</p>
                         )}
                     </div>
 
                     {/* Optional Department Head for Authorized Personnel */}
                     <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
                         <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-semibold text-gray-600 dark:text-slate-400">
+                            <span className="text-sm font-semibold text-gray-600 dark:text-slate-400">
                                 Department / Office Head (Optional)
                             </span>
-                            <button
+                            <Button variant="secondary"
                                 type="button"
                                 onClick={() => setShowOptionalHead(!showOptionalHead)}
-                                className="text-xs font-medium text-red-900 dark:text-red-400 hover:underline cursor-pointer"
+                                className="hover:underline"
                             >
                                 {showOptionalHead ? 'Hide optional head' : '+ Assign office head (optional)'}
-                            </button>
+                            </Button>
                         </div>
 
                         {showOptionalHead && (
                             <div className="space-y-4 p-3 bg-gray-50/70 dark:bg-slate-850/60 rounded-lg border border-gray-200/60 dark:border-slate-800">
                                 <div>
                                     <div className="flex items-center justify-between mb-1">
-                                        <label htmlFor="staff-office-head" className="block text-xs font-semibold text-gray-700 dark:text-slate-300">
+                                        <label htmlFor="staff-office-head" className="block text-sm font-semibold text-gray-700 dark:text-slate-300">
                                             Department Head (Optional)
                                         </label>
-                                        <button
+                                        <Button variant="secondary"
                                             type="button"
                                             onClick={() => toggleManualMode(!isManualMode)}
-                                            className="text-2xs font-medium text-red-900 dark:text-red-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                            className="hover:underline flex items-center gap-1"
                                         >
                                             {isManualMode ? 'Choose from list' : 'Enter head manually'}
-                                        </button>
+                                        </Button>
                                     </div>
 
                                     {isManualMode ? (
@@ -234,7 +235,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                                             value={data.office_head_name || ''}
                                             onChange={e => onChange('office_head_name', e.target.value)}
                                             placeholder="Enter full name of office head"
-                                            className={`${inputClass} text-xs`}
+                                            className={"ui-field " + (`${inputClass} text-sm`)}
                                         />
                                     ) : (
                                         <CreatableSelect<{ value: string; label: string; head?: OfficeHead }, false>
@@ -265,7 +266,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                                             value={data.office_head_designation || ''}
                                             onChange={e => onChange('office_head_designation', e.target.value)}
                                             placeholder="e.g. Dean, Department Head"
-                                            className={`${inputClass} text-xs`}
+                                            className={"ui-field " + (`${inputClass} text-sm`)}
                                         />
                                     ) : (
                                         <input
@@ -274,7 +275,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                                             value={head?.designation || data.office_head_designation || ''}
                                             readOnly
                                             placeholder="Select an office head to display designation"
-                                            className={`${inputClass} text-xs bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-400 cursor-not-allowed`}
+                                            className={"ui-field " + (`${inputClass} text-sm bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-400 cursor-not-allowed`)}
                                         />
                                     )}
                                 </div>
@@ -305,7 +306,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                             placeholder="Search or enter a department"
                         />
                         {errors.department && (
-                            <p role="alert" className="text-sm text-red-600 mt-1">{errors.department}</p>
+                            <p role="alert" className="text-sm text-red-600 mt-1 dark:text-red-300">{errors.department}</p>
                         )}
                     </div>
 
@@ -315,10 +316,10 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                             <label htmlFor="staff-office-head" className="block text-sm font-semibold">
                                 Department / Office Head {required && '*'}
                             </label>
-                            <button
+                            <Button variant="secondary"
                                 type="button"
                                 onClick={() => toggleManualMode(!isManualMode)}
-                                className="text-xs font-medium text-red-900 dark:text-red-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                className="hover:underline flex items-center gap-1"
                             >
                                 {isManualMode ? (
                                     <>
@@ -331,22 +332,22 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                                         <span>Can't find head? Enter manually</span>
                                     </>
                                 )}
-                            </button>
+                            </Button>
                         </div>
 
                         {isManualMode ? (
                             <div className="space-y-1.5">
-                                <input
+                                <input aria-invalid={Boolean(headErrorMessage)}
                                     id="staff-office-head-name"
                                     type="text"
                                     value={data.office_head_name || ''}
                                     onChange={e => onChange('office_head_name', e.target.value)}
                                     placeholder="Enter full name of office head (e.g. Dr. Juan Dela Cruz)"
-                                    className={`${inputClass} ${headErrorMessage ? 'border-red-500' : ''}`}
+                                    className={"ui-field " + (`${inputClass} ${headErrorMessage ? "border-red-500" : ""}`)}
                                     required={required}
                                     autoFocus
                                 />
-                                <p className="text-xs text-amber-800 dark:text-amber-400">
+                                <p className="text-sm text-amber-800 dark:text-amber-400">
                                     Entering a new office head will register them for this department upon saving.
                                 </p>
                             </div>
@@ -369,7 +370,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                         )}
 
                         {headErrorMessage && (
-                            <p role="alert" className="text-sm text-red-600 mt-1">{headErrorMessage}</p>
+                            <p role="alert" className="text-sm text-red-600 mt-1 dark:text-red-300">{headErrorMessage}</p>
                         )}
                     </div>
 
@@ -380,7 +381,7 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                                 Head’s Designation {required && (isManualMode || Boolean(data.office_head_name)) && '*'}
                             </label>
                             {!isManualMode && head && (
-                                <span className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1">
+                                <span className="text-sm text-gray-500 dark:text-slate-400 flex items-center gap-1">
                                     <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                                     <span>Linked to official</span>
                                 </span>
@@ -388,13 +389,13 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                         </div>
 
                         {isManualMode ? (
-                            <input
+                            <input aria-invalid={Boolean(errors.office_head_designation)}
                                 id="staff-head-designation"
                                 type="text"
                                 value={data.office_head_designation || ''}
                                 onChange={e => onChange('office_head_designation', e.target.value)}
                                 placeholder="e.g. Dean, Department Head, Director, Division Chief"
-                                className={`${inputClass} ${errors.office_head_designation ? 'border-red-500' : ''}`}
+                                className={"ui-field " + (`${inputClass} ${errors.office_head_designation ? "border-red-500" : ""}`)}
                                 required={required && Boolean(data.office_head_name)}
                             />
                         ) : (
@@ -404,12 +405,12 @@ export default function DepartmentAssignmentFields({ data, onChange, errors, req
                                 value={head?.designation || data.office_head_designation || ''}
                                 readOnly
                                 placeholder="Select an office head above to display designation"
-                                className={`${inputClass} bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-400 cursor-not-allowed`}
+                                className={"ui-field " + (`${inputClass} bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-400 cursor-not-allowed`)}
                             />
                         )}
 
                         {errors.office_head_designation && (
-                            <p role="alert" className="text-sm text-red-600 mt-1">{errors.office_head_designation}</p>
+                            <p role="alert" className="text-sm text-red-600 mt-1 dark:text-red-300">{errors.office_head_designation}</p>
                         )}
                     </div>
 

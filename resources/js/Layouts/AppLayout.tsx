@@ -2,7 +2,6 @@ import DashboardContent from '@/Layouts/DashboardContent';
 import type { PropsWithChildren, ReactNode } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import DashboardLayout from './DashboardLayout';
-import SystemHeader from '@/Components/SystemHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import type { PageProps } from '@/types';
 interface AppLayoutProps extends PropsWithChildren {
@@ -13,7 +12,6 @@ export default function AppLayout({ title, activeModule, activeSubmodule, header
     const { auth } = usePage<PageProps>().props;
     return <DashboardLayout modules={getSidebarModules(activeModule, activeSubmodule)} user={auth.user}>
         {title && <Head title={title} />}
-        <SystemHeader />
         <DashboardContent>
             {breadcrumbs}
             {(header || actions) && <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">

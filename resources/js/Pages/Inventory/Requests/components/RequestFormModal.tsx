@@ -1,3 +1,6 @@
+import { DialogHeader } from '@/Components/ui/dialog-frame';
+import Field from '@/Components/ui/field';
+import { Button } from '@/Components/ui/button';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import Select from 'react-select';
@@ -371,14 +374,14 @@ export function RequestFormModal({
             closeable={!form.processing}
             ariaLabel={isRestocked ? 'Complete Restocked Requisition' : isPreRequest ? (request ? 'Edit Pre-Request' : 'Create Multi-Item Pre-Request') : (request ? 'Edit Supply Request' : 'Create Supply Request')}
         >
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden flex flex-col max-h-[90vh]">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-900/75 shrink-0">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-900/75 shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-2xs shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
                             {isRestocked ? (
                                 <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                             ) : isPreRequest ? (
@@ -388,7 +391,7 @@ export function RequestFormModal({
                             )}
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 {isRestocked
                                     ? `Stock Restocked · Complete Requisition (${request?.ris_number || `#${request?.id}`})`
                                     : isPreRequest
@@ -404,43 +407,37 @@ export function RequestFormModal({
                             </p>
                         </div>
                     </div>
-                    <button
+                    <Button variant="ghost" size="icon"
                         type="button"
                         onClick={handleModalClose}
                         disabled={form.processing}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 cursor-pointer shrink-0 ml-2"
+                        className="shrink-0 ml-2"
                         aria-label="Close"
                     >
                         <X className="w-5 h-5" />
-                    </button>
-                </div>
+                    </Button>
+                </DialogHeader>
 
                 {/* Form Body */}
                 <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto max-h-[75vh] space-y-6 text-sm">
                     {!request && (
                         <div className="flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                            <button
+                            <Button aria-pressed={!isPreRequest} variant="tab"
                                 type="button"
                                 onClick={() => form.setData('request_type', 'requisition')}
-                                className={`flex-1 py-2 px-3 text-xs sm:text-sm font-bold rounded-lg transition-all ${
-                                    !isPreRequest
-                                        ? 'bg-white dark:bg-slate-900 text-red-950 dark:text-red-400 shadow-2xs'
-                                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                                }`}
+                                className={`flex-1 py-2 px-3 text-sm sm:text-sm font-semibold rounded-lg transition-all ${!isPreRequest
+    ? "bg-white dark:bg-slate-900 text-red-950 dark:text-red-400 shadow-sm" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}`}
                             >
                                 Standard Requisition (In-Stock)
-                            </button>
-                            <button
+                            </Button>
+                            <Button aria-pressed={isPreRequest} variant="tab"
                                 type="button"
                                 onClick={() => form.setData('request_type', 'pre_request')}
-                                className={`flex-1 py-2 px-3 text-xs sm:text-sm font-bold rounded-lg transition-all ${
-                                    isPreRequest
-                                        ? 'bg-white dark:bg-slate-900 text-amber-700 dark:text-amber-400 shadow-2xs'
-                                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                                }`}
+                                className={`flex-1 py-2 px-3 text-sm sm:text-sm font-semibold rounded-lg transition-all ${isPreRequest
+    ? "bg-white dark:bg-slate-900 text-amber-700 dark:text-amber-400 shadow-sm" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}`}
                             >
                                 Pre-Request (Out-of-Stock Supplies)
-                            </button>
+                            </Button>
                         </div>
                     )}
 
@@ -448,8 +445,8 @@ export function RequestFormModal({
                         <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-emerald-950 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-200 flex items-start gap-3">
                             <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
                             <div>
-                                <h5 className="font-bold text-sm">Supplies Restocked & Ready for Requisition</h5>
-                                <p className="mt-1 text-xs leading-relaxed text-emerald-800 dark:text-emerald-300">
+                                <h5 className="font-semibold text-sm">Supplies Restocked & Ready for Requisition</h5>
+                                <p className="mt-1 text-sm leading-relaxed text-emerald-800 dark:text-emerald-300">
                                     Central Supply has received and verified shipment for these requested items. You can now confirm the quantities below and submit your official requisition to the Property Custodian.
                                 </p>
                             </div>
@@ -457,7 +454,7 @@ export function RequestFormModal({
                     )}
 
                     {isPreRequest && !isRestocked && (
-                        <div className="rounded-xl border border-amber-300 bg-amber-50 p-3.5 text-amber-950 dark:border-amber-800/60 dark:bg-amber-950/30 dark:text-amber-200 flex items-start gap-2.5 text-xs leading-relaxed">
+                        <div className="rounded-xl border border-amber-300 bg-amber-50 p-3.5 text-amber-950 dark:border-amber-800/60 dark:bg-amber-950/30 dark:text-amber-200 flex items-start gap-2.5 text-sm leading-relaxed">
                             <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
                             <div>
                                 <strong>Multi-Item Pre-Request Mode:</strong> Select out-of-stock items your delivery unit requires. This ticket will be tracked under <em>My Requests</em> with status <strong>Pre-Requested</strong>. Once Central Supply receives these items into inventory, your ticket status will automatically update to <strong>Stock Restocked</strong>.
@@ -465,23 +462,21 @@ export function RequestFormModal({
                         </div>
                     )}
 
-                    {assignedUnit && <div className={`rounded-lg border p-3 text-sm ${assignmentMissing ? 'border-amber-300 bg-amber-50 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200' : 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'}`}>
+                    {assignedUnit && <div className={`rounded-lg border p-3 text-sm ${assignmentMissing ? "border-amber-300 bg-amber-50 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200" : "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"}`}>
                         {assignmentMissing ? 'Ask an administrator to assign your Delivery Unit and an active office head with a designation in Staff Accounts before submitting a request.' : isAuthorizedPersonnel ? 'Your name is shown as the requester. Delivery Unit assignment is optional; choose a Division / Office if none is assigned.' : 'Department and Requested by details come from your administrator-assigned Delivery Unit. Your coordinator account is recorded as the submitter.'}
                     </div>}
                     {/* SECTION 1: Recipient Information */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
-                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
+                            <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 1. Requesting Office
                             </h4>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="req_recipient" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                            <Field id="req_recipient" label={<>
                                     {isAuthorizedPersonnel ? 'Requested by' : assignedUnit ? 'Requested by (Department / Office Head)' : 'Recipient Name'} <span className="text-red-600" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
-                                </label>
-                                <input
+                                </>} error={form.errors.recipient} ><input
                                     id="req_recipient"
                                     name="recipient"
                                     type="text"
@@ -492,21 +487,13 @@ export function RequestFormModal({
                                     value={form.data.recipient}
                                     onChange={(e) => form.setData('recipient', e.target.value)}
                                     placeholder="Full name of requesting personnel"
-                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
-                                        form.errors.recipient ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
-                                    }`}
-                                />
-                                {form.errors.recipient && (
-                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.recipient}</p>
-                                )}
-                            </div>
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.recipient ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                /></Field>
 
-                            <div>
-                                <label htmlFor="req_date_requested" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                            <Field id="req_date_requested" label={<>
                                     Date Requested <span className="text-red-600" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
-                                </label>
-                                <input
+                                </>} error={form.errors.date_requested} ><input
                                     id="req_date_requested"
                                     name="date_requested"
                                     type="date"
@@ -515,21 +502,13 @@ export function RequestFormModal({
                                     aria-invalid={Boolean(form.errors.date_requested)}
                                     value={form.data.date_requested}
                                     onChange={(e) => form.setData('date_requested', e.target.value)}
-                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
-                                        form.errors.date_requested ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
-                                    }`}
-                                />
-                                {form.errors.date_requested && (
-                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.date_requested}</p>
-                                )}
-                            </div>
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.date_requested ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                /></Field>
 
-                            <div>
-                                <label htmlFor="req_department" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                            <Field id="req_department" label={<>
                                     Division / Office <span className="text-red-600" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
-                                </label>
-                                <Select
+                                </>} error={form.errors.department} ><Select
                                     isDisabled={departmentLocked}
                                     inputId="req_department"
                                     name="department"
@@ -542,17 +521,11 @@ export function RequestFormModal({
                                     styles={getInstitutionalSelectStyles(Boolean(form.errors.department))}
                                     classNamePrefix="react-select"
                                     isSearchable
-                                />
-                                {form.errors.department && (
-                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.department}</p>
-                                )}
-                            </div>
+                                /></Field>
 
-                            <div>
-                                <label htmlFor="req_recipient_designation" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                            <Field id="req_recipient_designation" label={<>
                                     {assignedUnit && !isAuthorizedPersonnel ? 'Office Head Designation' : 'Recipient Designation'}
-                                </label>
-                                <input
+                                </>} error={form.errors.recipient_designation} ><input
                                     id="req_recipient_designation"
                                     name="recipient_designation"
                                     type="text"
@@ -561,32 +534,22 @@ export function RequestFormModal({
                                     value={form.data.recipient_designation}
                                     onChange={(e) => form.setData('recipient_designation', e.target.value)}
                                     placeholder="e.g. Dean, Department Head, Faculty, Coordinator"
-                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
-                                        form.errors.recipient_designation ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
-                                    }`}
-                                />
-                                {form.errors.recipient_designation && (
-                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
-                                        {form.errors.recipient_designation}
-                                    </p>
-                                )}
-                            </div>
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.recipient_designation ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                /></Field>
                         </div>
                     </div>
 
                     {/* SECTION 2: Accounting Information */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
-                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
+                            <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 2. Accounting Information
                             </h4>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="req_fund_cluster" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                            <Field id="req_fund_cluster" label={<>
                                     Fund Cluster
-                                </label>
-                                <Select
+                                </>} error={form.errors.fund_cluster} ><Select
                                     inputId="req_fund_cluster"
                                     name="fund_cluster"
                                     aria-label="Fund Cluster"
@@ -597,15 +560,11 @@ export function RequestFormModal({
                                     placeholder="Select government fund cluster..."
                                     styles={getInstitutionalSelectStyles(Boolean(form.errors.fund_cluster))}
                                     classNamePrefix="react-select"
-                                />
-                                {form.errors.fund_cluster && (
-                                    <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.fund_cluster}</p>
-                                )}
-                            </div>
+                                /></Field>
 
                             <div>
                                 <label htmlFor="req_purpose" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
-                                    Purpose <span className="text-red-600" aria-hidden="true">*</span>
+                                    Purpose <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
                                 </label>
                                 <input
@@ -618,9 +577,7 @@ export function RequestFormModal({
                                     value={form.data.purpose}
                                     onChange={(e) => form.setData('purpose', e.target.value)}
                                     placeholder="Purpose of supply requisition"
-                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
-                                        form.errors.purpose ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
-                                    }`}
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.purpose ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
                                 />
                                 {form.errors.purpose && (
                                     <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.purpose}</p>
@@ -638,10 +595,10 @@ export function RequestFormModal({
                                                 const clean = form.data.purpose.replace(/^\[URGENT\]\s*/i, '');
                                                 form.setData('purpose', isUrgent ? `[URGENT] ${clean}` : clean);
                                             }}
-                                            className="mt-0.5 h-4 w-4 rounded border-gray-300 text-red-900 focus:ring-red-900 dark:border-slate-700 dark:bg-slate-900 cursor-pointer"
+                                            className="mt-0.5 h-4 w-4 rounded border-gray-300 text-red-900 focus:ring-red-900 dark:border-slate-700 dark:bg-slate-900 cursor-pointer dark:text-red-300"
                                         />
-                                        <div className="text-xs">
-                                            <label htmlFor="req_urgent_toggle" className="font-bold text-red-950 dark:text-red-300 cursor-pointer flex items-center gap-1.5">
+                                        <div className="text-sm">
+                                            <label htmlFor="req_urgent_toggle" className="font-semibold text-red-950 dark:text-red-300 cursor-pointer flex items-center gap-1.5">
                                                 ⚡ This requisition is urgent
                                             </label>
                                             <p className="text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed">
@@ -657,17 +614,17 @@ export function RequestFormModal({
                     {/* SECTION 3: Items Requested */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
-                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
+                            <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 3. Items Requested
                             </h4>
-                            <button
+                            <Button variant="secondary"
                                 type="button"
                                 onClick={handleAddItem}
-                                className="text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-semibold text-sm flex items-center gap-1.5 cursor-pointer py-1 px-2 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+                                className="flex items-center gap-1.5"
                             >
                                 <Plus className="w-3.5 h-3.5 text-amber-500" />
                                 + Add another item
-                            </button>
+                            </Button>
                         </div>
 
                         {form.errors.items && (
@@ -718,7 +675,7 @@ export function RequestFormModal({
                                                     htmlFor={`req_item_${index}`}
                                                     className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1"
                                                 >
-                                                    Item #{index + 1} <span className="text-red-600">*</span>
+                                                    Item #{index + 1} <span className="text-red-600 dark:text-red-300">*</span>
                                                 </label>
                                                 <Select
                                                     inputId={`req_item_${index}`}
@@ -743,13 +700,13 @@ export function RequestFormModal({
                                                 <span className="block text-sm font-semibold text-gray-500 dark:text-slate-400 mb-1">
                                                     On-Hand Stock
                                                 </span>
-                                                <div className="h-10 px-3 flex items-center justify-between bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 rounded-md text-sm tabular-nums font-bold text-gray-800 dark:text-slate-200">
+                                                <div className="h-10 px-3 flex items-center justify-between bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-800 dark:text-slate-200">
                                                     <span>{selectedItem ? selectedItem.stock : '—'}</span>
-                                                    <span className="text-sm text-gray-500 font-normal font-sans">
+                                                    <span className="text-sm text-gray-500 font-normal font-sans dark:text-slate-300">
                                                         {selectedItem ? (selectedItem.unit_of_issue || 'pcs') : ''}
                                                     </span>
                                                 </div>
-                                                {selectedItem && <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-slate-400">Weekly limit: {selectedItem.weekly_request_limit ?? 'Not configured'} · Remaining: {request?.items?.find(line => line.item_id === selectedItem.id)?.quota_remaining ?? selectedItem.quota_remaining ?? '—'}</p>}
+                                                {selectedItem && <p className="mt-1 text-sm leading-relaxed text-gray-500 dark:text-slate-400">Weekly limit: {selectedItem.weekly_request_limit ?? 'Not configured'} · Remaining: {request?.items?.find(line => line.item_id === selectedItem.id)?.quota_remaining ?? selectedItem.quota_remaining ?? '—'}</p>}
                                             </div>
 
                                             {/* Quantity input */}
@@ -758,7 +715,7 @@ export function RequestFormModal({
                                                     htmlFor={`req_qty_${index}`}
                                                     className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1"
                                                 >
-                                                    Qty <span className="text-red-600">*</span>
+                                                    Qty <span className="text-red-600 dark:text-red-300">*</span>
                                                 </label>
                                                 <input
                                                     id={`req_qty_${index}`}
@@ -772,22 +729,20 @@ export function RequestFormModal({
                                                     value={line.quantity}
                                                     onChange={(e) => handleChangeQuantity(index, e.target.value)}
                                                     placeholder="Qty"
-                                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-bold text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
-                                                        errorQty ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
-                                                    }`}
+                                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-semibold text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${errorQty ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
                                                 />
                                             </div>
 
                                             {/* Remove row */}
                                             {form.data.items.length > 1 && (
-                                                <button
+                                                <Button variant="secondary" size="icon"
                                                     type="button"
                                                     onClick={() => handleRemoveItem(index)}
-                                                    className="h-10 px-2.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-md border border-gray-200 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors flex items-center justify-center shrink-0"
+                                                    className="h-10 flex items-center justify-center shrink-0"
                                                     title={`Remove item #${index + 1}`}
                                                 >
                                                     <Trash2 className="w-4 h-4" />
-                                                </button>
+                                                </Button>
                                             )}
                                         </div>
                                         {errorQty && (
@@ -801,7 +756,7 @@ export function RequestFormModal({
                                             </p>
                                         )}
                                         {selectedItem && !unavailable && (Number(selectedItem.stock) <= minimumStockThreshold || (Number(line.quantity) > 0 && Number(selectedItem.stock) - Number(line.quantity) <= minimumStockThreshold)) && (
-                                            <div className="mt-2.5 p-2 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded text-xs text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
+                                            <div className="mt-2.5 p-2 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded text-sm text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
                                                 <AlertTriangle className="w-3.5 h-3.5 mt-0.5 text-amber-600 dark:text-amber-400 shrink-0" />
                                                 <span>
                                                     <strong>Notice:</strong> This item {Number(selectedItem.stock) <= minimumStockThreshold ? `has met the low-stock replenishment threshold (${minimumStockThreshold} ${selectedItem.unit_of_issue || 'units'})` : `will meet or drop below the replenishment threshold (${minimumStockThreshold} ${selectedItem.unit_of_issue || 'units'}) after this request`}. You may proceed with your request; the Supply Office has been notified to replenish stock.
@@ -817,14 +772,14 @@ export function RequestFormModal({
                     {/* SECTION 4: Authorization (Signatories) */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
-                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
+                            <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 4. Authorization (System Signatories)
                             </h4>
                         </div>
                         <div className="space-y-4">
                             {/* Approved By Row */}
                             <div>
-                                <span className="block text-sm font-bold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
+                                <span className="block text-sm font-semibold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
                                     Approved By (Section B)
                                 </span>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -836,7 +791,7 @@ export function RequestFormModal({
                                             type="text"
                                             value={form.data.approved_by}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
@@ -847,7 +802,7 @@ export function RequestFormModal({
                                             type="text"
                                             value={form.data.approved_by_designation}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
@@ -864,7 +819,7 @@ export function RequestFormModal({
                                                         : 'Pending Head of Office Approval')
                                             }
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -872,7 +827,7 @@ export function RequestFormModal({
 
                             {/* Issued By Row */}
                             <div>
-                                <span className="block text-sm font-bold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
+                                <span className="block text-sm font-semibold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
                                     Issued By (Section C)
                                 </span>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -884,7 +839,7 @@ export function RequestFormModal({
                                             type="text"
                                             value={form.data.issued_by_name}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
@@ -895,7 +850,7 @@ export function RequestFormModal({
                                             type="text"
                                             value={form.data.issued_by_position}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
@@ -912,7 +867,7 @@ export function RequestFormModal({
                                                         : 'Pending Item Release')
                                             }
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -925,12 +880,10 @@ export function RequestFormModal({
                             <h4 className="font-semibold text-slate-900 dark:text-slate-100">Supporting Document</h4>
                             <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">An approved supporting document is required before submission. This is proof of authorization, separate from the RIS. PDF, JPG, JPEG, or PNG, up to 10 MB.</p>
                         </div>
-                        <div>
-                            <label htmlFor="req_supporting_document_type" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                        <Field id="req_supporting_document_type" label={<>
                                 Document type <span className="text-red-600" aria-hidden="true">*</span>
                                 <span className="sr-only"> (required)</span>
-                            </label>
-                            <Select
+                            </>} error={form.errors.supporting_document_type} ><Select
                                 inputId="req_supporting_document_type"
                                 name="supporting_document_type"
                                 aria-label="Document type"
@@ -952,16 +905,12 @@ export function RequestFormModal({
                                 styles={getInstitutionalSelectStyles(Boolean(form.errors.supporting_document_type))}
                                 classNamePrefix="react-select"
                                 isSearchable={false}
-                            />
-                            {form.errors.supporting_document_type && (
-                                <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.supporting_document_type}</p>
-                            )}
-                        </div>
+                            /></Field>
 
                         {isSpecifyOther && (
                             <div className="rounded-lg p-3.5 bg-red-50/50 dark:bg-red-950/20 border border-red-200/80 dark:border-red-900/40 space-y-1.5 transition-all">
                                 <label htmlFor="req_specify_other_document" className="block text-sm font-semibold text-gray-800 dark:text-slate-200">
-                                    Specify Other Document Type <span className="text-red-600" aria-hidden="true">*</span>
+                                    Specify Other Document Type <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
                                 </label>
                                 <input
@@ -978,19 +927,17 @@ export function RequestFormModal({
                                         form.setData('supporting_document_type', trimmed ? `Specify Other: ${trimmed}` : 'Specify Other');
                                     }}
                                     placeholder="e.g. Special Order No. 12, Approved Project Contract, Board Resolution..."
-                                    className="w-full h-10 px-3 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 placeholder-gray-400 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs"
+                                    className="ui-field w-full h-10 px-3 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 placeholder-gray-400 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm"
                                 />
-                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
                                     Please enter the specific name, title, or reference number of this authorization document.
                                 </p>
                             </div>
                         )}
-                        <div>
-                            <label htmlFor="req_supporting_document" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                        <Field id="req_supporting_document" label={<>
                                 Upload Approved Supporting Document <span className="text-red-600" aria-hidden="true">*</span>
                                 <span className="sr-only"> (required)</span>
-                            </label>
-                            <input id="req_supporting_document" key={`${request?.id || 'new'}-${show}`} type="file" accept=".pdf,.jpg,.jpeg,.png" required={!request?.supporting_document_name && !form.data.supporting_document} onChange={e => {
+                            </>} error={form.errors.supporting_document} ><input id="req_supporting_document" key={`${request?.id || 'new'}-${show}`} type="file" accept=".pdf,.jpg,.jpeg,.png" required={!request?.supporting_document_name && !form.data.supporting_document} onChange={e => {
                                 const file = e.target.files?.[0] || null;
                                 form.clearErrors('supporting_document');
                                 if (file && (!/\.(pdf|jpe?g|png)$/i.test(file.name) || !['application/pdf', 'image/jpeg', 'image/png'].includes(file.type) || file.size > 10 * 1024 * 1024)) {
@@ -1000,30 +947,28 @@ export function RequestFormModal({
                                     return;
                                 }
                                 form.setData('supporting_document', file);
-                            }} className="mt-1 block w-full rounded-md border border-slate-300 bg-white p-2 text-sm text-slate-700 file:mr-3 file:rounded file:border-0 file:bg-slate-200 file:px-2 file:py-1 file:font-medium dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:file:bg-slate-700 cursor-pointer" />
-                            {form.errors.supporting_document && <p role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.supporting_document}</p>}
-                        </div>
+                            }} className="mt-1 block w-full rounded-md border border-slate-300 bg-white p-2 text-sm text-slate-700 file:mr-3 file:rounded file:border-0 file:bg-slate-200 file:px-2 file:py-1 file:font-medium dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:file:bg-slate-700 cursor-pointer" /></Field>
                         {form.data.supporting_document && <div className="flex flex-wrap items-center gap-3 text-sm">
                             <span className="font-medium text-slate-700 dark:text-slate-300">{form.data.supporting_document.name}</span>
                             {previewUrl && <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-red-900 hover:text-red-700 dark:text-red-300 dark:hover:text-red-200 underline">Preview</a>}
-                            <button type="button" onClick={() => { form.setData('supporting_document', null); const input = document.querySelector<HTMLInputElement>('#req_supporting_document'); if (input) input.value = ''; }} className="font-semibold text-red-900 hover:text-red-700 dark:text-red-300 dark:hover:text-red-200">Remove selection</button>
+                            <Button variant="secondary" type="button" onClick={() => { form.setData('supporting_document', null); const input = document.querySelector<HTMLInputElement>('#req_supporting_document'); if (input) input.value = ''; }} className="">Remove selection</Button>
                         </div>}
                         {!form.data.supporting_document && request?.supporting_document_name && <p className="text-sm text-slate-600 dark:text-slate-400">Current: <a className="underline font-medium text-slate-800 dark:text-slate-200" href={route('inventory.requests.document', { supplyRequest: request.id, inline: 1 })} target="_blank" rel="noopener noreferrer">{request.supporting_document_name}</a>. Select a file to replace it.</p>}
                     </section>}
                     {/* Footer Actions */}
                     <div className="pt-4 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={handleModalClose}
                             disabled={form.processing}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 cursor-pointer"
+                            className="w-full sm:w-auto"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="primary"
                             type="submit"
                             disabled={form.processing || assignmentMissing || hasStockError}
-                            className="w-full sm:w-auto px-5 py-2 bg-red-950 hover:bg-red-900 text-white text-sm font-bold rounded-md shadow-xs disabled:opacity-50 normal-case tabular-nums tracking-normal cursor-pointer flex items-center justify-center gap-2"
+                            className="w-full sm:w-auto tabular-nums flex items-center justify-center gap-2"
                         >
                             {form.processing ? (
                                 <>
@@ -1042,7 +987,7 @@ export function RequestFormModal({
                                             : (request ? 'Save Changes' : 'Submit Supply Request')}
                                 </span>
                             )}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

@@ -264,21 +264,14 @@ export default function Sidebar({
             {mobileOpen && (
                 <div
                     onClick={() => setMobileOpen(false)}
-                    className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs transition-opacity md:hidden print:hidden"
+                    className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm transition-opacity md:hidden print:hidden"
                     aria-label="Close navigation menu backdrop"
                 />
             )}
 
             <aside
                 aria-label={isCoordinator ? 'Supply coordinator navigation' : 'Main navigation'}
-                className={`
-                    fixed inset-y-0 left-0 z-50 bg-red-950 border-r border-red-900/60
-                    text-white shadow-xl transition-all duration-300 ease-in-out flex flex-col select-none overflow-x-hidden print:hidden
-                    bg-[radial-gradient(ellipse_at_bottom_left,_#7f1d1d55,_transparent_65%)]
-                    ${collapsed ? 'md:w-20' : 'md:w-72'}
-                    ${mobileOpen ? 'w-72 translate-x-0' : 'w-72 -translate-x-full md:translate-x-0'}
-                    ${className}
-                `}
+                className={` fixed inset-y-0 left-0 z-50 bg-red-950 border-r border-red-900/60 text-white shadow-xl transition-all duration-300 ease-in-out flex flex-col select-none overflow-x-hidden print:hidden bg-[radial-gradient(ellipse_at_bottom_left,_#7f1d1d55,_transparent_65%)] ${collapsed ? "md:w-20" : "md:w-72"} ${mobileOpen ? "w-72 translate-x-0" : "w-72 -translate-x-full md:translate-x-0"} ${className} `}
             >
                 <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
                     <div className="absolute inset-x-0 bottom-0 h-[60%]">

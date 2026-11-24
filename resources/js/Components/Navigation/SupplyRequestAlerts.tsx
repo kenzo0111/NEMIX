@@ -134,7 +134,7 @@ export default function SupplyRequestAlerts({
                 className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-100 hover:bg-white/10 focus:outline-none focus:ring-1 focus:ring-amber-400"
             >
                 <span className="relative shrink-0"><Bell className="w-5 h-5" />
-                    {data.unread_count > 0 && <span className="absolute -top-2 -right-2 rounded-full bg-amber-400 px-1 min-w-4 text-center text-sm font-bold text-red-950">{data.unread_count > 99 ? '99+' : data.unread_count}</span>}
+                    {data.unread_count > 0 && <span className="absolute -top-2 -right-2 rounded-full bg-amber-400 px-1 min-w-4 text-center text-sm font-semibold text-red-950 dark:text-red-300">{data.unread_count > 99 ? '99+' : data.unread_count}</span>}
                 </span>
                 {!collapsed && <span className="flex-1 text-left">Request alerts</span>}
                 {!collapsed && <span className="text-amber-300 font-semibold">{data.pending_count} pending</span>}
@@ -146,7 +146,7 @@ export default function SupplyRequestAlerts({
                         {data.alerts.length === 0 && <p className="leading-relaxed px-2 py-3 text-sm text-red-200">No request alerts yet.</p>}
                         {data.alerts.map((alert) => (
                             <button key={alert.id} type="button" onClick={() => void openRequest(alert)}
-                                className={`w-full rounded-md px-2 py-2 text-left hover:bg-white/10 focus:outline-none focus:ring-1 focus:ring-amber-400 ${alert.read_at ? 'text-red-200' : 'bg-white/5 text-white'}`}>
+                                className={`w-full rounded-md px-2 py-2 text-left hover:bg-white/10 focus:outline-none focus:ring-1 focus:ring-amber-400 ${alert.read_at ? "text-red-200" : "bg-white/5 text-white"}`}>
                                 <span className="block text-sm font-semibold">{alert.ris_number || `Request #${alert.request_id}`}{!alert.read_at && ' · New'}</span>
                                 <span className="block text-sm">{alert.requester || 'Supply Coordinator'} · {alert.status}</span>
                             </button>
@@ -160,7 +160,7 @@ export default function SupplyRequestAlerts({
             )}
             {newAlert && !collapsed && (
                 <button type="button" onClick={() => void openRequest(newAlert)} role="alert"
-                    className="mt-2 w-full rounded-lg border border-amber-400 bg-amber-100 px-3 py-2 text-left text-sm font-semibold text-red-950 shadow-lg">
+                    className="mt-2 w-full rounded-lg border border-amber-400 bg-amber-100 px-3 py-2 text-left text-sm font-semibold text-red-950 shadow-lg dark:text-red-300">
                     {requester ? `Request ${newAlert.status}` : 'New supply request'}: {newAlert.ris_number || `#${newAlert.request_id}`} · View request
                 </button>
             )}

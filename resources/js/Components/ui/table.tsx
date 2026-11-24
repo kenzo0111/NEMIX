@@ -8,7 +8,7 @@ const Table = React.forwardRef<
   <div className="relative w-full min-w-0 overflow-x-auto">
     <table
       ref={ref}
-      className={cn("w-full caption-bottom text-sm border-collapse", className)}
+      className={"ui-data-table " + (cn("w-full caption-bottom text-sm border-collapse", className))}
       {...props}
     />
   </div>
@@ -41,10 +41,7 @@ const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn(
-      "border-t border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 font-medium [&>tr]:last:border-b-0",
-      className
-    )}
+    className={cn("border-t border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 font-medium [&>tr]:last:border-b-0", className)}
     {...props}
   />
 ))
@@ -56,10 +53,7 @@ const TableRow = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tr
     ref={ref}
-    className={cn(
-      "border-b border-gray-100 dark:border-slate-800 transition-colors hover:bg-red-50/40 dark:hover:bg-red-950/20 data-[state=selected]:bg-red-50 data-[state=selected]:shadow-[inset_3px_0_0_#7f1d1d] dark:data-[state=selected]:bg-red-950/30",
-      className
-    )}
+    className={cn("border-b border-gray-100 dark:border-slate-800 transition-colors hover:bg-red-50/40 dark:hover:bg-red-950/20 data-[state=selected]:bg-red-50 data-[state=selected]:shadow-[inset_3px_0_0_#7f1d1d] dark:data-[state=selected]:bg-red-950/30", className)}
     {...props}
   />
 ))
@@ -71,10 +65,7 @@ const TableHead = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <th
     ref={ref}
-    className={cn(
-      "px-4 py-3.5 text-left align-middle font-semibold text-gray-700 dark:text-slate-300 text-sm whitespace-nowrap [&:has([role=checkbox])]:pr-0",
-      className
-    )}
+    className={cn("px-4 py-3.5 text-left align-middle font-semibold text-gray-700 dark:text-slate-300 text-sm whitespace-nowrap [&:has([role=checkbox])]:pr-0", className)}
     {...props}
   />
 ))

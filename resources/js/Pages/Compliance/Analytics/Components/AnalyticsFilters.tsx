@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import {
@@ -125,7 +126,7 @@ export default function AnalyticsFilters({
         <section
             id="analytics-filters"
             aria-label="Global analytics filters"
-            className="relative rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/80 dark:bg-slate-900"
+            className="relative rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/80 dark:bg-slate-900"
         >
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-t-2xl border-b border-slate-200/70 bg-slate-50/80 px-5 py-4 dark:border-slate-700/70 dark:bg-slate-800/50">
                 <div className="flex items-center gap-3">
@@ -133,30 +134,30 @@ export default function AnalyticsFilters({
                         <SlidersHorizontal size={18} />
                     </span>
                     <div>
-                        <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">Analytics filters</h2>
-                        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Analytics filters</h2>
+                        <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
                             One reporting scope for every chart and table
                         </p>
                     </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                    <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-sm font-medium text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
                         {active.length ? `${active.length} active filters` : 'University-wide'}
                     </span>
-                    <button
+                    <Button variant="secondary"
                         type="button"
                         onClick={onReset}
                         disabled={loading}
-                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-red-900 transition hover:bg-red-50 disabled:opacity-50 dark:text-red-300 dark:hover:bg-red-950/50"
+                        className="inline-flex items-center gap-1.5"
                     >
                         <RotateCcw size={14} />
                         Reset filters
-                    </button>
+                    </Button>
                 </div>
             </div>
             <div className="p-5">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                    <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <h3 className="flex items-center gap-2 text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400">
                         <CalendarDays size={14} />
                         Reporting period
                     </h3>
@@ -170,15 +171,15 @@ export default function AnalyticsFilters({
                             { label: 'This year', year: String(new Date().getFullYear()), month: '' },
                             { label: 'Last year', year: String(new Date().getFullYear() - 1), month: '' },
                         ].map((preset) => (
-                            <button
+                            <Button variant="secondary"
                                 key={preset.label}
                                 type="button"
                                 disabled={loading}
                                 onClick={() => onPeriod(preset.year, preset.month)}
-                                className="rounded-md px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-white hover:text-red-900 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 disabled:opacity-50 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-red-200"
+                                className=""
                             >
                                 {preset.label}
-                            </button>
+                            </Button>
                         ))}
                     </div>
                 </div>
@@ -187,7 +188,7 @@ export default function AnalyticsFilters({
                         <label
                             key={key}
                             htmlFor={`analytics-${key}`}
-                            className="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300"
+                            className="space-y-2 text-sm font-medium text-slate-600 dark:text-slate-300"
                         >
                             <span className="block">{key === 'start_date' ? 'From date' : 'To date'}</span>
                             <input
@@ -195,14 +196,14 @@ export default function AnalyticsFilters({
                                 type="date"
                                 value={filters[key] || ''}
                                 onChange={(e) => onChange(key, e.target.value)}
-                                className={dateClass}
+                                className={"ui-field " + (dateClass)}
                                 disabled={loading}
                             />
                         </label>
                     ))}
                     <label
                         htmlFor="analytics-year"
-                        className="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300"
+                        className="space-y-2 text-sm font-medium text-slate-600 dark:text-slate-300"
                     >
                         <span className="block">Year</span>
                         <input
@@ -223,14 +224,14 @@ export default function AnalyticsFilters({
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') e.currentTarget.blur();
                             }}
-                            className={dateClass}
+                            className={"ui-field " + (dateClass)}
                             disabled={loading}
                         />
                     </label>
                     <div className="space-y-2">
                         <label
                             htmlFor="analytics-month"
-                            className="block text-xs font-medium text-slate-600 dark:text-slate-300"
+                            className="block text-sm font-medium text-slate-600 dark:text-slate-300"
                         >
                             Month
                         </label>
@@ -247,22 +248,22 @@ export default function AnalyticsFilters({
                     </div>
                 </div>
                 <div className="mt-5 border-t border-slate-100 pt-4 dark:border-slate-800">
-                    <button
+                    <Button variant="secondary"
                         type="button"
                         onClick={() => setExpanded(!expanded)}
                         aria-expanded={expanded}
                         aria-controls="analytics-record-scope"
-                        className="flex w-full items-center justify-between gap-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+                        className="flex w-full items-center justify-between gap-3"
                     >
                         <span className="flex items-center gap-2">
                             <ListFilter size={14} />
                             Refine records
-                            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] normal-case tracking-normal dark:bg-slate-800">
+                            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-sm normal-case tracking-normal dark:bg-slate-800">
                                 Optional
                             </span>
                         </span>
                         {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    </button>
+                    </Button>
                     <div
                         id="analytics-record-scope"
                         hidden={!expanded}
@@ -272,7 +273,7 @@ export default function AnalyticsFilters({
                             <div key={field.key} className="space-y-2">
                                 <label
                                     htmlFor={`analytics-${field.key}`}
-                                    className="block text-xs font-medium text-slate-600 dark:text-slate-300"
+                                    className="block text-sm font-medium text-slate-600 dark:text-slate-300"
                                 >
                                     {field.label}
                                 </label>
@@ -293,12 +294,12 @@ export default function AnalyticsFilters({
                 {active.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-2">
                         {active.map((field) => (
-                            <button
+                            <Button variant="secondary" size="icon"
                                 key={field.key}
                                 type="button"
                                 disabled={loading}
                                 onClick={() => onChange(field.key, '')}
-                                className="inline-flex max-w-full items-center gap-2 rounded-full border border-red-100 bg-red-50 px-3 py-1.5 text-xs text-red-900 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-200"
+                                className="inline-flex max-w-full items-center gap-2"
                                 aria-label={`Remove ${field.label} filter`}
                             >
                                 <span className="truncate">
@@ -306,7 +307,7 @@ export default function AnalyticsFilters({
                                         ?.label || filters[field.key]}
                                 </span>
                                 <X size={12} className="shrink-0" />
-                            </button>
+                            </Button>
                         ))}
                     </div>
                 )}
@@ -319,7 +320,7 @@ export default function AnalyticsFilters({
             <div
                 role="status"
                 aria-live="polite"
-                className="flex items-center gap-2 rounded-b-2xl border-t border-slate-100 bg-slate-50/70 px-5 py-3 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-400"
+                className="flex items-center gap-2 rounded-b-2xl border-t border-slate-100 bg-slate-50/70 px-5 py-3 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-950/30 dark:text-slate-400"
             >
                 {loading ? <LoaderCircle size={14} className="animate-spin" /> : <Building2 size={14} />}
                 <span>

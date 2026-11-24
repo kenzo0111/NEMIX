@@ -1,3 +1,5 @@
+import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
+import { Button } from '@/Components/ui/button';
 import React, { useMemo } from 'react';
 import { formatRisNumber } from '@/utils/risFormatter';
 import Modal from '@/Components/Modal';
@@ -37,44 +39,44 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl" ariaLabel="Issuance Record Details">
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden flex flex-col max-h-[90vh]">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Administrative Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-900/75 flex-shrink-0">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-900/75 flex-shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-2xs shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
                             <ClipboardList className="w-5 h-5 text-red-900 dark:text-red-400" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 Issuance Record Details
                             </h3>
                             <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 tabular-nums truncate">
-                                RIS Reference: <span className="font-bold text-red-950 dark:text-red-400">{formatRisNumber(issuance.ris_number)}</span>
+                                RIS Reference: <span className="font-semibold text-red-950 dark:text-red-400">{formatRisNumber(issuance.ris_number)}</span>
                             </p>
                         </div>
                     </div>
-                    <button
+                    <Button variant="ghost" size="icon"
                         type="button"
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0 ml-2"
+                        className="shrink-0 ml-2"
                         aria-label="Close"
                     >
                         <X className="w-5 h-5" />
-                    </button>
-                </div>
+                    </Button>
+                </DialogHeader>
 
                 {/* Details Content */}
-                <div className="p-6 overflow-y-auto space-y-6 text-sm text-gray-700 dark:text-slate-300">
+                <DialogBody className="p-6 overflow-y-auto space-y-6 text-sm text-gray-700 dark:text-slate-300">
                     {/* General Information Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50/70 dark:bg-slate-950/50 border border-gray-200 dark:border-slate-800 rounded-lg">
                         <div>
-                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
+                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">
                                 Recipient
                             </span>
-                            <span className="font-bold text-gray-900 dark:text-slate-100 text-sm">{issuance.recipient}</span>
+                            <span className="font-semibold text-gray-900 dark:text-slate-100 text-sm">{issuance.recipient}</span>
                             {issuance.recipient_designation && (
                                 <span className="text-gray-500 dark:text-slate-400 block text-sm mt-0.5">
                                     {issuance.recipient_designation}
@@ -83,21 +85,21 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                         </div>
 
                         <div>
-                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
+                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">
                                 Division / Office
                             </span>
                             <span className="font-semibold text-gray-800 dark:text-slate-200">{issuance.department || '—'}</span>
                         </div>
 
                         <div>
-                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
+                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">
                                 Date Issued
                             </span>
                             <span className="tabular-nums text-gray-800 dark:text-slate-200 font-medium">{displayDate}</span>
                         </div>
 
                         <div>
-                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
+                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">
                                 Status
                             </span>
                             <div className="mt-0.5">
@@ -107,7 +109,7 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
 
                         {issuance.fund_cluster && (
                             <div>
-                                <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
+                                <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">
                                     Fund Cluster
                                 </span>
                                 <span className="text-gray-800 dark:text-slate-200">{getFundClusterDisplay(issuance.fund_cluster)}</span>
@@ -116,7 +118,7 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
 
                         {issuance.purpose && (
                             <div className="sm:col-span-2">
-                                <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
+                                <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">
                                     Purpose
                                 </span>
                                 <span className="text-gray-800 dark:text-slate-200">{issuance.purpose}</span>
@@ -127,7 +129,7 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                     {/* Issued Items Ledger */}
                     <div>
                         <div className="pb-1.5 mb-2.5 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
-                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
+                            <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 Issued Inventory Items ({items.length})
                             </h4>
                             <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums">
@@ -136,7 +138,7 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                         </div>
 
                         <div className="w-full min-w-0 border border-gray-200 dark:border-slate-800 rounded-lg overflow-x-auto">
-                            <table className="w-full min-w-[37.5rem] text-left border-collapse">
+                            <table className="ui-data-table w-full min-w-[37.5rem] text-left border-collapse">
                                 <thead className="bg-gray-50 dark:bg-slate-950 border-b border-gray-200 dark:border-slate-800 text-sm text-gray-600 dark:text-slate-400 normal-case tabular-nums">
                                     <tr>
                                         <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-3 py-3 align-middle">Item Description</SortableTableHeader>
@@ -155,7 +157,7 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                                             <td className="px-3 py-3 tabular-nums text-gray-500 dark:text-slate-400 align-middle">
                                                 {line.stock_no || '—'}
                                             </td>
-                                            <td className="px-3 py-3 tabular-nums font-bold text-gray-800 dark:text-slate-200 text-right align-middle">
+                                            <td className="px-3 py-3 tabular-nums font-semibold text-gray-800 dark:text-slate-200 text-right align-middle">
                                                 {line.quantity} {line.unit || 'pcs'}
                                             </td>
                                             <td className="px-3 py-3 tabular-nums text-gray-600 dark:text-slate-400 text-right align-middle">
@@ -169,14 +171,14 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                                 </tbody>
                                 <tfoot className="bg-gray-50 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800 tabular-nums text-sm">
                                     <tr>
-                                        <td colSpan={2} className="px-3 py-3 font-bold text-gray-700 dark:text-slate-300 normal-case align-middle">
+                                        <td colSpan={2} className="px-3 py-3 font-semibold text-gray-700 dark:text-slate-300 normal-case align-middle">
                                             Transaction Total
                                         </td>
-                                        <td className="px-3 py-3 text-right font-bold text-gray-900 dark:text-slate-100 align-middle">
+                                        <td className="px-3 py-3 text-right font-semibold text-gray-900 dark:text-slate-100 align-middle">
                                             {totalQty} pcs
                                         </td>
-                                        <td className="px-3 py-3 text-right text-gray-400 dark:text-slate-500 align-middle">—</td>
-                                        <td className="px-3 py-3 text-right font-bold text-red-950 dark:text-red-400 align-middle">
+                                        <td className="px-3 py-3 text-right text-slate-500 dark:text-slate-400 align-middle">—</td>
+                                        <td className="px-3 py-3 text-right font-semibold text-red-950 dark:text-red-400 align-middle">
                                             ₱{Number(totalAmt).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                         </td>
                                     </tr>
@@ -188,17 +190,17 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                     {/* Signatories & Custody */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-200 dark:border-slate-800">
                         <div>
-                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
+                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">
                                 Approved By
                             </span>
-                            <span className="font-bold text-gray-900 dark:text-slate-100 block">{issuance.approved_by}</span>
+                            <span className="font-semibold text-gray-900 dark:text-slate-100 block">{issuance.approved_by}</span>
                             <span className="text-sm text-gray-500 dark:text-slate-400 block">{issuance.approved_by_designation}</span>
                             <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums mt-1 block">
                                 Date: {issuance.date_issued || issuance.date || '—'}
                             </span>
                         </div>
                         <div>
-                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 normal-case tracking-normal block">
+                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal block">
                                 Issued By
                             </span>
                             <span className="font-semibold text-gray-900 dark:text-slate-100 block">{issuance.issued_by_name || issuance.issued_by}</span>
@@ -208,19 +210,19 @@ export const IssuanceDetailsModal: React.FC<IssuanceDetailsModalProps> = ({
                             </span>
                         </div>
                     </div>
-                </div>
+                </DialogBody>
 
                 {/* Modal Footer */}
-                <div className="table-toolbar px-6 py-3.5 bg-gray-50 dark:bg-slate-900/80 border-t border-gray-200 dark:border-slate-800 flex items-center justify-between gap-3 flex-shrink-0">
-                    {onViewRis && <button type="button" onClick={() => { onClose(); onViewRis(issuance); }} className="inline-flex h-10 items-center justify-center rounded-md bg-red-950 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-900">View RIS Form</button>}
-                    <button
+                <DialogFooter className="table-toolbar px-6 py-3.5 bg-gray-50 dark:bg-slate-900/80 border-t border-gray-200 dark:border-slate-800 flex items-center justify-between gap-3 flex-shrink-0">
+                    {onViewRis && <Button variant="primary" type="button" onClick={() => { onClose(); onViewRis(issuance); }} className="inline-flex h-10 items-center justify-center">View RIS Form</Button>}
+                    <Button variant="secondary"
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                        className=""
                     >
                         Close
-                    </button>
-                </div>
+                    </Button>
+                </DialogFooter>
             </div>
         </Modal>
     );

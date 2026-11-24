@@ -1,3 +1,5 @@
+import { DialogHeader, DialogBody } from '@/Components/ui/dialog-frame';
+import { Button } from '@/Components/ui/button';
 import React, { useMemo } from 'react';
 import { useSortableData } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
@@ -50,18 +52,18 @@ export default function FocusedItemsModal({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="3xl" ariaLabel="Inventory Analytics Drill-Down">
-            <div className="flex max-h-[85vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-xl border border-gray-200 dark:border-slate-800">
+            <div className="flex max-h-[85vh] flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-none border border-gray-200 dark:border-slate-800">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Institutional Header */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-900/70 px-4 sm:px-6 py-3.5 sm:py-4 flex-shrink-0">
+                <DialogHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-900/70 px-4 sm:px-6 py-3.5 sm:py-4 flex-shrink-0">
                     <div className="flex items-center gap-2.5 min-w-0">
                         <div className="p-2 rounded bg-red-950 text-amber-300 border border-red-900 shrink-0">
                             <Package className="h-4 w-4" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans truncate">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans truncate">
                                 Inventory Analytics Drill-Down
                             </h3>
                             <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 truncate">
@@ -71,30 +73,30 @@ export default function FocusedItemsModal({
                     </div>
 
                     <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={handleNavigateToInventory}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold text-red-900 dark:text-red-300 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/40 transition-colors"
+                            className="inline-flex items-center gap-1.5"
                         >
                             <span className="hidden sm:inline">Full</span> Inventory Registry
                             <ExternalLink className="h-3.5 w-3.5" />
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="ghost" size="icon"
                             type="button"
                             onClick={onClose}
-                            className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                            className=""
                             aria-label="Close modal"
                         >
                             <X className="h-4 w-4" />
-                        </button>
+                        </Button>
                     </div>
-                </div>
+                </DialogHeader>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+                <DialogBody className="flex-1 overflow-y-auto p-4 sm:p-6">
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500 dark:text-slate-400">
                         <span>Showing {items.length} registered items</span>
-                        <span className="text-gray-400 dark:text-slate-500 tabular-nums">Select a column heading to sort</span>
+                        <span className="text-slate-500 dark:text-slate-400 tabular-nums">Select a column heading to sort</span>
                     </div>
 
                     {items.length > 0 ? (
@@ -121,7 +123,7 @@ export default function FocusedItemsModal({
                                                 </p>
                                             </TableCell>
                                             <TableCell className="text-right py-3.5 tabular-nums text-sm font-semibold text-gray-900 dark:text-slate-100 align-middle">
-                                                {Number(item.stock).toLocaleString()}
+                                                {Number(item.stock).toLocaleString('en-PH')}
                                             </TableCell>
                                             <TableCell className="text-right py-3.5 tabular-nums text-sm text-gray-600 dark:text-slate-400 align-middle">
                                                 {formatCurrency(Number(item.unitCost || 0))}
@@ -131,13 +133,9 @@ export default function FocusedItemsModal({
                                             </TableCell>
                                             <TableCell className="text-center py-3.5 align-middle">
                                                 <span
-                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold ${
-                                                        item.status === 'Available'
-                                                            ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40'
-                                                            : item.status === 'Low Stock'
-                                                            ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40'
-                                                            : 'bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-900/40'
-                                                    }`}
+                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold ${item.status === 'Available'
+    ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40" : item.status === 'Low Stock'
+    ? "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40" : "bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-900/40"}`}
                                                 >
                                                     {item.status}
                                                 </span>
@@ -152,7 +150,7 @@ export default function FocusedItemsModal({
                             No inventory records available.
                         </div>
                     )}
-                </div>
+                </DialogBody>
             </div>
         </Modal>
     );

@@ -1,3 +1,5 @@
+import { formatScreenDate } from '@/utils/displayFormat';
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { ReceivingRecord } from '../types';
 import { formatDisplayDate } from '@/utils/dateUtils';
@@ -49,22 +51,19 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
 
             {/* Quantity Received */}
             <td className="px-6 py-3.5 align-middle whitespace-nowrap text-sm font-semibold text-gray-800 dark:text-slate-200 tabular-nums text-right">
-                <span className="text-emerald-700 dark:text-emerald-400 font-bold mr-0.5">+</span>
+                <span className="text-emerald-700 dark:text-emerald-400 font-semibold mr-0.5">+</span>
                 {receiving.quantity} <span className="text-gray-500 dark:text-slate-400 text-sm font-normal font-sans">{receiving.unit || 'pcs'}</span>
             </td>
 
             {/* Quantity Remaining */}
             <td className="px-6 py-3.5 align-middle whitespace-nowrap text-sm tabular-nums text-right">
                 {receiving.quantity_remaining !== null && receiving.quantity_remaining !== undefined ? (
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold ${
-                        receiving.quantity_remaining > 0
-                            ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
-                            : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-700'
-                    }`}>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold ${receiving.quantity_remaining > 0
+    ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800" : "bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-700"}`}>
                         {receiving.quantity_remaining} {receiving.unit || 'pcs'}
                     </span>
                 ) : (
-                    <span className="text-gray-400 dark:text-slate-500 text-sm">—</span>
+                    <span className="text-slate-500 dark:text-slate-400 text-sm">—</span>
                 )}
             </td>
 
@@ -73,7 +72,7 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
                 {receiving.unit_cost !== null && receiving.unit_cost !== undefined ? (
                     `₱${Number(receiving.unit_cost).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                 ) : (
-                    <span className="text-gray-400 dark:text-slate-500 text-sm">—</span>
+                    <span className="text-slate-500 dark:text-slate-400 text-sm">—</span>
                 )}
             </td>
 
@@ -84,33 +83,33 @@ export const ReceivingRow: React.FC<ReceivingRowProps> = ({
                 ) : receiving.unit_cost ? (
                     `₱${(Number(receiving.unit_cost) * receiving.quantity).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                 ) : (
-                    <span className="text-gray-400 dark:text-slate-500 text-sm">—</span>
+                    <span className="text-slate-500 dark:text-slate-400 text-sm">—</span>
                 )}
             </td>
 
             {/* Date Received */}
             <td className="px-6 py-3.5 align-middle whitespace-nowrap text-sm text-gray-600 dark:text-slate-400 tabular-nums">
-                {formatDisplayDate(receiving.date || receiving.date_received, 'MM/DD/YYYY') || receiving.date}
+                {formatScreenDate(receiving.date || receiving.date_received) || receiving.date}
             </td>
 
             {/* Direct Row Actions: View and Update */}
             <td className="px-6 py-3.5 align-middle whitespace-nowrap min-w-[10rem] text-right">
                 <div className="inline-flex items-center justify-end gap-2 flex-wrap">
-                    <button
+                    <Button variant="secondary"
                         type="button"
                         onClick={() => onView(receiving)}
-                        className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 inline-flex items-center justify-center whitespace-nowrap gap-1.5"
+                        className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
                     >
                         View
-                    </button>
+                    </Button>
                     {onUpdate && can('inventory.receiving.update') && (
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => onUpdate(receiving)}
-                            className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 font-semibold text-sm min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded transition-colors cursor-pointer shadow-2xs inline-flex items-center justify-center whitespace-nowrap gap-1.5"
+                            className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
                         >
                             Update
-                        </button>
+                        </Button>
                     )}
                 </div>
             </td>

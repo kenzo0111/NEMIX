@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { useState } from 'react';
 import { compareSortValues } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
@@ -18,7 +19,7 @@ const shortName = (name: string) => (name.length > 26 ? `${name.slice(0, 25)}…
 export function ChartEmpty({ message = 'No matching activity in this period.' }: { message?: string }) {
     return (
         <div className="flex min-h-56 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center dark:border-slate-700 dark:bg-slate-950/40">
-            <Activity className="text-slate-400" size={26} aria-hidden="true" />
+            <Activity className="text-slate-500 dark:text-slate-300" size={26} aria-hidden="true" />
             <p className="max-w-xs text-sm text-slate-500 dark:text-slate-400">{message}</p>
         </div>
     );
@@ -77,7 +78,7 @@ export function SupplyTrendChart({ rows }: { rows: SupplyTrend[] }) {
     return (
         <div className="space-y-5">
             <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                <p className="mb-3 text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400">
                     Requested and issued quantities
                 </p>
                 <ChartContainer config={config} className="h-64 w-full aspect-auto">
@@ -110,7 +111,7 @@ export function SupplyTrendChart({ rows }: { rows: SupplyTrend[] }) {
                 </ChartContainer>
             </div>
             <div className="border-t border-slate-100 pt-4 dark:border-slate-800">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                <p className="mb-3 text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400">
                     Submitted requisitions · separate count scale
                 </p>
                 <ChartContainer config={config} className="h-36 w-full aspect-auto">
@@ -167,14 +168,14 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
         <div>
             <div className="table-toolbar mb-5 flex flex-wrap items-center gap-3">
                 <div className="relative min-w-0 flex-1 sm:max-w-sm">
-                    <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-300" />
                     <input
                         type="search"
                         aria-label="Search offices in demand heatmap"
                         placeholder="Find an office…"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="table-control w-full rounded-lg border-slate-300 bg-white pl-9 text-sm focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950"
+                        className="ui-field table-control w-full rounded-lg border-slate-300 bg-white pl-9 text-sm focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950"
                     />
                 </div>
                 <div className="w-full sm:w-56">
@@ -195,26 +196,26 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
                 <ChartEmpty message="No offices match your search and reporting filters." />
             ) : (
                 <div className="w-full min-w-0 max-h-[480px] overflow-auto rounded-lg border border-slate-100 dark:border-slate-800">
-                    <table className="w-full border-separate border-spacing-1 text-xs">
+                    <table className="ui-data-table w-full border-separate border-spacing-1 text-sm">
                         <caption className="sr-only">
                             Monthly department {metric}. Darker cells indicate higher values; zero indicates no recorded
                             activity.
                         </caption>
                         <thead>
                             <tr>
-                                <SortableTableHeader column="department" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="sticky left-0 top-0 z-20 min-w-44 bg-white p-2 text-left font-medium text-slate-500 dark:bg-slate-900 align-middle">
+                                <SortableTableHeader column="department" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="sticky left-0 top-0 z-20 min-w-44 bg-white p-2 text-left font-medium text-slate-500 dark:bg-slate-900 align-middle dark:text-slate-300">
                                     Department / office
                                 </SortableTableHeader>
                                 {months.map((month) => (
                                     <SortableTableHeader
                                         key={month}
                                         column={month} activeColumn={sort.key} direction={sort.direction} onSort={requestSort}
-                                        className="sticky top-0 z-10 min-w-16 bg-white p-2 font-medium text-slate-500 dark:bg-slate-900 align-middle"
+                                        className="sticky top-0 z-10 min-w-16 bg-white p-2 font-medium text-slate-500 dark:bg-slate-900 align-middle dark:text-slate-300"
                                     >
                                         {month}
                                     </SortableTableHeader>
                                 ))}
-                                <SortableTableHeader column="total" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="sticky top-0 z-10 min-w-16 bg-white p-2 text-slate-500 dark:bg-slate-900 align-middle">Total</SortableTableHeader>
+                                <SortableTableHeader column="total" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="sticky top-0 z-10 min-w-16 bg-white p-2 text-slate-500 dark:bg-slate-900 align-middle dark:text-slate-300">Total</SortableTableHeader>
                             </tr>
                         </thead>
                         <tbody>
@@ -232,15 +233,15 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
                                         return (
                                             <td
                                                 key={month}
-                                                title={`${name} · ${month}: ${value.toLocaleString()} ${config[metric].label}`}
+                                                title={`${name} · ${month}: ${value.toLocaleString('en-PH')} ${config[metric].label}`}
                                                 className={`rounded-md px-2 py-3 text-center tabular-nums align-middle ${levels[level]}`}
                                             >
-                                                {value.toLocaleString()}
+                                                {value.toLocaleString('en-PH')}
                                             </td>
                                         );
                                     })}
                                     <td className="px-3 text-center font-semibold tabular-nums text-slate-700 dark:text-slate-200 align-middle">
-                                        {(totals.get(name) ?? 0).toLocaleString()}
+                                        {(totals.get(name) ?? 0).toLocaleString('en-PH')}
                                     </td>
                                 </tr>
                             ))}
@@ -248,7 +249,7 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
                     </table>
                 </div>
             )}
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500 dark:text-slate-400">
                 <div className="flex items-center gap-1.5">
                     <span className="mr-1">No activity</span>
                     {levels.map((level) => (
@@ -261,12 +262,12 @@ export function DepartmentHeatmap({ rows }: { rows: (SupplyTrend & { department:
                 </span>
             </div>
             {matches.length > 10 && (
-                <button
+                <Button variant="secondary"
                     onClick={() => setShowAll(!showAll)}
-                    className="mt-4 text-sm font-semibold text-red-900 dark:text-red-300"
+                    className="mt-4"
                 >
                     {showAll ? 'Show first 10 offices' : 'Show all offices'}
-                </button>
+                </Button>
             )}
         </div>
     );

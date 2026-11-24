@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import DashboardContent from '@/Layouts/DashboardContent';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
@@ -153,16 +154,16 @@ export default function TransactionAuditIndex({
                     {/* Screen View (Interactive Dashboard Controls) - Hidden on Print */}
                     <div data-tour="system-admin-activity-audit" className="space-y-6 print:hidden audit-print-hide">
                         {/* Institutional Header Banner */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 rounded-lg shadow-2xs">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 rounded-lg shadow-sm">
                             <div className="flex items-center gap-2.5">
                                 <div className="p-1.5 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300 rounded-md border border-red-100 dark:border-red-900/50">
                                     <ScrollText className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <span className="text-sm font-bold text-gray-900 dark:text-slate-100 normal-case tracking-normal">
+                                    <span className="text-sm font-semibold text-gray-900 dark:text-slate-100 normal-case tracking-normal">
                                         Transaction Audit Ledger
                                     </span>
-                                    <span className="hidden sm:inline-block mx-2 text-gray-300 dark:text-slate-600">•</span>
+                                    <span className="hidden sm:inline-block mx-2 text-gray-300 dark:text-slate-400">•</span>
                                     <span className="text-sm text-gray-500 dark:text-slate-400 font-medium">
                                         Official read-only system activity and audit trail
                                     </span>
@@ -174,15 +175,15 @@ export default function TransactionAuditIndex({
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse"></span>
                                     Active Ledger
                                 </span>
-                                <button
+                                <Button variant="secondary"
                                     type="button"
                                     onClick={handlePrintLedger}
-                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-semibold text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 rounded-md transition-colors shadow-2xs cursor-pointer"
+                                    className="inline-flex items-center gap-1.5"
                                     title="Print or export official transaction audit ledger"
                                 >
                                     <Printer className="w-3.5 h-3.5" />
                                     <span>Print Ledger</span>
-                                </button>
+                                </Button>
                             </div>
                         </div>
 

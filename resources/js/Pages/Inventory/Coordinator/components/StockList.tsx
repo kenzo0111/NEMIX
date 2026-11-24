@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { useMemo } from 'react';
 import { ArrowUpRight, FileText } from 'lucide-react';
 import { Stock, money, secondaryButton, stockStatus } from '../inventory';
@@ -37,27 +38,27 @@ export default function StockList({
     const actions = (stock: Stock) => hasActions ? (
         <div className="inline-flex items-center justify-end gap-2 flex-wrap">
             {canIssue && (
-                <button
+                <Button variant="secondary"
                     type="button"
                     onClick={() => onIssue(stock)}
                     disabled={stock.quantity <= 0}
                     aria-label={`Record issue for ${stock.name}`}
-                    className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40 transition-colors whitespace-nowrap cursor-pointer"
+                    className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5"
                 >
                     <ArrowUpRight size={14} />
                     Record Issue
-                </button>
+                </Button>
             )}
             {canStockCard && (
-                <button
+                <Button variant="secondary"
                     type="button"
                     onClick={() => onStockCard(stock)}
                     aria-label={`Generate Stock Card for ${stock.name}`}
-                    className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-semibold text-red-900 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:text-red-300 dark:hover:bg-red-950/50 cursor-pointer"
+                    className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5"
                 >
                     <FileText size={14} />
                     Stock Card
-                </button>
+                </Button>
             )}
         </div>
     ) : null;
@@ -65,7 +66,7 @@ export default function StockList({
     return (
         <>
             <div className="hidden overflow-x-auto sm:block w-full min-w-0">
-                <table className="w-full text-left text-sm min-w-[48rem] border-collapse">
+                <table className="ui-data-table w-full text-left text-sm min-w-[48rem] border-collapse">
                     <thead className="bg-slate-50 text-sm normal-case tracking-normal text-slate-500 dark:bg-slate-950/50 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                         <tr>
                             <SortableTableHeader column="name" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="whitespace-nowrap px-4 py-3.5 pl-6 font-semibold min-w-[12.5rem]">
@@ -97,7 +98,7 @@ export default function StockList({
                                         <p className="leading-relaxed mt-0.5 tabular-nums text-sm text-slate-500 dark:text-slate-400">{stock.sku}</p>
                                     </th>
                                     <td className="whitespace-nowrap px-4 py-3.5 align-middle">
-                                        <span className="font-semibold tabular-nums">{stock.quantity.toLocaleString()}</span>
+                                        <span className="font-semibold tabular-nums">{stock.quantity.toLocaleString('en-PH')}</span>
                                         <span className="ml-1.5 text-sm text-slate-500 dark:text-slate-400">{stock.unit}</span>
                                     </td>
                                     <td className="px-4 py-3.5 align-middle">

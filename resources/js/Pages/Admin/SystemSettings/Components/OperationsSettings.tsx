@@ -22,7 +22,7 @@ export default function OperationsSettings({
             {/* SUBSECTION 1: SESSION SECURITY */}
             <div data-tour="system-admin-session-security" className="space-y-4">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                         Session Security
                     </h3>
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -33,7 +33,7 @@ export default function OperationsSettings({
                 <div className="max-w-md space-y-1.5">
                     <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                         <span>Terminal Inactivity Auto-Logout</span>
-                        <span className="text-red-600 font-normal">*</span>
+                        <span className="text-red-600 font-normal dark:text-red-300">*</span>
                     </label>
                     <div className="relative">
                         <input
@@ -47,19 +47,19 @@ export default function OperationsSettings({
                                     parseInt(e.target.value, 10) || 30
                                 )
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
+                            className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
                         />
                         <span className="absolute right-3.5 top-2.5 text-sm text-slate-500 dark:text-slate-400 font-medium">
                             Minutes
                         </span>
                     </div>
                     {errors['settings.security.session_timeout_minutes'] && (
-                        <p className="leading-relaxed text-sm text-red-600 mt-1">
+                        <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                             {errors['settings.security.session_timeout_minutes']}
                         </p>
                     )}
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+                        <Clock className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
                         Valid range: 5 to 480 minutes before automatic lock out.
                     </p>
                 </div>
@@ -70,7 +70,7 @@ export default function OperationsSettings({
             {/* SUBSECTION 2: POLICY BACKUP */}
             <div data-tour="system-admin-policy-snapshot" className="space-y-4">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                         Policy Backup & Archival Export
                     </h3>
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -79,9 +79,9 @@ export default function OperationsSettings({
                 </div>
 
                 {can('system.settings.backup') && <div className="max-w-md">
-                    <a
+                    <a data-variant="secondary" data-size="default"
                         href={route('system.settings.backup')}
-                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-semibold shadow-2xs transition-all cursor-pointer"
+                        className="ui-button inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-semibold shadow-sm transition-all cursor-pointer"
                     >
                         <Download className="w-4 h-4 text-red-900 dark:text-red-400" />
                         <span>Download Policy Snapshot (JSON)</span>
@@ -94,7 +94,7 @@ export default function OperationsSettings({
             {/* SUBSECTION 3: RUNTIME INFORMATION */}
             <div data-tour="system-admin-telemetry" className="space-y-4">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                         Runtime Environment Information
                     </h3>
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -102,7 +102,7 @@ export default function OperationsSettings({
                     </p>
                 </div>
 
-                <div className="w-full min-w-0 border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs max-w-2xl">
+                <div className="w-full min-w-0 border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm max-w-2xl">
                     <div className="px-5 py-3 bg-slate-50 dark:bg-slate-850 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
                         <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                             <Server className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
@@ -116,7 +116,7 @@ export default function OperationsSettings({
                     </div>
 
                     <div className="w-full min-w-0 overflow-x-auto">
-                        <table className="w-full text-sm text-left min-w-[28rem]">
+                        <table className="ui-data-table w-full text-sm text-left min-w-[28rem]">
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                 <tr>
                                     <th className="px-5 py-3.5 font-medium text-slate-500 dark:text-slate-400 w-1/3 bg-slate-50/40 dark:bg-slate-850/40 align-middle">

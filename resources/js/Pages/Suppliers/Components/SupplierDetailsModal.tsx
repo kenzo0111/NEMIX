@@ -1,3 +1,5 @@
+import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import Modal from '@/Components/Modal';
 import {
@@ -44,19 +46,19 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="xl" ariaLabel="Supplier Information">
-            <div className="relative bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-xl">
+            <div className="relative bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-none">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-900/70">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-900/70">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-xs shrink-0">
+                        <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
                             <Building2 className="w-5 h-5 text-red-900 dark:text-red-400" />
                         </div>
                         <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
                                     Supplier Information
                                 </h3>
                                 <SupplierStatusBadge status={supplier.status} />
@@ -66,26 +68,26 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                             </p>
                         </div>
                     </div>
-                    <button
+                    <Button variant="ghost" size="icon"
                         type="button"
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 p-1.5 rounded-md transition-colors cursor-pointer"
+                        className=""
                         aria-label="Close"
                     >
                         <X className="w-5 h-5" />
-                    </button>
-                </div>
+                    </Button>
+                </DialogHeader>
 
                 {/* Content */}
-                <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 text-sm max-h-[75vh] sm:max-h-[80vh] overflow-y-auto">
+                <DialogBody className="p-4 sm:p-6 space-y-4 sm:space-y-5 text-sm max-h-[75vh] sm:max-h-[80vh] overflow-y-auto">
                     {/* Hero Business Identity Banner */}
-                    <div className="bg-gradient-to-br from-gray-50 via-white to-gray-50/60 dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 p-4 rounded-lg border border-gray-200/80 dark:border-slate-800 shadow-xs">
+                    <div className="bg-gradient-to-br from-gray-50 via-white to-gray-50/60 dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 p-4 rounded-lg border border-gray-200/80 dark:border-slate-800 shadow-sm">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                             <div>
-                                <span className="inline-block text-sm font-bold normal-case tracking-normal tabular-nums text-red-900 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 px-2 py-0.5 rounded">
+                                <span className="inline-block text-sm font-semibold normal-case tracking-normal tabular-nums text-red-900 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 px-2 py-0.5 rounded">
                                     {CATEGORY_DISPLAY_LABEL}
                                 </span>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100 font-sans mt-1.5">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 font-sans mt-1.5">
                                     {supplier.name}
                                 </h2>
                             </div>
@@ -97,8 +99,8 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                                     <Hash className="w-3.5 h-3.5" />
                                 </div>
                                 <div>
-                                    <div className="text-sm font-medium text-gray-400 dark:text-slate-500 normal-case tracking-normal">Tax ID (TIN)</div>
-                                    <div className="tabular-nums font-bold text-gray-900 dark:text-slate-100">{supplier.tin || '—'}</div>
+                                    <div className="text-sm font-medium text-slate-500 dark:text-slate-400 normal-case tracking-normal">Tax ID (TIN)</div>
+                                    <div className="tabular-nums font-semibold text-gray-900 dark:text-slate-100">{supplier.tin || '—'}</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2 text-sm">
@@ -106,18 +108,18 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                                     <FileText className="w-3.5 h-3.5" />
                                 </div>
                                 <div>
-                                    <div className="text-sm font-medium text-gray-400 dark:text-slate-500 normal-case tracking-normal">Registration Number</div>
-                                    <div className="tabular-nums font-bold text-gray-900 dark:text-slate-100">{supplier.reg_number || '—'}</div>
+                                    <div className="text-sm font-medium text-slate-500 dark:text-slate-400 normal-case tracking-normal">Registration Number</div>
+                                    <div className="tabular-nums font-semibold text-gray-900 dark:text-slate-100">{supplier.reg_number || '—'}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Official Business Address Section */}
-                    <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200/80 dark:border-slate-800 p-4 shadow-xs">
+                    <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200/80 dark:border-slate-800 p-4 shadow-sm">
                         <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-gray-100 dark:border-slate-800">
                             <MapPin className="w-4 h-4 text-red-900 dark:text-red-400" />
-                            <h4 className="text-base font-bold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
+                            <h4 className="text-base font-semibold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
                                 Official Business Address
                             </h4>
                         </div>
@@ -130,7 +132,7 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                     <div>
                         <div className="flex items-center gap-2 mb-3 pb-1.5 border-b border-gray-100 dark:border-slate-800">
                             <Layers className="w-4 h-4 text-red-900 dark:text-red-400" />
-                            <h4 className="text-base font-bold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
+                            <h4 className="text-base font-semibold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
                                 Supply Activity & Financial Metrics
                             </h4>
                         </div>
@@ -142,12 +144,12 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                                     <span className="text-sm font-semibold normal-case tracking-normal tabular-nums text-gray-500 dark:text-slate-400">
                                         Received Value
                                     </span>
-                                    <PhilippinePeso className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
+                                    <PhilippinePeso className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                                 </div>
-                                <div className="text-sm tabular-nums font-bold text-gray-900 dark:text-slate-100">
+                                <div className="text-sm tabular-nums font-semibold text-gray-900 dark:text-slate-100">
                                     {formatCurrency(totalReceivedVal)}
                                 </div>
-                                <span className="text-sm text-gray-400 dark:text-slate-500 mt-1">
+                                <span className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                                     Lifetime deliveries
                                 </span>
                             </div>
@@ -158,12 +160,12 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                                     <span className="text-sm font-semibold normal-case tracking-normal tabular-nums text-gray-500 dark:text-slate-400">
                                         Inventory Value
                                     </span>
-                                    <Package className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
+                                    <Package className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                                 </div>
-                                <div className="text-sm tabular-nums font-bold text-red-950 dark:text-red-400">
+                                <div className="text-sm tabular-nums font-semibold text-red-950 dark:text-red-400">
                                     {formatCurrency(currentInventoryVal)}
                                 </div>
-                                <span className="text-sm text-gray-400 dark:text-slate-500 mt-1">
+                                <span className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                                     Current stock on hand
                                 </span>
                             </div>
@@ -174,12 +176,12 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                                     <span className="text-sm font-semibold normal-case tracking-normal tabular-nums text-gray-500 dark:text-slate-400">
                                         Batches Logged
                                     </span>
-                                    <Boxes className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
+                                    <Boxes className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                                 </div>
-                                <div className="text-sm tabular-nums font-bold text-gray-900 dark:text-slate-100">
+                                <div className="text-sm tabular-nums font-semibold text-gray-900 dark:text-slate-100">
                                     {batchCount} {batchCount === 1 ? 'batch' : 'batches'}
                                 </div>
-                                <span className="text-sm text-gray-400 dark:text-slate-500 mt-1">
+                                <span className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                                     Accepted consignments
                                 </span>
                             </div>
@@ -190,12 +192,12 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
                                     <span className="text-sm font-semibold normal-case tracking-normal tabular-nums text-gray-500 dark:text-slate-400">
                                         Unit Quantity
                                     </span>
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                                 </div>
-                                <div className="text-sm tabular-nums font-bold text-gray-900 dark:text-slate-100">
-                                    {currentQty.toLocaleString()} <span className="text-sm text-gray-500 dark:text-slate-400 font-normal">/ {totalRecQty.toLocaleString()}</span>
+                                <div className="text-sm tabular-nums font-semibold text-gray-900 dark:text-slate-100">
+                                    {currentQty.toLocaleString('en-PH')} <span className="text-sm text-gray-500 dark:text-slate-400 font-normal">/ {totalRecQty.toLocaleString('en-PH')}</span>
                                 </div>
-                                <span className="text-sm text-gray-400 dark:text-slate-500 mt-1">
+                                <span className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                                     Remaining / Received units
                                 </span>
                             </div>
@@ -204,44 +206,44 @@ export const SupplierDetailsModal: React.FC<SupplierDetailsModalProps> = ({
 
                     {/* Contract Information Section - Only rendered if formal contract recorded */}
                     {hasContractValue && (
-                        <div className="bg-amber-50/50 dark:bg-amber-950/20 rounded-lg border border-amber-200/70 dark:border-amber-900/40 p-4 shadow-xs">
+                        <div className="bg-amber-50/50 dark:bg-amber-950/20 rounded-lg border border-amber-200/70 dark:border-amber-900/40 p-4 shadow-sm">
                             <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-amber-200/50 dark:border-amber-900/40">
                                 <Award className="w-4 h-4 text-amber-700 dark:text-amber-400" />
-                                <h4 className="text-base font-bold text-amber-900 dark:text-amber-300 normal-case tracking-normal tabular-nums">
+                                <h4 className="text-base font-semibold text-amber-900 dark:text-amber-300 normal-case tracking-normal tabular-nums">
                                     Contract Allocation
                                 </h4>
                             </div>
                             <div className="flex items-baseline justify-between pt-1">
                                 <span className="text-sm font-medium text-amber-800 dark:text-amber-300">Awarded Contract Value:</span>
-                                <span className="text-sm tabular-nums font-bold text-amber-950 dark:text-amber-200">
+                                <span className="text-sm tabular-nums font-semibold text-amber-950 dark:text-amber-200">
                                     {formatCurrency(supplier.contract_value)}
                                 </span>
                             </div>
                         </div>
                     )}
-                </div>
+                </DialogBody>
 
                 {/* Footer */}
-                <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-900/80 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
-                    <button
+                <DialogFooter className="px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-900/80 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+                    <Button variant="secondary"
                         type="button"
                         onClick={onClose}
-                        className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer text-center"
+                        className="w-full sm:w-auto text-center"
                     >
                         Close
-                    </button>
-                    {can('suppliers.update') && <button
+                    </Button>
+                    {can('suppliers.update') && <Button variant="primary"
                         type="button"
                         onClick={() => {
                             onClose();
                             onEdit(supplier);
                         }}
-                        className="w-full sm:w-auto px-4 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white rounded-lg text-sm font-semibold transition-colors shadow-2xs inline-flex items-center justify-center gap-1.5 cursor-pointer text-center"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-center"
                     >
                         <Edit3 className="w-3.5 h-3.5 text-amber-300" />
                         <span>Update Supplier</span>
-                    </button>}
-                </div>
+                    </Button>}
+                </DialogFooter>
             </div>
         </Modal>
     );

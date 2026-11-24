@@ -1,3 +1,4 @@
+import { formatMoney, formatQuantity } from '@/utils/displayFormat';
 import { InventoryItem, InventoryStatus } from '../types';
 
 export const buildSupplierAcronym = (supplierName: string): string => {
@@ -39,12 +40,6 @@ export const computeStatusFromStock = (
     return 'Available';
 };
 
-export const formatCurrency = (amount: number | string | null | undefined): string => {
-    const num = Number(amount ?? 0);
-    return '₱' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-};
+export const formatCurrency = formatMoney;
 
-export const formatNumber = (val: number | string | null | undefined): string => {
-    const num = Number(val ?? 0);
-    return num.toLocaleString('en-US');
-};
+export const formatNumber = formatQuantity;

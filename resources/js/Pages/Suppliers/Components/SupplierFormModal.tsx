@@ -1,3 +1,7 @@
+import useValidationFocus from '@/Hooks/useValidationFocus';
+import { DialogHeader } from '@/Components/ui/dialog-frame';
+import Field from '@/Components/ui/field';
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import Select from 'react-select';
 import Modal from '@/Components/Modal';
@@ -24,6 +28,7 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
     onSubmit,
     onClose,
 }) => {
+    useValidationFocus(errors);
     const isCreate = mode === 'create';
     const title = isCreate ? 'Register New Supplier' : 'Update Supplier Details';
     const submitLabel = isCreate ? 'Register Supplier' : 'Save Changes';
@@ -34,14 +39,14 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="lg" closeable={!isSubmitting} ariaLabel={title}>
-            <div className="relative bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-xl">
+            <div className="relative bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-none">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-900/70">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-900/70">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-xs shrink-0">
+                        <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
                             {isCreate ? (
                                 <Building2 className="w-5 h-5 text-red-900 dark:text-red-400" />
                             ) : (
@@ -49,7 +54,7 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                             )}
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 {title}
                             </h3>
                             <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium mt-1">
@@ -59,16 +64,16 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                             </p>
                         </div>
                     </div>
-                    <button
+                    <Button variant="ghost" size="icon"
                         type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="text-gray-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 p-1.5 rounded-md disabled:opacity-50 transition-colors shrink-0 ml-2 cursor-pointer"
+                        className="shrink-0 ml-2"
                         aria-label="Close"
                     >
                         <X className="w-5 h-5" />
-                    </button>
-                </div>
+                    </Button>
+                </DialogHeader>
 
                 {/* Form */}
                 <form onSubmit={onSubmit}>
@@ -77,16 +82,14 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                         <div>
                             <div className="flex items-center gap-2 pb-2 mb-3.5 border-b border-gray-100 dark:border-slate-800">
                                 <Building2 className="w-4 h-4 text-red-900 dark:text-red-400" />
-                                <h4 className="text-base font-bold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
+                                <h4 className="text-base font-semibold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
                                     Business Information
                                 </h4>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="supplier-name" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
+                                <Field id="supplier-name" label={<>
                                         Business Name <span className="text-red-700 dark:text-red-400">*</span>
-                                    </label>
-                                    <input
+                                    </>} error={errors.name} ><input aria-invalid={Boolean(errors.name)}
                                         id="supplier-name"
                                         type="text"
                                         value={formData.name}
@@ -94,20 +97,12 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                         placeholder="e.g. ABC Office Supplies Trading"
                                         required
                                         disabled={isSubmitting}
-                                        className={`w-full px-3 py-2 bg-white dark:bg-slate-950 border rounded-md text-sm text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 shadow-xs focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors ${
-                                            errors.name ? 'border-red-500 dark:border-red-500 focus:border-red-600' : 'border-gray-300 dark:border-slate-700'
-                                        }`}
-                                    />
-                                    {errors.name && (
-                                         <p className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{errors.name}</p>
-                                    )}
-                                </div>
+                                        className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-950 border rounded-md text-sm text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 shadow-sm focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors ${errors.name ? "border-red-500 dark:border-red-500 focus:border-red-600" : "border-gray-300 dark:border-slate-700"}`)}
+                                    /></Field>
 
-                                <div>
-                                    <label htmlFor="supplier-tin" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
+                                <Field id="supplier-tin" label={<>
                                         Tax ID (TIN) <span className="text-red-700 dark:text-red-400">*</span>
-                                    </label>
-                                    <input
+                                    </>} error={errors.tin} ><input aria-invalid={Boolean(errors.tin)}
                                         id="supplier-tin"
                                         type="text"
                                         value={formData.tin}
@@ -115,20 +110,12 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                         placeholder="e.g. 000-123-456-000"
                                         required
                                         disabled={isSubmitting}
-                                        className={`w-full px-3 py-2 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 shadow-xs focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors ${
-                                            errors.tin ? 'border-red-500 dark:border-red-500 focus:border-red-600' : 'border-gray-300 dark:border-slate-700'
-                                        }`}
-                                    />
-                                    {errors.tin && (
-                                        <p className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{errors.tin}</p>
-                                    )}
-                                </div>
+                                        className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 shadow-sm focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors ${errors.tin ? "border-red-500 dark:border-red-500 focus:border-red-600" : "border-gray-300 dark:border-slate-700"}`)}
+                                    /></Field>
 
-                                <div className="sm:col-span-2">
-                                    <label htmlFor="supplier-address" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
+                                <Field id="supplier-address" label={<>
                                         Business Address <span className="text-red-700 dark:text-red-400">*</span>
-                                    </label>
-                                    <input
+                                    </>} error={errors.address} className="sm:col-span-2"><input aria-invalid={Boolean(errors.address)}
                                         id="supplier-address"
                                         type="text"
                                         value={formData.address}
@@ -136,14 +123,8 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                         placeholder="e.g. Provincial Capitol Complex, Daet, Camarines Norte"
                                         required
                                         disabled={isSubmitting}
-                                        className={`w-full px-3 py-2 bg-white dark:bg-slate-950 border rounded-md text-sm text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 shadow-xs focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors ${
-                                            errors.address ? 'border-red-500 dark:border-red-500 focus:border-red-600' : 'border-gray-300 dark:border-slate-700'
-                                        }`}
-                                    />
-                                    {errors.address && (
-                                        <p className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{errors.address}</p>
-                                    )}
-                                </div>
+                                        className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-950 border rounded-md text-sm text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 shadow-sm focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors ${errors.address ? "border-red-500 dark:border-red-500 focus:border-red-600" : "border-gray-300 dark:border-slate-700"}`)}
+                                    /></Field>
                             </div>
                         </div>
 
@@ -151,16 +132,14 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                         <div>
                             <div className="flex items-center gap-2 pb-2 mb-3.5 border-b border-gray-100 dark:border-slate-800">
                                 <FileText className="w-4 h-4 text-red-900 dark:text-red-400" />
-                                <h4 className="text-base font-bold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
+                                <h4 className="text-base font-semibold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
                                     Registration & Classification
                                 </h4>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="supplier-registration-number" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
+                                <Field id="supplier-registration-number" label={<>
                                         Registration Number <span className="text-red-700 dark:text-red-400">*</span>
-                                    </label>
-                                    <input
+                                    </>} error={errors.reg_number} ><input aria-invalid={Boolean(errors.reg_number)}
                                         id="supplier-registration-number"
                                         type="text"
                                         value={formData.reg_number}
@@ -168,14 +147,8 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                         placeholder="e.g. 2023-112233"
                                         required
                                         disabled={isSubmitting}
-                                        className={`w-full px-3 py-2 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 shadow-xs focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors ${
-                                            errors.reg_number ? 'border-red-500 dark:border-red-500 focus:border-red-600' : 'border-gray-300 dark:border-slate-700'
-                                        }`}
-                                    />
-                                    {errors.reg_number && (
-                                        <p className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{errors.reg_number}</p>
-                                    )}
-                                </div>
+                                        className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 shadow-sm focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 transition-colors ${errors.reg_number ? "border-red-500 dark:border-red-500 focus:border-red-600" : "border-gray-300 dark:border-slate-700"}`)}
+                                    /></Field>
 
                                 <div>
                                     <span className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
@@ -185,7 +158,7 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                         <span className="w-2 h-2 rounded-full bg-red-900 dark:bg-red-500 shrink-0"></span>
                                         <span>{CATEGORY_DISPLAY_LABEL}</span>
                                     </div>
-                                    <p className="leading-relaxed text-sm text-gray-400 dark:text-slate-500 mt-1">
+                                    <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
                                         Dedicated consumable office supplies registry.
                                     </p>
                                 </div>
@@ -196,7 +169,7 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                         <div>
                             <div className="flex items-center gap-2 pb-2 mb-3.5 border-b border-gray-100 dark:border-slate-800">
                                 <ShieldCheck className="w-4 h-4 text-red-900 dark:text-red-400" />
-                                <h4 className="text-base font-bold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
+                                <h4 className="text-base font-semibold text-gray-800 dark:text-slate-200 normal-case tracking-normal tabular-nums">
                                     Compliance & Status
                                 </h4>
                             </div>
@@ -205,6 +178,8 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                     Accreditation Status <span className="text-red-700 dark:text-red-400">*</span>
                                 </label>
                                 <Select<{ value: SupplierStatus; label: string }>
+                                    aria-invalid={Boolean(errors.status)}
+                                    aria-describedby={errors.status ? 'supplier-status-error' : undefined}
                                     inputId="supplier-status"
                                     options={FORM_STATUS_OPTIONS}
                                     value={selectedStatusOption}
@@ -214,11 +189,11 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                     styles={institutionalSelectStyles}
                                 />
                                 {errors.status && (
-                                    <p className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{errors.status}</p>
+                                    <p id="supplier-status-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{errors.status}</p>
                                 )}
 
                                 <div className="mt-2 text-sm text-gray-600 dark:text-slate-400 bg-gray-50/90 dark:bg-slate-950/90 rounded-md p-2.5 border border-gray-200/70 dark:border-slate-800 flex items-start gap-2">
-                                    <Info className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 mt-0.5 shrink-0" />
+                                    <Info className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 mt-0.5 shrink-0" />
                                     <span>
                                         {formData.status === 'active' && 'Active suppliers are eligible for purchase orders and delivery receiving.'}
                                         {formData.status === 'pending' && 'Supplier accreditation is pending review or document renewal.'}
@@ -231,18 +206,18 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
 
                     {/* Footer */}
                     <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/75 dark:bg-slate-900/75 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={onClose}
                             disabled={isSubmitting}
-                            className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors shadow-xs cursor-pointer text-center"
+                            className="w-full sm:w-auto text-center"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="primary"
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full sm:w-auto px-4 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white rounded-md text-sm font-semibold transition-colors shadow-xs disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2"
                         >
                             {isSubmitting ? (
                                 <svg className="animate-spin h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none">
@@ -255,7 +230,7 @@ export const SupplierFormModal: React.FC<SupplierFormModalProps> = ({
                                 <Check className="w-3.5 h-3.5 text-amber-300" />
                             )}
                             <span>{submitLabel}</span>
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

@@ -1,3 +1,5 @@
+import { DialogHeader, DialogBody } from '@/Components/ui/dialog-frame';
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import Modal from '@/Components/Modal';
 import { ReceivingForm } from './ReceivingForm';
@@ -39,14 +41,14 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
             closeable={!processing}
             ariaLabel={mode === 'edit' ? `Edit Receiving Record #${recordId}` : 'Record Receiving'}
         >
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden">
                 {/* Institutional Maroon Accent Header */}
                 <div className="h-1.5 bg-gradient-to-r from-red-950 via-red-900 to-red-950 w-full shrink-0" />
 
                 {/* Header */}
-                <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between bg-gray-50/70 dark:bg-slate-800/70">
+                <DialogHeader className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between bg-gray-50/70 dark:bg-slate-800/70">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-2xs shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
                             {mode === 'edit' ? (
                                 <Edit3 className="w-5 h-5 text-red-900 dark:text-red-400" />
                             ) : (
@@ -54,7 +56,7 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
                             )}
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 {mode === 'edit' ? `Edit Receiving Record #${recordId}` : 'Record Receiving'}
                             </h3>
                             <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium mt-1 truncate">
@@ -64,19 +66,19 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
                             </p>
                         </div>
                     </div>
-                    <button
+                    <Button variant="ghost" size="icon"
                         type="button"
                         onClick={onClose}
                         disabled={processing}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer shrink-0 ml-2"
+                        className="shrink-0 ml-2"
                         aria-label="Close modal"
                     >
                         <X className="w-5 h-5" />
-                    </button>
-                </div>
+                    </Button>
+                </DialogHeader>
 
                 {/* Form Body */}
-                <div className="p-4 sm:p-6 max-h-[80vh] overflow-y-auto">
+                <DialogBody className="p-4 sm:p-6 max-h-[80vh] overflow-y-auto">
                     <ReceivingForm
                         data={data}
                         setData={setData}
@@ -88,7 +90,7 @@ export const ReceivingFormModal: React.FC<ReceivingFormModalProps> = ({
                         onSubmit={onSubmit}
                         onCancel={onClose}
                     />
-                </div>
+                </DialogBody>
             </div>
         </Modal>
     );

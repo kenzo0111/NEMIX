@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Select, { SingleValue } from 'react-select';
 import { Search, RotateCcw, Calendar as CalendarIcon, X } from 'lucide-react';
@@ -186,11 +187,11 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
     ].filter(Boolean).length;
 
     return (
-        <div className={`table-toolbar bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 ${coordinatorLayout ? 'rounded-xl shadow-sm p-4 sm:p-6' : 'rounded-lg shadow-2xs p-4'} space-y-3`}>
+        <div className={`table-toolbar bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 ${coordinatorLayout ? "rounded-xl shadow-sm p-4 sm:p-6" : "rounded-lg shadow-sm p-4"} space-y-3`}>
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 {/* Search Input matching system-wide toolbars */}
                 <div className="relative flex-1 min-w-[260px] max-w-md">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                         <Search className="w-4 h-4" />
                     </div>
                     <input
@@ -198,17 +199,17 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
                         value={search}
                         onChange={(e) => handleSearchChange(e.target.value)}
                         placeholder="Search name, email, or IP address..."
-                        className="table-control w-full pl-9 pr-8 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-normal text-gray-900 dark:text-slate-100 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-xs placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
+                        className="ui-field table-control w-full pl-9 pr-8 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-normal text-gray-900 dark:text-slate-100 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
                     />
                     {search && (
-                        <button
+                        <Button variant="ghost" size="icon"
                             type="button"
                             onClick={handleClearSearch}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 p-0.5 rounded transition-colors"
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2"
                             aria-label="Clear search"
                         >
                             <X className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                     )}
                 </div>
 
@@ -255,15 +256,15 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
 
                     {/* Reset Button */}
                     {activeFilterCount > 0 && (
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={onReset}
-                            className="inline-flex table-control items-center gap-1.5 px-3 text-sm font-bold text-red-900 dark:text-red-300 hover:text-red-950 dark:hover:text-red-200 bg-red-50 dark:bg-red-950/40 hover:bg-red-100/80 dark:hover:bg-red-900/50 border border-red-200/80 dark:border-red-800/60 rounded-md transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
+                            className="inline-flex table-control items-center gap-1.5"
                             title="Reset all filters"
                         >
                             <RotateCcw className="w-3.5 h-3.5" />
                             <span>Reset ({activeFilterCount})</span>
-                        </button>
+                        </Button>
                     )}
                 </div>
             </div>
@@ -282,7 +283,7 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
                             type="date"
                             value={filters.date_from || ''}
                             onChange={(e) => handleCustomDateChange('from', e.target.value)}
-                            className="table-control px-2.5 text-sm font-medium border border-gray-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                            className="ui-field table-control px-2.5 text-sm font-medium border border-gray-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                         />
                     </div>
                     <div className="flex items-center gap-2">
@@ -292,7 +293,7 @@ export const LoginAuditToolbar: React.FC<LoginAuditToolbarProps> = ({
                             type="date"
                             value={filters.date_to || ''}
                             onChange={(e) => handleCustomDateChange('to', e.target.value)}
-                            className="table-control px-2.5 text-sm font-medium border border-gray-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                            className="ui-field table-control px-2.5 text-sm font-medium border border-gray-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                         />
                     </div>
                 </div>

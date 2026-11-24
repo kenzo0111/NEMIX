@@ -1,3 +1,5 @@
+import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
+import { Button } from '@/Components/ui/button';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import Modal from '@/Components/Modal';
 import Select from 'react-select';
@@ -101,19 +103,19 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                 <div className="h-1.5 bg-gradient-to-r from-amber-600 via-red-900 to-red-950 w-full shrink-0" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200/80 dark:border-slate-800 bg-gradient-to-b from-gray-50/90 to-white dark:from-slate-900 dark:to-slate-900 shrink-0">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200/80 dark:border-slate-800 bg-gradient-to-b from-gray-50/90 to-white dark:from-slate-900 dark:to-slate-900 shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 flex items-center justify-center text-amber-900 dark:text-amber-300 shadow-2xs shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 flex items-center justify-center text-amber-900 dark:text-amber-300 shadow-sm shrink-0">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                             </svg>
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                     Historical Data Migration Workspace
                                 </h3>
-                                <span className="px-2 py-0.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-amber-900 dark:text-amber-300 tabular-nums font-bold text-sm rounded-md tracking-normal">
+                                <span className="px-2 py-0.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-amber-900 dark:text-amber-300 tabular-nums font-semibold text-sm rounded-md tracking-normal">
                                     Legacy Ingestion
                                 </span>
                             </div>
@@ -123,35 +125,35 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                         </div>
                     </div>
 
-                    <button
+                    <Button variant="ghost" size="icon"
                         type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 p-1.5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer shrink-0 ml-2"
+                        className="shrink-0 ml-2"
                         aria-label="Close modal"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                    </button>
-                </div>
+                    </Button>
+                </DialogHeader>
 
                 {/* Content */}
-                <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-gray-50/40 dark:bg-slate-950/60">
+                <DialogBody className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-gray-50/40 dark:bg-slate-950/60">
                     {/* Setup Controls Card */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200/80 dark:border-slate-800 p-4.5 shadow-2xs space-y-3.5">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200/80 dark:border-slate-800 p-4.5 shadow-sm space-y-3.5">
                         <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
-                            <span className="text-sm font-bold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
+                            <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
                                 1. Ingestion Target & Source
                             </span>
-                            <span className="text-sm text-gray-400 dark:text-slate-500 font-medium">Archive Batch Settings</span>
+                            <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">Archive Batch Settings</span>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
-                                    Form Type <span className="text-red-700">*</span>
+                                    Form Type <span className="text-red-700 dark:text-red-300">*</span>
                                 </label>
                                 <Select
                                     options={allowedFormTypes}
@@ -174,20 +176,20 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                     value={source}
                                     onChange={(e) => setSource(e.target.value)}
                                     placeholder="e.g. Legacy Excel 2024 Audit Archive"
-                                    className="w-full h-9 text-sm px-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-2xs hover:border-gray-400 transition-colors"
+                                    className="ui-field w-full h-9 text-sm px-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm hover:border-gray-400 transition-colors"
                                 />
                             </div>
                         </div>
                     </div>
 
                     {/* File Upload Box */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200/80 dark:border-slate-800 p-4.5 shadow-2xs space-y-3">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200/80 dark:border-slate-800 p-4.5 shadow-sm space-y-3">
                         <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
-                            <span className="text-sm font-bold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
+                            <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-300 tabular-nums flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-red-900"></span>
                                 2. Document Upload & Extraction
                             </span>
-                            <span className="text-sm text-gray-400 dark:text-slate-500 tabular-nums">
+                            <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums">
                                 Excel (.xlsx, .xls) • CSV • PDF (.pdf) • Word (.docx, .doc)
                             </span>
                         </div>
@@ -198,11 +200,11 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                 disabled={isExtracting}
                                 accept=".xlsx,.xls,.csv,.pdf,.docx,.doc"
                                 onChange={handleFileChange}
-                                className="block w-full text-sm text-gray-600 dark:text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-red-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-950 file:shadow-2xs file:cursor-pointer disabled:opacity-50"
+                                className="block w-full text-sm text-gray-600 dark:text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-red-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-950 file:shadow-sm file:cursor-pointer disabled:opacity-50"
                             />
 
                             {isExtracting ? (
-                                <div className="mt-3 flex items-center gap-2.5 text-sm text-red-900 dark:text-red-300 font-medium bg-red-50 dark:bg-red-950/40 p-3 rounded-lg border border-red-200/80 dark:border-red-800/50 shadow-2xs">
+                                <div className="mt-3 flex items-center gap-2.5 text-sm text-red-900 dark:text-red-300 font-medium bg-red-50 dark:bg-red-950/40 p-3 rounded-lg border border-red-200/80 dark:border-red-800/50 shadow-sm">
                                     <svg className="w-4 h-4 animate-spin text-red-900 dark:text-red-400 shrink-0" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
@@ -221,36 +223,36 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                     </div>
 
                     {/* Extraction Summary Badges */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl p-3 shadow-2xs">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl p-3 shadow-sm">
                         <div className="bg-gray-50/80 dark:bg-slate-800/80 border border-gray-200/60 dark:border-slate-700 rounded-lg p-2.5 text-center">
-                            <span className="block text-sm font-bold text-gray-500 dark:text-slate-400 normal-case tracking-normal tabular-nums">
+                            <span className="block text-sm font-semibold text-gray-500 dark:text-slate-400 normal-case tracking-normal tabular-nums">
                                 Total Detected
                             </span>
-                            <span className="text-lg font-bold text-gray-900 dark:text-slate-100 tabular-nums">
+                            <span className="text-lg font-semibold text-gray-900 dark:text-slate-100 tabular-nums">
                                 {validation.totalDetected}
                             </span>
                         </div>
                         <div className="bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/50 rounded-lg p-2.5 text-center text-emerald-800 dark:text-emerald-300">
-                            <span className="block text-sm font-bold normal-case tracking-normal tabular-nums">
+                            <span className="block text-sm font-semibold normal-case tracking-normal tabular-nums">
                                 Ready to Import
                             </span>
-                            <span className="text-lg font-bold tabular-nums text-emerald-700 dark:text-emerald-400">
+                            <span className="text-lg font-semibold tabular-nums text-emerald-700 dark:text-emerald-400">
                                 {validation.validCount}
                             </span>
                         </div>
                         <div className="bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 rounded-lg p-2.5 text-center text-amber-800 dark:text-amber-300">
-                            <span className="block text-sm font-bold normal-case tracking-normal tabular-nums">
+                            <span className="block text-sm font-semibold normal-case tracking-normal tabular-nums">
                                 Duplicates
                             </span>
-                            <span className="text-lg font-bold tabular-nums text-amber-700 dark:text-amber-400">
+                            <span className="text-lg font-semibold tabular-nums text-amber-700 dark:text-amber-400">
                                 {validation.duplicateCount}
                             </span>
                         </div>
                         <div className="bg-red-50/80 dark:bg-red-950/40 border border-red-200/60 dark:border-red-800/50 rounded-lg p-2.5 text-center text-red-800 dark:text-red-300">
-                            <span className="block text-sm font-bold normal-case tracking-normal tabular-nums">
+                            <span className="block text-sm font-semibold normal-case tracking-normal tabular-nums">
                                 Invalid / Missing
                             </span>
-                            <span className="text-lg font-bold tabular-nums text-red-700 dark:text-red-400">
+                            <span className="text-lg font-semibold tabular-nums text-red-700 dark:text-red-400">
                                 {validation.invalidCount}
                             </span>
                         </div>
@@ -259,11 +261,11 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                     {/* Field Mapping Schema Matrix */}
                     {groups.length > 0 && (
                         <div className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-3.5 space-y-2">
-                            <h4 className="text-base font-bold normal-case text-gray-700 dark:text-slate-300 tracking-normal">
+                            <h4 className="text-base font-semibold normal-case text-gray-700 dark:text-slate-300 tracking-normal">
                                 Field Mapping Schema ({formType})
                             </h4>
                             <div className="w-full min-w-0 overflow-x-auto">
-                                <table className="w-full text-left text-sm border-collapse min-w-[32rem]">
+                                <table className="ui-data-table w-full text-left text-sm border-collapse min-w-[32rem]">
                                     <thead>
                                         <tr className="border-b border-gray-200 dark:border-slate-800 text-gray-600 dark:text-slate-400 font-semibold normal-case text-sm tracking-normal">
                                             <th className="py-3 px-3 align-middle whitespace-nowrap">COA Document Field</th>
@@ -293,7 +295,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                     {groups.length > 0 ? (
                         <div className="space-y-4">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200/80 dark:border-slate-800 pb-2.5">
-                                <h4 className="text-base font-bold normal-case text-gray-700 dark:text-slate-300 tracking-normal flex items-center gap-2">
+                                <h4 className="text-base font-semibold normal-case text-gray-700 dark:text-slate-300 tracking-normal flex items-center gap-2">
                                     <span>Detected Records Review</span>
                                     <span className="text-sm font-normal text-gray-500 dark:text-slate-400 tabular-nums">
                                         ({selectedSheetTab === 'ALL' ? validation.totalDetected : displayedGroups.reduce((a, g) => a + g.items.length, 0)} records in {displayedGroups.length} batches)
@@ -302,34 +304,26 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
 
                                 {uniqueSheets.length > 1 && (
                                     <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1">
-                                        <button
+                                        <Button variant="primary"
                                             type="button"
                                             onClick={() => setSelectedSheetTab('ALL')}
                                             aria-pressed={selectedSheetTab === 'ALL'}
-                                            className={`px-2.5 py-1 rounded-md text-sm tabular-nums transition-all shrink-0 cursor-pointer ${
-                                                selectedSheetTab === 'ALL'
-                                                    ? 'bg-red-900 text-white font-bold shadow-xs'
-                                                    : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700 font-medium'
-                                            }`}
+                                            className="tabular-nums shrink-0"
                                         >
                                             All Sheets ({groups.length})
-                                        </button>
+                                        </Button>
                                         {uniqueSheets.map((sName) => {
                                             const sCount = groups.filter((g) => g.sheetName === sName).reduce((a, g) => a + g.items.length, 0);
                                             return (
-                                                <button
+                                                <Button variant="primary"
                                                     key={sName}
                                                     type="button"
                                                     onClick={() => setSelectedSheetTab(sName)}
                                                     aria-pressed={selectedSheetTab === sName}
-                                                    className={`px-2.5 py-1 rounded-md text-sm tabular-nums transition-all shrink-0 cursor-pointer ${
-                                                        selectedSheetTab === sName
-                                                            ? 'bg-red-900 text-white font-bold shadow-xs'
-                                                            : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700 font-medium'
-                                                    }`}
+                                                    className="tabular-nums shrink-0"
                                                 >
                                                     {sName} ({sCount})
-                                                </button>
+                                                </Button>
                                             );
                                         })}
                                     </div>
@@ -337,7 +331,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                             </div>
 
                             {displayedGroups.map((group, gIdx) => (
-                                <div key={gIdx} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-2xs">
+                                <div key={gIdx} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-sm">
                                     <div className="px-4 py-2.5 bg-gray-50 dark:bg-slate-800/60 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between text-sm flex-wrap gap-2">
                                         <div className="font-semibold text-gray-800 dark:text-slate-200 flex items-center gap-2 flex-wrap">
                                             <span>Sheet: <strong className="tabular-nums text-gray-900 dark:text-slate-100">{group.sheetName}</strong></span>
@@ -353,18 +347,18 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                             )}
                                         </div>
                                         <div className="flex gap-3 text-sm tabular-nums">
-                                            <span className="text-emerald-700 dark:text-emerald-400 font-bold">{group.validCount} valid</span>
+                                            <span className="text-emerald-700 dark:text-emerald-400 font-semibold">{group.validCount} valid</span>
                                             {group.invalidCount ? (
-                                                <span className="text-red-700 dark:text-red-400 font-bold">{group.invalidCount} invalid</span>
+                                                <span className="text-red-700 dark:text-red-400 font-semibold">{group.invalidCount} invalid</span>
                                             ) : null}
                                             {group.duplicateCount ? (
-                                                <span className="text-amber-700 dark:text-amber-400 font-bold">{group.duplicateCount} duplicates</span>
+                                                <span className="text-amber-700 dark:text-amber-400 font-semibold">{group.duplicateCount} duplicates</span>
                                             ) : null}
                                         </div>
                                     </div>
 
                                     <div className="w-full min-w-0 overflow-x-auto max-h-60">
-                                        <table className="w-full text-left text-sm border-collapse min-w-[44rem]">
+                                        <table className="ui-data-table w-full text-left text-sm border-collapse min-w-[44rem]">
                                             <thead className="bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-300 font-semibold normal-case text-sm tracking-normal sticky top-0 z-10 border-b border-gray-200 dark:border-slate-700">
                                                 <tr>
                                                     <SortableTableHeader column="reference" activeColumn={recordSort.key} direction={recordSort.direction} onSort={sortRecords} className="py-3 px-3 min-w-[7.5rem] align-middle">Reference</SortableTableHeader>
@@ -381,7 +375,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                                     return (
                                                         <tr
                                                             key={rIdx}
-                                                            className={hasError ? 'bg-red-50/40 dark:bg-red-950/20' : 'hover:bg-gray-50/50 dark:hover:bg-slate-800/50'}
+                                                            className={hasError ? "bg-red-50/40 dark:bg-red-950/20" : "hover:bg-gray-50/50 dark:hover:bg-slate-800/50"}
                                                         >
                                                             <td className="py-3 px-3 tabular-nums font-semibold text-gray-900 dark:text-slate-100 align-middle">
                                                                 {row.reference || '—'}
@@ -392,7 +386,7 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                                             <td className="py-3 px-3 font-medium text-gray-800 dark:text-slate-200 max-w-xs truncate align-middle">
                                                                 {row.item_name || '—'}
                                                             </td>
-                                                            <td className="py-3 px-3 text-right tabular-nums font-bold text-gray-900 dark:text-slate-100 align-middle">
+                                                            <td className="py-3 px-3 text-right tabular-nums font-semibold text-gray-900 dark:text-slate-100 align-middle">
                                                                 {row.quantity ?? row.issue_qty ?? row.receipt_qty ?? 0}
                                                             </td>
                                                             <td className="py-3 px-3 text-gray-600 dark:text-slate-400 align-middle">
@@ -400,11 +394,11 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                                             </td>
                                                             <td className="py-3 px-3 whitespace-nowrap align-middle">
                                                                 {hasError ? (
-                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-sm font-bold bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300">
+                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300">
                                                                         {row.errors![0]}
                                                                     </span>
                                                                 ) : (
-                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-sm font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
+                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
                                                                         Ready to Import
                                                                     </span>
                                                                 )}
@@ -423,24 +417,24 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                             Upload a legacy {formType} spreadsheet (Excel, CSV) or document (PDF, Word .docx, .doc) to extract table rows, review detected records and field mappings, and validate them before importing.
                         </div>
                     )}
-                </div>
+                </DialogBody>
 
                 {/* Footer */}
-                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-gray-50 dark:from-slate-900 dark:to-slate-900 border-t border-gray-200/80 dark:border-slate-800 shrink-0">
-                    <button
+                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-b from-white to-gray-50 dark:from-slate-900 dark:to-slate-900 border-t border-gray-200/80 dark:border-slate-800 shrink-0">
+                    <Button variant="secondary"
                         type="button"
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 shadow-2xs hover:border-gray-400 transition-all cursor-pointer w-full sm:w-auto text-center"
+                        className="w-full sm:w-auto text-center"
                     >
                         Cancel
-                    </button>
+                    </Button>
 
-                    <button
+                    <Button variant="primary"
                         type="button"
                         onClick={handleConfirm}
                         disabled={isSubmitting || (selectedSheetTab === 'ALL' ? validation.validCount === 0 : displayedValidCount === 0)}
-                        className="inline-flex items-center justify-center gap-1.5 px-5 py-2 text-sm font-semibold text-white bg-red-900 rounded-lg hover:bg-red-950 disabled:opacity-50 transition-all shadow-xs active:scale-[0.99] cursor-pointer w-full sm:w-auto"
+                        className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto"
                     >
                         {isSubmitting ? (
                             <>
@@ -462,8 +456,8 @@ export const MigrationDialog: React.FC<MigrationDialogProps> = ({
                                 </span>
                             </>
                         )}
-                    </button>
-                </div>
+                    </Button>
+                </DialogFooter>
             </div>
         </Modal>
     );

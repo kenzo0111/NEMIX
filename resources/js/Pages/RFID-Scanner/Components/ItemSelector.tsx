@@ -72,7 +72,7 @@ export default function ItemSelector({
                                     </span>
                                     {item.rfid_tag && (
                                         <>
-                                            <span className="text-gray-300 dark:text-slate-600">•</span>
+                                            <span className="text-gray-300 dark:text-slate-400">•</span>
                                             <span className="text-emerald-700 dark:text-emerald-400 font-semibold truncate max-w-[110px]">
                                                 Tag: {item.rfid_tag}
                                             </span>
@@ -80,8 +80,8 @@ export default function ItemSelector({
                                     )}
                                     {item.supplier_name && (
                                         <>
-                                            <span className="text-gray-300 dark:text-slate-600">•</span>
-                                            <span className="truncate max-w-[130px] text-gray-400 dark:text-slate-500 font-sans">
+                                            <span className="text-gray-300 dark:text-slate-400">•</span>
+                                            <span className="truncate max-w-[130px] text-slate-500 dark:text-slate-400 font-sans">
                                                 {item.supplier_name}
                                             </span>
                                         </>
@@ -91,16 +91,11 @@ export default function ItemSelector({
 
                             {/* Crisp status pill */}
                             <span
-                                className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-medium border ${
-                                    isTagged
-                                        ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/90 dark:border-emerald-800/60'
-                                        : 'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60'
-                                }`}
+                                className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-medium border ${isTagged
+    ? "text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/90 dark:border-emerald-800/60" : "text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60"}`}
                             >
                                 <span
-                                    className={`w-1.5 h-1.5 rounded-full ${
-                                        isTagged ? 'bg-emerald-600 dark:bg-emerald-500' : 'bg-amber-500'
-                                    }`}
+                                    className={`w-1.5 h-1.5 rounded-full ${isTagged ? "bg-emerald-600 dark:bg-emerald-500" : "bg-amber-500"}`}
                                 />
                                 <span>{isTagged ? 'Tagged' : 'Untagged'}</span>
                             </span>

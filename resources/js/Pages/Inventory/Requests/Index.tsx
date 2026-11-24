@@ -1,3 +1,5 @@
+import { formatScreenDate } from '@/utils/displayFormat';
+import { Button } from '@/Components/ui/button';
 import DashboardContent from '@/Layouts/DashboardContent';
 import { notify } from '@/utils/notifications';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -27,6 +29,7 @@ const PAGE_SIZE = 10;
 type RequestPage = {
     data: SupplyRequest[];
     current_page: number;
+    per_page?: number;
     last_page: number;
     total: number;
     from: number | null;
@@ -143,7 +146,7 @@ export default function MyRequests({
     const [requestSort, setRequestSort] = useState<RequestSortKey>(() => requestFilters.sort || 'date');
     const [requestDirection, setRequestDirection] = useState<'asc' | 'desc'>(() => requestFilters.direction || 'desc');
     const initialCoordinatorSearch = useRef(true);
-    const coordinatorSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const coordinatorSearchTimer = useRef<number | null>(null);
 
     useEffect(() => {
         if (!isCoordinator) return;
@@ -434,26 +437,26 @@ export default function MyRequests({
 
                     {/* Operational Summary Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                        <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs flex flex-col justify-between">
+                        <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col justify-between">
                             <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400 tabular-nums">
                                 Total Submissions
                             </span>
                             <div className="mt-1.5 flex items-baseline justify-between">
-                                <span className="text-2xl font-bold tabular-nums tracking-tight text-slate-900 dark:text-slate-100">
+                                <span className="text-2xl font-semibold tabular-nums tracking-tight text-slate-900 dark:text-slate-100">
                                     {counts.total}
                                 </span>
-                                <span className="text-sm text-slate-400 dark:text-slate-500 font-sans">
+                                <span className="text-sm text-slate-500 dark:text-slate-400 font-sans">
                                     requisitions
                                 </span>
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-amber-200/80 dark:border-amber-900/40 shadow-2xs flex flex-col justify-between">
+                        <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-amber-200/80 dark:border-amber-900/40 shadow-sm flex flex-col justify-between">
                             <span className="block text-sm font-semibold normal-case tracking-normal text-amber-700 dark:text-amber-400 tabular-nums">
                                 Pending Custodian Review
                             </span>
                             <div className="mt-1.5 flex items-baseline justify-between">
-                                <span className="text-2xl font-bold tabular-nums tracking-tight text-amber-600 dark:text-amber-400">
+                                <span className="text-2xl font-semibold tabular-nums tracking-tight text-amber-600 dark:text-amber-400">
                                     {counts.pending}
                                 </span>
                                 <span className="text-sm text-amber-600/80 dark:text-amber-400/80 font-sans">
@@ -462,12 +465,12 @@ export default function MyRequests({
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-blue-200/80 dark:border-blue-900/40 shadow-2xs flex flex-col justify-between">
+                        <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-blue-200/80 dark:border-blue-900/40 shadow-sm flex flex-col justify-between">
                             <span className="block text-sm font-semibold normal-case tracking-normal text-blue-700 dark:text-blue-400 tabular-nums">
                                 Approved · Ready for Release
                             </span>
                             <div className="mt-1.5 flex items-baseline justify-between">
-                                <span className="text-2xl font-bold tabular-nums tracking-tight text-blue-600 dark:text-blue-400">
+                                <span className="text-2xl font-semibold tabular-nums tracking-tight text-blue-600 dark:text-blue-400">
                                     {counts.approved}
                                 </span>
                                 <span className="text-sm text-blue-600/80 dark:text-blue-400/80 font-sans">
@@ -476,12 +479,12 @@ export default function MyRequests({
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-emerald-200/80 dark:border-emerald-900/40 shadow-2xs flex flex-col justify-between">
+                        <div className="bg-white dark:bg-slate-900 px-4 py-3 sm:py-3.5 rounded-xl border border-emerald-200/80 dark:border-emerald-900/40 shadow-sm flex flex-col justify-between">
                             <span className="block text-sm font-semibold normal-case tracking-normal text-emerald-700 dark:text-emerald-400 tabular-nums">
                                 Completed Issuances
                             </span>
                             <div className="mt-1.5 flex items-baseline justify-between">
-                                <span className="text-2xl font-bold tabular-nums tracking-tight text-emerald-600 dark:text-emerald-400">
+                                <span className="text-2xl font-semibold tabular-nums tracking-tight text-emerald-600 dark:text-emerald-400">
                                     {counts.issued}
                                 </span>
                                 <span className="text-sm text-emerald-600/80 dark:text-emerald-400/80 font-sans">
@@ -492,11 +495,11 @@ export default function MyRequests({
                     </div>
 
                     {/* Main Requisitions Table Card */}
-                    <div data-tour="system-admin-requests-workspace" className="bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-slate-200/90 dark:border-slate-800 overflow-hidden">
+                    <div data-tour="system-admin-requests-workspace" className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/90 dark:border-slate-800 overflow-hidden">
                         {/* Toolbar */}
                         <div className="table-toolbar p-4 sm:px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
                             <div>
-                                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
+                                <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                                     My Supply Requests
                                 </h2>
                                 <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
@@ -509,7 +512,7 @@ export default function MyRequests({
                                     <label htmlFor="request-search-input" className="sr-only">
                                         Search my requests
                                     </label>
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                                         <Search className="w-4 h-4" />
                                     </div>
                                     <input
@@ -521,7 +524,7 @@ export default function MyRequests({
                                             setCurrentPage(1);
                                         }}
                                         placeholder="Search by RIS, recipient, item..."
-                                        className="w-full h-10 pl-9 pr-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-sm font-medium focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs placeholder-slate-400 dark:placeholder-slate-500"
+                                        className="ui-field w-full h-10 pl-9 pr-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-sm font-medium focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm placeholder-slate-400 dark:placeholder-slate-500"
                                     />
                                 </div>
 
@@ -540,30 +543,30 @@ export default function MyRequests({
                                     />
                                 </div>
 
-                                {!readOnly && can('inventory.requests.store') && <button
+                                {!readOnly && can('inventory.requests.store') && <Button variant="primary"
                                     type="button"
                                     onClick={openCreate}
-                                    className="w-full sm:w-auto h-10 px-4 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-semibold text-sm tracking-normal rounded-lg shadow-xs flex items-center justify-center gap-2 whitespace-nowrap normal-case tabular-nums cursor-pointer transition-colors shrink-0"
+                                    className="w-full sm:w-auto h-10 flex items-center justify-center gap-2 tabular-nums shrink-0"
                                 >
                                     <Plus className="w-4 h-4 text-amber-300" />
                                     New Request
-                                </button>}
+                                </Button>}
                             </div>
                         </div>
 
                         {/* Table */}
                         <div className="w-full min-w-0 overflow-x-auto">
-                            <table className="w-full text-left border-collapse min-w-[60rem]">
+                            <table className="ui-data-table w-full text-left border-collapse min-w-[60rem]">
                                 <thead className="bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
                                     <tr>
-                                        <SortableTableHeader column="reference" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[7.5rem] align-middle">RIS No.</SortableTableHeader>
-                                        <SortableTableHeader column="recipient" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[11.25rem] align-middle">Recipient &amp; Department</SortableTableHeader>
-                                        <SortableTableHeader column="purpose" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[11.25rem] align-middle">Fund Cluster / Purpose</SortableTableHeader>
-                                        <SortableTableHeader column="items" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[8.75rem] align-middle">Items</SortableTableHeader>
-                                        <SortableTableHeader column="date" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[8.125rem] align-middle">Date Requested</SortableTableHeader>
-                                        <SortableTableHeader column="status" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-bold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[8.125rem] align-middle">Approval Status</SortableTableHeader>
+                                        <SortableTableHeader column="reference" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-semibold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[7.5rem] align-middle">RIS No.</SortableTableHeader>
+                                        <SortableTableHeader column="recipient" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-semibold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[11.25rem] align-middle">Recipient &amp; Department</SortableTableHeader>
+                                        <SortableTableHeader column="purpose" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-semibold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[11.25rem] align-middle">Fund Cluster / Purpose</SortableTableHeader>
+                                        <SortableTableHeader column="items" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-semibold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[8.75rem] align-middle">Items</SortableTableHeader>
+                                        <SortableTableHeader column="date" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-semibold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[8.125rem] align-middle">Date Requested</SortableTableHeader>
+                                        <SortableTableHeader column="status" activeColumn={requestSort} direction={requestDirection} onSort={changeRequestSort} className="px-4 py-3.5 text-sm font-semibold text-slate-600 lg:px-5 dark:text-slate-400 whitespace-nowrap min-w-[8.125rem] align-middle">Approval Status</SortableTableHeader>
 
-                                        <th scope="col" className="px-4 lg:px-5 py-3.5 text-sm font-bold text-slate-600 dark:text-slate-400 text-right whitespace-nowrap min-w-[7.5rem] align-middle">Actions</th>
+                                        <th scope="col" className="px-4 lg:px-5 py-3.5 text-sm font-semibold text-slate-600 dark:text-slate-400 text-right whitespace-nowrap min-w-[7.5rem] align-middle">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
@@ -571,7 +574,7 @@ export default function MyRequests({
                                         <tr>
                                             <td colSpan={7} className="px-6 py-12 text-center align-middle">
                                                 <div className="flex flex-col items-center">
-                                                    <FileText className="w-9 h-9 text-slate-300 dark:text-slate-600 mb-2" />
+                                                    <FileText className="w-9 h-9 text-slate-300 dark:text-slate-400 mb-2" />
                                                     <p className="leading-relaxed font-semibold text-sm text-slate-800 dark:text-slate-200">
                                                         No supply requests found
                                                     </p>
@@ -605,10 +608,10 @@ export default function MyRequests({
                                                     {/* RIS No. */}
                                                     <td className="px-4 lg:px-5 py-3.5 align-middle whitespace-nowrap">
                                                         <div className="flex flex-col">
-                                                            <span className="tabular-nums font-bold text-sm text-slate-800 dark:text-slate-200 tracking-tight">
+                                                            <span className="tabular-nums font-semibold text-sm text-slate-800 dark:text-slate-200 tracking-tight">
                                                                 {request.ris_number || `RIS-${String(request.id).padStart(4, '0')}`}
                                                             </span>
-                                                            <span className="text-sm tabular-nums text-slate-400 dark:text-slate-500 font-normal">
+                                                            <span className="text-sm tabular-nums text-slate-500 dark:text-slate-400 font-normal">
                                                                 Req #{request.id}
                                                             </span>
                                                         </div>
@@ -618,7 +621,7 @@ export default function MyRequests({
                                                     <td className="px-4 lg:px-5 py-3.5 align-middle">
                                                         <div className="flex flex-col min-w-0 max-w-xs sm:max-w-sm">
                                                             <span
-                                                                className="font-bold text-sm text-slate-900 dark:text-slate-100 leading-snug truncate"
+                                                                className="font-semibold text-sm text-slate-900 dark:text-slate-100 leading-snug truncate"
                                                                 title={request.recipient || request.requester?.name || 'Supply Coordinator'}
                                                             >
                                                                 {request.recipient || request.requester?.name || 'Supply Coordinator'}
@@ -631,7 +634,7 @@ export default function MyRequests({
                                                             </span>
                                                             {request.recipient_designation && (
                                                                 <span
-                                                                    className="text-sm text-slate-400 dark:text-slate-500 font-normal mt-0.5 truncate"
+                                                                    className="text-sm text-slate-500 dark:text-slate-400 font-normal mt-0.5 truncate"
                                                                     title={request.recipient_designation}
                                                                 >
                                                                     {request.recipient_designation}
@@ -659,7 +662,7 @@ export default function MyRequests({
                                                     <td className="px-4 lg:px-5 py-3.5 align-middle">
                                                         <div className="flex flex-col min-w-0">
                                                             <div className="flex items-center gap-1.5 tabular-nums text-sm">
-                                                                <span className="font-bold text-slate-900 dark:text-slate-100">
+                                                                <span className="font-semibold text-slate-900 dark:text-slate-100">
                                                                     {request.items.length} {request.items.length === 1 ? 'item' : 'items'}
                                                                 </span>
                                                                 {hasQuantityAdjustment && (
@@ -673,7 +676,7 @@ export default function MyRequests({
                                                                     <span className="text-slate-500 dark:text-slate-400">
                                                                         {totalRequestedQty} requested
                                                                     </span>
-                                                                    <span className="text-slate-300 dark:text-slate-600">·</span>
+                                                                    <span className="text-slate-300 dark:text-slate-400">·</span>
                                                                     <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                                                                         {totalApprovedQty} approved
                                                                     </span>
@@ -682,7 +685,7 @@ export default function MyRequests({
                                                                 <div className="text-sm tabular-nums text-slate-500 dark:text-slate-400 mt-0.5">
                                                                     <span>{totalRequestedQty} requested</span>
                                                                     {request.items[0]?.item?.name && (
-                                                                        <span className="block truncate max-w-[180px] font-sans text-sm text-slate-400 dark:text-slate-500 mt-0.5">
+                                                                        <span className="block truncate max-w-[180px] font-sans text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                                                                             {request.items[0].item.name}
                                                                             {request.items.length > 1 && ` +${request.items.length - 1} more`}
                                                                         </span>
@@ -694,7 +697,7 @@ export default function MyRequests({
 
                                                     {/* Date Requested */}
                                                     <td className="px-4 lg:px-5 py-3.5 align-middle whitespace-nowrap text-sm text-slate-600 dark:text-slate-400 tabular-nums">
-                                                        {formatDisplayDate(request.date_requested || request.created_at, 'MM/DD/YYYY') ||
+                                                        {formatScreenDate(request.date_requested || request.created_at) ||
                                                             request.date_requested ||
                                                             request.created_at}
                                                     </td>
@@ -707,13 +710,13 @@ export default function MyRequests({
                                                     {/* Actions */}
                                                     <td className="px-4 lg:px-5 py-3.5 align-middle whitespace-nowrap min-w-[7.5rem] text-right">
                                                         <div className="inline-flex items-center justify-end gap-2 flex-wrap">
-                                                            <button
+                                                            <Button variant="secondary"
                                                                 type="button"
                                                                 onClick={() => setDetailsRequest(request)}
-                                                                className="min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 inline-flex items-center justify-center text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-slate-800 whitespace-nowrap"
+                                                                className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center"
                                                             >
                                                                 Details
-                                                            </button>
+                                                            </Button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -726,32 +729,32 @@ export default function MyRequests({
 
                         {/* Pagination */}
                         {filtered.length > 0 && (
-                            <div className="px-4 sm:px-6 py-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+                            <div className="ui-pagination px-4 sm:px-6 py-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
                                 <span className="text-slate-500 dark:text-slate-400 font-medium">
                                     Showing <strong className="text-slate-700 dark:text-slate-200">{from}</strong>–<strong className="text-slate-700 dark:text-slate-200">{to}</strong> of <strong className="text-slate-700 dark:text-slate-200">{filtered.length}</strong> records
                                 </span>
                                 <div className="flex items-center gap-2">
-                                    <button
+                                    <Button variant="secondary"
                                         type="button"
                                         onClick={() => setCurrentPage(Math.max(1, safePage - 1))}
                                         disabled={safePage <= 1}
                                         aria-label="Go to previous page"
-                                        className="h-8 px-3 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors shadow-2xs"
+                                        className="h-8"
                                     >
                                         Previous
-                                    </button>
+                                    </Button>
                                     <span className="px-1 text-slate-500 dark:text-slate-400">
                                         Page <strong className="text-slate-700 dark:text-slate-200">{safePage}</strong> of <strong className="text-slate-700 dark:text-slate-200">{lastPage}</strong>
                                     </span>
-                                    <button
+                                    <Button variant="secondary"
                                         type="button"
                                         onClick={() => setCurrentPage(Math.min(lastPage, safePage + 1))}
                                         disabled={safePage >= lastPage}
                                         aria-label="Go to next page"
-                                        className="h-8 px-3 border border-slate-300 dark:border-slate-700 rounded-md text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors shadow-2xs"
+                                        className="h-8"
                                     >
                                         Next
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         )}

@@ -1,3 +1,5 @@
+import { DialogHeader } from '@/Components/ui/dialog-frame';
+import { Button } from '@/Components/ui/button';
 import React, { useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
@@ -37,18 +39,18 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
 
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="md" closeable={!processing} ariaLabel="Create New Role">
-            <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-xl">
+            <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-none">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0 shadow-2xs">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0 shadow-sm">
                             <ShieldPlus className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 Create Role
                             </h3>
                             <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 truncate">
@@ -56,16 +58,16 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                             </p>
                         </div>
                     </div>
-                    <button
+                    <Button variant="ghost" size="icon"
                         type="button"
                         onClick={onClose}
                         disabled={processing}
-                        className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 cursor-pointer shrink-0 ml-2"
+                        className="shrink-0 ml-2"
                         aria-label="Close dialog"
                     >
                         <X className="w-5 h-5" />
-                    </button>
-                </div>
+                    </Button>
+                </DialogHeader>
 
                 {/* Form */}
                 <form onSubmit={handleSubmit}>
@@ -77,7 +79,7 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                             >
                                 Role Name <span className="text-red-600 dark:text-red-400">*</span>
                             </label>
-                            <input
+                            <input aria-invalid={Boolean(errors.name)}
                                 type="text"
                                 id="create-role-name"
                                 value={data.name}
@@ -86,9 +88,7 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                                     if (errors.name) clearErrors('name');
                                 }}
                                 disabled={processing}
-                                className={`bg-white dark:bg-slate-800 border text-gray-900 dark:text-slate-100 text-sm rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 focus:outline-none block w-full p-2.5 transition-all placeholder:text-gray-400 dark:placeholder:text-slate-500 shadow-2xs ${
-                                    errors.name ? 'border-red-500' : 'border-gray-300 dark:border-slate-700'
-                                }`}
+                                className={"ui-field " + (`bg-white dark:bg-slate-800 border text-gray-900 dark:text-slate-100 text-sm rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 focus:outline-none block w-full p-2.5 transition-all placeholder:text-gray-400 dark:placeholder:text-slate-500 shadow-sm ${errors.name ? "border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
                                 placeholder="e.g. Property Custodian or Internal Auditor"
                                 required
                                 autoFocus
@@ -107,18 +107,18 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
 
                     {/* Footer */}
                     <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800 gap-2.5">
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={onClose}
                             disabled={processing}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
+                            className="w-full sm:w-auto text-center"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="primary"
                             type="submit"
                             disabled={processing || !data.name.trim()}
-                            className="w-full sm:w-auto px-5 py-2.5 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-sm font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 normal-case tabular-nums tracking-normal cursor-pointer"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
                         >
                             {processing ? (
                                 <>
@@ -131,7 +131,7 @@ export default function CreateRoleDialog({ isOpen, onClose }: CreateRoleDialogPr
                                     <span>Create Role</span>
                                 </>
                             )}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

@@ -192,7 +192,7 @@ export const ReportPhysicalCount: React.FC<ReportPhysicalCountProps> = ({ data }
       `}</style>
 
       <SharedFormHeaderStyles />
-      <div className="rpci-container">
+      <div data-paper-preview className="rpci-container">
         <div className="official-form-header">
           <div className="official-form-appendix">Appendix 66</div>
           <div className="official-form-title-row">

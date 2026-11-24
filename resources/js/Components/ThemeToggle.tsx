@@ -93,7 +93,7 @@ export default function ThemeToggle({
             <div
                 role="radiogroup"
                 aria-label="Theme mode selection"
-                className={`inline-flex items-center p-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 text-sm font-medium select-none shadow-2xs ${className}`}
+                className={`inline-flex items-center p-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 text-sm font-medium select-none shadow-sm ${className}`}
             >
                 {options.map(({ mode, label, icon: Icon }) => {
                     const isSelected = theme === mode;
@@ -105,11 +105,8 @@ export default function ThemeToggle({
                             aria-checked={isSelected}
                             onClick={() => setTheme(mode)}
                             title={`Switch to ${label} theme`}
-                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-900/30 dark:focus:ring-amber-400/30 ${
-                                isSelected
-                                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-amber-300 shadow-xs border border-slate-200/60 dark:border-slate-700 font-semibold'
-                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
-                            }`}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-900/30 dark:focus:ring-amber-400/30 ${isSelected
+    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-amber-300 shadow-sm border border-slate-200/60 dark:border-slate-700 font-semibold" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50"}`}
                         >
                             <Icon className="w-3.5 h-3.5 shrink-0" />
                             <span>{label}</span>
@@ -140,11 +137,8 @@ export default function ThemeToggle({
                             aria-checked={isSelected}
                             onClick={() => setTheme(mode)}
                             title={`Theme: ${label}`}
-                            className={`p-1.5 rounded transition-all cursor-pointer focus:outline-none ${
-                                isSelected
-                                    ? 'bg-red-900 text-amber-300 shadow-xs'
-                                    : 'text-red-300/70 hover:text-white hover:bg-white/5'
-                            }`}
+                            className={`p-1.5 rounded transition-all cursor-pointer focus:outline-none ${isSelected
+    ? "bg-red-900 text-amber-300 shadow-sm" : "text-red-300/70 hover:text-white hover:bg-white/5"}`}
                         >
                             <Icon className="w-3.5 h-3.5" />
                             <span className="sr-only">{label}</span>
@@ -170,7 +164,7 @@ export default function ThemeToggle({
                 aria-haspopup="true"
                 aria-label={`Theme: ${theme}. Click to change theme`}
                 title={`Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}`}
-                className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/80 transition-colors shadow-2xs focus:outline-none focus:ring-2 focus:ring-red-900/20 dark:focus:ring-amber-400/30 cursor-pointer"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/80 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-900/20 dark:focus:ring-amber-400/30 cursor-pointer"
             >
                 <CurrentIcon className="w-4 h-4 text-slate-700 dark:text-amber-300" />
             </button>
@@ -195,11 +189,9 @@ export default function ThemeToggle({
                                   }
                                 : undefined
                         }
-                        className={`w-36 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1 animate-in fade-in zoom-in-95 duration-100 ${
-                            !isPortalled ? 'absolute right-0 mt-1.5 z-50' : ''
-                        }`}
+                        className={`w-36 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1 animate-in fade-in zoom-in-95 duration-100 ${!isPortalled ? "absolute right-0 mt-1.5 z-50" : ""}`}
                     >
-                        <div className="px-3 py-1 text-sm font-bold normal-case tracking-normal text-slate-400 dark:text-slate-500 tabular-nums">
+                        <div className="px-3 py-1 text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400 tabular-nums">
                             Theme
                         </div>
                         {options.map(({ mode, label, icon: Icon }) => {
@@ -213,11 +205,8 @@ export default function ThemeToggle({
                                         setTheme(mode);
                                         setDropdownOpen(false);
                                     }}
-                                    className={`w-full flex items-center justify-between px-3 py-1.5 text-sm font-medium text-left transition-colors cursor-pointer ${
-                                        isSelected
-                                            ? 'text-red-900 dark:text-amber-300 bg-red-50/70 dark:bg-amber-500/10 font-semibold'
-                                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                                    }`}
+                                    className={`w-full flex items-center justify-between px-3 py-1.5 text-sm font-medium text-left transition-colors cursor-pointer ${isSelected
+    ? "text-red-900 dark:text-amber-300 bg-red-50/70 dark:bg-amber-500/10 font-semibold" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}
                                 >
                                     <span className="flex items-center gap-2">
                                         <Icon className="w-3.5 h-3.5 shrink-0" />

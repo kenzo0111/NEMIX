@@ -153,8 +153,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         .rsmi-container .text-right { text-align: right; }
         .rsmi-container .text-left { text-align: left; }
         
-        .rsmi-container .responsibility-center-code,
-        .rsmi-container .rsmi-responsibility-center-code {
+        .rsmi-container .responsibility-center-code, .rsmi-container .rsmi-responsibility-center-code {
             text-align: center !important;
             vertical-align: middle !important;
             white-space: nowrap !important;
@@ -218,7 +217,7 @@ export const RSMIFormPaper: React.FC<RSMIFormProps> = ({ data }) => {
         }
       `}</style>
       <SharedFormHeaderStyles />
-      <div className="rsmi-container">
+      <div data-paper-preview className="rsmi-container">
         <div className="official-form-header">
           <div className="official-form-appendix">Appendix 64</div>
           <div className="official-form-title-row">

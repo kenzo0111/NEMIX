@@ -78,26 +78,25 @@ export const PropertyAcknowledgmentReceipt: React.FC<PropertyAcknowledgmentRecei
             line-height: 1.15;
             box-sizing: border-box;
         }
-        .header { width: 100%; margin-bottom: 2px; }
-        .center { text-align: center; }
-        .right { text-align: right; }
-        .small { font-size: 7pt; line-height: 1.1; }
+        .par-container .header { width: 100%; margin-bottom: 2px; }
+        .par-container .center { text-align: center; }
+        .par-container .right { text-align: right; }
+        .par-container .small { font-size: 7pt; line-height: 1.1; }
         
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #000; padding: 0.6mm 1mm; vertical-align: middle; }
+        .par-container table { width: 100%; border-collapse: collapse; }
+        .par-container th, .par-container td { border: 1px solid #000; padding: 0.6mm 1mm; vertical-align: middle; }
         
         /* Meta Table specific */
-        .meta-row td { border: none; padding: 1.5px 0; font-size: 8.5pt; line-height: 1.1; }
-        .meta-left { width: 65%; }
-        .meta-right { width: 25%; }
+        .par-container .meta-row td { border: none; padding: 1.5px 0; font-size: 8.5pt; line-height: 1.1; }
+        .par-container .meta-left { width: 65%; }
+        .par-container .meta-right { width: 25%; }
 
         /* Items Table specific */
-        .items-table { margin-top: 3px; }
-        .items-table th { background: #f2f2f2; font-size: 8pt; padding: 0.8mm 1mm; font-weight: bold; }
-        .items-table td { font-size: 8pt; padding: 0.6mm 1mm; height: auto; }
-        .items-table tfoot td { text-align: center; }
-        .items-table tr.empty-row td,
-        .empty-row td {
+        .par-container .items-table { margin-top: 3px; }
+        .par-container .items-table th { background: #f2f2f2; font-size: 8pt; padding: 0.8mm 1mm; font-weight: bold; }
+        .par-container .items-table td { font-size: 8pt; padding: 0.6mm 1mm; height: auto; }
+        .par-container .items-table tfoot td { text-align: center; }
+        .par-container .items-table tr.empty-row td, .par-container .empty-row td {
             height: 4mm !important;
             min-height: 4mm !important;
             padding: 0 1mm !important;
@@ -105,36 +104,36 @@ export const PropertyAcknowledgmentReceipt: React.FC<PropertyAcknowledgmentRecei
         }
         
         /* Signature Lines */
-        .sign-line { border-top: 1px solid #000; width: 85%; margin: 2px auto 0; display: block; }
+        .par-container .sign-line { border-top: 1px solid #000; width: 85%; margin: 2px auto 0; display: block; }
         
         /* Additional classes for inline styles */
-        .float-right { float: right; font-size: 16pt; font-style: italic; }
-        .clear-both { clear: both; }
-        .title-margin { margin: 1px 0 3px 0; font-size: 11.5pt; font-weight: bold; letter-spacing: 0.3px; }
-        .meta-margin { margin-bottom: 4px; }
-        .col-quantity { width: 6%; }
-        .col-unit { width: 8%; }
-        .col-description { width: 36%; }
-        .col-property-number { width: 20%; }
-        .col-date-acquired { width: 15%; }
-        .col-amount { width: 15%; }
-        .text-right { text-align: right; }
-        .total-label { text-align: right; font-weight: bold; padding: 0.6mm 1mm; }
-        .total-value { text-align: right; font-weight: bold; padding: 0.6mm 1mm; }
-        .sig-cell { vertical-align: top; padding: 4px 6px; }
-        .text-left { text-align: left; }
-        .sig-space { height: 16px; }
-        .sig-name { margin-top: 2px; font-weight: bold; font-size: 8.5pt; line-height: 1.15; }
-        .small-space { height: 2px; }
+        .par-container .float-right { float: right; font-size: 16pt; font-style: italic; }
+        .par-container .clear-both { clear: both; }
+        .par-container .title-margin { margin: 1px 0 3px 0; font-size: 11.5pt; font-weight: bold; letter-spacing: 0.3px; }
+        .par-container .meta-margin { margin-bottom: 4px; }
+        .par-container .col-quantity { width: 6%; }
+        .par-container .col-unit { width: 8%; }
+        .par-container .col-description { width: 36%; }
+        .par-container .col-property-number { width: 20%; }
+        .par-container .col-date-acquired { width: 15%; }
+        .par-container .col-amount { width: 15%; }
+        .par-container .text-right { text-align: right; }
+        .par-container .total-label { text-align: right; font-weight: bold; padding: 0.6mm 1mm; }
+        .par-container .total-value { text-align: right; font-weight: bold; padding: 0.6mm 1mm; }
+        .par-container .sig-cell { vertical-align: top; padding: 4px 6px; }
+        .par-container .text-left { text-align: left; }
+        .par-container .sig-space { height: 16px; }
+        .par-container .sig-name { margin-top: 2px; font-weight: bold; font-size: 8.5pt; line-height: 1.15; }
+        .par-container .small-space { height: 2px; }
         
         @media print {
             body { margin: 0; padding: 0; }
             .par-container { width: 100%; max-width: none; }
-            .items-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .par-container .items-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
       `}</style>
 
-      <div className="par-container">
+      <div data-paper-preview className="par-container">
         {/* Header */}
         <div className="header">
           <div className="float-right">

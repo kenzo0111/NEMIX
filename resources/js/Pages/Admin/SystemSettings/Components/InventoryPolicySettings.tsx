@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { useState } from 'react';
 import { useAuthorization } from '@/Hooks/useAuthorization';
 import { SystemSettings } from '../types';
@@ -47,7 +48,7 @@ export default function InventoryPolicySettings({
             {/* THRESHOLD HIERARCHY */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                         Stock Thresholds & Reorder Points
                     </h3>
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -58,7 +59,7 @@ export default function InventoryPolicySettings({
                 {/* Inline Cross-Validation Error Banner */}
                 {hasThresholdError && (
                     <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-sm text-rose-900 dark:text-rose-300 flex items-start gap-2.5">
-                        <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                        <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5 dark:text-rose-300" />
                         <div>
                             <span className="font-semibold">Invalid Threshold Configuration: </span>
                             Critical stock threshold ({criticalStock}) cannot exceed the low-stock threshold ({lowStock}).
@@ -71,10 +72,10 @@ export default function InventoryPolicySettings({
                     <div className="space-y-1.5">
                         <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                             <span>Global Low-Stock Threshold</span>
-                            <span className="text-red-600 font-normal">*</span>
+                            <span className="text-red-600 font-normal dark:text-red-300">*</span>
                         </label>
                         <div className="relative">
-                            <input
+                            <input aria-invalid={Boolean(hasThresholdError || errors['settings.inventory.low_stock_threshold'])}
                                 type="number"
                                 min="1"
                                 max="1000"
@@ -85,23 +86,20 @@ export default function InventoryPolicySettings({
                                         parseInt(e.target.value, 10) || 1
                                     )
                                 }
-                                className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-2xs hover:border-slate-300 dark:hover:border-slate-600 ${
-                                    hasThresholdError || errors['settings.inventory.low_stock_threshold']
-                                        ? 'border-rose-400 focus:ring-rose-500'
-                                        : 'border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600'
-                                }`}
+                                className={"ui-field " + (`w-full px-3.5 py-2.5 rounded-xl border text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 ${hasThresholdError || errors['settings.inventory.low_stock_threshold']
+    ? "border-rose-400 focus:ring-rose-500" : "border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600"}`)}
                             />
                             <span className="absolute right-3.5 top-2.5 text-sm text-slate-500 dark:text-slate-400 font-medium">
                                 Units
                             </span>
                         </div>
                         {errors['settings.inventory.low_stock_threshold'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.inventory.low_stock_threshold']}
                             </p>
                         )}
                         <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-                            <Info className="w-3 h-3 text-slate-400 shrink-0" />
+                            <Info className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
                             Marks stock as low at this balance and triggers replenishment notifications when stock meets or drops below this point, without blocking end-user requests.
                         </p>
                     </div>
@@ -110,10 +108,10 @@ export default function InventoryPolicySettings({
                     <div className="space-y-1.5">
                         <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
                             <span>Critical Stock Threshold</span>
-                            <span className="text-red-600 font-normal">*</span>
+                            <span className="text-red-600 font-normal dark:text-red-300">*</span>
                         </label>
                         <div className="relative">
-                            <input
+                            <input aria-invalid={Boolean(hasThresholdError || errors['settings.inventory.critical_stock_threshold'])}
                                 type="number"
                                 min="0"
                                 max="1000"
@@ -124,23 +122,20 @@ export default function InventoryPolicySettings({
                                         parseInt(e.target.value, 10) || 0
                                     )
                                 }
-                                className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-2xs hover:border-slate-300 dark:hover:border-slate-600 ${
-                                    hasThresholdError || errors['settings.inventory.critical_stock_threshold']
-                                        ? 'border-rose-400 focus:ring-rose-500'
-                                        : 'border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600'
-                                }`}
+                                className={"ui-field " + (`w-full px-3.5 py-2.5 rounded-xl border text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 ${hasThresholdError || errors['settings.inventory.critical_stock_threshold']
+    ? "border-rose-400 focus:ring-rose-500" : "border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600"}`)}
                             />
                             <span className="absolute right-3.5 top-2.5 text-sm text-amber-700 dark:text-amber-400 font-medium">
                                 Units
                             </span>
                         </div>
                         {errors['settings.inventory.critical_stock_threshold'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.inventory.critical_stock_threshold']}
                             </p>
                         )}
                         <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-                            <Info className="w-3 h-3 text-slate-400 shrink-0" />
+                            <Info className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
                             Indicates inventory requiring immediate replenishment attention.
                         </p>
                     </div>
@@ -152,7 +147,7 @@ export default function InventoryPolicySettings({
             {/* INVENTORY ENFORCEMENT */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                         Inventory Enforcement Safeguards
                     </h3>
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -168,7 +163,7 @@ export default function InventoryPolicySettings({
                         onChange={(e) =>
                             onChange('inventory.strict_stock_enforcement', e.target.checked)
                         }
-                        className="w-4 h-4 mt-0.5 rounded text-red-900 focus:ring-red-800 border-slate-300 dark:border-slate-600 dark:bg-slate-900 cursor-pointer"
+                        className="w-4 h-4 mt-0.5 rounded text-red-900 focus:ring-red-800 border-slate-300 dark:border-slate-600 dark:bg-slate-900 cursor-pointer dark:text-red-300"
                     />
                     <div className="flex-1">
                         <label
@@ -189,7 +184,7 @@ export default function InventoryPolicySettings({
             {/* RECOGNIZED UNITS OF ISSUE */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                         Recognized Units of Issue
                     </h3>
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -205,15 +200,15 @@ export default function InventoryPolicySettings({
                             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
                         >
                             <span>{unit}</span>
-                            {canUpdateSettings && <button
+                            {canUpdateSettings && <Button variant="secondary" size="icon"
                                 type="button"
                                 onClick={() => handleRemoveUnit(unit)}
-                                className="text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 p-0.5 rounded transition-colors cursor-pointer"
+                                className=""
                                 title={`Remove ${unit}`}
                                 aria-label={`Remove unit ${unit}`}
                             >
                                 <X className="w-3 h-3" />
-                            </button>}
+                            </Button>}
                         </span>
                     ))}
                 </div>
@@ -225,16 +220,16 @@ export default function InventoryPolicySettings({
                         value={newUnitInput}
                         onChange={(e) => setNewUnitInput(e.target.value)}
                         placeholder="Add new unit (e.g. carton)"
-                        className="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-800 dark:focus:border-red-600 shadow-2xs"
+                        className="ui-field flex-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-800 dark:focus:border-red-600 shadow-sm"
                     />
-                    <button
+                    <Button variant="secondary"
                         type="submit"
                         disabled={!newUnitInput.trim()}
-                        className="px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-40 flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                        className="flex items-center gap-1"
                     >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Add</span>
-                    </button>
+                    </Button>
                 </form>}
             </div>
         </div>

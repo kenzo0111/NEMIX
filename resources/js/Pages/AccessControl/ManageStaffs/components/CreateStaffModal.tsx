@@ -1,3 +1,6 @@
+import { DialogHeader } from '@/Components/ui/dialog-frame';
+import Field from '@/Components/ui/field';
+import { Button } from '@/Components/ui/button';
 import DepartmentAssignmentFields from './DepartmentAssignmentFields';
 import React, { useEffect, useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
@@ -118,32 +121,32 @@ export default function CreateStaffModal({
 
     return (
         <Modal show={isOpen} onClose={handleClose} maxWidth="md" closeable={!processing} ariaLabel="Add Staff Account">
-            <div className="overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-xl">
+            <div className="overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-none">
                 {/* Institutional Maroon Accent Bar */}
                 <div className="h-1.5 w-full bg-red-900 shrink-0"></div>
 
                 {/* Modal Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-100/80 dark:border-red-900/40 flex items-center justify-center shrink-0">
                             <UserPlus className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 truncate">Add Staff Account</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 truncate">Add Staff Account</h3>
                             <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 truncate">
                                 Register a university staff member and assign an administrative role.
                             </p>
                         </div>
                     </div>
-                    <button
+                    <Button variant="ghost" size="icon"
                         type="button"
                         onClick={handleClose}
-                        className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0 ml-2"
+                        className="shrink-0 ml-2"
                         aria-label="Close modal"
                     >
                         <X className="w-5 h-5" />
-                    </button>
-                </div>
+                    </Button>
+                </DialogHeader>
 
                 {/* Form Body */}
                 <form onSubmit={handleSubmit}>
@@ -157,10 +160,10 @@ export default function CreateStaffModal({
                                 Full Name <span className="text-red-600 dark:text-red-400">*</span>
                             </label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                                     <User className="w-4 h-4" />
                                 </div>
-                                <input
+                                <input aria-invalid={Boolean(errors.name)}
                                     type="text"
                                     id="create-staff-name"
                                     value={data.name}
@@ -169,9 +172,7 @@ export default function CreateStaffModal({
                                         if (errors.name) clearErrors('name');
                                     }}
                                     placeholder="e.g. Dr. Maria Santos"
-                                    className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${
-                                        errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600'
-                                    } focus:outline-none focus:ring-1 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors`}
+                                    className={"ui-field " + (`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${errors.name ? "border-red-500 focus:ring-red-500" : "border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"} focus:outline-none focus:ring-1 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors`)}
                                     required
                                     autoFocus
                                 />
@@ -190,10 +191,10 @@ export default function CreateStaffModal({
                                 Email Address <span className="text-red-600 dark:text-red-400">*</span>
                             </label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                                     <Mail className="w-4 h-4" />
                                 </div>
-                                <input
+                                <input aria-invalid={Boolean(errors.email)}
                                     type="email"
                                     id="create-staff-email"
                                     value={data.email}
@@ -202,9 +203,7 @@ export default function CreateStaffModal({
                                         if (errors.email) clearErrors('email');
                                     }}
                                     placeholder="e.g. maria.santos@university.edu"
-                                    className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${
-                                        errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600'
-                                    } focus:outline-none focus:ring-1 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors`}
+                                    className={"ui-field " + (`w-full pl-9 pr-3 py-2 text-sm rounded-lg border ${errors.email ? "border-red-500 focus:ring-red-500" : "border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-red-900 dark:focus:ring-red-600"} focus:outline-none focus:ring-1 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors`)}
                                     required
                                 />
                             </div>
@@ -212,20 +211,15 @@ export default function CreateStaffModal({
                                 <p className="leading-relaxed mt-1.5 text-sm text-red-600 dark:text-red-400 font-medium">{errors.email}</p>
                             )}
                             <div className="mt-2 text-sm text-gray-500 dark:text-slate-400 flex items-center gap-1.5 bg-gray-50 dark:bg-slate-800/60 p-2 rounded-md border border-gray-200/60 dark:border-slate-700">
-                                <Info className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 shrink-0" />
+                                <Info className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
                                 <span>A registration invitation link will be dispatched to this email address.</span>
                             </div>
                         </div>
 
                         {/* System Role */}
-                        <div>
-                            <label
-                                htmlFor="create-staff-role"
-                                className="block text-sm font-semibold normal-case tracking-normal text-gray-700 dark:text-slate-300 mb-1.5"
-                            >
+                        <Field id="create-staff-role" label={<>
                                 System Role <span className="text-red-600 dark:text-red-400">*</span>
-                            </label>
-                            <Select<SelectOption, false>
+                            </>} error={errors.role} ><Select<SelectOption, false>
                                 inputId="create-staff-role"
                                 value={selectedRoleOption}
                                 onChange={(opt) => {
@@ -237,11 +231,7 @@ export default function CreateStaffModal({
                                 menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
                                 menuPosition="fixed"
                                 placeholder="Select a system role"
-                            />
-                            {errors.role && (
-                                <p className="leading-relaxed mt-1.5 text-sm text-red-600 dark:text-red-400 font-medium">{errors.role}</p>
-                            )}
-                        </div>
+                            /></Field>
                         <DepartmentAssignmentFields
                             data={data}
                             errors={errors}
@@ -253,18 +243,18 @@ export default function CreateStaffModal({
 
                     {/* Modal Actions */}
                     <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50/80 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800 gap-2.5">
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={handleClose}
                             disabled={processing}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
+                            className="w-full sm:w-auto text-center"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="primary"
                             type="submit"
                             disabled={processing}
-                            className="w-full sm:w-auto px-5 py-2.5 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-sm font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 normal-case tabular-nums tracking-normal cursor-pointer"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
                         >
                             {processing ? (
                                 <>
@@ -280,7 +270,7 @@ export default function CreateStaffModal({
                                     <span>Add Staff</span>
                                 </>
                             )}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

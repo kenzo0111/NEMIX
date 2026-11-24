@@ -79,47 +79,46 @@ export const InspectionAcceptanceReport: React.FC<InspectionAcceptanceReportProp
         }
 
         /* Titles */
-        .header-title { text-align: right; font-style: italic; font-size: 16pt; margin-bottom: 1mm; line-height: 1.1; }
-        .main-title { text-align: center; font-weight: bold; font-size: 11.5pt; margin-bottom: 1.2mm; letter-spacing: 0.3px; line-height: 1.15; }
+        .iar-container .header-title { text-align: right; font-style: italic; font-size: 16pt; margin-bottom: 1mm; line-height: 1.1; }
+        .iar-container .main-title { text-align: center; font-weight: bold; font-size: 11.5pt; margin-bottom: 1.2mm; letter-spacing: 0.3px; line-height: 1.15; }
 
         /* Tables */
-        table { width: 100%; border-collapse: collapse; }
+        .iar-container table { width: 100%; border-collapse: collapse; }
         
         /* Info Table */
-        .info-table { margin-bottom: 4px; }
-        .info-table td { padding: 1.5px 4px; font-size: 8.5pt; vertical-align: bottom; line-height: 1.1; }
-        .info-table .label { width: 14%; font-weight: normal; padding-right: 4px; }
-        .info-table .field { border-bottom: 1px solid #000; padding: 0 4px 1px 4px; line-height: 1.15; min-height: 16px; box-sizing: border-box; }
+        .iar-container .info-table { margin-bottom: 4px; }
+        .iar-container .info-table td { padding: 1.5px 4px; font-size: 8.5pt; vertical-align: bottom; line-height: 1.1; }
+        .iar-container .info-table .label { width: 14%; font-weight: normal; padding-right: 4px; }
+        .iar-container .info-table .field { border-bottom: 1px solid #000; padding: 0 4px 1px 4px; line-height: 1.15; min-height: 16px; box-sizing: border-box; }
 
         /* Items Table */
-        .items-table { margin: 4px 0; table-layout: fixed; border: 1px solid #000; }
-        .items-table th, .items-table td { border: 1px solid #000; padding: 0.6mm 1mm; font-size: 8pt; vertical-align: middle; line-height: 1.1; height: auto; }
+        .iar-container .items-table { margin: 4px 0; table-layout: fixed; border: 1px solid #000; }
+        .iar-container .items-table th, .iar-container .items-table td { border: 1px solid #000; padding: 0.6mm 1mm; font-size: 8pt; vertical-align: middle; line-height: 1.1; height: auto; }
         
         /* Specific header rows within items table */
-        .meta-cell { border: none !important; border-right: 1px solid #000 !important; text-align: left; padding: 2px 4px; font-size: 8pt; line-height: 1.1; }
-        .meta-cell-last { border: none !important; text-align: left; padding: 2px 4px; font-size: 8pt; line-height: 1.1; }
-        .meta-row { border-bottom: 1px solid #000; }
+        .iar-container .meta-cell { border: none !important; border-right: 1px solid #000 !important; text-align: left; padding: 2px 4px; font-size: 8pt; line-height: 1.1; }
+        .iar-container .meta-cell-last { border: none !important; text-align: left; padding: 2px 4px; font-size: 8pt; line-height: 1.1; }
+        .iar-container .meta-row { border-bottom: 1px solid #000; }
 
-        .items-table th.col-header { background: #f2f2f2; font-weight: bold; text-align: center; padding: 0.8mm 1mm; }
+        .iar-container .items-table th.col-header { background: #f2f2f2; font-weight: bold; text-align: center; padding: 0.8mm 1mm; }
         
         /* Columns */
-        .stock-col { width: 12%; text-align: center; }
-        .description-col { width: 52%; text-align: left; padding-left: 4px; vertical-align: top; }
-        .unit-col { width: 12%; text-align: center; }
-        .quantity-col { width: 12%; text-align: right; }
+        .iar-container .stock-col { width: 12%; text-align: center; }
+        .iar-container .description-col { width: 52%; text-align: left; padding-left: 4px; vertical-align: top; }
+        .iar-container .unit-col { width: 12%; text-align: center; }
+        .iar-container .quantity-col { width: 12%; text-align: right; }
         
         /* Info table colgroup */
-        .info-table col:nth-child(1) { width: 12%; }
-        .info-table col:nth-child(2) { width: 52%; }
-        .info-table col:nth-child(3) { width: 12%; }
-        .info-table col:nth-child(4) { width: 12%; }
+        .iar-container .info-table col:nth-child(1) { width: 12%; }
+        .iar-container .info-table col:nth-child(2) { width: 52%; }
+        .iar-container .info-table col:nth-child(3) { width: 12%; }
+        .iar-container .info-table col:nth-child(4) { width: 12%; }
         
         /* Description header override */
-        .description-header { text-align: center; vertical-align: middle; padding-left: 0; }
+        .iar-container .description-header { text-align: center; vertical-align: middle; padding-left: 0; }
         
-        .items-table tbody td { height: auto; }
-        .items-table tr.empty-row td,
-        .empty-row td {
+        .iar-container .items-table tbody td { height: auto; }
+        .iar-container .items-table tr.empty-row td, .iar-container .empty-row td {
             height: 4mm !important;
             min-height: 4mm !important;
             padding: 0 1mm !important;
@@ -127,15 +126,15 @@ export const InspectionAcceptanceReport: React.FC<InspectionAcceptanceReportProp
         }
 
         /* Footer / Signatures */
-        .items-table tfoot th { text-align: center; font-weight: bold; padding: 2px 4px; border: 1px solid #000; background: #fff; font-size: 8pt; }
-        .items-table tfoot td { border: 1px solid #000; padding: 3px 6px; vertical-align: top; min-height: auto; height: auto; }
+        .iar-container .items-table tfoot th { text-align: center; font-weight: bold; padding: 2px 4px; border: 1px solid #000; background: #fff; font-size: 8pt; }
+        .iar-container .items-table tfoot td { border: 1px solid #000; padding: 3px 6px; vertical-align: top; min-height: auto; height: auto; }
 
-        .section-content { display: flex; flex-direction: column; justify-content: space-between; height: 100%; min-height: auto; }
-        .date-field { margin-bottom: 3px; font-size: 8pt; line-height: 1.1; }
+        .iar-container .section-content { display: flex; flex-direction: column; justify-content: space-between; height: 100%; min-height: auto; }
+        .iar-container .date-field { margin-bottom: 3px; font-size: 8pt; line-height: 1.1; }
         
         /* Checkboxes */
-        .checkbox-group { margin-bottom: 2px; font-size: 8pt; display: flex; align-items: center; line-height: 1.1; }
-        .checkbox { 
+        .iar-container .checkbox-group { margin-bottom: 2px; font-size: 8pt; display: flex; align-items: center; line-height: 1.1; }
+        .iar-container .checkbox {
             display: inline-block; 
             width: 12px; height: 12px; 
             border: 1px solid #000; 
@@ -147,18 +146,18 @@ export const InspectionAcceptanceReport: React.FC<InspectionAcceptanceReportProp
         }
 
         /* Signatures */
-        .signature-block { margin-top: 6px; text-align: center; }
-        .signature-line { display: inline-block; width: 80%; border-top: 1px solid #000; padding-top: 2px; font-weight: bold; font-size: 8.5pt; text-transform: uppercase; line-height: 1.15; }
-        .position-line { display: block; width: 80%; margin: 2px auto 0; font-size: 7.5pt; line-height: 1.1; }
+        .iar-container .signature-block { margin-top: 6px; text-align: center; }
+        .iar-container .signature-line { display: inline-block; width: 80%; border-top: 1px solid #000; padding-top: 2px; font-weight: bold; font-size: 8.5pt; text-transform: uppercase; line-height: 1.15; }
+        .iar-container .position-line { display: block; width: 80%; margin: 2px auto 0; font-size: 7.5pt; line-height: 1.1; }
 
         @media print {
             body { margin: 0; padding: 0; }
             .iar-container { width: 100%; max-width: none; }
-            .items-table th.col-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .iar-container .items-table th.col-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
       `}</style>
 
-      <div className="iar-container">
+      <div data-paper-preview className="iar-container">
         <div className="header-title">Appendix 64</div>
         <div className="main-title">INSPECTION AND ACCEPTANCE REPORT</div>
 

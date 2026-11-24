@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import useAuthorization from '@/Hooks/useAuthorization';
 import { router, usePage } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, CheckCircle2, Compass, Info, ShieldCheck, X } from 'lucide-react';
@@ -274,19 +275,19 @@ export default function SystemAdminWalkthroughGuide() {
             <div aria-hidden="true" className="fixed" style={{ top: targetRect.top, left: targetRect.left, width: targetRect.width, height: targetRect.height }} />
         </> : <div aria-hidden="true" className="fixed inset-0 bg-slate-950/75 backdrop-blur-[1px]" />}
 
-        <div ref={panelRef} tabIndex={-1} className="fixed flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-2xl outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" style={{ ...position, maxHeight: 'calc(100dvh - 24px)' }}>
+        <div ref={panelRef} tabIndex={-1} className="fixed flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white text-slate-900 shadow-2xl outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" style={{ ...position, maxHeight: 'calc(100dvh - 24px)' }}>
             <div className="h-1.5 shrink-0 bg-gradient-to-r from-red-950 via-red-800 to-amber-400" />
             <div className="shrink-0 border-b border-slate-200 p-4 dark:border-slate-800 sm:px-5">
                 <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${completed ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-red-50 text-red-900 dark:bg-red-950/50 dark:text-red-300'}`}>{completed ? <CheckCircle2 size={23} aria-hidden="true" /> : <Compass size={23} aria-hidden="true" />}</span>
-                        <div><p className="text-sm font-bold">System Admin walkthrough</p><p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{completed ? 'Your daily administration checklist' : `${step.chapter} · Step ${stepIndex + 1} of ${steps.length}`}</p></div>
+                        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${completed ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300" : "bg-red-50 text-red-900 dark:bg-red-950/50 dark:text-red-300"}`}>{completed ? <CheckCircle2 size={23} aria-hidden="true" /> : <Compass size={23} aria-hidden="true" />}</span>
+                        <div><p className="text-sm font-semibold">System Admin walkthrough</p><p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">{completed ? 'Your daily administration checklist' : `${step.chapter} · Step ${stepIndex + 1} of ${steps.length}`}</p></div>
                     </div>
-                    <button type="button" onClick={close} aria-label="Exit System Admin walkthrough" className={`${button} min-h-8 px-1.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800`}><X size={19} aria-hidden="true" /></button>
+                    <Button variant="secondary" size="icon" type="button" onClick={close} aria-label="Exit System Admin walkthrough" className={`${button} min-h-8 `}><X size={19} aria-hidden="true" /></Button>
                 </div>
                 {!completed && <div className="mt-3">
-                    <label htmlFor="system-admin-tour-topic" className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Jump to a topic</label>
-                    <select id="system-admin-tour-topic" value={step.id} onChange={event => moveTo(steps.findIndex(item => item.id === event.target.value))} className="w-full min-w-0 rounded-lg border-slate-300 bg-white py-2 pl-3 pr-8 text-sm text-slate-800 focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100">
+                    <label htmlFor="system-admin-tour-topic" className="mb-1.5 block text-sm font-semibold text-slate-600 dark:text-slate-300">Jump to a topic</label>
+                    <select id="system-admin-tour-topic" value={step.id} onChange={event => moveTo(steps.findIndex(item => item.id === event.target.value))} className="ui-field w-full min-w-0 rounded-lg border-slate-300 bg-white py-2 pl-3 pr-8 text-sm text-slate-800 focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100">
                         {SYSTEM_ADMIN_TOUR_CHAPTERS.map(chapter => <optgroup key={chapter} label={chapter}>{steps.filter(item => item.chapter === chapter).map(item => <option key={item.id} value={item.id}>{item.title}</option>)}</optgroup>)}
                     </select>
                 </div>}
@@ -296,33 +297,33 @@ export default function SystemAdminWalkthroughGuide() {
 
             <div ref={contentRef} className="min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-5">
                 {completed ? <>
-                    <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300">Walkthrough complete</p>
-                    <h2 id="system-admin-tour-title" className="mt-1 text-2xl font-bold tracking-tight">Keep the system ready for daily work</h2>
+                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Walkthrough complete</p>
+                    <h2 id="system-admin-tour-title" className="mt-1 text-2xl font-semibold tracking-tight">Keep the system ready for daily work</h2>
                     <p id="system-admin-tour-description" className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">Use this checklist at the start and end of your administration session. You can return to any topic from the Walkthrough Guide button on your System Admin dashboard.</p>
                     <ul className="mt-4 space-y-3">{SYSTEM_ADMIN_DAILY_CHECKLIST.map(item => <li key={item} className="flex items-start gap-2.5 text-sm leading-6"><CheckCircle2 size={17} className="mt-1 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" /><span>{item}</span></li>)}</ul>
                 </> : <>
-                    <h2 id="system-admin-tour-title" className="text-xl font-bold tracking-tight">{step.title}</h2>
+                    <h2 id="system-admin-tour-title" className="text-xl font-semibold tracking-tight">{step.title}</h2>
                     <p id="system-admin-tour-description" className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{step.description}</p>
-                    {targetStatus !== 'ready' && <div role="status" className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs leading-5 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                        {openingScreen ? 'Opening the walkthrough screen…' : targetStatus === 'finding' ? 'Finding the highlighted area…' : <><p>The highlighted area is unavailable on this screen. You can still read the instructions, reopen the screen, or continue to another topic.</p><button type="button" onClick={() => openScreen(step.href)} className="mt-2 font-semibold text-red-900 underline underline-offset-2 dark:text-red-300">Open this screen</button></>}
+                    {targetStatus !== 'ready' && <div role="status" className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-5 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                        {openingScreen ? 'Opening the walkthrough screen…' : targetStatus === 'finding' ? 'Finding the highlighted area…' : <><p>The highlighted area is unavailable on this screen. You can still read the instructions, reopen the screen, or continue to another topic.</p><Button variant="secondary" type="button" onClick={() => openScreen(step.href)} className="mt-2 underline underline-offset-2">Open this screen</Button></>}
                     </div>}
-                    <p className="mt-5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">How to use this screen</p>
-                    <ol className="mt-3 space-y-3">{step.instructions.map((instruction, index) => <li key={instruction} className="flex items-start gap-3 text-sm leading-6"><span aria-hidden="true" className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">{index + 1}</span><span>{instruction}</span></li>)}</ol>
-                    <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 dark:border-emerald-900 dark:bg-emerald-950/30"><p className="flex items-center gap-2 text-xs font-bold text-emerald-800 dark:text-emerald-300"><CheckCircle2 size={16} aria-hidden="true" />Expected result</p><p className="mt-1.5 text-sm leading-6 text-emerald-950 dark:text-emerald-100">{step.outcome}</p></div>
-                    {step.tip && <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3.5 dark:border-amber-900 dark:bg-amber-950/30"><p className="flex items-center gap-2 text-xs font-bold text-amber-900 dark:text-amber-300"><Info size={16} aria-hidden="true" />Keep in mind</p><p className="mt-1.5 text-sm leading-6 text-amber-950 dark:text-amber-100">{step.tip}</p></div>}
-                    <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-slate-500 dark:text-slate-400"><ShieldCheck size={16} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />This tour never changes records. Exit the guide to perform the task.</p>
+                    <p className="mt-5 text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400">How to use this screen</p>
+                    <ol className="mt-3 space-y-3">{step.instructions.map((instruction, index) => <li key={instruction} className="flex items-start gap-3 text-sm leading-6"><span aria-hidden="true" className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">{index + 1}</span><span>{instruction}</span></li>)}</ol>
+                    <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 dark:border-emerald-900 dark:bg-emerald-950/30"><p className="flex items-center gap-2 text-sm font-semibold text-emerald-800 dark:text-emerald-300"><CheckCircle2 size={16} aria-hidden="true" />Expected result</p><p className="mt-1.5 text-sm leading-6 text-emerald-950 dark:text-emerald-100">{step.outcome}</p></div>
+                    {step.tip && <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3.5 dark:border-amber-900 dark:bg-amber-950/30"><p className="flex items-center gap-2 text-sm font-semibold text-amber-900 dark:text-amber-300"><Info size={16} aria-hidden="true" />Keep in mind</p><p className="mt-1.5 text-sm leading-6 text-amber-950 dark:text-amber-100">{step.tip}</p></div>}
+                    <p className="mt-4 flex items-start gap-2 text-sm leading-5 text-slate-500 dark:text-slate-400"><ShieldCheck size={16} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />This tour never changes records. Exit the guide to perform the task.</p>
                 </>}
             </div>
 
             <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-950/50 sm:px-5">
                 {completed ? <>
-                    <button type="button" onClick={start} className={`${button} border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200`}>Review guide</button>
-                    <button type="button" onClick={() => { close(); router.visit(route('dashboard')); }} className={`${button} bg-red-900 text-white hover:bg-red-950`}>Go to Dashboard<ArrowRight size={16} aria-hidden="true" /></button>
+                    <Button variant="secondary" type="button" onClick={start} className={`${button} `}>Review guide</Button>
+                    <Button variant="primary" type="button" onClick={() => { close(); router.visit(route('dashboard')); }} className={`${button} `}>Go to Dashboard<ArrowRight size={16} aria-hidden="true" /></Button>
                 </> : <>
-                    <button type="button" onClick={close} className={`${button} px-1 text-slate-600 hover:text-red-900 dark:text-slate-300 dark:hover:text-white`}>Exit guide</button>
+                    <Button variant="secondary" type="button" onClick={close} className={`${button} `}>Exit guide</Button>
                     <div className="flex gap-2">
-                        <button type="button" disabled={stepIndex === 0} onClick={() => moveTo(stepIndex - 1)} className={`${button} border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200`}><ArrowLeft size={15} aria-hidden="true" />Back</button>
-                        <button type="button" onClick={() => stepIndex === steps.length - 1 ? complete() : moveTo(stepIndex + 1)} className={`${button} bg-red-900 text-white hover:bg-red-950`}>{stepIndex === steps.length - 1 ? 'Finish' : 'Next'}{stepIndex < steps.length - 1 && <ArrowRight size={15} aria-hidden="true" />}</button>
+                        <Button variant="secondary" type="button" disabled={stepIndex === 0} onClick={() => moveTo(stepIndex - 1)} className={`${button} `}><ArrowLeft size={15} aria-hidden="true" />Back</Button>
+                        <Button variant="primary" type="button" onClick={() => stepIndex === steps.length - 1 ? complete() : moveTo(stepIndex + 1)} className={`${button} `}>{stepIndex === steps.length - 1 ? 'Finish' : 'Next'}{stepIndex < steps.length - 1 && <ArrowRight size={15} aria-hidden="true" />}</Button>
                     </div>
                 </>}
             </div>

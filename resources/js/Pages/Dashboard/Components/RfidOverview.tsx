@@ -15,7 +15,7 @@ export default function RfidOverview({ rfidSummary, className = '' }: RfidOvervi
     const percentage = rfidSummary?.percentage ?? (total > 0 ? Math.round((tagged / total) * 100) : 0);
 
     return (
-        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs flex flex-col justify-between h-full min-w-0 ${className}`}>
+        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm flex flex-col justify-between h-full min-w-0 ${className}`}>
             <div>
                 {/* Header */}
                 <div className="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-100 dark:border-slate-800">
@@ -23,11 +23,11 @@ export default function RfidOverview({ rfidSummary, className = '' }: RfidOvervi
                         <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
                             <Radio className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-lg font-bold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
                             RFID Tagging Status
                         </h3>
                     </div>
-                    <span className="text-sm tabular-nums font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shrink-0">
+                    <span className="text-sm tabular-nums font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shrink-0">
                         {percentage}%
                     </span>
                 </div>
@@ -38,9 +38,9 @@ export default function RfidOverview({ rfidSummary, className = '' }: RfidOvervi
                         <span className="text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400 block">
                             Tagged
                         </span>
-                        <span className="text-base font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
-                            {tagged.toLocaleString()}
-                            <span className="text-sm font-normal text-slate-400 dark:text-slate-500 ml-1">/ {total.toLocaleString()}</span>
+                        <span className="text-base font-semibold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
+                            {tagged.toLocaleString('en-PH')}
+                            <span className="text-sm font-normal text-slate-500 dark:text-slate-400 ml-1">/ {total.toLocaleString('en-PH')}</span>
                         </span>
                     </div>
 
@@ -48,8 +48,8 @@ export default function RfidOverview({ rfidSummary, className = '' }: RfidOvervi
                         <span className="text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400 block">
                             Without Tag
                         </span>
-                        <span className="text-base font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
-                            {untagged.toLocaleString()}
+                        <span className="text-base font-semibold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
+                            {untagged.toLocaleString('en-PH')}
                         </span>
                     </div>
                 </div>

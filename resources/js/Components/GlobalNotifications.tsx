@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import NotificationToasts from './NotificationToasts';
 import { FlashMessages } from '@/types';
 import { beginNotificationVisit, finishNotificationVisit, notify, notifyFlash } from '@/utils/notifications';
+import { focusFirstInvalidField } from '@/utils/validationFocus';
 
 export default function GlobalNotifications({ initialFlash }: { initialFlash?: FlashMessages }) {
     useEffect(() => {
@@ -24,6 +25,7 @@ export default function GlobalNotifications({ initialFlash }: { initialFlash?: F
             lastFlash = flash;
         });
         const offError = router.on('error', ({ detail }) => {
+            if (typeof window !== 'undefined') window.requestAnimationFrame(focusFirstInvalidField);
             beginNotificationVisit();
             const messages = Object.values(detail.errors).flat().filter((value): value is string => typeof value === 'string');
             notify({ type: 'error', message: messages.join(' ') || 'Unable to complete this action. Check the highlighted fields and try again.' });

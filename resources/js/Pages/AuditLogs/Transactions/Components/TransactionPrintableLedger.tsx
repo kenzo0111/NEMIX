@@ -186,7 +186,7 @@ export const TransactionPrintableLedger: React.FC<TransactionPrintableLedgerProp
                             return (
                                 <tr
                                     key={record.id || index}
-                                    className={index % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}
+                                    className={index % 2 === 0 ? "bg-white" : "bg-slate-50/60"}
                                 >
                                     {/* Row Index */}
                                     <td className="py-1.5 px-2 text-center font-mono font-medium text-slate-600 border border-slate-300">

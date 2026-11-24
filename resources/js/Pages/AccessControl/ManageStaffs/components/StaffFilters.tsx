@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import Select from 'react-select';
 import { Search, UserPlus, Shield } from 'lucide-react';
@@ -31,7 +32,7 @@ export default function StaffFilters({
     const isFiltered = Boolean(searchQuery || statusFilter);
 
     return (
-        <div className="table-toolbar flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl p-3.5 sm:p-4 shadow-2xs">
+        <div className="table-toolbar flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl p-3.5 sm:p-4 shadow-sm">
             {/* Search and Status Dropdown */}
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 flex-1">
                 {/* Search Input */}
@@ -41,18 +42,18 @@ export default function StaffFilters({
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search staff, department, head..."
-                        className="w-full pl-9 pr-8 py-2 text-sm font-medium border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-gray-50/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors"
+                        className="ui-field w-full pl-9 pr-8 py-2 text-sm font-medium border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-gray-50/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors"
                     />
-                    <Search className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <Search className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                     {searchQuery && (
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => onSearchChange('')}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 text-sm font-semibold p-1 cursor-pointer transition-colors"
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2"
                             aria-label="Clear search"
                         >
                             ✕
-                        </button>
+                        </Button>
                     )}
                 </div>
 
@@ -70,29 +71,29 @@ export default function StaffFilters({
 
                 {/* Reset Filter Button */}
                 {isFiltered && (
-                    <button
+                    <Button variant="secondary"
                         type="button"
                         onClick={onResetFilters}
-                        className="px-3 py-2 text-sm font-semibold text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-700 border border-red-900/30 dark:border-red-800/50 rounded-lg transition-colors cursor-pointer shadow-2xs text-center"
+                        className="text-center"
                         title="Reset all filters"
                     >
                         Reset
-                    </button>
+                    </Button>
                 )}
             </div>
 
             {/* Primary Action Button */}
             {canAddStaff && (
                 <div className="flex items-center shrink-0 w-full sm:w-auto">
-                    <button
+                    <Button variant="primary"
                         type="button"
                         data-tour="system-admin-staff-add"
                         onClick={onOpenCreateModal}
-                        className="w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold py-2.5 px-4 rounded-lg shadow-2xs transition-all duration-150 text-sm flex items-center justify-center gap-2 whitespace-nowrap normal-case tabular-nums tracking-normal cursor-pointer"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
                     >
                         <UserPlus className="w-4 h-4 text-amber-300" />
                         <span>Add Staff</span>
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>

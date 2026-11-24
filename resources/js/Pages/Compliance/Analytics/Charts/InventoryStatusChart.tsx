@@ -102,7 +102,7 @@ export default function InventoryStatusChart({ statusCounts }: InventoryStatusCh
                                                     {item.payload?.label}:
                                                 </span>
                                                 <span className="font-semibold text-gray-900 dark:text-slate-100">
-                                                    {count.toLocaleString()} ({pct}%)
+                                                    {count.toLocaleString('en-PH')} ({pct}%)
                                                 </span>
                                             </div>
                                         );
@@ -129,8 +129,8 @@ export default function InventoryStatusChart({ statusCounts }: InventoryStatusCh
 
                 {/* Central total display */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-2xl font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
-                        {total.toLocaleString()}
+                    <span className="text-2xl font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
+                        {total.toLocaleString('en-PH')}
                     </span>
                     <span className="text-sm font-medium text-gray-500 dark:text-slate-400">
                         Total Items
@@ -154,7 +154,7 @@ export default function InventoryStatusChart({ statusCounts }: InventoryStatusCh
                             </div>
                             <div className="flex items-center gap-3">
                                 <span className="font-semibold text-gray-900 dark:text-slate-100 tabular-nums">
-                                    {item.value.toLocaleString()}
+                                    {item.value.toLocaleString('en-PH')}
                                 </span>
                                 <span className="text-sm text-gray-500 dark:text-slate-400 tabular-nums w-10 text-right">
                                     {pct}%

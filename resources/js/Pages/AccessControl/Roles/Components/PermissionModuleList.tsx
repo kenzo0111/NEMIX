@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { Layers } from 'lucide-react';
 import { ModuleStats } from '../types';
@@ -29,7 +30,7 @@ export default function PermissionModuleList({
                     id="mobile-module-selector"
                     value={activeModule}
                     onChange={(e) => onSelectModule(e.target.value)}
-                    className="w-full text-sm font-medium border border-gray-300 dark:border-slate-700 rounded-lg p-2.5 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 shadow-2xs"
+                    className="ui-field w-full text-sm font-medium border border-gray-300 dark:border-slate-700 rounded-lg p-2.5 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 shadow-sm"
                 >
                     {modules.map((mod) => {
                         const stats = getModuleStats(mod);
@@ -47,7 +48,7 @@ export default function PermissionModuleList({
                 <div className="px-4 py-3 border-b border-gray-200/80 dark:border-slate-800 bg-gray-100/50 dark:bg-slate-800/50 flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-gray-700 dark:text-slate-300">
                         <Layers className="w-3.5 h-3.5 text-gray-500 dark:text-slate-400" />
-                        <span className="text-sm font-bold normal-case tracking-normal">
+                        <span className="text-sm font-semibold normal-case tracking-normal">
                             Modules
                         </span>
                     </div>
@@ -63,31 +64,22 @@ export default function PermissionModuleList({
                         const isComplete = stats.total > 0 && stats.assigned === stats.total;
 
                         return (
-                            <button
+                            <Button aria-pressed={isSelected} variant="tab"
                                 key={mod}
                                 type="button"
                                 onClick={() => onSelectModule(mod)}
-                                className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-all text-left cursor-pointer ${
-                                    isSelected
-                                        ? 'bg-red-950 text-white font-semibold shadow-2xs'
-                                        : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100/80 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100 font-medium'
-                                }`}
+                                className="w-full flex items-center justify-between text-left"
                             >
                                 <span className="truncate pr-1">{mod}</span>
                                 <span
-                                    className={`text-sm tabular-nums shrink-0 px-1.5 py-0.5 rounded border transition-colors ${
-                                        isSelected
-                                            ? 'bg-red-900/70 text-white border-red-800/80 font-semibold'
-                                            : isComplete
-                                            ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50 font-semibold'
-                                            : stats.assigned > 0
-                                            ? 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700'
-                                            : 'bg-gray-100/60 dark:bg-slate-800/50 text-gray-400 dark:text-slate-500 border-gray-200/60 dark:border-slate-700/60'
-                                    }`}
+                                    className={`text-sm tabular-nums shrink-0 px-1.5 py-0.5 rounded border transition-colors ${isSelected
+    ? "bg-red-900/70 text-white border-red-800/80 font-semibold" : isComplete
+    ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50 font-semibold" : stats.assigned > 0
+    ? "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700" : "bg-gray-100/60 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border-gray-200/60 dark:border-slate-700/60"}`}
                                 >
                                     {stats.assigned} / {stats.total}
                                 </span>
-                            </button>
+                            </Button>
                         );
                     })}
                 </nav>

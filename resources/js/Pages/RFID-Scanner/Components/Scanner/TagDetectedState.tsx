@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import { useState } from 'react';
 import { RFIDInventoryItem } from '../../types';
 import useAuthorization from '@/Hooks/useAuthorization';
@@ -28,61 +29,61 @@ export default function TagDetectedState({
     };
 
     return (
-        <div className="text-center py-6 px-4 bg-gradient-to-b from-emerald-50/30 via-white to-gray-50/20 rounded-xl border border-emerald-200/90 shadow-2xs">
+        <div className="text-center py-6 px-4 bg-gradient-to-b from-emerald-50/30 via-white to-gray-50/20 rounded-xl border border-emerald-200/90 shadow-sm">
             {/* Status Pill */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 mb-3 shadow-2xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 mb-3 shadow-sm dark:text-emerald-300">
                 <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
                 <span>RFID Signal Captured</span>
             </div>
 
             {/* Prominent Scanned Tag Card */}
             <div className="my-2 max-w-sm mx-auto">
-                <div className="bg-white px-5 py-3 rounded-xl border-2 border-emerald-500/80 shadow-xs flex items-center justify-between gap-3">
+                <div className="bg-white px-5 py-3 rounded-xl border-2 border-emerald-500/80 shadow-sm flex items-center justify-between gap-3 dark:bg-slate-900">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center dark:text-emerald-300">
                             <Radio className="w-4 h-4" />
                         </div>
-                        <span className="tabular-nums text-xl font-bold text-gray-900 tracking-normal">
+                        <span className="tabular-nums text-xl font-semibold text-gray-900 tracking-normal dark:text-slate-300">
                             {tag}
                         </span>
                     </div>
 
-                    <button
+                    <Button variant="secondary"
                         type="button"
                         onClick={handleCopy}
                         title={copied ? 'Copied!' : 'Copy Tag ID'}
-                        className="p-1.5 text-gray-400 hover:text-gray-700 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
+                        className=""
                     >
                         {copied ? (
-                            <Check className="w-4 h-4 text-emerald-600" />
+                            <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-300" />
                         ) : (
                             <Copy className="w-4 h-4" />
                         )}
-                    </button>
+                    </Button>
                 </div>
             </div>
 
             {/* Association Connection Arrow */}
-            <div className="my-2 flex items-center justify-center text-emerald-600">
-                <div className="flex items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50/80 px-2.5 py-0.5 rounded-full border border-emerald-100">
+            <div className="my-2 flex items-center justify-center text-emerald-600 dark:text-emerald-300">
+                <div className="flex items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50/80 px-2.5 py-0.5 rounded-full border border-emerald-100 dark:text-emerald-300">
                     <Link2 className="w-3 h-3" />
                     <span>Associating with target item</span>
                 </div>
             </div>
 
             {/* Target Item Preview Box */}
-            <div className="bg-white p-3.5 rounded-xl border border-gray-200 text-left max-w-sm mx-auto shadow-2xs">
+            <div className="bg-white p-3.5 rounded-xl border border-gray-200 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-900">
                 <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm normal-case tabular-nums text-gray-400 font-semibold">
+                    <span className="text-sm normal-case tabular-nums text-slate-500 font-semibold dark:text-slate-300">
                         Target Inventory Record
                     </span>
-                    <span className="text-sm tabular-nums text-gray-500">
+                    <span className="text-sm tabular-nums text-gray-500 dark:text-slate-300">
                         SKU: {item.sku || 'N/A'}
                     </span>
                 </div>
-                <p className="leading-relaxed font-semibold text-gray-900 text-sm truncate">{item.name}</p>
+                <p className="leading-relaxed font-semibold text-gray-900 text-sm truncate dark:text-slate-300">{item.name}</p>
                 {item.supplier_name && (
-                    <p className="leading-relaxed text-sm text-gray-400 mt-1 truncate">
+                    <p className="leading-relaxed text-sm text-slate-500 mt-1 truncate dark:text-slate-300">
                         Supplier: {item.supplier_name}
                     </p>
                 )}
@@ -90,20 +91,20 @@ export default function TagDetectedState({
 
             {/* Actions Toolbar */}
             <div className="mt-6 flex items-center justify-center gap-3 max-w-sm mx-auto">
-                <button
+                <Button variant="secondary"
                     type="button"
                     onClick={onRescan}
                     disabled={isAssigning}
-                    className="flex-1 py-2.5 px-4 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center justify-center gap-1.5 shadow-2xs"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5"
                 >
-                    <RotateCcw className="w-3.5 h-3.5 text-gray-500" />
+                    <RotateCcw className="w-3.5 h-3.5 text-gray-500 dark:text-slate-300" />
                     <span>Rescan</span>
-                </button>
-                {can('rfid.assign') && <button
+                </Button>
+                {can('rfid.assign') && <Button variant="primary"
                     type="button"
                     onClick={onAssign}
                     disabled={isAssigning}
-                    className="flex-1 py-2.5 px-4 bg-red-950 hover:bg-red-900 text-white rounded-lg font-medium text-sm transition-all shadow-2xs active:translate-y-px cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+                    className="flex-1 active:translate-y-px flex items-center justify-center gap-2"
                 >
                     {isAssigning ? (
                         <>
@@ -116,7 +117,7 @@ export default function TagDetectedState({
                             <span>Assign RFID Tag</span>
                         </>
                     )}
-                </button>}
+                </Button>}
             </div>
         </div>
     );

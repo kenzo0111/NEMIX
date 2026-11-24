@@ -84,26 +84,25 @@ export const InventoryCustodianSlip: React.FC<InventoryCustodianSlipProps> = ({
         }
 
         /* Utilities */
-        .center { text-align: center; }
-        .bold { font-weight: bold; }
+        .ics-container .center { text-align: center; }
+        .ics-container .bold { font-weight: bold; }
         
         /* Header */
-        .header { margin-bottom: 2px; overflow: hidden; }
+        .ics-container .header { margin-bottom: 2px; overflow: hidden; }
         
         /* Meta Row (Entity/Fund) */
-        table.meta-row { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
-        table.meta-row td { border: none !important; padding: 1.5px 4px !important; vertical-align: middle !important; text-align: left !important; line-height: 1.1; font-size: 8.5pt; }
-        .meta-left { width: 65%; }
-        .meta-right { width: 35%; text-align: right; }
-        .meta-sub { margin-top: 2px; display: block; }
+        .ics-container table.meta-row { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+        .ics-container table.meta-row td { border: none !important; padding: 1.5px 4px !important; vertical-align: middle !important; text-align: left !important; line-height: 1.1; font-size: 8.5pt; }
+        .ics-container .meta-left { width: 65%; }
+        .ics-container .meta-right { width: 35%; text-align: right; }
+        .ics-container .meta-sub { margin-top: 2px; display: block; }
 
         /* Main Table */
-        table.main-table { width: 100%; border-collapse: collapse; margin-top: 0; }
-        .main-table th, .main-table td { border: 1px solid #000; padding: 0.6mm 1mm; vertical-align: middle; word-break: break-word; font-size: 8pt; line-height: 1.1; }
-        .main-table th { text-align: center; font-weight: bold; background: #f2f2f2; padding: 0.8mm 1mm; }
-        .main-table td { text-align: center; height: auto; }
-        .main-table tr.empty-row td,
-        .empty-row td {
+        .ics-container table.main-table { width: 100%; border-collapse: collapse; margin-top: 0; }
+        .ics-container .main-table th, .ics-container .main-table td { border: 1px solid #000; padding: 0.6mm 1mm; vertical-align: middle; word-break: break-word; font-size: 8pt; line-height: 1.1; }
+        .ics-container .main-table th { text-align: center; font-weight: bold; background: #f2f2f2; padding: 0.8mm 1mm; }
+        .ics-container .main-table td { text-align: center; height: auto; }
+        .ics-container .main-table tr.empty-row td, .ics-container .empty-row td {
             height: 4mm !important;
             min-height: 4mm !important;
             padding: 0 1mm !important;
@@ -111,46 +110,46 @@ export const InventoryCustodianSlip: React.FC<InventoryCustodianSlipProps> = ({
         }
         
         /* Column Widths */
-        .qty { width: 6%; }
-        .unit { width: 8%; }
-        .unit-cost { width: 11%; }
-        .total-cost { width: 11%; }
-        .description { width: 38%; text-align: left !important; padding-left: 4px !important; line-height: 1.15; }
-        .item-no { width: 13%; }
-        .useful-life { width: 13%; }
+        .ics-container .qty { width: 6%; }
+        .ics-container .unit { width: 8%; }
+        .ics-container .unit-cost { width: 11%; }
+        .ics-container .total-cost { width: 11%; }
+        .ics-container .description { width: 38%; text-align: left !important; padding-left: 4px !important; line-height: 1.15; }
+        .ics-container .item-no { width: 13%; }
+        .ics-container .useful-life { width: 13%; }
 
         /* Not Found Message */
-        .not-found-msg { text-align: center; padding: 20px 10px; color: #666; }
+        .ics-container .not-found-msg { text-align: center; padding: 20px 10px; color: #666; }
         
         /* Additional classes for inline styles */
-        .float-right { float: right; font-size: 16pt; font-style: italic; }
-        .clear-both { clear: both; }
-        .title { margin: 1px 0 3px 0; font-size: 11.5pt; font-weight: bold; letter-spacing: 0.3px; }
-        .not-found-main { font-size: 11pt; margin-bottom: 6px; }
-        .not-found-sub { font-size: 8.5pt; color: #999; }
-        .description-header { text-align: center; }
-        .purpose-cell { padding: 4px 6px; }
+        .ics-container .float-right { float: right; font-size: 16pt; font-style: italic; }
+        .ics-container .clear-both { clear: both; }
+        .ics-container .title { margin: 1px 0 3px 0; font-size: 11.5pt; font-weight: bold; letter-spacing: 0.3px; }
+        .ics-container .not-found-main { font-size: 11pt; margin-bottom: 6px; }
+        .ics-container .not-found-sub { font-size: 8.5pt; color: #999; }
+        .ics-container .description-header { text-align: center; }
+        .ics-container .purpose-cell { padding: 4px 6px; }
         
         /* Signatures */
-        .signatures { width: 100%; margin-top: 4px; display: flex; }
-        .sig-block { width: 50%; padding: 0 8px; vertical-align: top; box-sizing: border-box; }
-        .sig-block:first-child { border-right: 1px solid #000; padding-right: 10px; }
-        .sig-block:last-child { padding-left: 10px; }
+        .ics-container .signatures { width: 100%; margin-top: 4px; display: flex; }
+        .ics-container .sig-block { width: 50%; padding: 0 8px; vertical-align: top; box-sizing: border-box; }
+        .ics-container .sig-block:first-child { border-right: 1px solid #000; padding-right: 10px; }
+        .ics-container .sig-block:last-child { padding-left: 10px; }
         
-        .sig-label { text-align: left; font-weight: bold; margin-bottom: 16px; font-size: 8.5pt; line-height: 1.1; }
-        .sig-line { width: 100%; border-bottom: 1px solid #000; margin-bottom: 2px; }
-        .sig-name { font-weight: bold; font-size: 8.5pt; text-align: center; margin-bottom: 1px; text-transform: uppercase; line-height: 1.15; }
-        .sig-subtext { font-size: 7pt; line-height: 1.15; text-align: center; color: #c00; }
-        .sig-subtext.position { color: #000; }
+        .ics-container .sig-label { text-align: left; font-weight: bold; margin-bottom: 16px; font-size: 8.5pt; line-height: 1.1; }
+        .ics-container .sig-line { width: 100%; border-bottom: 1px solid #000; margin-bottom: 2px; }
+        .ics-container .sig-name { font-weight: bold; font-size: 8.5pt; text-align: center; margin-bottom: 1px; text-transform: uppercase; line-height: 1.15; }
+        .ics-container .sig-subtext { font-size: 7pt; line-height: 1.15; text-align: center; color: #c00; }
+        .ics-container .sig-subtext.position { color: #000; }
 
         @media print {
             body { margin: 0; padding: 0; }
             .ics-container { width: 100%; max-width: none; }
-            .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .ics-container .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
       `}</style>
 
-      <div className="ics-container">
+      <div data-paper-preview className="ics-container">
         {/* Top Header */}
         <div className="header">
           <div className="float-right"><strong><em>Appendix 59</em></strong></div>

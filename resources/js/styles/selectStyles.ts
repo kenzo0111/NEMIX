@@ -11,22 +11,20 @@ import { StylesConfig } from 'react-select';
 export const getInstitutionalSelectStyles = <Option = any, IsMulti extends boolean = false>(hasError: boolean = false): StylesConfig<Option, IsMulti> => ({
     control: (provided, state) => ({
         ...provided,
-        borderRadius: '0.5rem',
-        borderColor: hasError ? '#f87171' : state.isFocused ? '#7f1d1d' : 'var(--border-color, #d1d5db)',
+        borderRadius: 'var(--radius-control, 0.5rem)',
+        borderColor: (hasError || state.selectProps?.['aria-invalid']) ? 'var(--danger-text)' : state.isFocused ? 'var(--focus-color)' : 'var(--control-border)',
         borderWidth: '1px',
-        backgroundColor: 'var(--surface-card, #ffffff)',
+        backgroundColor: state.isDisabled ? 'var(--surface-muted)' : 'var(--surface-card, #ffffff)',
         minHeight: 'var(--control-height)',
         height: state.isMulti ? 'auto' : 'var(--control-height)',
         boxSizing: 'border-box',
-        fontSize: '0.875rem',
+        fontSize: '1rem',
         fontWeight: 500,
-        boxShadow: state.isFocused
-            ? hasError
-                ? '0 0 0 2px rgba(239, 68, 68, 0.2)'
-                : '0 0 0 2px rgba(127, 29, 29, 0.15)'
-            : 'none',
+        boxShadow: state.isFocused && !state.isDisabled ? `0 0 0 2px ${(hasError || state.selectProps?.['aria-invalid']) ? 'var(--danger-text)' : 'var(--focus-color)'}` : 'none',
+        opacity: state.isDisabled ? .6 : 1,
+        cursor: state.isDisabled ? 'not-allowed' : 'default',
         '&:hover': {
-            borderColor: hasError ? '#ef4444' : '#7f1d1d',
+            borderColor: state.isDisabled ? 'var(--control-border)' : (hasError || state.selectProps?.['aria-invalid']) ? 'var(--danger-text)' : 'var(--focus-color)',
         },
         transition: 'all 0.15s ease-in-out',
     }),
@@ -49,7 +47,7 @@ export const getInstitutionalSelectStyles = <Option = any, IsMulti extends boole
             : 'var(--surface-card, #ffffff)',
         color: state.isSelected ? '#ffffff' : 'var(--text-primary, #1f2937)',
         cursor: 'pointer',
-        fontSize: '0.875rem',
+        fontSize: '1rem',
         fontWeight: state.isSelected ? 600 : 500,
         padding: '8px 12px',
         '&:active': {
@@ -59,11 +57,11 @@ export const getInstitutionalSelectStyles = <Option = any, IsMulti extends boole
     }),
     groupHeading: (provided) => ({
         ...provided,
-        fontSize: '0.875rem',
+        fontSize: '1rem',
         fontWeight: 700,
-        color: '#7f1d1d',
-        letterSpacing: '0.025em',
-        textTransform: 'normal-case',
+        color: 'var(--brand-text)',
+        letterSpacing: 'normal',
+        textTransform: 'none',
         paddingTop: '0.5rem',
         paddingBottom: '0.25rem',
         borderBottom: '1px solid var(--border-color, #f3f4f6)',
@@ -94,17 +92,18 @@ export const getInstitutionalSelectStyles = <Option = any, IsMulti extends boole
     placeholder: (provided) => ({
         ...provided,
         color: 'var(--text-secondary, #9ca3af)',
-        fontSize: '0.875rem',
+        fontSize: '1rem',
     }),
     singleValue: (provided) => ({
         ...provided,
         color: 'var(--text-primary, #111827)',
-        fontSize: '0.875rem',
+        fontSize: '1rem',
         fontWeight: 500,
     }),
     indicatorSeparator: () => ({
         display: 'none',
     }),
+    menuPortal: provided => ({ ...provided, zIndex: 60 }),
 });
 
 export const institutionalSelectStyles = getInstitutionalSelectStyles(false);

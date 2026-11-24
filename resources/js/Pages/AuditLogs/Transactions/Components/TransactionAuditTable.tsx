@@ -1,3 +1,5 @@
+import { formatTimestamp } from '@/utils/displayFormat';
+import { Button } from '@/Components/ui/button';
 import React, { useState } from 'react';
 import { Shield, ChevronDown, ChevronRight } from 'lucide-react';
 import { TransactionAuditRecord } from '../types';
@@ -17,33 +19,7 @@ interface TransactionAuditTableProps {
     onSort: (sort: TransactionSortKey) => void;
 }
 
-const formatDisplayDate = (isoString?: string | null): string => {
-    if (!isoString) {
-        return '—';
-    }
-
-    try {
-        const date = new Date(isoString);
-        if (Number.isNaN(date.getTime())) {
-            return isoString;
-        }
-
-        const datePart = date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-        });
-        const timePart = date.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
-        });
-
-        return `${datePart} • ${timePart}`;
-    } catch {
-        return 'Timestamp unavailable';
-    }
-};
+const formatDisplayDate = formatTimestamp;
 
 export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
     records,
@@ -61,32 +37,32 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
 
     if (records.length === 0) {
         return (
-            <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800 p-12 text-center shadow-2xs">
+            <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800 p-12 text-center shadow-sm">
                 <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
                     <div className="p-3 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300 border border-red-100 dark:border-red-900/50 rounded-full mb-3">
                         <Shield className="w-8 h-8" />
                     </div>
                     {hasActiveFilters ? (
                         <>
-                            <h4 className="text-base font-bold text-gray-900 dark:text-slate-100 mb-1">
+                            <h4 className="text-base font-semibold text-gray-900 dark:text-slate-100 mb-1">
                                 No transaction records match the selected filters.
                             </h4>
                             <p className="text-sm text-gray-500 dark:text-slate-400 mb-4 leading-relaxed">
                                 Please adjust your search keyword, module, action, date range, or view mode to inspect other records.
                             </p>
                             {onResetFilters && (
-                                <button
+                                <Button variant="secondary"
                                     type="button"
                                     onClick={onResetFilters}
-                                    className="px-3.5 py-1.5 text-sm font-semibold text-red-900 dark:text-red-300 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/40 rounded-md transition-colors"
+                                    className=""
                                 >
                                     Clear Filters
-                                </button>
+                                </Button>
                             )}
                         </>
                     ) : (
                         <>
-                            <h4 className="text-base font-bold text-gray-900 dark:text-slate-100 mb-1">
+                            <h4 className="text-base font-semibold text-gray-900 dark:text-slate-100 mb-1">
                                 No transaction audit records are available.
                             </h4>
                             <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">
@@ -100,11 +76,11 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
     }
 
     return (
-        <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200/90 dark:border-slate-800 shadow-2xs overflow-hidden w-full min-w-0">
+        <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200/90 dark:border-slate-800 shadow-sm overflow-hidden w-full min-w-0">
             <div className="overflow-x-auto w-full min-w-0">
-                <table className="w-full text-left border-collapse min-w-[53rem]">
+                <table className="ui-data-table w-full text-left border-collapse min-w-[53rem]">
                     <thead>
-                        <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/60 text-sm font-bold text-gray-600 dark:text-slate-300 normal-case tracking-normal">
+                        <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/60 text-sm font-semibold text-gray-600 dark:text-slate-300 normal-case tracking-normal">
                             <th className="py-3 px-3 w-12 text-center align-middle" aria-label="Expand or collapse row"></th>
                             <SortableTableHeader column="user" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[11.25rem] align-middle">User</SortableTableHeader>
                             <SortableTableHeader column="activity" activeColumn={sort} direction={direction} onSort={onSort} className="py-3 px-4 whitespace-nowrap min-w-[13.75rem] align-middle">Activity</SortableTableHeader>
@@ -123,29 +99,26 @@ export const TransactionAuditTable: React.FC<TransactionAuditTableProps> = ({
                                 <React.Fragment key={record.id || index}>
                                     <tr
                                         onClick={() => toggleRow(record.id)}
-                                        className={`cursor-pointer transition-colors ${
-                                            isExpanded
-                                                ? 'bg-red-50/30 dark:bg-red-950/20'
-                                                : 'hover:bg-gray-50/80 dark:hover:bg-slate-800/50'
-                                        }`}
+                                        className={`cursor-pointer transition-colors ${isExpanded
+    ? "bg-red-50/30 dark:bg-red-950/20" : "hover:bg-gray-50/80 dark:hover:bg-slate-800/50"}`}
                                     >
                                         {/* EXPAND TOGGLE */}
                                         <td className="py-3.5 px-3 text-center align-middle">
-                                            <button
+                                            <Button variant="secondary"
                                                 type="button"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     toggleRow(record.id);
                                                 }}
-                                                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 rounded transition-colors cursor-pointer"
+                                                className=""
                                                 aria-label={isExpanded ? 'Collapse transaction details' : 'Expand transaction details'}
                                             >
                                                 {isExpanded ? (
                                                     <ChevronDown className="w-4 h-4 text-red-900 dark:text-red-400" />
                                                 ) : (
-                                                    <ChevronRight className="w-4 h-4 text-gray-400 dark:text-slate-500" />
+                                                    <ChevronRight className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                                                 )}
-                                            </button>
+                                            </Button>
                                         </td>
 
                                         {/* USER */}

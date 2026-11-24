@@ -1,3 +1,5 @@
+import { DialogHeader, DialogFooter } from '@/Components/ui/dialog-frame';
+import { Button } from '@/Components/ui/button';
 import AuthAlert from '@/Components/Auth/AuthAlert';
 import AuthHeader from '@/Components/Auth/AuthHeader';
 import AuthSubmitButton from '@/Components/Auth/AuthSubmitButton';
@@ -64,11 +66,11 @@ export default function Login({
                         value="Official Email Address"
                         className="text-stone-900 dark:text-slate-200 font-semibold text-sm mb-1.5 font-sans"
                     />
-                    <div className="relative rounded-lg shadow-2xs">
+                    <div className="relative rounded-lg shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-500 dark:text-slate-400">
                             <Mail className="w-4 h-4 text-stone-500 dark:text-slate-400" strokeWidth={2} aria-hidden="true" />
                         </div>
-                        <AuthTextInput
+                        <AuthTextInput aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? 'email-error' : undefined}
                             id="email"
                             type="email"
                             name="email"
@@ -81,7 +83,7 @@ export default function Login({
                             placeholder="username@ucn.edu.ph"
                         />
                     </div>
-                    <InputError message={errors.email} className="mt-1.5 text-sm font-medium text-red-700 dark:text-red-400 font-sans" />
+                    <InputError id="email-error" message={errors.email} className="mt-1.5 text-sm font-medium text-red-700 dark:text-red-400 font-sans" />
                 </div>
 
                 {/* Password Field */}
@@ -103,7 +105,7 @@ export default function Login({
                             name="remember"
                             checked={data.remember}
                             onChange={(e) => setData('remember', e.target.checked)}
-                            className="w-4 h-4 rounded border-stone-300 dark:border-slate-700 text-[#7B1113] dark:text-red-600 focus:ring-[#7B1113]/30 dark:focus:ring-red-500/40"
+                            className="w-4 h-4 rounded border-stone-300 dark:border-slate-700 text-[#7B1113] dark:text-red-300 focus:ring-[#7B1113]/30 dark:focus:ring-red-500/40"
                         />
                         <span className="text-sm text-stone-700 dark:text-slate-300 font-medium font-sans">
                             Remember me
@@ -133,10 +135,10 @@ export default function Login({
 
                 {/* Compact Institutional Support Link */}
                 <div className="pt-5 border-t border-stone-200 dark:border-slate-800 text-center">
-                    <button
+                    <Button variant="secondary"
                         type="button"
                         onClick={() => setShowHelpModal(true)}
-                        className="inline-flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-sm text-stone-500 dark:text-slate-400 hover:text-stone-800 dark:hover:text-slate-200 transition-colors font-sans focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7B1113] dark:focus-visible:ring-red-400 rounded px-2 py-1 cursor-pointer"
+                        className="inline-flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1"
                         aria-haspopup="dialog"
                     >
                         <span>Need access help?</span>
@@ -144,26 +146,26 @@ export default function Login({
                             Contact IT support
                             <HelpCircle className="w-3.5 h-3.5 opacity-80" strokeWidth={2} aria-hidden="true" />
                         </span>
-                    </button>
+                    </Button>
                 </div>
             </form>
 
             {/* Institutional Access Support Modal */}
             <Modal show={showHelpModal} onClose={() => setShowHelpModal(false)} maxWidth="md" ariaLabel="Institutional Access Support">
                 <div className="p-6">
-                    <div className="flex items-center gap-3 pb-4 border-b border-stone-200 dark:border-slate-800">
+                    <DialogHeader className="flex items-center gap-3 pb-4 border-b border-stone-200 dark:border-slate-800">
                         <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/60 text-[#7B1113] dark:text-red-400 border border-red-100 dark:border-red-900/50 shrink-0">
                             <HelpCircle className="w-5 h-5" strokeWidth={2} aria-hidden="true" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-bold text-stone-900 dark:text-slate-100 font-sans leading-tight">
+                            <h3 className="text-lg font-semibold text-stone-900 dark:text-slate-100 font-sans leading-tight">
                                 Institutional Access Support
                             </h3>
                             <p className="leading-relaxed text-sm text-stone-500 dark:text-slate-400 font-sans truncate mt-1">
                                 {institutionName}
                             </p>
                         </div>
-                    </div>
+                    </DialogHeader>
 
                     <div className="mt-4 space-y-3.5 text-sm text-stone-600 dark:text-slate-300 leading-relaxed font-sans">
                         <p>
@@ -188,7 +190,7 @@ export default function Login({
                         </div>
                     </div>
 
-                    <div className="mt-6 flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pt-3 border-t border-stone-200/80 dark:border-slate-800">
+                    <DialogFooter className="mt-6 flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pt-3 border-t border-stone-200/80 dark:border-slate-800">
                         {canResetPassword ? (
                             <Link
                                 href={route('password.request')}
@@ -199,14 +201,14 @@ export default function Login({
                         ) : (
                             <span />
                         )}
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => setShowHelpModal(false)}
-                            className="w-full sm:w-auto px-4 py-2 text-sm font-semibold rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-stone-700 dark:text-slate-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7B1113] cursor-pointer"
+                            className="w-full sm:w-auto"
                         >
                             Close
-                        </button>
-                    </div>
+                        </Button>
+                    </DialogFooter>
                 </div>
             </Modal>
         </FullAuthLayout>

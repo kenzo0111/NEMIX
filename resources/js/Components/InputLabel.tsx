@@ -9,10 +9,8 @@ export default function InputLabel({
     return (
         <label
             {...props}
-            className={
-                `block text-sm font-medium text-gray-700 dark:text-slate-300 ` +
-                className
-            }
+            className={"block text-sm font-medium text-gray-700 dark:text-slate-300 " +
+    className}
         >
             {value ? value : children}
         </label>

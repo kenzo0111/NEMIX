@@ -1,3 +1,4 @@
+import PageHeader from '@/Components/PageHeader';
 import DashboardContent from '@/Layouts/DashboardContent';
 import React from 'react';
 import { Head, Link } from '@inertiajs/react';
@@ -5,7 +6,6 @@ import DashboardLayout from '@/Layouts/DashboardLayout';
 import { getSidebarModules } from '@/utils/sidebarConfig';
 import { DashboardPageProps } from './types';
 
-import DashboardControls from '@/Components/DashboardControls';
 import OperationalAlertStrip from './Components/OperationalAlertStrip';
 import SystemSummary from './Components/SystemSummary';
 import InventoryMovementOverview from './Components/InventoryMovementOverview';
@@ -83,14 +83,7 @@ export default function DashboardIndex({
                     <>
                         {/* Dashboard Main Canvas with Clear 4-Tier Hierarchy */}
                         <DashboardContent>
-                            {isInventoryStaff ? <header className="flex flex-wrap items-end justify-between gap-3">
-                                <div className="min-w-0 flex-1">
-                                    <p className="text-sm font-semibold uppercase tracking-[0.16em] text-blue-700">Inventory Staff</p>
-                                    <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">Inventory overview</h1>
-                                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Monitor stock levels, receiving, issuance, and supply activity across the system.</p>
-                                </div>
-                                <DashboardControls className="w-auto" />
-                            </header> : <DashboardControls />}
+                            <PageHeader embedded title={isInventoryStaff ? "Inventory overview" : "Supply overview"} description="Monitor stock levels, receiving, issuance, and supply activity across the system." />
                             {/* Operational Alert Banner (e.g. Missing RFIDs / Supplier accreditation notices) */}
                             <OperationalAlertStrip
                                 showRfidAlert={showRfidAlert}

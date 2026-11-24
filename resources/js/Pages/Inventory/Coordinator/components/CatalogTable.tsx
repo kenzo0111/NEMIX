@@ -22,9 +22,9 @@ export default function CatalogTable({
 
     return (
         <>
-            <section data-tour="coordinator-catalog-items" aria-label="Central consumable items" className={panel + ' overflow-hidden w-full min-w-0'}>
+            <section data-tour="coordinator-catalog-items" aria-label="Central consumable items" className={panel + " overflow-hidden w-full min-w-0"}>
                 <div className="hidden overflow-x-auto lg:block w-full min-w-0">
-                    <table className="w-full text-left text-sm min-w-[53rem] border-collapse">
+                    <table className="ui-data-table w-full text-left text-sm min-w-[53rem] border-collapse">
                         <thead className="bg-slate-50 text-sm normal-case tracking-normal text-slate-500 dark:bg-slate-950/50 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                             <tr>
                                 <SortableTableHeader column="sku" activeColumn={sort.key} direction={sort.direction} onSort={onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold">
@@ -67,12 +67,12 @@ export default function CatalogTable({
                                             {item.unit || 'units'}
                                         </td>
                                         <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right tabular-nums text-slate-700 dark:text-slate-300">
-                                            {item.on_hand.toLocaleString()}
+                                            {item.on_hand.toLocaleString('en-PH')}
                                         </td>
                                         <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right tabular-nums">
-                                            <strong className="text-red-900 dark:text-red-300">{item.available_quantity.toLocaleString()}</strong>
+                                            <strong className="text-red-900 dark:text-red-300">{item.available_quantity.toLocaleString('en-PH')}</strong>
                                             {item.is_low_stock && (
-                                                <span className="block text-[11px] font-semibold text-amber-700 dark:text-amber-400">
+                                                <span className="block text-sm font-semibold text-amber-700 dark:text-amber-400">
                                                     Low stock
                                                 </span>
                                             )}
@@ -80,18 +80,18 @@ export default function CatalogTable({
                                         <td className="whitespace-nowrap px-5 py-3.5 align-middle text-right min-w-[10rem]">
                                             <div className="inline-flex items-center justify-end gap-2 flex-wrap">
                                                 {eligible ? (
-                                                    <Link
+                                                    <Link data-variant="primary" data-size="default"
                                                         href={route('inventory.requests.index', { create: 1, item_id: item.id })}
-                                                        className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg bg-red-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-950 transition-colors shadow-2xs whitespace-nowrap"
+                                                        className="ui-button inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg bg-red-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-950 transition-colors shadow-sm whitespace-nowrap"
                                                     >
                                                         Request
                                                         <ArrowRight size={14} />
                                                     </Link>
                                                 ) : isOutOfStock ? (
                                                     item.user_pre_order ? (
-                                                        <Link
+                                                        <Link data-variant="secondary" data-size="default"
                                                             href={route('inventory.requests.index', { create: 1, mode: 'pre_request', item_id: item.id })}
-                                                            className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs whitespace-nowrap"
+                                                            className="ui-button inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-sm whitespace-nowrap"
                                                             title="Pre-request this item"
                                                         >
                                                             <Clock size={13} />
@@ -99,9 +99,9 @@ export default function CatalogTable({
                                                             <ArrowRight size={13} />
                                                         </Link>
                                                     ) : (
-                                                        <Link
+                                                        <Link data-variant="secondary" data-size="default"
                                                             href={route('inventory.requests.index', { create: 1, mode: 'pre_request', item_id: item.id })}
-                                                            className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs whitespace-nowrap"
+                                                            className="ui-button inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-sm whitespace-nowrap"
                                                         >
                                                             <PackagePlus size={14} className="text-amber-800 dark:text-amber-400" />
                                                             Pre-Request
@@ -109,7 +109,7 @@ export default function CatalogTable({
                                                         </Link>
                                                     )
                                                 ) : (
-                                                    <span className="text-sm text-slate-400 dark:text-slate-500 italic">
+                                                    <span className="text-sm text-slate-500 dark:text-slate-400 italic">
                                                         {item.weekly_request_limit === null
                                                             ? 'Limit unconfigured'
                                                             : item.quota_remaining === 0
@@ -138,14 +138,14 @@ export default function CatalogTable({
                                 <dl className="grid grid-cols-2 gap-4 text-sm">
                                     <div>
                                         <dt className="text-slate-500 dark:text-slate-400">In Supply Office</dt>
-                                        <dd className="mt-1 font-semibold tabular-nums">{item.on_hand.toLocaleString()} {item.unit}</dd>
+                                        <dd className="mt-1 font-semibold tabular-nums">{item.on_hand.toLocaleString('en-PH')} {item.unit}</dd>
                                     </div>
                                     <div>
                                         <dt className="text-slate-500 dark:text-slate-400">Available to request</dt>
                                         <dd className="mt-1 font-semibold tabular-nums text-red-900 dark:text-red-300">
-                                            {item.available_quantity.toLocaleString()} {item.unit}
+                                            {item.available_quantity.toLocaleString('en-PH')} {item.unit}
                                             {item.is_low_stock && (
-                                                <span className="ml-2 text-xs font-semibold text-amber-700 dark:text-amber-400">
+                                                <span className="ml-2 text-sm font-semibold text-amber-700 dark:text-amber-400">
                                                     (Low stock)
                                                 </span>
                                             )}
@@ -154,18 +154,18 @@ export default function CatalogTable({
                                 </dl>
                                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
                                     {eligible ? (
-                                        <Link
+                                        <Link data-variant="primary" data-size="default"
                                             href={route('inventory.requests.index', { create: 1, item_id: item.id })}
-                                            className="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-red-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-950 transition-colors shadow-2xs"
+                                            className="ui-button inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-red-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-950 transition-colors shadow-sm"
                                         >
                                             Request This Item
                                             <ArrowRight size={14} />
                                         </Link>
                                     ) : isOutOfStock ? (
                                         item.user_pre_order ? (
-                                            <Link
+                                            <Link data-variant="secondary" data-size="default"
                                                 href={route('inventory.requests.index', { create: 1, mode: 'pre_request', item_id: item.id })}
-                                                className="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs"
+                                                className="ui-button inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-sm"
                                                 title="Pre-request this item"
                                             >
                                                 <Clock size={13} />
@@ -173,9 +173,9 @@ export default function CatalogTable({
                                                 <ArrowRight size={13} />
                                             </Link>
                                         ) : (
-                                            <Link
+                                            <Link data-variant="secondary" data-size="default"
                                                 href={route('inventory.requests.index', { create: 1, mode: 'pre_request', item_id: item.id })}
-                                                className="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-2xs"
+                                                className="ui-button inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300 transition-colors shadow-sm"
                                             >
                                                 <PackagePlus size={14} className="text-amber-800 dark:text-amber-400" />
                                                 Pre-Request This Item
@@ -183,7 +183,7 @@ export default function CatalogTable({
                                             </Link>
                                         )
                                     ) : (
-                                        <span className="text-sm text-slate-400 dark:text-slate-500 italic block text-center">
+                                        <span className="text-sm text-slate-500 dark:text-slate-400 italic block text-center">
                                             {item.weekly_request_limit === null
                                                 ? 'Limit unconfigured'
                                                 : item.quota_remaining === 0

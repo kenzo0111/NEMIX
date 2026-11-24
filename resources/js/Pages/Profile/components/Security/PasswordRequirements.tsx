@@ -14,26 +14,20 @@ export default function PasswordRequirements({
 }: Props) {
     return (
         <div className={`p-3.5 rounded-lg bg-slate-50/90 dark:bg-slate-850/80 border border-slate-200 dark:border-slate-800 text-sm ${className}`}>
-            <p className="leading-relaxed text-sm font-bold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-2">
+            <p className="leading-relaxed text-sm font-semibold text-slate-700 dark:text-slate-300 normal-case tracking-normal mb-2">
                 Password Requirements
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center gap-2">
                     <span
-                        className={`w-4 h-4 rounded flex items-center justify-center text-sm font-bold transition-colors ${
-                            hasMinLength
-                                ? 'bg-emerald-600 text-white'
-                                : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
-                        }`}
+                        className={`w-4 h-4 rounded flex items-center justify-center text-sm font-semibold transition-colors ${hasMinLength
+    ? "bg-emerald-600 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400"}`}
                     >
                         <Check className="w-3 h-3" />
                     </span>
                     <span
-                        className={
-                            hasMinLength
-                                ? 'text-slate-900 dark:text-slate-100 font-semibold'
-                                : 'text-slate-500 dark:text-slate-400'
-                        }
+                        className={hasMinLength
+    ? "text-slate-900 dark:text-slate-100 font-semibold" : "text-slate-500 dark:text-slate-400"}
                     >
                         At least 8 characters minimum
                     </span>
@@ -41,20 +35,14 @@ export default function PasswordRequirements({
 
                 <div className="flex items-center gap-2">
                     <span
-                        className={`w-4 h-4 rounded flex items-center justify-center text-sm font-bold transition-colors ${
-                            passwordsMatch
-                                ? 'bg-emerald-600 text-white'
-                                : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
-                        }`}
+                        className={`w-4 h-4 rounded flex items-center justify-center text-sm font-semibold transition-colors ${passwordsMatch
+    ? "bg-emerald-600 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400"}`}
                     >
                         <Check className="w-3 h-3" />
                     </span>
                     <span
-                        className={
-                            passwordsMatch
-                                ? 'text-slate-900 dark:text-slate-100 font-semibold'
-                                : 'text-slate-500 dark:text-slate-400'
-                        }
+                        className={passwordsMatch
+    ? "text-slate-900 dark:text-slate-100 font-semibold" : "text-slate-500 dark:text-slate-400"}
                     >
                         Passwords match exactly
                     </span>

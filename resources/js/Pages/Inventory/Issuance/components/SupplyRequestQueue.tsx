@@ -1,3 +1,5 @@
+import { formatScreenDate } from '@/utils/displayFormat';
+import { Button } from '@/Components/ui/button';
 import SupportingDocumentPanel from '../../Requests/components/SupportingDocumentPanel';
 import { SupplyRequest } from '../../Requests/types';
 import { PageProps } from '@/types';
@@ -269,7 +271,7 @@ export function SupplyRequestQueue({
     };
 
     return (
-        <section className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200/90 dark:border-slate-800 shadow-2xs overflow-hidden">
+        <section className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
             {/* Top Maroon Header Accent */}
             <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
 
@@ -278,14 +280,14 @@ export function SupplyRequestQueue({
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded text-sm tabular-nums font-bold normal-case tracking-normal bg-red-100 text-red-900 dark:bg-red-950/60 dark:text-red-300">
+                            <span className="px-2 py-0.5 rounded text-sm tabular-nums font-semibold normal-case tracking-normal bg-red-100 text-red-900 dark:bg-red-950/60 dark:text-red-300">
                                 Inventory Custodian Workspace
                             </span>
-                            <span className="text-sm text-gray-500 font-sans">
+                            <span className="text-sm text-gray-500 font-sans dark:text-slate-300">
                                 Supply Approval & Distribution Hub
                             </span>
                         </div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight mt-1">
+                        <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight mt-1">
                             Requisition Review & Approval Queue
                         </h2>
                         <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium">
@@ -309,43 +311,31 @@ export function SupplyRequestQueue({
                 {/* Workspace Navigation Tabs & Search */}
                 <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-gray-200/70 dark:border-slate-800">
                     <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-slate-800/60 p-1 rounded-lg">
-                        <button
+                        <Button variant="tab" aria-pressed={activeTab === 'pending'}
                             type="button"
                             onClick={() => setActiveTab('pending')}
-                            className={`px-3 py-1.5 rounded-md text-sm font-semibold cursor-pointer transition-all ${
-                                activeTab === 'pending'
-                                    ? 'bg-white dark:bg-slate-900 text-red-950 dark:text-red-400 shadow-2xs font-bold'
-                                    : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200'
-                            }`}
+                            className=""
                         >
                             Awaiting Approval ({pendingList.length})
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="tab" aria-pressed={activeTab === 'approved'}
                             type="button"
                             onClick={() => setActiveTab('approved')}
-                            className={`px-3 py-1.5 rounded-md text-sm font-semibold cursor-pointer transition-all ${
-                                activeTab === 'approved'
-                                    ? 'bg-white dark:bg-slate-900 text-blue-800 dark:text-blue-400 shadow-2xs font-bold'
-                                    : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200'
-                            }`}
+                            className=""
                         >
                             Approved & Release ({approvedList.length})
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="tab" aria-pressed={activeTab === 'all'}
                             type="button"
                             onClick={() => setActiveTab('all')}
-                            className={`px-3 py-1.5 rounded-md text-sm font-semibold cursor-pointer transition-all ${
-                                activeTab === 'all'
-                                    ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 shadow-2xs font-bold'
-                                    : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200'
-                            }`}
+                            className=""
                         >
                             All Requests ({allList.length})
-                        </button>
+                        </Button>
                     </div>
 
                     <div className="relative w-full sm:w-64">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-300">
                             <Search className="w-3.5 h-3.5" />
                         </div>
                         <input
@@ -353,7 +343,7 @@ export function SupplyRequestQueue({
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Filter queue by keyword..."
-                            className="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-md text-sm text-gray-900 dark:text-slate-100 placeholder-gray-400 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900"
+                            className="ui-field w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-md text-sm text-gray-900 dark:text-slate-100 placeholder-gray-400 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900"
                         />
                     </div>
                 </div>
@@ -366,7 +356,7 @@ export function SupplyRequestQueue({
                         <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
                         <span>{actionError}</span>
                     </div>
-                    <button type="button" onClick={() => setActionError(null)} className="text-gray-400 hover:text-gray-600 text-sm font-bold">×</button>
+                    <Button variant="secondary" type="button" onClick={() => setActionError(null)} className="">×</Button>
                 </div>
             )}
 
@@ -374,7 +364,7 @@ export function SupplyRequestQueue({
             <div className="p-4 sm:p-6 space-y-5">
                 {filteredRequests.length === 0 ? (
                     <div className="py-12 text-center text-gray-500 dark:text-slate-400 text-sm flex flex-col items-center">
-                        <Clock className="w-8 h-8 text-gray-300 dark:text-slate-600 mb-2" />
+                        <Clock className="w-8 h-8 text-gray-300 dark:text-slate-400 mb-2" />
                         <p className="leading-relaxed font-semibold text-sm text-gray-700 dark:text-slate-300">
                             {activeTab === 'pending'
                                 ? 'No supply requests awaiting approval'
@@ -382,7 +372,7 @@ export function SupplyRequestQueue({
                                 ? 'No approved requests currently awaiting pickup'
                                 : 'No matching supply requests found'}
                         </p>
-                        <p className="text-gray-400 mt-0.5">
+                        <p className="text-slate-500 mt-0.5 dark:text-slate-300">
                             {searchQuery ? 'Try clearing your search query.' : 'New submissions from the Supply Coordinator will appear here.'}
                         </p>
                     </div>
@@ -401,38 +391,33 @@ export function SupplyRequestQueue({
                             <article
                                 key={request.id}
                                 id={`supply-request-${request.id}`}
-                                className={`rounded-xl border transition-all ${
-                                    isPending
-                                        ? 'border-amber-200/80 dark:border-amber-900/40 bg-white dark:bg-slate-900/90 shadow-2xs'
-                                        : isApproved
-                                        ? 'border-blue-200/80 dark:border-blue-900/40 bg-white dark:bg-slate-900/90 shadow-2xs'
-                                        : isIssued
-                                        ? 'border-emerald-200/80 dark:border-emerald-900/40 bg-white dark:bg-slate-900/90'
-                                        : 'border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/50'
-                                }`}
+                                className={`rounded-xl border transition-all ${isPending
+    ? "border-amber-200/80 dark:border-amber-900/40 bg-white dark:bg-slate-900/90 shadow-sm" : isApproved
+    ? "border-blue-200/80 dark:border-blue-900/40 bg-white dark:bg-slate-900/90 shadow-sm" : isIssued
+    ? "border-emerald-200/80 dark:border-emerald-900/40 bg-white dark:bg-slate-900/90" : "border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/50"}`}
                             >
                                 {/* Request Header Ribbon */}
                                 <div className="p-4 sm:px-5 border-b border-gray-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-gray-50/40 dark:bg-slate-900/40">
                                     <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                                         <div className="flex items-center gap-1.5">
-                                            <span className="text-sm font-bold normal-case tracking-normal text-gray-400 tabular-nums">
+                                            <span className="text-sm font-semibold normal-case tracking-normal text-slate-500 tabular-nums dark:text-slate-300">
                                                 Official RIS No.
                                             </span>
-                                            <span className="tabular-nums font-bold text-sm text-red-950 dark:text-red-400">
+                                            <span className="tabular-nums font-semibold text-sm text-red-950 dark:text-red-400">
                                                 {request.ris_number || `RIS-${String(request.id).padStart(4, '0')}`}
                                             </span>
-                                            <span className="text-sm text-gray-400 tabular-nums">
+                                            <span className="text-sm text-slate-500 tabular-nums dark:text-slate-300">
                                                 (Req #{request.id})
                                             </span>
                                         </div>
                                         <RequestStatusBadge status={request.status} />
-                                        <span className="text-sm text-gray-400 tabular-nums">
-                                            Submitted {formatDisplayDate(request.date_requested || request.created_at, 'MM/DD/YYYY') || request.date_requested || request.created_at}
+                                        <span className="text-sm text-slate-500 tabular-nums dark:text-slate-300">
+                                            Submitted {formatScreenDate(request.date_requested || request.created_at) || request.date_requested || request.created_at}
                                         </span>
                                     </div>
 
                                     <div className="flex items-center gap-2 text-sm">
-                                        <span className="text-gray-500 font-medium">Submitted by:</span>
+                                        <span className="text-gray-500 font-medium dark:text-slate-300">Submitted by:</span>
                                         <span className="font-semibold text-gray-800 dark:text-slate-200">
                                             {request.requester?.name || 'Supply Coordinator'}
                                         </span>
@@ -444,21 +429,21 @@ export function SupplyRequestQueue({
                                     {/* Requester & Office Details */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm p-3 rounded-lg bg-gray-50/60 dark:bg-slate-950/60 border border-gray-100 dark:border-slate-800">
                                         <div>
-                                            <span className="block text-sm font-bold normal-case tracking-normal text-gray-400 tabular-nums">
+                                            <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 tabular-nums dark:text-slate-300">
                                                 Requested by
                                             </span>
                                             <span className="font-semibold text-gray-900 dark:text-slate-100">
                                                 {request.recipient || request.requester?.name || '—'}
                                             </span>
                                             {request.recipient_designation && (
-                                                <span className="block text-sm text-gray-500 italic">
+                                                <span className="block text-sm text-gray-500 italic dark:text-slate-300">
                                                     {request.recipient_designation}
                                                 </span>
                                             )}
                                         </div>
 
                                         <div>
-                                            <span className="block text-sm font-bold normal-case tracking-normal text-gray-400 tabular-nums">
+                                            <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 tabular-nums dark:text-slate-300">
                                                 Division / Office
                                             </span>
                                             <span className="font-semibold text-gray-900 dark:text-slate-100">
@@ -467,7 +452,7 @@ export function SupplyRequestQueue({
                                         </div>
 
                                         <div>
-                                            <span className="block text-sm font-bold normal-case tracking-normal text-gray-400 tabular-nums">
+                                            <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 tabular-nums dark:text-slate-300">
                                                 Fund Cluster
                                             </span>
                                             <span className="tabular-nums text-gray-800 dark:text-slate-200">
@@ -476,7 +461,7 @@ export function SupplyRequestQueue({
                                         </div>
 
                                         <div>
-                                            <span className="block text-sm font-bold normal-case tracking-normal text-gray-400 tabular-nums">
+                                            <span className="block text-sm font-semibold normal-case tracking-normal text-slate-500 tabular-nums dark:text-slate-300">
                                                 Requisition Purpose
                                             </span>
                                             <span className="text-gray-700 dark:text-slate-300 truncate block" title={request.purpose}>
@@ -489,10 +474,10 @@ export function SupplyRequestQueue({
                                     <div>
                                         <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-200 dark:border-slate-800">
                                             <div className="flex items-center gap-2">
-                                                <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
+                                                <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                                     Requested Items ({request.items.length})
                                                 </h4>
-                                                <span className="text-sm text-gray-500 font-sans">
+                                                <span className="text-sm text-gray-500 font-sans dark:text-slate-300">
                                                     — Total units: {totalRequested}
                                                 </span>
                                             </div>
@@ -500,27 +485,27 @@ export function SupplyRequestQueue({
                                             {/* Quantity adjustment helper buttons if reviewing/pending */}
                                             {canAdjustQuantities && (
                                                 <div className="flex items-center gap-2 text-sm">
-                                                    <span className="text-gray-400 text-sm hidden sm:inline">Quick Adjust:</span>
-                                                    <button
+                                                    <span className="text-slate-500 text-sm hidden sm:inline dark:text-slate-300">Quick Adjust:</span>
+                                                    <Button variant="secondary"
                                                         type="button"
                                                         onClick={() => handleSetAllQuantities(request, true)}
-                                                        className="px-2 py-0.5 rounded text-sm font-semibold bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-300 cursor-pointer"
+                                                        className=""
                                                     >
                                                         Approve All Full
-                                                    </button>
-                                                    <button
+                                                    </Button>
+                                                    <Button variant="secondary"
                                                         type="button"
                                                         onClick={() => handleSetAllQuantities(request, false)}
-                                                        className="px-2 py-0.5 rounded text-sm font-semibold bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-300 cursor-pointer"
+                                                        className=""
                                                     >
                                                         Zero All
-                                                    </button>
+                                                    </Button>
                                                 </div>
                                             )}
                                         </div>
 
                                         <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-800">
-                                            <table className="w-full text-left text-sm min-w-[38rem]">
+                                            <table className="ui-data-table w-full text-left text-sm min-w-[38rem]">
                                                 <thead className="bg-gray-50 dark:bg-slate-950 text-gray-600 dark:text-slate-400 normal-case tabular-nums text-sm">
                                                     <tr>
                                                         <th className="px-3.5 py-3.5 whitespace-nowrap min-w-[12.5rem] align-middle">Item Description & SKU</th>
@@ -549,7 +534,7 @@ export function SupplyRequestQueue({
                                                             <tr key={line.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/40">
                                                                 <td className="px-3.5 py-3.5 font-medium text-gray-900 dark:text-slate-100 align-middle">
                                                                     <div className="font-semibold">{line.item?.name}</div>
-                                                                    <div className="tabular-nums text-sm text-gray-400">
+                                                                    <div className="tabular-nums text-sm text-slate-500 dark:text-slate-300">
                                                                         SKU: {line.item?.sku || '—'}
                                                                     </div>
                                                                 </td>
@@ -557,13 +542,9 @@ export function SupplyRequestQueue({
                                                                 {/* On hand stock */}
                                                                 <td className="px-3.5 py-3.5 text-center tabular-nums align-middle">
                                                                     <span
-                                                                        className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-bold ${
-                                                                            line.item?.stock === 0
-                                                                                ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
-                                                                                : isStockShortage
-                                                                                ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
-                                                                                : 'bg-gray-100 text-gray-800 dark:bg-slate-800 dark:text-slate-200'
-                                                                        }`}
+                                                                        className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold ${line.item?.stock === 0
+    ? "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300" : isStockShortage
+    ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" : "bg-gray-100 text-gray-800 dark:bg-slate-800 dark:text-slate-200"}`}
                                                                     >
                                                                         {line.item?.stock ?? 0} {line.item?.unit_of_issue || 'pcs'}
                                                                     </span>
@@ -586,7 +567,7 @@ export function SupplyRequestQueue({
                                                                                     Exceeds allowance!
                                                                                 </span>
                                                                             )}
-                                                                            <input
+                                                                            <input aria-invalid={Boolean(isExceedingStock)}
                                                                                 type="number"
                                                                                 min="0"
                                                                                 max={line.max_approval_quantity ?? line.quantity}
@@ -599,15 +580,11 @@ export function SupplyRequestQueue({
                                                                                         line.max_approval_quantity ?? line.quantity
                                                                                     )
                                                                                 }
-                                                                                className={`w-24 h-8 px-2 text-right bg-white dark:bg-slate-950 border rounded text-sm tabular-nums font-bold focus:outline-none focus:ring-1 ${
-                                                                                    isExceedingStock
-                                                                                        ? 'border-rose-400 text-rose-600 focus:border-rose-500 focus:ring-rose-500'
-                                                                                        : isAdjusted
-                                                                                        ? 'border-amber-400 text-amber-700 focus:border-amber-500 focus:ring-amber-500'
-                                                                                        : 'border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 focus:border-red-900 focus:ring-red-900'
-                                                                                }`}
+                                                                                className={"ui-field " + (`w-24 h-8 px-2 text-right bg-white dark:bg-slate-950 border rounded text-sm tabular-nums font-semibold focus:outline-none focus:ring-1 ${isExceedingStock
+    ? "border-rose-400 text-rose-600 focus:border-rose-500 focus:ring-rose-500" : isAdjusted
+    ? "border-amber-400 text-amber-700 focus:border-amber-500 focus:ring-amber-500" : "border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 focus:border-red-900 focus:ring-red-900"}`)}
                                                                             />
-                                                                            <span className="text-sm text-gray-400 font-sans w-8 text-left">
+                                                                            <span className="text-sm text-slate-500 font-sans w-8 text-left dark:text-slate-300">
                                                                                 {line.item?.unit_of_issue || 'pcs'}
                                                                             </span>
                                                                         </div>
@@ -645,7 +622,7 @@ export function SupplyRequestQueue({
                                                     setRemarks((prev) => ({ ...prev, [request.id]: e.target.value }))
                                                 }
                                                 placeholder="e.g. Approved with partial ream quantity due to scheduled delivery next week..."
-                                                className="w-full h-8 px-3 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded text-sm text-gray-800 dark:text-slate-200 placeholder-gray-400 focus:outline-none focus:border-red-900"
+                                                className="ui-field w-full h-8 px-3 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded text-sm text-gray-800 dark:text-slate-200 placeholder-gray-400 focus:outline-none focus:border-red-900"
                                             />
                                         </div>
                                     )}
@@ -672,31 +649,31 @@ export function SupplyRequestQueue({
                                     {isPending && (canApprove || canReject) && (
                                         <div className="pt-3 border-t border-gray-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
                                             <div className="flex items-center gap-2">
-                                                <span className="text-sm text-gray-500 font-sans">
+                                                <span className="text-sm text-gray-500 font-sans dark:text-slate-300">
                                                     Approval saves the final quantities and deducts stock immediately. Quantities are checked against available warehouse stock and the requester's weekly allowance.
                                                 </span>
                                             </div>
 
                                             <div className="flex items-center gap-2.5">
-                                                {canReject && <button
+                                                {canReject && <Button variant="danger"
                                                     type="button"
                                                     disabled={isBusy}
                                                     onClick={() => openRejectModal(request)}
-                                                    className="px-3 py-1.5 border border-rose-300 dark:border-rose-900 text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded text-sm font-semibold cursor-pointer disabled:opacity-50 transition-colors inline-flex items-center gap-1.5"
+                                                    className="inline-flex items-center gap-1.5"
                                                 >
                                                     <XCircle className="w-3.5 h-3.5" />
                                                     <span>Reject Requisition</span>
-                                                </button>}
+                                                </Button>}
 
-                                                {canApprove && request.status !== 'Ready for Pickup' && <button
+                                                {canApprove && request.status !== 'Ready for Pickup' && <Button variant="primary"
                                                     type="button"
                                                     disabled={isBusy}
                                                     onClick={() => handleApprove(request)}
-                                                    className="px-4 py-1.5 bg-red-950 hover:bg-red-900 text-white rounded text-sm font-bold normal-case tabular-nums tracking-normal shadow-xs cursor-pointer disabled:opacity-50 transition-colors inline-flex items-center gap-1.5"
+                                                    className="tabular-nums inline-flex items-center gap-1.5"
                                                 >
                                                     <CheckCircle2 className="w-3.5 h-3.5 text-amber-300" />
                                                     <span>{isBusy ? 'Processing...' : 'Approve Requisition'}</span>
-                                                </button>}
+                                                </Button>}
                                             </div>
                                         </div>
                                     )}
@@ -706,24 +683,24 @@ export function SupplyRequestQueue({
                                         <div className="pt-3 border-t border-blue-200/80 dark:border-blue-900/60 bg-blue-50/30 dark:bg-blue-950/20 p-3 rounded-lg space-y-3">
                                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                                 <div>
-                                                    <div className="font-bold text-sm text-blue-950 dark:text-blue-200">
+                                                    <div className="font-semibold text-sm text-blue-950 dark:text-blue-200">
                                                         Official RIS No.: {request.ris_number || `RIS-${String(request.id).padStart(4, '0')}`}
                                                     </div>
                                                     <div className="text-sm text-blue-800 dark:text-blue-300">
                                                         Approved by {loginAccount} on{' '}
-                                                        {request.reviewed_at ? formatDisplayDate(getRisCalendarDate(request.reviewed_at), 'MM/DD/YYYY') : '—'}.
+                                                        {request.reviewed_at ? formatScreenDate(getRisCalendarDate(request.reviewed_at)) : '—'}.
                                                     </div>
                                                 </div>
 
                                                 <div className="flex items-center gap-2">
-                                                    <button
+                                                    <Button variant="secondary"
                                                         type="button"
                                                         onClick={() => onPreview(request)}
-                                                        className="px-3 py-1.5 bg-white dark:bg-slate-900 border border-blue-300 dark:border-blue-800 text-blue-900 dark:text-blue-300 hover:bg-blue-50 rounded text-sm font-semibold cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
+                                                        className="inline-flex items-center gap-1.5"
                                                     >
-                                                        <FileText className="w-3.5 h-3.5 text-blue-600" />
+                                                        <FileText className="w-3.5 h-3.5 text-blue-600 dark:text-blue-300" />
                                                         <span>Preview / Print RIS</span>
-                                                    </button>
+                                                    </Button>
 
                                                 </div>
                                             </div>
@@ -733,7 +710,7 @@ export function SupplyRequestQueue({
                                             </p>
 
                                             {/* Release Confirmation */}
-                                            {request.requires_supporting_document && request.status === 'Approved' && can('inventory.requests.ready') && <button type="button" disabled={isBusy} onClick={() => { setBusyId(request.id); router.post(route('inventory.requests.ready', request.id), {}, { preserveScroll: true, onError: errors => setActionError(Object.values(errors).join(' ')), onFinish: () => setBusyId(null) }); }} className="rounded-md bg-red-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Mark Ready for Pickup & Notify Requester</button>}
+                                            {request.requires_supporting_document && request.status === 'Approved' && can('inventory.requests.ready') && <Button variant="primary" type="button" disabled={isBusy} onClick={() => { setBusyId(request.id); router.post(route('inventory.requests.ready', request.id), {}, { preserveScroll: true, onError: errors => setActionError(Object.values(errors).join(' ')), onFinish: () => setBusyId(null) }); }} className="">Mark Ready for Pickup & Notify Requester</Button>}
                                             {canRelease && (!request.requires_supporting_document || request.status === 'Ready for Pickup') && <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-blue-200/50 dark:border-blue-900/40">
                                                 <label className="flex items-start sm:items-center gap-2 text-sm font-medium text-blue-950 dark:text-blue-200 cursor-pointer">
                                                     <input
@@ -745,22 +722,22 @@ export function SupplyRequestQueue({
                                                                 [request.id]: e.target.checked,
                                                             }))
                                                         }
-                                                        className="rounded text-red-900 focus:ring-red-900 mt-0.5 sm:mt-0"
+                                                        className="rounded text-red-900 focus:ring-red-900 mt-0.5 sm:mt-0 dark:text-red-300"
                                                     />
                                                     <span>
                                                         Recipient presented physically signed RIS form. Ready to distribute stock.
                                                     </span>
                                                 </label>
 
-                                                <button
+                                                <Button variant="primary"
                                                     type="button"
                                                     disabled={!signedRisConfirmed[request.id] || isBusy}
                                                     onClick={() => handleRelease(request)}
-                                                    className="px-4 py-1.5 bg-red-950 hover:bg-red-900 text-white rounded text-sm font-bold normal-case tabular-nums tracking-normal shadow-xs cursor-pointer disabled:opacity-40 transition-colors inline-flex items-center justify-center gap-1.5 shrink-0"
+                                                    className="tabular-nums inline-flex items-center justify-center gap-1.5 shrink-0"
                                                 >
                                                     <PackageCheck className="w-3.5 h-3.5 text-amber-300" />
                                                     <span>{isBusy ? 'Releasing...' : 'Confirm Signed Handover & Release'}</span>
-                                                </button>
+                                                </Button>
                                             </div>}
                                         </div>
                                     )}
@@ -769,25 +746,25 @@ export function SupplyRequestQueue({
                                     {isIssued && (
                                         <div className="p-2.5 rounded bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-sm text-emerald-900 dark:text-emerald-300 flex items-center justify-between">
                                             <span className="flex items-center gap-2">
-                                                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                                                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 dark:text-emerald-300" />
                                                 <span>
                                                     Officially distributed on{' '}
                                                     <strong>
                                                         {request.issuance?.date_issued
-                                                            ? formatDisplayDate(request.issuance.date_issued, 'MM/DD/YYYY')
+                                                            ? formatScreenDate(request.issuance.date_issued)
                                                             : '—'}
                                                     </strong>{' '}
                                                     by{' '}
                                                     <strong>{request.issuance?.issued_by_name || 'Storekeeper'}</strong>.
                                                 </span>
                                             </span>
-                                            <button
+                                            <Button variant="secondary"
                                                 type="button"
                                                 onClick={() => onPreview(request)}
-                                                className="text-sm font-semibold underline text-emerald-800 dark:text-emerald-300 cursor-pointer"
+                                                className="underline"
                                             >
                                                 View Archived RIS
-                                            </button>
+                                            </Button>
                                         </div>
                                     )}
                                 </div>
@@ -804,7 +781,7 @@ export function SupplyRequestQueue({
                 maxWidth="md"
                 ariaLabel="Reject Supply Request"
             >
-                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden">
+                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden">
                     <div className="h-1.5 bg-rose-600" />
                     <div className="p-5 space-y-4">
                         <div className="flex items-start gap-3">
@@ -812,7 +789,7 @@ export function SupplyRequestQueue({
                                 <XCircle className="w-5 h-5" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
                                     Reject {rejectingRequest?.ris_number ? `RIS ${rejectingRequest.ris_number}` : `Supply Request #${rejectingRequest?.id}`}
                                 </h3>
                                 <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400">
@@ -826,7 +803,7 @@ export function SupplyRequestQueue({
                                 htmlFor="rejection-reason"
                                 className="block text-sm font-semibold text-gray-700 dark:text-slate-300"
                             >
-                                Rejection Justification / Reason <span className="text-rose-600">*</span>
+                                Rejection Justification / Reason <span className="text-rose-600 dark:text-rose-300">*</span>
                             </label>
                             <textarea
                                 id="rejection-reason"
@@ -835,26 +812,26 @@ export function SupplyRequestQueue({
                                 value={rejectionReason}
                                 onChange={(e) => setRejectionReason(e.target.value)}
                                 placeholder="e.g. Requested item is currently reserved for laboratory operations or out of stock..."
-                                className="w-full p-2.5 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-md text-sm text-gray-900 dark:text-slate-100 focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-600"
+                                className="ui-field w-full p-2.5 bg-white dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-md text-sm text-gray-900 dark:text-slate-100 focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-600"
                             />
                         </div>
 
                         <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-gray-100 dark:border-slate-800">
-                            <button
+                            <Button variant="secondary"
                                 type="button"
                                 onClick={() => setRejectingRequest(null)}
-                                className="px-3.5 py-1.5 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer"
+                                className=""
                             >
                                 Cancel
-                            </button>
-                            <button
+                            </Button>
+                            <Button variant="secondary"
                                 type="button"
                                 disabled={!rejectionReason.trim() || busyId === rejectingRequest?.id}
                                 onClick={handleConfirmReject}
-                                className="px-4 py-1.5 bg-rose-700 hover:bg-rose-800 text-white rounded-md text-sm font-bold normal-case tabular-nums tracking-normal disabled:opacity-50 cursor-pointer"
+                                className="tabular-nums"
                             >
                                 Confirm Rejection
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>

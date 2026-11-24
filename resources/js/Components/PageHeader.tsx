@@ -1,20 +1,19 @@
 import type { ReactNode } from 'react';
 import Breadcrumbs from './Breadcrumbs';
-import MobileSidebarToggle from './MobileSidebarToggle';
 interface PageHeaderProps {
     title: string; description?: string; breadcrumbs?: { name: string; href?: string }[];
     actions?: ReactNode; onToggleSidebar?: () => void;
+    embedded?: boolean;
 }
-export default function PageHeader({ title, description, breadcrumbs = [], actions, onToggleSidebar }: PageHeaderProps) {
+export default function PageHeader({ title, description, breadcrumbs = [], actions, embedded = false }: PageHeaderProps) {
     return <>
-        <section aria-label={`${title} overview`} className="mx-auto w-full min-w-0 max-w-[1600px] px-4 pt-4 sm:px-7 sm:pt-7 lg:px-8 lg:pt-8 print:hidden">
+        <section aria-label={`${title} overview`} className={embedded ? "w-full min-w-0 print:hidden" : "mx-auto w-full min-w-0 max-w-[1600px] px-4 pt-4 sm:px-7 sm:pt-7 lg:px-8 lg:pt-8 print:hidden"}>
             {breadcrumbs.length > 0 && <div className="mb-6"><Breadcrumbs items={breadcrumbs} currentPage={title} /></div>}
             <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                 <div className="flex min-w-0 items-start gap-3">
-                    <MobileSidebarToggle onToggleSidebar={onToggleSidebar} />
                     <div className="min-w-0">
                     <p className="mb-2 text-sm font-semibold text-red-900 dark:text-red-300">Supply &amp; Property Management Office</p>
-                    <h2 className="break-words text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h2>
+                    <h1 className="break-words text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
                     {description && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">{description}</p>}
                     </div>
                 </div>

@@ -74,12 +74,12 @@ const belowMinimum = { id: 4, name: 'Low stock', sku: 'LOW', stock: 5 };
 const atMinimum = { id: 5, name: 'Minimum stock', sku: 'MIN', stock: 10 };
 const render = module.exports.render;
 const fresh = render([stocked, depleted, negative, belowMinimum, atMinimum], [{ item_id: '', quantity: '' }]);
-assert.equal(fresh.selects[0].options.length, 1);
+assert.equal(fresh.selects[0].options.length, 3);
 assert.equal(fresh.selects[0].options[0].value, '1');
 const draft = render([stocked], [{ item_id: '2', quantity: '2' }], {
     items: [{ item_id: 2, item: depleted }],
 });
-assert.match(draft.selects[0].value.label, /Paper.*Unserviceable/);
+assert.match(draft.selects[0].value.label, /Paper.*Stock: 0.*Max request: 0/);
 assert.match(draft.html, /Unserviceable for requisition: out of stock/);
 assert.match(draft.html, /id="req_qty_0"[^>]*disabled=""/);
 const restocked = render([stocked, { ...depleted, stock: 14 }], [{ item_id: '', quantity: '' }]);
@@ -109,7 +109,8 @@ assert.equal(historical.departmentSelect.value.value, 'Previous Unit');
 assert.match(historical.html, /value="Previous Head"/);
 console.log('Department assignment: office-head autofill, locked unit, historical details, and missing-assignment guidance passed.');
 
-const plentiful = { ...stocked, stock: 1500, unit_of_issue: 'piece' };
+// The backend supplies the authoritative limit after reservations and weekly allowance.
+const plentiful = { ...stocked, stock: 1500, max_request_quantity: 1490, unit_of_issue: 'piece' };
 const authorizedPage = { auth: {
     roles: ['Authorized Personnel'], user: { name: 'Requester' },
     capabilities: { coordinatorInventory: true, requiresSupportingDocument: true },
@@ -118,12 +119,12 @@ const document = { supporting_document_type: 'Approved Letter', supporting_docum
 for (const page of [coordinatorPage, authorizedPage]) {
     const excessive = render([plentiful], [{ item_id: '1', quantity: '1499' }], null, page, document);
     assert.match(excessive.html, /id="req_qty_0"[^>]*max="1490"/);
-    assert.match(excessive.html, /Request at most 1490 piece to keep the minimum stock of 10 piece/);
+    assert.match(excessive.html, /Request at most 1490 piece based on available warehouse stock and your weekly allowance/);
     assert.match(excessive.html, /id="req_qty_0"[^>]*aria-invalid="true"/);
     assert.match(excessive.html, /type="submit"[^>]*disabled=""/);
     excessive.submit({ preventDefault() {} });
     assert.equal(excessive.requests.length, 0);
-    assert.match(excessive.errors['items.0.quantity'], /minimum stock of 10/);
+    assert.match(excessive.errors['items.0.quantity'], /weekly allowance/);
 
     const boundary = render([plentiful], [{ item_id: '1', quantity: '1490' }], null, page, document);
     assert.doesNotMatch(boundary.html, /type="submit"[^>]*disabled=""/);
@@ -137,20 +138,20 @@ assert.match(reserved.html, /Request at most 90 piece/);
 assert.match(reserved.selects[0].value.label, /Max request: 90/);
 assert.match(reserved.html, /type="submit"[^>]*disabled=""/);
 
-const configured = render([plentiful], [{ item_id: '1', quantity: '1481' }], null, { minimumStockThreshold: 20 });
+const configured = render([{ ...plentiful, max_request_quantity: 1480 }], [{ item_id: '1', quantity: '1481' }], null, { minimumStockThreshold: 20 });
 assert.match(configured.html, /id="req_qty_0"[^>]*max="1480"/);
-assert.match(configured.html, /minimum stock of 20/);
+assert.match(configured.html, /Request at most 1480 piece/);
 assert.match(configured.html, /type="submit"[^>]*disabled=""/);
 
-const protectedDraft = render([], [{ item_id: '5', quantity: '1' }], { items: [{ item_id: 5, item: atMinimum }] });
-assert.match(protectedDraft.html, /Unavailable for requisition: the minimum stock of 10 units/);
+const protectedDraft = render([], [{ item_id: '5', quantity: '1' }], { items: [{ item_id: 5, item: { ...atMinimum, max_request_quantity: 0, weekly_request_limit: 20, quota_remaining: 0 } }] });
+assert.match(protectedDraft.html, /Your weekly allowance for this item is used/);
 assert.match(protectedDraft.html, /id="req_qty_0"[^>]*disabled=""/);
 assert.match(protectedDraft.html, /type="submit"[^>]*disabled=""/);
 protectedDraft.submit({ preventDefault() {} });
 assert.equal(protectedDraft.requests.length, 0);
-assert.match(protectedDraft.errors['items.0.item_id'], /minimum stock/);
+assert.match(protectedDraft.errors['items.0.item_id'], /weekly allowance/);
 
-console.log('Minimum stock: both roles block excessive submissions, allow the boundary, and honor reservations and configured thresholds.');
+console.log('Request limits: both roles block excessive submissions, allow the boundary, and honor backend reservations and weekly limits.');
 
 const weeklyItem = { ...plentiful, weekly_request_limit: 20, quota_remaining: 5, max_request_quantity: 5 };
 const overQuota = render([weeklyItem], [{ item_id: '1', quantity: '6' }]);

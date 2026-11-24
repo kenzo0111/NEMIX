@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { SupplierRowProps } from '../types';
 import { SupplierStatusBadge } from './SupplierStatusBadge';
@@ -22,11 +23,11 @@ export const SupplierRow: React.FC<SupplierRowProps> = ({
             {/* TIN & Registration Number */}
             <td className="px-6 py-3.5 align-middle whitespace-nowrap text-sm">
                 <div className="text-gray-700 dark:text-slate-300">
-                    <span className="text-gray-400 dark:text-slate-500 font-sans mr-1">TIN:</span>
+                    <span className="text-slate-500 dark:text-slate-400 font-sans mr-1">TIN:</span>
                     <span className="tabular-nums font-medium">{supplier.tin || '—'}</span>
                 </div>
                 <div className="text-gray-700 dark:text-slate-300 mt-0.5">
-                    <span className="text-gray-400 dark:text-slate-500 font-sans mr-1">Reg:</span>
+                    <span className="text-slate-500 dark:text-slate-400 font-sans mr-1">Reg:</span>
                     <span className="tabular-nums font-medium">{supplier.reg_number || '—'}</span>
                 </div>
             </td>
@@ -44,21 +45,21 @@ export const SupplierRow: React.FC<SupplierRowProps> = ({
             {/* Actions: View & Update */}
             <td className="px-6 py-3.5 align-middle whitespace-nowrap min-w-[10rem] text-right">
                 <div className="inline-flex items-center justify-end gap-2 flex-wrap">
-                    <button
+                    <Button variant="secondary"
                         type="button"
                         onClick={() => onView(supplier)}
-                        className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 inline-flex items-center justify-center whitespace-nowrap gap-1.5"
+                        className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
                     >
                         View
-                    </button>
+                    </Button>
                     {can('suppliers.update') && (
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => onEdit(supplier)}
-                            className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-600 font-semibold text-sm min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded transition-colors cursor-pointer shadow-2xs inline-flex items-center justify-center whitespace-nowrap gap-1.5"
+                            className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
                         >
                             Update
-                        </button>
+                        </Button>
                     )}
                 </div>
             </td>

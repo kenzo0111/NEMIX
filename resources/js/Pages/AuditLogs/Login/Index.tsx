@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import DashboardContent from '@/Layouts/DashboardContent';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -140,7 +141,7 @@ export default function LoginAuditIndex({
             <DashboardLayout modules={modules} user={user}>
                 {/* PageHeader is completely hidden in print */}
                 <div className="print:hidden audit-print-hide">
-                    {isCoordinator ? <div className="px-4 pt-4 sm:px-7 lg:px-8"><MobileSidebarToggle /></div> : <PageHeader
+                    {isCoordinator ? <div className="px-4 pt-4 sm:px-7 lg:px-8"><></></div> : <PageHeader
                         title="Login Audit Logs"
                         description="Review sign-ins, access results, and source IP addresses."
                         breadcrumbs={[
@@ -152,22 +153,22 @@ export default function LoginAuditIndex({
 
                 <DashboardContent className="print:p-0 print:m-0 print:space-y-0 print:max-w-none print:w-full">
                     {/* Screen View (Interactive Dashboard Controls) - Hidden on Print */}
-                    <div data-tour="system-admin-login-audit" className={`space-y-6 print:hidden audit-print-hide`}>
+                    <div data-tour="system-admin-login-audit" className="space-y-6 print:hidden audit-print-hide">
                         {isCoordinator && <>
-                            <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300">Coordinator Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Login Audit</span></nav>
+                            <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"><Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300 dark:text-red-300">Coordinator Dashboard</Link><ChevronRight size={13} /><span className="text-slate-700 dark:text-slate-300">Login Audit</span></nav>
                             <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
-                                <div><p className="leading-relaxed mb-2 text-sm font-bold normal-case tracking-normal text-red-900 dark:text-red-300">Supply &amp; Property Management Office</p><h1 className="text-2xl sm:text-3xl font-sans font-bold tracking-tight ">Login Audit</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Review recorded authentication activity, access results, and session details.</p></div>
-                                <button type="button" onClick={handlePrintLedger} className={secondaryButton} title="Print or export official authentication audit ledger"><Printer size={17} />Print Ledger</button>
+                                <div><p className="leading-relaxed mb-2 text-sm font-semibold normal-case tracking-normal text-red-900 dark:text-red-300">Supply &amp; Property Management Office</p><h1 className="text-2xl sm:text-3xl font-sans font-semibold tracking-tight">Login Audit</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Review recorded authentication activity, access results, and session details.</p></div>
+                                <Button variant="secondary" type="button" onClick={handlePrintLedger} className={secondaryButton} title="Print or export official authentication audit ledger"><Printer size={17} />Print Ledger</Button>
                             </section>
                         </>}
                         {/* Subtle Institutional Security Header Banner */}
-                        <div className={`${isCoordinator ? 'hidden' : 'flex'} flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 rounded-lg shadow-2xs`}>
+                        <div className={`${isCoordinator ? "hidden" : "flex"} flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200/90 dark:border-slate-800 rounded-lg shadow-sm`}>
                             <div className="flex items-center gap-2.5">
                                 <div className="p-1.5 bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 rounded-md border border-red-100 dark:border-red-900/40">
                                     <ShieldCheck className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <span className="text-sm font-bold text-gray-900 dark:text-slate-100 normal-case tracking-normal">
+                                    <span className="text-sm font-semibold text-gray-900 dark:text-slate-100 normal-case tracking-normal">
                                         Authentication Audit Ledger
                                     </span>
                                     <span className="hidden sm:inline-block mx-2 text-gray-300 dark:text-slate-700">•</span>
@@ -182,15 +183,15 @@ export default function LoginAuditIndex({
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse"></span>
                                     Active Ledger
                                 </span>
-                                <button
+                                <Button variant="secondary"
                                     type="button"
                                     onClick={handlePrintLedger}
-                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-semibold text-gray-700 dark:text-slate-200 hover:text-gray-900 dark:hover:text-white bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 rounded-md transition-colors shadow-2xs cursor-pointer"
+                                    className="inline-flex items-center gap-1.5"
                                     title="Print or export official authentication audit ledger"
                                 >
                                     <Printer className="w-3.5 h-3.5 text-gray-500 dark:text-slate-400" />
                                     <span>Print Ledger</span>
-                                </button>
+                                </Button>
                             </div>
                         </div>
 

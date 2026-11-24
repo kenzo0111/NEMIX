@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { Search } from 'lucide-react';
 import { Staff, StaffSortKey } from '../types';
@@ -43,9 +44,9 @@ export default function StaffTable({
     onSort,
 }: StaffTableProps) {
     return (
-        <section data-tour="system-admin-staff-directory" aria-label="Staff accounts roster" className="bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl shadow-2xs overflow-hidden flex flex-col w-full min-w-0">
+        <section data-tour="system-admin-staff-directory" aria-label="Staff accounts roster" className="bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden flex flex-col w-full min-w-0">
             <div className="overflow-x-auto min-w-0 w-full">
-                <table className="w-full text-left border-collapse min-w-[60rem]">
+                <table className="ui-data-table w-full text-left border-collapse min-w-[60rem]">
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50/80 dark:bg-slate-800/80 text-sm font-semibold tracking-normal text-gray-600 dark:text-slate-300 normal-case">
                             <SortableTableHeader column="name" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-6 py-3.5 whitespace-nowrap min-w-[12.5rem]">
@@ -100,13 +101,13 @@ export default function StaffTable({
                                                 : 'There are currently no staff accounts registered in the system.'}
                                         </p>
                                         {hasActiveFilters && (
-                                            <button
+                                            <Button variant="secondary"
                                                 type="button"
                                                 onClick={onResetFilters}
-                                                className="mt-4 px-3.5 py-1.5 text-sm font-semibold text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-700 border border-red-900/30 dark:border-red-800/50 rounded-lg transition-colors cursor-pointer shadow-2xs"
+                                                className="mt-4"
                                             >
                                                 Clear search and filters
-                                            </button>
+                                            </Button>
                                         )}
                                     </div>
                                 </td>
@@ -117,7 +118,7 @@ export default function StaffTable({
             </div>
 
             {/* Table Footer */}
-            <div className="px-4 sm:px-6 py-3.5 border-t border-gray-200 dark:border-slate-800 bg-gray-50/60 dark:bg-slate-900/60 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500 dark:text-slate-400">
+            <div className="ui-pagination px-4 sm:px-6 py-3.5 border-t border-gray-200 dark:border-slate-800 bg-gray-50/60 dark:bg-slate-900/60 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500 dark:text-slate-400">
                 <span>
                     Showing <span className="font-semibold text-gray-800 dark:text-slate-200 tabular-nums">{staffs.length}</span> of{' '}
                     <span className="font-semibold text-gray-800 dark:text-slate-200 tabular-nums">{totalStaffCount}</span> staff accounts

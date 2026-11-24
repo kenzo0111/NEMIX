@@ -174,8 +174,7 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
         .ris-container .main-table td {
             height: auto;
         }
-        .ris-container .main-table tr.empty-row td,
-        .ris-container .empty-row td {
+        .ris-container .main-table tr.empty-row td, .ris-container .empty-row td {
             height: 4mm !important;
             min-height: 4mm !important;
             padding: 0 1mm !important;
@@ -239,7 +238,7 @@ export const RequisitionIssueSlip: React.FC<RequisitionIssueSlipProps> = ({ data
         }
       `}</style>
 
-      <div className="ris-container">
+      <div data-paper-preview className="ris-container">
         <div className="header-title">Appendix 63</div>
 
         <div className="main-title">REQUISITION AND ISSUE SLIP</div>

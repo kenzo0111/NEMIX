@@ -15,7 +15,7 @@ export default function SupplierStatusCard({ summary, className = '' }: Supplier
     const blacklisted = summary?.blacklisted ?? 0;
 
     return (
-        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs flex flex-col justify-between h-full min-w-0 ${className}`}>
+        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm flex flex-col justify-between h-full min-w-0 ${className}`}>
             <div>
                 {/* Header */}
                 <div className="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-100 dark:border-slate-800">
@@ -23,11 +23,11 @@ export default function SupplierStatusCard({ summary, className = '' }: Supplier
                         <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
                             <Building2 className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-lg font-bold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
                             Supplier Registry Status
                         </h3>
                     </div>
-                    <span className="text-sm tabular-nums font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shrink-0">
+                    <span className="text-sm tabular-nums font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shrink-0">
                         {total} Total
                     </span>
                 </div>
@@ -38,7 +38,7 @@ export default function SupplierStatusCard({ summary, className = '' }: Supplier
                         <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 normal-case tracking-normal block">
                             Active
                         </span>
-                        <span className="text-base font-bold tabular-nums text-emerald-700 dark:text-emerald-400 mt-0.5 block truncate">
+                        <span className="text-base font-semibold tabular-nums text-emerald-700 dark:text-emerald-400 mt-0.5 block truncate">
                             {active}
                         </span>
                     </div>
@@ -46,7 +46,7 @@ export default function SupplierStatusCard({ summary, className = '' }: Supplier
                         <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 normal-case tracking-normal block">
                             Pending
                         </span>
-                        <span className="text-base font-bold tabular-nums text-amber-700 dark:text-amber-400 mt-0.5 block truncate">
+                        <span className="text-base font-semibold tabular-nums text-amber-700 dark:text-amber-400 mt-0.5 block truncate">
                             {pending}
                         </span>
                     </div>
@@ -54,7 +54,7 @@ export default function SupplierStatusCard({ summary, className = '' }: Supplier
                         <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 normal-case tracking-normal block">
                             Blacklist
                         </span>
-                        <span className="text-base font-bold tabular-nums text-slate-700 dark:text-slate-300 mt-0.5 block truncate">
+                        <span className="text-base font-semibold tabular-nums text-slate-700 dark:text-slate-300 mt-0.5 block truncate">
                             {blacklisted}
                         </span>
                     </div>

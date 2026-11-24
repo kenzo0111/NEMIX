@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { useDashboardScope } from '../useDashboardScope';
 import { Link, router } from '@inertiajs/react';
@@ -32,47 +33,41 @@ export default function InventoryMovementOverview({
     const endingBalance = movementSummary?.ending_balance ?? 0;
 
     return (
-        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs flex flex-col justify-between h-full min-w-0 transition-colors ${className}`}>
+        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm flex flex-col justify-between h-full min-w-0 transition-colors ${className}`}>
             {/* Header & Controls */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800 min-w-0">
                 <div className="flex items-center gap-2 min-w-0">
                     <span className="h-2 w-2 rounded-full bg-red-900 dark:bg-red-400 shrink-0"></span>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 normal-case tracking-normal truncate">
+                    <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 normal-case tracking-normal truncate">
                         Inventory Movement Overview
                     </h2>
                 </div>
 
-                <div className="flex items-center gap-2.5 shrink-0">
+                <div className="flex max-w-full flex-wrap items-center gap-2.5">
                     {/* Simplified Period Toggle: Monthly / Yearly */}
                     <div
                         role="group"
                         aria-label="Movement chart period"
                         className="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm shrink-0"
                     >
-                        <button
+                        <Button variant="unstyled"
                             type="button"
                             aria-pressed={currentFilter === 'monthly'}
                             onClick={() => handleFilterChange('monthly')}
-                            className={`px-2 py-0.5 rounded-md text-sm font-semibold transition-all cursor-pointer ${
-                                currentFilter === 'monthly'
-                                    ? 'bg-white dark:bg-slate-900 text-red-950 dark:text-amber-300 shadow-xs'
-                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                            }`}
+                            className={`px-2 py-0.5 rounded-md text-sm font-semibold transition-all cursor-pointer ${currentFilter === 'monthly'
+    ? "bg-white dark:bg-slate-900 text-red-950 dark:text-amber-300 shadow-sm" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}`}
                         >
                             Last 6 Months
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="unstyled"
                             type="button"
                             aria-pressed={currentFilter === 'yearly'}
                             onClick={() => handleFilterChange('yearly')}
-                            className={`px-2 py-0.5 rounded-md text-sm font-semibold transition-all cursor-pointer ${
-                                currentFilter === 'yearly'
-                                    ? 'bg-white dark:bg-slate-900 text-red-950 dark:text-amber-300 shadow-xs'
-                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                            }`}
+                            className={`px-2 py-0.5 rounded-md text-sm font-semibold transition-all cursor-pointer ${currentFilter === 'yearly'
+    ? "bg-white dark:bg-slate-900 text-red-950 dark:text-amber-300 shadow-sm" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}`}
                         >
                             Last 5 Years
-                        </button>
+                        </Button>
                     </div>
 
                     <Link
@@ -104,7 +99,7 @@ export default function InventoryMovementOverview({
                         </div>
                     </div>
 
-                    <div className="text-sm text-slate-400 dark:text-slate-500 font-medium shrink-0">
+                    <div className="text-sm text-slate-500 dark:text-slate-400 font-medium shrink-0">
                         {currentFilter === 'yearly' ? 'Annual Consolidated' : 'Monthly Tracking'}
                     </div>
                 </div>
@@ -120,8 +115,8 @@ export default function InventoryMovementOverview({
                     <span className="block text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal">
                         Total Received
                     </span>
-                    <span className="text-sm sm:text-base font-bold tabular-nums text-emerald-700 dark:text-emerald-400 mt-0.5 block truncate">
-                        +{receivedCount.toLocaleString()} <span className="text-sm font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
+                    <span className="text-sm sm:text-base font-semibold tabular-nums text-emerald-700 dark:text-emerald-400 mt-0.5 block truncate">
+                        +{receivedCount.toLocaleString('en-PH')} <span className="text-sm font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
                     </span>
                 </div>
 
@@ -129,8 +124,8 @@ export default function InventoryMovementOverview({
                     <span className="block text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal">
                         Total Dispatched
                     </span>
-                    <span className="text-sm sm:text-base font-bold tabular-nums text-amber-700 dark:text-amber-400 mt-0.5 block truncate">
-                        -{issuedCount.toLocaleString()} <span className="text-sm font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
+                    <span className="text-sm sm:text-base font-semibold tabular-nums text-amber-700 dark:text-amber-400 mt-0.5 block truncate">
+                        -{issuedCount.toLocaleString('en-PH')} <span className="text-sm font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
                     </span>
                 </div>
 
@@ -138,8 +133,8 @@ export default function InventoryMovementOverview({
                     <span className="block text-sm font-semibold text-slate-500 dark:text-slate-400 normal-case tracking-normal">
                         Current Balance
                     </span>
-                    <span className="text-sm sm:text-base font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
-                        {endingBalance.toLocaleString()} <span className="text-sm font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
+                    <span className="text-sm sm:text-base font-semibold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5 block truncate">
+                        {endingBalance.toLocaleString('en-PH')} <span className="text-sm font-sans text-slate-500 dark:text-slate-400 font-normal">units</span>
                     </span>
                 </div>
             </div>

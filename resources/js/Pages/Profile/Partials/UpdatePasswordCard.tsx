@@ -23,10 +23,10 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
         <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 ${className}`}>
             {/* Left Column: Security Advisory & Policy */}
             <div className="lg:col-span-4 space-y-6">
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden">
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
                     <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-850/60 flex items-center gap-2">
                         <Shield className="w-4 h-4 text-red-900 dark:text-red-400" />
-                        <h3 className="text-lg font-bold font-sans text-slate-900 dark:text-slate-100 normal-case tracking-normal">
+                        <h3 className="text-lg font-semibold font-sans text-slate-900 dark:text-slate-100 normal-case tracking-normal">
                             Security Protocol
                         </h3>
                     </div>
@@ -83,7 +83,7 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
 
             {/* Right Column: Interactive Password Flow Form */}
             <div className="lg:col-span-8">
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden">
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
                     {/* Top Decorative Line */}
                     <div className="h-1 bg-red-900 dark:bg-red-800 w-full" />
 
@@ -94,7 +94,7 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                                 <KeyRound className="w-4 h-4" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold font-sans text-slate-900 dark:text-slate-100">
+                                <h2 className="text-xl font-semibold font-sans text-slate-900 dark:text-slate-100">
                                     Security Credentials
                                 </h2>
                                 <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
@@ -114,15 +114,11 @@ export default function UpdatePasswordCard({ className = '', userEmail }: Props)
                                 return (
                                     <div
                                         key={s.id}
-                                        className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-semibold transition-all ${
-                                            isCurrent
-                                                ? 'bg-white dark:bg-slate-900 text-red-950 dark:text-red-300 shadow-2xs border border-slate-200/80 dark:border-slate-700'
-                                                : isPast
-                                                ? 'text-emerald-700 dark:text-emerald-400'
-                                                : 'text-slate-400 dark:text-slate-500'
-                                        }`}
+                                        className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-semibold transition-all ${isCurrent
+    ? "bg-white dark:bg-slate-900 text-red-950 dark:text-red-300 shadow-sm border border-slate-200/80 dark:border-slate-700" : isPast
+    ? "text-emerald-700 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}`}
                                     >
-                                        <s.icon className={`w-3 h-3 ${isCurrent ? 'text-red-900 dark:text-red-400' : isPast ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`} />
+                                        <s.icon className={`w-3 h-3 ${isCurrent ? "text-red-900 dark:text-red-400" : isPast ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}`} />
                                         <span className="hidden sm:inline">{s.label}</span>
                                     </div>
                                 );

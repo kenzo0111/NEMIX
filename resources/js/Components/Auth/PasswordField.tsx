@@ -38,11 +38,13 @@ export default function PasswordField({
     return (
         <div className={className}>
             <InputLabel htmlFor={id} value={label} className="text-stone-900 dark:text-slate-200 font-semibold text-sm mb-1.5 font-sans" />
-            <div className="relative rounded-lg shadow-2xs">
+            <div className="relative rounded-lg shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-500 dark:text-slate-400">
                     <Lock className="w-4 h-4 text-stone-500 dark:text-slate-400" strokeWidth={2} aria-hidden="true" />
                 </div>
                 <AuthTextInput
+                    aria-invalid={Boolean(error)}
+                    aria-describedby={error ? `${id}-error` : undefined}
                     id={id}
                     type={showPassword ? 'text' : 'password'}
                     name={name || id}
@@ -70,7 +72,7 @@ export default function PasswordField({
                     )}
                 </button>
             </div>
-            <InputError message={error} className="mt-1.5 text-sm font-medium text-red-700 dark:text-red-400 font-sans" />
+            <InputError id={`${id}-error`} message={error} className="mt-1.5 text-sm font-medium text-red-700 dark:text-red-400 font-sans" />
         </div>
     );
 }

@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import DashboardContent from '@/Layouts/DashboardContent';
 import { notify } from '@/utils/notifications';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
@@ -322,41 +323,33 @@ export default function IssuanceIndex({
                     {/* Custodian Workspace View Switcher Tabs */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-slate-800 pb-2">
                         <div className="flex items-center gap-2">
-                            {canReviewRequests && <button
+                            {canReviewRequests && <Button variant="tab"
                                 type="button"
                                 onClick={() => setViewMode('approvals')}
                                 aria-pressed={viewMode === 'approvals'}
-                                className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                                    viewMode === 'approvals'
-                                        ? 'bg-red-950 text-white shadow-xs'
-                                        : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800'
-                                }`}
+                                className="flex items-center gap-2"
                             >
                                 <ClipboardCheck className="w-4 h-4 text-amber-300" />
                                 <span>Requisition Approval Workspace</span>
                                 {(pendingCount > 0 || approvedCount > 0) && (
-                                    <span className="px-1.5 py-0.5 rounded-full text-sm tabular-nums bg-amber-500 text-slate-950 font-bold">
+                                    <span className="px-1.5 py-0.5 rounded-full text-sm tabular-nums bg-amber-500 text-slate-950 font-semibold">
                                         {pendingCount + approvedCount}
                                     </span>
                                 )}
-                            </button>}
+                            </Button>}
 
-                            <button
+                            <Button variant="tab"
                                 type="button"
                                 onClick={() => setViewMode('issuances')}
                                 aria-pressed={viewMode === 'issuances'}
-                                className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                                    viewMode === 'issuances'
-                                        ? 'bg-red-950 text-white shadow-xs'
-                                        : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800'
-                                }`}
+                                className="flex items-center gap-2"
                             >
                                 <PackageCheck className="w-4 h-4 text-amber-300" />
                                 <span>Issuance Registry & Slips</span>
-                                <span className="px-1.5 py-0.5 rounded-full text-sm tabular-nums bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-slate-300 font-bold">
+                                <span className="px-1.5 py-0.5 rounded-full text-sm tabular-nums bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-slate-300 font-semibold">
                                     {rawList.length}
                                 </span>
-                            </button>
+                            </Button>
                         </div>
                     </div>
 
@@ -374,7 +367,7 @@ export default function IssuanceIndex({
 
                     {/* View 2: Official Issuance Registry & Slips Table */}
                     {viewMode === 'issuances' && (
-                        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-gray-200/80 dark:border-slate-800 overflow-hidden">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200/80 dark:border-slate-800 overflow-hidden">
                             <IssuanceToolbar
                                 searchTerm={searchTerm}
                                 onSearchChange={handleSearchChange}

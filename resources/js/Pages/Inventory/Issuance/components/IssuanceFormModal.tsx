@@ -1,3 +1,6 @@
+import { DialogHeader } from '@/Components/ui/dialog-frame';
+import Field from '@/Components/ui/field';
+import { Button } from '@/Components/ui/button';
 import React, { useMemo } from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
@@ -141,18 +144,18 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
 
     return (
         <Modal show={show} onClose={handleModalClose} maxWidth="3xl" closeable={!form.processing} ariaLabel="Record Stock Issuance">
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden flex flex-col max-h-[90vh]">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Formal Administrative Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-900/75 flex-shrink-0">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-900/75 flex-shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-2xs shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-400 flex items-center justify-center border border-red-100/80 dark:border-red-900/50 shadow-sm shrink-0">
                             <FileSpreadsheet className="w-5 h-5 text-red-900 dark:text-red-400" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                 Record Stock Issuance
                             </h3>
                             <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium truncate">
@@ -160,16 +163,16 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                             </p>
                         </div>
                     </div>
-                    <button
+                    <Button variant="ghost" size="icon"
                         type="button"
                         onClick={handleModalClose}
                         disabled={form.processing}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 cursor-pointer shrink-0 ml-2"
+                        className="shrink-0 ml-2"
                         aria-label="Close"
                     >
                         <X className="w-5 h-5" />
-                    </button>
-                </div>
+                    </Button>
+                </DialogHeader>
 
                 {/* Form Body */}
                 <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto max-h-[75vh] space-y-6 text-sm">
@@ -177,17 +180,15 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                     {/* SECTION 1: Recipient Information */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
-                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
+                            <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 1. Recipient Information
                             </h4>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="issuance_recipient" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                            <Field id="issuance_recipient" label={<>
                                     Recipient Name <span className="text-red-600" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
-                                </label>
-                                <input
+                                </>} error={form.errors.recipient} ><input
                                     id="issuance_recipient"
                                     name="recipient"
                                     type="text"
@@ -198,21 +199,13 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     value={form.data.recipient}
                                     onChange={(e) => form.setData('recipient', e.target.value)}
                                     placeholder="Full name of requesting personnel"
-                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
-                                        form.errors.recipient ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
-                                    }`}
-                                />
-                                {form.errors.recipient && (
-                                    <p id="issuance_recipient-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.recipient}</p>
-                                )}
-                            </div>
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.recipient ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                /></Field>
 
-                            <div>
-                                <label htmlFor="issuance_date_issued" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                            <Field id="issuance_date_issued" label={<>
                                     Date Issued <span className="text-red-600" aria-hidden="true">*</span>
                                     <span className="sr-only"> (required)</span>
-                                </label>
-                                <input
+                                </>} error={form.errors.date_issued} ><input
                                     id="issuance_date_issued"
                                     name="date_issued"
                                     type="date"
@@ -222,20 +215,12 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     aria-describedby={form.errors.date_issued ? 'issuance_date_issued-error' : undefined}
                                     value={form.data.date_issued}
                                     onChange={(e) => form.setData('date_issued', e.target.value)}
-                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
-                                        form.errors.date_issued ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
-                                    }`}
-                                />
-                                {form.errors.date_issued && (
-                                    <p id="issuance_date_issued-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.date_issued}</p>
-                                )}
-                            </div>
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.date_issued ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                /></Field>
 
-                            <div>
-                                <label htmlFor="issuance_department" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                            <Field id="issuance_department" label={<>
                                     Division / Office
-                                </label>
-                                <Select
+                                </>} error={form.errors.department} ><Select
                                     inputId="issuance_department"
                                     name="department"
                                     aria-label="Division or Office"
@@ -249,17 +234,11 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     classNamePrefix="react-select"
                                     isSearchable
                                     isClearable
-                                />
-                                {form.errors.department && (
-                                    <p id="issuance_department-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.department}</p>
-                                )}
-                            </div>
+                                /></Field>
 
-                            <div>
-                                <label htmlFor="issuance_recipient_designation" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                            <Field id="issuance_recipient_designation" label={<>
                                     Recipient Designation
-                                </label>
-                                <input
+                                </>} error={form.errors.recipient_designation} ><input
                                     id="issuance_recipient_designation"
                                     name="recipient_designation"
                                     type="text"
@@ -268,32 +247,22 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     value={form.data.recipient_designation}
                                     onChange={(e) => form.setData('recipient_designation', e.target.value)}
                                     placeholder="e.g. Dean, Department Head, Faculty"
-                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
-                                        form.errors.recipient_designation ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
-                                    }`}
-                                />
-                                {form.errors.recipient_designation && (
-                                    <p id="issuance_recipient_designation-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
-                                        {form.errors.recipient_designation}
-                                    </p>
-                                )}
-                            </div>
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.recipient_designation ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                /></Field>
                         </div>
                     </div>
 
                     {/* SECTION 2: Accounting Information */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
-                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
+                            <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 2. Accounting Information
                             </h4>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="issuance_fund_cluster" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                            <Field id="issuance_fund_cluster" label={<>
                                     Fund Cluster
-                                </label>
-                                <Select
+                                </>} error={form.errors.fund_cluster} ><Select
                                     inputId="issuance_fund_cluster"
                                     name="fund_cluster"
                                     aria-label="Fund Cluster"
@@ -305,17 +274,11 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     placeholder="Select government fund cluster..."
                                     styles={getInstitutionalSelectStyles(Boolean(form.errors.fund_cluster))}
                                     classNamePrefix="react-select"
-                                />
-                                {form.errors.fund_cluster && (
-                                    <p id="issuance_fund_cluster-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.fund_cluster}</p>
-                                )}
-                            </div>
+                                /></Field>
 
-                            <div>
-                                <label htmlFor="issuance_purpose" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                            <Field id="issuance_purpose" label={<>
                                     Purpose
-                                </label>
-                                <input
+                                </>} error={form.errors.purpose} ><input
                                     id="issuance_purpose"
                                     name="purpose"
                                     type="text"
@@ -324,33 +287,27 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     value={form.data.purpose}
                                     onChange={(e) => form.setData('purpose', e.target.value)}
                                     placeholder="Purpose of supply requisition"
-                                    className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
-                                        form.errors.purpose ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
-                                    }`}
-                                />
-                                {form.errors.purpose && (
-                                    <p id="issuance_purpose-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{form.errors.purpose}</p>
-                                )}
-                            </div>
+                                    className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${form.errors.purpose ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
+                                /></Field>
                         </div>
                     </div>
 
                     {/* SECTION 3: Items to Issue */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
-                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
+                            <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 3. Items to Issue
                             </h4>
-                            <button
+                            <Button variant="secondary"
                                 type="button"
                                 onClick={handleAddItem}
-                                className="text-red-950 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-semibold text-sm flex items-center gap-1.5 cursor-pointer py-1 px-2 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+                                className="flex items-center gap-1.5"
                             >
                                 <svg className="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                                 </svg>
                                 + Add another item
-                            </button>
+                            </Button>
                         </div>
 
                         {form.errors.issuances && (
@@ -381,14 +338,14 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                     {/* SECTION 4: Authorization */}
                     <div>
                         <div className="pb-2 mb-3 border-b border-gray-200 dark:border-slate-800">
-                            <h4 className="text-base font-bold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
+                            <h4 className="text-base font-semibold normal-case tracking-normal text-red-950 dark:text-red-400 tabular-nums">
                                 4. Authorization (System Signatories)
                             </h4>
                         </div>
                         <div className="space-y-4">
                             {/* Approved By Row */}
                             <div>
-                                <span className="block text-sm font-bold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
+                                <span className="block text-sm font-semibold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
                                     Approved By (Section B)
                                 </span>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -400,7 +357,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                             type="text"
                                             value={form.data.approved_by}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
@@ -411,7 +368,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                             type="text"
                                             value={form.data.approved_by_designation}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
@@ -422,7 +379,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                             type="date"
                                             value={form.data.date_issued}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -430,7 +387,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
 
                             {/* Issued By Row */}
                             <div>
-                                <span className="block text-sm font-bold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
+                                <span className="block text-sm font-semibold normal-case tracking-normal text-gray-500 dark:text-slate-400 mb-2 tabular-nums">
                                     Issued By (Section C)
                                 </span>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -442,7 +399,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                             type="text"
                                             value={form.data.issued_by_name}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
@@ -453,7 +410,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                             type="text"
                                             value={form.data.issued_by_position}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
@@ -464,7 +421,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                             type="date"
                                             value={form.data.date_issued}
                                             readOnly
-                                            className="w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
+                                            className="ui-field w-full h-10 px-3 bg-gray-100 dark:bg-slate-800/60 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-700 dark:text-slate-300 cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -474,18 +431,18 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
 
                     {/* Footer Actions */}
                     <div className="pt-4 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={handleModalClose}
                             disabled={form.processing}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-40 cursor-pointer text-center"
+                            className="w-full sm:w-auto text-center"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="primary"
                             type="submit"
                             disabled={form.processing}
-                            className="w-full sm:w-auto px-5 py-2 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-sm font-bold rounded-md shadow-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 normal-case tabular-nums tracking-normal cursor-pointer"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 tabular-nums"
                         >
                             {form.processing ? (
                                 <>
@@ -507,7 +464,7 @@ export const IssuanceFormModal: React.FC<IssuanceFormModalProps> = ({
                                     Record Issuance
                                 </>
                             )}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

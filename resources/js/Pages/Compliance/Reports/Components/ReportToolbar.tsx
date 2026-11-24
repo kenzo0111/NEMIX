@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import Select from 'react-select';
 import { institutionalSelectStyles } from '@/styles/selectStyles';
@@ -32,7 +33,7 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
     return (
         <div className="table-toolbar px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-gray-200/80 dark:border-slate-800 flex flex-col 2xl:flex-row items-stretch 2xl:items-center justify-between gap-4 bg-gray-50/50 dark:bg-slate-900/50">
             <div className="min-w-0">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
                     Official COA Documents
                 </h3>
                 <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 font-medium mt-1">
@@ -44,7 +45,7 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 w-full 2xl:w-auto min-w-0">
                 {/* Search Input */}
                 <div className="relative w-full sm:w-64">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                                 strokeLinecap="round"
@@ -59,7 +60,7 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
                         value={searchTerm}
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search documents..."
-                        className="table-control w-full pl-9 pr-3 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-xs placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
+                        className="ui-field table-control w-full pl-9 pr-3 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm placeholder-gray-400 dark:placeholder-slate-500 transition-colors"
                     />
                 </div>
 
@@ -77,28 +78,28 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
                 </div>
 
                 {/* Migrate Historical Data Button */}
-                {canAny(['compliance.migrations.store', 'compliance.migrate.stock_card', 'compliance.migrate.memorandum_receipt']) && <button
+                {canAny(['compliance.migrations.store', 'compliance.migrate.stock_card', 'compliance.migrate.memorandum_receipt']) && <Button variant="secondary"
                     type="button"
                     onClick={onOpenMigration}
-                    className="table-control w-full sm:w-auto border border-red-900/30 dark:border-red-800/50 text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-800 font-bold px-3.5 rounded-md transition-colors text-sm flex items-center justify-center gap-2 whitespace-nowrap normal-case tabular-nums tracking-normal cursor-pointer shadow-2xs"
+                    className="table-control w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
                 >
-                    <svg className="w-4 h-4 text-red-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-red-900 dark:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
                     </svg>
                     Migrate Data
-                </button>}
+                </Button>}
 
                 {/* Generate Report Button (Primary action button matching Record Issuance) */}
-                {can('compliance.reports.store') && can('compliance.reports.preview_dataset') && <button
+                {can('compliance.reports.store') && can('compliance.reports.preview_dataset') && <Button variant="primary"
                     type="button"
                     onClick={onOpenGenerate}
-                    className="table-control w-full sm:w-auto bg-red-950 hover:bg-red-900 active:bg-red-950 text-white font-bold px-4 rounded-md shadow-xs transition-colors text-sm flex items-center justify-center gap-2 whitespace-nowrap normal-case tabular-nums tracking-normal cursor-pointer"
+                    className="table-control w-full sm:w-auto flex items-center justify-center gap-2 tabular-nums"
                 >
                     <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
                     Generate Report
-                </button>}
+                </Button>}
             </div>
         </div>
     );

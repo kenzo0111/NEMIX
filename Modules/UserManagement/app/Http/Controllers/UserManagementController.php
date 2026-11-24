@@ -16,7 +16,7 @@ class UserManagementController extends Controller
         if (request()->expectsJson()) {
             return response()->json(['message' => 'User Management Module API']);
         }
-        return view('usermanagement::index');
+        return redirect()->route('access-control.staffs');
     }
 
     /**
@@ -24,6 +24,9 @@ class UserManagementController extends Controller
      */
     public function create()
     {
+        if (!request()->expectsJson()) {
+            return redirect()->route('access-control.staffs');
+        }
         return view('usermanagement::create');
     }
 
@@ -37,6 +40,9 @@ class UserManagementController extends Controller
      */
     public function show($id)
     {
+        if (!request()->expectsJson()) {
+            return redirect()->route('access-control.staffs');
+        }
         return view('usermanagement::show');
     }
 
@@ -45,6 +51,9 @@ class UserManagementController extends Controller
      */
     public function edit($id)
     {
+        if (!request()->expectsJson()) {
+            return redirect()->route('access-control.staffs');
+        }
         return view('usermanagement::edit');
     }
 

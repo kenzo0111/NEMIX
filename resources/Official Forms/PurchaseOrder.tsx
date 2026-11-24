@@ -94,47 +94,47 @@ export const PurchaseOrder: React.FC<PurchaseOrderProps> = (props) => {
             line-height: 1.15;
             box-sizing: border-box;
         }
-        .po-doc { background: #fff; padding: 4px 6px; box-sizing: border-box; position: relative; }
-        .annex-label { position: absolute; top: 4px; right: 8px; font-size: 16pt; font-weight: 700; color: #000; font-style: italic; }
-        table { border-collapse: collapse; width: 100%; font-size: 8pt; }
-        td { vertical-align: top; padding: 2px 3px; line-height: 1.1; }
+        .po-container .po-doc { background: #fff; padding: 4px 6px; box-sizing: border-box; position: relative; }
+        .po-container .annex-label { position: absolute; top: 4px; right: 8px; font-size: 16pt; font-weight: 700; color: #000; font-style: italic; }
+        .po-container table { border-collapse: collapse; width: 100%; font-size: 8pt; }
+        .po-container td { vertical-align: top; padding: 2px 3px; line-height: 1.1; }
         
         /* Utility Classes recreated from HTML */
-        .table-cell-border { border-right: 1px solid #000; border-top: 1px solid #000; }
-        .table-cell-border-right { border-right: 1px solid #000; }
-        .table-cell-border-top { border-top: 1px solid #000; }
-        .table-border-2 { border: 1.5px solid #000; }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .font-semibold { font-weight: 600; }
-        .font-bold { font-weight: 700; }
+        .po-container .table-cell-border { border-right: 1px solid #000; border-top: 1px solid #000; }
+        .po-container .table-cell-border-right { border-right: 1px solid #000; }
+        .po-container .table-cell-border-top { border-top: 1px solid #000; }
+        .po-container .table-border-2 { border: 1.5px solid #000; }
+        .po-container .text-center { text-align: center; }
+        .po-container .text-right { text-align: right; }
+        .po-container .font-semibold { font-weight: 600; }
+        .po-container .font-bold { font-weight: 700; }
         
         /* Inline style replacements */
-        .center-margin-bottom { text-align: center; margin-bottom: 4px; }
-        .h1-po { font-size: 11.5pt; font-weight: 700; margin: 0 0 2px; letter-spacing: 0.3px; }
-        .p-underline { font-size: 9.5pt; text-decoration: underline; margin: 0 0 1px; }
-        .p-italic-gray { font-size: 8pt; font-style: italic; margin: 0; color: #444; }
-        .width-15 { width: 15%; }
-        .width-45 { width: 45%; }
-        .width-25 { width: 25%; }
-        .padding-12 { padding: 4px 6px; }
-        .font-size-12 { font-size: 8.5pt; }
-        .width-13 { width: 13%; }
-        .width-8 { width: 8%; }
-        .width-39 { width: 39%; }
-        .width-10 { width: 10%; }
-        .signature-cell { height: auto; min-height: auto; vertical-align: top; padding: 4px 6px; }
-        .p-italic-small-margin { margin-bottom: 3px; font-style: italic; font-size: 7.5pt; line-height: 1.1; }
-        .signature-line { width: 160px; margin: 0 auto 3px; height: 20px; border-bottom: 1.5px solid #000; }
-        .p-italic-small { font-size: 7.5pt; font-style: italic; line-height: 1.1; }
-        .flex-center { margin-top: 3px; display: flex; align-items: center; justify-content: center; }
-        .span-small-margin { font-size: 7.5pt; margin-right: 4px; }
-        .date-line { border-bottom: 1px solid black; display: inline-block; width: 70px; padding-bottom: 1px; }
-        .center-margin-top { text-align: center; margin-top: 6px; }
-        .width-35 { width: 35%; }
-        .accountant-cell { padding: 4px 6px; height: auto; min-height: auto; vertical-align: bottom; }
-        .accountant-signature { height: 24px; border-bottom: 1.5px solid #000; margin: 0 auto 2px; width: 160px; display: flex; align-items: flex-end; justify-content: center; font-size: 8pt; }
-        .p-bold-small-margin { font-size: 8pt; font-weight: 700; margin: 2px 0 0; }
+        .po-container .center-margin-bottom { text-align: center; margin-bottom: 4px; }
+        .po-container .h1-po { font-size: 11.5pt; font-weight: 700; margin: 0 0 2px; letter-spacing: 0.3px; }
+        .po-container .p-underline { font-size: 9.5pt; text-decoration: underline; margin: 0 0 1px; }
+        .po-container .p-italic-gray { font-size: 8pt; font-style: italic; margin: 0; color: #444; }
+        .po-container .width-15 { width: 15%; }
+        .po-container .width-45 { width: 45%; }
+        .po-container .width-25 { width: 25%; }
+        .po-container .padding-12 { padding: 4px 6px; }
+        .po-container .font-size-12 { font-size: 8.5pt; }
+        .po-container .width-13 { width: 13%; }
+        .po-container .width-8 { width: 8%; }
+        .po-container .width-39 { width: 39%; }
+        .po-container .width-10 { width: 10%; }
+        .po-container .signature-cell { height: auto; min-height: auto; vertical-align: top; padding: 4px 6px; }
+        .po-container .p-italic-small-margin { margin-bottom: 3px; font-style: italic; font-size: 7.5pt; line-height: 1.1; }
+        .po-container .signature-line { width: 160px; margin: 0 auto 3px; height: 20px; border-bottom: 1.5px solid #000; }
+        .po-container .p-italic-small { font-size: 7.5pt; font-style: italic; line-height: 1.1; }
+        .po-container .flex-center { margin-top: 3px; display: flex; align-items: center; justify-content: center; }
+        .po-container .span-small-margin { font-size: 7.5pt; margin-right: 4px; }
+        .po-container .date-line { border-bottom: 1px solid black; display: inline-block; width: 70px; padding-bottom: 1px; }
+        .po-container .center-margin-top { text-align: center; margin-top: 6px; }
+        .po-container .width-35 { width: 35%; }
+        .po-container .accountant-cell { padding: 4px 6px; height: auto; min-height: auto; vertical-align: bottom; }
+        .po-container .accountant-signature { height: 24px; border-bottom: 1.5px solid #000; margin: 0 auto 2px; width: 160px; display: flex; align-items: flex-end; justify-content: center; font-size: 8pt; }
+        .po-container .p-bold-small-margin { font-size: 8pt; font-weight: 700; margin: 2px 0 0; }
         
         @media print { 
             body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } 
@@ -142,7 +142,7 @@ export const PurchaseOrder: React.FC<PurchaseOrderProps> = (props) => {
         }
       `}</style>
 
-      <div className="po-container">
+      <div data-paper-preview className="po-container">
         <div className="po-doc">
           <div className="center-margin-bottom">
             <div className="annex-label">Appendix 6.1</div>

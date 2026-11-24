@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { Check, AlertTriangle, AlertCircle, Info, X } from 'lucide-react';
 import { NotificationState } from '../types';
@@ -41,7 +42,7 @@ export default function StaffNotification({ notification, onDismiss }: StaffNoti
 
     return (
         <div
-            className={`border rounded-xl p-4 flex items-start gap-3 shadow-2xs transition-all ${bg}`}
+            className={`border rounded-xl p-4 flex items-start gap-3 shadow-sm transition-all ${bg}`}
             role="alert"
         >
             <div className={`shrink-0 mt-0.5 ${iconBg}`}>
@@ -53,14 +54,14 @@ export default function StaffNotification({ notification, onDismiss }: StaffNoti
                 )}
                 <p className="font-medium leading-relaxed">{notification.message}</p>
             </div>
-            <button
+            <Button variant="ghost" size="icon"
                 type="button"
                 onClick={onDismiss}
-                className={`p-1 rounded-lg transition-colors shrink-0 cursor-pointer ${closeHover}`}
+                className={` shrink-0 ${closeHover}`}
                 aria-label="Dismiss notification"
             >
                 <X className="w-4 h-4" />
-            </button>
+            </Button>
         </div>
     );
 }

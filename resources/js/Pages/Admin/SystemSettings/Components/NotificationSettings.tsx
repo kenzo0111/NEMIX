@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { useForm } from '@inertiajs/react';
 import { SystemSettings } from '../types';
@@ -55,7 +56,7 @@ export default function NotificationSettings({
             {/* EMAIL ALERTS CONFIGURATION */}
             <div className="space-y-4">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                         Stock Alert Email Notifications
                     </h3>
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -71,7 +72,7 @@ export default function NotificationSettings({
                         onChange={(e) =>
                             onChange('mail.low_stock_email_alerts', e.target.checked)
                         }
-                        className="w-4 h-4 mt-0.5 rounded text-red-900 focus:ring-red-800 border-slate-300 dark:border-slate-600 dark:bg-slate-900 cursor-pointer"
+                        className="w-4 h-4 mt-0.5 rounded text-red-900 focus:ring-red-800 border-slate-300 dark:border-slate-600 dark:bg-slate-900 cursor-pointer dark:text-red-300"
                     />
                     <div className="flex-1">
                         <label
@@ -96,16 +97,16 @@ export default function NotificationSettings({
                         onChange={(e) =>
                             onChange('mail.alert_recipient_email', e.target.value)
                         }
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
+                        className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
                         placeholder="spmo-alerts@ucn.edu.ph"
                     />
                     {errors['settings.mail.alert_recipient_email'] && (
-                        <p className="leading-relaxed text-sm text-red-600 mt-1">
+                        <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                             {errors['settings.mail.alert_recipient_email']}
                         </p>
                     )}
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-                        <Info className="w-3 h-3 text-slate-400 shrink-0" />
+                        <Info className="w-3 h-3 text-slate-500 shrink-0 dark:text-slate-300" />
                         Leave blank to use the current administrator's email, or an active system administrator when stock is updated by other staff.
                     </p>
                 </div>
@@ -116,7 +117,7 @@ export default function NotificationSettings({
             {/* TEST EMAIL DIAGNOSTICS */}
             {can('system.settings.test-email') && <div className="space-y-4">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                         Test Email Delivery
                     </h3>
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -131,20 +132,20 @@ export default function NotificationSettings({
                             value={testEmailForm.data.recipient}
                             onChange={(e) => testEmailForm.setData('recipient', e.target.value)}
                             placeholder={`Recipient (Default: ${defaultAdminEmail})`}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-red-900/15 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 shadow-2xs placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                            className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-red-900/15 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 shadow-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                         />
                         {testEmailForm.errors.recipient && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">{testEmailForm.errors.recipient}</p>
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">{testEmailForm.errors.recipient}</p>
                         )}
                     </div>
-                    <button
+                    <Button variant="primary"
                         type="submit"
                         disabled={testEmailForm.processing}
-                        className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-900 hover:bg-red-800 active:bg-red-950 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-xs shrink-0"
+                        className="flex items-center justify-center gap-2 shrink-0"
                     >
                         <Send className="w-3.5 h-3.5" />
                         <span>{testEmailForm.processing ? 'Testing Connection...' : 'Send Test'}</span>
-                    </button>
+                    </Button>
                 </form>
             </div>}
         </div>

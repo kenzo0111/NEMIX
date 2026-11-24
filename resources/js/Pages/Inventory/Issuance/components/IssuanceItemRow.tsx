@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import { usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import React from 'react';
@@ -78,13 +79,13 @@ export const IssuanceItemRow: React.FC<IssuanceItemRowProps> = ({
                     <label className="block text-sm font-semibold text-gray-500 dark:text-slate-400 mb-1">
                         Available Stock
                     </label>
-                    <div className="h-10 px-3 flex items-center bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 rounded-md text-sm tabular-nums font-bold text-gray-800 dark:text-slate-200">
+                    <div className="h-10 px-3 flex items-center bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-800 dark:text-slate-200">
                         {selectedItem ? (
-                            <span className={selectedItem.stock <= 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-700 dark:text-emerald-400'}>
+                            <span className={selectedItem.stock <= 0 ? "text-red-600 dark:text-red-400" : "text-emerald-700 dark:text-emerald-400"}>
                                 {selectedItem.stock} {selectedItem.unit_of_issue || 'pcs'}
                             </span>
                         ) : (
-                            <span className="text-gray-400 dark:text-slate-500 font-sans font-normal">—</span>
+                            <span className="text-slate-500 dark:text-slate-400 font-sans font-normal">—</span>
                         )}
                     </div>
                 </div>
@@ -94,16 +95,14 @@ export const IssuanceItemRow: React.FC<IssuanceItemRowProps> = ({
                     <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
                         Quantity
                     </label>
-                    <input
+                    <input aria-invalid={Boolean(errorQuantity)}
                         type="number"
                         min="1"
                         max={strictStock && selectedItem ? Math.max(0, selectedItem.stock) : 1000000}
                         value={itemLine.quantity}
                         onChange={(e) => onChangeQuantity(index, e.target.value)}
                         placeholder="Qty"
-                        className={`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-bold text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-2xs ${
-                            errorQuantity ? 'border-red-400 dark:border-red-500' : 'border-gray-300 dark:border-slate-700'
-                        }`}
+                        className={"ui-field " + (`w-full h-10 px-3 bg-white dark:bg-slate-950 border rounded-md text-sm tabular-nums font-semibold text-gray-900 dark:text-slate-100 focus:outline-none focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 shadow-sm ${errorQuantity ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
                     />
                     {errorQuantity && <p className="leading-relaxed mt-1 text-sm text-red-600 dark:text-red-400 font-medium">{errorQuantity}</p>}
                 </div>
@@ -111,17 +110,17 @@ export const IssuanceItemRow: React.FC<IssuanceItemRowProps> = ({
                 {/* Remove Action Button */}
                 {canRemove && (
                     <div className="flex-shrink-0 pt-1 sm:pt-0">
-                        <button
+                        <Button variant="secondary" size="icon"
                             type="button"
                             onClick={() => onRemove(index)}
-                            className="h-10 px-2.5 text-gray-400 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-md border border-transparent hover:border-red-200 dark:hover:border-red-800 transition-colors cursor-pointer flex items-center justify-center"
+                            className="h-10 flex items-center justify-center"
                             title="Remove line item"
                             aria-label="Remove item"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
-                        </button>
+                        </Button>
                     </div>
                 )}
             </div>

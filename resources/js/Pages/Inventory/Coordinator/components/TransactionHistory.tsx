@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { useEffect, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { ArrowDownLeft, ArrowUpRight, Search } from 'lucide-react';
@@ -97,7 +98,7 @@ export default function TransactionHistory({
             label: 'Movement',
             value: movement => movement.type,
             render: movement => (
-                <span className={'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-sm font-medium ' + (movement.type === 'receipt' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300')}>
+                <span className={"inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-sm font-medium " + (movement.type === 'receipt' ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300")}>
                     {movement.type === 'receipt' ? <ArrowDownLeft size={13} /> : <ArrowUpRight size={13} />}
                     {movement.type === 'receipt' ? 'Received' : 'Issued'}
                 </span>
@@ -135,7 +136,7 @@ export default function TransactionHistory({
                 }}
             >
                 <div className="relative min-w-0 flex-1">
-                    <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-300" />
                     <input
                         type="search"
                         aria-label="Search transaction history"
@@ -143,7 +144,7 @@ export default function TransactionHistory({
                         value={search}
                         onChange={event => setSearch(event.target.value)}
                         maxLength={150}
-                        className="table-control w-full rounded-lg border-slate-300 pl-9 text-sm focus:border-red-800 focus:ring-red-800 dark:border-slate-700 dark:bg-slate-950"
+                        className="ui-field table-control w-full rounded-lg border-slate-300 pl-9 text-sm focus:border-red-800 focus:ring-red-800 dark:border-slate-700 dark:bg-slate-950"
                     />
                 </div>
                 <div className="w-full sm:w-48">
@@ -161,11 +162,11 @@ export default function TransactionHistory({
                         isSearchable={false}
                     />
                 </div>
-                <button className={secondaryButton} type="submit">Search</button>
+                <Button variant="secondary" className={secondaryButton} type="submit">Search</Button>
                 {(search || type !== 'all') && (
-                    <button className={secondaryButton} type="button" onClick={() => { setSearch(''); setType('all'); load('', 'all'); }}>
+                    <Button variant="secondary" className={secondaryButton} type="button" onClick={() => { setSearch(''); setType('all'); load('', 'all'); }}>
                         Reset
-                    </button>
+                    </Button>
                 )}
             </form>
             <RecordTable
@@ -177,24 +178,24 @@ export default function TransactionHistory({
                 className="min-w-[700px]"
                 emptyMessage="Your receipts and distributions will appear here."
             />
-            <div className="flex flex-col justify-between gap-3 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:px-6 dark:border-slate-800">
+            <div className="ui-pagination flex flex-col justify-between gap-3 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:px-6 dark:border-slate-800">
                 <p className="text-sm text-slate-500 dark:text-slate-400">Showing {movements.from ?? 0}–{movements.to ?? 0} of {movements.total} transactions</p>
                 <nav aria-label="Transaction pages" className="flex flex-wrap gap-1.5">
                     {movements.links.map((link, i) =>
                         link.url ? (
-                            <Link
+                            <Link data-variant="tab" data-size="default"
                                 key={i}
                                 href={link.url}
                                 preserveScroll
                                 preserveState
                                 aria-current={link.active ? 'page' : undefined}
-                                className={'table-control inline-flex min-w-10 items-center justify-center rounded-lg px-3 text-sm font-medium ' + (link.active ? 'bg-red-900 text-white' : 'border border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800')}
+                                className={"ui-button " + ("table-control inline-flex min-w-10 items-center justify-center rounded-lg px-3 text-sm font-medium " + (link.active ? "bg-red-900 text-white" : "border border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"))}
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                             />
                         ) : (
                             <span
                                 key={i}
-                                className="table-control inline-flex items-center px-3 text-sm text-slate-400"
+                                className="table-control inline-flex items-center px-3 text-sm text-slate-500 dark:text-slate-300"
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                             />
                         )

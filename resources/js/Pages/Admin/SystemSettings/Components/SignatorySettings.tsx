@@ -213,7 +213,7 @@ export default function SignatorySettings({
                 }
             >
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                         Requisition & Issue Slip (RIS — Appendix 63)
                     </h3>
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -242,7 +242,7 @@ export default function SignatorySettings({
                             }
                         />
                         {errors['settings.signatories.ris_approved_by_name'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.signatories.ris_approved_by_name']}
                             </p>
                         )}
@@ -259,11 +259,11 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.ris_approved_by_designation', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
+                            className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="SUPPLY OFFICER III / ADMIN OFFICER V"
                         />
                         {errors['settings.signatories.ris_approved_by_designation'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.signatories.ris_approved_by_designation']}
                             </p>
                         )}
@@ -289,7 +289,7 @@ export default function SignatorySettings({
                             }
                         />
                         {errors['settings.signatories.ris_issued_by_name'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.signatories.ris_issued_by_name']}
                             </p>
                         )}
@@ -306,11 +306,11 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.ris_issued_by_designation', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
+                            className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="Administrative Aide VI / Storekeeper"
                         />
                         {errors['settings.signatories.ris_issued_by_designation'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.signatories.ris_issued_by_designation']}
                             </p>
                         )}
@@ -325,7 +325,7 @@ export default function SignatorySettings({
                             id="oic_toggle"
                             checked={settings['signatories.ris_oic_active']}
                             onChange={(e) => onChange('signatories.ris_oic_active', e.target.checked)}
-                            className="w-4 h-4 rounded text-red-900 focus:ring-red-800 border-slate-300 dark:border-slate-600 dark:bg-slate-900 cursor-pointer"
+                            className="w-4 h-4 rounded text-red-900 focus:ring-red-800 border-slate-300 dark:border-slate-600 dark:bg-slate-900 cursor-pointer dark:text-red-300"
                         />
                         <label htmlFor="oic_toggle" className="text-sm font-semibold text-slate-900 dark:text-slate-100 cursor-pointer">
                             Enable Officer-in-Charge (OIC) Delegation on RIS Forms
@@ -344,7 +344,7 @@ export default function SignatorySettings({
                                 type="text"
                                 value={settings['signatories.ris_oic_prefix']}
                                 onChange={(e) => onChange('signatories.ris_oic_prefix', e.target.value)}
-                                className="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-sm font-medium bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-800 dark:focus:border-red-600 shadow-2xs"
+                                className="ui-field w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-sm font-medium bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-800 dark:focus:border-red-600 shadow-sm"
                                 placeholder="OIC, "
                             />
                         </div>
@@ -363,7 +363,7 @@ export default function SignatorySettings({
                 }
             >
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                         Report of Supplies & Materials Issued (RSMI — Monthly Summary)
                     </h3>
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -392,7 +392,7 @@ export default function SignatorySettings({
                             }
                         />
                         {errors['settings.signatories.rsmi_certified_by_name'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.signatories.rsmi_certified_by_name']}
                             </p>
                         )}
@@ -418,7 +418,7 @@ export default function SignatorySettings({
                             }
                         />
                         {errors['settings.signatories.rsmi_posted_by_name'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.signatories.rsmi_posted_by_name']}
                             </p>
                         )}
@@ -438,7 +438,7 @@ export default function SignatorySettings({
                 }
             >
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                         Report on the Physical Count of Inventories (RPCI)
                     </h3>
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -467,7 +467,7 @@ export default function SignatorySettings({
                             }
                         />
                         {errors['settings.signatories.rpci_accountable_officer_name'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.signatories.rpci_accountable_officer_name']}
                             </p>
                         )}
@@ -484,11 +484,11 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.rpci_accountable_officer_designation', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
+                            className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="Supply Custodian / Supply Officer III"
                         />
                         {errors['settings.signatories.rpci_accountable_officer_designation'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.signatories.rpci_accountable_officer_designation']}
                             </p>
                         )}
@@ -514,7 +514,7 @@ export default function SignatorySettings({
                             }
                         />
                         {errors['settings.signatories.rpci_certified_by_name'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.signatories.rpci_certified_by_name']}
                             </p>
                         )}
@@ -540,7 +540,7 @@ export default function SignatorySettings({
                             }
                         />
                         {errors['settings.signatories.rpci_verified_by_name'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.signatories.rpci_verified_by_name']}
                             </p>
                         )}
@@ -557,11 +557,11 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.rpci_verified_by_position', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
+                            className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="COA Representative"
                         />
                         {errors['settings.signatories.rpci_verified_by_position'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.signatories.rpci_verified_by_position']}
                             </p>
                         )}
@@ -580,7 +580,7 @@ export default function SignatorySettings({
                 }
             >
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                         Memorandum Receipt for Property (MOR / MR — Appendix 59-A)
                     </h3>
                     <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -609,7 +609,7 @@ export default function SignatorySettings({
                             }
                         />
                         {errors['settings.signatories.mor_issued_by_name'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.signatories.mor_issued_by_name']}
                             </p>
                         )}
@@ -626,11 +626,11 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('signatories.mor_issued_by_designation', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
+                            className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="SUPPLY OFFICER III / PROPERTY CUSTODIAN"
                         />
                         {errors['settings.signatories.mor_issued_by_designation'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.signatories.mor_issued_by_designation']}
                             </p>
                         )}
@@ -647,11 +647,11 @@ export default function SignatorySettings({
                             onChange={(e) =>
                                 onChange('compliance.mor_appendix_number', e.target.value)
                             }
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-2xs hover:border-slate-300 dark:hover:border-slate-600"
+                            className="ui-field w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-900/10 dark:focus:ring-red-500/20 focus:border-red-800 dark:focus:border-red-600 text-sm font-medium text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all shadow-sm hover:border-slate-300 dark:hover:border-slate-600"
                             placeholder="Appendix 59-A"
                         />
                         {errors['settings.compliance.mor_appendix_number'] && (
-                            <p className="leading-relaxed text-sm text-red-600 mt-1">
+                            <p className="leading-relaxed text-sm text-red-600 mt-1 dark:text-red-300">
                                 {errors['settings.compliance.mor_appendix_number']}
                             </p>
                         )}

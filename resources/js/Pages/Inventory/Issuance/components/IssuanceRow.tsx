@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { formatRisNumber } from '@/utils/risFormatter';
 import { IssuanceRecord } from '../types';
@@ -21,7 +22,7 @@ export const IssuanceRow: React.FC<IssuanceRowProps> = ({
     return (
         <tr className="hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors border-b border-gray-100 dark:border-slate-800/80 last:border-0 group">
             {/* RIS / Issuance Number */}
-            <td className="px-4 lg:px-6 py-3.5 align-middle whitespace-nowrap text-sm font-bold text-gray-900 dark:text-slate-100 tabular-nums tracking-normal">
+            <td className="px-4 lg:px-6 py-3.5 align-middle whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-slate-100 tabular-nums tracking-normal">
                 {formatRisNumber(issuance.ris_number)}
             </td>
 
@@ -43,8 +44,8 @@ export const IssuanceRow: React.FC<IssuanceRowProps> = ({
             </td>
 
             {/* Total Quantity */}
-            <td className="px-4 lg:px-6 py-3.5 align-middle whitespace-nowrap text-sm text-gray-900 dark:text-slate-100 font-bold tabular-nums">
-                {totalQty} <span className="text-gray-400 dark:text-slate-500 text-sm font-normal font-sans">pcs</span>
+            <td className="px-4 lg:px-6 py-3.5 align-middle whitespace-nowrap text-sm text-gray-900 dark:text-slate-100 font-semibold tabular-nums">
+                {totalQty} <span className="text-slate-500 dark:text-slate-400 text-sm font-normal font-sans">pcs</span>
             </td>
 
             {/* Date Issued */}
@@ -60,20 +61,20 @@ export const IssuanceRow: React.FC<IssuanceRowProps> = ({
             {/* Actions: View & RIS Form */}
             <td className="px-4 lg:px-6 py-3.5 align-middle whitespace-nowrap min-w-[10rem] text-right">
                 <div className="inline-flex items-center justify-end gap-2 flex-wrap">
-                    <button
+                    <Button variant="secondary"
                         type="button"
                         onClick={() => onViewDetails(issuance)}
-                        className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-red-400 font-semibold text-sm transition-colors cursor-pointer min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 inline-flex items-center justify-center whitespace-nowrap gap-1.5"
+                        className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
                     >
                         View
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="secondary"
                         type="button"
                         onClick={() => onViewRisForm(issuance)}
-                        className="border border-red-900/30 dark:border-red-700/50 text-red-950 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-600 font-semibold text-sm min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded transition-colors cursor-pointer shadow-2xs inline-flex items-center justify-center whitespace-nowrap gap-1.5"
+                        className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
                     >
                         RIS Form
-                    </button>
+                    </Button>
                 </div>
             </td>
         </tr>

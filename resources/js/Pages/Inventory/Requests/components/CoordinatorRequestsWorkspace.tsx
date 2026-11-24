@@ -1,3 +1,6 @@
+import PageHeader from '@/Components/PageHeader';
+import { formatScreenDate } from '@/utils/displayFormat';
+import { Button } from '@/Components/ui/button';
 import React, { useMemo } from 'react';
 import DashboardContent from '@/Layouts/DashboardContent';
 import { Link, usePage } from '@inertiajs/react';
@@ -93,42 +96,42 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
     );
     const empty = (
         <div className="flex flex-col items-center px-5 py-14 text-center">
-            <div className="mb-4 rounded-full bg-slate-100 p-4 text-slate-400 dark:bg-slate-800"><ClipboardList size={26} /></div>
+            <div className="mb-4 rounded-full bg-slate-100 p-4 text-slate-500 dark:bg-slate-800 dark:text-slate-300"><ClipboardList size={26} /></div>
             <h2 className="text-xl font-semibold">{props.counts.total ? 'No requests match your filters' : 'Your supply requests start here'}</h2>
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-500 dark:text-slate-400">{props.counts.total ? 'Try another RIS number, item name, or request status.' : 'Browse the central catalog or create a request. You can follow its review and release here.'}</p>
-            {props.counts.total > 0 && <button type="button" onClick={() => { props.onSearch(''); props.onStatus(''); }} className="mt-5 text-sm font-semibold text-red-900 dark:text-red-300 cursor-pointer">Clear search and filters</button>}
+            {props.counts.total > 0 && <Button variant="secondary" type="button" onClick={() => { props.onSearch(''); props.onStatus(''); }} className="mt-5">Clear search and filters</Button>}
         </div>
     );
 
     const actions = (request: SupplyRequest) => (
         <div className="inline-flex items-center justify-end gap-2 flex-wrap">
-            <button type="button" aria-label={`View details for ${reference(request)}`} onClick={() => props.onDetails(request)} className={`${secondaryButton} min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 text-sm font-semibold rounded-lg whitespace-nowrap gap-1.5 inline-flex items-center justify-center cursor-pointer`}>
+            <Button variant="secondary" type="button" aria-label={`View details for ${reference(request)}`} onClick={() => props.onDetails(request)} className={`${secondaryButton} min-h-[2.25rem] h-[2.25rem] gap-1.5 inline-flex items-center justify-center `}>
                 <Eye size={14} />Details
-            </button>
+            </Button>
             {request.status === 'Stock Restocked' && can('inventory.requests.update') && (
-                <button
+                <Button variant="secondary"
                     type="button"
                     aria-label={`Proceed with requisition for ${reference(request)}`}
                     onClick={() => props.onEdit(request)}
-                    className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 text-sm font-semibold shadow-2xs transition-colors cursor-pointer whitespace-nowrap"
+                    className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5"
                 >
                     <CheckCircle2 size={14} />Proceed to Requisition
-                </button>
+                </Button>
             )}
             {['Pending', 'Pending Verification', 'For Correction', 'Pre-Requested'].includes(request.status) && can('inventory.requests.update') && (
-                <button type="button" aria-label={`Edit ${reference(request)}`} onClick={() => props.onEdit(request)} className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-red-900 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/40 cursor-pointer whitespace-nowrap">
+                <Button variant="secondary" type="button" aria-label={`Edit ${reference(request)}`} onClick={() => props.onEdit(request)} className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5">
                     <Pencil size={14} />Edit
-                </button>
+                </Button>
             )}
             {['Approved', 'Issued', 'Ready for Pickup', 'Released'].includes(request.status) && (
-                <button type="button" aria-label={`View RIS for ${reference(request)}`} onClick={() => props.onRis(request)} className={`${secondaryButton} min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 text-sm font-semibold rounded-lg whitespace-nowrap gap-1.5 inline-flex items-center justify-center cursor-pointer`}>
+                <Button variant="secondary" type="button" aria-label={`View RIS for ${reference(request)}`} onClick={() => props.onRis(request)} className={`${secondaryButton} min-h-[2.25rem] h-[2.25rem] gap-1.5 inline-flex items-center justify-center `}>
                     <FileText size={14} />RIS Form
-                </button>
+                </Button>
             )}
             {['Pending', 'Pending Verification', 'For Correction', 'Pre-Requested', 'Stock Restocked'].includes(request.status) && can('inventory.requests.delete') && (
-                <button type="button" aria-label={`Cancel request ${reference(request)}`} disabled={props.busy === request.id} onClick={() => props.onCancel(request)} className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-50 dark:text-rose-300 dark:hover:bg-rose-950/40 cursor-pointer whitespace-nowrap">
+                <Button variant="secondary" type="button" aria-label={`Cancel request ${reference(request)}`} disabled={props.busy === request.id} onClick={() => props.onCancel(request)} className="inline-flex min-h-[2.25rem] h-[2.25rem] items-center justify-center gap-1.5">
                     <X size={14} />Cancel
-                </button>
+                </Button>
             )}
         </div>
     );
@@ -138,41 +141,34 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
             <CoordinatorPortalHeader />
             <DashboardContent>
                 <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                    <Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300">{isAuthorizedPersonnel ? 'Office Dashboard' : 'Delivery Unit Dashboard'}</Link>
+                    <Link href={route('dashboard')} className="hover:text-red-900 dark:hover:text-red-300 dark:text-red-300">{isAuthorizedPersonnel ? 'Office Dashboard' : 'Delivery Unit Dashboard'}</Link>
                     <ChevronRight size={13} />
                     <span className="text-slate-700 dark:text-slate-300">My Requests</span>
                 </nav>
-                <section className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
-                    <div>
-                        <p className="mb-2 text-sm font-bold text-red-900 dark:text-red-300">Supply &amp; Property Management Office</p>
-                        <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">My Supply Requests</h2>
-                        <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">Request supplies for your {isAuthorizedPersonnel ? 'office' : 'Delivery Unit'} and follow each requisition from review to release.</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2.5">
+                <PageHeader embedded title="My Supply Requests" description={`Request supplies for your ${isAuthorizedPersonnel ? "office" : "Delivery Unit"} and follow each requisition from review to release.`} actions={<><div className="flex flex-wrap gap-2.5">
                         {can('coordinator.catalog.index') && (
-                            <Link href={route('coordinator.catalog.index')} className={secondaryButton}>
+                            <Link data-variant="secondary" data-size="default" href={route('coordinator.catalog.index')} className={"ui-button " + (secondaryButton)}>
                                 Browse Central Stock<ArrowRight size={15} />
                             </Link>
                         )}
                         {can('inventory.requests.store') && (
-                            <button type="button" onClick={props.onCreate} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-red-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2 cursor-pointer">
+                            <Button variant="primary" type="button" onClick={props.onCreate} className="inline-flex min-h-11 items-center justify-center gap-2">
                                 <Plus size={17} />New Request
-                            </button>
+                            </Button>
                         )}
-                    </div>
-                </section>
+                    </div></>} />
                 <section data-tour="coordinator-request-summary" aria-label="My request overview" className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
                     {stats.map(stat => (
-                        <button key={stat.label} type="button" onClick={() => props.onStatus(stat.status)} aria-label={`Show ${stat.label.toLowerCase()}`} aria-pressed={props.status === stat.status} className={`${panel} flex min-w-0 items-start justify-between gap-3 p-4 text-left transition hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 sm:p-5 ${props.status === stat.status ? 'border-red-300 bg-red-50/70 ring-1 ring-red-900/20 dark:border-red-800 dark:bg-red-950/20' : ''}`}>
+                        <Button variant="unstyled" key={stat.label} type="button" onClick={() => props.onStatus(stat.status)} aria-label={`Show ${stat.label.toLowerCase()}`} aria-pressed={props.status === stat.status} className={`${panel} flex min-w-0 items-start justify-between gap-3 p-4 text-left transition hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 sm:p-5 ${props.status === stat.status ? "border-red-300 bg-red-50/70 ring-1 ring-red-900/20 dark:border-red-800 dark:bg-red-950/20" : ""}`}>
                             <span className="min-w-0 flex-1">
                                 <span className="block text-sm font-medium text-slate-700 dark:text-slate-300">{stat.label}</span>
-                                <span className="mt-2 block text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100">{stat.count}</span>
-                                <span className="mt-1.5 block text-xs leading-relaxed text-slate-500 sm:text-sm dark:text-slate-400">{stat.hint}</span>
+                                <span className="mt-2 block text-2xl font-semibold tabular-nums text-slate-900 dark:text-slate-100">{stat.count}</span>
+                                <span className="mt-1.5 block text-sm leading-relaxed text-slate-500 sm:text-sm dark:text-slate-400">{stat.hint}</span>
                             </span>
                             <span className={`hidden shrink-0 rounded-xl p-2.5 sm:inline-flex ${stat.color}`}>
                                 <stat.icon size={20} />
                             </span>
-                        </button>
+                        </Button>
                     ))}
                 </section>
                 <div className="flex flex-col gap-3 rounded-xl border border-red-100 bg-red-50/60 px-4 py-3.5 text-sm text-red-950 sm:flex-row sm:items-center sm:justify-between dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-200">
@@ -184,12 +180,12 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                 <section data-tour="coordinator-request-workspace" className={`${panel} overflow-hidden`} aria-label="My supply requisitions">
                     <div className="table-toolbar flex flex-col justify-between gap-3 border-b border-slate-100 p-4 sm:px-6 sm:py-5 xl:flex-row xl:items-center dark:border-slate-800">
                         <div className="relative min-w-0 flex-1 xl:max-w-md">
-                            <Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input type="search" aria-label="Search my supply requests" placeholder="Search RIS number, item, recipient, or purpose…" value={props.search} onChange={event => props.onSearch(event.target.value)} className="h-11 w-full rounded-lg border-slate-300 bg-white pl-10 pr-10 text-sm placeholder:text-slate-400 focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100" />
+                            <Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-300" />
+                            <input type="search" aria-label="Search my supply requests" placeholder="Search RIS number, item, recipient, or purpose…" value={props.search} onChange={event => props.onSearch(event.target.value)} className="ui-field h-11 w-full rounded-lg border-slate-300 bg-white pl-10 pr-10 text-sm placeholder:text-slate-400 focus:border-red-800 focus:ring-red-800 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100" />
                             {props.search && (
-                                <button type="button" aria-label="Clear request search" onClick={() => props.onSearch('')} className="absolute right-1 top-1 rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+                                <Button variant="secondary" size="icon" type="button" aria-label="Clear request search" onClick={() => props.onSearch('')} className="absolute right-1 top-1">
                                     <X size={16} />
-                                </button>
+                                </Button>
                             )}
                         </div>
                         <div className="w-full sm:w-64 min-w-0">
@@ -208,7 +204,7 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                     {props.requests.length ? (
                         <>
                             <div className="hidden overflow-x-auto lg:block w-full min-w-0">
-                                <table className="w-full text-left text-sm min-w-[60rem] border-collapse">
+                                <table className="ui-data-table w-full text-left text-sm min-w-[60rem] border-collapse">
                                     <thead className="bg-slate-50 text-sm normal-case tracking-normal text-slate-500 dark:bg-slate-950/50 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                                         <tr>
                                             <SortableTableHeader column="reference" activeColumn={props.sort} direction={props.direction} onSort={props.onSort} className="whitespace-nowrap px-5 py-3.5 font-semibold min-w-[7.5rem]">
@@ -238,19 +234,19 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                                         {displayRequests.map(request => {
                                             const urgent = isUrgent(request);
                                             return (
-                                                <tr key={request.id} className={`transition ${urgent ? 'bg-red-50/50 hover:bg-red-50/80 dark:bg-red-950/20 dark:hover:bg-red-950/30 border-l-4 border-red-600' : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'}`}>
+                                                <tr key={request.id} className={`transition ${urgent ? "bg-red-50/50 hover:bg-red-50/80 dark:bg-red-950/20 dark:hover:bg-red-950/30 border-l-4 border-red-600" : "hover:bg-slate-50/80 dark:hover:bg-slate-800/40"}`}>
                                                     <th scope="row" className="min-w-36 px-5 py-3.5 align-middle font-semibold text-slate-900 dark:text-slate-100">
                                                         <div className="flex flex-col gap-1 items-start">
                                                             <span>{reference(request)}</span>
                                                             {urgent && (
-                                                                <span className="inline-flex items-center gap-1 rounded-md bg-rose-600 text-white px-2 py-0.5 text-xs font-black tracking-wide uppercase shadow-xs">
+                                                                <span className="inline-flex items-center gap-1 rounded-md bg-rose-600 text-white px-2 py-0.5 text-sm font-semibold tracking-normal normal-case shadow-sm">
                                                                     ⚡ Urgent
                                                                 </span>
                                                             )}
                                                         </div>
                                                     </th>
                                                     <td className="whitespace-nowrap px-5 py-3.5 align-middle text-slate-500 dark:text-slate-400">
-                                                        {formatDisplayDate(request.date_requested || request.created_at, 'short')}
+                                                        {formatScreenDate(request.date_requested || request.created_at)}
                                                     </td>
                                                     <td className="min-w-52 px-5 py-3.5 align-middle">
                                                         <RequestedSupplies request={request} includePurpose={false} />
@@ -278,18 +274,18 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                                 {displayRequests.map(request => {
                                     const urgent = isUrgent(request);
                                     return (
-                                        <article key={request.id} className={`space-y-4 p-4 sm:p-5 ${urgent ? 'bg-red-50/50 dark:bg-red-950/20 border-l-4 border-red-600' : ''}`}>
+                                        <article key={request.id} className={`space-y-4 p-4 sm:p-5 ${urgent ? "bg-red-50/50 dark:bg-red-950/20 border-l-4 border-red-600" : ""}`}>
                                             <div className="flex flex-wrap items-start justify-between gap-3">
                                                 <div>
                                                     <div className="flex items-center gap-2">
                                                         <h2 className="text-xl font-semibold">{reference(request)}</h2>
                                                         {urgent && (
-                                                            <span className="inline-flex items-center gap-1 rounded-md bg-rose-600 text-white px-2 py-0.5 text-xs font-black tracking-wide uppercase">
+                                                            <span className="inline-flex items-center gap-1 rounded-md bg-rose-600 text-white px-2 py-0.5 text-sm font-semibold tracking-normal normal-case">
                                                                 ⚡ Urgent
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{formatDisplayDate(request.date_requested || request.created_at, 'short')}</p>
+                                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{formatScreenDate(request.date_requested || request.created_at)}</p>
                                                 </div>
                                                 {status(request)}
                                             </div>
@@ -304,25 +300,25 @@ export default function CoordinatorRequestsWorkspace(props: Props) {
                             </div>
                         </>
                     ) : empty}
-                    <div className="flex flex-col justify-between gap-3 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:px-6 dark:border-slate-800">
+                    <div className="ui-pagination flex flex-col justify-between gap-3 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:px-6 dark:border-slate-800">
                         <p role="status" className="text-sm text-slate-500 dark:text-slate-400">
                             Showing {props.from}–{props.to} of {props.filteredCount} requests
                         </p>
                         <nav aria-label="Request pages" className="flex items-center gap-2">
-                            <button type="button" disabled={props.page <= 1} onClick={() => props.onPage(props.page - 1)} className={`${secondaryButton} min-h-9 px-3 text-sm disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer`}>
+                            <Button variant="secondary" type="button" disabled={props.page <= 1} onClick={() => props.onPage(props.page - 1)} className={`${secondaryButton} min-h-9 `}>
                                 Previous
-                            </button>
+                            </Button>
                             <span className="px-1 text-sm tabular-nums text-slate-500 dark:text-slate-400">{props.page} / {props.lastPage}</span>
-                            <button type="button" disabled={props.page >= props.lastPage} onClick={() => props.onPage(props.page + 1)} className={`${secondaryButton} min-h-9 px-3 text-sm disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer`}>
+                            <Button variant="secondary" type="button" disabled={props.page >= props.lastPage} onClick={() => props.onPage(props.page + 1)} className={`${secondaryButton} min-h-9 `}>
                                 Next
-                            </button>
+                            </Button>
                         </nav>
                     </div>
                 </section>
                 <footer className="flex flex-wrap justify-between gap-2 pb-2 text-sm text-slate-500 dark:text-slate-400">
                     <span>My requests only · {props.userName}</span>
                     {can('coordinator.inventory.index') && (
-                        <Link href={route('coordinator.inventory.index')} className="font-medium hover:text-red-900 dark:hover:text-red-300">
+                        <Link href={route('coordinator.inventory.index')} className="font-medium hover:text-red-900 dark:hover:text-red-300 dark:text-red-300">
                             View my {supplyOwner} inventory →
                         </Link>
                     )}

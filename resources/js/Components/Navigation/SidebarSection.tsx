@@ -8,9 +8,7 @@ interface SidebarSectionProps {
 export default function SidebarSection({ title, collapsed = false }: SidebarSectionProps) {
     return (
         <div
-            className={`px-3 pt-3 pb-1 flex items-center justify-between text-xs font-medium text-amber-300 normal-case tracking-normal transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap select-none ${
-                collapsed ? 'max-h-0 opacity-0 pointer-events-none py-0' : 'max-h-8 opacity-100'
-            }`}
+            className={`px-3 pt-3 pb-1 flex items-center justify-between text-sm font-medium text-amber-300 normal-case tracking-normal transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap select-none ${collapsed ? "max-h-0 opacity-0 pointer-events-none py-0" : "max-h-8 opacity-100"}`}
         >
             <span>{title}</span>
             <span className="h-[1px] flex-1 bg-red-900/50 ml-2.5"></span>

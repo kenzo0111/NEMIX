@@ -72,7 +72,9 @@ test('quantity adjustments are available during verification and review, with ap
         assert.match(html, /id="remarks-1"/);
         assert.equal(html.includes('Approve Requisition'), status !== 'Pending Verification');
     }
-    assert.match(render('Pending Verification', true, true), /Save Document Review/);
+    assert.match(render('Pending Verification', true, true), /Save and Mark Ready/);
+    assert.match(render('Pending Verification', true, true), /personally inspected the physical supporting documents/);
+    assert.match(render('Pending Verification', true, true), /disabled=""/);
     assert.match(render('Pending Verification', true, true), /adjustments are saved when you approve/);
 });
 

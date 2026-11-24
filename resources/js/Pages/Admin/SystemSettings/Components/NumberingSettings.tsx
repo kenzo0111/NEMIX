@@ -51,7 +51,7 @@ export default function NumberingSettings({ previews }: NumberingSettingsProps) 
     return (
         <div className="space-y-6">
             <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans">
                     Document Sequences & Series
                 </h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -60,9 +60,9 @@ export default function NumberingSettings({ previews }: NumberingSettingsProps) 
             </div>
 
             {/* Sequence Table / Grid */}
-            <div className="w-full min-w-0 border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
+            <div className="w-full min-w-0 border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm">
                 <div className="w-full min-w-0 overflow-x-auto">
-                    <table className="w-full text-sm text-left min-w-[42rem]">
+                    <table className="ui-data-table w-full text-sm text-left min-w-[42rem]">
                         <thead>
                             <tr className="bg-slate-50 dark:bg-slate-850 border-b border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-semibold normal-case tracking-normal text-sm">
                                 <th className="px-5 py-3.5 align-middle">Document Type</th>
@@ -87,7 +87,7 @@ export default function NumberingSettings({ previews }: NumberingSettingsProps) 
                                         </span>
                                     </td>
                                     <td className="px-5 py-3.5 align-middle">
-                                        <span className="inline-block px-3 py-1 rounded-lg bg-red-50/70 dark:bg-red-950/40 border border-red-200/80 dark:border-red-900/40 tabular-nums font-bold text-red-950 dark:text-red-300 text-sm">
+                                        <span className="inline-block px-3 py-1 rounded-lg bg-red-50/70 dark:bg-red-950/40 border border-red-200/80 dark:border-red-900/40 tabular-nums font-semibold text-red-950 dark:text-red-300 text-sm">
                                             {previews?.[seq.key] || '�'}
                                         </span>
                                     </td>

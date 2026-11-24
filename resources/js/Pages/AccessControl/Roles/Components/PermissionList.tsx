@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { useMemo } from 'react';
 import { Search, CheckCircle2 } from 'lucide-react';
 import { Permission } from '../types';
@@ -86,7 +87,7 @@ export default function PermissionList({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200 dark:border-slate-800">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h4 className="text-base font-bold text-gray-900 dark:text-slate-100">
+                            <h4 className="text-base font-semibold text-gray-900 dark:text-slate-100">
                                 {moduleName}
                             </h4>
                             <span className="text-sm font-semibold text-gray-600 dark:text-slate-300 bg-gray-100 dark:bg-slate-800 border border-gray-200/80 dark:border-slate-700 px-2 py-0.5 rounded">
@@ -100,7 +101,7 @@ export default function PermissionList({
                         </p>
                     </div>
 
-                    <label className="inline-flex items-center gap-2 cursor-pointer select-none self-start sm:self-auto bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 transition-colors shadow-2xs">
+                    <label className="inline-flex items-center gap-2 cursor-pointer select-none self-start sm:self-auto bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 transition-colors shadow-sm">
                         <input
                             type="checkbox"
                             checked={isAllSelected}
@@ -108,7 +109,7 @@ export default function PermissionList({
                                 if (el) el.indeterminate = isPartiallySelected;
                             }}
                             onChange={(e) => onSelectAllModule(e.target.checked)}
-                            className="w-4 h-4 text-red-900 border-gray-300 dark:border-slate-600 rounded focus:ring-red-900 focus:ring-1 cursor-pointer"
+                            className="w-4 h-4 text-red-900 border-gray-300 dark:border-slate-600 rounded focus:ring-red-900 focus:ring-1 cursor-pointer dark:text-red-300"
                         />
                         <span className="text-sm font-semibold text-gray-700 dark:text-slate-300">
                             Grant all in {moduleName}
@@ -125,18 +126,18 @@ export default function PermissionList({
                             onChange={(e) => onSearchChange(e.target.value)}
                             placeholder={`Search permissions in ${moduleName}...`}
                             aria-label={`Search permissions in ${moduleName}`}
-                            className="w-full pl-8 pr-7 py-1.5 text-sm border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-gray-50/50 dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 shadow-2xs"
+                            className="ui-field w-full pl-8 pr-7 py-1.5 text-sm border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 bg-gray-50/50 dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 shadow-sm"
                         />
-                        <Search className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                        <Search className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                         {searchQuery && (
-                            <button
+                            <Button variant="secondary"
                                 type="button"
                                 onClick={() => onSearchChange('')}
-                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 text-sm font-bold"
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2"
                                 aria-label="Clear filter"
                             >
                                 ✕
-                            </button>
+                            </Button>
                         )}
                     </div>
                 )}
@@ -150,27 +151,21 @@ export default function PermissionList({
                             return (
                                 <label
                                     key={perm.id}
-                                    className={`flex items-start justify-between p-3 rounded-lg border cursor-pointer transition-all ${
-                                        isChecked
-                                            ? 'bg-red-50/25 dark:bg-red-950/25 border-red-200/90 dark:border-red-900/50 shadow-2xs ring-1 ring-red-900/10 dark:ring-red-900/30'
-                                            : 'bg-white dark:bg-slate-800/60 border-gray-200 dark:border-slate-700/80 hover:border-gray-300 dark:hover:border-slate-600 hover:bg-gray-50/60 dark:hover:bg-slate-800'
-                                    }`}
+                                    className={`flex items-start justify-between p-3 rounded-lg border cursor-pointer transition-all ${isChecked
+    ? "bg-red-50/25 dark:bg-red-950/25 border-red-200/90 dark:border-red-900/50 shadow-sm ring-1 ring-red-900/10 dark:ring-red-900/30" : "bg-white dark:bg-slate-800/60 border-gray-200 dark:border-slate-700/80 hover:border-gray-300 dark:hover:border-slate-600 hover:bg-gray-50/60 dark:hover:bg-slate-800"}`}
                                 >
                                     <div className="flex items-start gap-3 min-w-0 flex-1">
                                         <input
                                             type="checkbox"
                                             checked={isChecked}
                                             onChange={() => onTogglePermission(perm.id)}
-                                            className="w-4 h-4 mt-0.5 text-red-900 border-gray-300 dark:border-slate-600 rounded focus:ring-red-900 focus:ring-1 cursor-pointer shrink-0"
+                                            className="w-4 h-4 mt-0.5 text-red-900 border-gray-300 dark:border-slate-600 rounded focus:ring-red-900 focus:ring-1 cursor-pointer shrink-0 dark:text-red-300"
                                         />
                                         <div className="flex flex-col min-w-0 pr-2">
                                             <div className="flex items-center gap-1.5">
                                                 <span
-                                                    className={`text-sm ${
-                                                        isChecked
-                                                            ? 'text-gray-900 dark:text-slate-100 font-bold'
-                                                            : 'text-gray-800 dark:text-slate-200 font-semibold'
-                                                    }`}
+                                                    className={`text-sm ${isChecked
+    ? "text-gray-900 dark:text-slate-100 font-semibold" : "text-gray-800 dark:text-slate-200 font-semibold"}`}
                                                 >
                                                     {perm.display_name}
                                                 </span>
@@ -190,9 +185,7 @@ export default function PermissionList({
 
                                     <div className="shrink-0 ml-2">
                                         <span
-                                            className={`inline-flex items-center px-2 py-0.5 text-sm font-semibold rounded border ${getActionBadgeColor(
-                                                perm.action
-                                            )}`}
+                                            className={`inline-flex items-center px-2 py-0.5 text-sm font-semibold rounded border ${getActionBadgeColor(perm.action)}`}
                                         >
                                             {formatActionLabel(perm.action)}
                                         </span>
@@ -205,15 +198,15 @@ export default function PermissionList({
                     <div className="p-8 text-center text-gray-500 dark:text-slate-400 text-sm">
                         {searchQuery ? (
                             <div className="flex flex-col items-center gap-1.5">
-                                <Search className="w-5 h-5 text-gray-300 dark:text-slate-600" />
+                                <Search className="w-5 h-5 text-gray-300 dark:text-slate-400" />
                                 <span>No permissions match "{searchQuery}"</span>
-                                <button
+                                <Button variant="secondary"
                                     type="button"
                                     onClick={() => onSearchChange('')}
-                                    className="text-sm text-red-900 dark:text-red-400 font-semibold hover:underline mt-1"
+                                    className="hover:underline mt-1"
                                 >
                                     Clear search filter
-                                </button>
+                                </Button>
                             </div>
                         ) : (
                             'No permissions available under this module.'

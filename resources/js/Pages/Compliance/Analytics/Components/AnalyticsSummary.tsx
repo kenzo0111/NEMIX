@@ -63,13 +63,13 @@ export default function AnalyticsSummary({
     return (
         <div className="space-y-4">
             {/* Restrained Institutional Hero Banner */}
-            <div className="bg-red-950 text-white rounded-lg border border-red-900 border-l-4 border-l-amber-500 p-5 sm:p-6 shadow-xs">
+            <div className="bg-red-950 text-white rounded-lg border border-red-900 border-l-4 border-l-amber-500 p-5 sm:p-6 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="space-y-1">
                         <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-red-900/80 border border-red-800 text-sm font-semibold text-amber-300 normal-case tracking-normal">
                             Supply & Property Management Office
                         </div>
-                        <h2 className="text-2xl sm:text-3xl font-bold font-sans text-white tracking-tight">
+                        <h2 className="text-2xl sm:text-3xl font-semibold font-sans text-white tracking-tight">
                             Current Inventory Snapshot
                         </h2>
                         <p className="text-red-200/90 text-sm max-w-2xl font-normal leading-relaxed">
@@ -82,17 +82,17 @@ export default function AnalyticsSummary({
                         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-900/60 border border-red-800 text-sm text-red-100">
                             <span className="h-2 w-2 rounded-full bg-emerald-400" />
                             <span className="text-red-200">Available:</span>
-                            <span className="font-bold text-white tabular-nums">{statusCounts?.Available?.toLocaleString() ?? 0}</span>
+                            <span className="font-semibold text-white tabular-nums">{statusCounts?.Available?.toLocaleString('en-PH') ?? 0}</span>
                         </div>
                         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-900/60 border border-red-800 text-sm text-red-100">
                             <span className="h-2 w-2 rounded-full bg-amber-400" />
                             <span className="text-red-200">Low Stock:</span>
-                            <span className="font-bold text-amber-300 tabular-nums">{statusCounts?.['Low Stock']?.toLocaleString() ?? 0}</span>
+                            <span className="font-semibold text-amber-300 tabular-nums">{statusCounts?.['Low Stock']?.toLocaleString('en-PH') ?? 0}</span>
                         </div>
                         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-900/60 border border-red-800 text-sm text-red-100">
                             <span className="h-2 w-2 rounded-full bg-red-400" />
                             <span className="text-red-200">Out of Stock:</span>
-                            <span className="font-bold text-red-300 tabular-nums">{statusCounts?.['Out of Stock']?.toLocaleString() ?? 0}</span>
+                            <span className="font-semibold text-red-300 tabular-nums">{statusCounts?.['Out of Stock']?.toLocaleString('en-PH') ?? 0}</span>
                         </div>
                     </div>
                 </div>
@@ -105,11 +105,8 @@ export default function AnalyticsSummary({
                     return (
                         <Card
                             key={card.title}
-                            className={`border-t-2 border-t-red-900 transition-all ${
-                                card.clickable
-                                    ? 'cursor-pointer hover:shadow-md hover:border-gray-300 dark:hover:border-slate-700 focus:outline-hidden focus:ring-1 focus:ring-red-900'
-                                    : ''
-                            }`}
+                            className={`border-t-2 border-t-red-900 transition-all ${card.clickable
+    ? "cursor-pointer hover:shadow-md hover:border-gray-300 dark:hover:border-slate-700 focus:outline-hidden focus:ring-1 focus:ring-red-900" : ""}`}
                             onClick={card.onClick}
                             role={card.clickable ? 'button' : undefined}
                             tabIndex={card.clickable ? 0 : undefined}
@@ -134,7 +131,7 @@ export default function AnalyticsSummary({
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-slate-100 font-sans">
+                                    <div className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-slate-100 font-sans">
                                         {card.value}
                                     </div>
                                     <div className="text-sm font-medium text-gray-500 dark:text-slate-400 mt-0.5 flex items-center justify-between">

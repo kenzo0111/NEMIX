@@ -19,7 +19,7 @@ export default function SettingsSectionHeader({ tab }: SettingsSectionHeaderProp
                         <span className="text-sm tabular-nums font-semibold text-red-900 dark:text-red-300 bg-red-100/70 dark:bg-red-950/70 px-1.5 py-0.5 rounded normal-case">
                             Section {tab.num}
                         </span>
-                        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-sans">
+                        <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight font-sans">
                             {tab.label}
                         </h2>
                     </div>

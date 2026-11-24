@@ -3,7 +3,7 @@ import { Shield } from 'lucide-react';
 
 export default function ReadOnlyNotice() {
     return (
-        <div className="bg-slate-50/80 dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-xl p-4 flex items-start gap-3 shadow-2xs">
+        <div className="bg-slate-50/80 dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-xl p-4 flex items-start gap-3 shadow-sm">
             <div className="p-1.5 bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg shrink-0 mt-0.5 border border-slate-300/60 dark:border-slate-700">
                 <Shield className="w-4 h-4" />
             </div>

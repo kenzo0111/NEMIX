@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { useState, Suspense, lazy } from 'react';
 import { RsmiYearReport } from '../types';
 
@@ -36,14 +37,14 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
     return (
         <div className="w-full space-y-6">
             {/* Screen-Only Header & Navigation Bar */}
-            <div className="bg-white rounded-xl border border-gray-200/90 p-4 shadow-2xs print:hidden compliance-print-hide space-y-3">
+            <div className="bg-white rounded-xl border border-gray-200/90 p-4 shadow-sm print:hidden compliance-print-hide space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h4 className="text-base font-bold text-gray-900 font-sans tracking-tight">
-                                YEARLY RSMI REPORT PACKAGE — {yearlyData.year}
+                            <h4 className="text-base font-semibold text-gray-900 font-sans tracking-tight">
+                                Yearly RSMI report package — {yearlyData.year}
                             </h4>
-                            <span className="px-2 py-0.5 bg-red-50 text-red-900 border border-red-200 rounded text-sm tabular-nums font-bold">
+                            <span className="px-2 py-0.5 bg-red-50 text-red-900 border border-red-200 rounded text-sm tabular-nums font-semibold">
                                 Appendix 64 Package
                             </span>
                         </div>
@@ -53,7 +54,7 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
                     </div>
 
                     <div className="flex items-center gap-1.5 text-sm">
-                        <span className="text-gray-400 font-medium text-sm">Filter View:</span>
+                        <span className="text-slate-500 font-medium text-sm">Filter View:</span>
                         <span className="font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded text-sm">
                             {selectedMonthFilter === 'ALL'
                                 ? 'All 12 Months'
@@ -64,17 +65,13 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
 
                 {/* Month Selector Pills */}
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 no-scrollbar scroll-smooth">
-                    <button
+                    <Button aria-pressed={selectedMonthFilter === 'ALL'} variant="tab"
                         type="button"
                         onClick={() => setSelectedMonthFilter('ALL')}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                            selectedMonthFilter === 'ALL'
-                                ? 'bg-red-900 text-white shadow-2xs font-bold'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
+                        className=""
                     >
                         All Months ({totalFormsCount})
-                    </button>
+                    </Button>
 
                     {yearlyData.months.map((m) => {
                         const isSelected = selectedMonthFilter === m.month;
@@ -82,33 +79,24 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
                         const formCount = m.forms?.length || 0;
 
                         return (
-                            <button
+                            <Button aria-pressed={isSelected} variant="tab"
                                 key={`month-tab-${m.month}`}
                                 type="button"
                                 onClick={() => setSelectedMonthFilter(m.month)}
-                                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                                    isSelected
-                                        ? 'bg-red-900 text-white shadow-2xs font-bold'
-                                        : m.has_records
-                                        ? 'bg-white border border-gray-300 text-gray-800 hover:bg-gray-50'
-                                        : 'bg-gray-100/70 border border-transparent text-gray-400 hover:bg-gray-100'
-                                }`}
+                                className="inline-flex items-center gap-1.5"
                             >
                                 <span>{shortName}</span>
                                 {m.has_records ? (
                                     <span
-                                        className={`px-1.5 py-0.2 rounded-full text-sm font-bold ${
-                                            isSelected
-                                                ? 'bg-red-800 text-white'
-                                                : 'bg-red-50 text-red-900 border border-red-200'
-                                        }`}
+                                        className={`px-1.5 py-0.2 rounded-full text-sm font-semibold ${isSelected
+    ? "bg-red-800 text-white" : "bg-red-50 text-red-900 border border-red-200"}`}
                                     >
                                         {formCount}
                                     </span>
                                 ) : (
-                                    <span className="text-sm text-gray-400">0</span>
+                                    <span className="text-sm text-slate-500">0</span>
                                 )}
-                            </button>
+                            </Button>
                         );
                     })}
                 </div>
@@ -121,7 +109,7 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
                         return (
                             <div
                                 key={`empty-month-${m.month}`}
-                                className="p-4 bg-gray-50 border border-dashed border-gray-200 rounded-xl text-center text-sm text-gray-400 font-medium print:hidden compliance-print-hide my-3"
+                                className="p-4 bg-gray-50 border border-dashed border-gray-200 rounded-xl text-center text-sm text-slate-500 font-medium print:hidden compliance-print-hide my-3"
                             >
                                 <span className="font-semibold text-gray-600">{m.month_name} {yearlyData.year}</span> — No RSMI issuance records recorded for this monthly reporting period.
                             </div>
@@ -133,14 +121,14 @@ export const RsmiYearlyPreview: React.FC<RsmiYearlyPreviewProps> = ({ yearlyData
                             {/* Screen-Only Month Section Banner */}
                             <div className="flex items-center justify-between px-3 py-1.5 bg-red-950/5 border-l-4 border-l-red-900 rounded-r-lg print:hidden compliance-print-hide">
                                 <div className="flex items-center gap-2">
-                                    <span className="font-sans font-bold text-sm text-red-950 normal-case tracking-normal">
+                                    <span className="font-sans font-semibold text-sm text-red-950 normal-case tracking-normal">
                                         {m.month_name} {yearlyData.year}
                                     </span>
                                     <span className="text-sm text-gray-500 font-medium">
                                         ({m.period_label})
                                     </span>
                                 </div>
-                                <span className="text-sm tabular-nums text-red-900 font-bold">
+                                <span className="text-sm tabular-nums text-red-900 font-semibold">
                                     {m.forms.length} Official RSMI {m.forms.length === 1 ? 'Form' : 'Forms'}
                                 </span>
                             </div>

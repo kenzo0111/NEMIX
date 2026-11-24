@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { useMemo, useEffect } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
@@ -137,7 +138,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
             {/* Item Selection */}
             <div>
                 <label htmlFor="receiving_item_id" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
-                    Inventory Item <span className="text-red-600" aria-hidden="true">*</span>
+                    Inventory Item <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
                     <span className="sr-only"> (required)</span>
                 </label>
                 {isRfidReceipt ? (
@@ -174,7 +175,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     />
                 )}
                 {errors.item_id && (
-                    <p id="receiving_item_id-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium">{errors.item_id}</p>
+                    <p id="receiving_item_id-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.item_id}</p>
                 )}
             </div>
 
@@ -182,7 +183,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
             <div>
                 <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
                     <label htmlFor="receiving_supplier_id" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
-                        Supplier <span className="text-red-600" aria-hidden="true">*</span>
+                        Supplier <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
                         <span className="sr-only"> (required)</span>
                     </label>
                     <span className="text-sm text-gray-500 dark:text-slate-400 font-medium">
@@ -204,7 +205,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     classNamePrefix="react-select"
                 />
                 {errors.supplier_id && (
-                    <p id="receiving_supplier_id-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium">{errors.supplier_id}</p>
+                    <p id="receiving_supplier_id-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.supplier_id}</p>
                 )}
             </div>
 
@@ -229,10 +230,10 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                         placeholder="Generated automatically after selecting an item and supplier."
                         aria-invalid={Boolean(errors.supplier_stock_no)}
                         aria-describedby={errors.supplier_stock_no ? 'receiving_supplier_stock_no-error' : undefined}
-                        className="w-full px-3 py-2 pr-9 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 tabular-nums font-bold text-sm rounded-md cursor-not-allowed select-none focus:outline-none focus:ring-0 focus:border-slate-300 dark:focus:border-slate-600 transition-colors shadow-2xs"
+                        className="ui-field w-full px-3 py-2 pr-9 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 tabular-nums font-semibold text-sm rounded-md cursor-not-allowed select-none focus:outline-none focus:ring-0 focus:border-slate-300 dark:focus:border-slate-600 transition-colors shadow-sm"
                     />
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
-                        <svg className="w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
+                        <svg className="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                     </div>
@@ -241,7 +242,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     Automatically generated per receiving batch and retained for RPCI reporting.
                 </p>
                 {errors.supplier_stock_no && (
-                    <p id="receiving_supplier_stock_no-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium">{errors.supplier_stock_no}</p>
+                    <p id="receiving_supplier_stock_no-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.supplier_stock_no}</p>
                 )}
             </div>
 
@@ -251,7 +252,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                 <div>
                     <div className="flex items-center justify-between mb-1.5">
                         <label htmlFor="receiving_quantity" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
-                            Quantity Received <span className="text-red-600" aria-hidden="true">*</span>
+                            Quantity Received <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
                         </label>
                         {isRfidReceipt && <span className="text-sm text-gray-500 dark:text-slate-400">Correct from inspection record</span>}
                     </div>
@@ -268,14 +269,11 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                         value={data.quantity}
                         onChange={(e) => setData('quantity', e.target.value ? parseInt(e.target.value, 10) : '')}
                         placeholder="e.g. 50"
-                        className={`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none transition-colors ${
-                            errors.quantity
-                                ? 'border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600'
-                                : 'border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600'
-                        }`}
+                        className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none transition-colors ${errors.quantity
+    ? "border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600" : "border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600"}`)}
                     />
                     {errors.quantity && (
-                        <p id="receiving_quantity-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium">{errors.quantity}</p>
+                        <p id="receiving_quantity-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.quantity}</p>
                     )}
                 </div>
 
@@ -295,14 +293,11 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                         placeholder="0.00"
                         aria-invalid={Boolean(errors.unit_cost)}
                         aria-describedby={errors.unit_cost ? 'receiving_unit_cost-error' : undefined}
-                        className={`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none transition-colors ${
-                            errors.unit_cost
-                                ? 'border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600'
-                                : 'border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600'
-                        }`}
+                        className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm tabular-nums font-medium text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none transition-colors ${errors.unit_cost
+    ? "border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600" : "border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600"}`)}
                     />
                     {errors.unit_cost && (
-                        <p id="receiving_unit_cost-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium">{errors.unit_cost}</p>
+                        <p id="receiving_unit_cost-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.unit_cost}</p>
                     )}
                 </div>
 
@@ -321,7 +316,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                                 ? `₱${(Number(data.quantity) * Number(data.unit_cost)).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                                 : '₱0.00'
                         }
-                        className="w-full px-3 py-2 bg-gray-100 dark:bg-slate-800/80 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-bold text-gray-900 dark:text-slate-100 cursor-not-allowed"
+                        className="ui-field w-full px-3 py-2 bg-gray-100 dark:bg-slate-800/80 border border-gray-300 dark:border-slate-700 rounded-md text-sm tabular-nums font-semibold text-gray-900 dark:text-slate-100 cursor-not-allowed"
                     />
                 </div>
             </div>
@@ -329,7 +324,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
             {/* Date Received */}
             <div>
                 <label htmlFor="receiving_date_received" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal mb-1.5">
-                    Date Received <span className="text-red-600" aria-hidden="true">*</span>
+                    Date Received <span className="text-red-600 dark:text-red-300" aria-hidden="true">*</span>
                     <span className="sr-only"> (required)</span>
                 </label>
                 <input
@@ -342,31 +337,28 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     aria-describedby={errors.date_received ? 'receiving_date_received-error' : undefined}
                     value={data.date_received}
                     onChange={(e) => setData('date_received', e.target.value)}
-                    className={`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none transition-colors ${
-                        errors.date_received
-                            ? 'border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600'
-                            : 'border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600'
-                    }`}
+                    className={"ui-field " + (`w-full px-3 py-2 bg-white dark:bg-slate-800 border rounded-md text-sm font-medium text-gray-900 dark:text-slate-100 focus:outline-none transition-colors ${errors.date_received
+    ? "border-red-400 dark:border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-600" : "border-gray-300 dark:border-slate-700 focus:border-red-900 dark:focus:border-red-600 focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600"}`)}
                 />
                 {errors.date_received && (
-                    <p id="receiving_date_received-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium">{errors.date_received}</p>
+                    <p id="receiving_date_received-error" role="alert" className="leading-relaxed mt-1 text-sm text-red-600 font-medium dark:text-red-300">{errors.date_received}</p>
                 )}
             </div>
 
             {/* Modal Actions Footer */}
             <div className="pt-4 border-t border-gray-200 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
-                <button
+                <Button variant="secondary"
                     type="button"
                     onClick={onCancel}
                     disabled={processing}
-                    className="w-full sm:w-auto px-4 py-2 text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none transition-colors disabled:opacity-50 text-center cursor-pointer"
+                    className="w-full sm:w-auto text-center"
                 >
                     Cancel
-                </button>
-                <button
+                </Button>
+                <Button variant="primary"
                     type="submit"
                     disabled={processing}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-red-900 hover:bg-red-950 active:bg-red-900 rounded-md shadow-xs focus:outline-none transition-colors disabled:opacity-50 cursor-pointer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
                 >
                     {processing ? (
                         <>
@@ -383,7 +375,7 @@ export const ReceivingForm: React.FC<ReceivingFormProps> = ({
                     ) : (
                         <>{mode === 'edit' ? 'Update Receiving' : 'Save Receiving'}</>
                     )}
-                </button>
+                </Button>
             </div>
         </form>
     );

@@ -8,6 +8,7 @@ const tour = await read('resources/js/Pages/Dashboard/Components/CoordinatorWalk
 const anchoredPages = await Promise.all([
     read('resources/js/Pages/Dashboard/Components/CoordinatorDashboardWorkspace.tsx'),
     read('resources/js/Pages/Inventory/Coordinator/Catalog.tsx'),
+    read('resources/js/Pages/Inventory/Coordinator/components/CatalogTable.tsx'),
     read('resources/js/Pages/Inventory/Requests/components/CoordinatorRequestsWorkspace.tsx'),
     read('resources/js/Pages/Inventory/Requests/components/RequestFormModal.tsx'),
     read('resources/js/Pages/Inventory/Coordinator/Index.tsx'),
@@ -34,7 +35,7 @@ assert.match(tour, /You can now use this system for your day-to-day supply opera
 assert.match(tour, /This is your Authorized Personnel workspace/);
 assert.match(tour, /Attach an approved supporting document/);
 assert.match(tour, /Pending Verification is awaiting document review/);
-assert.match(tour, /day-to-day supply requests, document submissions, and unit inventory work/);
+assert.match(tour, /day-to-day supply requests, document submissions, and office inventory work/);
 assert.match(tour, /stepIndex === steps\.length - 1 \? complete\(\)/);
 
 console.log('Requester walkthroughs: Supply Coordinator and Authorized Personnel anchors, navigation, role-specific progress, completion guidance, safety copy, and keyboard controls passed.');

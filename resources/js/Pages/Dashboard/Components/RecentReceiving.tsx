@@ -12,7 +12,7 @@ interface RecentReceivingProps {
 export default function RecentReceiving({ receivings = [], className = '' }: RecentReceivingProps) {
     const { receivingHref } = useDashboardScope();
     return (
-        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs flex flex-col justify-between h-full min-w-0 ${className}`}>
+        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm flex flex-col justify-between h-full min-w-0 ${className}`}>
             <div>
                 {/* Card Header */}
                 <div className="flex items-center justify-between gap-2 pb-2.5 mb-2 border-b border-slate-100 dark:border-slate-800">
@@ -20,7 +20,7 @@ export default function RecentReceiving({ receivings = [], className = '' }: Rec
                         <div className="p-1 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 shrink-0">
                             <ArrowDownLeft className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-lg font-bold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
                             Recent Receiving
                         </h3>
                     </div>
@@ -28,7 +28,7 @@ export default function RecentReceiving({ receivings = [], className = '' }: Rec
 
                 {/* Content Rows - strictly capped at 4 */}
                 {receivings.length === 0 ? (
-                    <div className="py-5 text-center text-slate-400 dark:text-slate-500">
+                    <div className="py-5 text-center text-slate-500 dark:text-slate-400">
                         <p className="leading-relaxed text-sm">No receiving activity recorded recently.</p>
                     </div>
                 ) : (
@@ -44,10 +44,10 @@ export default function RecentReceiving({ receivings = [], className = '' }: Rec
                                     </p>
                                 </div>
                                 <div className="text-right shrink-0">
-                                    <span className="text-sm font-bold tabular-nums text-emerald-700 dark:text-emerald-400 block">
-                                        +{rec.quantity.toLocaleString()} {rec.unit}
+                                    <span className="text-sm font-semibold tabular-nums text-emerald-700 dark:text-emerald-400 block">
+                                        +{rec.quantity.toLocaleString('en-PH')} {rec.unit}
                                     </span>
-                                    <span className="text-sm text-slate-400 dark:text-slate-500 font-medium block mt-0.5">
+                                    <span className="text-sm text-slate-500 dark:text-slate-400 font-medium block mt-0.5">
                                         {rec.received_at}
                                     </span>
                                 </div>

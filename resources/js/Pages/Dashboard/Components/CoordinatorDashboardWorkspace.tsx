@@ -1,8 +1,9 @@
+import PageHeader from '@/Components/PageHeader';
+import { Button } from '@/Components/ui/button';
 import DashboardContent from '@/Layouts/DashboardContent';
 import React from 'react';
 import { Link, router } from '@inertiajs/react';
 import { Activity, ArrowDownToLine, ArrowRight, ArrowUpFromLine, BookOpen, Boxes, Building2, ChartColumn, CheckCircle2, ChevronRight, CircleHelp, ClipboardList, FileText, Layers3, Package, Plus, TriangleAlert } from 'lucide-react';
-import DashboardControls from '@/Components/DashboardControls';
 import InventoryMovementChart from '../Charts/InventoryMovementChart';
 import RecentSystemActivity from './RecentSystemActivity';
 import { displayDate, secondaryButton } from '@/Pages/Inventory/Coordinator/inventory';
@@ -39,7 +40,7 @@ interface Props {
 }
 
 const surface = 'min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700/70 dark:bg-slate-900';
-const quietLink = 'inline-flex min-h-10 items-center gap-1 rounded text-xs font-semibold text-red-900 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:text-red-300 dark:hover:text-red-200';
+const quietLink = 'inline-flex min-h-10 items-center gap-1 rounded text-sm font-semibold text-red-900 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:text-red-300 dark:hover:text-red-200';
 
 export default function CoordinatorDashboardWorkspace({
     auth, coordinatorName, summary, stats, movement = [], criticalStock = [],
@@ -76,22 +77,22 @@ export default function CoordinatorDashboardWorkspace({
     return (
         <>
             <DashboardContent>
-                <DashboardControls />
+                <PageHeader embedded title={isAuthorizedPersonnel ? "Office overview" : "Delivery unit overview"} description="Review your supplies, requests, and stock movements." />
                 <section data-tour="coordinator-dashboard-header" aria-label={isAuthorizedPersonnel ? 'Office workspace' : 'Unit workspace'} className={`${surface} flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-red-50/60 to-white p-4 dark:from-red-950/20 dark:to-slate-900`}>
                     <div className="flex min-w-0 items-center gap-3">
                         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-red-200 bg-red-100/60 text-red-900 dark:border-red-800/50 dark:bg-red-950/50 dark:text-red-300"><Building2 size={25} strokeWidth={1.6} aria-hidden="true" /></span>
                         <div className="min-w-0">
-                            <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">{isAuthorizedPersonnel ? 'Office workspace' : 'Unit workspace'}</p>
+                            <p className="text-sm font-medium normal-case tracking-normal text-slate-500 dark:text-slate-400">{isAuthorizedPersonnel ? 'Office workspace' : 'Unit workspace'}</p>
                             <h2 className="mt-1 break-words text-base font-semibold">{coordinatorName || auth.user.name}</h2>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">{isAuthorizedPersonnel ? 'Office' : 'Delivery Unit'}</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">{isAuthorizedPersonnel ? 'Office' : 'Delivery Unit'}</p>
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        <button type="button" onClick={() => window.dispatchEvent(new Event(COORDINATOR_TOUR_START_EVENT))} className={`${secondaryButton} text-xs`}><CircleHelp size={17} aria-hidden="true" />Walkthrough Guide</button>
-                        {can('inventory.requests.store') && <Link href={route('inventory.requests.index', { create: 1 })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-red-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-red-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2"><Plus size={17} aria-hidden="true" />New Request</Link>}
-                        {can('inventory.requests.index') && <Link href={route('inventory.requests.index', { status: 'Approved' })} className={`${secondaryButton} text-xs`}><Boxes size={17} aria-hidden="true" />Awaiting release</Link>}
-                        {can('coordinator.inventory.issue') && <Link href={inventoryHref} className={`${secondaryButton} text-xs`}><ArrowUpFromLine size={17} aria-hidden="true" />Issue supplies</Link>}
-                        {can('coordinator.catalog.index') && <Link href={catalogHref} className={`${secondaryButton} text-xs`}><BookOpen size={17} aria-hidden="true" />View catalog</Link>}
+                        <Button variant="secondary" type="button" onClick={() => window.dispatchEvent(new Event(COORDINATOR_TOUR_START_EVENT))} className={`${secondaryButton} `}><CircleHelp size={17} aria-hidden="true" />Walkthrough Guide</Button>
+                        {can('inventory.requests.store') && <Link data-variant="primary" data-size="default" href={route('inventory.requests.index', { create: 1 })} className="ui-button inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2"><Plus size={17} aria-hidden="true" />New Request</Link>}
+                        {can('inventory.requests.index') && <Link data-variant="secondary" data-size="default" href={route('inventory.requests.index', { status: 'Approved' })} className={"ui-button " + (`${secondaryButton} text-sm`)}><Boxes size={17} aria-hidden="true" />Awaiting release</Link>}
+                        {can('coordinator.inventory.issue') && <Link data-variant="secondary" data-size="default" href={inventoryHref} className={"ui-button " + (`${secondaryButton} text-sm`)}><ArrowUpFromLine size={17} aria-hidden="true" />Issue supplies</Link>}
+                        {can('coordinator.catalog.index') && <Link data-variant="secondary" data-size="default" href={catalogHref} className={"ui-button " + (`${secondaryButton} text-sm`)}><BookOpen size={17} aria-hidden="true" />View catalog</Link>}
                     </div>
                 </section>
 
@@ -100,8 +101,8 @@ export default function CoordinatorDashboardWorkspace({
                         const className = `group flex min-w-0 items-start gap-3 rounded-xl border p-4 transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:hover:brightness-110 ${metric.tone}`;
                         const content = <>
                             <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${metric.iconTone}`}><metric.icon size={23} strokeWidth={1.7} aria-hidden="true" /></span>
-                            <dl className="min-w-0 flex-1"><dt className="text-sm font-medium">{metric.label}</dt><dd className="mt-1 text-3xl font-semibold tabular-nums">{metric.value.toLocaleString()}</dd><dd className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{metric.detail}</dd></dl>
-                            <ChevronRight size={16} aria-hidden="true" className="mt-8 shrink-0 text-slate-400" />
+                            <dl className="min-w-0 flex-1"><dt className="text-sm font-medium">{metric.label}</dt><dd className="mt-1 text-3xl font-semibold tabular-nums">{metric.value.toLocaleString('en-PH')}</dd><dd className="mt-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">{metric.detail}</dd></dl>
+                            <ChevronRight size={16} aria-hidden="true" className="mt-8 shrink-0 text-slate-500 dark:text-slate-300" />
                         </>;
                         return metric.href.startsWith('#') ? <a key={metric.label} href={metric.href} className={className}>{content}</a> : metric.href ? <Link key={metric.label} href={metric.href} className={className}>{content}</Link> : <div key={metric.label} className={className}>{content}</div>;
                     })}
@@ -110,8 +111,8 @@ export default function CoordinatorDashboardWorkspace({
                     {monthlyMetrics.map(metric => {
                         const content = <>
                             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300"><metric.icon size={23} strokeWidth={1.7} aria-hidden="true" /></span>
-                            <dl className="min-w-0 flex-1"><dt className="text-sm text-slate-600 dark:text-slate-300">{metric.label}</dt><dd className="mt-1 text-2xl font-semibold tabular-nums">{metric.value.toLocaleString()}</dd><dd className="mt-1 text-xs text-slate-500 dark:text-slate-400">{metric.detail}</dd></dl>
-                            <ChevronRight size={16} aria-hidden="true" className="mt-7 shrink-0 text-slate-400" />
+                            <dl className="min-w-0 flex-1"><dt className="text-sm text-slate-600 dark:text-slate-300">{metric.label}</dt><dd className="mt-1 text-2xl font-semibold tabular-nums">{metric.value.toLocaleString('en-PH')}</dd><dd className="mt-1 text-sm text-slate-500 dark:text-slate-400">{metric.detail}</dd></dl>
+                            <ChevronRight size={16} aria-hidden="true" className="mt-7 shrink-0 text-slate-500 dark:text-slate-300" />
                         </>;
                         const className = `${surface} flex items-start gap-3 p-4 transition hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800`;
                         return can('coordinator.inventory.index') ? <Link key={metric.label} href={historyHref} className={className}>{content}</Link> : <div key={metric.label} className={className}>{content}</div>;
@@ -135,12 +136,12 @@ export default function CoordinatorDashboardWorkspace({
                             {criticalStock.length ? (
                                 <CoordinatorStockAttention items={criticalStock} canRequest={can('inventory.requests.store')} />
                             ) : <p className="flex items-center gap-2 px-4 py-8 text-sm text-slate-500 dark:text-slate-400"><CheckCircle2 size={18} aria-hidden="true" />No stock alerts right now.</p>}
-                            {criticalCount > Math.min(criticalStock.length, 4) && <p className="border-t border-slate-100 px-4 py-2 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">Showing {Math.min(criticalStock.length, 4)} of {criticalCount} alerts. View all in inventory.</p>}
+                            {criticalCount > Math.min(criticalStock.length, 4) && <p className="border-t border-slate-100 px-4 py-2 text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400">Showing {Math.min(criticalStock.length, 4)} of {criticalCount} alerts. View all in inventory.</p>}
                         </section>
 
                         <section aria-labelledby="movement-heading" className={`${surface} p-4`}>
                             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3 dark:border-slate-800">
-                                <h3 id="movement-heading" className="flex items-center gap-2 text-base font-semibold"><ChartColumn size={20} className="text-slate-400" aria-hidden="true" />Inventory movement trends</h3>
+                                <h3 id="movement-heading" className="flex items-center gap-2 text-base font-semibold"><ChartColumn size={20} className="text-slate-500 dark:text-slate-300" aria-hidden="true" />Inventory movement trends</h3>
                                 <div className="w-44">
                                     <Select
                                         aria-label="Movement chart period"
@@ -154,7 +155,7 @@ export default function CoordinatorDashboardWorkspace({
                                 </div>
                             </div>
                             <InventoryMovementChart data={movement} />
-                            <div className="mt-3 flex flex-wrap items-center justify-end gap-4 text-xs text-slate-500 dark:text-slate-400"><span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-emerald-500" />Received</span><span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-amber-500" />Issued</span><span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-3 bg-red-800 dark:bg-red-400" />Balance</span></div>
+                            <div className="mt-3 flex flex-wrap items-center justify-end gap-4 text-sm text-slate-500 dark:text-slate-400"><span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-emerald-500" />Received</span><span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-amber-500" />Issued</span><span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-3 bg-red-800 dark:bg-red-400" />Balance</span></div>
                         </section>
                     </div>
 
@@ -163,10 +164,10 @@ export default function CoordinatorDashboardWorkspace({
                         <section aria-labelledby="quick-links-heading" className={`${surface} p-4`}>
                             <h3 id="quick-links-heading" className="mb-3 text-sm font-semibold">Quick links</h3>
                             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-4">
-                                {quickLinks.map(link => <Link key={link.label} href={link.href} className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-50/60 p-2 text-center text-[11px] font-medium transition hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:border-slate-700 dark:bg-slate-800/40"><link.icon size={23} className={link.tone} strokeWidth={1.7} aria-hidden="true" />{link.label}</Link>)}
+                                {quickLinks.map(link => <Link key={link.label} href={link.href} className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-50/60 p-2 text-center text-sm font-medium transition hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:border-slate-700 dark:bg-slate-800/40"><link.icon size={23} className={link.tone} strokeWidth={1.7} aria-hidden="true" />{link.label}</Link>)}
                             </div>
                         </section>
-                        {can('inventory.requests.index') && recentRequests.length > 0 && <details className={`${surface} px-4`}><summary className="cursor-pointer py-4 text-sm font-medium">Request updates</summary><div className="divide-y divide-slate-100 pb-2 dark:divide-slate-800">{recentRequests.slice(0, 3).map(request => <Link key={request.id} href={route('inventory.requests.index', { request_id: request.id })} className="block rounded py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800"><div className="flex flex-wrap justify-between gap-2 text-xs"><span className="font-medium">{request.reference}</span><span className="text-slate-500 dark:text-slate-400">{request.status === 'Approved' ? 'Awaiting release' : request.status}</span></div><p className="mt-1 truncate text-xs text-slate-500 dark:text-slate-400">{request.items} · {displayDate(request.date)}</p></Link>)}</div></details>}
+                        {can('inventory.requests.index') && recentRequests.length > 0 && <details className={`${surface} px-4`}><summary className="cursor-pointer py-4 text-sm font-medium">Request updates</summary><div className="divide-y divide-slate-100 pb-2 dark:divide-slate-800">{recentRequests.slice(0, 3).map(request => <Link key={request.id} href={route('inventory.requests.index', { request_id: request.id })} className="block rounded py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800"><div className="flex flex-wrap justify-between gap-2 text-sm"><span className="font-medium">{request.reference}</span><span className="text-slate-500 dark:text-slate-400">{request.status === 'Approved' ? 'Awaiting release' : request.status}</span></div><p className="mt-1 truncate text-sm text-slate-500 dark:text-slate-400">{request.items} · {displayDate(request.date)}</p></Link>)}</div></details>}
                     </div>
                 </div>
             </DashboardContent>

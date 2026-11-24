@@ -5,7 +5,6 @@ import { roleDesignation } from '@/utils/systemIdentity';
 import { Link } from '@inertiajs/react';
 import { ChevronsLeft, ChevronsRight, LogOut, Settings, User } from 'lucide-react';
 import { SidebarUser as UserType } from '@/types/navigation';
-import ThemeToggle from '@/Components/ThemeToggle';
 
 interface SidebarUserProps {
     user?: UserType;
@@ -36,7 +35,7 @@ export default function SidebarUser({
             <div className="p-2 border-t border-red-900/60 bg-red-950/60 relative z-10 flex flex-col items-center gap-2 select-none">
                 {/* User Avatar with Tooltip */}
                 <div
-                    className="w-9 h-9 rounded-lg bg-red-900 border border-amber-400/40 text-amber-300 flex items-center justify-center font-bold text-sm"
+                    className="w-9 h-9 rounded-lg bg-red-900 border border-amber-400/40 text-amber-300 flex items-center justify-center font-semibold text-sm"
                     title={`${userName} (${userRole})`}
                 >
                     {initial}
@@ -46,18 +45,14 @@ export default function SidebarUser({
                 <Link
                     href={route('profile.edit')}
                     aria-current={isAccountSettingsActive ? 'page' : undefined}
-                    className={`p-2 rounded-lg transition-colors ${
-                        isAccountSettingsActive
-                            ? 'bg-red-900 text-amber-300'
-                            : 'text-red-200/70 hover:text-white hover:bg-white/5'
-                    }`}
+                    className={`p-2 rounded-lg transition-colors ${isAccountSettingsActive
+    ? "bg-red-900 text-amber-300" : "text-red-200/70 hover:text-white hover:bg-white/5"}`}
                     title="Account Settings"
                 >
                     <User className="w-4 h-4" />
                 </Link>
 
                 {/* Theme Toggle Icon in Collapsed State */}
-                <ThemeToggle variant="compact" placement="right-end" />
 
                 {/* Expand Toggle */}
                 {onToggleCollapse && (
@@ -92,14 +87,13 @@ export default function SidebarUser({
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-400/25 bg-red-900 text-sm font-semibold text-white">{initial}</span>
                 <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-white" title={userName}>{userName}</p>
-                    <p className="mt-0.5 truncate text-xs text-amber-300" title={userRole}>{userRole}</p>
+                    <p className="mt-0.5 truncate text-sm text-amber-300" title={userRole}>{userRole}</p>
                 </div>
             </div>
             <div className="flex items-center justify-between gap-2">
-                <Link href={route('profile.edit')} aria-current={isAccountSettingsActive ? 'page' : undefined} className={`flex min-h-10 flex-1 items-center gap-3 rounded-lg px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 ${isAccountSettingsActive ? 'bg-red-900/60 text-white' : 'text-red-200/80 hover:bg-white/5 hover:text-white'}`}>
+                <Link href={route('profile.edit')} aria-current={isAccountSettingsActive ? 'page' : undefined} className={`flex min-h-10 flex-1 items-center gap-3 rounded-lg px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 ${isAccountSettingsActive ? "bg-red-900/60 text-white" : "text-red-200/80 hover:bg-white/5 hover:text-white"}`}>
                     <Settings size={18} aria-hidden="true" />Account settings
                 </Link>
-                <ThemeToggle variant="compact" placement="right-end" />
             </div>
             <div className="grid gap-1 border-t border-red-900/40 pt-1">
                 <button type="button" onClick={onOpenLogoutModal} className="flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm text-red-200/80 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300">

@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import { RFIDConnectionState } from '../../types';
 import { Wifi, WifiOff, RefreshCw, Radio } from 'lucide-react';
 
@@ -42,9 +43,9 @@ export default function ScannerConnectionStatus({
     const Icon = config.icon;
 
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex max-w-full flex-wrap items-center gap-2">
             <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm tabular-nums font-medium border shadow-2xs ${config.badgeClass}`}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm tabular-nums font-medium border shadow-sm ${config.badgeClass}`}
                 title={`Scanner hardware status: ${config.label}`}
             >
                 <Icon className="w-3 h-3 shrink-0" />
@@ -53,15 +54,15 @@ export default function ScannerConnectionStatus({
             </span>
 
             {connectionState === 'offline' && (
-                <button
+                <Button variant="secondary"
                     type="button"
                     onClick={onRetry}
                     disabled={isRetrying}
-                    className="inline-flex items-center gap-1 text-sm tabular-nums text-red-900 hover:text-red-950 font-semibold underline cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1 tabular-nums underline"
                 >
-                    <RefreshCw className={`w-3 h-3 ${isRetrying ? 'animate-spin' : ''}`} />
+                    <RefreshCw className={`w-3 h-3 ${isRetrying ? "animate-spin" : ""}`} />
                     <span>{isRetrying ? 'Checking...' : 'Reconnect'}</span>
-                </button>
+                </Button>
             )}
         </div>
     );

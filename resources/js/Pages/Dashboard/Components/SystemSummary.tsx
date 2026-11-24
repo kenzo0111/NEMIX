@@ -29,19 +29,19 @@ export default function SystemSummary({
                 {/* 1. Critical Stock - Highest Alert Priority */}
                 <Link
                     href={inventoryHref}
-                    className="bg-red-50/75 dark:bg-red-950/40 border border-red-200/90 dark:border-red-800/80 hover:border-red-300 dark:hover:border-red-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
+                    className="bg-red-50/75 dark:bg-red-950/40 border border-red-200/90 dark:border-red-800/80 hover:border-red-300 dark:hover:border-red-700 hover:shadow-sm rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
-                            <span className="text-sm font-bold normal-case tracking-normal text-red-950 dark:text-red-200 truncate">
+                            <span className="text-sm font-semibold normal-case tracking-normal text-red-950 dark:text-red-200 truncate">
                                 Critical Stock
                             </span>
                             <div className="p-1 rounded-md bg-red-200/60 dark:bg-red-900/60 text-red-900 dark:text-red-300 shrink-0">
                                 <AlertTriangle className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-xl sm:text-2xl font-bold tabular-nums text-red-950 dark:text-red-200 tabular-nums">
-                            {criticalCount.toLocaleString()}
+                        <div className="text-xl sm:text-2xl font-semibold tabular-nums text-red-950 dark:text-red-200 tabular-nums">
+                            {criticalCount.toLocaleString('en-PH')}
                         </div>
                     </div>
                     <div className="mt-2 pt-1.5 border-t border-red-200/60 dark:border-red-800/60 flex items-center justify-between text-sm text-red-900 dark:text-red-300 font-medium">
@@ -55,7 +55,7 @@ export default function SystemSummary({
                 {/* 2. Inventory Value - Neutral Card */}
                 <Link
                     href={inventoryHref}
-                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
@@ -66,7 +66,7 @@ export default function SystemSummary({
                                 <Boxes className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-lg sm:text-xl font-bold font-sans text-slate-900 dark:text-slate-100 tracking-tight tabular-nums truncate">
+                        <div className="text-lg sm:text-xl font-semibold font-sans text-slate-900 dark:text-slate-100 tracking-tight tabular-nums truncate">
                             {formattedVal}
                         </div>
                     </div>
@@ -78,7 +78,7 @@ export default function SystemSummary({
                 {/* 3. Available Items - Neutral Card */}
                 <Link
                     href={inventoryHref}
-                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
@@ -89,8 +89,8 @@ export default function SystemSummary({
                                 <Package className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-xl sm:text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100 tabular-nums">
-                            {availableItems.toLocaleString()}
+                        <div className="text-xl sm:text-2xl font-semibold tabular-nums text-slate-900 dark:text-slate-100 tabular-nums">
+                            {availableItems.toLocaleString('en-PH')}
                         </div>
                     </div>
                     <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
@@ -101,7 +101,7 @@ export default function SystemSummary({
                 {/* 4. Issued This Month - Neutral Card */}
                 <Link
                     href={issuanceHref}
-                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
@@ -112,8 +112,8 @@ export default function SystemSummary({
                                 <TrendingUp className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-xl sm:text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100 tabular-nums">
-                            {issuedMtd.toLocaleString()}
+                        <div className="text-xl sm:text-2xl font-semibold tabular-nums text-slate-900 dark:text-slate-100 tabular-nums">
+                            {issuedMtd.toLocaleString('en-PH')}
                         </div>
                     </div>
                     <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-sm text-slate-500 dark:text-slate-400 font-medium truncate">
@@ -124,7 +124,7 @@ export default function SystemSummary({
                 {/* 5. Unserviceable - Neutral Card */}
                 <Link
                     href={inventoryHref}
-                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm rounded-xl p-3.5 flex flex-col justify-between transition-all group min-w-0 min-h-[110px]"
                 >
                     <div>
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
@@ -135,8 +135,8 @@ export default function SystemSummary({
                                 <ShieldAlert className="w-3.5 h-3.5" />
                             </div>
                         </div>
-                        <div className="text-xl sm:text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100 tabular-nums">
-                            {unserviceable.toLocaleString()}
+                        <div className="text-xl sm:text-2xl font-semibold tabular-nums text-slate-900 dark:text-slate-100 tabular-nums">
+                            {unserviceable.toLocaleString('en-PH')}
                         </div>
                     </div>
                     <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-sm text-slate-500 dark:text-slate-400 font-medium truncate">

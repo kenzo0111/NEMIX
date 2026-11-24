@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import Select from 'react-select';
 import { Search, Plus, RotateCcw } from 'lucide-react';
@@ -51,7 +52,7 @@ export default function InventoryToolbar({
                     <label htmlFor="inventory-search-input" className="sr-only">
                         Search Inventory
                     </label>
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                         <Search className="w-4 h-4" aria-hidden="true" />
                     </div>
                     <input
@@ -61,7 +62,7 @@ export default function InventoryToolbar({
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search name or SKU..."
                         aria-label="Search inventory by name or SKU"
-                        className="table-control w-full pl-9 pr-4 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-xs placeholder-gray-400 dark:placeholder-slate-500"
+                        className="ui-field table-control w-full pl-9 pr-4 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 rounded-md text-sm font-medium focus:border-red-900 focus:ring-1 focus:ring-red-900 shadow-sm placeholder-gray-400 dark:placeholder-slate-500"
                     />
                 </div>
 
@@ -95,27 +96,27 @@ export default function InventoryToolbar({
 
                 {/* Reset Filters (Only visible when filters active) */}
                 {isFiltered && (
-                    <button
+                    <Button variant="secondary"
                         type="button"
                         onClick={onResetFilters}
-                        className="px-2.5 py-2 text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-red-900 dark:hover:text-red-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-md transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="flex items-center justify-center gap-1.5"
                         title="Reset all filters"
                         aria-label="Reset all filters and clear search"
                     >
                         <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
                         <span>Reset</span>
-                    </button>
+                    </Button>
                 )}
 
                 {/* Primary Action: Add Item */}
-                {!readOnly && can('inventory.store') && <button
+                {!readOnly && can('inventory.store') && <Button variant="primary"
                     type="button"
                     onClick={onOpenCreateModal}
-                    className="w-full sm:w-auto bg-red-950 hover:bg-red-900 text-white font-semibold py-2 px-4 rounded-md shadow-xs transition-colors text-sm flex items-center justify-center gap-2 whitespace-nowrap normal-case tracking-normal cursor-pointer"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2"
                 >
                     <Plus className="w-4 h-4 text-amber-300" aria-hidden="true" />
                     <span>Add Item</span>
-                </button>}
+                </Button>}
             </div>
         </div>
     );

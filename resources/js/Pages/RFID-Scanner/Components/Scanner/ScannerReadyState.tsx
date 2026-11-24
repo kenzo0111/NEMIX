@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import { RFIDInventoryItem } from '../../types';
 import { Radio, Keyboard, Zap, Sparkles } from 'lucide-react';
 
@@ -10,7 +11,7 @@ export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerRe
     return (
         <div className="text-center py-8 px-5 bg-gradient-to-b from-gray-50/40 via-white to-gray-50/20 rounded-xl border border-gray-200/90 flex flex-col items-center justify-center relative overflow-hidden">
             {/* Target Item Ribbon */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-900 border border-red-100 text-sm font-medium mb-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-900 border border-red-100 text-sm font-medium mb-5 dark:text-red-300">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-800 animate-pulse" />
                 <span>Target:</span>
                 <strong className="font-semibold truncate max-w-[200px]">{item.name}</strong>
@@ -21,23 +22,23 @@ export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerRe
                 {/* Gentle animated rings */}
                 <div className="absolute w-28 h-28 rounded-full bg-red-900/5 animate-ping pointer-events-none" style={{ animationDuration: '3s' }} />
                 <div className="absolute w-24 h-24 rounded-full bg-red-900/10 pointer-events-none" />
-                <div className="relative w-16 h-16 bg-white rounded-xl border border-red-200 shadow-sm flex items-center justify-center text-red-900 z-10">
-                    <Radio className="w-8 h-8 text-red-900 animate-pulse" />
+                <div className="relative w-16 h-16 bg-white rounded-xl border border-red-200 shadow-sm flex items-center justify-center text-red-900 z-10 dark:text-red-300 dark:bg-slate-900">
+                    <Radio className="w-8 h-8 text-red-900 animate-pulse dark:text-red-300" />
                 </div>
             </div>
 
             {/* Title & Status */}
             <div className="mt-4">
-                <h3 className="text-lg font-semibold text-gray-900 font-sans">
+                <h3 className="text-lg font-semibold text-gray-900 font-sans dark:text-slate-300">
                     Scanner Active & Listening
                 </h3>
-                <p className="text-sm text-gray-500 max-w-sm mx-auto mt-1 leading-relaxed">
+                <p className="text-sm text-gray-500 max-w-sm mx-auto mt-1 leading-relaxed dark:text-slate-300">
                     Present the physical RFID card or tag to the handheld reader trigger.
                 </p>
             </div>
 
             {/* Live listening status badge */}
-            <div className="mt-4 flex items-center gap-2 bg-emerald-50/80 px-3 py-1 rounded-full border border-emerald-200/70 text-sm tabular-nums text-emerald-800">
+            <div className="mt-4 flex items-center gap-2 bg-emerald-50/80 px-3 py-1 rounded-full border border-emerald-200/70 text-sm tabular-nums text-emerald-800 dark:text-emerald-300">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>USB HID Reader Synchronized</span>
             </div>
@@ -45,16 +46,16 @@ export default function ScannerReadyState({ item, onOpenManualEntry }: ScannerRe
             <div className="w-32 border-t border-gray-100 my-4" />
 
             {/* Manual entry fallback option */}
-            <div className="flex items-center justify-center gap-1.5 text-sm text-gray-500">
+            <div className="flex items-center justify-center gap-1.5 text-sm text-gray-500 dark:text-slate-300">
                 <span>Scanner unavailable?</span>
-                <button
+                <Button variant="secondary"
                     type="button"
                     onClick={onOpenManualEntry}
-                    className="inline-flex items-center gap-1 text-red-900 hover:text-red-950 font-medium underline cursor-pointer"
+                    className="inline-flex items-center gap-1 underline"
                 >
                     <Keyboard className="w-3 h-3" />
                     <span>Enter tag manually</span>
-                </button>
+                </Button>
             </div>
         </div>
     );

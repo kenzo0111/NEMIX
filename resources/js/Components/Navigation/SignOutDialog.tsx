@@ -23,17 +23,17 @@ export default function SignOutDialog({
             closeable={!isLoggingOut}
             ariaLabel="Sign Out Confirmation"
         >
-            <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 rounded-2xl overflow-hidden shadow-xl text-left transition-colors">
+            <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 rounded-2xl overflow-hidden shadow-none text-left transition-colors">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950" />
 
                 <div className="p-5 sm:p-6">
                     <div className="flex items-start gap-3.5">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-100/80 dark:border-red-900/50 flex items-center justify-center shrink-0 shadow-2xs">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-100/80 dark:border-red-900/50 flex items-center justify-center shrink-0 shadow-sm">
                             <LogOut className="w-5 h-5" />
                         </div>
                         <div className="min-w-0 flex-1">
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
                                 Sign Out Session
                             </h3>
                             <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
@@ -61,7 +61,7 @@ export default function SignOutDialog({
                             type="button"
                             onClick={onConfirm}
                             disabled={isLoggingOut}
-                            className="w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-bold text-white bg-red-900 hover:bg-red-950 active:bg-black focus:outline-none focus:ring-2 focus:ring-red-900/50 disabled:opacity-50 cursor-pointer transition-colors flex items-center justify-center gap-2 shadow-xs"
+                            className="w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-900 hover:bg-red-950 active:bg-black focus:outline-none focus:ring-2 focus:ring-red-900/50 disabled:opacity-50 cursor-pointer transition-colors flex items-center justify-center gap-2 shadow-sm"
                         >
                             {isLoggingOut ? (
                                 <>

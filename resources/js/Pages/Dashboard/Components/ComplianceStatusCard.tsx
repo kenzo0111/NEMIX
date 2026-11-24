@@ -13,7 +13,7 @@ export default function ComplianceStatusCard({ summary, className = '' }: Compli
     const latestReport = summary?.latest_report;
 
     return (
-        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs flex flex-col justify-between h-full min-w-0 ${className}`}>
+        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm flex flex-col justify-between h-full min-w-0 ${className}`}>
             <div>
                 {/* Header */}
                 <div className="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-100 dark:border-slate-800">
@@ -21,11 +21,11 @@ export default function ComplianceStatusCard({ summary, className = '' }: Compli
                         <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
                             <FileCheck2 className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-lg font-bold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
                             Compliance & Filings
                         </h3>
                     </div>
-                    <span className="text-sm tabular-nums font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shrink-0">
+                    <span className="text-sm tabular-nums font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shrink-0">
                         {reportsCount} MTD
                     </span>
                 </div>
@@ -38,7 +38,7 @@ export default function ComplianceStatusCard({ summary, className = '' }: Compli
                                 <span className="text-sm font-semibold normal-case tracking-normal text-slate-500 dark:text-slate-400">
                                     Latest Filing
                                 </span>
-                                <span className="text-sm font-medium text-slate-400 dark:text-slate-500">
+                                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
                                     {latestReport.date}
                                 </span>
                             </div>
@@ -51,7 +51,7 @@ export default function ComplianceStatusCard({ summary, className = '' }: Compli
                             </p>
                         </div>
                     ) : (
-                        <div className="py-2 text-center text-slate-400 dark:text-slate-500">
+                        <div className="py-2 text-center text-slate-500 dark:text-slate-400">
                             <p className="leading-relaxed text-sm">No formal compliance reports compiled this cycle.</p>
                         </div>
                     )}

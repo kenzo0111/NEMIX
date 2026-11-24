@@ -41,13 +41,13 @@ const props = { departments: ['CCMS', 'CoEd'], departmentHeads: { CCMS: 7, CoEd:
 const initial = module.exports.render({ department: 'CCMS', office_head_id: '7' }, props);
 assert.match(initial.html, /id="staff-head-designation"[^>]*readonly=""[^>]*value="Dean, CCMS"/);
 initial.selects['staff-department'].onChange({ value: 'CoEd' });
-assert.equal(JSON.stringify(initial.changes), JSON.stringify([['department', 'CoEd'], ['office_head_id', '8']]));
+assert.equal(JSON.stringify(initial.changes), JSON.stringify([['department', 'CoEd'], ['office_head_id', '8'], ['office_head_designation', 'Dean, College of Education'], ['office_head_name', '']]));
 const switched = module.exports.render({ department: 'CoEd', office_head_id: '8' }, props);
 assert.equal(switched.selects['staff-office-head'].value.value, '8');
 assert.match(switched.html, /value="Dean, College of Education"/);
 switched.selects['staff-department'].onCreateOption('Other Office');
-assert.equal(JSON.stringify(switched.changes), JSON.stringify([['department', 'Other Office'], ['office_head_id', '']]));
+assert.equal(JSON.stringify(switched.changes), JSON.stringify([['department', 'Other Office'], ['office_head_id', ''], ['office_head_designation', '']]));
 const cleared = module.exports.render({ department: 'CCMS', office_head_id: '7' }, props);
 cleared.selects['staff-department'].onChange(null);
-assert.equal(JSON.stringify(cleared.changes), JSON.stringify([['department', ''], ['office_head_id', '']]));
+assert.equal(JSON.stringify(cleared.changes), JSON.stringify([['department', ''], ['office_head_id', ''], ['office_head_designation', '']]));
 console.log('Delivery Unit selection fills the matching dean/designation and clears stale heads when switching to an unmapped office.');

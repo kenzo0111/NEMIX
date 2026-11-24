@@ -1,3 +1,5 @@
+import { DialogHeader, DialogFooter } from '@/Components/ui/dialog-frame';
+import { Button } from '@/Components/ui/button';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
@@ -122,19 +124,16 @@ export default function EditRoleDialog({
 
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="4xl" closeable={!processing} ariaLabel="Edit Role and Permissions">
-            <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden flex flex-col max-h-[90vh] shadow-xl">
+            <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden flex flex-col max-h-[90vh] shadow-none">
                 {/* Institutional Maroon Top Accent Line */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-950 via-red-900 to-red-950 shrink-0" />
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-900">
+                <DialogHeader className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-3 min-w-0">
                         <div
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
-                                isSystemRole
-                                    ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
-                                    : 'bg-red-50 dark:bg-red-950/50 border-red-100 dark:border-red-900/40 text-red-900 dark:text-red-300'
-                            }`}
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${isSystemRole
+    ? "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300" : "bg-red-50 dark:bg-red-950/50 border-red-100 dark:border-red-900/40 text-red-900 dark:text-red-300"}`}
                         >
                             {isSystemRole ? (
                                 <Lock className="w-5 h-5" />
@@ -144,7 +143,7 @@ export default function EditRoleDialog({
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 truncate">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 truncate">
                                     Edit Role & Permissions
                                 </h3>
                                 {isSystemRole ? (
@@ -163,15 +162,15 @@ export default function EditRoleDialog({
                             </p>
                         </div>
                     </div>
-                    <button
+                    <Button variant="ghost" size="icon"
                         type="button"
                         onClick={onClose}
-                        className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0 ml-2"
+                        className="shrink-0 ml-2"
                         aria-label="Close dialog"
                     >
                         <X className="w-5 h-5" />
-                    </button>
-                </div>
+                    </Button>
+                </DialogHeader>
 
                 {/* Form Body */}
                 <form
@@ -188,23 +187,19 @@ export default function EditRoleDialog({
                             Role Name <span className="text-red-600 dark:text-red-400">*</span>
                         </label>
                         <div className="relative max-w-md">
-                            <input
+                            <input aria-invalid={Boolean(errors.name)}
                                 type="text"
                                 id="edit-role-name"
                                 value={data.name}
                                 disabled={isSystemRole}
                                 onChange={(e) => setData('name', e.target.value)}
-                                className={`bg-white dark:bg-slate-800 border text-gray-900 dark:text-slate-100 text-sm rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 block w-full p-2.5 transition-all ${
-                                    isSystemRole
-                                        ? 'bg-gray-100 dark:bg-slate-900 text-gray-500 dark:text-slate-500 cursor-not-allowed border-gray-200 dark:border-slate-700 pl-8'
-                                        : errors.name
-                                        ? 'border-red-500'
-                                        : 'border-gray-300 dark:border-slate-700'
-                                }`}
+                                className={"ui-field " + (`bg-white dark:bg-slate-800 border text-gray-900 dark:text-slate-100 text-sm rounded-lg focus:ring-1 focus:ring-red-900 dark:focus:ring-red-600 focus:border-red-900 dark:focus:border-red-600 block w-full p-2.5 transition-all ${isSystemRole
+    ? "bg-gray-100 dark:bg-slate-900 text-gray-500 dark:text-slate-400 cursor-not-allowed border-gray-200 dark:border-slate-700 pl-8" : errors.name
+    ? "border-red-500" : "border-gray-300 dark:border-slate-700"}`)}
                                 required
                             />
                             {isSystemRole && (
-                                <Lock className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                                <Lock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                             )}
                         </div>
                         {errors.name && (
@@ -221,7 +216,7 @@ export default function EditRoleDialog({
 
                     {/* Permission Section Header */}
                     <div>
-                        <h4 className="text-base font-bold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
+                        <h4 className="text-base font-semibold text-gray-700 dark:text-slate-300 normal-case tracking-normal">
                             Permission Assignments
                         </h4>
                         <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1">
@@ -230,7 +225,7 @@ export default function EditRoleDialog({
                     </div>
 
                     {/* Two-Column Permission Layout (Tablet & Desktop: md:flex) */}
-                    <div className="border border-gray-200/90 dark:border-slate-800 rounded-xl overflow-hidden flex flex-col md:flex-row min-h-[400px] shadow-2xs">
+                    <div className="border border-gray-200/90 dark:border-slate-800 rounded-xl overflow-hidden flex flex-col md:flex-row min-h-[400px] shadow-sm">
                         <PermissionModuleList
                             modules={moduleNames}
                             activeModule={activeModuleTab}
@@ -251,7 +246,7 @@ export default function EditRoleDialog({
                 </form>
 
                 {/* Footer */}
-                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between px-4 sm:px-6 py-3 sm:py-3.5 border-t border-gray-200 dark:border-slate-800 shrink-0 gap-3 bg-gray-50/80 dark:bg-slate-950 sticky bottom-0">
+                <DialogFooter className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between px-4 sm:px-6 py-3 sm:py-3.5 border-t border-gray-200 dark:border-slate-800 shrink-0 gap-3 bg-gray-50/80 dark:bg-slate-950 sticky bottom-0">
                     <div className="text-sm text-gray-600 dark:text-slate-400 text-center sm:text-left">
                         <span className="font-semibold text-gray-900 dark:text-slate-100">
                             {data.permissions.length} of {totalSystemPermissionsCount}
@@ -260,18 +255,18 @@ export default function EditRoleDialog({
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={onClose}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer text-center"
+                            className="w-full sm:w-auto text-center"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="primary"
                             type="submit"
                             form="edit-role-form"
                             disabled={processing || !data.name.trim()}
-                            className="w-full sm:w-auto px-5 py-2.5 bg-red-950 hover:bg-red-900 active:bg-red-950 text-white text-sm font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-center flex items-center justify-center gap-1.5 normal-case tabular-nums tracking-normal"
+                            className="w-full sm:w-auto text-center flex items-center justify-center gap-1.5 tabular-nums"
                         >
                             {processing ? (
                                 <>
@@ -281,9 +276,9 @@ export default function EditRoleDialog({
                             ) : (
                                 <span>Save Changes</span>
                             )}
-                        </button>
+                        </Button>
                     </div>
-                </div>
+                </DialogFooter>
             </div>
         </Modal>
     );

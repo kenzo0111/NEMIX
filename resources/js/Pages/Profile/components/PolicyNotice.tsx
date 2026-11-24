@@ -7,30 +7,30 @@ interface Props {
 
 export default function PolicyNotice({ className = '' }: Props) {
     return (
-        <div className={`bg-white rounded-xl border border-slate-200/90 border-l-4 border-l-red-900 shadow-2xs p-5 ${className}`}>
+        <div className={`bg-white rounded-xl border border-slate-200/90 border-l-4 border-l-red-900 shadow-sm p-5 ${className}`}>
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div className="flex items-start gap-3.5">
-                    <div className="w-8 h-8 rounded-lg bg-red-50 text-red-900 border border-red-100 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-lg bg-red-50 text-red-900 border border-red-100 flex items-center justify-center shrink-0 mt-0.5 dark:text-red-300">
                         <ShieldAlert className="w-4 h-4" />
                     </div>
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-lg font-bold font-sans text-slate-900 normal-case tracking-normal">
+                            <h3 className="text-lg font-semibold font-sans text-slate-900 normal-case tracking-normal dark:text-slate-300">
                                 Institutional Account Accountability Policy
                             </h3>
-                            <span className="text-sm tabular-nums px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold border border-slate-200">
+                            <span className="text-sm tabular-nums px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold border border-slate-200 dark:text-slate-300">
                                 COA Circular 2020-006
                             </span>
                         </div>
-                        <p className="text-sm text-slate-600 leading-relaxed max-w-3xl">
+                        <p className="text-sm text-slate-600 leading-relaxed max-w-3xl dark:text-slate-300">
                             Personnel custodial profiles cannot be self-deleted or deactivated. Under national accounting guidelines and SPMO regulations, custodial account identities are permanently preserved in the institutional ledger to ensure untampered property assignment trails. Role changes or status revisions require System Administrator clearance.
                         </p>
                     </div>
                 </div>
 
-                <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-sm text-slate-600 shrink-0 self-start">
-                    <FileCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="font-semibold text-slate-800">Ledger Immutability Enforced</span>
+                <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-sm text-slate-600 shrink-0 self-start dark:text-slate-300 dark:bg-slate-900">
+                    <FileCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300" />
+                    <span className="font-semibold text-slate-800 dark:text-slate-300">Ledger Immutability Enforced</span>
                 </div>
             </div>
         </div>

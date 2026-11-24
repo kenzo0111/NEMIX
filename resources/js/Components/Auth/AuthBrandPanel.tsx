@@ -29,17 +29,17 @@ export default function AuthBrandPanel({
             {/* 1. Top: Institutional Identity Block: Horizontal Logo + Name Lockup */}
             <div className="relative z-10">
                 <div className="flex items-center gap-3 xl:gap-4">
-                    <div className="bg-white p-3 rounded-2xl shadow-xs shrink-0 flex items-center justify-center">
+                    <div className="bg-white p-3 rounded-2xl shadow-sm shrink-0 flex items-center justify-center dark:bg-slate-900">
                         <ApplicationLogo alt={`${institutionName} Seal`} className="h-10 w-10 object-contain" />
                     </div>
                     <div className="min-w-0 flex-1 text-left">
-                        <p className="leading-snug font-sans text-[11px] xl:text-xs uppercase tracking-wide text-amber-300 font-medium">
+                        <p className="leading-snug font-sans text-sm xl:text-sm normal-case tracking-normal text-amber-300 font-medium">
                             REPUBLIC OF THE PHILIPPINES
                         </p>
-                        <h1 className="text-[16px] xl:text-[19px] font-sans font-bold uppercase leading-snug text-white tracking-tight break-words">
+                        <p className="text-[16px] xl:text-[19px] font-sans font-semibold normal-case leading-snug text-white tracking-tight break-words">
                             {institutionName}
-                        </h1>
-                        <p className="leading-snug font-sans text-xs xl:text-sm text-white/85 font-normal break-words">
+                        </p>
+                        <p className="leading-snug font-sans text-sm xl:text-sm text-white/85 font-normal break-words">
                             {officeName}
                         </p>
                     </div>
@@ -49,16 +49,16 @@ export default function AuthBrandPanel({
             {/* System title and full description */}
             <div className="relative z-10 pb-28 xl:pb-36">
                 <div className="w-16 h-1 bg-amber-300 mb-5" aria-hidden="true" />
-                <h2 className="text-3xl xl:text-4xl font-semibold tracking-tight text-white leading-tight font-sans">
+                <p className="text-3xl xl:text-4xl font-semibold tracking-tight text-white leading-tight font-sans">
                     {headline}
-                </h2>
+                </p>
                 <p className="mt-3 text-sm font-medium text-white/85 leading-relaxed">
                     Consumable Supply Management
                 </p>
                 <p className="text-sm xl:text-base text-white/85 leading-relaxed font-sans mt-4 max-w-md [text-wrap:pretty]">
                     {subheadline}
                 </p>
-                <div className="grid grid-cols-3 divide-x divide-white/15 mt-9 text-xs xl:text-sm leading-relaxed">
+                <div className="grid grid-cols-3 divide-x divide-white/15 mt-9 text-sm xl:text-sm leading-relaxed">
                     <div className="flex items-center gap-2 pr-3">
                         <Package className="w-6 h-6 xl:w-7 xl:h-7 shrink-0 text-amber-300" aria-hidden="true" />
                         <span>Digital<br />Requisitions</span>

@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import { RFIDInventoryItem } from '../../types';
 import { AlertTriangle, Radio, RotateCcw, Eye } from 'lucide-react';
 
@@ -15,54 +16,54 @@ export default function TagConflictState({
     onViewExistingItem,
 }: TagConflictStateProps) {
     return (
-        <div className="text-center py-7 px-6 bg-gradient-to-b from-amber-50/40 via-white to-gray-50/20 rounded-xl border border-amber-200 shadow-2xs">
-            <div className="w-12 h-12 rounded-xl bg-amber-100/80 text-amber-700 flex items-center justify-center mx-auto mb-3 border border-amber-200">
-                <AlertTriangle className="w-6 h-6 text-amber-600" />
+        <div className="text-center py-7 px-6 bg-gradient-to-b from-amber-50/40 via-white to-gray-50/20 rounded-xl border border-amber-200 shadow-sm">
+            <div className="w-12 h-12 rounded-xl bg-amber-100/80 text-amber-700 flex items-center justify-center mx-auto mb-3 border border-amber-200 dark:text-amber-300">
+                <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-300" />
             </div>
 
-            <h3 className="text-lg font-semibold text-gray-900 font-sans">
+            <h3 className="text-lg font-semibold text-gray-900 font-sans dark:text-slate-300">
                 RFID Tag Already In Use
             </h3>
 
-            <div className="my-2.5 inline-flex items-center gap-2 tabular-nums text-base font-bold text-red-950 bg-white px-4 py-1.5 rounded-lg border border-amber-300 shadow-2xs">
-                <Radio className="w-4 h-4 text-amber-600" />
+            <div className="my-2.5 inline-flex items-center gap-2 tabular-nums text-base font-semibold text-red-950 bg-white px-4 py-1.5 rounded-lg border border-amber-300 shadow-sm dark:text-red-300 dark:bg-slate-900">
+                <Radio className="w-4 h-4 text-amber-600 dark:text-amber-300" />
                 <span>{tag}</span>
             </div>
 
-            <p className="leading-relaxed text-sm text-gray-500 mt-1">
+            <p className="leading-relaxed text-sm text-gray-500 mt-1 dark:text-slate-300">
                 This transponder is already assigned to another item in the registry:
             </p>
 
-            <div className="mt-3 bg-white p-3.5 rounded-xl border border-gray-200 text-left max-w-sm mx-auto shadow-2xs">
-                <div className="flex items-center justify-between text-sm text-gray-400 tabular-nums mb-1">
+            <div className="mt-3 bg-white p-3.5 rounded-xl border border-gray-200 text-left max-w-sm mx-auto shadow-sm dark:bg-slate-900">
+                <div className="flex items-center justify-between text-sm text-slate-500 tabular-nums mb-1 dark:text-slate-300">
                     <span>EXISTING ASSIGNMENT</span>
                     <span>SKU: {conflictItem.sku || 'N/A'}</span>
                 </div>
-                <p className="leading-relaxed font-semibold text-gray-900 text-sm truncate">{conflictItem.name}</p>
+                <p className="leading-relaxed font-semibold text-gray-900 text-sm truncate dark:text-slate-300">{conflictItem.name}</p>
                 {conflictItem.supplier_name && (
-                    <p className="leading-relaxed text-sm text-gray-400 mt-1 truncate">
+                    <p className="leading-relaxed text-sm text-slate-500 mt-1 truncate dark:text-slate-300">
                         Supplier: {conflictItem.supplier_name}
                     </p>
                 )}
             </div>
 
             <div className="mt-5 flex items-center justify-center gap-3 max-w-sm mx-auto">
-                <button
+                <Button variant="primary"
                     type="button"
                     onClick={onRescan}
-                    className="flex-1 py-2.5 px-3.5 bg-red-950 hover:bg-red-900 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-2xs inline-flex items-center justify-center gap-1.5"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5"
                 >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>Scan Another Tag</span>
-                </button>
-                <button
+                </Button>
+                <Button variant="secondary"
                     type="button"
                     onClick={() => onViewExistingItem(conflictItem)}
-                    className="flex-1 py-2.5 px-3.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5 shadow-2xs"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5"
                 >
-                    <Eye className="w-3.5 h-3.5 text-gray-500" />
+                    <Eye className="w-3.5 h-3.5 text-gray-500 dark:text-slate-300" />
                     <span>View Record</span>
-                </button>
+                </Button>
             </div>
         </div>
     );

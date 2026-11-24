@@ -37,7 +37,7 @@ export default function RecentSystemActivity({ activities = [], className = '' }
         .slice(0, 4);
 
     return (
-        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs w-full min-w-0 flex flex-col justify-between ${className}`}>
+        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm w-full min-w-0 flex flex-col justify-between ${className}`}>
             <div>
                 {/* Section Header */}
                 <div className="flex items-center justify-between gap-2 pb-2.5 mb-1.5 border-b border-slate-100 dark:border-slate-800">
@@ -45,7 +45,7 @@ export default function RecentSystemActivity({ activities = [], className = '' }
                         <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
                             <History className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-lg font-bold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
                             {isCoordinator ? 'Recent unit activity' : 'Recent System Activity'}
                         </h3>
                     </div>
@@ -53,9 +53,9 @@ export default function RecentSystemActivity({ activities = [], className = '' }
 
                 {/* Empty State */}
                 {normalizedActivities.length === 0 ? (
-                    <div className="py-5 text-center text-slate-400 dark:text-slate-500 space-y-1">
+                    <div className="py-5 text-center text-slate-500 dark:text-slate-400 space-y-1">
                         <p className="leading-relaxed text-sm font-medium text-slate-600 dark:text-slate-300">No recent system activity.</p>
-                        <p className="leading-relaxed text-sm text-slate-400 dark:text-slate-500">
+                        <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
                             New inventory, compliance, and administrative actions will appear here.
                         </p>
                     </div>
@@ -88,11 +88,8 @@ export default function RecentSystemActivity({ activities = [], className = '' }
                                     {/* LINE 1: Main Activity Title + Optional Business Reference */}
                                     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 min-w-0">
                                         <span
-                                            className={`text-sm font-semibold tracking-tight ${
-                                                isDestructiveOrFailed
-                                                    ? 'text-red-700 dark:text-red-400'
-                                                    : 'text-slate-900 dark:text-slate-100 group-hover:text-red-900 dark:group-hover:text-red-400 transition-colors'
-                                            }`}
+                                            className={`text-sm font-semibold tracking-tight ${isDestructiveOrFailed
+    ? "text-red-700 dark:text-red-400" : "text-slate-900 dark:text-slate-100 group-hover:text-red-900 dark:group-hover:text-red-400 transition-colors"}`}
                                         >
                                             {act.title}
                                         </span>
@@ -107,7 +104,7 @@ export default function RecentSystemActivity({ activities = [], className = '' }
                                     {/* LINE 2: Human-Readable Natural Summary */}
                                     {isCoordinator && Array.isArray(act.context?.line_items) && act.context.line_items.length > 1 ? (
                                         <details className="text-sm text-slate-600 dark:text-slate-300">
-                                            <summary className="min-h-8 cursor-pointer py-1 font-medium hover:text-red-800 dark:hover:text-red-300">{act.context.line_items.length} supply lines · View items</summary>
+                                            <summary className="min-h-8 cursor-pointer py-1 font-medium hover:text-red-800 dark:hover:text-red-300 dark:text-red-300">{act.context.line_items.length} supply lines · View items</summary>
                                             <ul className="space-y-1 pb-2 pl-4">
                                                 {act.context.line_items.map((line, index) => <li key={index}>{String(line)}</li>)}
                                             </ul>
@@ -119,7 +116,7 @@ export default function RecentSystemActivity({ activities = [], className = '' }
                                     )}
 
                                     {/* LINE 3: Metadata Line (Module • Time • Actor) */}
-                                    <div className="flex flex-wrap items-center gap-1.5 text-sm text-slate-400 dark:text-slate-500 pt-0.5 min-w-0">
+                                    <div className="flex flex-wrap items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 pt-0.5 min-w-0">
                                         <span className="font-medium text-slate-500 dark:text-slate-400">{act.module}</span>
                                         <span className="text-slate-300 dark:text-slate-700">•</span>
                                         <span>{act.time || act.timestamp || 'Recently'}</span>

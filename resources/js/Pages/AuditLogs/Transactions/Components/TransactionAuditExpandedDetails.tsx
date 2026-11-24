@@ -89,7 +89,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
         !(Object.keys(affectedItemGroups).length === 1 && affectedItemGroups['general']);
 
     return (
-        <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg shadow-2xs space-y-5 text-sm text-gray-800 dark:text-slate-200">
+        <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg shadow-sm space-y-5 text-sm text-gray-800 dark:text-slate-200">
             {/* LEVEL 1: TRANSACTION SUMMARY */}
             <div>
                 <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 dark:border-slate-800">
@@ -97,7 +97,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                         <div className="p-1 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-400 rounded border border-red-100 dark:border-red-900/50">
                             <FileText className="w-4 h-4" />
                         </div>
-                        <span className="font-bold text-gray-900 dark:text-slate-100 normal-case tracking-normal text-sm">
+                        <span className="font-semibold text-gray-900 dark:text-slate-100 normal-case tracking-normal text-sm">
                             Level 1 • Transaction Summary
                         </span>
                     </div>
@@ -107,7 +107,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                             status={record.audit_status}
                             result={record.result}
                         />
-                        <span className="tabular-nums text-gray-400 dark:text-slate-500 text-sm">
+                        <span className="tabular-nums text-slate-500 dark:text-slate-400 text-sm">
                             ID: {record.id}
                         </span>
                     </div>
@@ -116,10 +116,10 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-3">
                     <div className="bg-gray-50/70 dark:bg-slate-800/80 p-2.5 rounded border border-gray-100 dark:border-slate-700/60">
                         <span className="text-gray-500 dark:text-slate-400 text-sm block font-medium flex items-center gap-1.5">
-                            <Hash className="w-3 h-3 text-gray-400 dark:text-slate-500" />
+                            <Hash className="w-3 h-3 text-slate-500 dark:text-slate-400" />
                             Reference Identifier
                         </span>
-                        <span className="tabular-nums font-bold text-gray-900 dark:text-slate-100 mt-1 block">
+                        <span className="tabular-nums font-semibold text-gray-900 dark:text-slate-100 mt-1 block">
                             {reference}
                         </span>
                         {record.audit_group_id && (
@@ -134,10 +134,10 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
 
                     <div className="bg-gray-50/70 dark:bg-slate-800/80 p-2.5 rounded border border-gray-100 dark:border-slate-700/60">
                         <span className="text-gray-500 dark:text-slate-400 text-sm block font-medium flex items-center gap-1.5">
-                            <UserIcon className="w-3 h-3 text-gray-400 dark:text-slate-500" />
+                            <UserIcon className="w-3 h-3 text-slate-500 dark:text-slate-400" />
                             Authorized User
                         </span>
-                        <span className="font-bold text-gray-900 dark:text-slate-100 mt-1 block truncate">
+                        <span className="font-semibold text-gray-900 dark:text-slate-100 mt-1 block truncate">
                             {record.user_name || record.user || 'System Administrator'}
                         </span>
                         <span className="text-sm text-gray-500 dark:text-slate-400 block mt-0.5">
@@ -147,10 +147,10 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
 
                     <div className="bg-gray-50/70 dark:bg-slate-800/80 p-2.5 rounded border border-gray-100 dark:border-slate-700/60">
                         <span className="text-gray-500 dark:text-slate-400 text-sm block font-medium flex items-center gap-1.5">
-                            <Shield className="w-3 h-3 text-gray-400 dark:text-slate-500" />
+                            <Shield className="w-3 h-3 text-slate-500 dark:text-slate-400" />
                             Module & Business Action
                         </span>
-                        <span className="font-bold text-gray-900 dark:text-slate-100 mt-1 block truncate">
+                        <span className="font-semibold text-gray-900 dark:text-slate-100 mt-1 block truncate">
                             {record.action}
                         </span>
                         <span className="text-sm text-red-950 dark:text-red-400 font-medium block mt-0.5">
@@ -160,7 +160,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
 
                     <div className="bg-gray-50/70 dark:bg-slate-800/80 p-2.5 rounded border border-gray-100 dark:border-slate-700/60">
                         <span className="text-gray-500 dark:text-slate-400 text-sm block font-medium flex items-center gap-1.5">
-                            <Clock className="w-3 h-3 text-gray-400 dark:text-slate-500" />
+                            <Clock className="w-3 h-3 text-slate-500 dark:text-slate-400" />
                             Recorded Date & Time
                         </span>
                         <span className="font-medium text-gray-900 dark:text-slate-100 mt-1 block">
@@ -199,7 +199,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                         <div className="p-1 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 rounded border border-amber-100 dark:border-amber-900/50">
                             <Layers className="w-4 h-4" />
                         </div>
-                        <span className="font-bold text-gray-900 dark:text-slate-100 normal-case tracking-normal text-sm">
+                        <span className="font-semibold text-gray-900 dark:text-slate-100 normal-case tracking-normal text-sm">
                             Level 2 • Affected Items & Actions ({Object.keys(affectedItemGroups).length})
                         </span>
                     </div>
@@ -211,7 +211,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                                 className="bg-gray-50/60 dark:bg-slate-800/70 rounded-md border border-gray-200 dark:border-slate-700/60 p-3 space-y-2"
                             >
                                 <div className="flex items-center justify-between">
-                                    <span className="font-bold text-gray-900 dark:text-slate-100 text-sm">
+                                    <span className="font-semibold text-gray-900 dark:text-slate-100 text-sm">
                                         {group.title}
                                     </span>
                                     <span className="text-sm font-semibold px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300">
@@ -250,7 +250,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                             <div className="p-1 bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-400 rounded border border-blue-100 dark:border-blue-900/50">
                                 <CheckCircle2 className="w-4 h-4" />
                             </div>
-                            <span className="font-bold text-gray-900 dark:text-slate-100 normal-case tracking-normal text-sm">
+                            <span className="font-semibold text-gray-900 dark:text-slate-100 normal-case tracking-normal text-sm">
                                 Technical Audit Trail ({children.length} Events)
                             </span>
                         </div>
@@ -284,7 +284,7 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                                 >
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                                         <div className="flex items-center gap-2">
-                                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-sm font-bold text-gray-700 dark:text-slate-300">
+                                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-sm font-semibold text-gray-700 dark:text-slate-300">
                                                 {idx + 1}
                                             </span>
                                             <span className="font-semibold text-gray-900 dark:text-slate-100 text-sm">
@@ -337,8 +337,8 @@ export const TransactionAuditExpandedDetails: React.FC<TransactionAuditExpandedD
                                                                 <span className="px-1.5 py-0.5 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 rounded border border-rose-100 dark:border-rose-900/50 font-medium line-through">
                                                                     {oldStr}
                                                                 </span>
-                                                                <ArrowRight className="w-3 h-3 text-gray-400 dark:text-slate-500" />
-                                                                <span className="px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded border border-emerald-100 dark:border-emerald-900/50 font-bold">
+                                                                <ArrowRight className="w-3 h-3 text-slate-500 dark:text-slate-400" />
+                                                                <span className="px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded border border-emerald-100 dark:border-emerald-900/50 font-semibold">
                                                                     {newStr}
                                                                 </span>
                                                             </div>

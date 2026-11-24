@@ -186,7 +186,7 @@ export default function RoleManagementIndex({
                     <section
                         data-tour="system-admin-role-policy"
                         aria-labelledby="security-notice-heading"
-                        className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 rounded-xl p-4 flex items-start gap-3.5 text-sm text-amber-950 dark:text-amber-200 shadow-2xs"
+                        className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 rounded-xl p-4 flex items-start gap-3.5 text-sm text-amber-950 dark:text-amber-200 shadow-sm"
                     >
                         <div className="p-1.5 bg-amber-100/70 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 rounded-lg border border-amber-200 dark:border-amber-700 shrink-0 mt-0.5">
                             <Info className="w-4 h-4" />
@@ -194,7 +194,7 @@ export default function RoleManagementIndex({
                         <div>
                             <h3
                                 id="security-notice-heading"
-                                className="text-lg font-bold text-amber-900 dark:text-amber-300 "
+                                className="text-lg font-semibold text-amber-900 dark:text-amber-300"
                             >
                                 Permission Changes & Session Policy
                             </h3>

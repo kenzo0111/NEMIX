@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { useMemo, useState } from 'react';
 import { UserProfileDetails, LoginTrailItem } from '../types';
 import { useSortableData } from '@/Hooks/useSortableData';
@@ -40,55 +41,55 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
         <div className={`space-y-6 ${className}`}>
             {/* KPI Security Metrics Strip */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-                <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-2xs">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm">
                     <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1 text-sm font-semibold normal-case tracking-normal">
                         <Shield className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
                         <span>Security Level</span>
                     </div>
-                    <div className="text-base font-bold font-sans text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                    <div className="text-base font-semibold font-sans text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-emerald-500" />
                         <span>Protected</span>
                     </div>
-                    <span className="text-sm text-slate-400 dark:text-slate-500 tabular-nums block mt-0.5">2-Step Email Verification</span>
+                    <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums block mt-0.5">2-Step Email Verification</span>
                 </div>
 
-                <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-2xs">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm">
                     <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1 text-sm font-semibold normal-case tracking-normal">
                         <Laptop className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
                         <span>Active Devices</span>
                     </div>
-                    <div className="text-base font-bold font-sans text-slate-900 dark:text-slate-100 tabular-nums">
+                    <div className="text-base font-semibold font-sans text-slate-900 dark:text-slate-100 tabular-nums">
                         {Math.max(activeSessions.length, 1)} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">Live</span>
                     </div>
-                    <span className="text-sm text-slate-400 dark:text-slate-500 tabular-nums block mt-0.5">Verified Sessions</span>
+                    <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums block mt-0.5">Verified Sessions</span>
                 </div>
 
-                <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-2xs">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm">
                     <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1 text-sm font-semibold normal-case tracking-normal">
                         <Activity className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
                         <span>Audit Records</span>
                     </div>
-                    <div className="text-base font-bold font-sans text-slate-900 dark:text-slate-100 tabular-nums">
+                    <div className="text-base font-semibold font-sans text-slate-900 dark:text-slate-100 tabular-nums">
                         {loginHistory.length} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">Entries</span>
                     </div>
-                    <span className="text-sm text-slate-400 dark:text-slate-500 tabular-nums block mt-0.5">Immutable System Ledger</span>
+                    <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums block mt-0.5">Immutable System Ledger</span>
                 </div>
 
-                <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-2xs">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm">
                     <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1 text-sm font-semibold normal-case tracking-normal">
                         <KeyRound className="w-3.5 h-3.5 text-red-900 dark:text-red-400" />
                         <span>Credentials</span>
                     </div>
-                    <div className="text-base font-bold font-sans text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                    <div className="text-base font-semibold font-sans text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                         <span>Current</span>
                     </div>
-                    <span className="text-sm text-slate-400 dark:text-slate-500 tabular-nums block mt-0.5">COA Password Standard</span>
+                    <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums block mt-0.5">COA Password Standard</span>
                 </div>
             </div>
 
             {/* Active Browser Sessions */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
                 {/* Top Accent Line */}
                 <div className="h-1 bg-red-900 dark:bg-red-800 w-full" />
 
@@ -98,7 +99,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                             <Laptop className="w-4 h-4" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold font-sans text-slate-900 dark:text-slate-100">
+                            <h2 className="text-xl font-semibold font-sans text-slate-900 dark:text-slate-100">
                                 Active System Sessions
                             </h2>
                             <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
@@ -130,7 +131,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                                         </div>
                                         <div className="min-w-0">
                                             <div className="flex items-center gap-2 flex-wrap">
-                                                <span className="tabular-nums font-bold text-slate-900 dark:text-slate-100">
+                                                <span className="tabular-nums font-semibold text-slate-900 dark:text-slate-100">
                                                     {session.ip_address}
                                                 </span>
                                                 {session.is_current && (
@@ -154,7 +155,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                         </div>
                     ) : (
                         <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2.5">
-                            <Globe className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                            <Globe className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                             <span>Active browser session tracking operates when the database session driver is configured.</span>
                         </div>
                     )}
@@ -162,7 +163,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
             </div>
 
             {/* Authentication Audit Trail */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-2xs overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
                 {/* Top Accent Line */}
                 <div className="h-1 bg-red-900 dark:bg-red-800 w-full" />
 
@@ -172,7 +173,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                             <Activity className="w-4 h-4" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold font-sans text-slate-900 dark:text-slate-100">
+                            <h2 className="text-xl font-semibold font-sans text-slate-900 dark:text-slate-100">
                                 Authentication Audit Trail
                             </h2>
                             <p className="leading-relaxed text-sm text-slate-500 dark:text-slate-400">
@@ -190,7 +191,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                     {displayedHistory.length > 0 ? (
                         <div className="space-y-3">
                             <div className="w-full min-w-0 overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg">
-                                <table className="w-full min-w-[37.5rem] divide-y divide-slate-200 dark:divide-slate-800 text-sm">
+                                <table className="ui-data-table w-full min-w-[37.5rem] divide-y divide-slate-200 dark:divide-slate-800 text-sm">
                                     <thead className="bg-slate-50 dark:bg-slate-850">
                                         <tr>
                                             <SortableTableHeader column="status" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="px-4 py-3.5 align-middle">Verification Status</SortableTableHeader>
@@ -204,16 +205,11 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                                             <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-850/50 transition-colors">
                                                 <td className="px-4 py-3.5 whitespace-nowrap align-middle">
                                                     <span
-                                                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-semibold ${
-                                                            item.status === 'Success'
-                                                                ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
-                                                                : 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60'
-                                                        }`}
+                                                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-sm font-semibold ${item.status === 'Success'
+    ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60" : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60"}`}
                                                     >
                                                         <span
-                                                            className={`w-1.5 h-1.5 rounded-full ${
-                                                                item.status === 'Success' ? 'bg-emerald-600' : 'bg-rose-600'
-                                                            }`}
+                                                            className={`w-1.5 h-1.5 rounded-full ${item.status === 'Success' ? "bg-emerald-600" : "bg-rose-600"}`}
                                                         />
                                                         <span>{item.status}</span>
                                                     </span>
@@ -223,7 +219,7 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                                                 </td>
                                                 <td className="px-4 py-3.5 whitespace-nowrap align-middle">
                                                     <span className="text-slate-900 dark:text-slate-100 font-medium">{item.timestamp}</span>
-                                                    <span className="text-sm text-slate-400 dark:text-slate-500 tabular-nums block mt-0.5">
+                                                    <span className="text-sm text-slate-500 dark:text-slate-400 tabular-nums block mt-0.5">
                                                         {item.time_ago}
                                                     </span>
                                                 </td>
@@ -239,15 +235,15 @@ export default function AccountSecurityCard({ profile, className = '' }: Props) 
                             {/* View More / Less toggle */}
                             {hasMoreHistory && (
                                 <div className="text-center pt-2">
-                                    <button
+                                    <Button variant="secondary"
                                         type="button"
                                         onClick={() => setIsExpanded((prev) => !prev)}
                                         aria-expanded={isExpanded}
-                                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-red-900 dark:text-red-400 hover:text-red-950 dark:hover:text-red-300 cursor-pointer px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+                                        className="inline-flex items-center gap-1.5"
                                     >
                                         <span>{isExpanded ? 'Show Fewer Records' : `View All (${loginHistory.length}) Records`}</span>
                                         {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                                    </button>
+                                    </Button>
                                 </div>
                             )}
                         </div>

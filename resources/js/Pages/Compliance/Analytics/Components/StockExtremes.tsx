@@ -11,7 +11,7 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
     return (
         <Card>
             <CardHeader className="border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 py-4 px-6">
-                <CardTitle className="text-sm font-bold text-gray-900 dark:text-slate-100 font-sans">
+                <CardTitle className="text-sm font-semibold text-gray-900 dark:text-slate-100 font-sans">
                     Stock Volume Extremes
                 </CardTitle>
                 <CardDescription className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
@@ -40,7 +40,7 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
                                         className="py-2.5 flex items-center justify-between gap-3 text-sm"
                                     >
                                         <div className="flex items-center gap-2.5 min-w-0">
-                                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 tabular-nums w-4 shrink-0">
+                                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 tabular-nums w-4 shrink-0">
                                                 {index + 1}.
                                             </span>
                                             <div className="min-w-0">
@@ -52,7 +52,7 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
                                         </div>
                                         <div className="text-right shrink-0">
                                             <span className="font-semibold text-gray-900 dark:text-slate-100 tabular-nums">
-                                                {Number(item.stock).toLocaleString()}
+                                                {Number(item.stock).toLocaleString('en-PH')}
                                             </span>
                                             <span className="text-gray-500 dark:text-slate-400 ml-1 text-sm">
                                                 {item.unitOfIssue || 'units'}
@@ -62,7 +62,7 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
                                 ))}
                             </div>
                         ) : (
-                            <p className="leading-relaxed py-6 text-center text-sm text-gray-400 dark:text-slate-500">
+                            <p className="leading-relaxed py-6 text-center text-sm text-slate-500 dark:text-slate-400">
                                 No records recorded.
                             </p>
                         )}
@@ -87,7 +87,7 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
                                         className="py-2.5 flex items-center justify-between gap-3 text-sm"
                                     >
                                         <div className="flex items-center gap-2.5 min-w-0">
-                                            <span className="text-sm font-semibold text-gray-400 dark:text-slate-500 tabular-nums w-4 shrink-0">
+                                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 tabular-nums w-4 shrink-0">
                                                 {index + 1}.
                                             </span>
                                             <div className="min-w-0">
@@ -99,7 +99,7 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
                                         </div>
                                         <div className="text-right shrink-0">
                                             <span className="font-semibold text-gray-900 dark:text-slate-100 tabular-nums">
-                                                {Number(item.stock).toLocaleString()}
+                                                {Number(item.stock).toLocaleString('en-PH')}
                                             </span>
                                             <span className="text-gray-500 dark:text-slate-400 ml-1 text-sm">
                                                 {item.unitOfIssue || 'units'}
@@ -109,7 +109,7 @@ export default function StockExtremes({ highest, lowest }: StockExtremesProps) {
                                 ))}
                             </div>
                         ) : (
-                            <p className="leading-relaxed py-6 text-center text-sm text-gray-400 dark:text-slate-500">
+                            <p className="leading-relaxed py-6 text-center text-sm text-slate-500 dark:text-slate-400">
                                 No records recorded.
                             </p>
                         )}

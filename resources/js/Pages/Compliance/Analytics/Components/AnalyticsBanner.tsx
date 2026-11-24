@@ -11,18 +11,18 @@ export default function AnalyticsBanner({ startDate, endDate, department }: Anal
     return (
         <section
             aria-label="Supply analytics overview"
-            className="rounded-lg border border-red-900 border-l-4 border-l-amber-500 bg-red-950 p-4 text-white shadow-xs sm:p-5 lg:p-6"
+            className="rounded-lg border border-red-900 border-l-4 border-l-amber-500 bg-red-950 p-4 text-white shadow-sm sm:p-5 lg:p-6"
         >
             <div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-center">
                 <div className="flex min-w-0 flex-col items-start gap-3.5 sm:flex-row sm:items-center sm:gap-4 xl:flex-1">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-red-800 bg-red-900/90 text-amber-300 shadow-xs sm:h-14 sm:w-14">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-red-800 bg-red-900/90 text-amber-300 shadow-sm sm:h-14 sm:w-14">
                         <ChartNoAxesCombined size={26} aria-hidden="true" />
                     </div>
                     <div className="min-w-0 space-y-1">
                         <span className="inline-flex rounded border border-red-800 bg-red-900/80 px-2.5 py-0.5 text-sm font-semibold text-amber-300">
                             Supply &amp; Property Management Office
                         </span>
-                        <h2 className="break-words text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                        <h2 className="break-words text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                             Supply demand overview
                         </h2>
                         <p className="max-w-2xl text-sm font-normal leading-relaxed text-red-200/90">

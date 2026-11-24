@@ -377,7 +377,7 @@ export default function AllItemsIndex({
                 <DashboardContent>
 
                     {/* Main Working Interface: Card & Table */}
-                    <div data-tour="system-admin-inventory-workspace" className="bg-white dark:bg-slate-900 rounded-lg shadow-xs border border-gray-200 dark:border-slate-800 overflow-hidden">
+                    <div data-tour="system-admin-inventory-workspace" className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
                         {/* Streamlined Toolbar */}
                         <InventoryToolbar
                             searchTerm={searchTerm}

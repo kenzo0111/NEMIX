@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { router } from '@inertiajs/react';
 import { PaginatedData, LoginAuditRecord, LoginAuditFilters } from '../types';
@@ -40,39 +41,39 @@ export const LoginAuditPagination: React.FC<LoginAuditPaginationProps> = ({
     };
 
     return (
-        <div className={`bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm ${coordinatorLayout ? 'rounded-xl px-4 py-4 sm:px-6 shadow-sm' : 'rounded-lg px-4 py-3 shadow-xs'}`}>
+        <div className={`bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm ${coordinatorLayout ? "rounded-xl px-4 py-4 sm:px-6 shadow-sm" : "rounded-lg px-4 py-3 shadow-sm"}`}>
             <span className="text-gray-600 dark:text-slate-400 font-medium">
                 Showing{' '}
-                <span className="font-bold text-gray-900 dark:text-slate-100">
+                <span className="font-semibold text-gray-900 dark:text-slate-100">
                     {from ?? 0}–{to ?? 0}
                 </span>{' '}
-                of <span className="font-bold text-gray-900 dark:text-slate-100">{total.toLocaleString()}</span> records
+                of <span className="font-semibold text-gray-900 dark:text-slate-100">{total.toLocaleString('en-PH')}</span> records
             </span>
 
             {last_page > 1 && (
                 <div className="flex items-center gap-2">
-                    <button
+                    <Button variant="secondary"
                         type="button"
                         onClick={() => navigateToPage(prev_page_url)}
                         disabled={!prev_page_url || current_page <= 1}
-                        className="px-3 py-1.5 border border-gray-300 dark:border-slate-700 rounded-md font-semibold text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        className=""
                     >
                         Previous
-                    </button>
+                    </Button>
 
                     <span className="px-2 font-medium text-gray-600 dark:text-slate-400">
-                        Page <span className="font-bold text-gray-900 dark:text-slate-100">{current_page}</span> of{' '}
-                        <span className="font-bold text-gray-900 dark:text-slate-100">{last_page}</span>
+                        Page <span className="font-semibold text-gray-900 dark:text-slate-100">{current_page}</span> of{' '}
+                        <span className="font-semibold text-gray-900 dark:text-slate-100">{last_page}</span>
                     </span>
 
-                    <button
+                    <Button variant="secondary"
                         type="button"
                         onClick={() => navigateToPage(next_page_url)}
                         disabled={!next_page_url || current_page >= last_page}
-                        className="px-3 py-1.5 border border-gray-300 dark:border-slate-700 rounded-md font-semibold text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        className=""
                     >
                         Next
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>

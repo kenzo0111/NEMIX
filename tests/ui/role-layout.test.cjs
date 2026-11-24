@@ -14,7 +14,7 @@ function load(file) {
         compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true }
     }).outputText;
     function resolve(id) {
-        if (id === '@inertiajs/react') return { usePage: () => page };
+        if (id === '@inertiajs/react') return { usePage: () => page, Head: () => null };
         if (id === './SystemModeBadge' || id === './ThemeToggle') return { __esModule: true, default: () => null };
         if (id === '@/Components/Sidebar') return { __esModule: true, default: () => React.createElement('aside', { 'aria-label': 'Main navigation' }) };
         if (id === '@/Hooks/useSidebarCollapse') return { useSidebarCollapse: () => [false, () => {}] };
@@ -40,17 +40,18 @@ for (const [role, expected] of [
     page = { props: { auth: session(role) } };
     const html = renderToStaticMarkup(React.createElement(Header));
     assert.ok(html.includes(SYSTEM_TITLE));
-    assert.ok(html.includes(`${expected} Dashboard`));
+    assert.ok(html.includes(expected));
+    assert.ok(!html.includes(`${expected} Dashboard`));
     assert.ok(html.includes('Toggle navigation menu'));
     assert.ok(html.includes('flex-wrap'));
 });
 test('identity follows replaced Inertia session props and fresh renders', () => {
     page = { props: { auth: session('Supply Coordinator') } };
-    assert.match(renderToStaticMarkup(React.createElement(Header)), /Supply Coordinator Dashboard/);
+    assert.match(renderToStaticMarkup(React.createElement(Header)), /Supply Coordinator/);
     page.props.auth = session('Authorized Personnel');
-    assert.match(renderToStaticMarkup(React.createElement(Header)), /Authorized Personnel Dashboard/);
+    assert.match(renderToStaticMarkup(React.createElement(Header)), /Authorized Personnel/);
     page = { props: { auth: session('Property Custodian') } };
-    assert.match(renderToStaticMarkup(React.createElement(Header)), /Inventory Custodian Dashboard/);
+    assert.match(renderToStaticMarkup(React.createElement(Header)), /Inventory Custodian/);
 });
 test('primary assigned role takes precedence over additional roles', () => {
     assert.equal(roleDesignation(session('Authorized Personnel', { roles: ['Supply Coordinator', 'Authorized Personnel'] })), 'Authorized Personnel');
@@ -73,4 +74,18 @@ test('operating mode notice remains visible', () => {
 test('shared layout preserves content, skip link, responsive sidebar offset and print behavior', () => {
     const html = renderToStaticMarkup(React.createElement(Layout, null, React.createElement('p', null, 'Existing module')));
     for (const text of ['Existing module', 'Skip to content', 'md:ml-72', 'print:ml-0', 'min-w-0', 'workspace-content']) assert.ok(html.includes(text));
+    assert.equal((html.match(/Toggle navigation menu/g) || []).length, 1);
+    assert.equal((html.match(/<header\b/g) || []).length, 1);
+    assert.ok(html.includes('Maintenance mode:'));
+});
+
+test('composed module and alternate layout share one role header and navigation control', () => {
+    page = { props: { auth: session('Authorized Personnel'), system: { mode: 'TRAINING SIMULATION' } } };
+    const AppLayout = load('resources/js/Layouts/AppLayout.tsx').default;
+    const html = renderToStaticMarkup(React.createElement(AppLayout, { title: 'My requests', header: React.createElement('h1', null, 'My requests') }, React.createElement('p', null, 'Records')));
+    assert.equal((html.match(/Toggle navigation menu/g) || []).length, 1);
+    assert.equal((html.match(/data-role-designation/g) || []).length, 1);
+    assert.ok(html.includes('Authorized Personnel'));
+    assert.ok(html.includes('Training mode: using sample data.'));
+    assert.ok(html.includes('My requests') && html.includes('Records'));
 });

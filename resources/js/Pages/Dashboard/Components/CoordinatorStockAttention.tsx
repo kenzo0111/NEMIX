@@ -40,7 +40,7 @@ export default function CoordinatorStockAttention({ items, canRequest }: { items
             label: 'Status',
             value: (item: CriticalStockItem) => item.status || item.priority,
             render: (item: CriticalStockItem) => (
-                <span className={`whitespace-nowrap rounded-md px-2 py-1 font-medium ${item.current <= 0 || item.priority === 'Critical' ? 'bg-red-50 text-red-800 dark:bg-red-950/60 dark:text-red-300' : 'bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'}`}>
+                <span className={`whitespace-nowrap rounded-md px-2 py-1 font-medium ${item.current <= 0 || item.priority === 'Critical' ? "bg-red-50 text-red-800 dark:bg-red-950/60 dark:text-red-300" : "bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"}`}>
                     {item.status || 'Low stock'}
                 </span>
             ),
@@ -51,9 +51,9 @@ export default function CoordinatorStockAttention({ items, canRequest }: { items
             value: () => '',
             align: 'right' as const,
             render: (item: CriticalStockItem) => (
-                <Link
+                <Link data-variant="primary" data-size="default"
                     href={route('inventory.requests.index', { create: 1, ...(item.item_id ? { item_id: item.item_id } : {}) })}
-                    className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded bg-red-900 text-white hover:bg-red-950 transition-colors shadow-2xs"
+                    className="ui-button inline-flex items-center px-2 py-1 text-sm font-semibold rounded bg-red-900 text-white hover:bg-red-950 transition-colors shadow-sm"
                 >
                     Request
                 </Link>
@@ -66,6 +66,6 @@ export default function CoordinatorStockAttention({ items, canRequest }: { items
     const visible = sortedRows.slice(0, 4);
 
     return (
-        <RecordTable rows={visible} columns={columns} rowKey={rowKey} sort={sort} onSort={requestSort} className="min-w-[530px] text-xs" />
+        <RecordTable rows={visible} columns={columns} rowKey={rowKey} sort={sort} onSort={requestSort} className="min-w-[530px] text-sm" />
     );
 }

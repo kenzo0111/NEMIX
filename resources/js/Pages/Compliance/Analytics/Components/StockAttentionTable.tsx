@@ -37,7 +37,7 @@ export default function StockAttentionTable({ items }: StockAttentionTableProps)
         <Card>
             <CardHeader className="border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 py-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <CardTitle className="text-sm font-bold text-gray-900 dark:text-slate-100 font-sans">
+                    <CardTitle className="text-sm font-semibold text-gray-900 dark:text-slate-100 font-sans">
                         Stock Requiring Attention
                     </CardTitle>
                     <CardDescription className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
@@ -77,18 +77,15 @@ export default function StockAttentionTable({ items }: StockAttentionTableProps)
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-right py-3.5 font-semibold tabular-nums text-sm text-gray-900 dark:text-slate-100 align-middle">
-                                                {Number(item.stock).toLocaleString()}
+                                                {Number(item.stock).toLocaleString('en-PH')}
                                             </TableCell>
                                             <TableCell className="text-center py-3.5 text-sm text-gray-600 dark:text-slate-400 align-middle">
                                                 {item.unitOfIssue || 'Units'}
                                             </TableCell>
                                             <TableCell className="text-center py-3.5 align-middle">
                                                 <span
-                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold ${
-                                                        isOut
-                                                            ? 'bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-900/40'
-                                                            : 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40'
-                                                    }`}
+                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold ${isOut
+    ? "bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-900/40" : "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40"}`}
                                                 >
                                                     {isOut ? 'Critical / Out of Stock' : 'Low Stock'}
                                                 </span>

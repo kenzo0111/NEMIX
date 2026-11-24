@@ -34,15 +34,8 @@ export default function SidebarItem({
 
     const buttonContent = (
         <div
-            className={`
-                relative w-full flex items-center px-3 text-sm font-medium rounded-lg transition-colors duration-150 cursor-pointer overflow-hidden
-                min-h-11 py-2.5
-                ${
-                    isItemActive
-                        ? 'bg-gradient-to-r from-red-800/80 to-red-900/60 text-white ring-1 ring-inset ring-red-400/15'
-                        : 'text-red-200/80 hover:bg-white/5 hover:text-white'
-                }
-            `}
+            className={` relative w-full flex items-center px-3 text-sm font-medium rounded-lg transition-colors duration-150 cursor-pointer overflow-hidden min-h-11 py-2.5 ${isItemActive
+    ? "bg-gradient-to-r from-red-800/80 to-red-900/60 text-white ring-1 ring-inset ring-red-400/15" : "text-red-200/80 hover:bg-white/5 hover:text-white"} `}
             title={collapsed ? item.title : undefined}
         >
             {/* Active page indicator */}
@@ -52,17 +45,13 @@ export default function SidebarItem({
 
             <div className="flex items-center gap-3 min-w-0 flex-1">
                 <span
-                    className={`shrink-0 flex items-center justify-center transition-colors ${
-                        isItemActive ? 'text-red-100' : 'text-red-300/80 group-hover:text-amber-300'
-                    }`}
+                    className={`shrink-0 flex items-center justify-center transition-colors ${isItemActive ? "text-red-100" : "text-red-300/80 group-hover:text-amber-300"}`}
                 >
                     {renderIcon()}
                 </span>
 
                 <div
-                    className={`truncate text-left leading-tight whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
-                        collapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-[170px] opacity-100'
-                    }`}
+                    className={`truncate text-left leading-tight whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${collapsed ? "max-w-0 opacity-0 pointer-events-none" : "max-w-[170px] opacity-100"}`}
                 >
                     <span className="tracking-normal">{item.title}</span>
                     {item.badge && (
@@ -75,9 +64,7 @@ export default function SidebarItem({
 
             {hasSubmodules && !collapsed && (
                 <ChevronDown
-                    className={`w-4 h-4 text-red-300/70 transition-transform duration-200 shrink-0 ml-auto ${
-                        isExpanded ? 'rotate-180 text-amber-400' : ''
-                    }`}
+                    className={`w-4 h-4 text-red-300/70 transition-transform duration-200 shrink-0 ml-auto ${isExpanded ? "rotate-180 text-amber-400" : ""}`}
                 />
             )}
         </div>

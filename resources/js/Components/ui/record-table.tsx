@@ -30,7 +30,7 @@ export interface RecordTableProps<T, K extends string = string> {
 /** Renders the supplied order. Server pagination must sort before fetching rows. */
 export default function RecordTable<T, K extends string = string>({ rows, columns, rowKey, sort, onSort, selectedKey, onSelect, className, containerClassName, caption, emptyMessage = 'No records found.' }: RecordTableProps<T, K>) {
     return <div className={cn('w-full min-w-0 overflow-x-auto', containerClassName)}>
-        <table className={cn('w-full text-left text-sm border-collapse', className)}>
+        <table className={"ui-data-table " + (cn('w-full text-left text-sm border-collapse', className))}>
             {caption && <caption className="px-4 py-3.5 text-left text-sm text-slate-500 dark:text-slate-400">{caption}</caption>}
             <thead className="border-b border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-400">
                 <tr>{columns.map(column => <SortableTableHeader key={column.key} column={column.key} activeColumn={sort.key} direction={sort.direction} onSort={onSort} align={column.align} className={cn('px-4 py-3.5 font-semibold whitespace-nowrap', column.className)}>{column.label}</SortableTableHeader>)}</tr>

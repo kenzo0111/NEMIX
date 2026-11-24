@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { IssuanceRecord, PaginatedData, IssuanceSortKey } from '../types';
 import { IssuanceRow } from './IssuanceRow';
@@ -35,28 +36,28 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
         <div className="overflow-hidden min-w-0 w-full">
             {/* Table Container */}
             <div className="overflow-x-auto min-w-0 w-full">
-                <table className="w-full text-left border-collapse min-w-[60rem]">
+                <table className="ui-data-table w-full text-left border-collapse min-w-[60rem]">
                     <thead className="bg-gray-50/80 dark:bg-slate-900/80 border-b border-gray-200 dark:border-slate-800">
                         <tr>
-                            <SortableTableHeader column="ris_number" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="ris_number" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-semibold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 RIS No.
                             </SortableTableHeader>
-                            <SortableTableHeader column="recipient" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[11.25rem]">
+                            <SortableTableHeader column="recipient" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-semibold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[11.25rem]">
                                 Recipient / Office
                             </SortableTableHeader>
-                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[11.25rem]">
+                            <SortableTableHeader column="item" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-semibold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap min-w-[11.25rem]">
                                 Items Issued
                             </SortableTableHeader>
-                            <SortableTableHeader column="quantity" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="quantity" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-semibold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Total Quantity
                             </SortableTableHeader>
-                            <SortableTableHeader column="date" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="hidden md:table-cell px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="date" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="hidden md:table-cell px-4 lg:px-6 py-3.5 text-sm font-semibold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Date Issued
                             </SortableTableHeader>
-                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
+                            <SortableTableHeader column="status" activeColumn={sortKey} direction={sortDirection} onSort={onSort} className="px-4 lg:px-6 py-3.5 text-sm font-semibold tracking-normal text-gray-700 dark:text-slate-300 normal-case tabular-nums whitespace-nowrap">
                                 Status
                             </SortableTableHeader>
-                            <th scope="col" className="px-4 lg:px-6 py-3.5 text-right text-sm font-bold tracking-normal text-gray-700 dark:text-slate-300 normal-case whitespace-nowrap min-w-[10rem]">
+                            <th scope="col" className="px-4 lg:px-6 py-3.5 text-right text-sm font-semibold tracking-normal text-gray-700 dark:text-slate-300 normal-case whitespace-nowrap min-w-[10rem]">
                                 Actions
                             </th>
                         </tr>
@@ -67,7 +68,7 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
                                 <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
                                     <div className="flex flex-col items-center justify-center">
                                         <svg
-                                            className="w-10 h-10 text-gray-300 dark:text-slate-600 mb-2"
+                                            className="w-10 h-10 text-gray-300 dark:text-slate-400 mb-2"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -102,35 +103,35 @@ export const IssuanceTable: React.FC<IssuanceTableProps> = ({
 
             {/* Pagination Footer */}
             {totalRecords > 0 && (
-                <div className="px-4 sm:px-6 lg:px-8 py-3.5 border-t border-gray-200/80 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+                <div className="ui-pagination px-4 sm:px-6 lg:px-8 py-3.5 border-t border-gray-200/80 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
                     <span className="text-gray-600 dark:text-slate-400 font-medium">
-                        Showing <span className="font-bold text-gray-900 dark:text-slate-100">{fromRecord}</span>–<span className="font-bold text-gray-900 dark:text-slate-100">{toRecord}</span> of{' '}
-                        <span className="font-bold text-gray-900 dark:text-slate-100">{totalRecords}</span> records
+                        Showing <span className="font-semibold text-gray-900 dark:text-slate-100">{fromRecord}</span>–<span className="font-semibold text-gray-900 dark:text-slate-100">{toRecord}</span> of{' '}
+                        <span className="font-semibold text-gray-900 dark:text-slate-100">{totalRecords}</span> records
                     </span>
 
                     <div className="flex items-center gap-2">
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
                             disabled={currentPage <= 1}
                             aria-label="Go to previous page"
-                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 dark:border-slate-700 rounded text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer inline-flex items-center justify-center"
+                            className="min-h-[38px] inline-flex items-center justify-center"
                         >
                             Previous
-                        </button>
+                        </Button>
                         <span className="text-gray-600 dark:text-slate-400 font-medium px-1">
-                            Page <span className="font-bold text-gray-900 dark:text-slate-100">{currentPage}</span> of{' '}
-                            <span className="font-bold text-gray-900 dark:text-slate-100">{lastPage}</span>
+                            Page <span className="font-semibold text-gray-900 dark:text-slate-100">{currentPage}</span> of{' '}
+                            <span className="font-semibold text-gray-900 dark:text-slate-100">{lastPage}</span>
                         </span>
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => onPageChange(Math.min(currentPage + 1, lastPage))}
                             disabled={currentPage >= lastPage}
                             aria-label="Go to next page"
-                            className="min-h-[38px] px-3.5 py-2 border border-gray-300 dark:border-slate-700 rounded text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer inline-flex items-center justify-center"
+                            className="min-h-[38px] inline-flex items-center justify-center"
                         >
                             Next
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}

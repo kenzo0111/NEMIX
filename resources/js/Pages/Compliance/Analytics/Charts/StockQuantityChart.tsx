@@ -75,7 +75,7 @@ export default function StockQuantityChart({ items }: StockQuantityChartProps) {
                     tickLine={false}
                     axisLine={false}
                     tick={{ fill: 'var(--chart-tick-muted)', fontSize: 14 }}
-                    tickFormatter={(val) => Number(val).toLocaleString()}
+                    tickFormatter={(val) => Number(val).toLocaleString('en-PH')}
                 />
                 <ChartTooltip
                     cursor={{ fill: 'var(--chart-cursor)' }}
@@ -83,7 +83,7 @@ export default function StockQuantityChart({ items }: StockQuantityChartProps) {
                         <ChartTooltipContent
                             formatter={(value, name, item) => (
                                 <span className="font-semibold text-gray-900 dark:text-slate-100">
-                                    {Number(value).toLocaleString()} {item.payload?.meta ? `(${item.payload.meta})` : 'units'}
+                                    {Number(value).toLocaleString('en-PH')} {item.payload?.meta ? `(${item.payload.meta})` : 'units'}
                                 </span>
                             )}
                         />

@@ -1,6 +1,8 @@
+import { Button } from '@/Components/ui/button';
 import { notify } from '@/utils/notifications';
 import React, { useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
+import DashboardContent from '@/Layouts/DashboardContent';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import PageHeader from '@/Components/PageHeader';
 import { getSidebarModules } from '@/utils/sidebarConfig';
@@ -177,36 +179,32 @@ export default function Index({
                             )}
 
                             {canUpdateSettings && isDirty && (
-                                <button
+                                <Button variant="secondary"
                                     type="button"
                                     onClick={() => reset()}
                                     disabled={processing}
-                                    className="px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-400 dark:hover:border-slate-600 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
+                                    className="flex items-center gap-1.5"
                                 >
                                     <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                                     <span>Reset</span>
-                                </button>
+                                </Button>
                             )}
 
-                            {canUpdateSettings && <button
+                            {canUpdateSettings && <Button variant="primary"
                                 type="button"
                                 onClick={handleSave}
                                 disabled={processing || !isDirty || hasThresholdError}
-                                className={`px-4 py-2 rounded-xl text-sm font-semibold text-white flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98] ${
-                                    isDirty && !hasThresholdError
-                                        ? 'bg-red-900 hover:bg-red-800 active:bg-red-950 shadow-red-950/15 shadow-md'
-                                        : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed shadow-none'
-                                }`}
+                                className="flex items-center gap-2"
                             >
                                 <Save className="w-3.5 h-3.5" />
                                 <span>{processing ? 'Saving...' : 'Save Settings'}</span>
-                            </button>}
+                            </Button>}
                         </div>
                     }
                 />
 
                 {/* Main Content Body */}
-                <div className="p-4 sm:p-7 lg:p-8 space-y-6 max-w-7xl mx-auto pb-20 min-w-0 w-full">
+                <DashboardContent>
                     {/* 2. Institutional Hero Banner */}
                     <SettingsHero userName={user?.name} />
 
@@ -217,7 +215,7 @@ export default function Index({
                     />
 
                     {/* 4. Active Settings Domain Panel */}
-                    <div data-tour={`system-admin-settings-${activeTab}`} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+                    <div data-tour={`system-admin-settings-${activeTab}`} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
                         <SettingsSectionHeader tab={currentTabMeta} />
 
                         <div className="p-4 sm:p-6 lg:p-8">
@@ -284,7 +282,7 @@ export default function Index({
                             )}
                         </div>
                     </div>
-                </div>
+                </DashboardContent>
             </DashboardLayout>
 
 

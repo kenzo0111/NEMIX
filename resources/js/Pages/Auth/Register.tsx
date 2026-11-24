@@ -63,11 +63,11 @@ export default function Register({
                 {/* Full Name */}
                 <div>
                     <InputLabel htmlFor="name" value="Full Name" className="text-stone-900 dark:text-slate-200 font-semibold text-sm mb-1.5 font-sans" />
-                    <div className="relative rounded-lg shadow-2xs">
+                    <div className="relative rounded-lg shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-500 dark:text-slate-400">
                             <User className="w-4 h-4" aria-hidden="true" />
                         </div>
-                        <AuthTextInput
+                        <AuthTextInput aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? 'name-error' : undefined}
                             id="name"
                             name="name"
                             value={data.name}
@@ -79,17 +79,17 @@ export default function Register({
                             placeholder="e.g. Juan A. Dela Cruz"
                         />
                     </div>
-                    <InputError message={errors.name} className="mt-1.5 text-sm font-medium text-red-700 dark:text-red-400 font-sans" />
+                    <InputError id="name-error" message={errors.name} className="mt-1.5 text-sm font-medium text-red-700 dark:text-red-400 font-sans" />
                 </div>
 
                 {/* Official Email */}
                 <div>
                     <InputLabel htmlFor="email" value="Official Email Address" className="text-stone-900 dark:text-slate-200 font-semibold text-sm mb-1.5 font-sans" />
-                    <div className="relative rounded-lg shadow-2xs">
+                    <div className="relative rounded-lg shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-500 dark:text-slate-400">
                             <Mail className="w-4 h-4" aria-hidden="true" />
                         </div>
-                        <AuthTextInput
+                        <AuthTextInput aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? 'email-error' : undefined}
                             id="email"
                             type="email"
                             name="email"
@@ -102,7 +102,7 @@ export default function Register({
                             placeholder="username@ucn.edu.ph"
                         />
                     </div>
-                    <InputError message={errors.email} className="mt-1.5 text-sm font-medium text-red-700 dark:text-red-400 font-sans" />
+                    <InputError id="email-error" message={errors.email} className="mt-1.5 text-sm font-medium text-red-700 dark:text-red-400 font-sans" />
                 </div>
 
                 {/* Password */}

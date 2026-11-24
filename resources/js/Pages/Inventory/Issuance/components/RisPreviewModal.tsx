@@ -1,3 +1,5 @@
+import { DialogHeader, DialogBody, DialogFooter } from '@/Components/ui/dialog-frame';
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { formatRisNumber, getRisCalendarDate } from '@/utils/risFormatter';
 import Modal from '@/Components/Modal';
@@ -96,47 +98,47 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
     };
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="4xl">
-            <div className="ris-print-modal bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden border border-gray-200 dark:border-slate-800 flex flex-col max-h-[92vh]">
+        <Modal show={show} onClose={onClose} maxWidth="4xl" ariaLabel="Requisition and Issue Slip">
+            <div className="ris-print-modal bg-white dark:bg-slate-900 rounded-xl shadow-none overflow-hidden border border-gray-200 dark:border-slate-800 flex flex-col max-h-[92vh]">
                 {/* Neutral Administrative Header */}
-                <div className="ris-print-hide flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-800/75 flex-shrink-0">
+                <DialogHeader className="ris-print-hide flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/75 dark:bg-slate-800/75 flex-shrink-0">
                     <div>
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight">
                             Requisition and Issue Slip
                         </h3>
                         <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 tabular-nums">
-                            RIS Reference: <span className="font-bold text-red-950 dark:text-red-400">{formatRisNumber(issuance.ris_number)}</span>
+                            RIS Reference: <span className="font-semibold text-red-950 dark:text-red-400">{formatRisNumber(issuance.ris_number)}</span>
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button
+                        <Button variant="ghost" size="icon"
                             type="button"
                             onClick={onClose}
-                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                            className=""
                             aria-label="Close"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
-                        </button>
+                        </Button>
                     </div>
-                </div>
+                </DialogHeader>
 
                 {/* Form Document View Area - Neutral canvas backdrop; ris-print-area remains pure white paper */}
-                <div className="p-3 sm:p-6 overflow-y-auto max-h-[80vh] bg-gray-100 dark:bg-slate-950 flex justify-center">
-                    <div className="ris-print-area bg-white border border-gray-300 rounded shadow-sm w-full max-w-[210mm] p-2 sm:p-4 overflow-x-auto print-zoom-fit">
+                <DialogBody className="p-3 sm:p-6 overflow-y-auto max-h-[80vh] bg-gray-100 dark:bg-slate-950 flex justify-center">
+                    <div className="ris-print-area bg-white border border-gray-300 rounded shadow-sm w-full max-w-[210mm] p-2 sm:p-4 overflow-x-auto print-zoom-fit dark:bg-slate-900">
                         {/* Preserve exact RequisitionIssueSlip component layout */}
                         <RequisitionIssueSlip data={risData} />
                     </div>
-                </div>
+                </DialogBody>
 
                 {/* Modal Footer */}
-                <div className="ris-print-hide px-4 sm:px-6 py-3.5 bg-gray-50 dark:bg-slate-950/60 border-t border-gray-200 dark:border-slate-800 flex items-center justify-end gap-2.5 flex-shrink-0">
+                <DialogFooter className="ris-print-hide px-4 sm:px-6 py-3.5 bg-gray-50 dark:bg-slate-950/60 border-t border-gray-200 dark:border-slate-800 flex items-center justify-end gap-2.5 flex-shrink-0">
                     {downloadUrl && <a href={downloadUrl} className="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700">Download PDF</a>}
-                    <button
+                    <Button variant="primary"
                         type="button"
                         onClick={handlePrint}
-                        className="px-4 py-2 bg-red-950 hover:bg-red-900 text-white font-semibold text-sm rounded-md shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                        className="flex items-center gap-1.5"
                     >
                         <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
@@ -147,15 +149,15 @@ export const RisPreviewModal: React.FC<RisPreviewModalProps> = ({
                             />
                         </svg>
                         Print
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="secondary"
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md text-sm font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                        className=""
                     >
                         Close
-                    </button>
-                </div>
+                    </Button>
+                </DialogFooter>
             </div>
         </Modal>
     );

@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 
@@ -13,7 +14,7 @@ export default function PasswordSuccessStep({ onDone }: Props) {
             </div>
 
             <div className="space-y-1">
-                <h3 className="text-lg font-bold font-sans text-slate-900 dark:text-slate-100">
+                <h3 className="text-lg font-semibold font-sans text-slate-900 dark:text-slate-100">
                     Password Updated Successfully
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-sm mx-auto">
@@ -26,13 +27,13 @@ export default function PasswordSuccessStep({ onDone }: Props) {
             </div>
 
             <div className="pt-2">
-                <button
+                <Button variant="primary"
                     type="button"
                     onClick={onDone}
-                    className="px-4 py-2 rounded-xl text-sm font-semibold text-white inline-flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.98] bg-red-900 hover:bg-red-800 active:bg-red-950 shadow-red-950/15 shadow-md"
+                    className="inline-flex items-center gap-2"
                 >
                     <span>Return to Security Settings</span>
-                </button>
+                </Button>
             </div>
         </div>
     );

@@ -72,18 +72,18 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
             line-height: 1.15;
         }
 
-        table {
+        .sc-container table {
             width: 100%;
             border-collapse: collapse;
         }
         
         /* Main Grid Table */
-        .main-table {
+        .sc-container .main-table {
             border: 1.5px solid #000000;
             width: 100%;
             table-layout: fixed;
         }
-        .main-table th, .main-table td {
+        .sc-container .main-table th, .sc-container .main-table td {
             border: 1px solid #000000;
             padding: 0.6mm 1mm;
             font-size: 8pt;
@@ -93,43 +93,43 @@ export const StockCard: React.FC<StockCardProps> = ({ data }) => {
             vertical-align: middle;
             line-height: 1.1;
         }
-        .main-table th {
+        .sc-container .main-table th {
             background-color: #ffffff;
             font-weight: bold;
             text-align: center;
             padding: 0.8mm 1mm;
         }
-        .empty-row td {
+        .sc-container .empty-row td {
             height: 4mm !important;
             min-height: 4mm !important;
             padding: 0 1mm !important;
             line-height: 1 !important;
         }
         
-        .text-center { text-align: center; }
-        .text-left { text-align: left; }
-        .text-right { text-align: right; }
+        .sc-container .text-center { text-align: center; }
+        .sc-container .text-left { text-align: left; }
+        .sc-container .text-right { text-align: right; }
         
         @media print {
             body { margin: 0; padding: 0; background: #fff; }
             .sc-container { width: 100%; max-width: none; margin: 0 auto; padding: 0; }
-            .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .official-form-header, .sc-top-info, .sc-header-box {
+            .sc-container .main-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .sc-container .official-form-header, .sc-container .sc-top-info, .sc-container .sc-header-box {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
-            .main-table tr {
+            .sc-container .main-table tr {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
-            .main-table thead {
+            .sc-container .main-table thead {
                 display: table-header-group;
             }
         }
       `}</style>
 
       <SharedFormHeaderStyles />
-      <div className="sc-container">
+      <div data-paper-preview className="sc-container">
         <div className="official-form-header">
           <div className="official-form-appendix">Appendix 58</div>
           <div className="official-form-title-row">

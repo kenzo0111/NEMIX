@@ -37,13 +37,13 @@ export default function CentralReceivingSummary({ summary, canViewCatalog }: Pro
                     </span>
                     <div className="min-w-0">
                         <h3 id="central-receiving-heading" className="text-base font-semibold">Central office receiving</h3>
-                        <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                        <p className="mt-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                             Supplies received and recorded by Inventory Staff during {summary.period_label}.
                         </p>
                     </div>
                 </div>
                 {canViewCatalog && (
-                    <Link href={route('coordinator.catalog.index')} className="inline-flex min-h-9 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-red-900 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:text-red-300 dark:hover:text-red-200">
+                    <Link href={route('coordinator.catalog.index')} className="inline-flex min-h-9 items-center gap-1 rounded-lg px-2 text-sm font-semibold text-red-900 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 dark:text-red-300 dark:hover:text-red-200">
                         View central catalog<ArrowRight size={14} aria-hidden="true" />
                     </Link>
                 )}
@@ -51,7 +51,7 @@ export default function CentralReceivingSummary({ summary, canViewCatalog }: Pro
 
             <div className="grid grid-cols-1 gap-2 border-b border-slate-100 p-4 sm:grid-cols-3 dark:border-slate-800">
                 <div className={metricCard}>
-                    <p className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                    <p className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                         <PackageCheck size={16} aria-hidden="true" />
                         Quantities received by unit
                     </p>
@@ -59,8 +59,8 @@ export default function CentralReceivingSummary({ summary, canViewCatalog }: Pro
                         <ul aria-label="Quantities by unit" className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
                             {summary.quantities_by_unit.map(({ unit, quantity }) => (
                                 <li key={unit} className="text-slate-900 dark:text-slate-100">
-                                    <span className="text-2xl font-semibold tabular-nums">{quantity.toLocaleString()}</span>{' '}
-                                    <span className="text-xs text-slate-500 dark:text-slate-400">{unit}</span>
+                                    <span className="text-2xl font-semibold tabular-nums">{quantity.toLocaleString('en-PH')}</span>{' '}
+                                    <span className="text-sm text-slate-500 dark:text-slate-400">{unit}</span>
                                 </li>
                             ))}
                         </ul>
@@ -68,19 +68,19 @@ export default function CentralReceivingSummary({ summary, canViewCatalog }: Pro
                 </div>
                 {metrics.map(metric => (
                     <div key={metric.label} className={metricCard}>
-                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                             <metric.icon size={16} aria-hidden="true" />
                             <span>{metric.label}</span>
                         </div>
-                        <p className="mt-2 text-2xl font-semibold tabular-nums text-slate-900 dark:text-slate-100">{metric.value.toLocaleString()}</p>
+                        <p className="mt-2 text-2xl font-semibold tabular-nums text-slate-900 dark:text-slate-100">{metric.value.toLocaleString('en-PH')}</p>
                     </div>
                 ))}
             </div>
 
             {summary.recent_records.length > 0 ? (
                 <div className="w-full min-w-0 overflow-x-auto">
-                    <table className="w-full min-w-[47.5rem] text-left text-xs">
-                        <caption className="px-4 py-3 text-left text-xs text-slate-500 dark:text-slate-400">
+                    <table className="ui-data-table w-full min-w-[47.5rem] text-left text-sm">
+                        <caption className="px-4 py-3 text-left text-sm text-slate-500 dark:text-slate-400">
                             Showing {summary.recent_records.length} of {summary.record_count} receiving records for {summary.period_label}, newest entries first.
                         </caption>
                         <thead className="border-b border-slate-100 text-slate-500 dark:border-slate-800 dark:text-slate-400">
@@ -103,7 +103,7 @@ export default function CentralReceivingSummary({ summary, canViewCatalog }: Pro
                                         <p className="mt-1 text-slate-500 dark:text-slate-400">{record.stock_no}</p>
                                     </th>
                                     <td className="whitespace-nowrap px-4 py-3.5 font-semibold tabular-nums text-emerald-700 dark:text-emerald-300 align-middle">
-                                        +{record.quantity.toLocaleString()} {record.unit}
+                                        +{record.quantity.toLocaleString('en-PH')} {record.unit}
                                     </td>
                                     <td className="whitespace-nowrap px-4 py-3.5 text-slate-600 dark:text-slate-300 align-middle">{record.recorded_by}</td>
                                     <td className="whitespace-nowrap px-4 py-3.5 text-slate-500 dark:text-slate-400 align-middle">
@@ -119,7 +119,7 @@ export default function CentralReceivingSummary({ summary, canViewCatalog }: Pro
             )}
 
             {summary.latest_recorded_at && (
-                <p className="border-t border-slate-100 px-4 py-2 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                <p className="border-t border-slate-100 px-4 py-2 text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400">
                     Latest entry for this period recorded {summary.latest_recorded_at}.
                 </p>
             )}

@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { useMemo } from 'react';
 import { useAuthorization } from '@/Hooks/useAuthorization';
 import CreatableSelect from 'react-select/creatable';
@@ -166,9 +167,7 @@ export default function SignatorySelect({
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                             <span
-                                className={`text-sm font-semibold truncate block ${
-                                    isSelected ? 'text-white' : 'text-slate-900 dark:text-slate-100'
-                                }`}
+                                className={`text-sm font-semibold truncate block ${isSelected ? "text-white" : "text-slate-900 dark:text-slate-100"}`}
                             >
                                 {sig.name}
                             </span>
@@ -180,9 +179,7 @@ export default function SignatorySelect({
                         </div>
                         {sig.designation && (
                             <div
-                                className={`text-sm truncate mt-0.5 ${
-                                    isSelected ? 'text-red-100' : 'text-slate-500 dark:text-slate-400'
-                                }`}
+                                className={`text-sm truncate mt-0.5 ${isSelected ? "text-red-100" : "text-slate-500 dark:text-slate-400"}`}
                             >
                                 {sig.designation}
                             </div>
@@ -191,7 +188,7 @@ export default function SignatorySelect({
 
                     {/* Allow deleting/removing a signatory from directory */}
                     {canDeleteSignatory && sig.id > 0 && (
-                        <button
+                        <Button aria-pressed={isSelected} variant="tab" size="icon"
                             type="button"
                             onMouseDown={(e) => {
                                 e.stopPropagation();
@@ -201,14 +198,10 @@ export default function SignatorySelect({
                             }}
                             onClick={handleDelete}
                             title={`Remove "${sig.name}" from directory`}
-                            className={`p-1 rounded-md transition-colors cursor-pointer ${
-                                isSelected
-                                    ? 'hover:bg-red-800 text-red-200 hover:text-white'
-                                    : 'hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400'
-                            }`}
+                            className=""
                         >
                             <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                     )}
                 </div>
             </components.Option>

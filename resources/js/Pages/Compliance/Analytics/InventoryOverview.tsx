@@ -13,7 +13,7 @@ export default function InventoryOverview({ analytics }: { analytics: InventoryA
     return (
         <details className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
             <summary className="cursor-pointer font-semibold">Current inventory overview</summary>
-            <p className="my-4 text-sm text-slate-500">
+            <p className="my-4 text-sm text-slate-500 dark:text-slate-300">
                 Current stock and valuation across central inventory. These point-in-time balances are independent of
                 the reporting period above.
             </p>

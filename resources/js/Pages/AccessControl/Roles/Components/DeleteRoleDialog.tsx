@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { useForm } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
@@ -32,18 +33,18 @@ export default function DeleteRoleDialog({
 
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="md" closeable={!processing} ariaLabel="Delete Role Confirmation">
-            <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-xl">
+            <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-none">
                 {/* Red Destructive Accent Line */}
                 <div className="h-1.5 w-full bg-red-600 shrink-0" />
 
                 <div className="p-4 sm:p-6">
                     <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border border-red-200/80 dark:border-red-900/40 flex items-center justify-center shrink-0 shadow-2xs">
+                            <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border border-red-200/80 dark:border-red-900/40 flex items-center justify-center shrink-0 shadow-sm">
                                 <AlertTriangle className="w-5 h-5" />
                             </div>
                             <div className="min-w-0">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 font-sans tracking-tight truncate">
                                     Delete System Role
                                 </h3>
                                 <p className="leading-relaxed text-sm text-gray-500 dark:text-slate-400 mt-1 truncate">
@@ -51,15 +52,15 @@ export default function DeleteRoleDialog({
                                 </p>
                             </div>
                         </div>
-                        <button
+                        <Button variant="ghost" size="icon"
                             type="button"
                             onClick={onClose}
                             disabled={processing}
-                            className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 cursor-pointer shrink-0 ml-2"
+                            className="shrink-0 ml-2"
                             aria-label="Close dialog"
                         >
                             <X className="w-5 h-5" />
-                        </button>
+                        </Button>
                     </div>
 
                     <div className="mt-4 text-sm text-gray-600 dark:text-slate-300 space-y-3">
@@ -77,19 +78,19 @@ export default function DeleteRoleDialog({
 
                     {/* Action buttons */}
                     <div className="mt-6 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-3 border-t border-gray-100 dark:border-slate-800">
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={onClose}
                             disabled={processing}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer disabled:opacity-50 text-center"
+                            className="w-full sm:w-auto text-center"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="danger"
                             type="button"
                             onClick={handleDelete}
                             disabled={processing}
-                            className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-sm font-semibold rounded-lg shadow-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-1.5 text-center"
+                            className="w-full sm:w-auto flex items-center justify-center gap-1.5 text-center"
                         >
                             {processing ? (
                                 <>
@@ -99,7 +100,7 @@ export default function DeleteRoleDialog({
                             ) : (
                                 <span>Delete Role</span>
                             )}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

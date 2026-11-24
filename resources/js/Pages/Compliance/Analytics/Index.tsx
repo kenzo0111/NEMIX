@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSortableData, type SortValue } from '@/Hooks/useSortableData';
 import SortableTableHeader from '@/Components/ui/sortable-table-header';
@@ -63,7 +64,7 @@ function Panel({
     return (
         <section
             id={id}
-            className="min-w-0 scroll-mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/80 dark:bg-slate-900"
+            className="min-w-0 scroll-mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/80 dark:bg-slate-900"
         >
             <div className="flex flex-col gap-4 border-b border-slate-100 bg-gradient-to-r from-slate-50/90 to-white p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 dark:border-slate-700/60 dark:from-slate-800/60 dark:to-slate-900">
                 <div className="flex min-w-0 items-start gap-3">
@@ -196,28 +197,28 @@ function DataTable({
                 <div className="relative w-full sm:max-w-sm">
                     <Search
                         size={16}
-                        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-300"
                         aria-hidden="true"
                     />
                     <input
                         type="search"
                         aria-label={searchLabel}
                         placeholder={searchLabel}
-                        className={`${field} pl-9`}
+                        className={"ui-field " + (`${field} pl-9`)}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-                <button
+                <Button variant="secondary"
                     onClick={exportCsv}
-                    className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-900 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300 dark:hover:bg-slate-800"
+                    className="inline-flex min-h-10 items-center gap-2"
                 >
                     <Download size={16} />
                     Export CSV
-                </button>
+                </Button>
             </div>
             <div className="w-full min-w-0 overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-700/70">
-                <table className="w-full text-left text-sm min-w-[42rem]">
+                <table className="ui-data-table w-full text-left text-sm min-w-[42rem]">
                     <thead className="bg-slate-50 text-slate-600 dark:bg-slate-950 dark:text-slate-300">
                         <tr>
                             {columns.map((column) => (
@@ -244,13 +245,9 @@ function DataTable({
                                 {columns.map((column) => (
                                     <td
                                         key={column.key}
-                                        className={`px-4 py-3.5 align-middle ${
-                                            column.align === 'right'
-                                                ? 'text-right tabular-nums'
-                                                : column.align === 'center'
-                                                ? 'text-center'
-                                                : 'text-left'
-                                        }`}
+                                        className={`px-4 py-3.5 align-middle ${column.align === 'right'
+    ? "text-right tabular-nums" : column.align === 'center'
+    ? "text-center" : "text-left"}`}
                                     >
                                         {column.render
                                             ? column.render(row[column.key], row, page * 10 + index)
@@ -263,7 +260,7 @@ function DataTable({
                         ))}
                         {!filtered.length && (
                             <tr>
-                                <td colSpan={columns.length} className="p-10 text-center text-slate-500">
+                                <td colSpan={columns.length} className="p-10 text-center text-slate-500 dark:text-slate-300">
                                     No matching records for this period.
                                 </td>
                             </tr>
@@ -271,22 +268,22 @@ function DataTable({
                     </tbody>
                 </table>
             </div>
-            <div className="mt-4 flex items-center justify-between gap-3 text-sm text-slate-500">
+            <div className="mt-4 flex items-center justify-between gap-3 text-sm text-slate-500 dark:text-slate-300">
                 <span>{filtered.length} records</span>
                 <div className="flex items-center gap-3">
-                    <button disabled={page === 0} onClick={() => setPage(page - 1)} className="disabled:opacity-40">
+                    <Button variant="secondary" disabled={page === 0} onClick={() => setPage(page - 1)} className="">
                         Previous
-                    </button>
+                    </Button>
                     <span>
                         Page {page + 1} of {Math.max(1, Math.ceil(filtered.length / 10))}
                     </span>
-                    <button
+                    <Button variant="secondary"
                         disabled={(page + 1) * 10 >= filtered.length}
                         onClick={() => setPage(page + 1)}
-                        className="disabled:opacity-40"
+                        className=""
                     >
                         Next
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>
@@ -458,7 +455,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                         aria-label="Analytics workspace"
                     >
                         {views.map(({ id, label, icon: Icon }) => (
-                            <button
+                            <Button variant="tab"
                                 key={id}
                                 id={`analytics-tab-${id}`}
                                 role="tab"
@@ -482,11 +479,11 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                         document.getElementById(`analytics-tab-${views[next].id}`)?.focus();
                                     }
                                 }}
-                                className={`inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-800 ${view === id ? 'bg-red-950 text-white shadow-sm dark:bg-red-900' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
+                                className="inline-flex min-h-10 shrink-0 items-center gap-2"
                             >
                                 <Icon size={16} aria-hidden="true" />
                                 {label}
-                            </button>
+                            </Button>
                         ))}
                     </div>
                     <div
@@ -494,30 +491,30 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                         role="tabpanel"
                         aria-labelledby={`analytics-tab-${view}`}
                         aria-busy={loading}
-                        className={`space-y-6 ${loading ? 'opacity-60' : ''}`}
+                        className={`space-y-6 ${loading ? "opacity-60" : ""}`}
                     >
                         <section aria-label="Analytics summary" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                             {kpis.map(({ label, value, icon: Icon, detail, previous }) => (
                                 <div
                                     key={label}
-                                    className={`relative overflow-hidden rounded-2xl border border-t-[3px] bg-white p-5 shadow-sm dark:bg-slate-900 ${label === 'Total Supplies Issued' ? 'border-slate-200 border-t-teal-600 dark:border-slate-700/80 dark:border-t-teal-400' : 'border-slate-200 border-t-red-800 dark:border-slate-700/80 dark:border-t-red-500'}`}
+                                    className={`relative overflow-hidden rounded-xl border border-t-[3px] bg-white p-5 shadow-sm dark:bg-slate-900 ${label === 'Total Supplies Issued' ? "border-slate-200 border-t-teal-600 dark:border-slate-700/80 dark:border-t-teal-400" : "border-slate-200 border-t-red-800 dark:border-slate-700/80 dark:border-t-red-500"}`}
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
                                         <span
-                                            className={`shrink-0 rounded-xl p-2.5 ${label === 'Total Supplies Issued' ? 'bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300' : 'bg-red-50 text-red-900 dark:bg-red-950/60 dark:text-red-300'}`}
+                                            className={`shrink-0 rounded-xl p-2.5 ${label === 'Total Supplies Issued' ? "bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300" : "bg-red-50 text-red-900 dark:bg-red-950/60 dark:text-red-300"}`}
                                         >
                                             <Icon size={17} aria-hidden="true" />
                                         </span>
                                     </div>
                                     <p
-                                        className={`mt-2 font-bold text-slate-900 dark:text-slate-100 ${typeof value === 'number' ? 'text-3xl tabular-nums' : 'text-lg'}`}
+                                        className={`mt-2 font-semibold text-slate-900 dark:text-slate-100 ${typeof value === 'number' ? "text-3xl tabular-nums" : "text-lg"}`}
                                     >
                                         {typeof value === 'number' ? number(value) : value}
                                     </p>
-                                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{detail}</p>
+                                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{detail}</p>
                                     {previous !== undefined && typeof value === 'number' && (
-                                        <div className="mt-3 flex items-center gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                                        <div className="mt-3 flex items-center gap-2 border-t border-slate-100 pt-3 text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400">
                                             <span className="rounded-md bg-slate-100 px-1.5 py-1 font-medium tabular-nums text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                                                 {value - previous > 0 ? '+' : ''}
                                                 {number(value - previous)}
@@ -528,7 +525,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                 </div>
                             ))}
                         </section>
-                        <details className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-xs leading-relaxed text-slate-500 dark:border-slate-700/70 dark:bg-slate-800/30 dark:text-slate-400">
+                        <details className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm leading-relaxed text-slate-500 dark:border-slate-700/70 dark:bg-slate-800/30 dark:text-slate-400">
                             <summary className="cursor-pointer font-medium text-slate-600 dark:text-slate-300">
                                 <Info size={14} className="mr-2 inline-block" />
                                 Requested quantities measure demand. Supplies Issued measures confirmed releases.{' '}
@@ -560,7 +557,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                 />
                             }
                         >
-                            <label className="mb-5 flex items-center gap-2 text-sm text-slate-500">
+                            <label className="mb-5 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-300">
                                 <input
                                     type="checkbox"
                                     checked={includeZero}
@@ -620,7 +617,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                             >
                                 <summary className="cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-200">
                                     Explore item records{' '}
-                                    <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500 dark:bg-slate-800">
+                                    <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-sm text-slate-500 dark:bg-slate-800 dark:text-slate-300">
                                         {data.items.length}
                                     </span>
                                 </summary>
@@ -783,7 +780,7 @@ export default function AnalyticsIndex({ auth, analytics, supplyAnalytics: data 
                                         align: 'center',
                                         render: (value) => (
                                             <span
-                                                className={`rounded-full px-2 py-1 text-xs font-medium ${value === 'Highest' ? 'bg-red-100 text-red-900' : value === 'Low' ? 'bg-amber-100 text-amber-900' : 'bg-slate-100 text-slate-600'}`}
+                                                className={`rounded-full px-2 py-1 text-sm font-medium ${value === 'Highest' ? "bg-red-100 text-red-900" : value === 'Low' ? "bg-amber-100 text-amber-900" : "bg-slate-100 text-slate-600"}`}
                                             >
                                                 {value}
                                             </span>

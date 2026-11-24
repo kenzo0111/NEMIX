@@ -22,7 +22,7 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
     }), []);
     const { sortedRows, sort, requestSort } = useSortableData<CriticalStockItem, CriticalSortKey>(items, accessors, { key: 'stock', direction: 'asc' });
     return (
-        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs flex flex-col justify-between h-full min-w-0 transition-colors ${className}`}>
+        <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm flex flex-col justify-between h-full min-w-0 transition-colors ${className}`}>
             <div>
                 {/* Header */}
                 <div className="flex items-center justify-between gap-2 pb-2.5 mb-2 border-b border-slate-100 dark:border-slate-800">
@@ -30,7 +30,7 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
                         <div className="p-1 rounded-md bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 shrink-0">
                             <AlertCircle className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="text-lg font-bold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="text-lg font-semibold normal-case tracking-normal text-slate-900 dark:text-slate-100 truncate">
                             Stock Requiring Attention
                         </h3>
                     </div>
@@ -38,14 +38,14 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
 
                 {/* Compact List / Table */}
                 {items.length === 0 ? (
-                    <div className="py-5 text-center text-slate-400 dark:text-slate-500">
+                    <div className="py-5 text-center text-slate-500 dark:text-slate-400">
                         <p className="leading-relaxed text-sm">
                             All tracked inventory items are currently above their critical thresholds.
                         </p>
                     </div>
                 ) : (
                     <div className="w-full min-w-0 overflow-x-auto">
-                        <table className="w-full text-left text-sm min-w-[26rem]">
+                        <table className="ui-data-table w-full text-left text-sm min-w-[26rem]">
                             <thead>
                                 <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold normal-case text-sm tracking-normal">
                                     <SortableTableHeader column="item" activeColumn={sort.key} direction={sort.direction} onSort={requestSort} className="pb-2 w-auto align-middle">Item</SortableTableHeader>
@@ -67,20 +67,17 @@ export default function CriticalStockOverview({ items = [], className = '' }: Cr
                                                 </div>
                                             </td>
                                             <td className="py-3 px-2 text-center tabular-nums whitespace-nowrap align-middle">
-                                                <span className={`font-bold ${isCritical ? 'text-red-700 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'}`}>
+                                                <span className={`font-semibold ${isCritical ? "text-red-700 dark:text-red-400" : "text-slate-900 dark:text-slate-100"}`}>
                                                     {item.current}
                                                 </span>
-                                                <span className="text-slate-400 dark:text-slate-500 mx-1">/</span>
+                                                <span className="text-slate-500 dark:text-slate-400 mx-1">/</span>
                                                 <span className="text-slate-600 dark:text-slate-300">{item.min}</span>
-                                                <span className="text-sm text-slate-400 dark:text-slate-500 ml-1">{item.unit}</span>
+                                                <span className="text-sm text-slate-500 dark:text-slate-400 ml-1">{item.unit}</span>
                                             </td>
                                             <td className="py-3 pl-2 text-right whitespace-nowrap align-middle">
                                                 <span
-                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-bold normal-case tracking-normal ${
-                                                        isCritical
-                                                            ? 'bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 ring-1 ring-red-600/20 dark:ring-red-500/30'
-                                                            : 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 ring-1 ring-amber-600/20 dark:ring-amber-500/30'
-                                                    }`}
+                                                    className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold normal-case tracking-normal ${isCritical
+    ? "bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 ring-1 ring-red-600/20 dark:ring-red-500/30" : "bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 ring-1 ring-amber-600/20 dark:ring-amber-500/30"}`}
                                                 >
                                                     {item.status || (isCritical ? 'Critical' : 'Low')}
                                                 </span>

@@ -1,37 +1,4 @@
-import React from 'react';
+import StatusBadge, { type StatusTone } from '@/Components/ui/status-badge';
 import { InventoryStatus as StatusType } from '../types';
-
-interface InventoryStatusProps {
-    status: StatusType;
-}
-
-export default function InventoryStatus({ status }: InventoryStatusProps) {
-    const config = {
-        Available: {
-            dot: 'bg-emerald-500',
-            text: 'text-gray-700 dark:text-emerald-300',
-        },
-        'Low Stock': {
-            dot: 'bg-amber-500',
-            text: 'text-amber-800 dark:text-amber-300',
-        },
-        'Critical Stock': {
-            dot: 'bg-orange-600',
-            text: 'text-orange-800 dark:text-orange-300',
-        },
-        'Out of Stock': {
-            dot: 'bg-red-500',
-            text: 'text-red-800 dark:text-red-400',
-        },
-    }[status] || {
-        dot: 'bg-gray-400',
-        text: 'text-gray-600 dark:text-slate-400',
-    };
-
-    return (
-        <div className="inline-flex items-center gap-1.5 text-sm font-medium">
-            <span className={`w-2 h-2 rounded-full shrink-0 ${config.dot}`} aria-hidden="true" />
-            <span className={config.text}>{status}</span>
-        </div>
-    );
-}
+const tones: Record<StatusType, StatusTone> = { Available: 'success', 'Low Stock': 'warning', 'Critical Stock': 'danger', 'Out of Stock': 'danger' };
+export default function InventoryStatus({ status }: { status: StatusType }) { return <StatusBadge tone={tones[status] || 'neutral'}>{status}</StatusBadge>; }

@@ -1,3 +1,4 @@
+import { Button } from '@/Components/ui/button';
 import React from 'react';
 import { Shield, ShieldCheck, CheckCircle2, Clock } from 'lucide-react';
 import useAuthorization from '@/Hooks/useAuthorization';
@@ -56,7 +57,7 @@ export default function StaffTableRow({
             <td className="px-6 py-3.5 align-middle min-w-[12.5rem]">
                 <div className="flex items-center gap-3">
                     <div
-                        className={`h-9 w-9 rounded-full font-bold flex items-center justify-center text-sm shrink-0 border ${avatarColor}`}
+                        className={`h-9 w-9 rounded-full font-semibold flex items-center justify-center text-sm shrink-0 border ${avatarColor}`}
                     >
                         {staff.name.charAt(0).toUpperCase()}
                     </div>
@@ -66,7 +67,7 @@ export default function StaffTableRow({
                                 {staff.name}
                             </span>
                             {isSelf && (
-                                <span className="inline-flex items-center px-1.5 py-0.2 rounded text-sm font-bold normal-case tracking-normal bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-200/70 dark:border-red-900/40">
+                                <span className="inline-flex items-center px-1.5 py-0.2 rounded text-sm font-semibold normal-case tracking-normal bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-300 border border-red-200/70 dark:border-red-900/40">
                                     You
                                 </span>
                             )}
@@ -100,8 +101,8 @@ export default function StaffTableRow({
             {/* Delivery Unit / Office Head */}
             <td className="px-6 py-3.5 align-middle text-sm text-gray-600 dark:text-slate-300 min-w-[12.5rem] break-words">
                 <span className="font-medium text-gray-900 dark:text-slate-100">{staff.department || '—'}</span>
-                {staff.designation && <span className="block text-xs font-medium text-slate-700 dark:text-slate-300">{staff.designation}</span>}
-                {staff.office_head && <span className="block text-xs text-gray-500 dark:text-slate-400">Head: {staff.office_head.name}<br />{staff.office_head.designation}</span>}
+                {staff.designation && <span className="block text-sm font-medium text-slate-700 dark:text-slate-300">{staff.designation}</span>}
+                {staff.office_head && <span className="block text-sm text-gray-500 dark:text-slate-400">Head: {staff.office_head.name}<br />{staff.office_head.designation}</span>}
             </td>
 
             {/* Verification Status */}
@@ -139,44 +140,44 @@ export default function StaffTableRow({
                 <div className="inline-flex items-center justify-end gap-2 flex-wrap">
                     {/* Resend Invite */}
                     {(!isActive || !staff.email_verified) && canResendInviteTarget && (
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => onResendInvitation(staff)}
                             disabled={isResending}
-                            className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-white font-semibold text-sm transition-colors cursor-pointer min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center whitespace-nowrap gap-1.5"
+                            className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
                             title="Resend registration invitation email"
                         >
                             {isResending ? 'Sending...' : 'Resend Invite'}
-                        </button>
+                        </Button>
                     )}
 
                     {/* Edit Staff */}
                     {canEditTarget && (
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => onEdit(staff)}
-                            className="text-gray-700 dark:text-slate-300 hover:text-red-950 dark:hover:text-white font-semibold text-sm transition-colors cursor-pointer min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700 inline-flex items-center justify-center whitespace-nowrap gap-1.5"
+                            className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
                             title="Edit staff details and role"
                         >
                             Edit
-                        </button>
+                        </Button>
                     )}
 
                     {/* Toggle Status (Enable / Disable) */}
                     {canToggleTarget && (
-                        <button
+                        <Button variant="secondary"
                             type="button"
                             onClick={() => onToggleStatus(staff)}
                             title={isActive ? 'Disable staff account' : 'Enable staff account'}
-                            className="border font-semibold text-sm min-h-[2.25rem] h-[2.25rem] px-3 py-1.5 rounded transition-colors shadow-2xs border-red-900/30 dark:border-red-800/50 text-red-950 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-900/50 dark:hover:border-red-700 cursor-pointer inline-flex items-center justify-center whitespace-nowrap gap-1.5"
+                            className="min-h-[2.25rem] h-[2.25rem] inline-flex items-center justify-center gap-1.5"
                         >
                             {isActive ? 'Disable' : 'Enable'}
-                        </button>
+                        </Button>
                     )}
 
                     {/* Minimal placeholder when no actions permitted for this account */}
                     {!hasAnyAction && (
-                        <span className="text-sm text-gray-400 dark:text-slate-600 select-none px-2">—</span>
+                        <span className="text-sm text-slate-500 dark:text-slate-400 select-none px-2">—</span>
                     )}
                 </div>
             </td>

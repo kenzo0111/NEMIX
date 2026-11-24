@@ -217,7 +217,7 @@ export const MRFormPaper: React.FC<MRFormProps> = ({
       `}</style>
 
       <SharedFormHeaderStyles />
-      <div className="mr-container">
+      <div data-paper-preview className="mr-container">
         <div className="official-form-header">
           {/* Header Appendix */}
           <div className="official-form-appendix">{data.appendixNumber || 'Appendix 59-A'}</div>
